@@ -1,0 +1,140 @@
+#ifndef ALPACA_DECODER_CONSTANTS_H_
+#define ALPACA_DECODER_CONSTANTS_H_
+
+// Author: james.synge@gmail.com
+
+// Note that we include the streaming operators in support of testing; these
+// should not be used in the embedded code (except in DLOG or DCHECK type
+// macro invocations).
+
+#include <cstdint>
+#include <ostream>
+
+namespace alpaca {
+
+// Some of these are based on HTTP Response Status Codes, the others are below
+// 100 (HTTP's continue status).
+enum class EDecodeStatus : uint16_t {
+  kContinueDecoding,
+  kNeedMoreInput,
+
+  kHttpOk = 200,
+
+  // Invalid syntax in the request.
+  kHttpBadRequest = 400,
+
+  // Can't find the requested resource (e.g. unknown device type or device
+  // number).
+  kHttpNotFound = 404,
+
+  // Unknown/unsupported HTTP method.
+  kHttpMethodNotAllowed = 405,
+  // If Accept header from client doesn't include application/json.
+  kHttpNotAcceptable = 406,
+  kHttpLengthRequired = 411,
+  kHttpPayloadTooLarge = 413,
+  kHttpUnsupportedMediaType = 415,
+
+  // May use for extra-long names and values.
+  kHttpRequestHeaderFieldsTooLarge = 431,
+
+  // Unspecified problem with processing the request.
+  kInternalError = 500,
+  kHttpMethodNotImplemented = 501,
+  kHttpVersionNotSupported = 505,
+};
+std::ostream& operator<<(std::ostream& out, EDecodeStatus value);
+
+enum class EHttpMethod : uint8_t {
+  kUnknown = 0,
+  // The supported HTTP methods. Note that the the HTTP/1.1 standard requires
+  // that the methods GET and HEAD are supported.
+  GET = 1,
+  PUT = 2,
+  HEAD = 3,
+};
+std::ostream& operator<<(std::ostream& out, EHttpMethod value);
+
+// // DO WE NEED TO KNOW THIS?
+// enum class EHttpVersion : uint8_t {
+//   kUnknown,
+//   kHttp11,  // HTTP/1.1
+// };
+// std::ostream& operator<<(std::ostream& out, EHttpVersion value);
+
+enum class EDeviceType {
+  kUnknown,
+  kCamera,
+  kCoverCalibrator,
+  kDome,
+  kFilterWheel,
+  kFocuser,
+  kObservingConditions,
+  kRotator,
+  kSafetyMonitor,
+  kSwitch,
+  kTelescope,
+};
+std::ostream& operator<<(std::ostream& out, EDeviceType value);
+
+// Note that for many PUT methods, the name of the method, which appears in the
+// request path, appears also in the parameters (e.g. "AveragePeriod" or
+// "Connected"). Note that in the path the name must be lower case, while it may
+// be mixed case in the list of parameters. IF we can rely on the compiler and
+// linker to share literal strings, then it shouldn't be a problem to define an
+// enum in both EMethod and EParameter, and a corresponding Token for each in
+// requests.cc.
+enum class EMethod : uint8_t {
+  kUnknown,
+
+  // Supported common methods:
+  kConnected,
+  kDescription,
+  kDriverInfo,
+  kDriverVersion,
+  kInterfaceVersion,
+  kNames,
+  kSupportedActions,
+
+  // Supported ObservingConditions methods:
+  kAveragePeriod,
+  kCloudCover,
+  kDewPoint,
+  kHumidity,
+  kPressure,
+  kRainRate,
+  kRefresh,
+  kTemperature,
+  kSensorDescription,
+
+  // Supported SafetyMonitor methods:
+  kIsSafe,
+};
+std::ostream& operator<<(std::ostream& out, EMethod value);
+
+// These are parameter names used in *requests*, not responses. Names such as
+// ServerTransactionId and ErrorNumber should not be in this list.
+enum class EParameter : uint8_t {
+  kUnknown,
+
+  kClientId,
+  kClientTransactionId,
+  kConnected,
+};
+std::ostream& operator<<(std::ostream& out, EParameter value);
+
+enum class EHttpHeader : uint8_t {
+  kUnknown,
+
+  // TODO(jamessynge): Consider adding header names for transfer-encoding, etc.
+  // so that we can reject PUT requests which contain a body that is encoded
+  // in a form we can't decode.
+  kHttpAccept,
+  kHttpContentLength,
+  kHttpContentType,
+};
+std::ostream& operator<<(std::ostream& out, EHttpHeader value);
+
+}  // namespace alpaca
+
+#endif  // ALPACA_DECODER_CONSTANTS_H_

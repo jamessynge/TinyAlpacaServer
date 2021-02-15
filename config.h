@@ -1,0 +1,10 @@
+#ifndef ALPACA_DECODER_CONFIG_H_
+#define ALPACA_DECODER_CONFIG_H_
+
+// Controls the set of features available in the decoder.
+
+#define ALPACA_DECODER_HAVE_STD_STRING_VIEW 1
+#define ALPACA_DECODER_HAVE_STD_STRING \
+  (1 && ALPACA_DECODER_HAVE_STD_STRING_VIEW)
+
+#endif  // ALPACA_DECODER_CONFIG_H_
