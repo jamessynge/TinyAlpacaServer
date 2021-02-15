@@ -1,25 +1,26 @@
 #ifndef ALPACA_DECODER_TOKENS_H_
 #define ALPACA_DECODER_TOKENS_H_
 
+#include "alpaca-decoder/config.h"
 #include "alpaca-decoder/constants.h"
 #include "alpaca-decoder/string_view.h"
 #include "alpaca-decoder/token.h"
 
 namespace alpaca {
 
-constexpr const Token<EHttpMethod> kRecognizedHttpMethods[] = {
+ALPACA_CONSTEXPR_VAR Token<EHttpMethod> kRecognizedHttpMethods[] = {
     MakeToken("GET", EHttpMethod::GET),
     MakeToken("PUT", EHttpMethod::PUT),
     MakeToken("HEAD", EHttpMethod::HEAD),
 };
 
-constexpr const Token<EDeviceType> kRecognizedDeviceTypes[] = {
+ALPACA_CONSTEXPR_VAR Token<EDeviceType> kRecognizedDeviceTypes[] = {
     // Devices types we're currently supporting.
     MakeToken("observingconditions", EDeviceType::kObservingConditions),
     MakeToken("safetymonitor", EDeviceType::kSafetyMonitor),
 };
 
-constexpr const Token<EMethod> kRecognizedAscomMethods[] = {
+ALPACA_CONSTEXPR_VAR Token<EMethod> kRecognizedAscomMethods[] = {
     // TBD which of these will actually be supported.
 
     // ASCOM common methods:
@@ -46,13 +47,13 @@ constexpr const Token<EMethod> kRecognizedAscomMethods[] = {
     MakeToken("issafe", EMethod::kIsSafe),
 };
 
-constexpr const Token<EParameter> kRecognizedParameters[] = {
+ALPACA_CONSTEXPR_VAR Token<EParameter> kRecognizedParameters[] = {
     MakeToken("clientid", EParameter::kClientId),
     MakeToken("clienttransactionid", EParameter::kClientTransactionId),
     MakeToken("connected", EParameter::kConnected),
 };
 
-constexpr const Token<EHttpHeader> kRecognizedHttpHeaders[] = {
+ALPACA_CONSTEXPR_VAR Token<EHttpHeader> kRecognizedHttpHeaders[] = {
     MakeToken("accept", EHttpHeader::kHttpAccept),
     MakeToken("content-length", EHttpHeader::kHttpContentLength),
     MakeToken("content-type", EHttpHeader::kHttpContentType),
@@ -61,8 +62,8 @@ constexpr const Token<EHttpHeader> kRecognizedHttpHeaders[] = {
 namespace internal {
 
 template <size_t N, typename E>
-constexpr StringView::size_type MaxTokenSizeHelper(const Token<E> (&tokens)[N],
-                                                   const size_t ndx) {
+ALPACA_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
+    const Token<E> (&tokens)[N], const size_t ndx) {
   if (ndx >= N) {
     return 0;
   } else {
@@ -72,7 +73,8 @@ constexpr StringView::size_type MaxTokenSizeHelper(const Token<E> (&tokens)[N],
 }
 
 template <size_t N, typename E>
-constexpr StringView::size_type MaxTokenSize(const Token<E> (&tokens)[N]) {
+ALPACA_CONSTEXPR_FUNC StringView::size_type MaxTokenSize(
+    const Token<E> (&tokens)[N]) {
   return MaxTokenSizeHelper<N, E>(tokens, 0);
 }
 }  // namespace internal
@@ -82,7 +84,7 @@ constexpr StringView::size_type MaxTokenSize(const Token<E> (&tokens)[N]) {
 // then if the client sends a request with a larger token, the decoder will
 // repeatedly return kNeedMoreInput, but there won't be enough room in the
 // buffer for more input.
-constexpr StringView::size_type kMinRequiredBufferSize =
+ALPACA_CONSTEXPR_VAR StringView::size_type kMinRequiredBufferSize =
     std::max({internal::MaxTokenSize(kRecognizedDeviceTypes),
               internal::MaxTokenSize(kRecognizedAscomMethods),
               internal::MaxTokenSize(kRecognizedParameters),

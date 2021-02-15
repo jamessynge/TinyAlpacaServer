@@ -33,22 +33,22 @@ bool StringView::to_uint32(uint32_t& out) const {
     value += digit;
   }
 
-#if ALPACA_DECODER_HAVE_STD_STRING
   DVLOG(2) << "StringView::to_uint32 produced " << value;
-#endif
   out = value;
   return true;
 }
 
-#if ALPACA_DECODER_HAVE_STD_STRING
+#if ALPACA_DECODER_HAVE_STD_STRING_VIEW
+std::string_view StringView::ToStdStringView() const {
+  return std::string_view(data(), size());
+}
+
 std::string StringView::ToEscapedString() const {
   return absl::StrCat("\"", absl::CHexEscape(ToStdStringView()), "\"");
 }
-#endif
 
-#if ALPACA_DECODER_HAVE_STD_STRING_VIEW
-std::ostream& operator<<(std::ostream& out, StringView view) {
-  return out << std::string_view(view.data(), view.size());
+bool operator==(const StringView& a, std::string_view b) {
+  return a == StringView(b.data(), b.size());
 }
 #endif
 
@@ -56,9 +56,16 @@ std::ostream& operator<<(std::ostream& out, StringView view) {
 bool operator==(const StringView& a, const std::string& b) {
   return a.size() == b.size() && a == StringView(b.data(), b.size());
 }
+
 bool operator==(const std::string& a, const StringView& b) {
   return a.size() == b.size() && b == StringView(a.data(), a.size());
 }
-#endif
+#endif  // ALPACA_DECODER_HAVE_STD_STRING
+
+#if ALPACA_DECODER_HAVE_STD_OSTREAM
+std::ostream& operator<<(std::ostream& out, StringView view) {
+  return out.write(view.data(), view.size());
+}
+#endif  // ALPACA_DECODER_HAVE_STD_OSTREAM
 
 }  // namespace alpaca

@@ -42,8 +42,9 @@ namespace {
 using DecodeFunction = RequestDecoderState::DecodeFunction;
 using CharMatchFunction = bool (*)(char c);
 
-constexpr StringView kEndOfHeaderLine("\r\n");
-constexpr StringView kHttp_1_1("HTTP/1.1");
+ALPACA_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
+ALPACA_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
+ALPACA_CONSTEXPR_VAR StringView kAscomPathPrefix(" /api/v1/");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
@@ -57,7 +58,7 @@ constexpr StringView kHttp_1_1("HTTP/1.1");
 
 bool IsVisibleCharOrSpace(const char c) { return ' ' <= c && c <= '~'; }
 
-constexpr StringView kUnreservedNonAlnum("-._~");
+ALPACA_CONSTEXPR_VAR StringView kUnreservedNonAlnum("-._~");
 
 bool IsUnreserved(const char c) {
   return absl::ascii_isalnum(c) || kUnreservedNonAlnum.contains(c);
@@ -68,14 +69,14 @@ bool IsUnreserved(const char c) {
 // compare matching strings against tokens to find those we're interested in,
 // having this set contain extra characters for some context doesn't really
 // matter.
-constexpr StringView kExtraNameChars("-_");
+ALPACA_CONSTEXPR_VAR StringView kExtraNameChars("-_");
 bool IsNameChar(const char c) {
   return absl::ascii_isalnum(c) || kExtraNameChars.contains(c);
 }
 
 // Match characters allowed in a URL encoded parameter value, whether in the
 // path or in the body of a PUT request.
-constexpr StringView kExtraParamValueChars("-_=%");
+ALPACA_CONSTEXPR_VAR StringView kExtraParamValueChars("-_=%");
 bool IsParamValueChar(const char c) {
   return absl::ascii_isalnum(c) || kExtraParamValueChars.contains(c);
 }
@@ -111,7 +112,7 @@ template <typename E, int N>
 E LowerMatchTokens(const StringView& view, E unknown_id,
                    const Token<E> (&tokens)[N]) {
   for (int i = 0; i < N; ++i) {
-    if (tokens[i].str.matches_lower(view)) {
+    if (tokens[i].str.equals_other_lowered(view)) {
       DVLOG(3) << "LowerMatchTokens matched " << tokens[i].str.ToEscapedString()
                << " to " << view.ToEscapedString() << ", returning "
                << tokens[i].id;
@@ -133,7 +134,7 @@ bool ExtractMatchingPrefix(RequestDecoderState& state, StringView& view,
     // }
     // beyond = view.size();
   }
-  extracted_prefix = view.substr(0, beyond);
+  extracted_prefix = view.prefix(beyond);
   view.remove_prefix(beyond);
   return true;
 }
@@ -297,11 +298,10 @@ EDecodeStatus DecodeHeaderLines(RequestDecoderState& state, StringView& view) {
 // (We're not supporting HTTP/1.0 or earlier.)
 EDecodeStatus MatchHttpVersion(RequestDecoderState& state, StringView& view) {
   DVLOG(2) << "MatchHttpVersion " << view.ToEscapedString();
-  static constexpr StringView http_version("HTTP/1.1\r\n");
-  if (view.match_and_consume(http_version)) {
+  if (view.match_and_consume(kHttp_1_1_EOL)) {
     state.is_decoding_start_line = false;
     return state.SetDecodeFunction(DecodeHeaderLines);
-  } else if (http_version.starts_with(view)) {
+  } else if (kHttp_1_1_EOL.starts_with(view)) {
     return EDecodeStatus::kNeedMoreInput;
   } else {
     return EDecodeStatus::kHttpVersionNotSupported;
@@ -425,7 +425,7 @@ EDecodeStatus DecodeAscomMethod(RequestDecoderState& state, StringView& view) {
     // The entire path (plus the next char) is not in the buffer (yet).
     return EDecodeStatus::kNeedMoreInput;
   }
-  auto path_segment = view.substr(0, beyond);
+  auto path_segment = view.prefix(beyond);
   const EMethod method = MatchTokensExactly(path_segment, EMethod::kUnknown,
                                             kRecognizedAscomMethods);
   if (method == EMethod::kUnknown) {
@@ -457,7 +457,7 @@ EDecodeStatus DecodeDeviceNumber(RequestDecoderState& state, StringView& view) {
   if (view.at(beyond) != '/') {
     return EDecodeStatus::kHttpBadRequest;
   }
-  auto path_segment = view.substr(0, beyond);
+  auto path_segment = view.prefix(beyond);
 
   if (!path_segment.to_uint32(state.request.device_number)) {
     return EDecodeStatus::kHttpBadRequest;
@@ -482,7 +482,7 @@ EDecodeStatus DecodeDeviceType(RequestDecoderState& state, StringView& view) {
   if (view.at(beyond) != '/') {
     return EDecodeStatus::kHttpBadRequest;
   }
-  auto path_segment = view.substr(0, beyond);
+  auto path_segment = view.prefix(beyond);
   const EDeviceType device_type = MatchTokensExactly(
       path_segment, EDeviceType::kUnknown, kRecognizedDeviceTypes);
   if (device_type == EDeviceType::kUnknown) {
@@ -493,16 +493,15 @@ EDecodeStatus DecodeDeviceType(RequestDecoderState& state, StringView& view) {
   return state.SetDecodeFunction(DecodeDeviceNumber);
 }
 
-// An ASCOM Alpaca request path should always start with "/api/v1/".
+// An ASCOM Alpaca request path should always start with "/api/v1/".  We add a
+// space before the path (in kAscomPathPrefix) because a space should follow the
+// HTTP method name.
 EDecodeStatus MatchAscomPathPrefix(RequestDecoderState& state,
                                    StringView& view) {
   DVLOG(2) << "MatchAscomPathPrefix " << view.ToEscapedString();
-  // We add a space before the path because a space should follow the HTTP
-  // method name.
-  static constexpr StringView path_prefix(" /api/v1/");
-  if (view.match_and_consume(path_prefix)) {
+  if (view.match_and_consume(kAscomPathPrefix)) {
     return state.SetDecodeFunction(DecodeDeviceType);
-  } else if (view.size() < path_prefix.size()) {
+  } else if (kAscomPathPrefix.starts_with(view)) {
     return EDecodeStatus::kNeedMoreInput;
   }
   return EDecodeStatus::kHttpBadRequest;

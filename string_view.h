@@ -47,26 +47,27 @@ class StringView {
   // NOTE: There is no (const char* ptr) constructor because it blocks use of
   // this constructor for literals.
   template <size_type N>
-  constexpr StringView(const char (&buf)[N])  // NOLINT
+  ALPACA_CONSTEXPR_FUNC StringView(const char (&buf)[N])  // NOLINT
       : ptr_(buf), size_(N - 1) {
-    // Can't leave this DLOG uncommented, else the ctor won't be a constexpr.
-    // DLOG(INFO) << "StringView literal string ctor for \"" << buf << "\"";
+#ifndef NDEBUG
+    DVLOG(7) << "StringView literal string ctor for \"" << buf << "\"";
+#endif
   }
 
   // Construct with a specified length.
-  explicit StringView(const char* ptr, size_type length)
+  ALPACA_CONSTEXPR_FUNC StringView(const char* ptr, size_type length)
       : ptr_(ptr), size_(length) {}
 
 #if ALPACA_DECODER_HAVE_STD_STRING
   // Construct from a std::string. This is used for tests.
   explicit StringView(const std::string& str)
       : ptr_(str.data()), size_(str.size()) {
-    CHECK_LE(str.size(), kMaxSize);
+    DCHECK_LE(str.size(), kMaxSize);
   }
 #endif
 
   // Copy constructor.
-  constexpr StringView(const StringView& other) = default;
+  ALPACA_CONSTEXPR_FUNC StringView(const StringView& other) = default;
 
   //////////////////////////////////////////////////////////////////////////////
   // Mutating methods:
@@ -81,8 +82,9 @@ class StringView {
     if (!starts_with(prefix)) {
       return false;
     }
-    size_ -= prefix.size_;
+    // Using this order just in case this object is the prefix object.
     ptr_ += prefix.size_;
+    size_ -= prefix.size_;
     return true;
   }
 
@@ -102,7 +104,11 @@ class StringView {
   //////////////////////////////////////////////////////////////////////////////
   // Non-mutating methods:
 
-  constexpr bool operator==(const StringView& other) const {
+  ALPACA_CONSTEXPR_FUNC bool operator==(const StringView& other) const {
+#ifndef NDEBUG
+    VLOG(7) << "StringView::operator==(" << ToEscapedString() << ", "
+            << other.ToEscapedString() << ")";
+#endif  // !NDEBUG
     if (other.size_ != size_) {
       return false;
     }
@@ -123,9 +129,7 @@ class StringView {
   const_iterator begin() const { return ptr_; }
   const_iterator end() const { return ptr_ + size_; }
 
-  // Similar to find, but just returns true if c is in this view.
-  // TODO(jamessynge): Do we need this at all? If so, should we delegate the
-  // looping to find(char)?
+  // Returns true if this view contains c.
   bool contains(char c) const {
     // Consider whether to use memchr.
     // return memchr(ptr_, c, size_) != nullptr;
@@ -137,16 +141,18 @@ class StringView {
     return false;
   }
 
+  // Returns true if this view contains the other as a substring.
+  // This is only used in one place in the decoder, and probably only for
+  // PUT requests, so making this as simple as possible.
   bool contains(const StringView& other) const {
-    return find(other) != kMaxSize;
-  }
-
-  // Returns true if this ends_with with s.
-  constexpr bool ends_with(const StringView& s) const {
-    if (s.size_ > size_) {
-      return false;
+    StringView copy(*this);
+    while (copy.size() >= other.size()) {
+      if (copy.starts_with(other)) {
+        return true;
+      }
+      copy.remove_prefix(1);
     }
-    return suffix(s.size_) == s;
+    return false;
   }
 
   // Returns true if this ends_with with c.
@@ -154,37 +160,10 @@ class StringView {
     return size_ > 0 && ptr_[size_ - 1] == c;
   }
 
-  // Find the first occurrence of c in this view, or kMaxSize if not found.
-  size_type find(char c) const {
-    for (int ndx = 0; ndx < size_; ++ndx) {
-      if (ptr_[ndx] == c) {
-        return ndx;
-      }
-    }
-    return kMaxSize;
-  }
-
-  // Find the first occurrence of other in this view, or kMaxSize if not
-  // found.
-  size_type find(const StringView& other) const {
-    if (other.size() <= size()) {
-      const size_type limit = size() - other.size();
-      const char c = other.at(0);
-      size_type ndx = find(c);
-      while (ndx <= limit) {
-        if (suffix(ndx).starts_with(other)) {
-          return ndx;
-        }
-        ndx = suffix(ndx + 1).find(c);
-      }
-    }
-    return kMaxSize;
-  }
-
   // Compares this view with other (converted to lower-case ASCII), returning
   // true if they are equal. This means that this view must contain no
   // upper-case letters, else it will never match other.
-  bool matches_lower(const StringView& other) const {
+  bool equals_other_lowered(const StringView& other) const {
     if (size_ != other.size()) {
       return false;
     }
@@ -198,29 +177,6 @@ class StringView {
       if (our_lc_char != other_lc_char) {
         return false;
       }
-    }
-    return true;
-  }
-
-  // Compares this view (which MUST be lower-case ASCII, i.e. contains
-  // characters in the set 'a' to 'z', and nothing else) with other (converted
-  // to lower-case ASCII), returning true if they are equal.
-  bool matches_unsafe_lower(const StringView& other) const {
-    if (size_ != other.size()) {
-      return false;
-    }
-    for (StringView::size_type pos = 0; pos < size_; ++pos) {
-      const char our_lc_char = ptr_[pos];
-      DCHECK(absl::ascii_islower(our_lc_char)) << substr(pos, 1);
-      // Here comes the unsafe part. For example, if our_lc_char is '^', it
-      // won't match a '^' in view, etc.
-      const char other_lc_char = other.at(pos) | static_cast<char>(0x20);
-      if (our_lc_char != other_lc_char) {
-        return false;
-      }
-      DCHECK(absl::ascii_isupper(other.at(pos)) ||
-             absl::ascii_islower(other.at(pos)))
-          << other.substr(pos, 1);
     }
     return true;
   }
@@ -257,42 +213,47 @@ class StringView {
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Non-mutating methods which create something new or perform a conversion.
+  // Non-mutating methods which perform a conversion or return a new object.
 
   // Returns a view of a portion of this view (at offset `pos` and length `n`)
   // as another StringView. Does NOT validate the parameters, so pos+n must not
-  // be greater than length().
-  constexpr StringView substr(size_type pos, size_type n) const {
+  // be greater than length(). This is currently only used for tests.
+  ALPACA_CONSTEXPR_FUNC StringView substr(size_type pos, size_type n) const {
+#ifndef NDEBUG
     DCHECK_LE(pos, size_);
     DCHECK_LE(pos + n, size_);
+#endif  // NDEBUG
     return StringView(ptr_ + pos, n);
   }
 
-  // Returns a view of a portion of this view (at offset `pos` and length `n`)
-  // as another StringView. Does NOT validate the parameters, so pos+n must not
-  // be greater than length().
+  // Returns a new StringView containing the first n characters of this view.
   constexpr StringView prefix(size_type n) const {
-    DCHECK_LE(n, size_);
-    return StringView(ptr_, n);
+    if (n >= size_) {
+      return *this;
+    } else {
+      return StringView(ptr_, n);
+    }
   }
 
-  // Returns a suffix "substring" of this view starting at offset `pos` and
-  // continuing for the rest of the string. Does NOT validate the parameters, so
-  // pos must not be greater than length().
-  constexpr StringView suffix(size_type pos) const {
-    DCHECK_LE(pos, size_);
-    return StringView(ptr_ + pos, size_ - pos);
+  // Returns a new StringView containing the last n characters of this view.
+  constexpr StringView suffix(size_type n) const {
+    if (n >= size_) {
+      return *this;
+    } else {
+      return StringView(ptr_ + (size_ - n), n);
+    }
   }
 
   bool to_uint32(uint32_t& out) const;
 
-
+  // The following methods are for testing and debugging on a "real" computer,
+  // not for the embedded device.
 
 #if ALPACA_DECODER_HAVE_STD_STRING_VIEW
-  std::string_view ToStdStringView() const {
-    return std::string_view(data(), size());
-  }
+  // Convert to std::string_view.
+  std::string_view ToStdStringView() const;
 #endif
+
 #if ALPACA_DECODER_HAVE_STD_STRING
   std::string ToString() const { return std::string(data(), size()); }
   std::string ToEscapedString() const;
@@ -303,14 +264,22 @@ class StringView {
   size_type size_;
 };
 
-// Need this operator for CHECK_EQ, et al.
-#if ALPACA_DECODER_HAVE_STD_STRING_VIEW
+// The streaming and equals operators are used for tests, CHECK_EQ, etc. They
+// aren't used by the NDEBUG (i.e. embedded/production) portion of the decoder.
+
+#if ALPACA_DECODER_HAVE_STD_OSTREAM
 std::ostream& operator<<(std::ostream& out, StringView view);
-#endif
+#endif  // ALPACA_DECODER_HAVE_STD_OSTREAM
+
+#if ALPACA_DECODER_HAVE_STD_STRING_VIEW
+bool operator==(const StringView& a, std::string_view b);
+#endif  // ALPACA_DECODER_HAVE_STD_STRING_VIEW
+
 #if ALPACA_DECODER_HAVE_STD_STRING
 bool operator==(const StringView& a, const std::string& b);
+
 bool operator==(const std::string& a, const StringView& b);
-#endif
+#endif  // ALPACA_DECODER_HAVE_STD_STRING
 
 }  // namespace alpaca
 
