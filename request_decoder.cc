@@ -104,7 +104,7 @@ E MatchTokensExactly(const StringView& view, E unknown_id,
     }
   }
   DVLOG(3) << "MatchTokensExactly unable to match " << view.ToEscapedString()
-           << ", returning '" << unknown_id;
+           << ", returning " << unknown_id;
   return unknown_id;
 }
 
@@ -120,7 +120,7 @@ E LowerMatchTokens(const StringView& view, E unknown_id,
     }
   }
   DVLOG(3) << "LowerMatchTokens unable to match " << view.ToEscapedString()
-           << ", returning '" << unknown_id;
+           << ", returning " << unknown_id;
   return unknown_id;
 }
 
@@ -186,16 +186,20 @@ EDecodeStatus DecodeHeaderValue(RequestDecoderState& state, StringView& view) {
     // "xxapplication/json+xyz"), but probably sufficient for our purpose.
     if (!value.contains(StringView("application/json"))) {
       status = state.listener.OnExtraHeader(EHttpHeader::kHttpAccept, value);
+      // We're taking the status from the listener, even if it is
+      // kContinueDecoding, because it isn't a problem for this server if we
+      // produce a JSON result that the client didn't desire to receive.
     }
-  } else if (state.current_header == EHttpHeader::kHttpContentLength &&
-             state.request.http_method == EHttpMethod::PUT) {
+  } else if (state.current_header == EHttpHeader::kHttpContentLength) {
     // Note, we "ignore" the content-length for GET; it doesn't matter if it
     // is bogus.
     uint32_t content_length = 0;
     constexpr auto kMaxContentLength =
         std::numeric_limits<decltype(state.remaining_content_length)>::max();
-    if (state.found_content_length || !value.to_uint32(content_length) ||
-        content_length > kMaxContentLength) {
+    const bool converted_ok = value.to_uint32(content_length);
+    const bool needed = state.request.http_method == EHttpMethod::PUT;
+    if (state.found_content_length || !converted_ok ||
+        (content_length > kMaxContentLength && needed)) {
       status =
           state.listener.OnExtraHeader(EHttpHeader::kHttpContentLength, value);
       if (status <= EDecodeStatus::kHttpOk) {
@@ -206,7 +210,8 @@ EDecodeStatus DecodeHeaderValue(RequestDecoderState& state, StringView& view) {
           status = EDecodeStatus::kHttpBadRequest;
         }
       }
-    } else {
+    } else if (needed) {
+      // We only keep the length if we're going to use it.
       state.remaining_content_length = content_length;
       state.found_content_length = true;
     }
@@ -269,7 +274,7 @@ EDecodeStatus DecodeHeaderLines(RequestDecoderState& state, StringView& view) {
     } else if (state.request.http_method != EHttpMethod::PUT) {
       // Shouldn't get here unless support for a new method is added to
       // DecodeHttpMethod, but not to here, or else if there is a bug.
-      return EDecodeStatus::kInternalError;
+      return EDecodeStatus::kHttpInternalServerError;  // COV_NF_LINE
     } else if (!state.found_content_length) {
       // We need to know the length in order to decode the body.
       return EDecodeStatus::kHttpLengthRequired;
@@ -316,7 +321,10 @@ EDecodeStatus DecodeParamSeparator(RequestDecoderState& state,
       // We've reached the end of the body of the request.
       return EDecodeStatus::kHttpOk;
     } else {
-      return EDecodeStatus::kNeedMoreInput;
+      // This isn't reachable because we can't locate the end of a parameter
+      // name in the query string without having the parameter separator in
+      // the buffer being decoded.
+      return EDecodeStatus::kNeedMoreInput;  // COV_NF_LINE
     }
   } else if (view.at(0) == '&') {
     view.remove_prefix(1);
@@ -613,7 +621,7 @@ EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
     // will be used for decoding multiple requests; therefore it doesn't make
     // sense to have special behavior in the caller to omit the first call to
     // Reset.
-    return EDecodeStatus::kInternalError;
+    return EDecodeStatus::kHttpInternalServerError;
   }
 
   EDecodeStatus status;
@@ -776,7 +784,7 @@ EDecodeStatus RequestDecoderState::SetDecodeFunctionAfterListenerCall(
   if (status == EDecodeStatus::kContinueDecoding) {
     return SetDecodeFunction(func);
   } else if (static_cast<int>(status) < 100) {
-    return EDecodeStatus::kInternalError;  // COV_NF_LINE
+    return EDecodeStatus::kHttpInternalServerError;  // COV_NF_LINE
   } else {
     return status;
   }

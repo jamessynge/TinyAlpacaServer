@@ -44,7 +44,6 @@ struct RequestDecoderState {
   EDecodeStatus DecodeMessageHeader(StringView& buffer, bool at_end_of_input);
   EDecodeStatus DecodeMessageBody(StringView& buffer, bool at_end_of_input);
 
-
  public:
   DecodeFunction decode_function;
 
@@ -52,6 +51,8 @@ struct RequestDecoderState {
     EParameter current_parameter;
     EHttpHeader current_header;
   };
+  // NOTE: We could change this to uint16_t if we need to support longer
+  // payloads.
   StringView::size_type remaining_content_length;
 
   // Using bit fields here for these boolean values, which represents a

@@ -30,8 +30,8 @@ std::ostream& operator<<(std::ostream& out, EDecodeStatus v) {
       return out << "kHttpUnsupportedMediaType";
     case EDecodeStatus::kHttpRequestHeaderFieldsTooLarge:
       return out << "kHttpRequestHeaderFieldsTooLarge";
-    case EDecodeStatus::kInternalError:
-      return out << "kInternalError";
+    case EDecodeStatus::kHttpInternalServerError:
+      return out << "kHttpInternalServerError";
     case EDecodeStatus::kHttpMethodNotImplemented:
       return out << "kHttpMethodNotImplemented";
     case EDecodeStatus::kHttpVersionNotSupported:
@@ -55,17 +55,6 @@ std::ostream& operator<<(std::ostream& out, EHttpMethod v) {
   auto invalid = static_cast<std::underlying_type<EHttpMethod>::type>(v);
   return out << invalid << " (invalid EHttpMethod)";
 }
-
-// std::ostream& operator<<(std::ostream& out, EHttpVersion v) {
-//   switch (v) {
-//     case EHttpVersion::kUnknown:
-//       return out << "kUnknown";
-//     case EHttpVersion::kHttp11:
-//       return out << "kHttp11";
-//   }
-//   auto invalid = static_cast<std::underlying_type<EHttpVersion>::type>(v);
-//   return out << invalid << " (invalid EHttpVersion)";
-// }
 
 std::ostream& operator<<(std::ostream& out, EDeviceType v) {
   switch (v) {
@@ -110,8 +99,8 @@ std::ostream& operator<<(std::ostream& out, EMethod v) {
       return out << "kDriverVersion";
     case EMethod::kInterfaceVersion:
       return out << "kInterfaceVersion";
-    case EMethod::kNames:
-      return out << "kNames";
+    case EMethod::kName:
+      return out << "kName";
     case EMethod::kSupportedActions:
       return out << "kSupportedActions";
     case EMethod::kAveragePeriod:
@@ -164,6 +153,8 @@ std::ostream& operator<<(std::ostream& out, EHttpHeader v) {
       return out << "kHttpContentLength";
     case EHttpHeader::kHttpContentType:
       return out << "kHttpContentType";
+    case EHttpHeader::kHttpContentEncoding:
+      return out << "kHttpContentEncoding";
   }
   auto invalid = static_cast<std::underlying_type<EHttpHeader>::type>(v);
   return out << invalid << " (invalid EHttpHeader)";

@@ -29,7 +29,7 @@ ALPACA_CONSTEXPR_VAR Token<EMethod> kRecognizedAscomMethods[] = {
     MakeToken("driverinfo", EMethod::kDriverInfo),
     MakeToken("driverversion", EMethod::kDriverVersion),
     MakeToken("interfaceversion", EMethod::kInterfaceVersion),
-    MakeToken("names", EMethod::kNames),
+    MakeToken("name", EMethod::kName),
     MakeToken("supportedactions", EMethod::kSupportedActions),
 
     // ObservingConditions methods:
@@ -57,6 +57,7 @@ ALPACA_CONSTEXPR_VAR Token<EHttpHeader> kRecognizedHttpHeaders[] = {
     MakeToken("accept", EHttpHeader::kHttpAccept),
     MakeToken("content-length", EHttpHeader::kHttpContentLength),
     MakeToken("content-type", EHttpHeader::kHttpContentType),
+    MakeToken("content-encoding", EHttpHeader::kHttpContentEncoding),
 };
 
 namespace internal {

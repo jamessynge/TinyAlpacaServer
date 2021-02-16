@@ -15,7 +15,12 @@ namespace alpaca {
 // Some of these are based on HTTP Response Status Codes, the others are below
 // 100 (HTTP's continue status).
 enum class EDecodeStatus : uint16_t {
-  kContinueDecoding,
+  // kContinueDecoding is first/zero because it will be the default value
+  // returned by gmock, thus saving us the trouble of adding
+  // .WillOnce(Return(...)) all over the place.
+  kContinueDecoding = 0,
+
+  // The current decode function needs some more input to finish its job.
   kNeedMoreInput,
 
   kHttpOk = 200,
@@ -39,7 +44,7 @@ enum class EDecodeStatus : uint16_t {
   kHttpRequestHeaderFieldsTooLarge = 431,
 
   // Unspecified problem with processing the request.
-  kInternalError = 500,
+  kHttpInternalServerError = 500,
   kHttpMethodNotImplemented = 501,
   kHttpVersionNotSupported = 505,
 };
@@ -93,7 +98,7 @@ enum class EMethod : uint8_t {
   kDriverInfo,
   kDriverVersion,
   kInterfaceVersion,
-  kNames,
+  kName,
   kSupportedActions,
 
   // Supported ObservingConditions methods:
@@ -132,6 +137,8 @@ enum class EHttpHeader : uint8_t {
   kHttpAccept,
   kHttpContentLength,
   kHttpContentType,
+  // Added to enable testing.
+  kHttpContentEncoding,
 };
 std::ostream& operator<<(std::ostream& out, EHttpHeader value);
 

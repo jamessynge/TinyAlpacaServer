@@ -122,6 +122,18 @@ class StringView {
     return true;
   }
 
+  bool operator==(const char* other) const {
+    if (other == nullptr) {
+      return empty();
+    }
+    for (size_type ndx = 0; ndx < size_ && *other != '\0'; ++ndx, ++other) {
+      if (at(ndx) != *other) {
+        return false;
+      }
+    }
+    return *other == '\0';
+  }
+
   constexpr bool operator!=(const StringView& other) const {
     return !(*this == other);
   }

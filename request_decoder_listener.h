@@ -8,11 +8,6 @@ namespace alpaca {
 
 class RequestDecoderListener {
  public:
-  enum ListenerResponse {
-    kContinueDecoding,
-    kInvalidValue,
-  };
-
   virtual ~RequestDecoderListener();
 
   // Called to handle recognized parameters for which there isn't built in
@@ -27,7 +22,7 @@ class RequestDecoderListener {
   // If this method returns kContinueDecoding, decoding continues. Any other
   // value is interpreted as an error, though the value should be an HTTP
   // Response Status Code, not an enum whose underlying value is below 400
-  // kNeedMoreInput or kHttpOk(those are converted to kInternalError).
+  // kNeedMoreInput or kHttpOk(those are converted to kHttpInternalServerError).
   virtual EDecodeStatus OnExtraParameter(EParameter param,
                                          const StringView& value);
 
@@ -39,8 +34,8 @@ class RequestDecoderListener {
   // another for the value. There is no guarantee that the name will still be
   // in the underlying buffer when the value method is called.
   // The return value is treated as described above.
-  virtual  EDecodeStatus OnUnknownParameterName(const StringView& name);
-  virtual  EDecodeStatus OnUnknownParameterValue(const StringView& value);
+  virtual EDecodeStatus OnUnknownParameterName(const StringView& name);
+  virtual EDecodeStatus OnUnknownParameterValue(const StringView& value);
 
   // As above, but for unrecognized headers.
   virtual EDecodeStatus OnUnknownHeaderName(const StringView& name);
