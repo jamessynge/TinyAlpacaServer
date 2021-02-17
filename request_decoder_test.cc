@@ -101,7 +101,8 @@ EDecodeStatus DecodeBuffer(
 
     const bool was_empty = buffer.empty();
     const bool now_at_end = at_end && initial_size == buffer.size();
-    auto status = decoder.DecodeBuffer(view, now_at_end);
+    const bool buffer_is_full = view.size() >= max_decode_buffer_size;
+    auto status = decoder.DecodeBuffer(view, buffer_is_full, now_at_end);
 
     // Make sure that the decoder only removed the prefix of the view.
     EXPECT_GE(initial_size, view.size());
@@ -252,7 +253,7 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, listener);
 
-  const std::string body = "a=1&connected=abc&ClienttransACTIONid=9";
+  const std::string body = "a=1&connected=abc&&ClienttransACTIONid=9";
   const std::string full_request = absl::StrCat(
       "PUT /api/v1/safetymonitor/9999/connected?ClientId=321&AbC=xYz "
       "HTTP/1.1\r\n",
@@ -304,23 +305,33 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
   }
 }
 
-TEST(RequestDecoderTest, ParamSeparatorAtEndOfBody) {
+TEST(RequestDecoderTest, ParamSeparatorsAtEndOfBody) {
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, listener);
 
+  std::string body = "ClientId=876&&&&&&&&&";
+
   std::string request =
-      "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
-      "Content-Length: 13\r\n"
-      "\r\n"
-      "ClientId=876&";
+      absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
+                   "Content-Length: ", body.size(), "\r\n", "\r\n", body);
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request), EDecodeStatus::kHttpOk);
   ASSERT_TRUE(alpaca_request.found_client_id);
   ASSERT_EQ(alpaca_request.client_id, 876);
   ASSERT_FALSE(alpaca_request.found_client_transaction_id);
+
+  // Extra spaces at the end, not acceptable.
+  body = "ClientId=654&&&&&&&&&   ";
+  request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
+                         "Content-Length: ", body.size(), "\r\n", "\r\n", body);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EDecodeStatus::kHttpBadRequest);
+  ASSERT_TRUE(alpaca_request.found_client_id);
+  ASSERT_EQ(alpaca_request.client_id, 654);
+  ASSERT_FALSE(alpaca_request.found_client_transaction_id);
 }
 
-TEST(RequestDecoderTest, DetectsOutOfRangeDeviceType) {
+TEST(RequestDecoderTest, DetectsOutOfRangeDeviceNumber) {
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, listener);
@@ -332,10 +343,13 @@ TEST(RequestDecoderTest, DetectsOutOfRangeDeviceType) {
 
   alpaca_request.client_id = kResetClientId;
   EXPECT_EQ(DecodeBuffer(decoder, full_request, true, kDecodeBufferSize),
-            EDecodeStatus::kHttpBadRequest);
-  EXPECT_EQ(full_request, "4294967300/issafe HTTP/1.1\r\n\r\n");
+            EDecodeStatus::kHttpNotFound);
   EXPECT_EQ(alpaca_request.client_id,
             kResetClientId);  // Hasn't been overwritten.
+  // It isn't important how much of the request has been processed, however we
+  // don't otherwise have a great way to confirm that the reason for the failure
+  // was the device number, vs. the ASCOM method name.
+  EXPECT_THAT(full_request, EndsWith("issafe HTTP/1.1\r\n\r\n"));
 }
 
 TEST(RequestDecoderTest, DetectsOutOfRangeClientId) {
@@ -493,23 +507,131 @@ TEST(RequestDecoderTest, DetectsPayloadTooLong) {
             EDecodeStatus::kHttpPayloadTooLarge);
 }
 
+TEST(RequestDecoderTest, DetectsParameterValueIsTooLong) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  for (int max_size = 20; max_size <= kDecodeBufferSize; ++max_size) {
+    std::string long_value = absl::StrCat(std::string(max_size, '0'), max_size);
+    long_value.erase(0, long_value.size() - max_size);
+    DCHECK_EQ(long_value.size(), max_size);
+    const std::string ok_value = long_value.substr(1);
+
+    std::string ok_request =
+        absl::StrCat("GET /api/v1/safetymonitor/1/issafe?ClientId=", ok_value,
+                     " HTTP/1.1\r\n\r\n");
+
+    alpaca_request.client_id = kResetClientId;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
+              EDecodeStatus::kHttpOk);
+    EXPECT_EQ(alpaca_request.client_id, max_size);
+    EXPECT_THAT(ok_request, IsEmpty());
+
+    std::string long_request =
+        absl::StrCat("GET /api/v1/safetymonitor/1/issafe?ClientId=", long_value,
+                     " HTTP/1.1\r\n\r\n");
+
+    alpaca_request.client_id = kResetClientId;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request, max_size),
+              EDecodeStatus::kHttpRequestHeaderFieldsTooLarge);
+    EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+    EXPECT_THAT(long_request, StartsWith(long_value));
+  }
+}
+
+TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
+  // Leading whitespace can be removed from a value one character at a time, but
+  // trailing whitespace requires buffer space for the entire value and all of
+  // the trailing whitespace and a non-value character (i.e. '\r') at the end.
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  std::string long_whitespace;
+  while (long_whitespace.size() <= kDecodeBufferSize) {
+    long_whitespace += "\t ";
+  }
+
+  for (int max_size = 20; max_size <= kDecodeBufferSize; ++max_size) {
+    const auto max_size_str = absl::StrCat(max_size);
+    std::string long_value = absl::StrCat(max_size_str, long_whitespace);
+    long_value.erase(max_size, std::string::npos);
+    DCHECK_EQ(long_value.size(), max_size);
+    const std::string ok_value = long_value.substr(0, max_size - 1);
+
+    std::string ok_request =
+        absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
+                     "Some-Name:", long_whitespace, ok_value, "\r\n\r\n");
+
+    alpaca_request.client_id = kResetClientId;
+    EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Some-Name")));
+    EXPECT_CALL(listener, OnUnknownHeaderValue(Eq(max_size_str)));
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
+              EDecodeStatus::kHttpOk);
+    EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+    EXPECT_THAT(ok_request, IsEmpty());
+
+    std::string long_request =
+        absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
+                     "Some-Name:", long_whitespace, long_value, "\r\n\r\n");
+
+    alpaca_request.client_id = kResetClientId;
+    EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Some-Name")));
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request, max_size),
+              EDecodeStatus::kHttpRequestHeaderFieldsTooLarge);
+    EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+    EXPECT_THAT(long_request, StartsWith(long_value));
+  }
+}
+
 TEST(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
   AlpacaRequest alpaca_request;
   RequestDecoderListener listener;
   RequestDecoder decoder(alpaca_request, listener);
 
   const std::string request_after_method =
-      " /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
+      "/api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
       "Content-Length: 0\r\n"
       "\r\n";
 
   for (std::string method :
        {"CONNECT", "DELETE", "OPTIONS", "PATCH", "POST", "TRACE"}) {
-    const std::string full_request = method + request_after_method;
+    const std::string full_request = method + " " + request_after_method;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
               EDecodeStatus::kHttpMethodNotImplemented);
-    EXPECT_EQ(request, request_after_method);
+    EXPECT_THAT(request, EndsWith(request_after_method));
+  }
+}
+
+TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
+  AlpacaRequest alpaca_request;
+  RequestDecoderListener listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  const std::string request_before_ascom_method("GET /api/v1/safetymonitor/1");
+  const std::string request_after_ascom_method(
+      " HTTP/1.1\r\n"
+      "\r\n");
+
+  for (std::string bogus_ascom_method : {
+           "",         // Missing /method.
+           "/",        // Missing method.
+           "/NAME",    // Wrong case.
+           "//name",   // Extra slash at start.
+           "/name/",   // Extra slash at end.
+           "/name[",   // Wrong terminator at end.
+           "/name\t",  // Wrong terminator at end.
+       }) {
+    const std::string full_request = request_before_ascom_method +
+                                     bogus_ascom_method +
+                                     request_after_ascom_method;
+    auto request = full_request;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+              EDecodeStatus::kHttpNotFound);
+    EXPECT_THAT(full_request, EndsWith(request));
+    EXPECT_THAT(request, EndsWith(request_after_ascom_method));
   }
 }
 
@@ -523,8 +645,10 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
       "Content-Length: 0\r\n"
       "\r\n";
 
-  for (std::string bogus_path_start :
-       {" ", "*", " *", "/", " //api/v1/", " /api/v2/", " /API/v1/"}) {
+  for (std::string bogus_path_start : {
+           "*",  // "GET*safetymonitor"
+           "/",  // "GET/safetymonitor"
+       }) {
     const std::string full_request =
         "GET" + bogus_path_start + request_after_path_start;
     auto request = full_request;
@@ -532,6 +656,54 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
               EDecodeStatus::kHttpBadRequest);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_path_start));
+  }
+
+  for (std::string bogus_path_start : {
+           " ",           // "GET safetymonitor" (missing "/api/v1")
+           " *",          // "GET *safetymonitor"
+           " //api/v1/",  // "GET //api/v1/safetymonitor" (extra "/")
+           " /api//v1/",  // "GET /api//v1/safetymonitor" (extra "/")
+           " /api/v2/",   // "GET /api/v2/safetymonitor" (wrong version)
+           " /API/v1/",   // "GET /API/v1/safetymonitor" (wrong case)
+       }) {
+    const std::string full_request =
+        "GET" + bogus_path_start + request_after_path_start;
+    auto request = full_request;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+              EDecodeStatus::kHttpNotFound);
+    EXPECT_THAT(full_request, EndsWith(request));
+    EXPECT_THAT(request, EndsWith(request_after_path_start));
+  }
+}
+
+TEST(RequestDecoderTest, RejectsUnknownOrMalformedDeviceType) {
+  AlpacaRequest alpaca_request;
+  RequestDecoderListener listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  const std::string request_before_device_type = "GET /api/v1";
+  const std::string request_after_device_number =
+      "issafe HTTP/1.1\r\n"
+      "Content-Length: 0\r\n"
+      "\r\n";
+
+  for (std::string bogus_device_type : {
+           "",                  // Missing /devicetype/
+           "/",                 // Missing devicetype/
+           "//",                // Empty devicetype
+           "/safetymonitor",    // Missing / after device type.
+           "/SafetyMonitor/",   // Wrong case
+           "//safetymonitor/",  // Extra slash at start.
+           "/safetymonitor//",  // Extra slash at end.
+       }) {
+    const std::string full_request = request_before_device_type +
+                                     bogus_device_type + "1/" +
+                                     request_after_device_number;
+    auto request = full_request;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+              EDecodeStatus::kHttpNotFound);
+    EXPECT_THAT(full_request, EndsWith(request));
+    EXPECT_THAT(request, EndsWith(request_after_device_number));
   }
 }
 
@@ -545,6 +717,18 @@ TEST(RequestDecoderTest, RejectsUnsupportedHttpVersion) {
       "\r\n");
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
             EDecodeStatus::kHttpVersionNotSupported);
+}
+
+TEST(RequestDecoderTest, RejectsInvalidParamNameValueSeparator) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  std::string request(
+      "GET /api/v1/safetymonitor/0/name?ClientId:1 HTTP/1.1\r\n"
+      "\r\n");
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EDecodeStatus::kHttpBadRequest);
 }
 
 TEST(RequestDecoderTest, RejectsInvalidParamSeparator) {

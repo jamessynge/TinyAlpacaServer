@@ -28,7 +28,8 @@ struct RequestDecoderState {
 
   // Repeatedly applies the current decode function to the input until done,
   // needs more input than is in buffer, or an error is detected.
-  EDecodeStatus DecodeBuffer(StringView& buffer, bool at_end_of_input);
+  EDecodeStatus DecodeBuffer(StringView& buffer, bool buffer_is_full,
+                             bool at_end_of_input);
 
   // Set the function to be used for decoding the leading edge of the input.
   // Returns kParseInProgress.

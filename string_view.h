@@ -140,6 +140,14 @@ class StringView {
 
   const_iterator begin() const { return ptr_; }
   const_iterator end() const { return ptr_ + size_; }
+  char front() const {
+    DCHECK(!empty());
+    return *ptr_;
+  }
+  char back() const {
+    DCHECK(!empty());
+    return ptr_[size_ - 1];
+  }
 
   // Returns true if this view contains c.
   bool contains(char c) const {

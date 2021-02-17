@@ -9,7 +9,8 @@
 //
 // Another way to reduce the size of *this* code is to pass the buck to the
 // calling code (i.e. via the listener). The only Header that we "need" to
-// decode is Content-Length.
+// decode is Content-Length; we could pass all parameters and all other headers
+// to the client.
 
 #include "alpaca-decoder/request_decoder.h"
 
@@ -44,7 +45,11 @@ using CharMatchFunction = bool (*)(char c);
 
 ALPACA_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
 ALPACA_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
-ALPACA_CONSTEXPR_VAR StringView kAscomPathPrefix(" /api/v1/");
+ALPACA_CONSTEXPR_VAR StringView kAscomPathPrefix("/api/v1/");
+ALPACA_CONSTEXPR_VAR StringView kPathSeparator("/");
+ALPACA_CONSTEXPR_VAR StringView kPathTerminator("? ");
+ALPACA_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
+ALPACA_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
@@ -56,7 +61,14 @@ ALPACA_CONSTEXPR_VAR StringView kAscomPathPrefix(" /api/v1/");
 // bool IsLower(const char c) { return 'a' <= c && c <= 'z'; }
 // bool IsUpper(const char c) { return 'A' <= c && c <= 'Z'; }
 
-bool IsVisibleCharOrSpace(const char c) { return ' ' <= c && c <= '~'; }
+bool IsOptionalWhitespace(const char c) { return c == ' ' || c == '\t'; }
+
+bool IsParamSeparator(const char c) { return c == '&'; }
+
+// Per RFC7230, Section 3.2, Header-Fields.
+bool IsFieldContent(const char c) {
+  return (' ' <= c && c <= '~') || c == '\t';
+}
 
 ALPACA_CONSTEXPR_VAR StringView kUnreservedNonAlnum("-._~");
 
@@ -89,6 +101,31 @@ StringView::size_type FindFirstNotOf(const StringView& view,
     }
   }
   return StringView::kMaxSize;
+}
+
+// Removes leading whitespace characters, returns true when the first character
+// is not a whitespace.
+bool SkipLeadingOptionalWhitespace(StringView& view) {
+  const auto beyond = FindFirstNotOf(view, IsOptionalWhitespace);
+  if (beyond == StringView::kMaxSize) {
+    // They're all whitespace (or it is empty). Get rid of them. Choosing here
+    // to treat this as a remove_prefix rather than a clear, so that tests see
+    // that the pointer in the view is moved forward by the number of removed
+    // characters.
+    view.remove_prefix(view.size());
+    // Since there are no characters in the view, we don't know if the next
+    // input character will be a space or not, so we can't report true yet.
+    return false;
+  } else {
+    view.remove_prefix(beyond);
+    return true;
+  }
+}
+
+void TrimTrailingOptionalWhitespace(StringView& view) {
+  while (!view.empty() && IsOptionalWhitespace(view.back())) {
+    view.remove_suffix(1);
+  }
 }
 
 // Find the token in tokens that matches the view.
@@ -124,19 +161,49 @@ E LowerMatchTokens(const StringView& view, E unknown_id,
   return unknown_id;
 }
 
-bool ExtractMatchingPrefix(RequestDecoderState& state, StringView& view,
-                           StringView& extracted_prefix,
+bool ExtractMatchingPrefix(StringView& view, StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
+  DVLOG(3) << "ExtractMatchingPrefix of " << view.ToEscapedString() << " found "
+           << (beyond + 0) << " matching characters";
   if (beyond == StringView::kMaxSize) {
-    // if (!state.is_final_input) {
     return false;
-    // }
-    // beyond = view.size();
   }
   extracted_prefix = view.prefix(beyond);
   view.remove_prefix(beyond);
   return true;
+}
+
+using NameProcessor = EDecodeStatus (*)(RequestDecoderState& state,
+                                        const StringView& matched_text,
+                                        StringView& remainder_view);
+
+EDecodeStatus ExtractAndProcessName(RequestDecoderState& state,
+                                    StringView& view,
+                                    const StringView& valid_terminators,
+                                    const NameProcessor processor,
+                                    const bool consume_terminator_char,
+                                    const EDecodeStatus bad_terminator_error) {
+  StringView matched_text;
+  if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
+    // We didn't find a character that IsNameChar doesn't match, so we don't
+    // know if we have enough input yet.
+    return EDecodeStatus::kNeedMoreInput;
+  }
+
+  if (!valid_terminators.contains(view.front())) {
+    // Doesn't end with something appropriate for the path to end in. Perhaps an
+    // unexpected/unsupported delimiter. Reporting Not Found because the error
+    // is with the path.
+    return bad_terminator_error;
+  } else if (consume_terminator_char) {
+    // For now, we expect that:
+    //    consume_terminator_char == (valid_terminators.size() ==1)
+    DCHECK_EQ(valid_terminators.size(), 1);
+    view.remove_prefix(1);
+  }
+
+  return processor(state, matched_text, view);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +217,6 @@ EDecodeStatus DecodeHeaderLines(RequestDecoderState& state, StringView& view);
 EDecodeStatus DecodeHeaderLineEnd(RequestDecoderState& state,
                                   StringView& view) {
   // We expect "\r\n" at the end of a header line.
-  DVLOG(2) << "DecodeHeaderLineEnd " << view.ToEscapedString();
   if (view.match_and_consume(kEndOfHeaderLine)) {
     return state.SetDecodeFunction(DecodeHeaderLines);
   } else if (kEndOfHeaderLine.starts_with(view)) {
@@ -164,19 +230,18 @@ EDecodeStatus DecodeHeaderLineEnd(RequestDecoderState& state,
 }
 
 EDecodeStatus DecodeHeaderValue(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeHeaderValue " << view.ToEscapedString();
+  // Skip leading OWS (optional whitespace: space or horizontal tab), then take
+  // all of the characters matching IsFieldContent, up to the first
+  // non-matching character. If we can't find a non-matching character, we need
+  // more input.
   StringView value;
-  if (!ExtractMatchingPrefix(state, view, value, IsVisibleCharOrSpace)) {
+  if (!SkipLeadingOptionalWhitespace(view) ||
+      !ExtractMatchingPrefix(view, value, IsFieldContent)) {
     return EDecodeStatus::kNeedMoreInput;
   }
   DVLOG(1) << "DecodeHeaderValue raw value: " << value.ToEscapedString();
-  // Trim whitespace from the start and end of the header value.
-  while (value.starts_with(' ')) {
-    value.remove_prefix(1);
-  }
-  while (value.ends_with(' ')) {
-    value.remove_suffix(1);
-  }
+  // Trim OWS from the end of the header value.
+  TrimTrailingOptionalWhitespace(value);
   DVLOG(1) << "DecodeHeaderValue trimmed value: " << value.ToEscapedString();
   EDecodeStatus status = EDecodeStatus::kContinueDecoding;
   if (state.current_header == EHttpHeader::kHttpAccept) {
@@ -233,38 +298,26 @@ EDecodeStatus DecodeHeaderValue(RequestDecoderState& state, StringView& view) {
   return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderLineEnd, status);
 }
 
-EDecodeStatus MatchHeaderNameValueSeparator(RequestDecoderState& state,
-                                            StringView& view) {
-  DVLOG(2) << "MatchHeaderNameValueSeparator " << view.ToEscapedString();
-  if (view.empty()) {
-    return EDecodeStatus::kNeedMoreInput;
-  } else if (view.at(0) != ':') {
-    return EDecodeStatus::kHttpBadRequest;
-  } else {
-    view.remove_prefix(1);
-    return state.SetDecodeFunction(DecodeHeaderValue);
+EDecodeStatus ProcessHeaderName(RequestDecoderState& state,
+                                const StringView& matched_text,
+                                StringView& view) {
+  state.current_header = LowerMatchTokens(matched_text, EHttpHeader::kUnknown,
+                                          kRecognizedHttpHeaders);
+  if (state.current_header == EHttpHeader::kUnknown) {
+    return state.SetDecodeFunctionAfterListenerCall(
+        DecodeHeaderValue, state.listener.OnUnknownHeaderName(matched_text));
   }
+  return state.SetDecodeFunction(DecodeHeaderValue);
 }
 
 EDecodeStatus DecodeHeaderName(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeHeaderName " << view.ToEscapedString();
-  StringView name;
-  if (ExtractMatchingPrefix(state, view, name, IsNameChar)) {
-    state.current_header =
-        LowerMatchTokens(name, EHttpHeader::kUnknown, kRecognizedHttpHeaders);
-    if (state.current_header == EHttpHeader::kUnknown) {
-      return state.SetDecodeFunctionAfterListenerCall(
-          MatchHeaderNameValueSeparator,
-          state.listener.OnUnknownHeaderName(name));
-    }
-    return state.SetDecodeFunction(MatchHeaderNameValueSeparator);
-  } else {
-    return EDecodeStatus::kNeedMoreInput;
-  }
+  return ExtractAndProcessName(
+      state, view, kHeaderNameValueSeparator, ProcessHeaderName,
+      /*consume_terminator_char=*/true,
+      /*bad_terminator_error=*/EDecodeStatus::kHttpBadRequest);
 }
 
 EDecodeStatus DecodeHeaderLines(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeHeaderLines " << view.ToEscapedString();
   if (view.match_and_consume(kEndOfHeaderLine)) {
     // We've reached the end of the headers.
     if (state.request.http_method == EHttpMethod::GET) {
@@ -302,7 +355,6 @@ EDecodeStatus DecodeHeaderLines(RequestDecoderState& state, StringView& view) {
 // An HTTP/1.1 Request Start Line should always end with "HTTP/1.1\r\n".
 // (We're not supporting HTTP/1.0 or earlier.)
 EDecodeStatus MatchHttpVersion(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "MatchHttpVersion " << view.ToEscapedString();
   if (view.match_and_consume(kHttp_1_1_EOL)) {
     state.is_decoding_start_line = false;
     return state.SetDecodeFunction(DecodeHeaderLines);
@@ -315,39 +367,59 @@ EDecodeStatus MatchHttpVersion(RequestDecoderState& state, StringView& view) {
 
 EDecodeStatus DecodeParamSeparator(RequestDecoderState& state,
                                    StringView& view) {
-  DVLOG(2) << "DecodeParamSeparator " << view.ToEscapedString();
-  if (view.empty()) {
+  // If there are multiple separators, treat them as one.
+  const auto beyond = FindFirstNotOf(view, IsParamSeparator);
+  if (beyond == StringView::kMaxSize) {
+    DVLOG(3) << "DecodeParamSeparator found no non-separators in "
+             << view.ToEscapedString();
+    // All the available characters are separators, or the view is empty.
     if (!state.is_decoding_header && state.is_final_input) {
       // We've reached the end of the body of the request.
+      view.remove_prefix(view.size());
       return EDecodeStatus::kHttpOk;
-    } else {
-      // This isn't reachable because we can't locate the end of a parameter
-      // name in the query string without having the parameter separator in
-      // the buffer being decoded.
-      return EDecodeStatus::kNeedMoreInput;  // COV_NF_LINE
     }
-  } else if (view.at(0) == '&') {
-    view.remove_prefix(1);
-    return state.SetDecodeFunction(DecodeParamName);
-  } else if (view.at(0) == ' ') {
-    view.remove_prefix(1);
-    return state.SetDecodeFunction(MatchHttpVersion);
-  } else {
+    // We don't know if the next character will also be a separator or not, so
+    // we remove all but one of the separator characters, and return here next
+    // time when there is more input.
+    if (view.size() > 1) {
+      view.remove_prefix(view.size() - 1);
+    }
+    return EDecodeStatus::kNeedMoreInput;
+  }
+
+  DVLOG(3) << "DecodeParamSeparator found " << (beyond + 0)
+           << " separators, followed by a non-separator";
+  DCHECK(!view.empty());
+
+  // There are zero or more separators, followed by a non-separator. This means
+  // that this isn't the body of a request with one of these separators as the
+  // last char in the body, so we don't need to worry about that case.
+
+  view.remove_prefix(beyond);
+  if (view.front() == ' ') {
+    DVLOG(3) << "Found a space";
+    if (state.is_decoding_header) {
+      view.remove_prefix(1);
+      return state.SetDecodeFunction(MatchHttpVersion);
+    }
     return EDecodeStatus::kHttpBadRequest;
+  } else {
+    return state.SetDecodeFunction(DecodeParamName);
   }
 }
 
 // Note that a parameter value may be empty, which makes detecting the end of it
 // tricky if also at the end of the body of a a request.
 EDecodeStatus DecodeParamValue(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeParamValue " << view.ToEscapedString();
   StringView value;
-  if (!ExtractMatchingPrefix(state, view, value, IsParamValueChar)) {
+  if (!ExtractMatchingPrefix(view, value, IsParamValueChar)) {
     // view doesn't contain a character that can't be in a parameter value. We
     // may need more input.
     if (state.is_decoding_header || !state.is_final_input) {
       return EDecodeStatus::kNeedMoreInput;
     }
+    // Ah, we're decoding the body of the request, and this is last buffer of
+    // input from the client, so we can treat the end of input as the separator.
     DCHECK_EQ(state.remaining_content_length, view.size());
     value = view;
     view.remove_prefix(value.size());
@@ -384,135 +456,127 @@ EDecodeStatus DecodeParamValue(RequestDecoderState& state, StringView& view) {
   return state.SetDecodeFunctionAfterListenerCall(DecodeParamSeparator, status);
 }
 
-EDecodeStatus MatchParamNameValueSeparator(RequestDecoderState& state,
-                                           StringView& view) {
-  DVLOG(2) << "MatchParamNameValueSeparator " << view.ToEscapedString();
-  if (view.empty()) {
-    return EDecodeStatus::kNeedMoreInput;
+EDecodeStatus ProcessParamName(RequestDecoderState& state,
+                               const StringView& matched_text,
+                               StringView& view) {
+  state.current_parameter = LowerMatchTokens(matched_text, EParameter::kUnknown,
+                                             kRecognizedParameters);
+  if (state.current_parameter == EParameter::kUnknown) {
+    return state.SetDecodeFunctionAfterListenerCall(
+        DecodeParamValue, state.listener.OnUnknownParameterName(matched_text));
   }
-  if (view.at(0) != '=') {
-    return EDecodeStatus::kHttpBadRequest;
-  }
-  view.remove_prefix(1);
   return state.SetDecodeFunction(DecodeParamValue);
 }
 
 EDecodeStatus DecodeParamName(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeParamName " << view.ToEscapedString();
-  StringView name;
-  if (ExtractMatchingPrefix(state, view, name, IsNameChar)) {
-    state.current_parameter =
-        LowerMatchTokens(name, EParameter::kUnknown, kRecognizedParameters);
-    if (state.current_parameter == EParameter::kUnknown) {
-      return state.SetDecodeFunctionAfterListenerCall(
-          MatchParamNameValueSeparator,
-          state.listener.OnUnknownParameterName(name));
-    }
-    return state.SetDecodeFunction(MatchParamNameValueSeparator);
-  } else if (view.empty() && !state.is_decoding_header &&
-             state.is_final_input) {
-    // We've reached the end of the body of the request.
-    return EDecodeStatus::kHttpOk;
-  } else {
-    return EDecodeStatus::kNeedMoreInput;
+  return ExtractAndProcessName(
+      state, view, kParamNameValueSeparator, ProcessParamName,
+      /*consume_terminator_char=*/true,
+      /*bad_terminator_error=*/EDecodeStatus::kHttpBadRequest);
+}
+
+EDecodeStatus ProcessAscomMethod(RequestDecoderState& state,
+                                 const StringView& matched_text,
+                                 StringView& view) {
+  DVLOG(3) << "ProcessAscomMethod matched_text: "
+           << matched_text.ToEscapedString();
+  // A separator/terminating character should be present after the method.
+  DCHECK(!view.empty());
+  const EMethod method = MatchTokensExactly(matched_text, EMethod::kUnknown,
+                                            kRecognizedAscomMethods);
+  if (method == EMethod::kUnknown) {
+    return EDecodeStatus::kHttpNotFound;
   }
+  state.request.ascom_method = method;
+  DecodeFunction next_decode_function;
+  if (view.front() == '?') {
+    next_decode_function = DecodeParamName;
+  } else if (view.front() == ' ') {
+    next_decode_function = MatchHttpVersion;
+  } else {
+    // kPathTerminator should have exactly the characters we just matched in the
+    // preceding if/else if statements, therefore this should be unreachable.
+    return EDecodeStatus::kHttpInternalServerError;  // COV_NF_LINE
+  }
+  view.remove_prefix(1);
+  return state.SetDecodeFunction(next_decode_function);
 }
 
 // Decode the path, i.e. find the end of the path, which is either a '?' or
 // whitespace. Note that we only support "origin-form" (as defined in RFC 7230),
 // which means that the path must start with a forward slash.
 EDecodeStatus DecodeAscomMethod(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeAscomMethod " << view.ToEscapedString();
-
-  // Can we create an abstraction here (i.e. share this code with multiple
-  // similar methods)?
-
-  // Find the end of the device type, which should be a '/' or a '?'
-  auto beyond = FindFirstNotOf(view, IsUnreserved);
-  if (beyond == StringView::kMaxSize) {
-    // The entire path (plus the next char) is not in the buffer (yet).
-    return EDecodeStatus::kNeedMoreInput;
-  }
-  auto path_segment = view.prefix(beyond);
-  const EMethod method = MatchTokensExactly(path_segment, EMethod::kUnknown,
-                                            kRecognizedAscomMethods);
-  if (method == EMethod::kUnknown) {
-    return EDecodeStatus::kHttpNotFound;
-  }
-  state.request.ascom_method = method;
-  const char beyond_char = view.at(beyond);
-  view.remove_prefix(beyond + 1);
-  if (beyond_char == '?') {
-    return state.SetDecodeFunction(DecodeParamName);
-  } else if (beyond_char == ' ') {
-    return state.SetDecodeFunction(MatchHttpVersion);
-  }
-  return EDecodeStatus::kHttpBadRequest;
+  return ExtractAndProcessName(
+      state, view, kPathTerminator, ProcessAscomMethod,
+      /*consume_terminator_char=*/false,
+      /*bad_terminator_error=*/EDecodeStatus::kHttpNotFound);
 }
 
-EDecodeStatus DecodeDeviceNumber(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeDeviceNumber " << view.ToEscapedString();
-
-  // Can we create an abstraction here (i.e. share this code with multiple
-  // similar methods)?
-
-  // Find the end of the device number, which should be a '/'.
-  auto beyond = FindFirstNotOf(view, IsUnreserved);
-  if (beyond == StringView::kMaxSize) {
-    // The entire path (plus the next char) is not in the buffer (yet).
-    return EDecodeStatus::kNeedMoreInput;
+EDecodeStatus ProcessDeviceNumber(RequestDecoderState& state,
+                                  const StringView& matched_text,
+                                  StringView& view) {
+  if (!matched_text.to_uint32(state.request.device_number)) {
+    return EDecodeStatus::kHttpNotFound;
   }
-  if (view.at(beyond) != '/') {
-    return EDecodeStatus::kHttpBadRequest;
-  }
-  auto path_segment = view.prefix(beyond);
-
-  if (!path_segment.to_uint32(state.request.device_number)) {
-    return EDecodeStatus::kHttpBadRequest;
-  }
-  view.remove_prefix(beyond + 1);
   return state.SetDecodeFunction(DecodeAscomMethod);
 }
 
-// After the path prefix, we expect the name of a supported device type.
-EDecodeStatus DecodeDeviceType(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeDeviceType " << view.ToEscapedString();
+EDecodeStatus DecodeDeviceNumber(RequestDecoderState& state, StringView& view) {
+  return ExtractAndProcessName(
+      state, view, kPathSeparator, ProcessDeviceNumber,
+      /*consume_terminator_char=*/true,
+      /*bad_terminator_error=*/EDecodeStatus::kHttpNotFound);
+}
 
-  // Can we create an abstraction here (i.e. share this code with multiple
-  // similar methods)?
-
-  // Find the end of the device type, which should be a '/'.
-  auto beyond = FindFirstNotOf(view, IsUnreserved);
-  if (beyond == StringView::kMaxSize) {
-    // The entire path (plus the next char) is not in the buffer (yet).
-    return EDecodeStatus::kNeedMoreInput;
-  }
-  if (view.at(beyond) != '/') {
-    return EDecodeStatus::kHttpBadRequest;
-  }
-  auto path_segment = view.prefix(beyond);
+EDecodeStatus ProcessDeviceType(RequestDecoderState& state,
+                                const StringView& matched_text,
+                                StringView& view) {
   const EDeviceType device_type = MatchTokensExactly(
-      path_segment, EDeviceType::kUnknown, kRecognizedDeviceTypes);
+      matched_text, EDeviceType::kUnknown, kRecognizedDeviceTypes);
   if (device_type == EDeviceType::kUnknown) {
     return EDecodeStatus::kHttpNotFound;
   }
   state.request.device_type = device_type;
-  view.remove_prefix(beyond + 1);
   return state.SetDecodeFunction(DecodeDeviceNumber);
 }
 
-// An ASCOM Alpaca request path should always start with "/api/v1/".  We add a
-// space before the path (in kAscomPathPrefix) because a space should follow the
-// HTTP method name.
+// After the path prefix, we expect the name of a supported device type.
+EDecodeStatus DecodeDeviceType(RequestDecoderState& state, StringView& view) {
+  return ExtractAndProcessName(
+      state, view, kPathSeparator, ProcessDeviceType,
+      /*consume_terminator_char=*/true,
+      /*bad_terminator_error=*/EDecodeStatus::kHttpNotFound);
+}
+
+// An ASCOM Alpaca request path should always start with "/api/v1/".
 EDecodeStatus MatchAscomPathPrefix(RequestDecoderState& state,
                                    StringView& view) {
-  DVLOG(2) << "MatchAscomPathPrefix " << view.ToEscapedString();
+  // Could add a MatchAndConsumeLiteral for this case and the "HTTP/1.1\r\n" at
+  // the end of the start line.
   if (view.match_and_consume(kAscomPathPrefix)) {
     return state.SetDecodeFunction(DecodeDeviceType);
   } else if (kAscomPathPrefix.starts_with(view)) {
     return EDecodeStatus::kNeedMoreInput;
+  } else {
+    // Don't know what to make of the 'path', but it doesn't start with
+    // "/api/v1/".
+    return EDecodeStatus::kHttpNotFound;
   }
-  return EDecodeStatus::kHttpBadRequest;
+}
+
+// Process the word at the start of the request, which should be the HTTP method
+// name.
+EDecodeStatus ProcessHttpMethod(RequestDecoderState& state,
+                                const StringView& matched_text,
+                                StringView& view) {
+  EHttpMethod method = MatchTokensExactly(matched_text, EHttpMethod::kUnknown,
+                                          kRecognizedHttpMethods);
+  if (method == EHttpMethod::kUnknown) {
+    return EDecodeStatus::kHttpMethodNotImplemented;
+  }
+  DVLOG(3) << "method: " << method;
+  state.request.http_method = method;
+  return state.SetDecodeFunction(MatchAscomPathPrefix);
 }
 
 // Decode one of the few supported HTTP methods. If definitely not present,
@@ -522,20 +586,10 @@ EDecodeStatus MatchAscomPathPrefix(RequestDecoderState& state,
 // requires clear delimiters, and we're planning to support only a single
 // request per TCP connection (i.e. we won't support Keep-Alive).
 EDecodeStatus DecodeHttpMethod(RequestDecoderState& state, StringView& view) {
-  DVLOG(2) << "DecodeHttpMethod " << view.ToEscapedString();
-  StringView method_name;
-  if (ExtractMatchingPrefix(state, view, method_name, IsNameChar)) {
-    EHttpMethod method = MatchTokensExactly(method_name, EHttpMethod::kUnknown,
-                                            kRecognizedHttpMethods);
-    if (method == EHttpMethod::kUnknown) {
-      return EDecodeStatus::kHttpMethodNotImplemented;
-    }
-    DVLOG(3) << "method: " << method;
-    state.request.http_method = method;
-    return state.SetDecodeFunction(MatchAscomPathPrefix);
-  } else {
-    return EDecodeStatus::kNeedMoreInput;
-  }
+  return ExtractAndProcessName(
+      state, view, " ", ProcessHttpMethod,
+      /*consume_terminator_char=*/true,
+      /*bad_terminator_error=*/EDecodeStatus::kHttpBadRequest);
 }
 
 }  // namespace
@@ -574,22 +628,18 @@ std::ostream& operator<<(std::ostream& out, DecodeFunction decode_function) {
   if (decode_function == DecodeParamValue) {
     return out << "DecodeParamValue";
   }
-  if (decode_function == MatchHeaderNameValueSeparator) {
-    return out << "MatchHeaderNameValueSeparator";
-  }
   if (decode_function == MatchHttpVersion) {
     return out << "MatchHttpVersion";
-  }
-  if (decode_function == MatchParamNameValueSeparator) {
-    return out << "MatchParamNameValueSeparator";
   }
   if (decode_function == MatchAscomPathPrefix) {
     return out << "MatchAscomPathPrefix";
   }
+  // COV_NF_START
   DCHECK(false) << "Haven't implemented a case for function @"
                 << std::addressof(decode_function);
   return out << "Haven't implemented a case for function @"
              << std::addressof(decode_function);
+  // COV_NF_END
 }
 
 RequestDecoderState::RequestDecoderState(AlpacaRequest& request,
@@ -611,7 +661,8 @@ void RequestDecoderState::Reset() {
 // doing so will increase the code size, so a trade-off of size vs.
 // maintainability is likely required.
 EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
-                                                bool at_end_of_input) {
+                                                const bool buffer_is_full,
+                                                const bool at_end_of_input) {
   DVLOG(1) << "DecodeBuffer " << buffer.ToEscapedString();
   if (decode_function == nullptr) {
     // Need to call Reset first.
@@ -624,14 +675,21 @@ EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
     return EDecodeStatus::kHttpInternalServerError;
   }
 
+  const auto start_size = buffer.size();
   EDecodeStatus status;
   if (is_decoding_header) {
     status = DecodeMessageHeader(buffer, at_end_of_input);
   } else {
     status = DecodeMessageBody(buffer, at_end_of_input);
   }
-
   DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
+
+  if (buffer_is_full && status == EDecodeStatus::kNeedMoreInput &&
+      start_size == buffer.size()) {
+    DVLOG(1) << "Need more input, but buffer is already full (has no room for "
+                "additional input).";
+    status = EDecodeStatus::kHttpRequestHeaderFieldsTooLarge;
+  }
   if (status >= EDecodeStatus::kHttpOk) {
     decode_function = nullptr;
   }
@@ -642,15 +700,17 @@ EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
 // Decoding the start line, header lines, or end of header line. We don't know
 // how many bytes are supposed to be in the header, so we rely on
 // DecodeHeaderLines to find the end.
-EDecodeStatus RequestDecoderState::DecodeMessageHeader(StringView& buffer,
-                                                       bool at_end_of_input) {
-  DVLOG(1) << "DecodeHead " << buffer.ToEscapedString();
+EDecodeStatus RequestDecoderState::DecodeMessageHeader(
+    StringView& buffer, const bool at_end_of_input) {
+  DVLOG(1) << "DecodeMessageHeader " << buffer.ToEscapedString();
 
   EDecodeStatus status;
   do {
 #ifndef NDEBUG
     const auto buffer_size_before_decode = buffer.size();
     auto old_decode_function = decode_function;
+    DVLOG(2) << decode_function << "(" << buffer.ToEscapedString() << " ("
+             << static_cast<size_t>(buffer.size()) << " chars))";
 #endif
 
     status = decode_function(*this, buffer);
@@ -665,6 +725,11 @@ EDecodeStatus RequestDecoderState::DecodeMessageHeader(StringView& buffer,
                                                         : "changed");
 
     if (status == EDecodeStatus::kContinueDecoding) {
+      // This is a check on the currently expected behavior; none of the current
+      // decode functions represents a loop all by itself, which isn't handled
+      // inside the decode function; i.e. none of them extract some data, then
+      // return kContinueDecoding without also calling SetDecodeFunction to
+      // specify the next (different) function to handle the decoding.
       DCHECK_NE(old_decode_function, decode_function)
           << "Should have changed the decode function";  // COV_NF_LINE
     }
@@ -720,6 +785,8 @@ EDecodeStatus RequestDecoderState::DecodeMessageBody(StringView& buffer,
     const auto buffer_size_before_decode = buffer.size();
 #ifndef NDEBUG
     const auto old_decode_function = decode_function;
+    DVLOG(2) << decode_function << "(" << buffer.ToEscapedString() << " ("
+             << (buffer.size() + 0) << " chars))";
 #endif
 
     status = decode_function(*this, buffer);

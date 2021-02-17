@@ -20,9 +20,16 @@ enum class EDecodeStatus : uint16_t {
   // .WillOnce(Return(...)) all over the place.
   kContinueDecoding = 0,
 
-  // The current decode function needs some more input to finish its job.
+  // The current decode function needs some more input to finish its job. If the
+  // input buffer is already full (e.g. we have a 40 byte buffer, and the name
+  // or value of a header field or parameter is more than 39 bytes), then the
+  // decode function will continually return kNeedMoreInput. If the caller of
+  // RequestDecoder::DecodeBuffer has passed true for buffer_is_full, then
+  // DecodeBuffer will convert kNeedMoreInput to an error status (e.g.
+  // kHttpRequestHeaderFieldsTooLarge).
   kNeedMoreInput,
 
+  // The request has been successfully decoded.
   kHttpOk = 200,
 
   // Invalid syntax in the request.
