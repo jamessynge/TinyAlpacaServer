@@ -1,7 +1,8 @@
 // GENERATED FILE
 
-#include "alpaca-decoder/constants.h"
+#include "tiny-alpaca-server/decoder/constants.h"
 
+#include <ostream>
 #include <type_traits>
 
 namespace alpaca {

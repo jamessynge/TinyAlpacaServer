@@ -1,5 +1,5 @@
-#ifndef ALPACA_DECODER_STRING_VIEW_H_
-#define ALPACA_DECODER_STRING_VIEW_H_
+#ifndef TINY_ALPACA_SERVER_COMMON_STRING_VIEW_H_
+#define TINY_ALPACA_SERVER_COMMON_STRING_VIEW_H_
 
 // Author: james.synge@gmail.com
 
@@ -17,17 +17,25 @@
 // encourage the compiler to perform compile time operations instead of waiting
 // until runtime.
 
+#include <stddef.h>
+
 #include <cstdint>
-#include <cstring>
 #include <limits>
 #include <string>
 #include <string_view>
 
-#include "absl/strings/ascii.h"
-#include "alpaca-decoder/config.h"
-#include "alpaca-decoder/logging.h"
+#include "tiny-alpaca-server/common/logging.h"
+#include "tiny-alpaca-server/config.h"
+
+#ifdef Arduino_h
+#include <Printable.h>
+#else
+#include "tiny-alpaca-server/common/host_printable.h"
+#endif
 
 namespace alpaca {
+
+class JsonStringView;
 
 class StringView {
  public:
@@ -47,27 +55,20 @@ class StringView {
   // NOTE: There is no (const char* ptr) constructor because it blocks use of
   // this constructor for literals.
   template <size_type N>
-  ALPACA_CONSTEXPR_FUNC StringView(const char (&buf)[N])  // NOLINT
-      : ptr_(buf), size_(N - 1) {
-#ifndef NDEBUG
-    DVLOG(7) << "StringView literal string ctor for \"" << buf << "\"";
-#endif
-  }
+  constexpr StringView(const char (&buf)[N])  // NOLINT
+      : ptr_(buf), size_(N - 1) {}
 
   // Construct with a specified length.
-  ALPACA_CONSTEXPR_FUNC StringView(const char* ptr, size_type length)
+  ALPACA_SERVER_CONSTEXPR_FUNC StringView(const char* ptr, size_type length)
       : ptr_(ptr), size_(length) {}
 
-#if ALPACA_DECODER_HAVE_STD_STRING
+#if ALPACA_SERVER_HAVE_STD_STRING
   // Construct from a std::string. This is used for tests.
-  explicit StringView(const std::string& str)
-      : ptr_(str.data()), size_(str.size()) {
-    DCHECK_LE(str.size(), kMaxSize);
-  }
+  explicit StringView(const std::string& str);
 #endif
 
   // Copy constructor.
-  ALPACA_CONSTEXPR_FUNC StringView(const StringView& other) = default;
+  ALPACA_SERVER_CONSTEXPR_FUNC StringView(const StringView& other) = default;
 
   //////////////////////////////////////////////////////////////////////////////
   // Mutating methods:
@@ -104,39 +105,11 @@ class StringView {
   //////////////////////////////////////////////////////////////////////////////
   // Non-mutating methods:
 
-  ALPACA_CONSTEXPR_FUNC bool operator==(const StringView& other) const {
-#ifndef NDEBUG
-    VLOG(7) << "StringView::operator==(" << ToEscapedString() << ", "
-            << other.ToEscapedString() << ")";
-#endif  // !NDEBUG
-    if (other.size_ != size_) {
-      return false;
-    }
-    auto ndx = size_;
-    while (ndx > 0) {
-      --ndx;
-      if (ptr_[ndx] != other.ptr_[ndx]) {
-        return false;
-      }
-    }
-    return true;
-  }
+  bool operator==(const StringView& other) const;
 
-  bool operator==(const char* other) const {
-    if (other == nullptr) {
-      return empty();
-    }
-    for (size_type ndx = 0; ndx < size_ && *other != '\0'; ++ndx, ++other) {
-      if (at(ndx) != *other) {
-        return false;
-      }
-    }
-    return *other == '\0';
-  }
+  bool operator==(const char* other) const;
 
-  constexpr bool operator!=(const StringView& other) const {
-    return !(*this == other);
-  }
+  bool operator!=(const StringView& other) const;
 
   const_iterator begin() const { return ptr_; }
   const_iterator end() const { return ptr_ + size_; }
@@ -183,23 +156,7 @@ class StringView {
   // Compares this view with other (converted to lower-case ASCII), returning
   // true if they are equal. This means that this view must contain no
   // upper-case letters, else it will never match other.
-  bool equals_other_lowered(const StringView& other) const {
-    if (size_ != other.size()) {
-      return false;
-    }
-    for (StringView::size_type pos = 0; pos < size_; ++pos) {
-      const char our_lc_char = ptr_[pos];
-      DCHECK(!absl::ascii_isupper(our_lc_char)) << substr(pos, 1);
-      const char other_char = other.at(pos);
-      const char other_lc_char = absl::ascii_isupper(other_char)
-                                     ? (other_char | static_cast<char>(0x20))
-                                     : other_char;
-      if (our_lc_char != other_lc_char) {
-        return false;
-      }
-    }
-    return true;
-  }
+  bool equals_other_lowered(const StringView& other) const;
 
   // Returns true if this starts with s.
   constexpr bool starts_with(const StringView& s) const {
@@ -237,8 +194,10 @@ class StringView {
 
   // Returns a view of a portion of this view (at offset `pos` and length `n`)
   // as another StringView. Does NOT validate the parameters, so pos+n must not
-  // be greater than length(). This is currently only used for tests.
-  ALPACA_CONSTEXPR_FUNC StringView substr(size_type pos, size_type n) const {
+  // be greater than length(). This is currently only used for non-embedded
+  // code, hence the DCHECKs instead of ensuring that the result is valid.
+  ALPACA_SERVER_CONSTEXPR_FUNC StringView substr(size_type pos,
+                                                 size_type n) const {
 #ifndef NDEBUG
     DCHECK_LE(pos, size_);
     DCHECK_LE(pos + n, size_);
@@ -264,19 +223,33 @@ class StringView {
     }
   }
 
+  // Parse the string as an unsigned, 32-bit decimal integer, writing the value
+  // to out. Returns true iff successful. If not successful, does not modify
+  // out.
   bool to_uint32(uint32_t& out) const;
+
+  // Returns this StringView wrapped in a JsonStringView.
+  JsonStringView escaped() const;
+
+  // Print the string to Print by calling Print::write(data(), size()).
+  size_t printTo(Print& p) const;
+
+#if ALPACA_SERVER_HAVE_STD_OSTREAM
+  // Writes the string to the ostream.
+  void writeTo(std::ostream& out) const;
+#endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
 
   // The following methods are for testing and debugging on a "real" computer,
   // not for the embedded device.
 
-#if ALPACA_DECODER_HAVE_STD_STRING_VIEW
+#if ALPACA_SERVER_HAVE_STD_STRING_VIEW
   // Convert to std::string_view.
   std::string_view ToStdStringView() const;
 #endif
 
-#if ALPACA_DECODER_HAVE_STD_STRING
-  std::string ToString() const { return std::string(data(), size()); }
-  std::string ToEscapedString() const;
+#if ALPACA_SERVER_HAVE_STD_STRING
+  std::string ToString() const;
+  std::string ToHexEscapedString() const;
 #endif
 
  private:
@@ -284,23 +257,50 @@ class StringView {
   size_type size_;
 };
 
-// The streaming and equals operators are used for tests, CHECK_EQ, etc. They
-// aren't used by the NDEBUG (i.e. embedded/production) portion of the decoder.
+// JsonStringView is a simple helper to allow us to output the JSON escaped form
+// of a StringView. For example.
+//     StringView view = ....;
+//     DCHECK_LT(view.size(), 10) << "View is too long: " << view.escaped();
+class JsonStringView : public Printable {
+ public:
+  explicit JsonStringView(const StringView& view);
 
-#if ALPACA_DECODER_HAVE_STD_OSTREAM
-std::ostream& operator<<(std::ostream& out, StringView view);
-#endif  // ALPACA_DECODER_HAVE_STD_OSTREAM
+  size_t printTo(Print& p) const override;
 
-#if ALPACA_DECODER_HAVE_STD_STRING_VIEW
+#if ALPACA_SERVER_HAVE_STD_OSTREAM
+  void writeTo(std::ostream& out) const;
+#endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
+
+  const StringView& view() const { return view_; }
+
+  // Returns a StringView of the JSON representation of the ASCII character. An
+  // empty StringView is returned if the character is not valid in JSON (e.g.
+  // Ctrl-A). A reference to the character is required because for characters
+  // that don't need escaping, the StringView is constructed as a length 1 view
+  // of that single character.
+  static StringView GetJsonEscaped(const char& c);
+
+ private:
+  const StringView view_;
+};
+
+// The insertion streaming operators (i.e. operator<<) for values of type
+// StringView and JsonStringView are used for tests, DCHECK_EQ, DVLOG, etc.
+
+#if ALPACA_SERVER_HAVE_STD_OSTREAM
+std::ostream& operator<<(std::ostream& out, const StringView& view);
+std::ostream& operator<<(std::ostream& out, const JsonStringView& view);
+#endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
+
+// The equals operators below are used for tests, CHECK_EQ, etc., where we want
+// to compare StringViews against strings from the standard library. They aren't
+// used by the NDEBUG (i.e. embedded/production) portion of the decoder.
+
+#if ALPACA_SERVER_HAVE_STD_STRING_VIEW
 bool operator==(const StringView& a, std::string_view b);
-#endif  // ALPACA_DECODER_HAVE_STD_STRING_VIEW
-
-#if ALPACA_DECODER_HAVE_STD_STRING
-bool operator==(const StringView& a, const std::string& b);
-
-bool operator==(const std::string& a, const StringView& b);
-#endif  // ALPACA_DECODER_HAVE_STD_STRING
+bool operator==(std::string_view a, const StringView& b);
+#endif  // ALPACA_SERVER_HAVE_STD_STRING_VIEW
 
 }  // namespace alpaca
 
-#endif  // ALPACA_DECODER_STRING_VIEW_H_
+#endif  // TINY_ALPACA_SERVER_COMMON_STRING_VIEW_H_

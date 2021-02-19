@@ -1,6 +1,6 @@
-#include "alpaca-decoder/request.h"
+#include "tiny-alpaca-server/decoder/request.h"
 
-#include "alpaca-decoder/constants.h"
+#include "tiny-alpaca-server/decoder/constants.h"
 
 namespace alpaca {
 

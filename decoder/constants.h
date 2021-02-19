@@ -1,5 +1,5 @@
-#ifndef ALPACA_DECODER_CONSTANTS_H_
-#define ALPACA_DECODER_CONSTANTS_H_
+#ifndef TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_
+#define TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_
 
 // Author: james.synge@gmail.com
 
@@ -151,4 +151,4 @@ std::ostream& operator<<(std::ostream& out, EHttpHeader value);
 
 }  // namespace alpaca
 
-#endif  // ALPACA_DECODER_CONSTANTS_H_
+#endif  // TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_

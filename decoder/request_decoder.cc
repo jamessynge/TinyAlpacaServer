@@ -12,16 +12,24 @@
 // decode is Content-Length; we could pass all parameters and all other headers
 // to the client.
 
-#include "alpaca-decoder/request_decoder.h"
+#include "tiny-alpaca-server/decoder/request_decoder.h"
+
+#include <stdint.h>
 
 #include <cstddef>
 #include <limits>
+#include <memory>
+#include <string>
 
 #include "absl/strings/ascii.h"
-#include "alpaca-decoder/constants.h"
-#include "alpaca-decoder/string_view.h"
-#include "alpaca-decoder/token.h"
-#include "alpaca-decoder/tokens.h"
+#include "tiny-alpaca-server/common/logging.h"
+#include "tiny-alpaca-server/common/string_view.h"
+#include "tiny-alpaca-server/config.h"
+#include "tiny-alpaca-server/decoder/constants.h"
+#include "tiny-alpaca-server/decoder/request.h"
+#include "tiny-alpaca-server/decoder/request_decoder_listener.h"
+#include "tiny-alpaca-server/decoder/token.h"
+#include "tiny-alpaca-server/decoder/tokens.h"
 
 // NOTE: The syntax for the query path is not as clearly specified as the rest
 // of HTTP (AFAICT), so I'm assuming that:
@@ -43,13 +51,13 @@ namespace {
 using DecodeFunction = RequestDecoderState::DecodeFunction;
 using CharMatchFunction = bool (*)(char c);
 
-ALPACA_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
-ALPACA_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
-ALPACA_CONSTEXPR_VAR StringView kAscomPathPrefix("/api/v1/");
-ALPACA_CONSTEXPR_VAR StringView kPathSeparator("/");
-ALPACA_CONSTEXPR_VAR StringView kPathTerminator("? ");
-ALPACA_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
-ALPACA_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kAscomPathPrefix("/api/v1/");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kPathSeparator("/");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kPathTerminator("? ");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
@@ -70,7 +78,7 @@ bool IsFieldContent(const char c) {
   return (' ' <= c && c <= '~') || c == '\t';
 }
 
-ALPACA_CONSTEXPR_VAR StringView kUnreservedNonAlnum("-._~");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kUnreservedNonAlnum("-._~");
 
 bool IsUnreserved(const char c) {
   return absl::ascii_isalnum(c) || kUnreservedNonAlnum.contains(c);
@@ -81,14 +89,14 @@ bool IsUnreserved(const char c) {
 // compare matching strings against tokens to find those we're interested in,
 // having this set contain extra characters for some context doesn't really
 // matter.
-ALPACA_CONSTEXPR_VAR StringView kExtraNameChars("-_");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kExtraNameChars("-_");
 bool IsNameChar(const char c) {
   return absl::ascii_isalnum(c) || kExtraNameChars.contains(c);
 }
 
 // Match characters allowed in a URL encoded parameter value, whether in the
 // path or in the body of a PUT request.
-ALPACA_CONSTEXPR_VAR StringView kExtraParamValueChars("-_=%");
+ALPACA_SERVER_CONSTEXPR_VAR StringView kExtraParamValueChars("-_=%");
 bool IsParamValueChar(const char c) {
   return absl::ascii_isalnum(c) || kExtraParamValueChars.contains(c);
 }
@@ -135,12 +143,12 @@ E MatchTokensExactly(const StringView& view, E unknown_id,
   for (int i = 0; i < N; ++i) {
     if (tokens[i].str == view) {
       DVLOG(3) << "MatchTokensExactly matched "
-               << tokens[i].str.ToEscapedString() << " to "
-               << view.ToEscapedString() << ", returning " << tokens[i].id;
+               << tokens[i].str.ToHexEscapedString() << " to "
+               << view.ToHexEscapedString() << ", returning " << tokens[i].id;
       return tokens[i].id;
     }
   }
-  DVLOG(3) << "MatchTokensExactly unable to match " << view.ToEscapedString()
+  DVLOG(3) << "MatchTokensExactly unable to match " << view.ToHexEscapedString()
            << ", returning " << unknown_id;
   return unknown_id;
 }
@@ -150,13 +158,13 @@ E LowerMatchTokens(const StringView& view, E unknown_id,
                    const Token<E> (&tokens)[N]) {
   for (int i = 0; i < N; ++i) {
     if (tokens[i].str.equals_other_lowered(view)) {
-      DVLOG(3) << "LowerMatchTokens matched " << tokens[i].str.ToEscapedString()
-               << " to " << view.ToEscapedString() << ", returning "
-               << tokens[i].id;
+      DVLOG(3) << "LowerMatchTokens matched "
+               << tokens[i].str.ToHexEscapedString() << " to "
+               << view.ToHexEscapedString() << ", returning " << tokens[i].id;
       return tokens[i].id;
     }
   }
-  DVLOG(3) << "LowerMatchTokens unable to match " << view.ToEscapedString()
+  DVLOG(3) << "LowerMatchTokens unable to match " << view.ToHexEscapedString()
            << ", returning " << unknown_id;
   return unknown_id;
 }
@@ -164,8 +172,8 @@ E LowerMatchTokens(const StringView& view, E unknown_id,
 bool ExtractMatchingPrefix(StringView& view, StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
-  DVLOG(3) << "ExtractMatchingPrefix of " << view.ToEscapedString() << " found "
-           << (beyond + 0) << " matching characters";
+  DVLOG(3) << "ExtractMatchingPrefix of " << view.ToHexEscapedString()
+           << " found " << (beyond + 0) << " matching characters";
   if (beyond == StringView::kMaxSize) {
     return false;
   }
@@ -239,10 +247,10 @@ EDecodeStatus DecodeHeaderValue(RequestDecoderState& state, StringView& view) {
       !ExtractMatchingPrefix(view, value, IsFieldContent)) {
     return EDecodeStatus::kNeedMoreInput;
   }
-  DVLOG(1) << "DecodeHeaderValue raw value: " << value.ToEscapedString();
+  DVLOG(1) << "DecodeHeaderValue raw value: " << value.ToHexEscapedString();
   // Trim OWS from the end of the header value.
   TrimTrailingOptionalWhitespace(value);
-  DVLOG(1) << "DecodeHeaderValue trimmed value: " << value.ToEscapedString();
+  DVLOG(1) << "DecodeHeaderValue trimmed value: " << value.ToHexEscapedString();
   EDecodeStatus status = EDecodeStatus::kContinueDecoding;
   if (state.current_header == EHttpHeader::kHttpAccept) {
     // Not tracking whether there are multiple accept headers.
@@ -371,7 +379,7 @@ EDecodeStatus DecodeParamSeparator(RequestDecoderState& state,
   const auto beyond = FindFirstNotOf(view, IsParamSeparator);
   if (beyond == StringView::kMaxSize) {
     DVLOG(3) << "DecodeParamSeparator found no non-separators in "
-             << view.ToEscapedString();
+             << view.ToHexEscapedString();
     // All the available characters are separators, or the view is empty.
     if (!state.is_decoding_header && state.is_final_input) {
       // We've reached the end of the body of the request.
@@ -424,7 +432,7 @@ EDecodeStatus DecodeParamValue(RequestDecoderState& state, StringView& view) {
     value = view;
     view.remove_prefix(value.size());
   }
-  DVLOG(1) << "DecodeParamValue value: " << value.ToEscapedString();
+  DVLOG(1) << "DecodeParamValue value: " << value.ToHexEscapedString();
   EDecodeStatus status = EDecodeStatus::kContinueDecoding;
   if (state.current_parameter == EParameter::kClientId) {
     if (state.request.found_client_id ||
@@ -479,7 +487,7 @@ EDecodeStatus ProcessAscomMethod(RequestDecoderState& state,
                                  const StringView& matched_text,
                                  StringView& view) {
   DVLOG(3) << "ProcessAscomMethod matched_text: "
-           << matched_text.ToEscapedString();
+           << matched_text.ToHexEscapedString();
   // A separator/terminating character should be present after the method.
   DCHECK(!view.empty());
   const EMethod method = MatchTokensExactly(matched_text, EMethod::kUnknown,
@@ -663,7 +671,7 @@ void RequestDecoderState::Reset() {
 EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
                                                 const bool buffer_is_full,
                                                 const bool at_end_of_input) {
-  DVLOG(1) << "DecodeBuffer " << buffer.ToEscapedString();
+  DVLOG(1) << "DecodeBuffer " << buffer.ToHexEscapedString();
   if (decode_function == nullptr) {
     // Need to call Reset first.
     //
@@ -702,14 +710,14 @@ EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
 // DecodeHeaderLines to find the end.
 EDecodeStatus RequestDecoderState::DecodeMessageHeader(
     StringView& buffer, const bool at_end_of_input) {
-  DVLOG(1) << "DecodeMessageHeader " << buffer.ToEscapedString();
+  DVLOG(1) << "DecodeMessageHeader " << buffer.ToHexEscapedString();
 
   EDecodeStatus status;
   do {
 #ifndef NDEBUG
     const auto buffer_size_before_decode = buffer.size();
     auto old_decode_function = decode_function;
-    DVLOG(2) << decode_function << "(" << buffer.ToEscapedString() << " ("
+    DVLOG(2) << decode_function << "(" << buffer.ToHexEscapedString() << " ("
              << static_cast<size_t>(buffer.size()) << " chars))";
 #endif
 
@@ -751,7 +759,7 @@ EDecodeStatus RequestDecoderState::DecodeMessageHeader(
 // (i.e. remaining_content_length tells us how many ASCII characters remain).
 EDecodeStatus RequestDecoderState::DecodeMessageBody(StringView& buffer,
                                                      bool at_end_of_input) {
-  DVLOG(1) << "DecodeMessageBody " << buffer.ToEscapedString();
+  DVLOG(1) << "DecodeMessageBody " << buffer.ToHexEscapedString();
 
   DCHECK(found_content_length);
   DCHECK_EQ(request.http_method, EHttpMethod::PUT);
@@ -785,7 +793,7 @@ EDecodeStatus RequestDecoderState::DecodeMessageBody(StringView& buffer,
     const auto buffer_size_before_decode = buffer.size();
 #ifndef NDEBUG
     const auto old_decode_function = decode_function;
-    DVLOG(2) << decode_function << "(" << buffer.ToEscapedString() << " ("
+    DVLOG(2) << decode_function << "(" << buffer.ToHexEscapedString() << " ("
              << (buffer.size() + 0) << " chars))";
 #endif
 

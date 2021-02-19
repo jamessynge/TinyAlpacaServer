@@ -1,13 +1,13 @@
-#ifndef ALPACA_DECODER_REQUEST_H_
-#define ALPACA_DECODER_REQUEST_H_
+#ifndef TINY_ALPACA_SERVER_DECODER_REQUEST_H_
+#define TINY_ALPACA_SERVER_DECODER_REQUEST_H_
 
 // Author: james.synge@gmail.com
 
 #include <cstdint>
 #include <cstring>
 
-#include "alpaca-decoder/constants.h"
-#include "alpaca-decoder/string_view.h"
+#include "tiny-alpaca-server/common/string_view.h"
+#include "tiny-alpaca-server/decoder/constants.h"
 
 namespace alpaca {
 
@@ -78,4 +78,4 @@ struct AlpacaRequest {
 
 }  // namespace alpaca
 
-#endif  // ALPACA_DECODER_REQUEST_H_
+#endif  // TINY_ALPACA_SERVER_DECODER_REQUEST_H_

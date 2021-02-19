@@ -1,22 +1,22 @@
-#include "alpaca-decoder/string_view.h"
+#include "tiny-alpaca-server/common/string_view.h"
 
 #include <cstdint>
-#include <sstream>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
-#include "alpaca-decoder/config.h"
-#include "alpaca-decoder/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "tiny-alpaca-server/common/logging.h"
+#include "tiny-alpaca-server/config.h"
 
 namespace alpaca {
 
 namespace {
 using ::testing::IsEmpty;
 
-ALPACA_CONSTEXPR_FUNC const StringView kSomeText("some-text");
+ALPACA_SERVER_CONSTEXPR_FUNC const StringView kSomeText("some-text");
 
 std::string ToString(const StringView& view) {
   return std::string(view.data(), view.size());
@@ -368,22 +368,24 @@ TEST(StringViewTest, ToUint32Fails) {
   }
 }
 
-TEST(StringViewTest, StreamOutOperators) {
+TEST(StringViewTest, StreamOutOperator) {
+  std::ostringstream oss;
+  const std::string s("abc'\"\t\r\e");
+  const StringView view(s);
+  oss << view;
+  EXPECT_EQ(oss.str(), s);
+}
+
+TEST(StringViewTest, StreamOutOperatorObeysLimits) {
   {
-    std::ostringstream oss;
-    StringView view("abc");
-    oss << view;
-    EXPECT_EQ(oss.str(), "abc");
-  }
-  {
-    // Confirms that it doesn't print beyond the size it has.
+    // Confirm that it doesn't print beyond the size it has.
     std::ostringstream oss;
     StringView view("abcdef", 4);
     oss << view;
     EXPECT_EQ(oss.str(), "abcd");
   }
   {
-    // Confirms that it doesn't print beyond the size it has.
+    // Confirm that it doesn't print beyond the size it has.
     std::ostringstream oss;
     StringView view("abcdefghi");
     view.remove_prefix(3);
@@ -392,11 +394,84 @@ TEST(StringViewTest, StreamOutOperators) {
     EXPECT_EQ(oss.str(), "def");
   }
   {
-    // Confirms that it doesn't print beyond the size it has.
+    // Confirm that it doesn't print beyond the size it has.
     std::ostringstream oss;
     StringView view;
     oss << view;
     EXPECT_EQ(oss.str(), "");
+  }
+}
+
+TEST(JsonStringViewTest, StreamOutOperator) {
+  {
+    std::ostringstream oss;
+    StringView view("abc");
+    JsonStringView json(view);
+    oss << json;
+    EXPECT_EQ(oss.str(), "\"abc\"");
+  }
+  {
+    // Note: Even though JSON allows a forward slash ('/') to be escaped, it
+    // does not require it.
+    std::ostringstream oss;
+    StringView view("<tag attr=\"value with slash ('\\')\">\b\f\n\r\t</tag>");
+    JsonStringView json(view);
+    oss << json;
+    EXPECT_EQ(oss.str(),
+              "\"<tag attr=\\\"value with slash ('\\\\')\\\">"
+              "\\b\\f\\n\\r\\t</tag>\"");
+  }
+}
+
+TEST(JsonStringViewTest, StreamOutOperatorObeysLimits) {
+  {
+    // Confirm that it doesn't print beyond the size it has.
+    std::ostringstream oss;
+    StringView view("abcdef", 4);
+    JsonStringView json(view);
+    oss << json;
+    EXPECT_EQ(oss.str(), "\"abcd\"");
+  }
+  {
+    // Confirm that it doesn't print beyond the size it has.
+    std::ostringstream oss;
+    StringView view("\tbcdefgh\t");
+    view.remove_prefix(3);
+    view.remove_suffix(3);
+    JsonStringView json(view);
+    oss << json;
+    EXPECT_EQ(oss.str(), "\"def\"");
+  }
+  {
+    // Confirm that it doesn't print beyond the size it has.
+    std::ostringstream oss;
+    StringView view;
+    JsonStringView json(view);
+    oss << json;
+    EXPECT_EQ(oss.str(), "\"\"");
+  }
+}
+
+TEST(JsonStringViewDeathTest,
+     StreamOutOperatorDropsUnsupportedControlCharacters) {
+  for (const std::string& str : {
+           std::string(1, '\0'),    // NUL
+           std::string(1, '\a'),    // BEL
+           std::string(1, '\e'),    // ESC
+           std::string(1, '\x7f'),  // DEL
+       }) {
+    EXPECT_EQ(str.size(), 1);
+    std::ostringstream oss;
+    StringView view(str);
+    JsonStringView json(view);
+    EXPECT_EQ(json.view().size(), 1);
+    LOG(INFO) << "json.view: " << json.view().ToHexEscapedString();
+    EXPECT_DEBUG_DEATH(
+        {
+          oss << json;
+          EXPECT_EQ(oss.str(), "\"\"");
+        },
+        "Unsupported JSON character");
   }
 }
 
