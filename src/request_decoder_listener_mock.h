@@ -1,6 +1,10 @@
 #ifndef TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
 #define TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
 
+// Mock implementation of RequestDecoderListener, used in tests.
+//
+// Author: james.synge@gmail.com
+
 #include "decoder_constants.h"
 #include "gmock/gmock.h"
 #include "request_decoder_listener.h"

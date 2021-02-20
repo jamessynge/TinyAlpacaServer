@@ -3,7 +3,7 @@
 
 // RequestDecoder is a (fairly) strict HTTP/1.1 Request Message decoder
 // targetted at the requests defined for the ASCOM Alpaca REST API.
-
+//
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"

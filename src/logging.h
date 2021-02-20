@@ -6,6 +6,8 @@
 //
 // I need to figure out how to make them available for Alpaca Decoder. For now,
 // these are all NO-OPS.
+//
+// Author: james.synge@gmail.com
 
 #include <sstream>
 

@@ -1,6 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_TOKENS_H_
 #define TINY_ALPACA_SERVER_TOKENS_H_
 
+// Defines the set of recognized HTTP methods, and ASCOM Alpaca Device Types,
+// Methods and Parameters.
+//
+// Author: james.synge@gmail.com
+
 #include <stddef.h>
 
 #include <algorithm>

@@ -1,6 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_H_
 #define TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_H_
 
+// Listener for events regarding unrecognized or unsupported query and body
+// parameters, and unrecognized or unsupported  headers.
+//
+// Author: james.synge@gmail.com
+
 #include "decoder_constants.h"
 #include "string_view.h"
 

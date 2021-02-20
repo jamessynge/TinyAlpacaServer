@@ -1,13 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_STRING_VIEW_H_
 #define TINY_ALPACA_SERVER_STRING_VIEW_H_
 
-// Author: james.synge@gmail.com
-
 // StringView supports referencing subsequences of a string without making any
 // copies. Does not support modifying the underlying string.
 //
-// Inspired by and based on std::string_view and absl::string, with copies of
-// some of the comments and definitions. However, since an embedded system
+// Inspired by and based on std::string_view and absl::string_view, with copies
+// of some of the comments and definitions. However, since an embedded system
 // doesn't have much logging or debugging support, the caller needs to know what
 // they're doing. So we have some DCHECKS, but we don't otherwise prevent
 // invalid requests, including not throwing any exceptions. Callers should use
@@ -16,6 +14,12 @@
 // One constructor and a number of methods are specified as constexpr to
 // encourage the compiler to perform compile time operations instead of waiting
 // until runtime.
+//
+// Note that I've been quite inconsistent about the naming convention for method
+// names. They should mostly be in PascalCase, but std::string_view, etc.,
+// uses in snake_case, and I've followed that convention for many methods.
+//
+// Author: james.synge@gmail.com
 
 #include <stddef.h>
 
@@ -198,10 +202,10 @@ class StringView {
   // code, hence the DCHECKs instead of ensuring that the result is valid.
   ALPACA_SERVER_CONSTEXPR_FUNC StringView substr(size_type pos,
                                                  size_type n) const {
-#ifndef NDEBUG
+#if ALPACA_SERVER_DEBUG
     DCHECK_LE(pos, size_);
     DCHECK_LE(pos + n, size_);
-#endif  // NDEBUG
+#endif  // ALPACA_SERVER_DEBUG
     return StringView(ptr_ + pos, n);
   }
 
@@ -231,12 +235,16 @@ class StringView {
   // Returns this StringView wrapped in a JsonStringView.
   JsonStringView escaped() const;
 
-  // Print the string to Print by calling Print::write(data(), size()).
+  // Print the string to Print by calling Print::write(data(), size()). The
+  // name printTo comes from Arduino's Printable::printTo, with which this is
+  // mostly compatible; the exception is that it is not virtual because that
+  // would prevent StringView instances being able to be constexpr
+  // constructable.
   size_t printTo(Print& p) const;
 
 #if ALPACA_SERVER_HAVE_STD_OSTREAM
   // Writes the string to the ostream.
-  void writeTo(std::ostream& out) const;
+  void WriteTo(std::ostream& out) const;
 #endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
 
   // The following methods are for testing and debugging on a "real" computer,
@@ -268,7 +276,7 @@ class JsonStringView : public Printable {
   size_t printTo(Print& p) const override;
 
 #if ALPACA_SERVER_HAVE_STD_OSTREAM
-  void writeTo(std::ostream& out) const;
+  void WriteTo(std::ostream& out) const;
 #endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
 
   const StringView& view() const { return view_; }
@@ -294,7 +302,7 @@ std::ostream& operator<<(std::ostream& out, const JsonStringView& view);
 
 // The equals operators below are used for tests, CHECK_EQ, etc., where we want
 // to compare StringViews against strings from the standard library. They aren't
-// used by the NDEBUG (i.e. embedded/production) portion of the decoder.
+// used by the embedded portion of the decoder.
 
 #if ALPACA_SERVER_HAVE_STD_STRING_VIEW
 bool operator==(const StringView& a, std::string_view b);

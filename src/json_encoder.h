@@ -3,6 +3,8 @@
 
 // Supports writing a JSON object, with values that are numbers, bools, strings,
 // and arrays of the same. Usage examples can be // found in the test file.
+//
+// Author: james.synge@gmail.com
 
 #include <stddef.h>
 
@@ -64,30 +66,39 @@ class AbstractJsonEncoder {
  protected:
   explicit AbstractJsonEncoder(Print& out, AbstractJsonEncoder* parent)
       : out_(out),
+#if ALPACA_SERVER_DEBUG
         parent_(parent),
-        first_(true),
         has_child_(false),
-        is_live_(true) {
+        is_live_(true),
+#endif
+        first_(true) {
+#if ALPACA_SERVER_DEBUG
     if (parent != nullptr) {
       parent->StartChild();
     }
+#endif
   }
 
   AbstractJsonEncoder(const AbstractJsonEncoder&) = delete;
   AbstractJsonEncoder(AbstractJsonEncoder&& other)
       : out_(other.out_),
+#if ALPACA_SERVER_DEBUG
         parent_(other.parent_),
-        first_(other.first_),
-        has_child_(other.has_child_) {
+        has_child_(other.has_child_),
+#endif
+        first_(true) {
+#if ALPACA_SERVER_DEBUG
     DCHECK(other.is_live_);
     other.parent_ = nullptr;
     other.is_live_ = false;
+#endif
   }
 
   AbstractJsonEncoder& operator=(const AbstractJsonEncoder&) = delete;
   AbstractJsonEncoder& operator=(AbstractJsonEncoder&&) = delete;
 
   ~AbstractJsonEncoder() {
+#if ALPACA_SERVER_DEBUG
     DCHECK(!has_child_);
     if (is_live_) {
       if (parent_ != nullptr) {
@@ -96,10 +107,13 @@ class AbstractJsonEncoder {
     } else {
       DCHECK_EQ(parent_, nullptr);
     }
+#endif
   }
 
   void StartItem() {
+#if ALPACA_SERVER_DEBUG
     DCHECK(is_live_);
+#endif
     if (first_) {
       first_ = false;
     } else {
@@ -113,6 +127,7 @@ class AbstractJsonEncoder {
   Print& out_;
 
  private:
+#if ALPACA_SERVER_DEBUG
   void StartChild() {
     DCHECK(!has_child_);
     has_child_ = true;
@@ -124,9 +139,10 @@ class AbstractJsonEncoder {
   }
 
   AbstractJsonEncoder* parent_;
-  bool first_;
   bool has_child_;
   bool is_live_;
+#endif
+  bool first_;
 };
 
 // JSON encoder for objects.

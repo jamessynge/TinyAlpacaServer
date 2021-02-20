@@ -1,5 +1,21 @@
 # Bazel BUILD file for this package.
 
+cc_library(
+    name = "alpaca_request",
+    srcs = ["alpaca_request.cc"],
+    hdrs = ["alpaca_request.h"],
+    deps = [
+        ":decoder_constants",
+        ":string_view",
+    ],
+)
+
+cc_library(
+    name = "ascii_bridge",
+    hdrs = ["ascii_bridge.h"],
+    deps = ["//absl/strings"],
+)
+
 # config.h specifies the set of features available (e.g. std::string) on
 # the target platform of the Tiny Alpaca Server.
 cc_library(
@@ -18,17 +34,7 @@ cc_test(
     srcs = ["counting_bitbucket_test.cc"],
     deps = [
         ":counting_bitbucket",
-        "//testing/base/public:gunit_main",
-    ],
-)
-
-cc_library(
-    name = "alpaca_request",
-    srcs = ["alpaca_request.cc"],
-    hdrs = ["alpaca_request.h"],
-    deps = [
-        ":decoder_constants",
-        ":string_view",
+        "//googletest:gunit_main",
     ],
 )
 
@@ -50,8 +56,8 @@ cc_library(
     hdrs = ["json_encoder.h"],
     deps = [
         ":host_printable",
+        ":logging",
         ":string_view",
-        "//base:logging",
     ],
 )
 
@@ -62,9 +68,9 @@ cc_test(
         ":counting_bitbucket",
         ":host_printable",
         ":json_encoder",
-        "//base:logging",
-        "//testing/base/public:gunit_main",
+        ":logging",
         "//absl/strings",
+        "//googletest:gunit_main",
     ],
 )
 
@@ -79,13 +85,14 @@ cc_library(
     hdrs = ["request_decoder.h"],
     deps = [
         ":alpaca_request",
+        ":ascii_bridge",
         ":config",
         ":decoder_constants",
+        ":logging",
         ":request_decoder_listener",
         ":string_view",
         ":token",
         ":tokens",
-        "//base:logging",
         "//absl/strings",
     ],
 )
@@ -97,14 +104,14 @@ cc_test(
     deps = [
         ":alpaca_request",
         ":decoder_constants",
+        ":logging",
         ":request_decoder",
         ":request_decoder_listener",
         ":request_decoder_listener_mock",
         ":string_view",
-        "//base:logging",
-        "//testing/base/public:gunit_main",
         "//absl/flags:flag",
         "//absl/strings",
+        "//googletest:gunit_main",
     ],
 )
 
@@ -114,8 +121,8 @@ cc_library(
     hdrs = ["request_decoder_listener.h"],
     deps = [
         ":decoder_constants",
+        ":logging",
         ":string_view",
-        "//base:logging",
     ],
 )
 
@@ -126,7 +133,7 @@ cc_library(
         ":decoder_constants",
         ":request_decoder_listener",
         ":string_view",
-        "//testing/base/public:gunit_headers",
+        "//googletest:gunit_headers",
     ],
 )
 
@@ -135,9 +142,10 @@ cc_library(
     srcs = ["string_view.cc"],
     hdrs = ["string_view.h"],
     deps = [
+        ":ascii_bridge",
         ":config",
         ":host_printable",
-        "//base:logging",
+        ":logging",
         "//absl/strings",
     ],
 )
@@ -147,9 +155,9 @@ cc_test(
     srcs = ["string_view_test.cc"],
     deps = [
         ":config",
+        ":logging",
         ":string_view",
-        "//base:logging",
-        "//testing/base/public:gunit_main",
+        "//googletest:gunit_main",
     ],
 )
 
@@ -170,5 +178,15 @@ cc_library(
         ":decoder_constants",
         ":string_view",
         ":token",
+    ],
+)
+
+cc_library(
+    name = "extra_parameters",
+    hdrs = ["extra_parameters.h"],
+    deps = [
+        ":config",
+        ":decoder_constants",
+        ":string_view",
     ],
 )

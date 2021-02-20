@@ -1,11 +1,14 @@
 #ifndef TINY_ALPACA_SERVER_CONSTANTS_H_
 #define TINY_ALPACA_SERVER_CONSTANTS_H_
 
-// Author: james.synge@gmail.com
-
+// Enums defining the decoder return values and enums corresponding to each kind
+// of token to be decoded.
+//
 // Note that we include the streaming operators in support of testing; these
 // should not be used in the embedded code (except in DLOG or DCHECK type
 // macro invocations).
+//
+// Author: james.synge@gmail.com
 
 #include <cstdint>
 #include <ostream>

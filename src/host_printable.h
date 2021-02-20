@@ -4,6 +4,8 @@
 // When compiled for the host, as opposed to for Arduino, we need our own
 // minimal implementation of the Print class, and the definition of the
 // Printable interface.
+//
+// Author: james.synge@gmail.com
 
 #include <stddef.h>
 #include <stdint.h>
@@ -33,16 +35,29 @@ class Print {
   explicit Print(std::ostream& out) : out_(&out) {}
   virtual ~Print() {}
 
+  // These are the two abstract virtual methods in Arduino's Print class.
   virtual size_t write(uint8_t b) {
-    return write(reinterpret_cast<char*>(&b), 1);
+    const uint8_t* buffer = &b;
+    return write(buffer, 1);
   }
-  virtual size_t write(const char* buffer, size_t count) {
+  virtual size_t write(const uint8_t* buffer, size_t size) {
     if (out_) {
-      out_->write(buffer, count);
+      out_->write(reinterpret_cast<const char*>(buffer), size);
     }
-    return count;
+    return size;
   }
 
+  // These are the specializations they provide for handling chars.
+  size_t write(const char* str) {
+    if (str == nullptr) return 0;
+    return write(reinterpret_cast<const uint8_t*>(str), strlen(str));
+  }
+  size_t write(const char* buffer, size_t size) {
+    return write(reinterpret_cast<const uint8_t*>(buffer), size);
+  }
+
+  // Print an integer or floating point. For simplicity, we just use
+  // std::to_string to perform the conversion to text.
   template <typename T,
             typename E = typename std::enable_if<std::disjunction<
                 std::is_integral<T>, std::is_floating_point<T>>::value>::type>

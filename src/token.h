@@ -1,6 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_TOKEN_H_
 #define TINY_ALPACA_SERVER_TOKEN_H_
 
+// Defines a compile type evaluable Token class, used to build arrays at compile
+// time of tokens to be recognized.
+//
 // Author: james.synge@gmail.com
 
 #include <utility>
@@ -10,6 +13,13 @@
 
 namespace alpaca {
 namespace internal {
+
+#ifdef INCOMPLETE_EXPERIMENT
+// GOAL: I want to figure out how to use std::enable_if and functions such as
+// the following at compile time to prevent MakeToken from being used to create
+// a token from being created that has the wrong type of characters in it (e.g.
+// an HTTP method name is all upper case, while an ASCOM Alpaca device type is
+// all lower case).
 
 // Compile time test of whether a literal is made up only of lower case letters.
 template <StringView::size_type N>
@@ -36,6 +46,8 @@ constexpr bool IsNonUpperCaseLiteral(const char (&buf)[N]) {
   }
 }
 
+#endif  // INCOMPLETE_EXPERIMENT
+
 }  // namespace internal
 
 template <typename E>
@@ -51,11 +63,6 @@ struct Token {
   const StringView str;
   const E id;
 };
-
-// NOTE: Want to figure out how to use std::enable_if et al for preventing the
-// creation of a Token if the literal string contains any upper case characters,
-// or if the entire string is not lower case letters (depending on nature of the
-// token).
 
 template <StringView::size_type N, typename E>
 constexpr Token<E> MakeToken(const char (&buf)[N], E e) {
