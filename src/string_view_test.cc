@@ -1,4 +1,4 @@
-#include "tiny-alpaca-server/string_view.h"
+#include "string_view.h"
 
 #include <cstdint>
 #include <string>
@@ -6,10 +6,10 @@
 #include <utility>
 #include <vector>
 
+#include "config.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "tiny-alpaca-server/config.h"
-#include "tiny-alpaca-server/logging.h"
+#include "logging.h"
 
 namespace alpaca {
 

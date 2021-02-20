@@ -12,7 +12,7 @@
 #include <string>
 #include <type_traits>
 
-#include "tiny-alpaca-server/config.h"
+#include "config.h"
 
 namespace alpaca {
 

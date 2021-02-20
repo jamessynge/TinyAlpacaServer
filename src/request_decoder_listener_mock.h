@@ -1,10 +1,10 @@
 #ifndef TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
 #define TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
 
+#include "decoder_constants.h"
 #include "gmock/gmock.h"
-#include "tiny-alpaca-server/decoder_constants.h"
-#include "tiny-alpaca-server/request_decoder_listener.h"
-#include "tiny-alpaca-server/string_view.h"
+#include "request_decoder_listener.h"
+#include "string_view.h"
 
 namespace alpaca {
 

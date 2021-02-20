@@ -1,4 +1,4 @@
-#include "tiny-alpaca-server/counting_bitbucket.h"
+#include "counting_bitbucket.h"
 
 #include "gmock/gmock.h"
 

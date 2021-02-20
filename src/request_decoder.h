@@ -6,10 +6,10 @@
 
 // Author: james.synge@gmail.com
 
-#include "tiny-alpaca-server/alpaca_request.h"
-#include "tiny-alpaca-server/decoder_constants.h"
-#include "tiny-alpaca-server/request_decoder_listener.h"
-#include "tiny-alpaca-server/string_view.h"
+#include "alpaca_request.h"
+#include "decoder_constants.h"
+#include "request_decoder_listener.h"
+#include "string_view.h"
 
 namespace alpaca {
 

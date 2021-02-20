@@ -59,3 +59,10 @@ Alpaca responses are JSON encoded, with top-level object (aka dictionary), with
 
 Some responses also include a Value property, whose value can have a variety of
 types, including bool, string, integer, double and array of strings.
+
+## Arduino Support
+
+The aim is to support use from the Arduino IDE, though that is not yet complete.
+I'm using the
+[Library specification](https://arduino.github.io/arduino-cli/library-specification/)
+in the arduino-cli documentation as a guide.

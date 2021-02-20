@@ -1,8 +1,8 @@
-#include "tiny-alpaca-server/request_decoder_listener.h"
+#include "request_decoder_listener.h"
 
-#include "tiny-alpaca-server/decoder_constants.h"
-#include "tiny-alpaca-server/logging.h"
-#include "tiny-alpaca-server/string_view.h"
+#include "decoder_constants.h"
+#include "logging.h"
+#include "string_view.h"
 
 namespace alpaca {
 

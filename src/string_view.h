@@ -24,13 +24,13 @@
 #include <string>
 #include <string_view>
 
-#include "tiny-alpaca-server/config.h"
-#include "tiny-alpaca-server/logging.h"
+#include "config.h"
+#include "logging.h"
 
 #ifdef Arduino_h
 #include <Printable.h>
 #else
-#include "tiny-alpaca-server/host_printable.h"
+#include "host_printable.h"
 #endif
 
 namespace alpaca {

@@ -1,7 +1,7 @@
-#include "tiny-alpaca-server/json_encoder.h"
+#include "json_encoder.h"
 
-#include "tiny-alpaca-server/host_printable.h"
-#include "tiny-alpaca-server/string_view.h"
+#include "host_printable.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace internal {

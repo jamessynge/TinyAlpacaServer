@@ -5,10 +5,10 @@
 
 #include <algorithm>
 
-#include "tiny-alpaca-server/config.h"
-#include "tiny-alpaca-server/decoder_constants.h"
-#include "tiny-alpaca-server/string_view.h"
-#include "tiny-alpaca-server/token.h"
+#include "config.h"
+#include "decoder_constants.h"
+#include "string_view.h"
+#include "token.h"
 
 namespace alpaca {
 

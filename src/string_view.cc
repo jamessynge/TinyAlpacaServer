@@ -1,4 +1,4 @@
-#include "tiny-alpaca-server/string_view.h"
+#include "string_view.h"
 
 #include <stdint.h>
 
@@ -10,9 +10,9 @@
 #include "absl/strings/ascii.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
-#include "tiny-alpaca-server/config.h"
-#include "tiny-alpaca-server/host_printable.h"
-#include "tiny-alpaca-server/logging.h"
+#include "config.h"
+#include "host_printable.h"
+#include "logging.h"
 
 namespace alpaca {
 

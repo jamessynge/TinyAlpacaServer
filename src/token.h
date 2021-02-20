@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "absl/strings/ascii.h"
-#include "tiny-alpaca-server/string_view.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace internal {

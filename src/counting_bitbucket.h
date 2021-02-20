@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include "tiny-alpaca-server/host_printable.h"
+#include "host_printable.h"
 
 namespace alpaca {
 

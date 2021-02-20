@@ -9,9 +9,9 @@
 #include <cmath>
 #include <type_traits>
 
-#include "tiny-alpaca-server/host_printable.h"
-#include "tiny-alpaca-server/logging.h"
-#include "tiny-alpaca-server/string_view.h"
+#include "host_printable.h"
+#include "logging.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace internal {
