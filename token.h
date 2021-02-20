@@ -1,12 +1,12 @@
-#ifndef TINY_ALPACA_SERVER_DECODER_TOKEN_H_
-#define TINY_ALPACA_SERVER_DECODER_TOKEN_H_
+#ifndef TINY_ALPACA_SERVER_TOKEN_H_
+#define TINY_ALPACA_SERVER_TOKEN_H_
 
 // Author: james.synge@gmail.com
 
 #include <utility>
 
 #include "absl/strings/ascii.h"
-#include "tiny-alpaca-server/common/string_view.h"
+#include "tiny-alpaca-server/string_view.h"
 
 namespace alpaca {
 namespace internal {
@@ -69,4 +69,4 @@ constexpr Token<E> MakeToken(const StringView& view, E e) {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_DECODER_TOKEN_H_
+#endif  // TINY_ALPACA_SERVER_TOKEN_H_

@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_DECODER_CONFIG_H_
-#define TINY_ALPACA_SERVER_DECODER_CONFIG_H_
+#ifndef TINY_ALPACA_SERVER_CONFIG_H_
+#define TINY_ALPACA_SERVER_CONFIG_H_
 
 // Controls the set of features available in the decoder.
 
@@ -28,4 +28,4 @@
 #define ALPACA_SERVER_CONSTEXPR_VAR const
 #endif  // NDEBUG
 
-#endif  // TINY_ALPACA_SERVER_DECODER_CONFIG_H_
+#endif  // TINY_ALPACA_SERVER_CONFIG_H_

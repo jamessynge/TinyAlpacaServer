@@ -1,8 +1,8 @@
-#ifndef TINY_ALPACA_SERVER_DECODER_REQUEST_DECODER_LISTENER_H_
-#define TINY_ALPACA_SERVER_DECODER_REQUEST_DECODER_LISTENER_H_
+#ifndef TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_H_
+#define TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_H_
 
-#include "tiny-alpaca-server/common/string_view.h"
-#include "tiny-alpaca-server/decoder/constants.h"
+#include "tiny-alpaca-server/decoder_constants.h"
+#include "tiny-alpaca-server/string_view.h"
 
 namespace alpaca {
 
@@ -44,4 +44,4 @@ class RequestDecoderListener {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_DECODER_REQUEST_DECODER_LISTENER_H_
+#endif  // TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_H_

@@ -1,10 +1,10 @@
-#ifndef TINY_ALPACA_SERVER_DECODER_REQUEST_DECODER_LISTENER_MOCK_H_
-#define TINY_ALPACA_SERVER_DECODER_REQUEST_DECODER_LISTENER_MOCK_H_
+#ifndef TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
+#define TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
 
 #include "gmock/gmock.h"
-#include "tiny-alpaca-server/common/string_view.h"
-#include "tiny-alpaca-server/decoder/constants.h"
-#include "tiny-alpaca-server/decoder/request_decoder_listener.h"
+#include "tiny-alpaca-server/decoder_constants.h"
+#include "tiny-alpaca-server/request_decoder_listener.h"
+#include "tiny-alpaca-server/string_view.h"
 
 namespace alpaca {
 
@@ -26,4 +26,4 @@ class MockRequestDecoderListener : public RequestDecoderListener {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_DECODER_REQUEST_DECODER_LISTENER_MOCK_H_
+#endif  // TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_

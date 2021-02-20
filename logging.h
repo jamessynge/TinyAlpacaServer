@@ -1,7 +1,7 @@
-#ifndef TINY_ALPACA_SERVER_COMMON_LOGGING_H_
-#define TINY_ALPACA_SERVER_COMMON_LOGGING_H_
+#ifndef TINY_ALPACA_SERVER_LOGGING_H_
+#define TINY_ALPACA_SERVER_LOGGING_H_
 
-// This exports the logging macros used in Alpaca Decoder. They're available in
+// This exports the logging macros used in Alpaca Decoder. They're available
 // publicly in the tensorflow file: core/platform/default/logging.h.
 //
 // I need to figure out how to make them available for Alpaca Decoder. For now,
@@ -37,4 +37,4 @@ class LogMessageNull : public std::basic_ostringstream<char> {
 #define DCHECK_GE(x, y) _ALPACA_DCHECK_NO_OP(x, y)
 #define DCHECK_GT(x, y) _ALPACA_DCHECK_NO_OP(x, y)
 
-#endif  // TINY_ALPACA_SERVER_COMMON_LOGGING_H_
+#endif  // TINY_ALPACA_SERVER_LOGGING_H_

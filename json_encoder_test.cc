@@ -1,4 +1,4 @@
-#include "tiny-alpaca-server/encoder/json_encoder.h"
+#include "tiny-alpaca-server/json_encoder.h"
 
 #include <cmath>
 #include <cstdint>
@@ -8,9 +8,9 @@
 
 #include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
-#include "tiny-alpaca-server/common/host_printable.h"
-#include "tiny-alpaca-server/common/logging.h"
-#include "tiny-alpaca-server/encoder/counting_bitbucket.h"
+#include "tiny-alpaca-server/counting_bitbucket.h"
+#include "tiny-alpaca-server/host_printable.h"
+#include "tiny-alpaca-server/logging.h"
 
 namespace alpaca {
 namespace {

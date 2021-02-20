@@ -1,4 +1,4 @@
-#include "tiny-alpaca-server/common/string_view.h"
+#include "tiny-alpaca-server/string_view.h"
 
 #include <cstdint>
 #include <string>
@@ -8,8 +8,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "tiny-alpaca-server/common/logging.h"
 #include "tiny-alpaca-server/config.h"
+#include "tiny-alpaca-server/logging.h"
 
 namespace alpaca {
 

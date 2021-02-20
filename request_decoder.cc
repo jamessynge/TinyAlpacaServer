@@ -12,7 +12,7 @@
 // decode is Content-Length; we could pass all parameters and all other headers
 // to the client.
 
-#include "tiny-alpaca-server/decoder/request_decoder.h"
+#include "tiny-alpaca-server/request_decoder.h"
 
 #include <stdint.h>
 
@@ -22,14 +22,14 @@
 #include <string>
 
 #include "absl/strings/ascii.h"
-#include "tiny-alpaca-server/common/logging.h"
-#include "tiny-alpaca-server/common/string_view.h"
+#include "tiny-alpaca-server/alpaca_request.h"
 #include "tiny-alpaca-server/config.h"
-#include "tiny-alpaca-server/decoder/constants.h"
-#include "tiny-alpaca-server/decoder/request.h"
-#include "tiny-alpaca-server/decoder/request_decoder_listener.h"
-#include "tiny-alpaca-server/decoder/token.h"
-#include "tiny-alpaca-server/decoder/tokens.h"
+#include "tiny-alpaca-server/decoder_constants.h"
+#include "tiny-alpaca-server/logging.h"
+#include "tiny-alpaca-server/request_decoder_listener.h"
+#include "tiny-alpaca-server/string_view.h"
+#include "tiny-alpaca-server/token.h"
+#include "tiny-alpaca-server/tokens.h"
 
 // NOTE: The syntax for the query path is not as clearly specified as the rest
 // of HTTP (AFAICT), so I'm assuming that:

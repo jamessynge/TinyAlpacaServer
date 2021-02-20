@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_COMMON_STRING_VIEW_H_
-#define TINY_ALPACA_SERVER_COMMON_STRING_VIEW_H_
+#ifndef TINY_ALPACA_SERVER_STRING_VIEW_H_
+#define TINY_ALPACA_SERVER_STRING_VIEW_H_
 
 // Author: james.synge@gmail.com
 
@@ -24,13 +24,13 @@
 #include <string>
 #include <string_view>
 
-#include "tiny-alpaca-server/common/logging.h"
 #include "tiny-alpaca-server/config.h"
+#include "tiny-alpaca-server/logging.h"
 
 #ifdef Arduino_h
 #include <Printable.h>
 #else
-#include "tiny-alpaca-server/common/host_printable.h"
+#include "tiny-alpaca-server/host_printable.h"
 #endif
 
 namespace alpaca {
@@ -303,4 +303,4 @@ bool operator==(std::string_view a, const StringView& b);
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_COMMON_STRING_VIEW_H_
+#endif  // TINY_ALPACA_SERVER_STRING_VIEW_H_

@@ -1,6 +1,6 @@
 // GENERATED FILE
 
-#include "tiny-alpaca-server/decoder/constants.h"
+#include "tiny-alpaca-server/decoder_constants.h"
 
 #include <ostream>
 #include <type_traits>

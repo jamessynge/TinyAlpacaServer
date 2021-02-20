@@ -1,18 +1,19 @@
-#ifndef TINY_ALPACA_SERVER_DECODER_TOKENS_H_
-#define TINY_ALPACA_SERVER_DECODER_TOKENS_H_
+#ifndef TINY_ALPACA_SERVER_TOKENS_H_
+#define TINY_ALPACA_SERVER_TOKENS_H_
 
 #include <stddef.h>
 
 #include <algorithm>
 
-#include "tiny-alpaca-server/common/string_view.h"
 #include "tiny-alpaca-server/config.h"
-#include "tiny-alpaca-server/decoder/constants.h"
-#include "tiny-alpaca-server/decoder/token.h"
+#include "tiny-alpaca-server/decoder_constants.h"
+#include "tiny-alpaca-server/string_view.h"
+#include "tiny-alpaca-server/token.h"
 
 namespace alpaca {
 
 ALPACA_SERVER_CONSTEXPR_VAR Token<EHttpMethod> kRecognizedHttpMethods[] = {
+    // These strings must be UPPERCASE.
     MakeToken("GET", EHttpMethod::GET),
     MakeToken("PUT", EHttpMethod::PUT),
     MakeToken("HEAD", EHttpMethod::HEAD),
@@ -20,12 +21,14 @@ ALPACA_SERVER_CONSTEXPR_VAR Token<EHttpMethod> kRecognizedHttpMethods[] = {
 
 ALPACA_SERVER_CONSTEXPR_VAR Token<EDeviceType> kRecognizedDeviceTypes[] = {
     // Devices types we're currently supporting.
+    // These strings must be LOWERCASE.
     MakeToken("observingconditions", EDeviceType::kObservingConditions),
     MakeToken("safetymonitor", EDeviceType::kSafetyMonitor),
 };
 
 ALPACA_SERVER_CONSTEXPR_VAR Token<EMethod> kRecognizedAscomMethods[] = {
     // TBD which of these will actually be supported.
+    // These strings must be LOWERCASE.
 
     // ASCOM common methods:
     MakeToken("connected", EMethod::kConnected),
@@ -52,12 +55,14 @@ ALPACA_SERVER_CONSTEXPR_VAR Token<EMethod> kRecognizedAscomMethods[] = {
 };
 
 ALPACA_SERVER_CONSTEXPR_VAR Token<EParameter> kRecognizedParameters[] = {
+    // These strings must be LOWERCASE.
     MakeToken("clientid", EParameter::kClientId),
     MakeToken("clienttransactionid", EParameter::kClientTransactionId),
     MakeToken("connected", EParameter::kConnected),
 };
 
 ALPACA_SERVER_CONSTEXPR_VAR Token<EHttpHeader> kRecognizedHttpHeaders[] = {
+    // These strings must be LOWERCASE.
     MakeToken("accept", EHttpHeader::kHttpAccept),
     MakeToken("content-length", EHttpHeader::kHttpContentLength),
     MakeToken("content-type", EHttpHeader::kHttpContentType),
@@ -97,4 +102,4 @@ ALPACA_SERVER_CONSTEXPR_VAR StringView::size_type kMinRequiredBufferSize =
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_DECODER_TOKENS_H_
+#endif  // TINY_ALPACA_SERVER_TOKENS_H_

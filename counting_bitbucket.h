@@ -1,9 +1,9 @@
-#ifndef TINY_ALPACA_SERVER_ENCODER_COUNTING_BITBUCKET_H_
-#define TINY_ALPACA_SERVER_ENCODER_COUNTING_BITBUCKET_H_
+#ifndef TINY_ALPACA_SERVER_COUNTING_BITBUCKET_H_
+#define TINY_ALPACA_SERVER_COUNTING_BITBUCKET_H_
 
 #include <stddef.h>
 
-#include "tiny-alpaca-server/common/host_printable.h"
+#include "tiny-alpaca-server/host_printable.h"
 
 namespace alpaca {
 
@@ -29,4 +29,4 @@ class CountingBitbucket : public Print {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_ENCODER_COUNTING_BITBUCKET_H_
+#endif  // TINY_ALPACA_SERVER_COUNTING_BITBUCKET_H_

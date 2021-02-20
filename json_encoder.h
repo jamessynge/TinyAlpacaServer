@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_ENCODER_JSON_ENCODER_H_
-#define TINY_ALPACA_SERVER_ENCODER_JSON_ENCODER_H_
+#ifndef TINY_ALPACA_SERVER_JSON_ENCODER_H_
+#define TINY_ALPACA_SERVER_JSON_ENCODER_H_
 
 // Supports writing a JSON object, with values that are numbers, bools, strings,
 // and arrays of the same. Usage examples can be // found in the test file.
@@ -9,9 +9,9 @@
 #include <cmath>
 #include <type_traits>
 
-#include "tiny-alpaca-server/common/host_printable.h"
-#include "tiny-alpaca-server/common/logging.h"
-#include "tiny-alpaca-server/common/string_view.h"
+#include "tiny-alpaca-server/host_printable.h"
+#include "tiny-alpaca-server/logging.h"
+#include "tiny-alpaca-server/string_view.h"
 
 namespace alpaca {
 namespace internal {
@@ -229,4 +229,4 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
 };
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_ENCODER_JSON_ENCODER_H_
+#endif  // TINY_ALPACA_SERVER_JSON_ENCODER_H_

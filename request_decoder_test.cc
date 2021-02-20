@@ -1,4 +1,4 @@
-#include "tiny-alpaca-server/decoder/request_decoder.h"
+#include "tiny-alpaca-server/request_decoder.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -13,12 +13,12 @@
 #include "absl/strings/str_join.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "tiny-alpaca-server/common/logging.h"
-#include "tiny-alpaca-server/common/string_view.h"
-#include "tiny-alpaca-server/decoder/constants.h"
-#include "tiny-alpaca-server/decoder/request.h"
-#include "tiny-alpaca-server/decoder/request_decoder_listener.h"
-#include "tiny-alpaca-server/decoder/request_decoder_listener_mock.h"
+#include "tiny-alpaca-server/alpaca_request.h"
+#include "tiny-alpaca-server/decoder_constants.h"
+#include "tiny-alpaca-server/logging.h"
+#include "tiny-alpaca-server/request_decoder_listener.h"
+#include "tiny-alpaca-server/request_decoder_listener_mock.h"
+#include "tiny-alpaca-server/string_view.h"
 
 ABSL_DECLARE_FLAG(int, v);
 
