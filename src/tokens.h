@@ -76,19 +76,16 @@ namespace internal {
 template <size_t N, typename E>
 TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
     const Token<E> (&tokens)[N], const size_t ndx) {
-  if (ndx >= N) {
-    return 0;
-  } else {
-    return std::max(tokens[ndx].str.size(),
-                    MaxTokenSizeHelper<N, E>(tokens, ndx + 1));
-  }
-}
+  return (ndx >= N) ? 0 :
+     MaxOf2(tokens[ndx].str.size(),
+                    MaxTokenSizeHelper<N, E>(tokens, ndx + 1));}
 
 template <size_t N, typename E>
 TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSize(
     const Token<E> (&tokens)[N]) {
   return MaxTokenSizeHelper<N, E>(tokens, 0);
 }
+
 }  // namespace internal
 
 // To help guide the selection of the buffer size to be used when reading an
@@ -97,10 +94,10 @@ TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSize(
 // repeatedly return kNeedMoreInput, but there won't be enough room in the
 // buffer for more input.
 TAS_CONSTEXPR_VAR StringView::size_type kMinRequiredBufferSize =
-    std::max({internal::MaxTokenSize(kRecognizedDeviceTypes),
+    MaxOf4(internal::MaxTokenSize(kRecognizedDeviceTypes),
               internal::MaxTokenSize(kRecognizedAscomMethods),
               internal::MaxTokenSize(kRecognizedParameters),
-              internal::MaxTokenSize(kRecognizedHttpHeaders)});
+              internal::MaxTokenSize(kRecognizedHttpHeaders));
 
 }  // namespace alpaca
 

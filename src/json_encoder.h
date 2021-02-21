@@ -34,6 +34,7 @@ template <typename T>
 void PrintFloatingPoint(Print& out, const T value) {
   // We're assuming that the stream is configured to match JSON requirements for
   // the formatting of numbers.
+#if TAS_HOST_TARGET
   if (std::isnan(value)) {
     JsonStringView("NaN").printTo(out);
   } else if (!std::isfinite(value)) {
@@ -43,8 +44,11 @@ void PrintFloatingPoint(Print& out, const T value) {
     }
     v.escaped().printTo(out);
   } else {
+#endif
     out.print(value);
+#if TAS_HOST_TARGET
   }
+#endif
 }
 
 // Prints true or false to out.
@@ -151,15 +155,13 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
   JsonObjectEncoder& operator=(const JsonObjectEncoder&) = delete;
   JsonObjectEncoder& operator=(JsonObjectEncoder&&) = delete;
 
-  template <typename T, typename E = typename std::enable_if<
-                            std::is_integral<T>::value>::type>
+  template <typename T>
   void AddIntegerProperty(const StringView& name, const T value) {
     StartProperty(name);
     internal::PrintInteger(out_, value);
   }
 
-  template <typename T, typename E = typename std::enable_if<
-                            std::is_floating_point<T>::value>::type>
+  template <typename T>
   void AddFloatingPointProperty(const StringView& name, T value) {
     StartProperty(name);
     internal::PrintFloatingPoint(out_, value);
@@ -201,15 +203,13 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
 
   ~JsonArrayEncoder() { internal::PrintStringLiteral(out_, "]"); }
 
-  template <typename T, typename E = typename std::enable_if<
-                            std::is_integral<T>::value>::type>
+  template <typename T>
   void AddIntegerElement(const T value) {
     StartItem();
     internal::PrintInteger(out_, value);
   }
 
-  template <typename T, typename E = typename std::enable_if<
-                            std::is_floating_point<T>::value>::type>
+  template <typename T>
   void AddFloatingPointElement(T value) {
     StartItem();
     internal::PrintFloatingPoint(out_, value);

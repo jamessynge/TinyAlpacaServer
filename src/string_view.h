@@ -90,14 +90,14 @@ class StringView {
 
   // Remove the first prefix_length characters from the StringView.
   void remove_prefix(size_type prefix_length) noexcept {
-    TAS_DCHECK_LE(prefix_length, size_);
+    TAS_DCHECK_LE(prefix_length, size_, "");
     size_ -= prefix_length;
     ptr_ += prefix_length;
   }
 
   // Remove the last suffix_length characters from the StringView.
   void remove_suffix(size_type suffix_length) {
-    DCHECK_LE(suffix_length, size_);
+    TAS_DCHECK_LE(suffix_length, size_, "");
     size_ -= suffix_length;
   }
 
@@ -113,11 +113,11 @@ class StringView {
   const_iterator begin() const { return ptr_; }
   const_iterator end() const { return ptr_ + size_; }
   char front() const {
-    DCHECK(!empty());
+    TAS_DCHECK(!empty(), "");
     return *ptr_;
   }
   char back() const {
-    DCHECK(!empty());
+    TAS_DCHECK(!empty(), "");
     return ptr_[size_ - 1];
   }
 
@@ -159,10 +159,9 @@ class StringView {
 
   // Returns true if this starts with s.
   constexpr bool starts_with(const StringView& s) const {
-    if (s.size_ > size_) {
-      return false;
-    }
-    return prefix(s.size_) == s;
+    return (s.size_ > size_) ?
+ false :
+(prefix(s.size_) == s);
   }
 
   // Returns true if this starts with c.
@@ -184,7 +183,7 @@ class StringView {
   constexpr const char* data() const { return ptr_; }
 
   constexpr char at(size_type pos) const {
-    DCHECK_LT(pos, size_);
+    TAS_DCHECK_LT(pos, size_, "");
     return ptr_[pos];
   }
 
@@ -196,27 +195,19 @@ class StringView {
   // be greater than length(). This is currently only used for non-embedded
   // code, hence the DCHECKs instead of ensuring that the result is valid.
   TAS_CONSTEXPR_FUNC StringView substr(size_type pos, size_type n) const {
-    TAS_DCHECK_LE(pos, size_);
-    TAS_DCHECK_LE(pos + n, size_);
+    TAS_DCHECK_LE(pos, size_, "");
+    TAS_DCHECK_LE(pos + n, size_, "");
     return StringView(ptr_ + pos, n);
   }
 
   // Returns a new StringView containing the first n characters of this view.
   constexpr StringView prefix(size_type n) const {
-    if (n >= size_) {
-      return *this;
-    } else {
-      return StringView(ptr_, n);
-    }
+    return (n >= size_) ? *this : StringView(ptr_, n);
   }
 
   // Returns a new StringView containing the last n characters of this view.
   constexpr StringView suffix(size_type n) const {
-    if (n >= size_) {
-      return *this;
-    } else {
-      return StringView(ptr_ + (size_ - n), n);
-    }
+    return (n >= size_) ? *this : StringView(ptr_ + (size_ - n), n);
   }
 
   // Parse the string as an unsigned, 32-bit decimal integer, writing the value

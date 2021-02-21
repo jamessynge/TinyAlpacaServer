@@ -54,10 +54,6 @@ struct Token {
   constexpr Token(const Token<E>&) = default;
   constexpr Token(Token<E>&&) = default;
 
-  constexpr std::pair<E, StringView::size_type> match_info() const {
-    return {id, str.size()};
-  }
-
   const StringView str;
   const E id;
 };

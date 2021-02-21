@@ -80,7 +80,7 @@ class ExtraParameterValueMap {
   const_iterator begin() const { return entries_; }
   const_iterator end() const { return &entries_[size_]; }
 
-  bool insert(EParameter parameter, const StringView& value) {
+  EInsertResult insert(EParameter parameter, const StringView& value) {
     if (value.size() > kMaxExtraParameterValueLength) {
       return kValueTooLong;
     } else if (contains(parameter)) {
