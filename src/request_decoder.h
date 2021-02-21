@@ -56,6 +56,7 @@ struct RequestDecoderState {
   // NOTE: We could change this to uint16_t if we need to support longer
   // payloads.
   StringView::size_type remaining_content_length;
+  static constexpr StringView::size_type kMaxPayloadSize = StringView::kMaxSize;
 
   // Using bit fields here for these boolean values, which represents a
   // trade-off of program size for smaller RAM use. Will need to assess if this

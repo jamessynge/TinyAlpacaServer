@@ -62,7 +62,7 @@ class JsonObjectEncoder;
 // Base class for the object and array encoders.
 class AbstractJsonEncoder {
  protected:
-  explicit AbstractJsonEncoder(Print& out, AbstractJsonEncoder* parent)
+  AbstractJsonEncoder(Print& out, AbstractJsonEncoder* parent)
       : out_(out),
 #if TAS_ENABLE_DEBUGGING
         parent_(parent),
@@ -83,10 +83,12 @@ class AbstractJsonEncoder {
 #if TAS_ENABLE_DEBUGGING
         parent_(other.parent_),
         has_child_(other.has_child_),
+        is_live_(other.is_live_),
 #endif
         first_(true) {
 #if TAS_ENABLE_DEBUGGING
-    DCHECK(other.is_live_);
+    TAS_DCHECK(!other.has_child_, "Must not have child!");
+    TAS_DCHECK(other.is_live_, "Other is already dead.");
     other.parent_ = nullptr;
     other.is_live_ = false;
 #endif
@@ -97,20 +99,20 @@ class AbstractJsonEncoder {
 
   ~AbstractJsonEncoder() {
 #if TAS_ENABLE_DEBUGGING
-    DCHECK(!has_child_);
+    TAS_DCHECK(!has_child_, "Child must be deleted first!");
     if (is_live_) {
       if (parent_ != nullptr) {
         parent_->EndChild();
       }
     } else {
-      DCHECK_EQ(parent_, nullptr);
+      TAS_DCHECK_EQ(parent_, nullptr, "Dead encoder still has a parent!");
     }
 #endif
   }
 
   void StartItem() {
 #if TAS_ENABLE_DEBUGGING
-    DCHECK(is_live_);
+    TAS_DCHECK(is_live_, "");
 #endif
     if (first_) {
       first_ = false;
@@ -127,19 +129,19 @@ class AbstractJsonEncoder {
  private:
 #if TAS_ENABLE_DEBUGGING
   void StartChild() {
-    DCHECK(!has_child_);
+    TAS_DCHECK(!has_child_, "");
     has_child_ = true;
   }
 
   void EndChild() {
-    DCHECK(has_child_);
+    TAS_DCHECK(has_child_, "");
     has_child_ = false;
   }
 
   AbstractJsonEncoder* parent_;
   bool has_child_;
   bool is_live_;
-#endif
+#endif  // TAS_ENABLE_DEBUGGING
   bool first_;
 };
 

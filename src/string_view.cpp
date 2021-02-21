@@ -73,7 +73,7 @@ bool StringView::to_uint32(uint32_t& out) const {
   if (empty()) {
     return false;
   }
-  constexpr uint32_t value_max = std::numeric_limits<uint32_t>::max();
+  constexpr uint32_t value_max = 0xFFFFFFFF;
   constexpr uint32_t value_max_div_10 = value_max / 10;
 
   uint32_t value = 0;

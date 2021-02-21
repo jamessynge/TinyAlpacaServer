@@ -18,14 +18,16 @@ void PrintBoolean(Print& out, const bool value) {
 
 }  // namespace internal
 
-JsonArrayEncoder AbstractJsonEncoder::MakeChildArrayEncoder() {
-  return JsonArrayEncoder(out_, this);
-}
+//JsonArrayEncoder AbstractJsonEncoder::MakeChildArrayEncoder() {
+//  JsonArrayEncoder child(out_, this);
+  //return static_cast<JsonArrayEncoder&&>(child);
+//}
 
-JsonObjectEncoder AbstractJsonEncoder::MakeChildObjectEncoder() {
-  return JsonObjectEncoder(out_, this);
-}
+//JsonObjectEncoder AbstractJsonEncoder::MakeChildObjectEncoder() {
+//  return JsonObjectEncoder(out_, this);
+//}
 
+/*
 JsonArrayEncoder JsonObjectEncoder::StartArrayProperty(const StringView& name) {
   StartProperty(name);
   return MakeChildArrayEncoder();
@@ -46,5 +48,5 @@ JsonObjectEncoder JsonArrayEncoder::StartObjectElement() {
   StartItem();
   return MakeChildObjectEncoder();
 }
-
+*/
 }  // namespace alpaca
