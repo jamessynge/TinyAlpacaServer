@@ -6,9 +6,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include <utility>
-
-#include "absl/strings/ascii.h"
+#include "platform.h"
 #include "string_view.h"
 
 namespace alpaca {

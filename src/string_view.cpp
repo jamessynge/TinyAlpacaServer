@@ -2,31 +2,18 @@
 
 // Author: james.synge@gmail.com
 
-#include <stdint.h>
+#include "platform.h"
 
-#ifdef ARDUINO
-#include <Arduino.h>
-#endif
-
-#include <cstddef>
-#include <limits>
-#include <string>
-#include <string_view>
-
-#include "absl/strings/ascii.h"
+#if TAS_HOST_TARGET
 #include "absl/strings/escaping.h"
-#include "absl/strings/str_cat.h"
-#include "ascii_bridge.h"
-#include "config.h"
-#include "host_printable.h"
-#include "logging.h"
+#endif
 
 namespace alpaca {
 
 // Generally speaking, methods are implemented in the same order in which they
 // were declared in the header file.
 
-#if ALPACA_SERVER_HAVE_STD_STRING
+#if TAS_HOST_TARGET
 StringView::StringView(const std::string& str)
     : ptr_(str.data()), size_(str.size()) {
   DCHECK_LE(str.size(), kMaxSize);
@@ -69,11 +56,9 @@ bool StringView::equals_other_lowered(const StringView& other) const {
   }
   for (StringView::size_type pos = 0; pos < size_; ++pos) {
     const char our_lc_char = ptr_[pos];
-#if ALPACA_SERVER_DEBUG
-    DCHECK(!IsUpperCase(our_lc_char)) << substr(pos, 1);
-#endif
+    TAS_DCHECK(!isUpperCase(our_lc_char), substr(pos, 1));
     const char other_char = other.at(pos);
-    const char other_lc_char = IsUpperCase(other_char)
+    const char other_lc_char = isUpperCase(other_char)
                                    ? (other_char | static_cast<char>(0x20))
                                    : other_char;
     if (our_lc_char != other_lc_char) {
@@ -84,9 +69,7 @@ bool StringView::equals_other_lowered(const StringView& other) const {
 }
 
 bool StringView::to_uint32(uint32_t& out) const {
-#if ALPACA_SERVER_HAVE_STD_STRING
-  DVLOG(2) << "StringView::to_uint32 converting " << ToHexEscapedString();
-#endif
+  TAS_DVLOG(2, "StringView::to_uint32 converting " << ToHexEscapedString());
   if (empty()) {
     return false;
   }
@@ -109,33 +92,22 @@ bool StringView::to_uint32(uint32_t& out) const {
     value += digit;
   }
 
-  DVLOG(2) << "StringView::to_uint32 produced " << value;
+  TAS_DVLOG(2, "StringView::to_uint32 produced " << value);
   out = value;
   return true;
 }
 
 JsonStringView StringView::escaped() const { return JsonStringView(*this); }
 
-size_t StringView::printTo(Print& p) const {
-#if ALPACA_SERVER_EMBEDDED
-  return p.write(ptr_, size_);
-#else
-  p.write(ptr_, size_);
-  return size_;
-#endif  // ALPACA_SERVER_EMBEDDED
-}
+size_t StringView::printTo(Print& p) const { return p.write(ptr_, size_); }
 
-#if ALPACA_SERVER_HAVE_STD_OSTREAM
-void StringView::WriteTo(std::ostream& out) const { out.write(ptr_, size_); }
-#endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
+#if TAS_HOST_TARGET
+// void StringView::WriteTo(std::ostream& out) const { out.write(ptr_, size_); }
 
-#if ALPACA_SERVER_HAVE_STD_STRING_VIEW
 std::string_view StringView::ToStdStringView() const {
   return std::string_view(data(), size());
 }
-#endif
 
-#if ALPACA_SERVER_HAVE_STD_STRING
 std::string StringView::ToString() const { return std::string(data(), size()); }
 
 std::string StringView::ToHexEscapedString() const {
@@ -154,20 +126,9 @@ size_t JsonStringView::printTo(Print& p) const {
   return total;
 }
 
-#if ALPACA_SERVER_HAVE_STD_OSTREAM
-void JsonStringView::WriteTo(std::ostream& out) const {
-  StringView("\"").WriteTo(out);
-  for (const char& c : view_) {
-    GetJsonEscaped(c).WriteTo(out);
-  }
-  StringView("\"").WriteTo(out);
-}
-
-#endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
-
 // static
 StringView JsonStringView::GetJsonEscaped(const char& c) {  // NOLINT
-  if (IsPrintable(c)) {
+  if (isPrintable(c)) {
     if (c == '"') {
       return StringView("\\\"");
     } else if (c == '\\') {
@@ -186,22 +147,24 @@ StringView JsonStringView::GetJsonEscaped(const char& c) {  // NOLINT
   } else if (c == '\t') {
     return StringView("\\t");
   }
-  DCHECK(false) << "Unsupported JSON character: 0x" << std::hex << (c + 0);
+  TAS_DCHECK(false, "Unsupported JSON character: 0x" << std::hex << (c + 0));
   return StringView("");
 }
 
-#if ALPACA_SERVER_HAVE_STD_OSTREAM
+#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, const StringView& view) {
   return out.write(view.data(), view.size());
 }
 
 std::ostream& operator<<(std::ostream& out, const JsonStringView& view) {
-  view.WriteTo(out);
+  out << StringView("\"");
+  for (const char& c : view.view()) {
+    out << JsonStringView::GetJsonEscaped(c);
+  }
+  out << StringView("\"");
   return out;
 }
-#endif  // ALPACA_SERVER_HAVE_STD_OSTREAM
 
-#if ALPACA_SERVER_HAVE_STD_STRING_VIEW
 bool operator==(const StringView& a, std::string_view b) {
   return a == StringView(b.data(), b.size());
 }

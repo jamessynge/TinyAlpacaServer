@@ -16,24 +16,8 @@
 
 #include "request_decoder.h"
 
-#include <stdint.h>
-
-#ifdef ARDUINO
-#include <Arduino.h>
-#endif
-
-#include <cstddef>
-#include <limits>
-#include <memory>
-#include <string>
-
-#include "alpaca_request.h"
-#include "ascii_bridge.h"
 #include "config.h"
-#include "decoder_constants.h"
-#include "logging.h"
-#include "request_decoder_listener.h"
-#include "string_view.h"
+#include "platform.h"
 #include "token.h"
 #include "tokens.h"
 
@@ -58,35 +42,28 @@ namespace {
 using DecodeFunction = RequestDecoderState::DecodeFunction;
 using CharMatchFunction = bool (*)(char c);
 
-ALPACA_SERVER_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
-ALPACA_SERVER_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
-ALPACA_SERVER_CONSTEXPR_VAR StringView kAscomPathPrefix("/api/v1/");
-ALPACA_SERVER_CONSTEXPR_VAR StringView kPathSeparator("/");
-ALPACA_SERVER_CONSTEXPR_VAR StringView kPathTerminator("? ");
-ALPACA_SERVER_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
-ALPACA_SERVER_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
+TAS_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
+TAS_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
+TAS_CONSTEXPR_VAR StringView kAscomPathPrefix("/api/v1/");
+TAS_CONSTEXPR_VAR StringView kPathSeparator("/");
+TAS_CONSTEXPR_VAR StringView kPathTerminator("? ");
+TAS_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
+TAS_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
-
-// QUESTION: Do these take up less space than including in cctype and calling
-// std::isdigit, etc. They use some tables which take space, but that becomes
-// moot if other code uses those same tables.
-// bool IsDigit(const char c) { return '0' <= c && c <= '9'; }
-// bool IsLower(const char c) { return 'a' <= c && c <= 'z'; }
-// bool IsUpper(const char c) { return 'A' <= c && c <= 'Z'; }
 
 bool IsOptionalWhitespace(const char c) { return c == ' ' || c == '\t'; }
 
 bool IsParamSeparator(const char c) { return c == '&'; }
 
 // Per RFC7230, Section 3.2, Header-Fields.
-bool IsFieldContent(const char c) { return IsPrintable(c) || c == '\t'; }
+bool IsFieldContent(const char c) { return isPrintable(c) || c == '\t'; }
 
-ALPACA_SERVER_CONSTEXPR_VAR StringView kUnreservedNonAlnum("-._~");
+TAS_CONSTEXPR_VAR StringView kUnreservedNonAlnum("-._~");
 
 bool IsUnreserved(const char c) {
-  return IsAlphaNumeric(c) || kUnreservedNonAlnum.contains(c);
+  return isAlphaNumeric(c) || kUnreservedNonAlnum.contains(c);
 }
 
 // Match characters in either a URI query param or a header name; actually, just
@@ -94,16 +71,16 @@ bool IsUnreserved(const char c) {
 // compare matching strings against tokens to find those we're interested in,
 // having this set contain extra characters for some context doesn't really
 // matter.
-ALPACA_SERVER_CONSTEXPR_VAR StringView kExtraNameChars("-_");
+TAS_CONSTEXPR_VAR StringView kExtraNameChars("-_");
 bool IsNameChar(const char c) {
-  return IsAlphaNumeric(c) || kExtraNameChars.contains(c);
+  return isAlphaNumeric(c) || kExtraNameChars.contains(c);
 }
 
 // Match characters allowed in a URL encoded parameter value, whether in the
 // path or in the body of a PUT request.
-ALPACA_SERVER_CONSTEXPR_VAR StringView kExtraParamValueChars("-_=%");
+TAS_CONSTEXPR_VAR StringView kExtraParamValueChars("-_=%");
 bool IsParamValueChar(const char c) {
-  return IsAlphaNumeric(c) || kExtraParamValueChars.contains(c);
+  return isAlphaNumeric(c) || kExtraParamValueChars.contains(c);
 }
 
 StringView::size_type FindFirstNotOf(const StringView& view,
@@ -147,18 +124,16 @@ E MatchTokensExactly(const StringView& view, E unknown_id,
                      const Token<E> (&tokens)[N]) {
   for (int i = 0; i < N; ++i) {
     if (tokens[i].str == view) {
-#if ALPACA_SERVER_DEBUG
-      DVLOG(3) << "MatchTokensExactly matched "
-               << tokens[i].str.ToHexEscapedString() << " to "
-               << view.ToHexEscapedString() << ", returning " << tokens[i].id;
-#endif
+      TAS_DVLOG(3, "MatchTokensExactly matched "
+                       << tokens[i].str.ToHexEscapedString() << " to "
+                       << view.ToHexEscapedString() << ", returning "
+                       << tokens[i].id);
       return tokens[i].id;
     }
   }
-#if ALPACA_SERVER_DEBUG
-  DVLOG(3) << "MatchTokensExactly unable to match " << view.ToHexEscapedString()
-           << ", returning " << unknown_id;
-#endif
+  TAS_DVLOG(3, "MatchTokensExactly unable to match "
+                   << view.ToHexEscapedString() << ", returning "
+                   << unknown_id);
   return unknown_id;
 }
 
@@ -167,28 +142,25 @@ E LowerMatchTokens(const StringView& view, E unknown_id,
                    const Token<E> (&tokens)[N]) {
   for (int i = 0; i < N; ++i) {
     if (tokens[i].str.equals_other_lowered(view)) {
-#if ALPACA_SERVER_DEBUG
-      DVLOG(3) << "LowerMatchTokens matched "
-               << tokens[i].str.ToHexEscapedString() << " to "
-               << view.ToHexEscapedString() << ", returning " << tokens[i].id;
-#endif
+      TAS_DVLOG(3, "LowerMatchTokens matched "
+                       << tokens[i].str.ToHexEscapedString() << " to "
+                       << view.ToHexEscapedString() << ", returning "
+                       << tokens[i].id);
       return tokens[i].id;
     }
   }
-#if ALPACA_SERVER_DEBUG
-  DVLOG(3) << "LowerMatchTokens unable to match " << view.ToHexEscapedString()
-           << ", returning " << unknown_id;
-#endif
+  TAS_DVLOG(3, "LowerMatchTokens unable to match " << view.ToHexEscapedString()
+                                                   << ", returning "
+                                                   << unknown_id);
   return unknown_id;
 }
 
 bool ExtractMatchingPrefix(StringView& view, StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
-#if ALPACA_SERVER_DEBUG
-  DVLOG(3) << "ExtractMatchingPrefix of " << view.ToHexEscapedString()
-           << " found " << (beyond + 0) << " matching characters";
-#endif
+  TAS_DVLOG(3, "ExtractMatchingPrefix of " << view.ToHexEscapedString()
+                                           << " found " << (beyond + 0)
+                                           << " matching characters");
   if (beyond == StringView::kMaxSize) {
     return false;
   }
@@ -222,7 +194,7 @@ EDecodeStatus ExtractAndProcessName(RequestDecoderState& state,
   } else if (consume_terminator_char) {
     // For now, we expect that:
     //    consume_terminator_char == (valid_terminators.size() ==1)
-    DCHECK_EQ(valid_terminators.size(), 1);
+    TAS_DCHECK_EQ(valid_terminators.size(), 1);
     view.remove_prefix(1);
   }
 
@@ -262,14 +234,11 @@ EDecodeStatus DecodeHeaderValue(RequestDecoderState& state, StringView& view) {
       !ExtractMatchingPrefix(view, value, IsFieldContent)) {
     return EDecodeStatus::kNeedMoreInput;
   }
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "DecodeHeaderValue raw value: " << value.ToHexEscapedString();
-#endif
+  TAS_DVLOG(1, "DecodeHeaderValue raw value: " << value.ToHexEscapedString());
   // Trim OWS from the end of the header value.
   TrimTrailingOptionalWhitespace(value);
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "DecodeHeaderValue trimmed value: " << value.ToHexEscapedString();
-#endif
+  TAS_DVLOG(1,
+            "DecodeHeaderValue trimmed value: " << value.ToHexEscapedString());
   EDecodeStatus status = EDecodeStatus::kContinueDecoding;
   if (state.current_header == EHttpHeader::kHttpAccept) {
     // Not tracking whether there are multiple accept headers.
@@ -397,10 +366,8 @@ EDecodeStatus DecodeParamSeparator(RequestDecoderState& state,
   // If there are multiple separators, treat them as one.
   const auto beyond = FindFirstNotOf(view, IsParamSeparator);
   if (beyond == StringView::kMaxSize) {
-#if ALPACA_SERVER_DEBUG
-    DVLOG(3) << "DecodeParamSeparator found no non-separators in "
-             << view.ToHexEscapedString();
-#endif
+    TAS_DVLOG(3, "DecodeParamSeparator found no non-separators in "
+                     << view.ToHexEscapedString());
     // All the available characters are separators, or the view is empty.
     if (!state.is_decoding_header && state.is_final_input) {
       // We've reached the end of the body of the request.
@@ -416,11 +383,10 @@ EDecodeStatus DecodeParamSeparator(RequestDecoderState& state,
     return EDecodeStatus::kNeedMoreInput;
   }
 
-#if ALPACA_SERVER_DEBUG
-  DVLOG(3) << "DecodeParamSeparator found " << (beyond + 0)
-           << " separators, followed by a non-separator";
-  DCHECK(!view.empty());
-#endif
+  TAS_DVLOG(3, "DecodeParamSeparator found "
+                   << (beyond + 0)
+                   << " separators, followed by a non-separator");
+  TAS_DCHECK(!view.empty());
 
   // There are zero or more separators, followed by a non-separator. This means
   // that this isn't the body of a request with one of these separators as the
@@ -428,9 +394,7 @@ EDecodeStatus DecodeParamSeparator(RequestDecoderState& state,
 
   view.remove_prefix(beyond);
   if (view.front() == ' ') {
-#if ALPACA_SERVER_DEBUG
-    DVLOG(3) << "Found a space";
-#endif
+    TAS_DVLOG(3, "Found a space");
     if (state.is_decoding_header) {
       view.remove_prefix(1);
       return state.SetDecodeFunction(MatchHttpVersion);
@@ -453,13 +417,11 @@ EDecodeStatus DecodeParamValue(RequestDecoderState& state, StringView& view) {
     }
     // Ah, we're decoding the body of the request, and this is last buffer of
     // input from the client, so we can treat the end of input as the separator.
-    DCHECK_EQ(state.remaining_content_length, view.size());
+    TAS_DCHECK_EQ(state.remaining_content_length, view.size());
     value = view;
     view.remove_prefix(value.size());
   }
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "DecodeParamValue value: " << value.ToHexEscapedString();
-#endif
+  TAS_DVLOG(1, "DecodeParamValue value: " << value.ToHexEscapedString());
   EDecodeStatus status = EDecodeStatus::kContinueDecoding;
   if (state.current_parameter == EParameter::kClientId) {
     if (state.request.found_client_id ||
@@ -513,12 +475,10 @@ EDecodeStatus DecodeParamName(RequestDecoderState& state, StringView& view) {
 EDecodeStatus ProcessAscomMethod(RequestDecoderState& state,
                                  const StringView& matched_text,
                                  StringView& view) {
-#if ALPACA_SERVER_DEBUG
-  DVLOG(3) << "ProcessAscomMethod matched_text: "
-           << matched_text.ToHexEscapedString();
-#endif
+  TAS_DVLOG(3, "ProcessAscomMethod matched_text: "
+                   << matched_text.ToHexEscapedString());
   // A separator/terminating character should be present after the method.
-  DCHECK(!view.empty());
+  TAS_DCHECK(!view.empty());
   const EMethod method = MatchTokensExactly(matched_text, EMethod::kUnknown,
                                             kRecognizedAscomMethods);
   if (method == EMethod::kUnknown) {
@@ -611,7 +571,7 @@ EDecodeStatus ProcessHttpMethod(RequestDecoderState& state,
   if (method == EHttpMethod::kUnknown) {
     return EDecodeStatus::kHttpMethodNotImplemented;
   }
-  DVLOG(3) << "method: " << method;
+  TAS_DVLOG(3, "method: " << method);
   state.request.http_method = method;
   return state.SetDecodeFunction(MatchAscomPathPrefix);
 }
@@ -631,7 +591,7 @@ EDecodeStatus DecodeHttpMethod(RequestDecoderState& state, StringView& view) {
 
 }  // namespace
 
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
 std::ostream& operator<<(std::ostream& out, DecodeFunction decode_function) {
   if (decode_function == DecodeAscomMethod) {
     return out << "DecodeAscomMethod";
@@ -673,8 +633,8 @@ std::ostream& operator<<(std::ostream& out, DecodeFunction decode_function) {
     return out << "MatchAscomPathPrefix";
   }
   // COV_NF_START
-  DCHECK(false) << "Haven't implemented a case for function @"
-                << std::addressof(decode_function);
+  TAS_DCHECK(false, "Haven't implemented a case for function @"
+                        << std::addressof(decode_function));
   return out << "Haven't implemented a case for function @"
              << std::addressof(decode_function);
   // COV_NF_END
@@ -686,9 +646,8 @@ RequestDecoderState::RequestDecoderState(AlpacaRequest& request,
     : decode_function(nullptr), request(request), listener(listener) {}
 
 void RequestDecoderState::Reset() {
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "Reset #########################################################";
-#endif
+  TAS_DVLOG(1,
+            "Reset ##########################################################");
   decode_function = DecodeHttpMethod;
   request.Reset();
   is_decoding_header = true;
@@ -704,9 +663,7 @@ void RequestDecoderState::Reset() {
 EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
                                                 const bool buffer_is_full,
                                                 const bool at_end_of_input) {
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "DecodeBuffer " << buffer.ToHexEscapedString();
-#endif
+  TAS_DVLOG(1, "DecodeBuffer " << buffer.ToHexEscapedString());
   if (decode_function == nullptr) {
     // Need to call Reset first.
     //
@@ -725,22 +682,19 @@ EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
   } else {
     status = DecodeMessageBody(buffer, at_end_of_input);
   }
-  DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
+  TAS_DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
 
   if (buffer_is_full && status == EDecodeStatus::kNeedMoreInput &&
       start_size == buffer.size()) {
-#if ALPACA_SERVER_DEBUG
-    DVLOG(1) << "Need more input, but buffer is already full (has no room for "
-                "additional input).";
-#endif
+    TAS_DVLOG(1,
+              "Need more input, but buffer is already full (has no room for "
+              "additional input).");
     status = EDecodeStatus::kHttpRequestHeaderFieldsTooLarge;
   }
   if (status >= EDecodeStatus::kHttpOk) {
     decode_function = nullptr;
   }
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "DecodeBuffer --> " << status;
-#endif
+  TAS_DVLOG(1, "DecodeBuffer --> " << status);
   return status;
 }
 
@@ -749,29 +703,29 @@ EDecodeStatus RequestDecoderState::DecodeBuffer(StringView& buffer,
 // DecodeHeaderLines to find the end.
 EDecodeStatus RequestDecoderState::DecodeMessageHeader(
     StringView& buffer, const bool at_end_of_input) {
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "DecodeMessageHeader " << buffer.ToHexEscapedString();
-#endif
+  TAS_DVLOG(1, "DecodeMessageHeader " << buffer.ToHexEscapedString());
 
   EDecodeStatus status;
   do {
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
     const auto buffer_size_before_decode = buffer.size();
     auto old_decode_function = decode_function;
-    DVLOG(2) << decode_function << "(" << buffer.ToHexEscapedString() << " ("
-             << static_cast<size_t>(buffer.size()) << " chars))";
+    TAS_DVLOG(2, decode_function << "(" << buffer.ToHexEscapedString() << " ("
+                                 << static_cast<size_t>(buffer.size())
+                                 << " chars))");
 #endif
 
     status = decode_function(*this, buffer);
 
-#if ALPACA_SERVER_DEBUG
-    DCHECK_LE(buffer.size(), buffer_size_before_decode);
+#if TAS_ENABLE_DEBUGGING
+    TAS_DCHECK_LE(buffer.size(), buffer_size_before_decode);
     auto consumed_chars = buffer_size_before_decode - buffer.size();
 
-    DVLOG(3) << "decode_function returned " << status << ", consumed "
-             << consumed_chars << " characters, decode function "
-             << (old_decode_function == decode_function ? "unchanged"
-                                                        : "changed");
+    TAS_DVLOG(3, "decode_function returned "
+                     << status << ", consumed " << consumed_chars
+                     << " characters, decode function "
+                     << (old_decode_function == decode_function ? "unchanged"
+                                                                : "changed"));
 
     if (status == EDecodeStatus::kContinueDecoding) {
       // This is a check on the currently expected behavior; none of the current
@@ -779,8 +733,8 @@ EDecodeStatus RequestDecoderState::DecodeMessageHeader(
       // inside the decode function; i.e. none of them extract some data, then
       // return kContinueDecoding without also calling SetDecodeFunction to
       // specify the next (different) function to handle the decoding.
-      DCHECK_NE(old_decode_function, decode_function)
-          << "Should have changed the decode function";  // COV_NF_LINE
+      TAS_DCHECK_NE(old_decode_function, decode_function,
+                    "Should have changed the decode function");  // COV_NF_LINE
     }
 #endif
   } while (status == EDecodeStatus::kContinueDecoding);
@@ -800,18 +754,15 @@ EDecodeStatus RequestDecoderState::DecodeMessageHeader(
 // (i.e. remaining_content_length tells us how many ASCII characters remain).
 EDecodeStatus RequestDecoderState::DecodeMessageBody(StringView& buffer,
                                                      bool at_end_of_input) {
-#if ALPACA_SERVER_DEBUG
-  DVLOG(1) << "DecodeMessageBody " << buffer.ToHexEscapedString();
-  DCHECK(found_content_length);
-  DCHECK_EQ(request.http_method, EHttpMethod::PUT);
-#endif
+  TAS_DVLOG(1, "DecodeMessageBody " << buffer.ToHexEscapedString());
+  TAS_DCHECK(found_content_length);
+  TAS_DCHECK_EQ(request.http_method, EHttpMethod::PUT);
 
   if (buffer.size() > remaining_content_length) {
     // We assume that the HTTP client has not sent pipelined requests.
-#if ALPACA_SERVER_DEBUG
-    DLOG(WARNING) << "There is more input than Content-Length indicated: "
-                  << buffer.size() << " > " << remaining_content_length;
-#endif
+    TAS_DLOG(WARNING, "There is more input than Content-Length indicated: "
+                          << buffer.size() << " > "
+                          << remaining_content_length);
     return EDecodeStatus::kHttpPayloadTooLarge;
   } else if (buffer.size() == remaining_content_length) {
     at_end_of_input = true;
@@ -832,24 +783,25 @@ EDecodeStatus RequestDecoderState::DecodeMessageBody(StringView& buffer,
   EDecodeStatus status;
   do {
     const auto buffer_size_before_decode = buffer.size();
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
     const auto old_decode_function = decode_function;
-    DVLOG(2) << decode_function << "(" << buffer.ToHexEscapedString() << " ("
-             << (buffer.size() + 0) << " chars))";
+    TAS_DVLOG(2, decode_function << "(" << buffer.ToHexEscapedString() << " ("
+                                 << (buffer.size() + 0) << " chars))");
 #endif
 
     status = decode_function(*this, buffer);
     const auto consumed_chars = buffer_size_before_decode - buffer.size();
 
-#if ALPACA_SERVER_DEBUG
-    DVLOG(3) << "decode_function returned " << status << ", consumed "
-             << consumed_chars << " characters, decode function "
-             << (old_decode_function == decode_function ? "unchanged"
-                                                        : "changed");
-    DCHECK_LE(buffer.size(), buffer_size_before_decode);
-    DCHECK_LE(consumed_chars, remaining_content_length);
+#if TAS_ENABLE_DEBUGGING
+    TAS_DVLOG(3, "decode_function returned "
+                     << status << ", consumed " << consumed_chars
+                     << " characters, decode function "
+                     << (old_decode_function == decode_function ? "unchanged"
+                                                                : "changed"));
+    TAS_DCHECK_LE(buffer.size(), buffer_size_before_decode);
+    TAS_DCHECK_LE(consumed_chars, remaining_content_length);
     if (decode_function == old_decode_function) {
-      DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
+      TAS_DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
     }
     if (buffer_size_before_decode == 0) {
       // We don't bother checking whether the buffer is empty at the start or
@@ -857,48 +809,46 @@ EDecodeStatus RequestDecoderState::DecodeMessageBody(StringView& buffer,
       // exchange for another pass through the loop, thus requiring a
       // DecodeFunction to notice that there isn't enough input for it to
       // succeed.
-      DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
+      TAS_DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
     }
 #endif
 
     remaining_content_length -= consumed_chars;
   } while (status == EDecodeStatus::kContinueDecoding);
 
-  DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
+  TAS_DCHECK_NE(status, EDecodeStatus::kContinueDecoding);
 
   if (status >= EDecodeStatus::kHttpOk) {
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
     if (status == EDecodeStatus::kHttpOk) {
-      DCHECK_EQ(remaining_content_length, 0);
-      DCHECK(at_end_of_input);
+      TAS_DCHECK_EQ(remaining_content_length, 0);
+      TAS_DCHECK(at_end_of_input);
     }
 #endif
     return status;
   }
 
-  DCHECK_EQ(status, EDecodeStatus::kNeedMoreInput);
+  TAS_DCHECK_EQ(status, EDecodeStatus::kNeedMoreInput);
   if (at_end_of_input) {
     return EDecodeStatus::kHttpBadRequest;
   }
 
-  DCHECK_GT(remaining_content_length, 0);
+  TAS_DCHECK_GT(remaining_content_length, 0);
   return status;
 }
 
 EDecodeStatus RequestDecoderState::SetDecodeFunction(
     const DecodeFunction func) {
-#if ALPACA_SERVER_DEBUG
-  DVLOG(3) << "SetDecodeFunction(" << func << ")";
-  DCHECK_NE(decode_function, nullptr);
-  DCHECK_NE(decode_function, func);
-#endif
+  TAS_DVLOG(3, "SetDecodeFunction(" << func << ")");
+  TAS_DCHECK_NE(decode_function, nullptr);
+  TAS_DCHECK_NE(decode_function, func);
   decode_function = func;
   return EDecodeStatus::kContinueDecoding;
 }
 
 EDecodeStatus RequestDecoderState::SetDecodeFunctionAfterListenerCall(
     DecodeFunction func, EDecodeStatus status) {
-  DCHECK_NE(status, EDecodeStatus::kNeedMoreInput);
+  TAS_DCHECK_NE(status, EDecodeStatus::kNeedMoreInput);
   if (status == EDecodeStatus::kContinueDecoding) {
     return SetDecodeFunction(func);
   } else if (static_cast<int>(status) < 100) {

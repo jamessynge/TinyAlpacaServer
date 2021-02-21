@@ -8,6 +8,7 @@
 
 #include "alpaca_request.h"
 #include "decoder_constants.h"
+#include "platform.h"
 #include "request_decoder_listener.h"
 #include "string_view.h"
 

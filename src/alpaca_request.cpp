@@ -10,11 +10,11 @@ void AlpacaRequest::Reset() {
   found_client_id = false;
   found_client_transaction_id = false;
 
-#if ALPACA_SERVER_ENABLE_EXTRA_REQUEST_PARAMETERS
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
   extra_parameters.clear();
 #endif
 
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
   http_method = EHttpMethod::kUnknown;
   device_type = EDeviceType::kUnknown;
   device_number = kResetDeviceNumber;

@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_CONSTANTS_H_
-#define TINY_ALPACA_SERVER_CONSTANTS_H_
+#ifndef TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_
+#define TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_
 
 // Enums defining the decoder return values and enums corresponding to each kind
 // of token to be decoded.
@@ -10,8 +10,11 @@
 //
 // Author: james.synge@gmail.com
 
-#include <cstdint>
+#include "platform.h"
+
+#if TAS_HOST_TARGET
 #include <ostream>
+#endif  // TAS_HOST_TARGET
 
 namespace alpaca {
 
@@ -58,7 +61,9 @@ enum class EDecodeStatus : uint16_t {
   kHttpMethodNotImplemented = 501,
   kHttpVersionNotSupported = 505,
 };
+#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, EDecodeStatus value);
+#endif  // TAS_HOST_TARGET
 
 enum class EHttpMethod : uint8_t {
   kUnknown = 0,
@@ -68,7 +73,9 @@ enum class EHttpMethod : uint8_t {
   PUT = 2,
   HEAD = 3,
 };
+#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, EHttpMethod value);
+#endif  // TAS_HOST_TARGET
 
 // // DO WE NEED TO KNOW THIS?
 // enum class EHttpVersion : uint8_t {
@@ -90,7 +97,9 @@ enum class EDeviceType {
   kSwitch,
   kTelescope,
 };
+#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, EDeviceType value);
+#endif  // TAS_HOST_TARGET
 
 // Note that for many PUT methods, the name of the method, which appears in the
 // request path, appears also in the parameters (e.g. "AveragePeriod" or
@@ -125,7 +134,9 @@ enum class EMethod : uint8_t {
   // Supported SafetyMonitor methods:
   kIsSafe,
 };
+#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, EMethod value);
+#endif  // TAS_HOST_TARGET
 
 // These are parameter names used in *requests*, not responses. Names such as
 // ServerTransactionId and ErrorNumber should not be in this list.
@@ -136,7 +147,9 @@ enum class EParameter : uint8_t {
   kClientTransactionId,
   kConnected,
 };
+#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, EParameter value);
+#endif  // TAS_HOST_TARGET
 
 enum class EHttpHeader : uint8_t {
   kUnknown,
@@ -150,8 +163,10 @@ enum class EHttpHeader : uint8_t {
   // Added to enable testing.
   kHttpContentEncoding,
 };
+#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, EHttpHeader value);
+#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_CONSTANTS_H_
+#endif  // TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_

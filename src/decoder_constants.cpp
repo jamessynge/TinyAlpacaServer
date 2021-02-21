@@ -2,7 +2,7 @@
 
 #include "decoder_constants.h"
 
-#include <ostream>
+#if TAS_HOST_TARGET
 #include <type_traits>
 
 namespace alpaca {
@@ -162,3 +162,4 @@ std::ostream& operator<<(std::ostream& out, EHttpHeader v) {
 }
 
 }  // namespace alpaca
+#endif  // TAS_HOST_TARGET

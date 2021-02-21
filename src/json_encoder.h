@@ -6,13 +6,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include <stddef.h>
-
-#include <cmath>
-#include <type_traits>
-
-#include "host_printable.h"
-#include "logging.h"
+#include "platform.h"
 #include "string_view.h"
 
 namespace alpaca {
@@ -30,7 +24,7 @@ inline void PrintStringLiteral(Print& out, const char (&buf)[N]) {
 template <typename T>
 void PrintInteger(Print& out, const T value) {
   // +0 to cause promotion of chars, if they're passed in.
-  out.print(value + 0);
+  out.print(value + static_cast<uint16_t>(0));
 }
 
 // Prints the floating point value to out, if possible. If not, prints a JSON
@@ -66,13 +60,13 @@ class AbstractJsonEncoder {
  protected:
   explicit AbstractJsonEncoder(Print& out, AbstractJsonEncoder* parent)
       : out_(out),
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
         parent_(parent),
         has_child_(false),
         is_live_(true),
 #endif
         first_(true) {
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
     if (parent != nullptr) {
       parent->StartChild();
     }
@@ -82,12 +76,12 @@ class AbstractJsonEncoder {
   AbstractJsonEncoder(const AbstractJsonEncoder&) = delete;
   AbstractJsonEncoder(AbstractJsonEncoder&& other)
       : out_(other.out_),
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
         parent_(other.parent_),
         has_child_(other.has_child_),
 #endif
         first_(true) {
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
     DCHECK(other.is_live_);
     other.parent_ = nullptr;
     other.is_live_ = false;
@@ -98,7 +92,7 @@ class AbstractJsonEncoder {
   AbstractJsonEncoder& operator=(AbstractJsonEncoder&&) = delete;
 
   ~AbstractJsonEncoder() {
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
     DCHECK(!has_child_);
     if (is_live_) {
       if (parent_ != nullptr) {
@@ -111,7 +105,7 @@ class AbstractJsonEncoder {
   }
 
   void StartItem() {
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
     DCHECK(is_live_);
 #endif
     if (first_) {
@@ -127,7 +121,7 @@ class AbstractJsonEncoder {
   Print& out_;
 
  private:
-#if ALPACA_SERVER_DEBUG
+#if TAS_ENABLE_DEBUGGING
   void StartChild() {
     DCHECK(!has_child_);
     has_child_ = true;

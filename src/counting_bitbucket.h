@@ -7,9 +7,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include <stddef.h>
-
-#include "host_printable.h"
+#include "platform.h"
 
 namespace alpaca {
 

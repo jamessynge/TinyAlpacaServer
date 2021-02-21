@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_EXTRA_PARAMETER_H_
-#define TINY_ALPACA_SERVER_EXTRA_PARAMETER_H_
+#ifndef TINY_ALPACA_SERVER_EXTRA_PARAMETERS_H_
+#define TINY_ALPACA_SERVER_EXTRA_PARAMETERS_H_
 
 // This file contains the optional support for recording the parameter enum and
 // short string value of parameters for which support isn't built into the
@@ -12,27 +12,26 @@
 
 #include "config.h"
 #include "decoder_constants.h"
+#include "platform.h"
 #include "string_view.h"
 
 // The minimum is 2 to allow for testing of this feature.
 
-static_assert(
-    2 <= ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETERS &&
-        ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETERS < 256,
-    "ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETERS must be in the range [2, 255]");
+static_assert(2 <= TAS_MAX_EXTRA_REQUEST_PARAMETERS &&
+                  TAS_MAX_EXTRA_REQUEST_PARAMETERS < 256,
+              "TAS_MAX_EXTRA_REQUEST_PARAMETERS must be in the range [2, 255]");
 
 namespace alpaca {
 
-constexpr uint8_t kMaxExtraParameters =
-    ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETERS;
+constexpr uint8_t kMaxExtraParameters = TAS_MAX_EXTRA_REQUEST_PARAMETERS;
 
-static_assert(0 <= ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETER_LENGTH &&
-                  ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETER_LENGTH < 256,
-              "ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETER_LENGTH must be "
+static_assert(0 <= TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH &&
+                  TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH < 256,
+              "TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH must be "
               "positive and less than 256.");
 
 constexpr uint8_t kMaxExtraParameterValueLength =
-    ALPACA_SERVER_MAX_EXTRA_REQUEST_PARAMETER_LENGTH;
+    TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH;
 
 // A very, very small string class with an embedded char array and size.
 template <uint8_t N>
@@ -121,4 +120,4 @@ class ExtraParameterValueMap {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_EXTRA_PARAMETER_H_
+#endif  // TINY_ALPACA_SERVER_EXTRA_PARAMETERS_H_

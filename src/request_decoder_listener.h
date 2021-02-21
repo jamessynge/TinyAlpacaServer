@@ -7,6 +7,7 @@
 // Author: james.synge@gmail.com
 
 #include "decoder_constants.h"
+#include "platform.h"
 #include "string_view.h"
 
 namespace alpaca {

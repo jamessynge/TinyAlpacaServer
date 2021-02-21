@@ -2,7 +2,7 @@
 
 // Author: james.synge@gmail.com
 
-#include "host_printable.h"
+#include "platform.h"
 #include "string_view.h"
 
 namespace alpaca {

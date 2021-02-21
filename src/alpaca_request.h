@@ -1,17 +1,16 @@
-#ifndef TINY_ALPACA_SERVER_REQUEST_H_
-#define TINY_ALPACA_SERVER_REQUEST_H_
+#ifndef TINY_ALPACA_SERVER_ALPACA_REQUEST_H_
+#define TINY_ALPACA_SERVER_ALPACA_REQUEST_H_
 
 // Author: james.synge@gmail.com
 
-#include <cstdint>
-#include <cstring>
-
+#include "config.h"
 #include "decoder_constants.h"
+#include "platform.h"
 #include "string_view.h"
 
-#if ALPACA_SERVER_ENABLE_EXTRA_REQUEST_PARAMETERS
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 #include "extra_parameters.h"
-#endif  // ALPACA_SERVER_ENABLE_EXTRA_REQUEST_PARAMETERS
+#endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 
 namespace alpaca {
 
@@ -46,11 +45,11 @@ struct AlpacaRequest {
   unsigned int found_client_id : 1;
   unsigned int found_client_transaction_id : 1;
 
-#if ALPACA_SERVER_ENABLE_EXTRA_REQUEST_PARAMETERS
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
   ExtraParameterValueMap extra_parameters;
-#endif  // ALPACA_SERVER_ENABLE_EXTRA_REQUEST_PARAMETERS
+#endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 };
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_REQUEST_H_
+#endif  // TINY_ALPACA_SERVER_ALPACA_REQUEST_H_
