@@ -17,8 +17,6 @@
 
 #include <Arduino.h>  // IWYU pragma: export
 
-
-
 #else  // !ARDUINO
 
 #define TAS_EMBEDDED_TARGET 0
@@ -46,14 +44,11 @@
 #define TAS_CONSTEXPR_VAR constexpr
 #endif  // TAS_ENABLE_DEBUGGING
 
-constexpr size_t MaxOf2(size_t a, size_t b) { return max(a, b); }
-constexpr size_t MaxOf4(
-size_t a,
-size_t b,
-size_t c,
- size_t d) {
- return MaxOf2(MaxOf2(a, b), MaxOf2(c, d)); }
-
-
+// max is a macro in Arduino, and doesn't seem to deal well with commas in the
+// the arguments.
+constexpr size_t MaxOf2(size_t a, size_t b) { return (a >= b) ? a : b; }
+constexpr size_t MaxOf4(size_t a, size_t b, size_t c, size_t d) {
+  return MaxOf2(MaxOf2(a, b), MaxOf2(c, d));
+}
 
 #endif  // TINY_ALPACA_SERVER_PLATFORM_H_

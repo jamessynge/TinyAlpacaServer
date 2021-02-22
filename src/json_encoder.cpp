@@ -6,7 +6,16 @@
 #include "string_view.h"
 
 namespace alpaca {
-namespace internal {
+namespace {
+
+// Writes a string literal to out.
+//
+// NOTE: The length of a literal string includes the NUL (\0) at the end, so we
+// subtract one from N to get the length of the string before that.
+template <size_t N>
+inline void PrintStringLiteral(Print& out, const char (&buf)[N]) {
+  out.write(buf, N - 1);
+}
 
 void PrintBoolean(Print& out, const bool value) {
   if (value) {
@@ -16,37 +25,182 @@ void PrintBoolean(Print& out, const bool value) {
   }
 }
 
-}  // namespace internal
-
-//JsonArrayEncoder AbstractJsonEncoder::MakeChildArrayEncoder() {
-//  JsonArrayEncoder child(out_, this);
-  //return static_cast<JsonArrayEncoder&&>(child);
-//}
-
-//JsonObjectEncoder AbstractJsonEncoder::MakeChildObjectEncoder() {
-//  return JsonObjectEncoder(out_, this);
-//}
-
-/*
-JsonArrayEncoder JsonObjectEncoder::StartArrayProperty(const StringView& name) {
-  StartProperty(name);
-  return MakeChildArrayEncoder();
+template <typename T>
+void PrintInteger(Print& out, const T value) {
+  // +0 to cause promotion of chars, if they're passed in.
+  out.print(value + static_cast<uint16_t>(0));
 }
 
-JsonObjectEncoder JsonObjectEncoder::StartObjectProperty(
-    const StringView& name) {
-  StartProperty(name);
-  return MakeChildObjectEncoder();
+// Prints the floating point value to out, if possible. If not, prints a JSON
+// string that "describes" the situation. This is similar to various JSON
+// libraries, on which this is based.
+template <typename T>
+void PrintFloatingPoint(Print& out, const T value) {
+  // We're assuming that the stream is configured to match JSON requirements for
+  // the formatting of numbers.
+#if TAS_HOST_TARGET
+  if (std::isnan(value)) {
+    JsonStringView("NaN").printTo(out);
+  } else if (!std::isfinite(value)) {
+    StringView v("-Inf");
+    if (value > 0) {
+      v.remove_prefix(1);
+    }
+    v.escaped().printTo(out);
+  } else {
+#endif
+    out.print(value);
+#if TAS_HOST_TARGET
+  }
+#endif
 }
 
-JsonArrayEncoder JsonArrayEncoder::StartArrayElement() {
+}  // namespace
+
+JsonElementSource::~JsonElementSource() {}
+
+JsonPropertySource::~JsonPropertySource() {}
+
+AbstractJsonEncoder::AbstractJsonEncoder(Print& out)
+    : out_(out), first_(true) {}
+
+void AbstractJsonEncoder::StartItem() {
+  if (first_) {
+    first_ = false;
+  } else {
+    PrintStringLiteral(out_, ", ");
+  }
+}
+
+void AbstractJsonEncoder::EncodeChildArray(JsonElementSource& source) {
+  JsonArrayEncoder encoder(out_);
+  source.AddTo(encoder);
+}
+
+void AbstractJsonEncoder::EncodeChildObject(JsonPropertySource& source) {
+  JsonObjectEncoder encoder(out_);
+  source.AddTo(encoder);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// static
+void JsonArrayEncoder::Encode(JsonElementSource& source, Print& out) {
+  JsonArrayEncoder encoder(out);
+  source.AddTo(encoder);
+}
+
+JsonArrayEncoder::JsonArrayEncoder(Print& out) : AbstractJsonEncoder(out) {
+  PrintStringLiteral(out_, "[");
+}
+
+JsonArrayEncoder::~JsonArrayEncoder() { PrintStringLiteral(out_, "]"); }
+
+void JsonArrayEncoder::AddIntegerElement(const int32_t value) {
   StartItem();
-  return MakeChildArrayEncoder();
+  PrintInteger(out_, value);
 }
 
-JsonObjectEncoder JsonArrayEncoder::StartObjectElement() {
+void JsonArrayEncoder::AddIntegerElement(const uint32_t value) {
   StartItem();
-  return MakeChildObjectEncoder();
+  PrintInteger(out_, value);
 }
-*/
+
+void JsonArrayEncoder::AddFloatingPointElement(float value) {
+  StartItem();
+  PrintFloatingPoint(out_, value);
+}
+
+void JsonArrayEncoder::AddFloatingPointElement(double value) {
+  StartItem();
+  PrintFloatingPoint(out_, value);
+}
+
+void JsonArrayEncoder::AddBooleanElement(const bool value) {
+  StartItem();
+  PrintBoolean(out_, value);
+}
+
+void JsonArrayEncoder::AddStringElement(const StringView& value) {
+  StartItem();
+  value.escaped().printTo(out_);
+}
+
+void JsonArrayEncoder::AddArrayElement(JsonElementSource& source) {
+  StartItem();
+  EncodeChildArray(source);
+}
+
+void JsonArrayEncoder::AddObjectElement(JsonPropertySource& source) {
+  StartItem();
+  EncodeChildObject(source);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// static
+void JsonObjectEncoder::Encode(JsonPropertySource& source, Print& out) {
+  JsonObjectEncoder encoder(out);
+  source.AddTo(encoder);
+}
+
+JsonObjectEncoder::JsonObjectEncoder(Print& out) : AbstractJsonEncoder(out) {
+  PrintStringLiteral(out_, "{");
+}
+
+JsonObjectEncoder::~JsonObjectEncoder() { PrintStringLiteral(out_, "}"); }
+
+void JsonObjectEncoder::StartProperty(const StringView& name) {
+  StartItem();
+  name.escaped().printTo(out_);
+  PrintStringLiteral(out_, ": ");
+}
+
+void JsonObjectEncoder::AddIntegerProperty(const StringView& name,
+                                           int32_t value) {
+  StartProperty(name);
+  PrintInteger(out_, value);
+}
+
+void JsonObjectEncoder::AddIntegerProperty(const StringView& name,
+                                           uint32_t value) {
+  StartProperty(name);
+  PrintInteger(out_, value);
+}
+
+void JsonObjectEncoder::AddFloatingPointProperty(const StringView& name,
+                                                 float value) {
+  StartProperty(name);
+  PrintFloatingPoint(out_, value);
+}
+
+void JsonObjectEncoder::AddFloatingPointProperty(const StringView& name,
+                                                 double value) {
+  StartProperty(name);
+  PrintFloatingPoint(out_, value);
+}
+
+void JsonObjectEncoder::AddBooleanProperty(const StringView& name,
+                                           const bool value) {
+  StartProperty(name);
+  PrintBoolean(out_, value);
+}
+
+void JsonObjectEncoder::AddStringProperty(const StringView& name,
+                                          const StringView& value) {
+  StartProperty(name);
+  value.escaped().printTo(out_);
+}
+void JsonObjectEncoder::AddArrayProperty(const StringView& name,
+                                         JsonElementSource& source) {
+  StartProperty(name);
+  EncodeChildArray(source);
+}
+
+void JsonObjectEncoder::AddObjectProperty(const StringView& name,
+                                          JsonPropertySource& source) {
+  StartProperty(name);
+  EncodeChildObject(source);
+}
+
 }  // namespace alpaca

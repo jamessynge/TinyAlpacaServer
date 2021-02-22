@@ -76,9 +76,21 @@ namespace internal {
 template <size_t N, typename E>
 TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
     const Token<E> (&tokens)[N], const size_t ndx) {
-  return (ndx >= N) ? 0 :
-     MaxOf2(tokens[ndx].str.size(),
-                    MaxTokenSizeHelper<N, E>(tokens, ndx + 1));}
+  return (ndx >= N) ? 0
+                    : MaxOf2(tokens[ndx].str.size(),
+                             MaxTokenSizeHelper<N, E>(tokens, ndx + 1));
+}
+
+#ifdef ARDUINO
+// Test to see if the problem was just missing parens.
+template <size_t N, typename E>
+TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
+    const Token<E> (&tokens)[N], const size_t ndx) {
+  return (ndx >= N) ? 0
+                    : max((tokens[ndx].str.size()),
+                          (MaxTokenSizeHelper<N, E>(tokens, ndx + 1)));
+}
+#endif
 
 template <size_t N, typename E>
 TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSize(
@@ -95,9 +107,9 @@ TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSize(
 // buffer for more input.
 TAS_CONSTEXPR_VAR StringView::size_type kMinRequiredBufferSize =
     MaxOf4(internal::MaxTokenSize(kRecognizedDeviceTypes),
-              internal::MaxTokenSize(kRecognizedAscomMethods),
-              internal::MaxTokenSize(kRecognizedParameters),
-              internal::MaxTokenSize(kRecognizedHttpHeaders));
+           internal::MaxTokenSize(kRecognizedAscomMethods),
+           internal::MaxTokenSize(kRecognizedParameters),
+           internal::MaxTokenSize(kRecognizedHttpHeaders));
 
 }  // namespace alpaca
 

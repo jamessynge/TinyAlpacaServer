@@ -12,7 +12,7 @@ void AlpacaRequest::Reset() {
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
   extra_parameters.clear();
-#endif
+#endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 
 #if TAS_ENABLE_DEBUGGING
   http_method = EHttpMethod::kUnknown;
@@ -21,7 +21,7 @@ void AlpacaRequest::Reset() {
   ascom_method = EMethod::kUnknown;
   client_id = kResetClientId;
   client_transaction_id = kResetClientTransactionId;
-#endif
+#endif  // TAS_ENABLE_DEBUGGING
 }
 
 }  // namespace alpaca

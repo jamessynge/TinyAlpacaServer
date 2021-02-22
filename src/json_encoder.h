@@ -10,235 +10,145 @@
 #include "string_view.h"
 
 namespace alpaca {
-namespace internal {
+// namespace internal {
 
-// Writes a string literal to out.
-// NOTE: The length of a literal string includes the NUL (\0) at the end, so we
-// subtract one from N to get the length of the string before that.
+// // Writes a string literal to out.
+// // NOTE: The length of a literal string includes the NUL (\0) at the end, so
+// we
+// // subtract one from N to get the length of the string before that.
 
-template <size_t N>
-inline void PrintStringLiteral(Print& out, const char (&buf)[N]) {
-  out.write(buf, N - 1);
-}
+// template <size_t N>
+// inline void PrintStringLiteral(Print& out, const char (&buf)[N]) {
+//   out.write(buf, N - 1);
+// }
 
-template <typename T>
-void PrintInteger(Print& out, const T value) {
-  // +0 to cause promotion of chars, if they're passed in.
-  out.print(value + static_cast<uint16_t>(0));
-}
+// template <typename T>
+// void PrintInteger(Print& out, const T value) {
+//   // +0 to cause promotion of chars, if they're passed in.
+//   out.print(value + static_cast<uint16_t>(0));
+// }
 
-// Prints the floating point value to out, if possible. If not, prints a JSON
-// string that "describes" the situation. This is similar to various JSON
-// libraries, on which this is based.
-template <typename T>
-void PrintFloatingPoint(Print& out, const T value) {
-  // We're assuming that the stream is configured to match JSON requirements for
-  // the formatting of numbers.
-#if TAS_HOST_TARGET
-  if (std::isnan(value)) {
-    JsonStringView("NaN").printTo(out);
-  } else if (!std::isfinite(value)) {
-    StringView v("-Inf");
-    if (value > 0) {
-      v.remove_prefix(1);
-    }
-    v.escaped().printTo(out);
-  } else {
-#endif
-    out.print(value);
-#if TAS_HOST_TARGET
-  }
-#endif
-}
+// // Prints the floating point value to out, if possible. If not, prints a JSON
+// // string that "describes" the situation. This is similar to various JSON
+// // libraries, on which this is based.
+// template <typename T>
+// void PrintFloatingPoint(Print& out, const T value) {
+//   // We're assuming that the stream is configured to match JSON requirements
+//   for
+//   // the formatting of numbers.
+// #if TAS_HOST_TARGET
+//   if (std::isnan(value)) {
+//     JsonStringView("NaN").printTo(out);
+//   } else if (!std::isfinite(value)) {
+//     StringView v("-Inf");
+//     if (value > 0) {
+//       v.remove_prefix(1);
+//     }
+//     v.escaped().printTo(out);
+//   } else {
+// #endif
+//     out.print(value);
+// #if TAS_HOST_TARGET
+//   }
+// #endif
+// }
 
-// Prints true or false to out.
-void PrintBoolean(Print& out, const bool value);
+// // Prints true or false to out.
+// void PrintBoolean(Print& out, const bool value);
 
-}  // namespace internal
+// }  // namespace internal
 
 class JsonArrayEncoder;
 class JsonObjectEncoder;
 
+class JsonElementSource {
+ public:
+  virtual ~JsonElementSource();
+  virtual void AddTo(JsonArrayEncoder& encoder) = 0;
+};
+
+class JsonPropertySource {
+ public:
+  virtual ~JsonPropertySource();
+  virtual void AddTo(JsonObjectEncoder& object_encoder) = 0;
+};
+
 // Base class for the object and array encoders.
 class AbstractJsonEncoder {
  protected:
-  AbstractJsonEncoder(Print& out, AbstractJsonEncoder* parent)
-      : out_(out),
-#if TAS_ENABLE_DEBUGGING
-        parent_(parent),
-        has_child_(false),
-        is_live_(true),
-#endif
-        first_(true) {
-#if TAS_ENABLE_DEBUGGING
-    if (parent != nullptr) {
-      parent->StartChild();
-    }
-#endif
-  }
+  explicit AbstractJsonEncoder(Print& out);
 
   AbstractJsonEncoder(const AbstractJsonEncoder&) = delete;
-  AbstractJsonEncoder(AbstractJsonEncoder&& other)
-      : out_(other.out_),
-#if TAS_ENABLE_DEBUGGING
-        parent_(other.parent_),
-        has_child_(other.has_child_),
-        is_live_(other.is_live_),
-#endif
-        first_(true) {
-#if TAS_ENABLE_DEBUGGING
-    TAS_DCHECK(!other.has_child_, "Must not have child!");
-    TAS_DCHECK(other.is_live_, "Other is already dead.");
-    other.parent_ = nullptr;
-    other.is_live_ = false;
-#endif
-  }
-
+  AbstractJsonEncoder(AbstractJsonEncoder&&) = delete;
   AbstractJsonEncoder& operator=(const AbstractJsonEncoder&) = delete;
   AbstractJsonEncoder& operator=(AbstractJsonEncoder&&) = delete;
 
-  ~AbstractJsonEncoder() {
-#if TAS_ENABLE_DEBUGGING
-    TAS_DCHECK(!has_child_, "Child must be deleted first!");
-    if (is_live_) {
-      if (parent_ != nullptr) {
-        parent_->EndChild();
-      }
-    } else {
-      TAS_DCHECK_EQ(parent_, nullptr, "Dead encoder still has a parent!");
-    }
-#endif
-  }
+  // Prints the comma between elements in an array or properties in an object.
+  void StartItem();
 
-  void StartItem() {
-#if TAS_ENABLE_DEBUGGING
-    TAS_DCHECK(is_live_, "");
-#endif
-    if (first_) {
-      first_ = false;
-    } else {
-      internal::PrintStringLiteral(out_, ", ");
-    }
-  }
-
-  JsonArrayEncoder MakeChildArrayEncoder();
-  JsonObjectEncoder MakeChildObjectEncoder();
+  void EncodeChildArray(JsonElementSource& source);
+  void EncodeChildObject(JsonPropertySource& source);
 
   Print& out_;
 
  private:
-#if TAS_ENABLE_DEBUGGING
-  void StartChild() {
-    TAS_DCHECK(!has_child_, "");
-    has_child_ = true;
-  }
-
-  void EndChild() {
-    TAS_DCHECK(has_child_, "");
-    has_child_ = false;
-  }
-
-  AbstractJsonEncoder* parent_;
-  bool has_child_;
-  bool is_live_;
-#endif  // TAS_ENABLE_DEBUGGING
   bool first_;
-};
-
-// JSON encoder for objects.
-class JsonObjectEncoder : public AbstractJsonEncoder {
- public:
-  explicit JsonObjectEncoder(Print& out) : JsonObjectEncoder(out, nullptr) {}
-
-  ~JsonObjectEncoder() { internal::PrintStringLiteral(out_, "}"); }
-
-  JsonObjectEncoder(const JsonObjectEncoder&) = delete;
-  JsonObjectEncoder(JsonObjectEncoder&&) = default;
-  JsonObjectEncoder& operator=(const JsonObjectEncoder&) = delete;
-  JsonObjectEncoder& operator=(JsonObjectEncoder&&) = delete;
-
-  template <typename T>
-  void AddIntegerProperty(const StringView& name, const T value) {
-    StartProperty(name);
-    internal::PrintInteger(out_, value);
-  }
-
-  template <typename T>
-  void AddFloatingPointProperty(const StringView& name, T value) {
-    StartProperty(name);
-    internal::PrintFloatingPoint(out_, value);
-  }
-
-  void AddBooleanProperty(const StringView& name, const bool value) {
-    StartProperty(name);
-    internal::PrintBoolean(out_, value);
-  }
-
-  void AddStringProperty(const StringView& name, const StringView& value) {
-    StartProperty(name);
-    value.escaped().printTo(out_);
-  }
-
-  JsonArrayEncoder StartArrayProperty(const StringView& name);
-
-  JsonObjectEncoder StartObjectProperty(const StringView& name);
-
- private:
-  friend class AbstractJsonEncoder;
-
-  JsonObjectEncoder(Print& out, AbstractJsonEncoder* parent)
-      : AbstractJsonEncoder(out, parent) {
-    internal::PrintStringLiteral(out_, "{");
-  }
-
-  void StartProperty(const StringView& name) {
-    StartItem();
-    name.escaped().printTo(out_);
-    internal::PrintStringLiteral(out_, ": ");
-  }
 };
 
 // JSON encoder for arrays.
 class JsonArrayEncoder : public AbstractJsonEncoder {
  public:
-  explicit JsonArrayEncoder(Print& out) : JsonArrayEncoder(out, nullptr) {}
+  static void Encode(JsonElementSource& source, Print& out);
 
-  ~JsonArrayEncoder() { internal::PrintStringLiteral(out_, "]"); }
-
-  template <typename T>
-  void AddIntegerElement(const T value) {
-    StartItem();
-    internal::PrintInteger(out_, value);
-  }
-
-  template <typename T>
-  void AddFloatingPointElement(T value) {
-    StartItem();
-    internal::PrintFloatingPoint(out_, value);
-  }
-
-  void AddBooleanElement(const bool value) {
-    StartItem();
-    internal::PrintBoolean(out_, value);
-  }
-
-  void AddStringElement(const StringView& value) {
-    StartItem();
-    value.escaped().printTo(out_);
-  }
-
-  JsonArrayEncoder StartArrayElement();
-
-  JsonObjectEncoder StartObjectElement();
+  void AddIntegerElement(const int32_t value);
+  void AddIntegerElement(const uint32_t value);
+  void AddFloatingPointElement(float value);
+  void AddFloatingPointElement(double value);
+  void AddBooleanElement(const bool value);
+  void AddStringElement(const StringView& value);
+  void AddArrayElement(JsonElementSource& source);
+  void AddObjectElement(JsonPropertySource& source);
 
  private:
   friend class AbstractJsonEncoder;
 
-  JsonArrayEncoder(Print& out, AbstractJsonEncoder* parent)
-      : AbstractJsonEncoder(out, parent) {
-    internal::PrintStringLiteral(out_, "[");
-  }
+  explicit JsonArrayEncoder(Print& out);
+  JsonArrayEncoder(const JsonArrayEncoder&) = delete;
+  JsonArrayEncoder(JsonArrayEncoder&&) = delete;
+  JsonArrayEncoder& operator=(const JsonArrayEncoder&) = delete;
+  JsonArrayEncoder& operator=(JsonArrayEncoder&&) = delete;
+
+  ~JsonArrayEncoder();
 };
+
+// JSON encoder for objects.
+class JsonObjectEncoder : public AbstractJsonEncoder {
+ public:
+  static void Encode(JsonPropertySource& source, Print& out);
+
+  void AddIntegerProperty(const StringView& name, int32_t value);
+  void AddIntegerProperty(const StringView& name, uint32_t value);
+  void AddFloatingPointProperty(const StringView& name, float value);
+  void AddFloatingPointProperty(const StringView& name, double value);
+  void AddBooleanProperty(const StringView& name, const bool value);
+  void AddStringProperty(const StringView& name, const StringView& value);
+  void AddArrayProperty(const StringView& name, JsonElementSource& source);
+  void AddObjectProperty(const StringView& name, JsonPropertySource& source);
+
+ private:
+  friend class AbstractJsonEncoder;
+
+  explicit JsonObjectEncoder(Print& out);
+  JsonObjectEncoder(const JsonObjectEncoder&) = delete;
+  JsonObjectEncoder(JsonObjectEncoder&&) = delete;
+  JsonObjectEncoder& operator=(const JsonObjectEncoder&) = delete;
+  JsonObjectEncoder& operator=(JsonObjectEncoder&&) = delete;
+
+  ~JsonObjectEncoder();
+
+  void StartProperty(const StringView& name);
+};
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_JSON_ENCODER_H_

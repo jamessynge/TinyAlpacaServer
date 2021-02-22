@@ -18,14 +18,8 @@ bool isPrintable(const char c);
 bool isAlphaNumeric(const char c);
 bool isUpperCase(const char c);
 
-uint8_t max(uint8_t a, uint8_t b) { return (a >= b) ? a : b; }
-
-// template <typename T,
-//           typename E = typename std::enable_if<std::disjunction<
-//               std::is_integral<T>, std::is_floating_point<T>>::value>::type>
-// T max(T a, T b) {
-//   return (a >= b) ? a : b;
-// }
+inline uint8_t max(uint8_t a, uint8_t b) { return (a >= b) ? a : b; }
+inline uint32_t max(uint32_t a, uint32_t b) { return (a >= b) ? a : b; }
 
 }  // namespace alpaca
 

@@ -5,8 +5,8 @@
 // contrast to platform.h, which expresses the set of features provided by the
 // platform.)
 //
-// This file should only define macros, and not include (and hence export)
-// anything else.
+// This file should only define macros (and possibly constants), and not include
+// (and hence export) anything else.
 //
 // Author: james.synge@gmail.com
 

@@ -159,9 +159,7 @@ class StringView {
 
   // Returns true if this starts with s.
   constexpr bool starts_with(const StringView& s) const {
-    return (s.size_ > size_) ?
- false :
-(prefix(s.size_) == s);
+    return (s.size_ > size_) ? false : (prefix(s.size_) == s);
   }
 
   // Returns true if this starts with c.
