@@ -19,153 +19,40 @@
 namespace alpaca {
 namespace {
 
-using ElementSourceFunction = std::function<void(JsonArrayEncoder&)>;
-using PropertySourceFunction = std::function<void(JsonObjectEncoder&)>;
-
-template <class SF>
-struct SourceFunctionInfo
-    // {
-    //   using Encoder = void;
-    //   using Source = void;
-    // }
-    ;
-
-template <>
-struct SourceFunctionInfo<ElementSourceFunction> {
-  using Encoder = JsonArrayEncoder;
-  using Source = JsonElementSource;
-};
-
-template <>
-struct SourceFunctionInfo<PropertySourceFunction> {
-  using Encoder = JsonObjectEncoder;
-  using Source = JsonPropertySource;
-};
-
-template <class SF, class E = typename SourceFunctionInfo<SF>::Encoder,
-          class S = typename SourceFunctionInfo<SF>::Source>
-class SourceFunctionAdapter : public S {
- public:
-  explicit SourceFunctionAdapter(const SF& func) : func_(func) {}
-  void AddTo(E& encoder) override { func_(encoder); }
-
- private:
-  const SF& func_;
-};
-
-using ElementSourceFunctionAdapter =
-    SourceFunctionAdapter<ElementSourceFunction, JsonArrayEncoder,
-                          JsonElementSource>;
-using PropertySourceFunctionAdapter =
-    SourceFunctionAdapter<PropertySourceFunction, JsonObjectEncoder,
-                          JsonPropertySource>;
-
 class JsonEncodersTest : public testing::Test {
  protected:
-  void ConfirmEncoding(ElementSourceFunction fn, const std::string& expected) {
-    ElementSourceFunctionAdapter source(fn);
-
+  void ConfirmEncoding(const JsonElementSourceFunction& func,
+                       const std::string& expected) {
     // Confirm that we print the expected characters.
     {
       PrintToString out;
-      JsonArrayEncoder::Encode(source, out);
+      JsonArrayEncoder::Encode(func, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();
     }
     // Confirm that we count the expected number of characters.
     {
       CountingBitbucket out;
-      JsonArrayEncoder::Encode(source, out);
+      JsonArrayEncoder::Encode(func, out);
       ASSERT_EQ(out.count(), expected.size());
     }
   }
-  void ConfirmEncoding(PropertySourceFunction fn, const std::string& expected) {
-    PropertySourceFunctionAdapter source(fn);
-
+  void ConfirmEncoding(const JsonPropertySourceFunction& func,
+                       const std::string& expected) {
     // Confirm that we print the expected characters.
     {
       PrintToString out;
-      JsonObjectEncoder::Encode(source, out);
+      JsonObjectEncoder::Encode(func, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();
     }
     // Confirm that we count the expected number of characters.
     {
       CountingBitbucket out;
-      JsonObjectEncoder::Encode(source, out);
+      JsonObjectEncoder::Encode(func, out);
       ASSERT_EQ(out.count(), expected.size());
     }
   }
-
-  //   template <class SF, class E = typename SourceFunctionInfo<SF>::Encoder,
-  //             class S = typename SourceFunctionInfo<SF>::Source>
-  //   void ConfirmEncoding(const SF& func, const std::string& expected) {
-  //     S source(func);
-  //     // Confirm that we print the expected characters.
-  //     {
-  //       PrintToString out;
-  //       E ::Encode(source, out);
-  //       ASSERT_EQ(out.str(), expected);
-  //       DVLOG(1) << "Output: " << out.str();
-  //     }
-  //     // Confirm that we count the expected number of characters.
-  //     {
-  //       CountingBitbucket out;
-  //       E::Encode(source, out);
-  //       ASSERT_EQ(out.count(), expected.size());
-  //     }
-  //   }
-
-  //   void ConfirmEncoding(JsonElementSource& source, const std::string&
-  //   expected) {
-  //     // Confirm that we print the expected characters.
-  //     {
-  //       PrintToString out;
-  //       JsonArrayEncoder::Encode(source, out);
-  //       ASSERT_EQ(out.str(), expected);
-  //       DVLOG(1) << "Output: " << out.str();
-  //     }
-  //     // Confirm that we count the expected number of characters.
-  //     {
-  //       CountingBitbucket out;
-  //       JsonArrayEncoder::Encode(source, out);
-  //       ASSERT_EQ(out.count(), expected.size());
-  //     }
-  //   }
-
-  //   void ConfirmEncoding(JsonPropertySource& source,
-  //                        const std::string& expected) {
-  //     // Confirm that we print the expected characters.
-  //     {
-  //       PrintToString out;
-  //       JsonObjectEncoder::Encode(source, out);
-  //       ASSERT_EQ(out.str(), expected);
-  //       DVLOG(1) << "Output: " << out.str();
-  //     }
-  //     // Confirm that we count the expected number of characters.
-  //     {
-  //       CountingBitbucket out;
-  //       JsonObjectEncoder::Encode(source, out);
-  //       ASSERT_EQ(out.count(), expected.size());
-  //     }
-  //   }
-
-  //   void ConfirmEncoding(std::function<void(Print&)> encoder,
-  //                        const std::string& expected) {
-  //     // Confirm that we print the expected characters.
-  //     {
-  //       PrintToString out;
-  //       encoder(out);
-  //       ASSERT_EQ(out.str(), expected);
-  //       DVLOG(1) << "Output: " << out.str();
-  //     }
-  //     // Confirm that we count the expected number of characters.
-  //     {
-  //       CountingBitbucket out;
-  //       encoder(out);
-  //       ASSERT_EQ(out.count(), expected.size());
-  //     }
-  //   }
 };
 
 TEST_F(JsonEncodersTest, InstanceSizes) {
@@ -208,6 +95,12 @@ TEST_F(JsonEncodersTest, ObjectWithIntegerValues) {
                                       std::numeric_limits<int8_t>::min());
     object_encoder.AddIntegerProperty("max int8",
                                       std::numeric_limits<int8_t>::max());
+
+    object_encoder.AddIntegerProperty("min int32",
+                                      std::numeric_limits<int32_t>::min());
+    object_encoder.AddIntegerProperty("max int32",
+                                      std::numeric_limits<int32_t>::max());
+
     object_encoder.AddIntegerProperty("min uint32",
                                       std::numeric_limits<uint32_t>::min());
     object_encoder.AddIntegerProperty("max uint32",
@@ -215,6 +108,7 @@ TEST_F(JsonEncodersTest, ObjectWithIntegerValues) {
   };
   ConfirmEncoding(func,
                   "{\"min int8\": -128, \"max int8\": 127, "
+                  "\"min int32\": -2147483648, \"max int32\": 2147483647, "
                   "\"min uint32\": 0, \"max uint32\": 4294967295}");
 }
 
@@ -265,79 +159,70 @@ TEST_F(JsonEncodersTest, ObjectWithDoubleValues) {
 
 TEST_F(JsonEncodersTest, ObjectWithArrayValues) {
   const double kPi = 3.14159265359L;
-
-  ElementSourceFunctionAdapter source1([](JsonArrayEncoder& array_encoder) {});
-  ElementSourceFunctionAdapter source2([&](JsonArrayEncoder& array_encoder) {
-    array_encoder.AddBooleanElement(true);
-    array_encoder.AddFloatingPointElement(kPi);
-    array_encoder.AddIntegerElement(43);
-    array_encoder.AddStringElement("xyzzy");
-  });
-
-  auto func = [&](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddArrayProperty("empty", source1);
-    object_encoder.AddArrayProperty("mixed", source2);
+  auto func = [kPi](JsonObjectEncoder& object_encoder) {
+    object_encoder.AddArrayProperty("empty",
+                                    [](JsonArrayEncoder& array_encoder) {});
+    object_encoder.AddArrayProperty(
+        "mixed", [kPi](JsonArrayEncoder& array_encoder) {
+          array_encoder.AddBooleanElement(true);
+          array_encoder.AddFloatingPointElement(kPi);
+          array_encoder.AddIntegerElement(43);
+          array_encoder.AddStringElement("xyzzy");
+        });
   };
   ConfirmEncoding(func, absl::StrCat("{\"empty\": [], \"mixed\": [true, ",
                                      std::to_string(kPi), ", 43, \"xyzzy\"]}"));
 }
 
-// TEST_F(JsonEncodersTest, ObjectWithObjectValues) {
-//   const double kPi = 3.14159265359L;
+TEST_F(JsonEncodersTest, ObjectWithObjectValues) {
+  const double kPi = 3.14159265359L;
+  auto func = [kPi](JsonObjectEncoder& object_encoder) {
+    object_encoder.AddObjectProperty("empty", [](JsonObjectEncoder&) {});
+    object_encoder.AddObjectProperty(
+        "mixed", [kPi](JsonObjectEncoder& object_encoder) {
+          object_encoder.AddBooleanProperty("Too darn true!", true);
+          object_encoder.AddFloatingPointProperty("Gimme some pie!", kPi);
+        });
+  };
+  ConfirmEncoding(
+      func,
+      absl::StrCat("{\"empty\": {}, \"mixed\": {\"Too darn true!\": true, ",
+                   "\"Gimme some pie!\": ", std::to_string(kPi), "}}"));
+}
 
-//   auto func = [kPi](Print& out) {
-//     JsonObjectEncoder object_encoder(out);
-//     object_encoder.StartObjectProperty("empty");
-//     {
-//       auto object_encoder2 = object_encoder.StartObjectProperty("mixed");
-//       object_encoder2.AddBooleanProperty("Too darn true!", true);
-//       object_encoder2.AddFloatingPointProperty("Gimme some pie!", kPi);
-//     }
-//   };
-//   ConfirmEncoding(
-//       func,
-//       absl::StrCat("{\"empty\": {}, \"mixed\": {\"Too darn true!\": true, ",
-//                    "\"Gimme some pie!\": ", std::to_string(kPi), "}}"));
-// }
+TEST_F(JsonEncodersTest, EmptyArray) {
+  ConfirmEncoding([](JsonArrayEncoder& array_encoder) {}, "[]");
+}
 
-// TEST_F(JsonEncodersTest, EmptyArray) {
-//   auto func = [](JsonArrayEncoder& array_encoder) {
-//     JsonArrayEncoder array_encoder(out);
-//     LOG(INFO) << "sizeof(JsonArrayEncoder): " << sizeof(JsonArrayEncoder);
-//   };
-//   ConfirmEncoding(func, "[]");
-// }
+TEST_F(JsonEncodersTest, ArrayOfEmptyStructures) {
+  auto func = [](JsonArrayEncoder& array_encoder) {
+    array_encoder.AddArrayElement([](JsonArrayEncoder&) {});
+    array_encoder.AddObjectElement([](JsonObjectEncoder&) {});
+  };
+  ConfirmEncoding(func, "[[], {}]");
+}
 
-// TEST_F(JsonEncodersTest, ArrayOfEmptyStructures) {
-//   auto func = [](JsonArrayEncoder& array_encoder) {
-//     JsonArrayEncoder array_encoder(out);
-//     array_encoder.StartArrayElement();
-//     array_encoder.StartObjectElement();
-//   };
-//   ConfirmEncoding(func, "[[], {}]");
-// }
-
-// TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
-//   auto func = [](JsonArrayEncoder& array_encoder) {
-//     JsonArrayEncoder array_encoder(out);
-//     array_encoder.AddBooleanElement(false);
-//     array_encoder.AddStringElement("");
-//     array_encoder.AddStringElement("some text \r\n with escaping
-//     characters");
-//     array_encoder.AddIntegerElement(std::numeric_limits<uint8_t>::max());
-//     array_encoder.AddFloatingPointElement(-1.0F);
-//     {
-//       auto object_encoder = array_encoder.StartObjectElement();
-//       object_encoder.StartArrayProperty("inner-empty-array");
-//     }
-//   };
-//   ConfirmEncoding(
-//       func, absl::StrCat(
-//                 "[false, \"\", "
-//                 "\"some text \\r\\n with escaping characters\", ",
-//                 std::to_string(std::numeric_limits<uint8_t>::max() + 0), ",
-//                 ", std::to_string(-1.0F), ", {\"inner-empty-array\": []}]"));
-// }
+TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
+  auto func = [](JsonArrayEncoder& array_encoder) {
+    array_encoder.AddBooleanElement(false);
+    array_encoder.AddStringElement("");
+    array_encoder.AddStringElement("some text \r\n with escaping characters");
+    array_encoder.AddIntegerElement(std::numeric_limits<int32_t>::min());
+    array_encoder.AddIntegerElement(std::numeric_limits<uint32_t>::max());
+    array_encoder.AddFloatingPointElement(-1.0F);
+    array_encoder.AddObjectElement([](JsonObjectEncoder& object_encoder) {
+      object_encoder.AddArrayProperty("inner-empty-array",
+                                      [](JsonArrayEncoder&) {});
+    });
+  };
+  ConfirmEncoding(
+      func, absl::StrCat(
+                "[false, \"\", "
+                "\"some text \\r\\n with escaping characters\", ",
+                std::to_string(std::numeric_limits<int32_t>::min() + 0), ", ",
+                std::to_string(std::numeric_limits<uint32_t>::max() + 0), ", ",
+                std::to_string(-1.0F), ", {\"inner-empty-array\": []}]"));
+}
 
 }  // namespace
 }  // namespace alpaca

@@ -60,6 +60,16 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "config_test",
+    srcs = ["config_test.cc"],
+    deps = [
+        "//experimental/users/jamessynge/tiny-alpaca-server:config",
+        "//experimental/users/jamessynge/tiny-alpaca-server:platform",
+        "//googletest:gunit_main",
+    ],
+)
+
 cc_library(
     name = "test_utils",
     hdrs = ["test_utils.h"],

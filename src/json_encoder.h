@@ -9,54 +9,11 @@
 #include "platform.h"
 #include "string_view.h"
 
+#if TAS_HOST_TARGET
+#include <functional>
+#endif  // TAS_HOST_TARGET
+
 namespace alpaca {
-// namespace internal {
-
-// // Writes a string literal to out.
-// // NOTE: The length of a literal string includes the NUL (\0) at the end, so
-// we
-// // subtract one from N to get the length of the string before that.
-
-// template <size_t N>
-// inline void PrintStringLiteral(Print& out, const char (&buf)[N]) {
-//   out.write(buf, N - 1);
-// }
-
-// template <typename T>
-// void PrintInteger(Print& out, const T value) {
-//   // +0 to cause promotion of chars, if they're passed in.
-//   out.print(value + static_cast<uint16_t>(0));
-// }
-
-// // Prints the floating point value to out, if possible. If not, prints a JSON
-// // string that "describes" the situation. This is similar to various JSON
-// // libraries, on which this is based.
-// template <typename T>
-// void PrintFloatingPoint(Print& out, const T value) {
-//   // We're assuming that the stream is configured to match JSON requirements
-//   for
-//   // the formatting of numbers.
-// #if TAS_HOST_TARGET
-//   if (std::isnan(value)) {
-//     JsonStringView("NaN").printTo(out);
-//   } else if (!std::isfinite(value)) {
-//     StringView v("-Inf");
-//     if (value > 0) {
-//       v.remove_prefix(1);
-//     }
-//     v.escaped().printTo(out);
-//   } else {
-// #endif
-//     out.print(value);
-// #if TAS_HOST_TARGET
-//   }
-// #endif
-// }
-
-// // Prints true or false to out.
-// void PrintBoolean(Print& out, const bool value);
-
-// }  // namespace internal
 
 class JsonArrayEncoder;
 class JsonObjectEncoder;
@@ -72,6 +29,12 @@ class JsonPropertySource {
   virtual ~JsonPropertySource();
   virtual void AddTo(JsonObjectEncoder& object_encoder) = 0;
 };
+
+#if TAS_HOST_TARGET
+// These support tests.
+using JsonElementSourceFunction = std::function<void(JsonArrayEncoder&)>;
+using JsonPropertySourceFunction = std::function<void(JsonObjectEncoder&)>;
+#endif  // TAS_HOST_TARGET
 
 // Base class for the object and array encoders.
 class AbstractJsonEncoder {
@@ -98,8 +61,6 @@ class AbstractJsonEncoder {
 // JSON encoder for arrays.
 class JsonArrayEncoder : public AbstractJsonEncoder {
  public:
-  static void Encode(JsonElementSource& source, Print& out);
-
   void AddIntegerElement(const int32_t value);
   void AddIntegerElement(const uint32_t value);
   void AddFloatingPointElement(float value);
@@ -108,6 +69,14 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
   void AddStringElement(const StringView& value);
   void AddArrayElement(JsonElementSource& source);
   void AddObjectElement(JsonPropertySource& source);
+
+  static void Encode(JsonElementSource& source, Print& out);
+
+#if TAS_HOST_TARGET
+  static void Encode(const JsonElementSourceFunction& func, Print& out);
+  void AddArrayElement(const JsonElementSourceFunction& func);
+  void AddObjectElement(const JsonPropertySourceFunction& func);
+#endif  // TAS_HOST_TARGET
 
  private:
   friend class AbstractJsonEncoder;
@@ -124,8 +93,6 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
 // JSON encoder for objects.
 class JsonObjectEncoder : public AbstractJsonEncoder {
  public:
-  static void Encode(JsonPropertySource& source, Print& out);
-
   void AddIntegerProperty(const StringView& name, int32_t value);
   void AddIntegerProperty(const StringView& name, uint32_t value);
   void AddFloatingPointProperty(const StringView& name, float value);
@@ -134,6 +101,16 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
   void AddStringProperty(const StringView& name, const StringView& value);
   void AddArrayProperty(const StringView& name, JsonElementSource& source);
   void AddObjectProperty(const StringView& name, JsonPropertySource& source);
+
+  static void Encode(JsonPropertySource& source, Print& out);
+
+#if TAS_HOST_TARGET
+  static void Encode(const JsonPropertySourceFunction& func, Print& out);
+  void AddArrayProperty(const StringView& name,
+                        const JsonElementSourceFunction& func);
+  void AddObjectProperty(const StringView& name,
+                         const JsonPropertySourceFunction& func);
+#endif  // TAS_HOST_TARGET
 
  private:
   friend class AbstractJsonEncoder;

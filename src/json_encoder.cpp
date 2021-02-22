@@ -55,6 +55,28 @@ void PrintFloatingPoint(Print& out, const T value) {
 #endif
 }
 
+#if TAS_HOST_TARGET
+class ElementSourceFunctionAdapter : public JsonElementSource {
+ public:
+  explicit ElementSourceFunctionAdapter(const JsonElementSourceFunction& func)
+      : func_(func) {}
+  void AddTo(JsonArrayEncoder& encoder) override { func_(encoder); }
+
+ private:
+  const JsonElementSourceFunction& func_;
+};
+
+class PropertySourceFunctionAdapter : public JsonPropertySource {
+ public:
+  explicit PropertySourceFunctionAdapter(const JsonPropertySourceFunction& func)
+      : func_(func) {}
+  void AddTo(JsonObjectEncoder& encoder) override { func_(encoder); }
+
+ private:
+  const JsonPropertySourceFunction& func_;
+};
+#endif  // TAS_HOST_TARGET
+
 }  // namespace
 
 JsonElementSource::~JsonElementSource() {}
@@ -83,12 +105,6 @@ void AbstractJsonEncoder::EncodeChildObject(JsonPropertySource& source) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-// static
-void JsonArrayEncoder::Encode(JsonElementSource& source, Print& out) {
-  JsonArrayEncoder encoder(out);
-  source.AddTo(encoder);
-}
 
 JsonArrayEncoder::JsonArrayEncoder(Print& out) : AbstractJsonEncoder(out) {
   PrintStringLiteral(out_, "[");
@@ -136,13 +152,33 @@ void JsonArrayEncoder::AddObjectElement(JsonPropertySource& source) {
   EncodeChildObject(source);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 // static
-void JsonObjectEncoder::Encode(JsonPropertySource& source, Print& out) {
-  JsonObjectEncoder encoder(out);
+void JsonArrayEncoder::Encode(JsonElementSource& source, Print& out) {
+  JsonArrayEncoder encoder(out);
   source.AddTo(encoder);
 }
+
+#if TAS_HOST_TARGET
+// static
+void JsonArrayEncoder::Encode(const JsonElementSourceFunction& func,
+                              Print& out) {
+  ElementSourceFunctionAdapter source(func);
+  Encode(source, out);
+}
+
+void JsonArrayEncoder::AddArrayElement(const JsonElementSourceFunction& func) {
+  ElementSourceFunctionAdapter source(func);
+  AddArrayElement(source);
+}
+
+void JsonArrayEncoder::AddObjectElement(
+    const JsonPropertySourceFunction& func) {
+  PropertySourceFunctionAdapter source(func);
+  AddObjectElement(source);
+}
+#endif  // TAS_HOST_TARGET
+
+////////////////////////////////////////////////////////////////////////////////
 
 JsonObjectEncoder::JsonObjectEncoder(Print& out) : AbstractJsonEncoder(out) {
   PrintStringLiteral(out_, "{");
@@ -202,5 +238,32 @@ void JsonObjectEncoder::AddObjectProperty(const StringView& name,
   StartProperty(name);
   EncodeChildObject(source);
 }
+
+// static
+void JsonObjectEncoder::Encode(JsonPropertySource& source, Print& out) {
+  JsonObjectEncoder encoder(out);
+  source.AddTo(encoder);
+}
+
+#if TAS_HOST_TARGET
+// static
+void JsonObjectEncoder::Encode(const JsonPropertySourceFunction& func,
+                               Print& out) {
+  PropertySourceFunctionAdapter source(func);
+  Encode(source, out);
+}
+
+void JsonObjectEncoder::AddArrayProperty(
+    const StringView& name, const JsonElementSourceFunction& func) {
+  ElementSourceFunctionAdapter source(func);
+  AddArrayProperty(name, source);
+}
+
+void JsonObjectEncoder::AddObjectProperty(
+    const StringView& name, const JsonPropertySourceFunction& func) {
+  PropertySourceFunctionAdapter source(func);
+  AddObjectProperty(name, source);
+}
+#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca
