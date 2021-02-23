@@ -1,13 +1,13 @@
-#ifndef TINY_ALPACA_SERVER_TOKEN_H_
-#define TINY_ALPACA_SERVER_TOKEN_H_
+#ifndef TINY_ALPACA_SERVER_SRC_TOKEN_H_
+#define TINY_ALPACA_SERVER_SRC_TOKEN_H_
 
 // Defines a compile type evaluable Token class, used to build arrays at compile
 // time of tokens to be recognized.
 //
 // Author: james.synge@gmail.com
 
-#include "platform.h"
-#include "string_view.h"
+#include "src/platform.h"
+#include "src/string_view.h"
 
 namespace alpaca {
 namespace internal {
@@ -70,4 +70,4 @@ constexpr Token<E> MakeToken(const StringView& view, E e) {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_TOKEN_H_
+#endif  // TINY_ALPACA_SERVER_SRC_TOKEN_H_

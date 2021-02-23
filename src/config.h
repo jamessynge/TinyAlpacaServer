@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_CONFIG_H_
-#define TINY_ALPACA_SERVER_CONFIG_H_
+#ifndef TINY_ALPACA_SERVER_SRC_CONFIG_H_
+#define TINY_ALPACA_SERVER_SRC_CONFIG_H_
 
 // Controls the set of features available in the Tiny Alpaca Server. (This is in
 // contrast to platform.h, which expresses the set of features provided by the
@@ -17,4 +17,4 @@
 #define TAS_MAX_EXTRA_REQUEST_PARAMETERS 2
 #define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 16
 
-#endif  // TINY_ALPACA_SERVER_CONFIG_H_
+#endif  // TINY_ALPACA_SERVER_SRC_CONFIG_H_

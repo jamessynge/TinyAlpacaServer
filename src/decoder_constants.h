@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_
-#define TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_
+#ifndef TINY_ALPACA_SERVER_SRC_DECODER_CONSTANTS_H_
+#define TINY_ALPACA_SERVER_SRC_DECODER_CONSTANTS_H_
 
 // Enums defining the decoder return values and enums corresponding to each kind
 // of token to be decoded.
@@ -10,7 +10,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "platform.h"
+#include "src/platform.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>
@@ -169,4 +169,4 @@ std::ostream& operator<<(std::ostream& out, EHttpHeader value);
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_DECODER_CONSTANTS_H_
+#endif  // TINY_ALPACA_SERVER_SRC_DECODER_CONSTANTS_H_

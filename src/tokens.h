@@ -1,16 +1,16 @@
-#ifndef TINY_ALPACA_SERVER_TOKENS_H_
-#define TINY_ALPACA_SERVER_TOKENS_H_
+#ifndef TINY_ALPACA_SERVER_SRC_TOKENS_H_
+#define TINY_ALPACA_SERVER_SRC_TOKENS_H_
 
 // Defines the set of recognized HTTP methods, and ASCOM Alpaca Device Types,
 // Methods and Parameters.
 //
 // Author: james.synge@gmail.com
 
-#include "config.h"
-#include "decoder_constants.h"
-#include "platform.h"
-#include "string_view.h"
-#include "token.h"
+#include "src/config.h"
+#include "src/decoder_constants.h"
+#include "src/platform.h"
+#include "src/string_view.h"
+#include "src/token.h"
 
 namespace alpaca {
 
@@ -73,14 +73,6 @@ TAS_CONSTEXPR_VAR Token<EHttpHeader> kRecognizedHttpHeaders[] = {
 
 namespace internal {
 
-template <size_t N, typename E>
-TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
-    const Token<E> (&tokens)[N], const size_t ndx) {
-  return (ndx >= N) ? 0
-                    : MaxOf2(tokens[ndx].str.size(),
-                             MaxTokenSizeHelper<N, E>(tokens, ndx + 1));
-}
-
 #ifdef ARDUINO
 // Test to see if the problem was just missing parens.
 template <size_t N, typename E>
@@ -89,6 +81,14 @@ TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
   return (ndx >= N) ? 0
                     : max((tokens[ndx].str.size()),
                           (MaxTokenSizeHelper<N, E>(tokens, ndx + 1)));
+}
+#else
+template <size_t N, typename E>
+TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
+    const Token<E> (&tokens)[N], const size_t ndx) {
+  return (ndx >= N) ? 0
+                    : MaxOf2(tokens[ndx].str.size(),
+                             MaxTokenSizeHelper<N, E>(tokens, ndx + 1));
 }
 #endif
 
@@ -113,4 +113,4 @@ TAS_CONSTEXPR_VAR StringView::size_type kMinRequiredBufferSize =
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_TOKENS_H_
+#endif  // TINY_ALPACA_SERVER_SRC_TOKENS_H_

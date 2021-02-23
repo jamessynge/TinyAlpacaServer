@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_COUNTING_BITBUCKET_H_
-#define TINY_ALPACA_SERVER_COUNTING_BITBUCKET_H_
+#ifndef TINY_ALPACA_SERVER_SRC_COUNTING_BITBUCKET_H_
+#define TINY_ALPACA_SERVER_SRC_COUNTING_BITBUCKET_H_
 
 // CountingBitbucket sums the number of characters (bytes) printed, but does no
 // output. This is useful for computing the value to be placed in the
@@ -7,7 +7,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "platform.h"
+#include "src/platform.h"
 
 namespace alpaca {
 
@@ -39,4 +39,4 @@ class CountingBitbucket : public Print {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_COUNTING_BITBUCKET_H_
+#endif  // TINY_ALPACA_SERVER_SRC_COUNTING_BITBUCKET_H_

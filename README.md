@@ -1,4 +1,4 @@
-# Tiny Alpaca Server
+# [Tiny Alpaca Server](https://github.com/jamessynge/tiny-alpaca-server)
 
 Author: James Synge (james.synge@gmail.com)
 
@@ -66,3 +66,44 @@ The aim is to support use from the Arduino IDE, though that is not yet complete.
 I'm using the
 [Library specification](https://arduino.github.io/arduino-cli/library-specification/)
 in the arduino-cli documentation as a guide.
+
+## RAM Preservation
+
+The Arduino Mega has only 8KB of ram, so we need to preserve that space as much
+as possible. One way is to put literal (const) strings into flash (PROGMEM).
+This gets a bit complicated because we can't directly compare a string in RAM
+against a string in flash. Fortunately, [avr-libc includes `pgmspace` functions
+working with strings and arrays of bytes stored in
+PROGMEM](https://www.nongnu.org/avr-libc/user-manual/group__avr__pgmspace.html),
+such as memcpy_P, which copies a string from PROGMEM to RAM. Of special interest
+are:
+
+*   strncasecmp_P, which performs a case insensitive comparison of a string in
+    PROGMEM
+*   memcmp_P, which performs byte comparison of an array of bytes in PROGMEM
+    with an array of the same size in RAM.
+
+Both of these functions have a parameter to indicate the length of the strings
+(arrays).
+
+To simplify working with strings in PROGMEM, it would probably be best to wrap
+them in a class that knows about `far pointers`, and provides operations for
+comparing these with StringViews, and for streaming them out to a JSON Encoder
+or a Print instance.
+
+## Planning
+
+*   Support case insensitive comparison of mixed case literals and mixed case
+    allowed input (e.g. Content-Length or ClientTransactionId). That will allow
+    us to have only one copy of the string in PROGMEM, and to emit JSON property
+    with the correct case, and also to compare it it in a case insensitive
+    manner with query parameter names.
+*   Support the
+    [management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API),
+    which will entail...
+*   Add support for nested decoders, thus allowing each path segment to have its
+    own decoder. Use to support paths starting /management and /setup.
+*   Support multiple connections at once (a bounded number, e.g. as supported by
+    the networking chip used by the RobotDyn MEGA 2560 ETH R3). This will
+    require storing decoder state outside of the decoder instances. For example,
+    using a union whereby all decoders can share the same memory.

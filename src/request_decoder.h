@@ -1,16 +1,16 @@
-#ifndef TINY_ALPACA_SERVER_REQUEST_DECODER_H_
-#define TINY_ALPACA_SERVER_REQUEST_DECODER_H_
+#ifndef TINY_ALPACA_SERVER_SRC_REQUEST_DECODER_H_
+#define TINY_ALPACA_SERVER_SRC_REQUEST_DECODER_H_
 
 // RequestDecoder is a (fairly) strict HTTP/1.1 Request Message decoder
 // targetted at the requests defined for the ASCOM Alpaca REST API.
 //
 // Author: james.synge@gmail.com
 
-#include "alpaca_request.h"
-#include "decoder_constants.h"
-#include "platform.h"
-#include "request_decoder_listener.h"
-#include "string_view.h"
+#include "src/alpaca_request.h"
+#include "src/decoder_constants.h"
+#include "src/platform.h"
+#include "src/request_decoder_listener.h"
+#include "src/string_view.h"
 
 namespace alpaca {
 
@@ -80,4 +80,4 @@ class RequestDecoder : RequestDecoderState {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_REQUEST_DECODER_H_
+#endif  // TINY_ALPACA_SERVER_SRC_REQUEST_DECODER_H_

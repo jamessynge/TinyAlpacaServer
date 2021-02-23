@@ -1,12 +1,12 @@
-#ifndef TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
-#define TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_TESTS_REQUEST_DECODER_LISTENER_MOCK_H_
+#define TINY_ALPACA_SERVER_EXTRAS_TESTS_REQUEST_DECODER_LISTENER_MOCK_H_
 
 // Mock implementation of RequestDecoderListener, used in tests.
 //
 // Author: james.synge@gmail.com
 
 #include "googletest/gmock.h"
-#include "request_decoder_listener.h"
+#include "src/request_decoder_listener.h"
 
 namespace alpaca {
 
@@ -28,4 +28,4 @@ class MockRequestDecoderListener : public RequestDecoderListener {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_REQUEST_DECODER_LISTENER_MOCK_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_TESTS_REQUEST_DECODER_LISTENER_MOCK_H_

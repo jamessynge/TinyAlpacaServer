@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_PRINT_H_
-#define TINY_ALPACA_SERVER_PRINT_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_PRINT_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_PRINT_H_
 
 // When compiled for the host, as opposed to for Arduino, we need our own
 // minimal implementation of the Print class, and the Printable interface.
@@ -49,4 +49,4 @@ class Print {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_PRINT_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_PRINT_H_

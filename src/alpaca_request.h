@@ -1,15 +1,15 @@
-#ifndef TINY_ALPACA_SERVER_ALPACA_REQUEST_H_
-#define TINY_ALPACA_SERVER_ALPACA_REQUEST_H_
+#ifndef TINY_ALPACA_SERVER_SRC_ALPACA_REQUEST_H_
+#define TINY_ALPACA_SERVER_SRC_ALPACA_REQUEST_H_
 
 // Author: james.synge@gmail.com
 
-#include "config.h"
-#include "decoder_constants.h"
-#include "platform.h"
-#include "string_view.h"
+#include "src/config.h"
+#include "src/decoder_constants.h"
+#include "src/platform.h"
+#include "src/string_view.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-#include "extra_parameters.h"
+#include "src/extra_parameters.h"
 #endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 
 namespace alpaca {
@@ -52,4 +52,4 @@ struct AlpacaRequest {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_ALPACA_REQUEST_H_
+#endif  // TINY_ALPACA_SERVER_SRC_ALPACA_REQUEST_H_

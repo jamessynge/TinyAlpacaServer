@@ -1,9 +1,9 @@
-#ifndef TINY_ALPACA_SERVER_ARDUINO_H_
-#define TINY_ALPACA_SERVER_ARDUINO_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_
 
 #include <cstdint>
 
-#include "host_arduino/Print.h"  // IWYU pragma: export
+#include "extras/host_arduino/Print.h"  // IWYU pragma: export
 
 namespace alpaca {
 
@@ -23,4 +23,4 @@ inline uint32_t max(uint32_t a, uint32_t b) { return (a >= b) ? a : b; }
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_ARDUINO_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_

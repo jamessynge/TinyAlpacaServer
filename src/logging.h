@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_LOGGING_H_
-#define TINY_ALPACA_SERVER_LOGGING_H_
+#ifndef TINY_ALPACA_SERVER_SRC_LOGGING_H_
+#define TINY_ALPACA_SERVER_SRC_LOGGING_H_
 
 // To enable logging (for debugging) when compiled to run on a host, we use
 // these TAS_* log macros to define our log statements. On Arduino, they're
@@ -60,4 +60,4 @@
 
 #endif  // ARDUINO
 
-#endif  // TINY_ALPACA_SERVER_LOGGING_H_
+#endif  // TINY_ALPACA_SERVER_SRC_LOGGING_H_

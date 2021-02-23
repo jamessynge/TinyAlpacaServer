@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_EXTRA_PARAMETERS_H_
-#define TINY_ALPACA_SERVER_EXTRA_PARAMETERS_H_
+#ifndef TINY_ALPACA_SERVER_SRC_EXTRA_PARAMETERS_H_
+#define TINY_ALPACA_SERVER_SRC_EXTRA_PARAMETERS_H_
 
 // This file contains the optional support for recording the parameter enum and
 // short string value of parameters for which support isn't built into the
@@ -10,10 +10,10 @@
 //
 // Author: james.synge@gmail.com
 
-#include "config.h"
-#include "decoder_constants.h"
-#include "platform.h"
-#include "string_view.h"
+#include "src/config.h"
+#include "src/decoder_constants.h"
+#include "src/platform.h"
+#include "src/string_view.h"
 
 // The minimum is 2 to allow for testing of this feature.
 
@@ -120,4 +120,4 @@ class ExtraParameterValueMap {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_EXTRA_PARAMETERS_H_
+#endif  // TINY_ALPACA_SERVER_SRC_EXTRA_PARAMETERS_H_

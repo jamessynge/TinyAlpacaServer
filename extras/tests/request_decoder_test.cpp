@@ -1,4 +1,4 @@
-#include "request_decoder.h"
+#include "src/request_decoder.h"
 
 // Tests of RequestDecoder, AlpacaRequest and RequestDecoderListener.
 //
@@ -15,14 +15,14 @@
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
-#include "alpaca_request.h"
-#include "decoder_constants.h"
+#include "extras/tests/request_decoder_listener_mock.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "logging.h"
-#include "request_decoder_listener.h"
-#include "string_view.h"
-#include "tests/request_decoder_listener_mock.h"
+#include "src/alpaca_request.h"
+#include "src/decoder_constants.h"
+#include "src/request_decoder_listener.h"
+#include "src/string_view.h"
 
 ABSL_DECLARE_FLAG(int, v);
 

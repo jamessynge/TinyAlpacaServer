@@ -1,13 +1,13 @@
-#ifndef TINY_ALPACA_SERVER_JSON_ENCODER_H_
-#define TINY_ALPACA_SERVER_JSON_ENCODER_H_
+#ifndef TINY_ALPACA_SERVER_SRC_JSON_ENCODER_H_
+#define TINY_ALPACA_SERVER_SRC_JSON_ENCODER_H_
 
 // Supports writing a JSON object, with values that are numbers, bools, strings,
 // and arrays of the same. Usage examples can be // found in the test file.
 //
 // Author: james.synge@gmail.com
 
-#include "platform.h"
-#include "string_view.h"
+#include "src/platform.h"
+#include "src/string_view.h"
 
 #if TAS_HOST_TARGET
 #include <functional>
@@ -128,4 +128,4 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_JSON_ENCODER_H_
+#endif  // TINY_ALPACA_SERVER_SRC_JSON_ENCODER_H_

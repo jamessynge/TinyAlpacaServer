@@ -14,12 +14,12 @@
 //
 // Author: james.synge@gmail.com
 
-#include "request_decoder.h"
+#include "src/request_decoder.h"
 
-#include "config.h"
-#include "platform.h"
-#include "token.h"
-#include "tokens.h"
+#include "src/config.h"
+#include "src/platform.h"
+#include "src/token.h"
+#include "src/tokens.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified
 // as the rest of HTTP (AFAICT), so I'm assuming that:

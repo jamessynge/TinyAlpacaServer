@@ -1,9 +1,9 @@
-#ifndef TINY_ALPACA_SERVER_TEST_UTILS_H_
-#define TINY_ALPACA_SERVER_TEST_UTILS_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_TESTS_TEST_UTILS_H_
+#define TINY_ALPACA_SERVER_EXTRAS_TESTS_TEST_UTILS_H_
 
 #include <sstream>
 
-#include "host_arduino/Print.h"
+#include "extras/host_arduino/Print.h"
 
 namespace alpaca {
 
@@ -27,4 +27,4 @@ class PrintToString : public Print {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_TEST_UTILS_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_TESTS_TEST_UTILS_H_

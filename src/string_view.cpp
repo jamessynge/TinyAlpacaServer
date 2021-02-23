@@ -1,8 +1,8 @@
-#include "string_view.h"
+#include "src/string_view.h"
 
 // Author: james.synge@gmail.com
 
-#include "platform.h"
+#include "src/platform.h"
 
 #if TAS_HOST_TARGET
 #include "absl/strings/escaping.h"

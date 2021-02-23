@@ -1,8 +1,8 @@
-#include "alpaca_request.h"
+#include "src/alpaca_request.h"
 
 // Author: james.synge@gmail.com
 
-#include "decoder_constants.h"
+#include "src/decoder_constants.h"
 
 namespace alpaca {
 

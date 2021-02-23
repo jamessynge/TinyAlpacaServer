@@ -1,17 +1,17 @@
-#ifndef TINY_ALPACA_SERVER_TINYALPACASERVER_H_
-#define TINY_ALPACA_SERVER_TINYALPACASERVER_H_
+#ifndef TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_
+#define TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_
 
-#include "alpaca_request.h"
-#include "config.h"
-#include "counting_bitbucket.h"
-#include "decoder_constants.h"
-#include "extra_parameters.h"
-#include "json_encoder.h"
-#include "platform.h"
-#include "request_decoder.h"
-#include "request_decoder_listener.h"
-#include "string_view.h"
-#include "token.h"
-#include "tokens.h"
+#include "src/alpaca_request.h"
+#include "src/config.h"
+#include "src/counting_bitbucket.h"
+#include "src/decoder_constants.h"
+#include "src/extra_parameters.h"
+#include "src/json_encoder.h"
+#include "src/platform.h"
+#include "src/request_decoder.h"
+#include "src/request_decoder_listener.h"
+#include "src/string_view.h"
+#include "src/token.h"
+#include "src/tokens.h"
 
-#endif  // TINY_ALPACA_SERVER_TINYALPACASERVER_H_
+#endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_
