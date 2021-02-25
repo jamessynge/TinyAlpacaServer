@@ -9,6 +9,7 @@ namespace alpaca {
 void AlpacaRequest::Reset() {
   found_client_id = false;
   found_client_transaction_id = false;
+  have_server_transaction_id = false;
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
   extra_parameters.clear();
@@ -21,6 +22,7 @@ void AlpacaRequest::Reset() {
   ascom_method = EMethod::kUnknown;
   client_id = kResetClientId;
   client_transaction_id = kResetClientTransactionId;
+  server_transaction_id = kResetServerTransactionId;
 #endif  // TAS_ENABLE_DEBUGGING
 }
 

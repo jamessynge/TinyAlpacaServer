@@ -107,3 +107,10 @@ or a Print instance.
     the networking chip used by the RobotDyn MEGA 2560 ETH R3). This will
     require storing decoder state outside of the decoder instances. For example,
     using a union whereby all decoders can share the same memory.
+
+## Misc. Notes
+
+I'm inclined to think that the SafetyMonitor::IsSafe function should be
+implemented server side, not embedded, so that it can combine multiple signals
+and calibrated parameters to make the decision. The embedded system should
+provide the raw data, but probably not policy.

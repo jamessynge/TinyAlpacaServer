@@ -1,4 +1,16 @@
-# TODO(jamessynge): describe this package.
+# Contains tests of code that is in the src directory, to be executed on host.
+# We don't put the tests there because otherwise the Arduino IDE tries to treat
+# them as code to be compiled for the target microcontroller.
+
+cc_test(
+    name = "config_test",
+    srcs = ["config_test.cc"],
+    deps = [
+        ":config",
+        ":platform",
+        "//googletest:gunit_main",
+    ],
+)
 
 cc_test(
     name = "counting_bitbucket_test",
@@ -61,11 +73,12 @@ cc_test(
 )
 
 cc_test(
-    name = "config_test",
-    srcs = ["config_test.cc"],
+    name = "literal_test",
+    srcs = ["literal_test.cc"],
     deps = [
-        ":config",
-        ":platform",
+        ":literal",
+        ":test_utils",
+        "//absl/strings",
         "//googletest:gunit_main",
     ],
 )

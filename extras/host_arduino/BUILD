@@ -20,6 +20,23 @@ cc_library(
 )
 
 cc_library(
+    name = "pgmspace",
+    srcs = ["pgmspace.cc"],
+    hdrs = ["pgmspace.h"],
+    deps = ["//absl/strings"],
+)
+
+cc_test(
+    name = "pgmspace_test",
+    srcs = ["pgmspace_test.cc"],
+    deps = [
+        ":pgmspace",
+        "//absl/strings",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_library(
     name = "print",
     srcs = ["Print.cc"],
     hdrs = ["Print.h"],

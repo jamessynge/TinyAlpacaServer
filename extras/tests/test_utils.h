@@ -21,6 +21,8 @@ class PrintToString : public Print {
 
   std::string str() const { return out_.str(); }
 
+  void reset() { out_.str(""); }
+
  private:
   std::ostringstream out_;
 };

@@ -118,11 +118,11 @@ std::string StringView::ToHexEscapedString() const {
 JsonStringView::JsonStringView(const StringView& view) : view_(view) {}
 
 size_t JsonStringView::printTo(Print& p) const {
-  size_t total = StringView("\"").printTo(p);
+  size_t total = p.print('"');
   for (const char& c : view_) {
     total += GetJsonEscaped(c).printTo(p);
   }
-  total += StringView("\"").printTo(p);
+  total += p.print('"');
   return total;
 }
 

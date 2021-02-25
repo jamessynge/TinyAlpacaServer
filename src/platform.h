@@ -18,8 +18,8 @@
 #include <Arduino.h>  // IWYU pragma: export
 
 #ifdef ARDUINO_ARCH_AVR
-#include <pgmspace.h>
-#endif  // ARDUINO_ARCH_AVR
+#include <pgmspace.h>  // IWYU pragma: export
+#endif                 // ARDUINO_ARCH_AVR
 
 #else  // !ARDUINO
 
@@ -37,24 +37,14 @@
 #endif  // ARDUINO
 
 #ifndef ARDUINO_ARCH_AVR
-// The AVR compiler supports storing string literals (and other constant
-// structures) in program memory (flash) by marking them with the attribute
-// PROGMEM. Such constants must be accessed using special functions (see
-// https://www.nongnu.org/avr-libc/user-manual/group__avr__pgmspace.html).
-// This is worth it only if we're running short of RAM but have plenty of flash
-// available; on the Arduino MEGA (AVR 2560), there is 256KB of flash, but only
-// 8KB of RAM.
-//
-// If we're not in such an environment, then we want to have the compiler ignore
-// our references to PROGMEM.
-#define PROGMEM
-#define PGM_P const char*
-#endif  // !ARDUINO_ARCH_AVR
+// Include a minimal pgmspace if not compiling for the AVR chips.
+#include "extras/host_arduino/pgmspace.h"  // IWYU pragma: export
+#endif                                     // !ARDUINO_ARCH_AVR
 
-// If a function contains a TAS_DLOG, et al, then the function can't be a
-// constexpr. To allow for including these macros in such functions, we use
-// these macros to choose whether it is a constexpr or not based on whether
-// we've compiled it for debugging or not.
+// If a function contains a TAS_DLOG, et al (e.g. when compiled for debugging),
+// then the function can't be a constexpr. To allow for including these macros
+// in such functions, we use these macros to choose whether it is a constexpr or
+// not based on whether we've compiled it for debugging or not.
 #if TAS_ENABLE_DEBUGGING
 #define TAS_CONSTEXPR_FUNC
 #define TAS_CONSTEXPR_VAR const
@@ -63,9 +53,15 @@
 #define TAS_CONSTEXPR_VAR constexpr
 #endif  // TAS_ENABLE_DEBUGGING
 
-// max is a macro in Arduino, and doesn't seem to deal well with commas in the
-// the arguments.
-constexpr size_t MaxOf2(size_t a, size_t b) { return (a >= b) ? a : b; }
+// max is a macro in Arduino, but not on a host. We avoid 'confusion' by using
+// inlineable function.
+constexpr inline size_t MaxOf2(const size_t a, const size_t b) {
+#ifdef ARDUINO
+  return max(a, b);
+#else   // !ARDUINO
+  return (a >= b) ? a : b;
+#endif  // ARDUINO
+}
 constexpr size_t MaxOf4(size_t a, size_t b, size_t c, size_t d) {
   return MaxOf2(MaxOf2(a, b), MaxOf2(c, d));
 }

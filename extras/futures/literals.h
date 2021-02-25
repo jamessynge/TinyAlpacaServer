@@ -9,7 +9,7 @@
 // representation in code for one of these literals to an enum value, which
 // probably doesn't end up in RAM often.
 
-#include "extras/futures/literal.h"
+#include "src/literal.h"
 #include "src/platform.h"
 
 namespace alpaca {

@@ -1,6 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_
 #define TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_
 
+// This file acts to export all of the headers that would be needed by a program
+// (i.e. an Arduino Sketch file) using the Tiny Alpaca Server.
+
 #include "src/alpaca_request.h"
 #include "src/config.h"
 #include "src/counting_bitbucket.h"

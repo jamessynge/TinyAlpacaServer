@@ -57,6 +57,26 @@ cc_library(
 )
 
 cc_library(
+    name = "json_response",
+    hdrs = ["json_response.h"],
+    deps = [
+        ":alpaca_request",
+        ":json_encoder",
+        ":platform",
+    ],
+)
+
+cc_library(
+    name = "literal",
+    srcs = ["literal.cc"],
+    hdrs = ["literal.h"],
+    deps = [
+        ":platform",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "logging",
     hdrs = ["logging.h"],
     deps = ["//core:logging"],
@@ -67,7 +87,7 @@ cc_library(
     hdrs = ["platform.h"],
     deps = [
         ":arduino",
-        "//base",
+        ":pgmspace",
     ],
 )
 
@@ -100,6 +120,24 @@ cc_library(
 )
 
 cc_library(
+    name = "server",
+    srcs = ["server.cc"],
+    hdrs = ["server.h"],
+    deps = [":platform"],
+)
+
+cc_library(
+    name = "server_description",
+    hdrs = ["server_description.h"],
+    deps = [
+        ":json_encoder",
+        ":literal",
+        ":platform",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "string_view",
     srcs = ["string_view.cc"],
     hdrs = ["string_view.h"],
@@ -107,6 +145,25 @@ cc_library(
         ":logging",
         ":platform",
         "//absl/strings",
+    ],
+)
+
+cc_library(
+    name = "tiny_alpaca_server",
+    hdrs = ["TinyAlpacaServer.h"],
+    deps = [
+        ":alpaca_request",
+        ":config",
+        ":counting_bitbucket",
+        ":decoder_constants",
+        ":extra_parameters",
+        ":json_encoder",
+        ":platform",
+        ":request_decoder",
+        ":request_decoder_listener",
+        ":string_view",
+        ":token",
+        ":tokens",
     ],
 )
 

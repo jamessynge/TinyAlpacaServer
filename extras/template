@@ -1,0 +1,8 @@
+
+#include "src/platform.h"
+
+namespace alpaca {
+
+
+}  // namespace alpaca
+

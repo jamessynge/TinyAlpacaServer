@@ -73,24 +73,13 @@ TAS_CONSTEXPR_VAR Token<EHttpHeader> kRecognizedHttpHeaders[] = {
 
 namespace internal {
 
-#ifdef ARDUINO
-// Test to see if the problem was just missing parens.
-template <size_t N, typename E>
-TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
-    const Token<E> (&tokens)[N], const size_t ndx) {
-  return (ndx >= N) ? 0
-                    : max((tokens[ndx].str.size()),
-                          (MaxTokenSizeHelper<N, E>(tokens, ndx + 1)));
-}
-#else
 template <size_t N, typename E>
 TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSizeHelper(
     const Token<E> (&tokens)[N], const size_t ndx) {
   return (ndx >= N) ? 0
                     : MaxOf2(tokens[ndx].str.size(),
-                             MaxTokenSizeHelper<N, E>(tokens, ndx + 1));
+                             (MaxTokenSizeHelper<N, E>(tokens, ndx + 1)));
 }
-#endif
 
 template <size_t N, typename E>
 TAS_CONSTEXPR_FUNC StringView::size_type MaxTokenSize(
