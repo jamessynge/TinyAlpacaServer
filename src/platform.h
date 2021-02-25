@@ -17,10 +17,6 @@
 
 #include <Arduino.h>  // IWYU pragma: export
 
-#ifdef ARDUINO_ARCH_AVR
-#include <pgmspace.h>  // IWYU pragma: export
-#endif                 // ARDUINO_ARCH_AVR
-
 #else  // !ARDUINO
 
 #define TAS_EMBEDDED_TARGET 0
@@ -35,11 +31,6 @@
 #include "extras/host_arduino/Arduino.h"  // IWYU pragma: export
 
 #endif  // ARDUINO
-
-#ifndef ARDUINO_ARCH_AVR
-// Include a minimal pgmspace if not compiling for the AVR chips.
-#include "extras/host_arduino/pgmspace.h"  // IWYU pragma: export
-#endif                                     // !ARDUINO_ARCH_AVR
 
 // If a function contains a TAS_DLOG, et al (e.g. when compiled for debugging),
 // then the function can't be a constexpr. To allow for including these macros

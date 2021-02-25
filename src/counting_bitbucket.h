@@ -7,7 +7,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "src/platform.h"
+#include "platform.h"
 
 namespace alpaca {
 

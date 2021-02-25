@@ -6,7 +6,7 @@
 // Author: james.synge@gmail.com
 
 #include "googletest/gmock.h"
-#include "src/request_decoder_listener.h"
+#include "request_decoder_listener.h"
 
 namespace alpaca {
 

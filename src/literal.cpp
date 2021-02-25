@@ -1,6 +1,21 @@
-#include "src/literal.h"
+#include "literal.h"
+
+#include "logging.h"
+#include "platform.h"
 
 namespace alpaca {
+namespace {
+// Returns the char at the specified location in PROGMEM.
+inline char pgm_read_char(PGM_P ptr) {
+  auto byte = pgm_read_byte(reinterpret_cast<const uint8_t*>(ptr));
+  return static_cast<char>(byte);
+}
+}  // namespace
+
+TAS_CONSTEXPR_FUNC char Literal::at(const Literal::size_type pos) const {
+  TAS_DCHECK_LT(pos, size_, "");
+  return pgm_read_char(ptr_ + pos);
+}
 
 bool Literal::operator==(const StringView& view) const {
   if (size_ != view.size()) {
@@ -20,6 +35,20 @@ bool Literal::case_equal(const StringView& view) const {
   return 0 == strncasecmp_P(ptr_, view.data(), size_);
 }
 
+bool Literal::lowered_equal(const StringView& view) const {
+  if (size_ != view.size()) {
+    return false;
+  }
+  for (size_type offset = 0; offset < size_; ++offset) {
+    const char c = at(offset);
+    const char lc_c = isUpperCase(c) ? (c | static_cast<char>(0x20)) : c;
+    if (lc_c != view.at(offset)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool Literal::copyTo(char* out, size_type size) {
   if (size <= size_) {
     return false;
@@ -27,13 +56,6 @@ bool Literal::copyTo(char* out, size_type size) {
   memcpy_P(out, ptr_, size_ + 1);
   return true;
 }
-
-namespace {
-char pgm_read_char(const char* ptr) {
-  auto byte = pgm_read_byte(reinterpret_cast<const uint8_t*>(ptr));
-  return static_cast<char>(byte);
-}
-}  // namespace
 
 size_t Literal::printTo(Print& out) const {
   // Not particularly efficient, but probably OK. If not, use memcpy_P to copy

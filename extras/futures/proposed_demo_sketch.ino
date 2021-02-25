@@ -47,6 +47,7 @@
 //
 // Author: james.synge@gmail.com
 
+#include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
 using ::alpaca::AlpacaRequest;

@@ -1,8 +1,8 @@
-#include "src/config.h"
+#include "config.h"
 
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
-#include "src/platform.h"
+#include "platform.h"
 
 namespace {
 

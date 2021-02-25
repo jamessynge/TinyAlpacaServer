@@ -1,6 +1,6 @@
 // GENERATED FILE
 
-#include "src/decoder_constants.h"
+#include "decoder_constants.h"
 
 #if TAS_HOST_TARGET
 #include <type_traits>

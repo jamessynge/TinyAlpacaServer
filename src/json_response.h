@@ -1,9 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_SRC_JSON_RESPONSE_H_
 #define TINY_ALPACA_SERVER_SRC_JSON_RESPONSE_H_
 
-#include "src/alpaca_request.h"
-#include "src/json_encoder.h"
-#include "src/platform.h"
+#include "alpaca_request.h"
+#include "json_encoder.h"
+#include "platform.h"
 
 namespace alpaca {
 

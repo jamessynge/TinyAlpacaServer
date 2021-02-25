@@ -14,6 +14,7 @@ cc_library(
     srcs = ["Arduino.cc"],
     hdrs = ["Arduino.h"],
     deps = [
+        ":pgmspace",
         ":print",
         "//absl/strings",
     ],
@@ -24,16 +25,6 @@ cc_library(
     srcs = ["pgmspace.cc"],
     hdrs = ["pgmspace.h"],
     deps = ["//absl/strings"],
-)
-
-cc_test(
-    name = "pgmspace_test",
-    srcs = ["pgmspace_test.cc"],
-    deps = [
-        ":pgmspace",
-        "//absl/strings",
-        "//googletest:gunit_main",
-    ],
 )
 
 cc_library(

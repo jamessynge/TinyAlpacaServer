@@ -1,8 +1,8 @@
+#include <TinyAlpacaServer.h>
+
 constexpr char buffer1[] PROGMEM = "abc";
 
 constexpr Literal literal1(buffer1);
-
-constexpr Literal literal2("some string");
 
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
@@ -11,10 +11,11 @@ void setup() {
   // Wait for serial port to connect, or at least some minimum amount of time
   // (TBD), else the initial output gets lost.
   while (!Serial) {}
-  delay(1000);
 }
 
 void loop() {
+  delay(1000);
+
   Serial.print("literal1: ");
   literal1.printTo(Serial);
   Serial.println();

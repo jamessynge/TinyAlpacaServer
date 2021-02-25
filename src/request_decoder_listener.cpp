@@ -1,10 +1,10 @@
-#include "src/request_decoder_listener.h"
+#include "request_decoder_listener.h"
 
 // Author: james.synge@gmail.com
 
-#include "src/decoder_constants.h"
-#include "src/logging.h"
-#include "src/string_view.h"
+#include "decoder_constants.h"
+#include "logging.h"
+#include "string_view.h"
 
 namespace alpaca {
 

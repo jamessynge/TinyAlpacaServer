@@ -18,6 +18,7 @@
 
 #define PROGMEM
 #define PGM_P const char*
+#define PGM_VOID_P const void*
 
 namespace alpaca {
 uint8_t pgm_read_byte(const uint8_t* ptr);

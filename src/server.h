@@ -1,7 +1,7 @@
 #ifndef TINY_ALPACA_SERVER_SRC_SERVER_H_
 #define TINY_ALPACA_SERVER_SRC_SERVER_H_
 
-#include "src/platform.h"
+#include "platform.h"
 
 namespace alpaca {
 

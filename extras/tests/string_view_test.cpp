@@ -1,4 +1,4 @@
-#include "src/string_view.h"
+#include "string_view.h"
 
 // Author: james.synge@gmail.com
 
@@ -8,10 +8,10 @@
 #include <utility>
 #include <vector>
 
+#include "config.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "logging.h"
-#include "src/config.h"
 
 namespace alpaca {
 

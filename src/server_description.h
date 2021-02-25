@@ -1,10 +1,10 @@
 #ifndef TINY_ALPACA_SERVER_SRC_SERVER_DESCRIPTION_H_
 #define TINY_ALPACA_SERVER_SRC_SERVER_DESCRIPTION_H_
 
-#include "src/json_encoder.h"
-#include "src/literal.h"
-#include "src/platform.h"
-#include "src/string_view.h"
+#include "json_encoder.h"
+#include "literal.h"
+#include "platform.h"
+#include "string_view.h"
 
 namespace alpaca {
 
@@ -15,8 +15,9 @@ struct ServerDescription {
   // the args (i.e. much like using keyword args in python is clearer than a
   // list of positional args). For now though, we need to use C++ 11 features to
   // be compatible with Arduino IDE.
-  constexpr ServerDescription(Literal server_name, Literal manufacturer,
-                              Literal version)
+  constexpr ServerDescription(const Literal& server_name,
+                              const Literal& manufacturer,
+                              const Literal& version)
       : server_name(server_name),
         manufacturer(manufacturer),
         version(version) {}

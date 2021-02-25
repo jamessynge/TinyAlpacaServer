@@ -71,8 +71,20 @@ cc_library(
     srcs = ["literal.cc"],
     hdrs = ["literal.h"],
     deps = [
+        ":logging",
         ":platform",
         ":string_view",
+    ],
+)
+
+cc_library(
+    name = "literals",
+    srcs = ["literals.cc"],
+    hdrs = ["literals.h"],
+    textual_hdrs = ["literals.inc"],
+    deps = [
+        ":literal",
+        ":platform",
     ],
 )
 
@@ -85,10 +97,7 @@ cc_library(
 cc_library(
     name = "platform",
     hdrs = ["platform.h"],
-    deps = [
-        ":arduino",
-        ":pgmspace",
-    ],
+    deps = [":arduino"],
 )
 
 cc_library(

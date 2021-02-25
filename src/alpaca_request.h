@@ -3,13 +3,13 @@
 
 // Author: james.synge@gmail.com
 
-#include "src/config.h"
-#include "src/decoder_constants.h"
-#include "src/platform.h"
-#include "src/string_view.h"
+#include "config.h"
+#include "decoder_constants.h"
+#include "platform.h"
+#include "string_view.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-#include "src/extra_parameters.h"
+#include "extra_parameters.h"
 #endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 
 namespace alpaca {

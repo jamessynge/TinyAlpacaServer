@@ -1,4 +1,4 @@
-#include "src/json_encoder.h"
+#include "json_encoder.h"
 
 // Tests of JsonObjectEncoder and JsonArrayEncoder.
 //
@@ -11,10 +11,10 @@
 #include <string>
 
 #include "absl/strings/str_cat.h"
+#include "counting_bitbucket.h"
 #include "extras/tests/test_utils.h"
 #include "googletest/gtest.h"
 #include "logging.h"
-#include "src/counting_bitbucket.h"
 
 namespace alpaca {
 namespace {

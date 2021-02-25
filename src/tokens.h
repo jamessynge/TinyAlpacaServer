@@ -6,11 +6,11 @@
 //
 // Author: james.synge@gmail.com
 
-#include "src/config.h"
-#include "src/decoder_constants.h"
-#include "src/platform.h"
-#include "src/string_view.h"
-#include "src/token.h"
+#include "config.h"
+#include "decoder_constants.h"
+#include "platform.h"
+#include "string_view.h"
+#include "token.h"
 
 namespace alpaca {
 

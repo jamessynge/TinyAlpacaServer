@@ -34,6 +34,36 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "literal_test",
+    srcs = ["literal_test.cc"],
+    deps = [
+        ":literal",
+        ":test_utils",
+        "//absl/strings",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "literals_test",
+    srcs = ["literals_test.cc"],
+    deps = [
+        ":literals",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "pgmspace_test",
+    srcs = ["pgmspace_test.cc"],
+    deps = [
+        ":pgmspace",
+        "//absl/strings",
+        "//googletest:gunit_main",
+    ],
+)
+
 cc_library(
     name = "request_decoder_listener_mock",
     hdrs = ["request_decoder_listener_mock.h"],
@@ -68,17 +98,6 @@ cc_test(
         ":config",
         ":string_view",
         "//core:logging",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
-    name = "literal_test",
-    srcs = ["literal_test.cc"],
-    deps = [
-        ":literal",
-        ":test_utils",
-        "//absl/strings",
         "//googletest:gunit_main",
     ],
 )

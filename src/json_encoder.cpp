@@ -1,9 +1,9 @@
-#include "src/json_encoder.h"
+#include "json_encoder.h"
 
 // Author: james.synge@gmail.com
 
-#include "src/platform.h"
-#include "src/string_view.h"
+#include "platform.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace {
