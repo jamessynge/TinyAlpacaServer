@@ -12,7 +12,7 @@ inline char pgm_read_char(PGM_P ptr) {
 }
 }  // namespace
 
-TAS_CONSTEXPR_FUNC char Literal::at(const Literal::size_type pos) const {
+char Literal::at(const Literal::size_type pos) const {
   TAS_DCHECK_LT(pos, size_, "");
   return pgm_read_char(ptr_ + pos);
 }

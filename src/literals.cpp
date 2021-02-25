@@ -21,7 +21,7 @@ namespace {
 
 #define DEFINE_LITERAL(name, literal) \
   constexpr char k##name[] PROGMEM = literal;
-#include "src/literals.inc"
+#include "literals.inc"
 #undef DEFINE_LITERAL
 }  // namespace
 
@@ -29,7 +29,7 @@ namespace {
 
 #define DEFINE_LITERAL(name, literal) \
   Literal Literals::name() { return Literal(k##name); }
-#include "src/literals.inc"
+#include "literals.inc"
 #undef DEFINE_LITERAL
 
 }  // namespace alpaca

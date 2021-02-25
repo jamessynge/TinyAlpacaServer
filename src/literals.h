@@ -20,7 +20,7 @@ namespace alpaca {
 #define DEFINE_LITERAL(name, literal) static Literal name();
 
 struct Literals {
-#include "src/literals.inc"
+#include "literals.inc"
 };
 
 #undef DEFINE_LITERAL

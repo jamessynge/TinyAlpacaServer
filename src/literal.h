@@ -58,7 +58,7 @@ class Literal {
 
   // Returns the character the the specified position ([0..size_)) within the
   // string.
-  TAS_CONSTEXPR_FUNC char at(size_type pos) const;
+  char at(size_type pos) const;
 
   // Returns true if the two strings are equal, with case sensitive comparison
   // of characters.

@@ -30,6 +30,8 @@ struct AlpacaRequest {
 
   // From the HTTP method and path:
   EHttpMethod http_method;
+  EAlpacaApi api;
+  // The following fields are filled only for api==
   EDeviceType device_type;
   uint32_t device_number;
   EMethod ascom_method;

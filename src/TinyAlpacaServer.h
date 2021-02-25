@@ -10,6 +10,8 @@
 #include "decoder_constants.h"
 #include "extra_parameters.h"
 #include "json_encoder.h"
+#include "literal.h"
+#include "literals.h"
 #include "platform.h"
 #include "request_decoder.h"
 #include "request_decoder_listener.h"

@@ -7,7 +7,7 @@
 
 namespace alpaca {
 
-uint8_t pgm_read_byte(const uint8_t* ptr) { return *ptr; }
+TAS_CONSTEXPR_FUNC uint8_t pgm_read_byte(const uint8_t* ptr) { return *ptr; }
 
 int memcmp_P(const void* lhs, const void* rhs, size_t count) {
   return std::memcmp(lhs, rhs, count);

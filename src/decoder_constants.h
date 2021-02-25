@@ -65,6 +65,19 @@ enum class EDecodeStatus : uint16_t {
 std::ostream& operator<<(std::ostream& out, EDecodeStatus value);
 #endif  // TAS_HOST_TARGET
 
+enum class EAlpacaApi : uint8_t {
+  kUnknown = 0,
+  kDeviceApi,  // Path: /api/v1/{device_type}/{device_number}/{method}
+  kDeviceSetup,  // Path: /setup/v1/{device_type}/{device_number}/setup
+  kManagementApiVersions,  // Path: /management/apiversions
+  kManagementDescription,  // Path: /management/v1/description
+  kManagementConfiguredDevices, // Path: /management/v1/configureddevices
+  kServerSetup,  // Path: /setup
+};
+#if TAS_HOST_TARGET
+std::ostream& operator<<(std::ostream& out, EAlpacaApi value);
+#endif  // TAS_HOST_TARGET
+
 enum class EHttpMethod : uint8_t {
   kUnknown = 0,
   // The supported HTTP methods. Note that the the HTTP/1.1 standard requires
@@ -77,12 +90,6 @@ enum class EHttpMethod : uint8_t {
 std::ostream& operator<<(std::ostream& out, EHttpMethod value);
 #endif  // TAS_HOST_TARGET
 
-// // DO WE NEED TO KNOW THIS?
-// enum class EHttpVersion : uint8_t {
-//   kUnknown,
-//   kHttp11,  // HTTP/1.1
-// };
-// std::ostream& operator<<(std::ostream& out, EHttpVersion value);
 
 enum class EDeviceType {
   kUnknown,
