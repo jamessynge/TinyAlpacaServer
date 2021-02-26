@@ -1,8 +1,0 @@
-
-#include "platform.h"
-
-namespace alpaca {
-
-
-}  // namespace alpaca
-

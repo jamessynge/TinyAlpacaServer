@@ -35,8 +35,6 @@ class Literal {
   using size_type = uint8_t;
   static constexpr size_type kMaxSize = 255;
 
-  struct Iterator {};
-
   // Construct empty.
   TAS_CONSTEXPR_FUNC Literal() noexcept : ptr_(nullptr), size_(0) {}
 
