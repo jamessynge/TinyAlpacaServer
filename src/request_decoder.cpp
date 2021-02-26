@@ -499,9 +499,9 @@ EDecodeStatus DecodeEndOfPath(RequestDecoderState& state, StringView& view) {
   } else if (view.match_and_consume(' ')) {
     next_decode_function = MatchHttpVersion;
   } else {
-    // kPathTerminator should have exactly the characters we just matched in the
-    // preceding if/else if statements, therefore this should be unreachable.
-    return EDecodeStatus::kHttpInternalServerError;  // COV_NF_LINE
+    // We expected the path to end, but maybe the client send more path
+    // segments?
+    return EDecodeStatus::kHttpNotFound;
   }
   return state.SetDecodeFunction(next_decode_function);
 }
@@ -662,7 +662,7 @@ EDecodeStatus ProcessApiGroup(RequestDecoderState& state,
     } else if (group == EApiGroup::kSetup) {
       state.request.api = EAlpacaApi::kDeviceSetup;
     } else {
-      TAS_DCHECK_EQ(group, EApiGroup::kSetup, "");
+      TAS_DCHECK_EQ(group, EApiGroup::kDevice, "");
       state.request.api = EAlpacaApi::kDeviceApi;
     }
     TAS_DCHECK((group == EApiGroup::kDevice || group == EApiGroup::kSetup),
@@ -731,42 +731,30 @@ EDecodeStatus DecodeHttpMethod(RequestDecoderState& state, StringView& view) {
 
 #if TAS_ENABLE_DEBUGGING
 std::ostream& operator<<(std::ostream& out, DecodeFunction decode_function) {
-  if (decode_function == DecodeAscomMethod) {
-    return out << "DecodeAscomMethod";
-  }
-  if (decode_function == DecodeDeviceNumber) {
-    return out << "DecodeDeviceNumber";
-  }
-  if (decode_function == DecodeDeviceType) {
-    return out << "DecodeDeviceType";
-  }
-  if (decode_function == DecodeHeaderLineEnd) {
-    return out << "DecodeHeaderLineEnd";
-  }
-  if (decode_function == DecodeHeaderLines) {
-    return out << "DecodeHeaderLines";
-  }
-  if (decode_function == DecodeHeaderName) {
-    return out << "DecodeHeaderName";
-  }
-  if (decode_function == DecodeHeaderValue) {
-    return out << "DecodeHeaderValue";
-  }
-  if (decode_function == DecodeHttpMethod) {
-    return out << "DecodeHttpMethod";
-  }
-  if (decode_function == DecodeParamName) {
-    return out << "DecodeParamName";
-  }
-  if (decode_function == DecodeParamSeparator) {
-    return out << "DecodeParamSeparator";
-  }
-  if (decode_function == DecodeParamValue) {
-    return out << "DecodeParamValue";
-  }
-  if (decode_function == MatchHttpVersion) {
-    return out << "MatchHttpVersion";
-  }
+#define OUTPUT_METHOD_NAME(symbol) \
+  if (decode_function == symbol) return out << #symbol
+
+  OUTPUT_METHOD_NAME(DecodeApiGroup);
+  OUTPUT_METHOD_NAME(DecodeApiVersion);
+  OUTPUT_METHOD_NAME(DecodeAscomMethod);
+  OUTPUT_METHOD_NAME(DecodeDeviceNumber);
+  OUTPUT_METHOD_NAME(DecodeDeviceType);
+  OUTPUT_METHOD_NAME(DecodeEndOfPath);
+  OUTPUT_METHOD_NAME(DecodeHeaderLineEnd);
+  OUTPUT_METHOD_NAME(DecodeHeaderLines);
+  OUTPUT_METHOD_NAME(DecodeHeaderName);
+  OUTPUT_METHOD_NAME(DecodeHeaderValue);
+  OUTPUT_METHOD_NAME(DecodeHttpMethod);
+  OUTPUT_METHOD_NAME(DecodeManagementMethod);
+  OUTPUT_METHOD_NAME(DecodeManagementType);
+  OUTPUT_METHOD_NAME(DecodeParamName);
+  OUTPUT_METHOD_NAME(DecodeParamSeparator);
+  OUTPUT_METHOD_NAME(DecodeParamValue);
+  OUTPUT_METHOD_NAME(MatchHttpVersion);
+  OUTPUT_METHOD_NAME(MatchStartOfPath);
+
+#undef OUTPUT_METHOD_NAME
+
   // COV_NF_START
   TAS_DCHECK(false, "Haven't implemented a case for function @"
                         << std::addressof(decode_function));
