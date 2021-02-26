@@ -1,4 +1,7 @@
+#include <Arduino.h>
 #include <TinyAlpacaServer.h>
+
+using alpaca::Literal;
 
 constexpr char buffer1[] PROGMEM = "abc";
 
@@ -10,7 +13,8 @@ void setup() {
   Serial.begin(9600);
   // Wait for serial port to connect, or at least some minimum amount of time
   // (TBD), else the initial output gets lost.
-  while (!Serial) {}
+  while (!Serial) {
+  }
 }
 
 void loop() {
@@ -25,7 +29,6 @@ void loop() {
   literal2.printTo(Serial);
   Serial.println();
   Serial.println();
-
 
   Serial.print("JSON literal1: ");
   literal1.printJsonEscapedTo(Serial);

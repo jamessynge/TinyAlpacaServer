@@ -164,6 +164,14 @@ std::tuple<EDecodeStatus, std::string, std::string> DecodePartitionedRequest(
   return {EDecodeStatus::kNeedMoreInput, buffer, buffer};
 }
 
+size_t GetNumExtraParameters(const AlpacaRequest& request) {
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
+  return request.size();
+#else
+  return 0;
+#endif
+}
+
 // This was used for debugging an error in the test fixture.
 // TEST(RequestDecoderTest, Splitter) {
 //   SplitEveryN("01234567890123456789012345678901234567890123456", 23);
@@ -176,7 +184,7 @@ TEST(RequestDecoderTest, LogSizes) {
   LOG(INFO) << "sizeof(RequestDecoder) " << sizeof(RequestDecoder);
 }
 
-TEST(RequestDecoderTest, Unused) {
+TEST(RequestDecoderTest, UnusedDecoder) {
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, listener);
@@ -204,7 +212,7 @@ TEST(RequestDecoderTest, ResetRequired) {
   EXPECT_EQ(buffer, full_request);  // No input has been consumed.
 }
 
-TEST(RequestDecoderTest, SmallestGetRequest) {
+TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, listener);
@@ -231,6 +239,206 @@ TEST(RequestDecoderTest, SmallestGetRequest) {
     ASSERT_FALSE(alpaca_request.found_client_transaction_id);
   }
 }
+
+TEST(RequestDecoderTest, SmallestServerSetupRequest) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  const std::string full_request(
+      "GET /setup HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    if (TestHasFailed()) {
+      break;
+    }
+    auto result = DecodePartitionedRequest(decoder, partition);
+
+    const EDecodeStatus status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_THAT(buffer, IsEmpty());
+    EXPECT_THAT(remainder, IsEmpty());
+    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kSetup);
+    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kServerSetup);
+
+    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
+    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request.found_client_id);
+    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+  }
+}
+
+TEST(RequestDecoderTest, SmallestDeviceSetupRequest) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  const std::string full_request(
+      "GET /setup/v1/safetymonitor/9/setup HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    if (TestHasFailed()) {
+      break;
+    }
+    auto result = DecodePartitionedRequest(decoder, partition);
+
+    const EDecodeStatus status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_THAT(buffer, IsEmpty());
+    EXPECT_THAT(remainder, IsEmpty());
+    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kSetup);
+    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kDeviceSetup);
+
+    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
+    EXPECT_EQ(alpaca_request.device_number, 9);
+    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kSetup);
+    EXPECT_FALSE(alpaca_request.found_client_id);
+    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+  }
+}
+
+TEST(RequestDecoderTest, SmallestApiVersionsRequest) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  const std::string full_request(
+      "GET /management/apiversions HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    if (TestHasFailed()) {
+      break;
+    }
+    auto result = DecodePartitionedRequest(decoder, partition);
+
+    const EDecodeStatus status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_THAT(buffer, IsEmpty());
+    EXPECT_THAT(remainder, IsEmpty());
+    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kManagement);
+    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kManagementApiVersions);
+
+    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
+    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request.found_client_id);
+    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+  }
+}
+
+TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, listener);
+
+  const std::string full_request(
+      "GET /management/v1/description HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    if (TestHasFailed()) {
+      break;
+    }
+    auto result = DecodePartitionedRequest(decoder, partition);
+
+    const EDecodeStatus status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_THAT(buffer, IsEmpty());
+    EXPECT_THAT(remainder, IsEmpty());
+    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kManagement);
+    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kManagementDescription);
+
+    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
+    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request.found_client_id);
+    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+  }
+}
+
+// One of each EAlpacaApi.
+// TEST(RequestDecoderTest, SmallestGetRequests) {
+//   AlpacaRequest alpaca_request;
+//   StrictMock<MockRequestDecoderListener> listener;
+//   RequestDecoder decoder(alpaca_request, listener);
+
+//   for (const auto& path : {
+//            "/setup",
+//            "/setup/v1/safetymonitor/1/setup",
+//            "/api/v1/safetymonitor/2/issafe",
+//            "/management/apiversions",
+//            "/management/v1/description",
+//            "/management/v1/configureddevices",
+//        }) {
+//     const auto full_request = absl::StrCat("GET ", path, "
+//     HTTP/1.1\r\n\r\n"); for (auto partition :
+//     GenerateMultipleRequestPartitions(full_request)) {
+//       auto result = DecodePartitionedRequest(decoder, partition);
+
+//       const EDecodeStatus status = std::get<0>(result);
+//       const std::string buffer = std::get<1>(result);
+//       const std::string remainder = std::get<2>(result);
+
+//       ASSERT_EQ(status, EDecodeStatus::kHttpOk);
+//       ASSERT_THAT(buffer, IsEmpty());
+//       ASSERT_THAT(remainder, IsEmpty());
+//       ASSERT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+//       ASSERT_FALSE(alpaca_request.found_client_id);
+//       ASSERT_FALSE(alpaca_request.found_client_transaction_id);
+//       if
+
+//       ASSERT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
+//       ASSERT_EQ(alpaca_request.device_number, 0);
+//       ASSERT_EQ(alpaca_request.ascom_method, EMethod::kIsSafe);
+//     }
+//   }
+
+//   const std::string full_request(
+//       "GET /api/v1/safetymonitor/0/issafe HTTP/1.1\r\n"
+//       "\r\n");
+
+//   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+//     auto result = DecodePartitionedRequest(decoder, partition);
+
+//     const EDecodeStatus status = std::get<0>(result);
+//     const std::string buffer = std::get<1>(result);
+//     const std::string remainder = std::get<2>(result);
+
+//     ASSERT_EQ(status, EDecodeStatus::kHttpOk);
+//     ASSERT_THAT(buffer, IsEmpty());
+//     ASSERT_THAT(remainder, IsEmpty());
+//     ASSERT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+//     ASSERT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
+//     ASSERT_EQ(alpaca_request.device_number, 0);
+//     ASSERT_EQ(alpaca_request.ascom_method, EMethod::kIsSafe);
+//     ASSERT_FALSE(alpaca_request.found_client_id);
+//     ASSERT_FALSE(alpaca_request.found_client_transaction_id);
+//   }
+// }
 
 TEST(RequestDecoderTest, SmallestPutRequest) {
   AlpacaRequest alpaca_request;
@@ -675,8 +883,13 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
       "\r\n";
 
   for (std::string bogus_path_start : {
+           // Cases missing ' ' after method:
            "*",  // "GET*safetymonitor"
            "/",  // "GET/safetymonitor"
+
+           // Cases missing '/' after ' ':
+           " ",   // "GET safetymonitor"
+           " *",  // "GET *safetymonitor"
        }) {
     const std::string full_request =
         "GET" + bogus_path_start + request_after_path_start;
@@ -687,9 +900,8 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
     EXPECT_THAT(request, EndsWith(request_after_path_start));
   }
 
+  // Cases where the path after the leading slash is not valid.
   for (std::string bogus_path_start : {
-           " ",           // "GET safetymonitor" (missing "/api/v1")
-           " *",          // "GET *safetymonitor"
            " //api/v1/",  // "GET //api/v1/safetymonitor" (extra "/")
            " /api//v1/",  // "GET /api//v1/safetymonitor" (extra "/")
            " /api/v2/",   // "GET /api/v2/safetymonitor" (wrong version)
@@ -699,7 +911,8 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
         "GET" + bogus_path_start + request_after_path_start;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpNotFound);
+              EDecodeStatus::kHttpNotFound)
+        << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_path_start));
   }

@@ -51,8 +51,8 @@
 #include <TinyAlpacaServer.h>
 
 using ::alpaca::AlpacaRequest;
-using ::alpaca::StringView;
 using ::alpaca::CommonDeviceHandler;
+using ::alpaca::StringView;
 
 // Two devices supported by the software. This sketch assumes that they can fail
 // independently, so are represented as two Observing Conditions devices.
@@ -61,10 +61,10 @@ static AagDevice aag;
 
 //
 constexpr alpaca::ServerDescription kServerDescription{
-  .server_name = "Our Spiffy Weather Box",
-  .manufacturer = "Friends of AAVSO & ATMoB",
-  .version = "git commit SHA of the hardware or software, OR 2021.05.10",
-  // .location to be stored in EEPROM, set via /setup?
+    .server_name = "Our Spiffy Weather Box",
+    .manufacturer = "Friends of AAVSO & ATMoB",
+    .version = "git commit SHA of the hardware or software, OR 2021.05.10",
+    // .location to be stored in EEPROM, set via /setup?
 };
 
 // Neither sensor supports extra actions (maybe not true), so they can
@@ -72,22 +72,22 @@ constexpr alpaca::ServerDescription kServerDescription{
 constexpr alpaca::SupportedActionNames kObservingConditionsActions{};  // None
 
 constexpr alpaca::DeviceInfo kDht22DeviceInfo{
-  .device_type = EDeviceType::kObservingConditions,
-  .device_number = 1,
-  .name = "DHT22",
-  .description = "DHT22 Humidity and Temperature Sensor",
-  .driverinfo = "https://github/aavso/...",
-  .driverversion = "2021-05-10 OR git commit SHA=abcdef0123456 OR ?",
-  .interfaceversion = 1,
-  .supported_actions = kObservingConditionsActions,
+    .device_type = EDeviceType::kObservingConditions,
+    .device_number = 1,
+    .name = "DHT22",
+    .description = "DHT22 Humidity and Temperature Sensor",
+    .driverinfo = "https://github/aavso/...",
+    .driverversion = "2021-05-10 OR git commit SHA=abcdef0123456 OR ?",
+    .interfaceversion = 1,
+    .supported_actions = kObservingConditionsActions,
 
-  // The config_id is a random number generated when a device is added,
-  // when the *type(s)* of device(s) used changes, or perhaps when
-  // calibration parameters have been changed such that the values shouldn't
-  // be compared with prior values from this device.
-  // The config_id can be used, along with other info, to generate a UUID
-  // for the device, for use as its UniqueId.
-  .config_id = 179122466,
+    // The config_id is a random number generated when a device is added,
+    // when the *type(s)* of device(s) used changes, or perhaps when
+    // calibration parameters have been changed such that the values shouldn't
+    // be compared with prior values from this device.
+    // The config_id can be used, along with other info, to generate a UUID
+    // for the device, for use as its UniqueId.
+    .config_id = 179122466,
 };
 
 class Dht22Handler : CommonDeviceHandler {
@@ -118,14 +118,14 @@ class Dht22Handler : CommonDeviceHandler {
 
       default:
         // For common methods, this will delegate to overrideable methods such
-        // as HandleGetDescription, and for unsupported methods (e.g. "cloudcover"),
-        // and will delegate to methods such
+        // as HandleGetDescription, and for unsupported methods (e.g.
+        // "cloudcover"), and will delegate to methods such
         return CommonDeviceHandler::HandleGetRequest(request, out);
     };
   }
 
   bool GetConnected() override {
-    return ...; // Return true if able to talk to the device.
+    return ...;  // Return true if able to talk to the device.
   }
 
   bool SetConnected(bool value) override {
@@ -133,33 +133,34 @@ class Dht22Handler : CommonDeviceHandler {
     return value == GetConnected();
   }
 
-
  private:
   // Non-virtual support methods.
 
-  void HandleSensorDescriptionRequest(const AlpacaRequest& request, Print& out) {
+  void HandleSensorDescriptionRequest(const AlpacaRequest& request,
+                                      Print& out) {
     if (!request.extra_parameters.contains(EParameter::kSensorName)) {
       return SendMissingParameter(EParameter::kSensorName);
     }
-    StringView sensor_name = request.extra_parameters.find(EParameter::kSensorName);
+    StringView sensor_name =
+        request.extra_parameters.find(EParameter::kSensorName);
     if (sensor_name.case_equals(alpaca::Literals::kHumidity) ||
         sensor_name.case_equals(alpaca::Literals::kTemperature)) {
       return SendJsonStringResponse("DHT22 Temperature-Humidity Sensor");
     }
-    return SendInvalidParameterValue(
-        request, out, EParameter::kSensorName, sensor_name);
+    return SendInvalidParameterValue(request, out, EParameter::kSensorName,
+                                     sensor_name);
   }
 };
 
 constexpr alpaca::DeviceInfo kAagDeviceInfo{
-  .device_type = EDeviceType::kObservingConditions,
-  .device_number = 2,
-  .name = "AAG CloudWatcher",
-  .description = "Lunatico Astro AAG CloudWatcher",
-  .driverinfo = "https://github/aavso/...",
-  .driverversion = "2021-05-10, git commit SHA=abcdef0123456"
-  .interfaceversion = 1,
-  .supported_actions = kObservingConditionsActions,
+    .device_type = EDeviceType::kObservingConditions,
+    .device_number = 2,
+    .name = "AAG CloudWatcher",
+    .description = "Lunatico Astro AAG CloudWatcher",
+    .driverinfo = "https://github/aavso/...",
+    .driverversion =
+        "2021-05-10, git commit SHA=abcdef0123456".interfaceversion = 1,
+    .supported_actions = kObservingConditionsActions,
 };
 
 class AagCloudWatcherHandler : CommonDeviceHandler {
@@ -189,14 +190,14 @@ class AagCloudWatcherHandler : CommonDeviceHandler {
 
       default:
         // For common methods, this will delegate to overrideable methods such
-        // as HandleGetDescription, and for unsupported methods (e.g. "cloudcover"),
-        // and will delegate to methods such
+        // as HandleGetDescription, and for unsupported methods (e.g.
+        // "cloudcover"), and will delegate to methods such
         return CommonDeviceHandler::HandleGetRequest(request, out);
     };
   }
 
   bool GetConnected() override {
-    return ...; // Return true if able to talk to the device.
+    return ...;  // Return true if able to talk to the device.
   }
 
   bool SetConnected(bool value) override {
@@ -211,11 +212,13 @@ class AagCloudWatcherHandler : CommonDeviceHandler {
  private:
   // Non-virtual support methods.
 
-  void HandleSensorDescriptionRequest(const AlpacaRequest& request, Print& out) {
+  void HandleSensorDescriptionRequest(const AlpacaRequest& request,
+                                      Print& out) {
     if (!request.extra_parameters.contains(EParameter::kSensorName)) {
       return SendMissingParameter(EParameter::kSensorName);
     }
-    StringView sensor_name = request.extra_parameters.find(EParameter::kSensorName);
+    StringView sensor_name =
+        request.extra_parameters.find(EParameter::kSensorName);
     if (sensor_name.case_equals(alpaca::Literals::kHumidity) ||
         sensor_name.case_equals(alpaca::Literals::kRainRate) ||
         sensor_name.case_equals(alpaca::Literals::kSkyBrightness) ||
@@ -223,17 +226,17 @@ class AagCloudWatcherHandler : CommonDeviceHandler {
         sensor_name.case_equals(alpaca::Literals::kTemperature)) {
       return SendJsonStringResponse("AAG CloudWatcher");
     }
-    return SendInvalidParameterValue(
-        request, out, EParameter::kSensorName, sensor_name);
+    return SendInvalidParameterValue(request, out, EParameter::kSensorName,
+                                     sensor_name);
   }
 };
 
 static Dht22Handler dht_handler;
 static AagCloudWatcherHandler aag_handler;
 
-constexpr alpaca::CommonDeviceHandler& kDeviceHandlers[] {
-  dht_handler,
-  aag_handler,
+constexpr alpaca::CommonDeviceHandler& kDeviceHandlers[]{
+    dht_handler,
+    aag_handler,
 };
 
 static alpaca::Server alpaca_server(kServerDescription, kDeviceHandlers);
@@ -244,7 +247,8 @@ void setup() {
   Serial.begin(9600);
   // Wait for serial port to connect, or at least some minimum amount of time
   // (TBD), else the initial output gets lost.
-  while (!Serial) {}
+  while (!Serial) {
+  }
 
   // Ask alpaca::Server to verify settings.
   if (!alpaca_server.VerifyConfig()) {

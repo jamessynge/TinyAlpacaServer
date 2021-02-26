@@ -65,19 +65,6 @@ enum class EDecodeStatus : uint16_t {
 std::ostream& operator<<(std::ostream& out, EDecodeStatus value);
 #endif  // TAS_HOST_TARGET
 
-enum class EAlpacaApi : uint8_t {
-  kUnknown = 0,
-  kDeviceApi,  // Path: /api/v1/{device_type}/{device_number}/{method}
-  kDeviceSetup,  // Path: /setup/v1/{device_type}/{device_number}/setup
-  kManagementApiVersions,  // Path: /management/apiversions
-  kManagementDescription,  // Path: /management/v1/description
-  kManagementConfiguredDevices, // Path: /management/v1/configureddevices
-  kServerSetup,  // Path: /setup
-};
-#if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EAlpacaApi value);
-#endif  // TAS_HOST_TARGET
-
 enum class EHttpMethod : uint8_t {
   kUnknown = 0,
   // The supported HTTP methods. Note that the the HTTP/1.1 standard requires
@@ -90,6 +77,37 @@ enum class EHttpMethod : uint8_t {
 std::ostream& operator<<(std::ostream& out, EHttpMethod value);
 #endif  // TAS_HOST_TARGET
 
+enum class EApiGroup : uint8_t {
+  kUnknown = 0,
+  kDevice,      // Path: /api...
+  kManagement,  // Path: /management...
+  kSetup,       // Path: /setup...
+};
+#if TAS_HOST_TARGET
+std::ostream& operator<<(std::ostream& out, EApiGroup value);
+#endif  // TAS_HOST_TARGET
+
+enum class EAlpacaApi : uint8_t {
+  kUnknown = 0,
+  kDeviceApi,    // Path: /api/v1/{device_type}/{device_number}/{method}
+  kDeviceSetup,  // Path: /setup/v1/{device_type}/{device_number}/setup
+  kManagementApiVersions,        // Path: /management/apiversions
+  kManagementDescription,        // Path: /management/v1/description
+  kManagementConfiguredDevices,  // Path: /management/v1/configureddevices
+  kServerSetup,                  // Path: /setup
+};
+#if TAS_HOST_TARGET
+std::ostream& operator<<(std::ostream& out, EAlpacaApi value);
+#endif  // TAS_HOST_TARGET
+
+enum class EManagementMethod {
+  kUnknown,
+  kDescription,
+  kConfiguredDevices,
+};
+#if TAS_HOST_TARGET
+std::ostream& operator<<(std::ostream& out, EManagementMethod value);
+#endif  // TAS_HOST_TARGET
 
 enum class EDeviceType {
   kUnknown,
@@ -117,6 +135,9 @@ std::ostream& operator<<(std::ostream& out, EDeviceType value);
 // requests.cc.
 enum class EMethod : uint8_t {
   kUnknown,
+
+  // This is the only method for EAlpacaApi::kDeviceSetup:
+  kSetup,
 
   // Supported common methods:
   kConnected,

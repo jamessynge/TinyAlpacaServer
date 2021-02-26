@@ -57,6 +57,55 @@ std::ostream& operator<<(std::ostream& out, EHttpMethod v) {
   return out << invalid << " (invalid EHttpMethod)";
 }
 
+std::ostream& operator<<(std::ostream& out, EApiGroup v) {
+  switch (v) {
+    case EApiGroup::kUnknown:
+      return out << "kUnknown";
+    case EApiGroup::kDevice:
+      return out << "kDevice";
+    case EApiGroup::kManagement:
+      return out << "kManagement";
+    case EApiGroup::kSetup:
+      return out << "kSetup";
+  }
+  auto invalid = static_cast<std::underlying_type<EApiGroup>::type>(v);
+  return out << invalid << " (invalid EApiGroup)";
+}
+
+std::ostream& operator<<(std::ostream& out, EAlpacaApi v) {
+  switch (v) {
+    case EAlpacaApi::kUnknown:
+      return out << "kUnknown";
+    case EAlpacaApi::kDeviceApi:
+      return out << "kDeviceApi";
+    case EAlpacaApi::kDeviceSetup:
+      return out << "kDeviceSetup";
+    case EAlpacaApi::kManagementApiVersions:
+      return out << "kManagementApiVersions";
+    case EAlpacaApi::kManagementDescription:
+      return out << "kManagementDescription";
+    case EAlpacaApi::kManagementConfiguredDevices:
+      return out << "kManagementConfiguredDevices";
+    case EAlpacaApi::kServerSetup:
+      return out << "kServerSetup";
+  }
+  auto invalid = static_cast<std::underlying_type<EAlpacaApi>::type>(v);
+  return out << invalid << " (invalid EAlpacaApi)";
+}
+
+std::ostream& operator<<(std::ostream& out, EManagementMethod v) {
+  switch (v) {
+    case EManagementMethod::kUnknown:
+      return out << "kUnknown";
+    case EManagementMethod::kDescription:
+      return out << "kDescription";
+    case EManagementMethod::kConfiguredDevices:
+      return out << "kConfiguredDevices";
+  }
+  auto invalid = static_cast<std::underlying_type<EManagementMethod>::type>(v);
+  return out << invalid << " (invalid EManagementMethod)";
+}
+
 std::ostream& operator<<(std::ostream& out, EDeviceType v) {
   switch (v) {
     case EDeviceType::kUnknown:
@@ -90,6 +139,8 @@ std::ostream& operator<<(std::ostream& out, EMethod v) {
   switch (v) {
     case EMethod::kUnknown:
       return out << "kUnknown";
+    case EMethod::kSetup:
+      return out << "kSetup";
     case EMethod::kConnected:
       return out << "kConnected";
     case EMethod::kDescription:

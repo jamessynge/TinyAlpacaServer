@@ -17,6 +17,7 @@
 #include "request_decoder.h"
 
 #include "config.h"
+#include "logging.h"
 #include "platform.h"
 #include "token.h"
 #include "tokens.h"
@@ -49,9 +50,14 @@ TAS_CONSTEXPR_VAR StringView kPathSeparator("/");
 TAS_CONSTEXPR_VAR StringView kPathTerminator("? ");
 TAS_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
 TAS_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
+TAS_CONSTEXPR_VAR StringView kSupportedVersion("v1");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
+
+bool HttpMethodIsRead(EHttpMethod method) {
+  return method == EHttpMethod::GET || method == EHttpMethod::HEAD;
+}
 
 bool IsOptionalWhitespace(const char c) { return c == ' ' || c == '\t'; }
 
@@ -173,12 +179,15 @@ EDecodeStatus ExtractAndProcessName(RequestDecoderState& state,
                                     const NameProcessor processor,
                                     const bool consume_terminator_char,
                                     const EDecodeStatus bad_terminator_error) {
+  TAS_DCHECK(!valid_terminators.empty(), "");
+  TAS_DCHECK_GT(bad_terminator_error, EDecodeStatus::kHttpOk, "");
   StringView matched_text;
   if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
     // We didn't find a character that IsNameChar doesn't match, so we don't
     // know if we have enough input yet.
     return EDecodeStatus::kNeedMoreInput;
   }
+  TAS_DCHECK(!view.empty(), "");
 
   if (!valid_terminators.contains(view.front())) {
     // Doesn't end with something appropriate for the path to end in. Perhaps an
@@ -192,6 +201,19 @@ EDecodeStatus ExtractAndProcessName(RequestDecoderState& state,
     view.remove_prefix(1);
   }
 
+  return processor(state, matched_text, view);
+}
+
+EDecodeStatus ExtractAndProcessName(RequestDecoderState& state,
+                                    StringView& view,
+                                    const NameProcessor processor) {
+  StringView matched_text;
+  if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
+    // We didn't find a character that IsNameChar doesn't match, so we don't
+    // know if we have enough input yet.
+    return EDecodeStatus::kNeedMoreInput;
+  }
+  TAS_DCHECK(!view.empty(), "");
   return processor(state, matched_text, view);
 }
 
@@ -464,36 +486,50 @@ EDecodeStatus DecodeParamName(RequestDecoderState& state, StringView& view) {
       /*bad_terminator_error=*/EDecodeStatus::kHttpBadRequest);
 }
 
-EDecodeStatus ProcessAscomMethod(RequestDecoderState& state,
-                                 const StringView& matched_text,
-                                 StringView& view) {
-  TAS_DVLOG(3, "ProcessAscomMethod matched_text: "
-                   << matched_text.ToHexEscapedString());
-  // A separator/terminating character should be present after the method.
+// We've read what should be the final segment of the path, and expect either a
+// '?' marking the beginning of a query (i.e. parameter names and values), or
+// the ' ' (space) that appears before the HTTP version number.
+EDecodeStatus DecodeEndOfPath(RequestDecoderState& state, StringView& view) {
+  // A separator/terminating character should be present, else we would not have
+  // been able to determine that the previous segment was done.
   TAS_DCHECK(!view.empty(), "");
-  const EMethod method = MatchTokensExactly(matched_text, EMethod::kUnknown,
-                                            kRecognizedAscomMethods);
-  if (method == EMethod::kUnknown) {
-    return EDecodeStatus::kHttpNotFound;
-  }
-  state.request.ascom_method = method;
   DecodeFunction next_decode_function;
-  if (view.front() == '?') {
+  if (view.match_and_consume('?')) {
     next_decode_function = DecodeParamName;
-  } else if (view.front() == ' ') {
+  } else if (view.match_and_consume(' ')) {
     next_decode_function = MatchHttpVersion;
   } else {
     // kPathTerminator should have exactly the characters we just matched in the
     // preceding if/else if statements, therefore this should be unreachable.
     return EDecodeStatus::kHttpInternalServerError;  // COV_NF_LINE
   }
-  view.remove_prefix(1);
   return state.SetDecodeFunction(next_decode_function);
 }
 
-// Decode the path, i.e. find the end of the path, which is either a '?' or
-// whitespace. Note that we only support "origin-form" (as defined in RFC 7230),
-// which means that the path must start with a forward slash.
+EDecodeStatus ProcessAscomMethod(RequestDecoderState& state,
+                                 const StringView& matched_text,
+                                 StringView& view) {
+  TAS_DVLOG(3, "ProcessAscomMethod matched_text: "
+                   << matched_text.ToHexEscapedString());
+
+  // A separator/terminating character should be present after the method.
+  TAS_DCHECK(!view.empty(), "");
+
+  const EMethod method = MatchTokensExactly(matched_text, EMethod::kUnknown,
+                                            kRecognizedAscomMethods);
+  if (method == EMethod::kUnknown) {
+    return EDecodeStatus::kHttpNotFound;
+  } else if ((method == EMethod::kSetup &&
+              state.request.api != EAlpacaApi::kDeviceSetup) ||
+             (method != EMethod::kSetup &&
+              state.request.api != EAlpacaApi::kDeviceApi)) {
+    // Should this be NOT FOUND, or OK with some ascom specific error number?
+    return EDecodeStatus::kHttpNotFound;
+  }
+  state.request.ascom_method = method;
+  return state.SetDecodeFunction(DecodeEndOfPath);
+}
+
 EDecodeStatus DecodeAscomMethod(RequestDecoderState& state, StringView& view) {
   return ExtractAndProcessName(
       state, view, kPathTerminator, ProcessAscomMethod,
@@ -537,24 +573,134 @@ EDecodeStatus DecodeDeviceType(RequestDecoderState& state, StringView& view) {
       /*bad_terminator_error=*/EDecodeStatus::kHttpNotFound);
 }
 
-// An ASCOM Alpaca request path should always start with "/api/v1/".
-EDecodeStatus MatchAscomPathPrefix(RequestDecoderState& state,
-                                   StringView& view) {
-  // Could add a MatchAndConsumeLiteral for this case and the "HTTP/1.1\r\n" at
-  // the end of the start line.
-  if (view.match_and_consume(kAscomPathPrefix)) {
+// Process the word that starts the path (i.e. right after the leading /).
+EDecodeStatus ProcessApiVersion(RequestDecoderState& state,
+                                const StringView& matched_text,
+                                StringView& view) {
+  if (matched_text == kSupportedVersion) {
     return state.SetDecodeFunction(DecodeDeviceType);
-  } else if (kAscomPathPrefix.starts_with(view)) {
-    return EDecodeStatus::kNeedMoreInput;
   } else {
-    // Don't know what to make of the 'path', but it doesn't start with
-    // "/api/v1/".
     return EDecodeStatus::kHttpNotFound;
   }
 }
 
-// Process the word at the start of the request, which should be the HTTP method
-// name.
+EDecodeStatus DecodeApiVersion(RequestDecoderState& state, StringView& view) {
+  return ExtractAndProcessName(
+      state, view, kPathSeparator, ProcessApiVersion,
+      /*consume_terminator_char=*/true,
+      /*bad_terminator_error=*/EDecodeStatus::kHttpNotFound);
+}
+
+EDecodeStatus ProcessManagementMethod(RequestDecoderState& state,
+                                      const StringView& matched_text,
+                                      StringView& view) {
+  TAS_DCHECK(!view.empty(), "");
+  EManagementMethod method = MatchTokensExactly(
+      matched_text, EManagementMethod::kUnknown, kAllManagementMethods);
+  if (method == EManagementMethod::kDescription) {
+    state.request.api = EAlpacaApi::kManagementDescription;
+  } else if (method == EManagementMethod::kConfiguredDevices) {
+    state.request.api = EAlpacaApi::kManagementConfiguredDevices;
+  } else {
+    TAS_DCHECK_EQ(method, EManagementMethod::kUnknown, "");
+    return EDecodeStatus::kHttpNotFound;
+  }
+  return state.SetDecodeFunction(DecodeEndOfPath);
+}
+
+EDecodeStatus DecodeManagementMethod(RequestDecoderState& state,
+                                     StringView& view) {
+  return ExtractAndProcessName(state, view, ProcessManagementMethod);
+}
+
+// What kind of management operation is this?
+EDecodeStatus ProcessManagementType(RequestDecoderState& state,
+                                    const StringView& matched_text,
+                                    StringView& view) {
+  TAS_DCHECK(!view.empty(), "");
+  if (matched_text == kSupportedVersion) {
+    if (view.match_and_consume('/')) {
+      return state.SetDecodeFunction(DecodeManagementMethod);
+    } else {
+      return EDecodeStatus::kHttpNotFound;
+    }
+  } else if (matched_text == "apiversions") {
+    state.request.api = EAlpacaApi::kManagementApiVersions;
+    return state.SetDecodeFunction(DecodeEndOfPath);
+  } else {
+    return EDecodeStatus::kHttpNotFound;
+  }
+}
+
+// The path starts "/management/". What's next?
+EDecodeStatus DecodeManagementType(RequestDecoderState& state,
+                                   StringView& view) {
+  return ExtractAndProcessName(state, view, ProcessManagementType);
+}
+
+// Process the word that starts the path, right after the leading '/'.
+EDecodeStatus ProcessApiGroup(RequestDecoderState& state,
+                              const StringView& matched_text,
+                              StringView& view) {
+  TAS_DCHECK(!view.empty(), "");
+  EApiGroup group =
+      MatchTokensExactly(matched_text, EApiGroup::kUnknown, kAllApiGroups);
+  if (group == EApiGroup::kUnknown) {
+    return EDecodeStatus::kHttpNotFound;
+  }
+  state.request.api_group = group;
+  if (view.match_and_consume('/')) {
+    // The path continues.
+    // NOTE: If adding support for more paths (e.g. a PUT or POST request to
+    // handle updating parameters in EEPROM), we'll need to adjust this code.
+    if (!HttpMethodIsRead(state.request.http_method) &&
+        group != EApiGroup::kDevice) {
+      return EDecodeStatus::kHttpMethodNotAllowed;
+    }
+    if (group == EApiGroup::kManagement) {
+      return state.SetDecodeFunction(DecodeManagementType);
+    } else if (group == EApiGroup::kSetup) {
+      state.request.api = EAlpacaApi::kDeviceSetup;
+    } else {
+      TAS_DCHECK_EQ(group, EApiGroup::kSetup, "");
+      state.request.api = EAlpacaApi::kDeviceApi;
+    }
+    TAS_DCHECK((group == EApiGroup::kDevice || group == EApiGroup::kSetup),
+               "group: " << group);
+    return state.SetDecodeFunction(DecodeApiVersion);
+  }
+  if (group != EApiGroup::kSetup) {
+    return EDecodeStatus::kHttpNotFound;
+  }
+  state.request.api = EAlpacaApi::kServerSetup;
+  if (!HttpMethodIsRead(state.request.http_method)) {
+    return EDecodeStatus::kHttpMethodNotAllowed;
+  }
+  // We appear to have reached the end of the path. Handle what comes
+  // next.
+  return state.SetDecodeFunction(DecodeEndOfPath);
+}
+
+// After the '/' at the start of a path, we expect the name of an API group.
+EDecodeStatus DecodeApiGroup(RequestDecoderState& state, StringView& view) {
+  return ExtractAndProcessName(state, view, ProcessApiGroup);
+}
+
+// View should start with '/', once we have at least a character of input.
+EDecodeStatus MatchStartOfPath(RequestDecoderState& state, StringView& view) {
+  if (view.empty()) {
+    return EDecodeStatus::kNeedMoreInput;
+  } else if (view.match_and_consume('/')) {
+    return state.SetDecodeFunction(DecodeApiGroup);
+  } else {
+    // Don't know what to make of the 'path': it doesn't start with "/".
+    return EDecodeStatus::kHttpBadRequest;
+  }
+}
+
+// Process the word at the start of the request, which should be the HTTP
+// method name. The space following matched_text has already been removed from
+// the start of view.
 EDecodeStatus ProcessHttpMethod(RequestDecoderState& state,
                                 const StringView& matched_text,
                                 StringView& view) {
@@ -565,15 +711,15 @@ EDecodeStatus ProcessHttpMethod(RequestDecoderState& state,
   }
   TAS_DVLOG(3, "method: " << method);
   state.request.http_method = method;
-  return state.SetDecodeFunction(MatchAscomPathPrefix);
+  return state.SetDecodeFunction(MatchStartOfPath);
 }
 
 // Decode one of the few supported HTTP methods. If definitely not present,
 // returns an error. We *could* allow for leading whitespace, which has been
-// supported implementations in the past, perhaps to deal with multiple requests
-// (or multiple responses) in a row without clear delimiters. However HTTP/1.1
-// requires clear delimiters, and we're planning to support only a single
-// request per TCP connection (i.e. we won't support Keep-Alive).
+// supported implementations in the past, perhaps to deal with multiple
+// requests (or multiple responses) in a row without clear delimiters. However
+// HTTP/1.1 requires clear delimiters, and we're planning to support only a
+// single request per TCP connection (i.e. we won't support Keep-Alive).
 EDecodeStatus DecodeHttpMethod(RequestDecoderState& state, StringView& view) {
   return ExtractAndProcessName(
       state, view, " ", ProcessHttpMethod,
@@ -620,9 +766,6 @@ std::ostream& operator<<(std::ostream& out, DecodeFunction decode_function) {
   }
   if (decode_function == MatchHttpVersion) {
     return out << "MatchHttpVersion";
-  }
-  if (decode_function == MatchAscomPathPrefix) {
-    return out << "MatchAscomPathPrefix";
   }
   // COV_NF_START
   TAS_DCHECK(false, "Haven't implemented a case for function @"

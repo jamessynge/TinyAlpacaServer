@@ -30,10 +30,15 @@ struct AlpacaRequest {
 
   // From the HTTP method and path:
   EHttpMethod http_method;
+  EApiGroup api_group;
   EAlpacaApi api;
-  // The following fields are filled only for api==
+
+  // The device_* fields are only filled in when api is EAlpacaApi::kDeviceApi
+  // or kDeviceSetup.
   EDeviceType device_type;
   uint32_t device_number;
+
+  // The ascom_method is only field in when api is EAlpacaApi::kDeviceApi.
   EMethod ascom_method;
 
   // Parameters, either from the path (GET) or the body (PUT).

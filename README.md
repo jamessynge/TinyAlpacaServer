@@ -3,8 +3,12 @@
 Author: James Synge (james.synge@gmail.com)
 
 An HTTP request decoder (parser) and response formatter for the
-[ASCOM Alpaca REST API](https://ascom-standards.org/api/), implemented in C++.
-This may eventually be a more full fledged server (e.g. when combined with
+[ASCOM Alpaca REST API](https://ascom-standards.org/api/)
+([computer readable spec](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)),
+implemented in C++ and targetted at an Arduino with Ethernet (e.g. the
+[Robotdyn MegaETH with POE](https://tinyurl.com/mega-eth-poe)).
+
+This is growing into a full fledged server (e.g. when combined with
 [SimpleHttpServer](https://github.com/jamessynge/arduino_experiments/blob/master/utilities/simple_http_server.h)).
 
 ## Approach
@@ -93,24 +97,41 @@ or a Print instance.
 
 ## Planning
 
-*   Support case insensitive comparison of mixed case literals and mixed case
-    allowed input (e.g. Content-Length or ClientTransactionId). That will allow
-    us to have only one copy of the string in PROGMEM, and to emit JSON property
-    with the correct case, and also to compare it it in a case insensitive
-    manner with query parameter names.
+*   DONE: Support case insensitive comparison of mixed case literals and mixed
+    case allowed input (e.g. Content-Length or ClientTransactionId). That will
+    allow us to have only one copy of the string in PROGMEM, and to emit JSON
+    property with the correct case, and also to compare it it in a case
+    insensitive manner with query parameter names.
+
 *   Support the
     [management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API),
     which will entail...
+
 *   Add support for nested decoders, thus allowing each path segment to have its
     own decoder. Use to support paths starting /management and /setup.
+
 *   Support multiple connections at once (a bounded number, e.g. as supported by
     the networking chip used by the RobotDyn MEGA 2560 ETH R3). This will
     require storing decoder state outside of the decoder instances. For example,
     using a union whereby all decoders can share the same memory.
 
+*   If useful, write a tool to generate / update literals.inc based on
+    DEFINE_LITERAL occurrences in source files, maybe even flag string literals
+    that are in source files and not expressed as calls to Literals::FooBar().
+
+*   Look into writing a program (Python script?) that reads the
+    [Alpaca Device API specification](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)
+    the
+    [Alpaca Management API specification](https://www.ascom-standards.org/api/AlpacaManagementAPI_v1.yaml),
+    a set of device types to support, and a set of device methods to exclude,
+    and then emits a bunch of tables to drive a "generic" Alpaca HTTP request
+    decoder; this might also emit code for response builders. The script would
+    also generate or update literals.inc, the set of strings to be stored in
+    PROGMEM.
+
 ## Misc. Notes
 
-I'm inclined to think that the SafetyMonitor::IsSafe function should be
-implemented server side, not embedded, so that it can combine multiple signals
-and calibrated parameters to make the decision. The embedded system should
-provide the raw data, but probably not policy.
+*   I'm inclined to think that the SafetyMonitor::IsSafe function should be
+    implemented server side, not embedded, so that it can combine multiple
+    signals and calibrated parameters to make the decision. The embedded system
+    should provide the raw data, but probably not policy.

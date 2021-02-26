@@ -76,6 +76,7 @@ class ExtraParameterValueMap {
   ExtraParameterValueMap() { clear(); }
 
   void clear() { size_ = 0; }
+  uint8_t size() const { return size_; }
 
   const_iterator begin() const { return entries_; }
   const_iterator end() const { return &entries_[size_]; }

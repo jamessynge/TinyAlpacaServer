@@ -108,6 +108,7 @@ cc_library(
         ":alpaca_request",
         ":config",
         ":decoder_constants",
+        ":logging",
         ":platform",
         ":request_decoder_listener",
         ":string_view",
@@ -194,5 +195,14 @@ cc_library(
         ":platform",
         ":string_view",
         ":token",
+    ],
+)
+
+cc_library(
+    name = "progmem_pointer",
+    hdrs = ["progmem_pointer.h"],
+    deps = [
+        ":pgmspace",
+        ":platform",
     ],
 )

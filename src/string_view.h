@@ -86,9 +86,17 @@ class StringView {
     if (!starts_with(prefix)) {
       return false;
     }
-    // Using this order just in case this object is the prefix object.
-    ptr_ += prefix.size_;
-    size_ -= prefix.size_;
+    remove_prefix(prefix.size_);
+    return true;
+  }
+
+  // Returns true if this starts with prefix, in which case it removes that
+  // prefix.
+  bool match_and_consume(const char c) {
+    if (!starts_with(c)) {
+      return false;
+    }
+    remove_prefix(1);
     return true;
   }
 

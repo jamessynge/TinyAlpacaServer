@@ -25,14 +25,20 @@
 
 namespace alpaca {
 
+// Note that we include the TAS_CONSTEXPR_FUNC specifier only on constructors,
+// as those are the only one's we're trying to guarantee are executable at
+// compile time.
+
 class Literal {
  public:
   // These two definitions must be changed together.
   using size_type = uint8_t;
   static constexpr size_type kMaxSize = 255;
 
+  struct Iterator {};
+
   // Construct empty.
-  constexpr Literal() noexcept : ptr_(nullptr), size_(0) {}
+  TAS_CONSTEXPR_FUNC Literal() noexcept : ptr_(nullptr), size_(0) {}
 
   // Constructs from a string literal stored in AVR PROGMEM (or regular memory
   // on other CPU types).
@@ -54,7 +60,7 @@ class Literal {
   Literal& operator=(const Literal&) = default;
 
   // Returns the number of characters in the string.
-  TAS_CONSTEXPR_FUNC size_type size() const { return size_; }
+  size_type size() const { return size_; }
 
   // Returns the character the the specified position ([0..size_)) within the
   // string.
@@ -79,6 +85,9 @@ class Literal {
   // an ASCOM method, it must be all lower case, but when returned to the client
   // as a JSON property name, it must be in PascalCase.
   bool lowered_equal(const StringView& view) const;
+
+  // Returns true if view starts with this literal string.
+  bool is_prefix_of(const StringView& view) const;
 
   // Copy the string (nul-terminated) to the provided output buffer, which is of
   // size 'size'. If 'size' is large enough (size_+1), then the string is copied

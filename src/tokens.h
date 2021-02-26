@@ -15,22 +15,38 @@
 namespace alpaca {
 
 TAS_CONSTEXPR_VAR Token<EHttpMethod> kRecognizedHttpMethods[] = {
-    // These strings must be UPPERCASE.
+    // Case sensitive comparison, these strings must be UPPERCASE.
     MakeToken("GET", EHttpMethod::GET),
     MakeToken("PUT", EHttpMethod::PUT),
     MakeToken("HEAD", EHttpMethod::HEAD),
 };
 
+TAS_CONSTEXPR_VAR Token<EApiGroup> kAllApiGroups[] = {
+    // Case sensitive comparison, these strings must be LOWERCASE.
+    MakeToken("api", EApiGroup::kDevice),
+    MakeToken("management", EApiGroup::kManagement),
+    MakeToken("setup", EApiGroup::kSetup),
+};
+
+TAS_CONSTEXPR_VAR Token<EManagementMethod> kAllManagementMethods[] = {
+    // Case sensitive comparison, these strings must be LOWERCASE.
+    MakeToken("description", EManagementMethod::kDescription),
+    MakeToken("configureddevices", EManagementMethod::kConfiguredDevices),
+};
+
 TAS_CONSTEXPR_VAR Token<EDeviceType> kRecognizedDeviceTypes[] = {
     // Devices types we're currently supporting.
-    // These strings must be LOWERCASE.
+    // Case sensitive comparison, these strings must be LOWERCASE.
     MakeToken("observingconditions", EDeviceType::kObservingConditions),
     MakeToken("safetymonitor", EDeviceType::kSafetyMonitor),
 };
 
 TAS_CONSTEXPR_VAR Token<EMethod> kRecognizedAscomMethods[] = {
     // TBD which of these will actually be supported.
-    // These strings must be LOWERCASE.
+    // Case sensitive comparison, these strings must be LOWERCASE.
+
+    // This is the only method for EAlpacaApi::kDeviceSetup:
+    MakeToken("setup", EMethod::kSetup),
 
     // ASCOM common methods:
     MakeToken("connected", EMethod::kConnected),

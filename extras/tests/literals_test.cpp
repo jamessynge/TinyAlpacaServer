@@ -30,7 +30,7 @@ TEST(LiteralsTest, Basics) {
     StringView view(expected);                      \
     EXPECT_EQ(Literals::name(), view);              \
   }
-#include "src/literals.inc"
+#include "literals.inc"
 #undef DEFINE_LITERAL
 
 }  // namespace
