@@ -46,6 +46,19 @@ cc_test(
 )
 
 cc_test(
+    name = "literal_token_test",
+    srcs = ["literal_token_test.cc"],
+    deps = [
+        ":arduino",
+        ":literal_token",
+        ":platform",
+        ":string_view",
+        ":test_utils",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "literals_test",
     srcs = ["literals_test.cc"],
     deps = [
@@ -60,6 +73,16 @@ cc_test(
     deps = [
         ":pgmspace",
         "//absl/strings",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "print_test",
+    srcs = ["print_test.cc"],
+    deps = [
+        ":print",
+        ":test_utils",
         "//googletest:gunit_main",
     ],
 )

@@ -65,7 +65,8 @@ enum class EDecodeStatus : uint16_t {
 std::ostream& operator<<(std::ostream& out, EDecodeStatus value);
 #endif  // TAS_HOST_TARGET
 
-enum class EHttpMethod : uint8_t {
+using EHttpMethod_UnderlyingType = uint8_t;
+enum class EHttpMethod : EHttpMethod_UnderlyingType {
   kUnknown = 0,
   // The supported HTTP methods. Note that the the HTTP/1.1 standard requires
   // that the methods GET and HEAD are supported.
@@ -179,7 +180,8 @@ enum class EParameter : uint8_t {
 std::ostream& operator<<(std::ostream& out, EParameter value);
 #endif  // TAS_HOST_TARGET
 
-enum class EHttpHeader : uint8_t {
+using EHttpHeader_UnderlyingType = uint8_t;
+enum class EHttpHeader : EHttpHeader_UnderlyingType {
   kUnknown,
 
   // TODO(jamessynge): Consider adding header names for transfer-encoding, etc.

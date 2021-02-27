@@ -51,10 +51,10 @@ bool Literal::lowered_equal(const StringView& view) const {
 }
 
 bool Literal::copyTo(char* out, size_type size) {
-  if (size <= size_) {
+  if (size < size_) {
     return false;
   }
-  memcpy_P(out, ptr_, size_ + 1);
+  memcpy_P(out, ptr_, size_);
   return true;
 }
 
@@ -88,5 +88,21 @@ JsonLiteral::JsonLiteral(const Literal& literal) : literal_(literal) {}
 size_t JsonLiteral::printTo(Print& p) const {
   return literal_.printJsonEscapedTo(p);
 }
+
+#if TAS_HOST_TARGET
+class PrintableLiteral : public Printable {
+ public:
+  explicit PrintableLiteral(const Literal& literal) : literal_(literal) {}
+
+  size_t printTo(Print& p) const override { return literal_.printTo(p); }
+
+ private:
+  const Literal literal_;
+};
+
+std::ostream& operator<<(std::ostream& out, const Literal& literal) {
+  return out << PrintableLiteral(literal);
+}
+#endif
 
 }  // namespace alpaca

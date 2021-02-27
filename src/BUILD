@@ -81,6 +81,7 @@ cc_library(
 
 cc_library(
     name = "literal_token",
+    srcs = ["literal_token.cc"],
     hdrs = ["literal_token.h"],
     deps = [
         ":literal",
@@ -213,10 +214,23 @@ cc_library(
 )
 
 cc_library(
+    name = "token_tables",
+    srcs = ["token_tables.cc"],
+    hdrs = ["token_tables.h"],
+    deps = [
+        ":decoder_constants",
+        ":literal",
+        ":literal_token",
+        ":literals",
+        ":platform",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "tokens",
     hdrs = ["tokens.h"],
     deps = [
-        ":config",
         ":decoder_constants",
         ":platform",
         ":string_view",

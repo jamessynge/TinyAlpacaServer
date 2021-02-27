@@ -1,54 +1,84 @@
 #ifndef TINY_ALPACA_SERVER_SRC_LITERAL_TOKEN_H_
 #define TINY_ALPACA_SERVER_SRC_LITERAL_TOKEN_H_
 
-// Defines a compile type evaluable LiteralToken class, used to build arrays of
-// enum+literal_func at compile time, where literal_func is a function that
-// returns a Literal. Ideally we store those arrays in PROGMEM, though I want to
-// finish writing ProgMemPointer to make that easier.
+// Provides support for searching fixed size tables of Literals for a match to
+// a StringView. For now these tables are in the .data section (i.e. copied into
+// RAM), but ideally we'd be able store these in PROGMEM and thus save RAM on
+// the AVR chips used on Arduino Unos, Megas, and related boards.
 
 #include "literal.h"
 #include "platform.h"
 
 namespace alpaca {
+namespace internal {
+bool ExactlyEqual(const Literal& literal, const StringView& view);
+bool CaseEqual(const Literal& literal, const StringView& view);
+bool LoweredEqual(const Literal& literal, const StringView& view);
+}  // namespace internal
 
 template <typename T>
 struct LiteralToken {
-  constexpr LiteralToken(const Literal& str, T id) : str(str), id(id) {}
+  // constexpr LiteralToken(const Literal& str, T id) : str(str), id(id) {}
 
   const Literal str;
   const T id;
 };
 
-// tokens is an array in RAM, not PROGMEM.
+using LiteralMatchFunction = bool (*)(const Literal&, const StringView&);
+
+// Returns true if func returns true for one of the literals, and sets
+// matched_id to the corresponding id.
 template <typename T, int N>
-T MatchLiteralTokensExactly(const StringView& view, T unknown_id,
-                            const LiteralToken<T> (&tokens)[N]) {
+bool FindFirstMatchingLiteralToken(const StringView& view,
+                                   const LiteralToken<T> (&tokens)[N],
+                                   LiteralMatchFunction func, T& matched_id) {
   for (int i = 0; i < N; ++i) {
-    if (tokens[i].str == view) {
-      TAS_DVLOG(3, "MatchTokensExactly matched "
-                       << tokens[i].str.ToHexEscapedString() << " to "
-                       << view.ToHexEscapedString() << ", returning "
-                       << tokens[i].id);
-      return tokens[i].id;
+    const auto& token = tokens[i];
+    if (func(token.str, view)) {
+      TAS_DVLOG(3, "FindFirstMatchingLiteralToken matched "
+                       << token.str.escaped() << " to " << view.escaped()
+                       << ", with id " << token.id);
+      matched_id = token.id;
+      return true;
     }
   }
-  TAS_DVLOG(3, "MatchTokensExactly unable to match "
-                   << view.ToHexEscapedString() << ", returning "
-                   << unknown_id);
-  return unknown_id;
+  TAS_DVLOG(3,
+            "FindFirstMatchingLiteralToken unable to match " << view.escaped());
+  return false;
 }
 
-template <typename E>
-struct LiteralToken {
-  constexpr LiteralToken(const Literal& str, E id) : str(str), id(id) {}
-  // constexpr LiteralToken(const Token<E>&) = default;
-  // constexpr Token(Token<E>&&) = default;
+// Returns true if one of the literals exactly matches the view, and if so sets
+// matched_id to the id of that literal.
+template <typename T, int N>
+bool MaybeMatchLiteralTokensExactly(const StringView& view,
+                                    const LiteralToken<T> (&tokens)[N],
+                                    T& matched_id) {
+  TAS_DVLOG(3, "MaybeMatchLiteralTokensExactly view: " << view.escaped());
+  return FindFirstMatchingLiteralToken(view, tokens, internal::ExactlyEqual,
+                                       matched_id);
+}
 
-  const Literal str;
-  const E id;
-};
+// Returns true if one of the literals matches the view case-insensitively, and
+// if so sets matched_id to the id of that literal.
+template <typename T, int N>
+bool MaybeMatchLiteralTokensCaseInsensitively(
+    const StringView& view, const LiteralToken<T> (&tokens)[N], T& matched_id) {
+  TAS_DVLOG(
+      3, "MaybeMatchLiteralTokensCaseInsensitively view: " << view.escaped());
+  return FindFirstMatchingLiteralToken(view, tokens, internal::CaseEqual,
+                                       matched_id);
+}
 
-// Declare stuff
+// Returns true if one of the literals, when converted to lower case, matches
+// the view exactly, and if so sets matched_id to the id of that literal.
+template <typename T, int N>
+bool MaybeMatchLoweredLiteralTokens(const StringView& view,
+                                    const LiteralToken<T> (&tokens)[N],
+                                    T& matched_id) {
+  TAS_DVLOG(3, "MaybeMatchLoweredLiteralTokens view: " << view.escaped());
+  return FindFirstMatchingLiteralToken(view, tokens, internal::LoweredEqual,
+                                       matched_id);
+}
 
 }  // namespace alpaca
 

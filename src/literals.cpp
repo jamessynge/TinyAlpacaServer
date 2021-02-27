@@ -16,19 +16,10 @@
 #endif  // DEFINE_LITERAL
 
 namespace alpaca {
-namespace {
-// Define string literal constants in the anonymous namespace.
+// Define a Literal factory function for each literal string.
 
 #define DEFINE_LITERAL(name, literal) \
-  constexpr char k##name[] PROGMEM = literal;
-#include "literals.inc"
-#undef DEFINE_LITERAL
-}  // namespace
-
-// Define corresponding Literal factory functions for each constant.
-
-#define DEFINE_LITERAL(name, literal) \
-  Literal Literals::name() { return Literal(k##name); }
+  Literal Literals::name() { return Literal(progmem::k##name); }
 #include "literals.inc"
 #undef DEFINE_LITERAL
 

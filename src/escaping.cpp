@@ -10,31 +10,32 @@ size_t PrintCharJsonEscaped(Print& out, const char c) {
   size_t total = 0;
   if (isPrintable(c)) {
     if (c == '"') {
-      total = out.print('\\');
-      total = out.print('"');
+      total += out.print('\\');
+      total += out.print('"');
     } else if (c == '\\') {
-      total = out.print('\\');
-      total = out.print('\\');
+      total += out.print('\\');
+      total += out.print('\\');
     } else {
-      total = out.print(c);
+      total += out.print(c);
     }
   } else if (c == '\b') {
-    total = out.print('\\');
-    total = out.print('b');
+    total += out.print('\\');
+    total += out.print('b');
   } else if (c == '\f') {
-    total = out.print('\\');
-    total = out.print('f');
+    total += out.print('\\');
+    total += out.print('f');
   } else if (c == '\n') {
-    total = out.print('\\');
-    total = out.print('n');
+    total += out.print('\\');
+    total += out.print('n');
   } else if (c == '\r') {
-    total = out.print('\\');
-    total = out.print('r');
+    total += out.print('\\');
+    total += out.print('r');
   } else if (c == '\t') {
-    total = out.print('\\');
-    total = out.print('t');
+    total += out.print('\\');
+    total += out.print('t');
+  } else {
+    TAS_DCHECK(false, "Unsupported JSON character:" << std::hex << (c + 0L));
   }
-  TAS_DCHECK(false, "Unsupported JSON character: 0x" << std::hex << (c + 0L));
   return total;
 }
 
@@ -58,7 +59,7 @@ StringView GetCharJsonEscaped(const char& c) {  // NOLINT
   } else if (c == '\t') {
     return StringView("\\t");
   }
-  TAS_DCHECK(false, "Unsupported JSON character: 0x" << std::hex << (c + 0));
+  TAS_DCHECK(false, "Unsupported JSON character: " << std::hex << (c + 0L));
   return StringView();
 }
 

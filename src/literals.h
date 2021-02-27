@@ -16,6 +16,13 @@
 #endif  // DEFINE_LITERAL
 
 namespace alpaca {
+// Define string literal constants in an inner progmem namespace.
+namespace progmem {
+#define DEFINE_LITERAL(name, literal) \
+  constexpr char k##name[] PROGMEM = literal;
+#include "literals.inc"
+#undef DEFINE_LITERAL
+}  // namespace progmem
 
 #define DEFINE_LITERAL(name, literal) static Literal name();
 

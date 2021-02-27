@@ -89,10 +89,8 @@ class Literal {
   // Returns true if view starts with this literal string.
   bool is_prefix_of(const StringView& view) const;
 
-  // Copy the string (nul-terminated) to the provided output buffer, which is of
-  // size 'size'. If 'size' is large enough (size_+1), then the string is copied
-  // and true is returned; if size is less than (size_+1), then false is
-  // returned and no copying is performed.
+  // If 'size_' is not greater than the provided 'size', copies the literal
+  // string into *out. No NUL terminator is copied.
   bool copyTo(char* out, size_type size);
 
   // Print the string to the provided Print instance. This is not a virtual
@@ -110,6 +108,10 @@ class Literal {
   // In support of tests, returns the address in PROGMEM of the string.
   // On a typical (Von Neumann) host, this is in the same address space as data.
   PGM_VOID_P prog_data_for_tests() const { return ptr_; }
+
+#if TAS_HOST_TARGET
+  friend std::ostream& operator<<(std::ostream& out, const Literal& literal);
+#endif
 
  private:
   PGM_P ptr_;

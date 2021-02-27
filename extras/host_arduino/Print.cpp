@@ -44,17 +44,16 @@ size_t Print::printDouble(double value) {
   return write(s.data(), s.size());
 }
 
-#if TAS_HOST_TARGET
 class PrintToOStream : public Print {
  public:
-  PrintToOStream(std::ostream& out) : Print(), out_(out) {}
+  explicit PrintToOStream(std::ostream& out) : Print(), out_(out) {}
 
   size_t write(uint8_t b) override {
     out_.write(reinterpret_cast<char*>(&b), 1);
     return 1;
   }
   size_t write(const uint8_t* buffer, size_t size) override {
-    out_.write(reinterpret_cast<char*>(buffer), size);
+    out_.write(reinterpret_cast<const char*>(buffer), size);
     return size;
   }
 
@@ -67,10 +66,9 @@ class PrintToOStream : public Print {
 };
 
 std::ostream& operator<<(std::ostream& out, const Printable& printable) {
-  PrintToOstream adapter(out);
+  PrintToOStream adapter(out);
   printable.printTo(adapter);
   return out;
 }
-#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

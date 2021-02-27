@@ -8,10 +8,7 @@
 
 #include <cstddef>
 #include <cstdint>
-
-#if TAS_HOST_TARGET
 #include <ostream>
-#endif  // TAS_HOST_TARGET
 
 namespace alpaca {
 
@@ -21,6 +18,10 @@ class Printable {
  public:
   virtual ~Printable();
   virtual size_t printTo(Print& p) const = 0;
+
+  // Support for tests and logging.
+  friend std::ostream& operator<<(std::ostream& out,
+                                  const Printable& printable);
 };
 
 // This is just enough to support our needs, no more... I hope.
@@ -50,12 +51,6 @@ class Print {
   size_t printInteger(int64_t value);
   size_t printDouble(double value);
 };
-
-#if TAS_HOST_TARGET
-// The insertion streaming operators (i.e. operator<<) for values of type
-// StringView and JsonStringView are used for tests, DCHECK_EQ, DVLOG, etc.
-std::ostream& operator<<(std::ostream& out, const Printable& printable);
-#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca
 
