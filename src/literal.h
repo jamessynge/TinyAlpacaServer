@@ -24,10 +24,12 @@
 #define DEFINE_LITERAL
 
 namespace alpaca {
-
-// Note that we include the TAS_CONSTEXPR_FUNC specifier only on constructors,
-// as those are the only one's we're trying to guarantee are executable at
-// compile time.
+class JsonLiteral;
+// We include the TAS_CONSTEXPR_FUNC specifier only on constructors, as those
+// are the only one's we're trying to guarantee are executable at compile time.
+// However, if we want to be able to create Literals from substrings (e.g.
+// "action" is a substring of "supportedactions"), then we could add a constexpr
+// substr and a constructor that accepts a constexpr Literal.
 
 class Literal {
  public:
@@ -102,6 +104,9 @@ class Literal {
   // quotes and with escaping as required by JSON.
   size_t printJsonEscapedTo(Print& out) const;
 
+  // Returns a copy of this Literal wrapped in a JsonLiteral.
+  JsonLiteral escaped() const;
+
   // In support of tests, returns the address in PROGMEM of the string.
   // On a typical (Von Neumann) host, this is in the same address space as data.
   PGM_VOID_P prog_data_for_tests() const { return ptr_; }
@@ -109,6 +114,22 @@ class Literal {
  private:
   PGM_P ptr_;
   size_type size_;
+};
+
+// JsonLiteral is a simple helper to allow us to output the JSON escaped form
+// of a Literal, e.g. for debugging. For example.
+//     Literal literal = ....;
+//     TAS_DCHECK_LE(literal.size(), 9,  "Too long: " << literal.escaped());
+class JsonLiteral : public Printable {
+ public:
+  explicit JsonLiteral(const Literal& literal);
+
+  size_t printTo(Print& p) const override;
+
+  const Literal& literal() const { return literal_; }
+
+ private:
+  const Literal literal_;
 };
 
 }  // namespace alpaca

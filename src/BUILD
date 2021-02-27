@@ -51,6 +51,8 @@ cc_library(
     srcs = ["json_encoder.cc"],
     hdrs = ["json_encoder.h"],
     deps = [
+        ":literal",
+        ":literals",
         ":platform",
         ":string_view",
     ],
@@ -78,6 +80,15 @@ cc_library(
 )
 
 cc_library(
+    name = "literal_token",
+    hdrs = ["literal_token.h"],
+    deps = [
+        ":literal",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "literals",
     srcs = ["literals.cc"],
     hdrs = ["literals.h"],
@@ -98,6 +109,15 @@ cc_library(
     name = "platform",
     hdrs = ["platform.h"],
     deps = [":arduino"],
+)
+
+cc_library(
+    name = "progmem_pointer",
+    hdrs = ["progmem_pointer.h"],
+    deps = [
+        ":pgmspace",
+        ":platform",
+    ],
 )
 
 cc_library(
@@ -149,8 +169,14 @@ cc_library(
 
 cc_library(
     name = "string_view",
-    srcs = ["string_view.cc"],
-    hdrs = ["string_view.h"],
+    srcs = [
+        "escaping.cc",
+        "string_view.cc",
+    ],
+    hdrs = [
+        "escaping.h",
+        "string_view.h",
+    ],
     deps = [
         ":logging",
         ":platform",
@@ -195,14 +221,5 @@ cc_library(
         ":platform",
         ":string_view",
         ":token",
-    ],
-)
-
-cc_library(
-    name = "progmem_pointer",
-    hdrs = ["progmem_pointer.h"],
-    deps = [
-        ":pgmspace",
-        ":platform",
     ],
 )

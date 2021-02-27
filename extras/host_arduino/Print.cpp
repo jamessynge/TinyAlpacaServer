@@ -1,7 +1,7 @@
 #include "extras/host_arduino/Print.h"
 
 #include <cstring>
-#include <string>
+#include <ostream>
 
 namespace alpaca {
 
@@ -43,5 +43,34 @@ size_t Print::printDouble(double value) {
   auto s = std::to_string(value);
   return write(s.data(), s.size());
 }
+
+#if TAS_HOST_TARGET
+class PrintToOStream : public Print {
+ public:
+  PrintToOStream(std::ostream& out) : Print(), out_(out) {}
+
+  size_t write(uint8_t b) override {
+    out_.write(reinterpret_cast<char*>(&b), 1);
+    return 1;
+  }
+  size_t write(const uint8_t* buffer, size_t size) override {
+    out_.write(reinterpret_cast<char*>(buffer), size);
+    return size;
+  }
+
+  // Pull in the other variants of write; otherwise, only the above two are
+  // visible.
+  using Print::write;
+
+ private:
+  std::ostream& out_;
+};
+
+std::ostream& operator<<(std::ostream& out, const Printable& printable) {
+  PrintToOstream adapter(out);
+  printable.printTo(adapter);
+  return out;
+}
+#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

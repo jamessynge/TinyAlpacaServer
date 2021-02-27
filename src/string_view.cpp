@@ -2,6 +2,7 @@
 
 // Author: james.synge@gmail.com
 
+#include "escaping.h"
 #include "platform.h"
 
 #if TAS_HOST_TARGET
@@ -120,36 +121,36 @@ JsonStringView::JsonStringView(const StringView& view) : view_(view) {}
 size_t JsonStringView::printTo(Print& p) const {
   size_t total = p.print('"');
   for (const char& c : view_) {
-    total += GetJsonEscaped(c).printTo(p);
+    total += PrintCharJsonEscaped(p, c);
   }
   total += p.print('"');
   return total;
 }
 
-// static
-StringView JsonStringView::GetJsonEscaped(const char& c) {  // NOLINT
-  if (isPrintable(c)) {
-    if (c == '"') {
-      return StringView("\\\"");
-    } else if (c == '\\') {
-      return StringView("\\\\");
-    } else {
-      return StringView(&c, 1);
-    }
-  } else if (c == '\b') {
-    return StringView("\\b");
-  } else if (c == '\f') {
-    return StringView("\\f");
-  } else if (c == '\n') {
-    return StringView("\\n");
-  } else if (c == '\r') {
-    return StringView("\\r");
-  } else if (c == '\t') {
-    return StringView("\\t");
-  }
-  TAS_DCHECK(false, "Unsupported JSON character: 0x" << std::hex << (c + 0));
-  return StringView("");
-}
+// // static
+// StringView JsonStringView::GetJsonEscaped(const char& c) {  // NOLINT
+//   if (isPrintable(c)) {
+//     if (c == '"') {
+//       return StringView("\\\"");
+//     } else if (c == '\\') {
+//       return StringView("\\\\");
+//     } else {
+//       return StringView(&c, 1);
+//     }
+//   } else if (c == '\b') {
+//     return StringView("\\b");
+//   } else if (c == '\f') {
+//     return StringView("\\f");
+//   } else if (c == '\n') {
+//     return StringView("\\n");
+//   } else if (c == '\r') {
+//     return StringView("\\r");
+//   } else if (c == '\t') {
+//     return StringView("\\t");
+//   }
+//   TAS_DCHECK(false, "Unsupported JSON character: 0x" << std::hex << (c + 0));
+//   return StringView("");
+// }
 
 #if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, const StringView& view) {
@@ -159,7 +160,7 @@ std::ostream& operator<<(std::ostream& out, const StringView& view) {
 std::ostream& operator<<(std::ostream& out, const JsonStringView& view) {
   out << StringView("\"");
   for (const char& c : view.view()) {
-    out << JsonStringView::GetJsonEscaped(c);
+    out << GetCharJsonEscaped(c);
   }
   out << StringView("\"");
   return out;

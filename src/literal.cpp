@@ -1,5 +1,6 @@
 #include "literal.h"
 
+#include "escaping.h"
 #include "logging.h"
 #include "platform.h"
 
@@ -74,10 +75,18 @@ size_t Literal::printJsonEscapedTo(Print& out) const {
   size_t total = out.print('"');
   for (size_type offset = 0; offset < size_; ++offset) {
     char c = pgm_read_char(ptr_ + offset);
-    total += JsonStringView::GetJsonEscaped(c).printTo(out);
+    total += PrintCharJsonEscaped(out, c);
   }
   total += out.print('"');
   return total;
+}
+
+JsonLiteral Literal::escaped() const { return JsonLiteral(*this); }
+
+JsonLiteral::JsonLiteral(const Literal& literal) : literal_(literal) {}
+
+size_t JsonLiteral::printTo(Print& p) const {
+  return literal_.printJsonEscapedTo(p);
 }
 
 }  // namespace alpaca

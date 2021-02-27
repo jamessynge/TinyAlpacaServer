@@ -103,12 +103,11 @@ or a Print instance.
     property with the correct case, and also to compare it it in a case
     insensitive manner with query parameter names.
 
-*   Support the
-    [management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API),
-    which will entail...
+*   DONE: Support the
+    [management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API).
 
-*   Add support for nested decoders, thus allowing each path segment to have its
-    own decoder. Use to support paths starting /management and /setup.
+*   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
+    paths (e.g. POST /setserverlocation?value=Mauna Kea).
 
 *   Support multiple connections at once (a bounded number, e.g. as supported by
     the networking chip used by the RobotDyn MEGA 2560 ETH R3). This will
@@ -118,6 +117,15 @@ or a Print instance.
 *   If useful, write a tool to generate / update literals.inc based on
     DEFINE_LITERAL occurrences in source files, maybe even flag string literals
     that are in source files and not expressed as calls to Literals::FooBar().
+    Consider using the
+    [Shortest Superstring Greedy Approximate Algorithm](https://www.geeksforgeeks.org/shortest-superstring-problem/)
+    to produce a single long literal string without extra NUL characters, and a
+    table of pairs <offset, length>, with the offset being the start of a
+    substring (i.e. a literal defined with DEFINE_LITERAL) within the
+    superstring, and length being the number of characters in the substring. If
+    we generate a dense enum starting at zero for the keywords, then we can use
+    those enums to build PROGMEM tables of allowed tokens for use when decoding
+    the path.
 
 *   Look into writing a program (Python script?) that reads the
     [Alpaca Device API specification](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)
@@ -135,3 +143,11 @@ or a Print instance.
     implemented server side, not embedded, so that it can combine multiple
     signals and calibrated parameters to make the decision. The embedded system
     should provide the raw data, but probably not policy.
+
+*   It can be helpful for the device to know the time (i.e. current UTC or local
+    time), such as for implementing operations involving rates or periods. The
+    local clock on the device is unlikely to be very accurate, nor is it likely
+    to keep running when the power is off. Look into learning the time at boot,
+    and possibly times thereafter. Look at:
+    https://tools.ietf.org/id/draft-ogud-dhc-udp-time-option-00.html and at
+    related docs.

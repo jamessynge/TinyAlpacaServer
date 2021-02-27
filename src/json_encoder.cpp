@@ -2,26 +2,18 @@
 
 // Author: james.synge@gmail.com
 
+#include "literals.h"
 #include "platform.h"
 #include "string_view.h"
 
 namespace alpaca {
 namespace {
 
-// Writes a string literal to out.
-//
-// NOTE: The length of a literal string includes the NUL (\0) at the end, so we
-// subtract one from N to get the length of the string before that.
-template <size_t N>
-inline void PrintStringLiteral(Print& out, const char (&buf)[N]) {
-  out.write(buf, N - 1);
-}
-
 void PrintBoolean(Print& out, const bool value) {
   if (value) {
-    PrintStringLiteral(out, "true");
+    Literals::JsonTrue().printTo(out);
   } else {
-    PrintStringLiteral(out, "false");
+    Literals::JsonFalse().printTo(out);
   }
 }
 
@@ -33,22 +25,25 @@ void PrintInteger(Print& out, const T value) {
 
 // Prints the floating point value to out, if possible. If not, prints a JSON
 // string that "describes" the situation. This is similar to various JSON
-// libraries, on which this is based.
+// libraries, which inspired this. TBD whether this is a good idea in the ASCOM
+// Alpaca setting.
 template <typename T>
 void PrintFloatingPoint(Print& out, const T value) {
-  // We're assuming that the stream is configured to match JSON requirements for
-  // the formatting of numbers.
 #if TAS_HOST_TARGET
+  // Haven't got std::isnan or std::isfinite in the Arduino environment.
+  // TODO(jamessynge): Consider using isnan and isfinite from avr-libc's math.h.
   if (std::isnan(value)) {
-    JsonStringView("NaN").printTo(out);
+    Literals::JsonNan().printJsonEscapedTo(out);
   } else if (!std::isfinite(value)) {
-    StringView v("-Inf");
     if (value > 0) {
-      v.remove_prefix(1);
+      Literals::JsonInf().printJsonEscapedTo(out);
+    } else {
+      Literals::JsonNegInf().printJsonEscapedTo(out);
     }
-    v.escaped().printTo(out);
   } else {
 #endif
+    // We're assuming that the Print object is configured to match JSON
+    // requirements for the formatting of numbers.
     out.print(value);
 #if TAS_HOST_TARGET
   }
@@ -83,6 +78,28 @@ JsonElementSource::~JsonElementSource() {}
 
 JsonPropertySource::~JsonPropertySource() {}
 
+AbstractJsonEncoder::EncodeableString::EncodeableString(const Literal& literal)
+    : literal_(literal), is_literal_(true) {}
+
+AbstractJsonEncoder::EncodeableString::EncodeableString(const StringView& view)
+    : view_(view), is_literal_(false) {}
+
+size_t AbstractJsonEncoder::EncodeableString::printTo(Print& out) const {
+  if (is_literal_) {
+    return literal_.printTo(out);
+  } else {
+    return view_.printTo(out);
+  }
+}
+size_t AbstractJsonEncoder::EncodeableString::printJsonEscapedTo(
+    Print& out) const {
+  if (is_literal_) {
+    return literal_.printJsonEscapedTo(out);
+  } else {
+    return view_.escaped().printTo(out);
+  }
+}
+
 AbstractJsonEncoder::AbstractJsonEncoder(Print& out)
     : out_(out), first_(true) {}
 
@@ -90,7 +107,8 @@ void AbstractJsonEncoder::StartItem() {
   if (first_) {
     first_ = false;
   } else {
-    PrintStringLiteral(out_, ", ");
+    out_.print(',');
+    out_.print(' ');
   }
 }
 
@@ -107,10 +125,10 @@ void AbstractJsonEncoder::EncodeChildObject(JsonPropertySource& source) {
 ////////////////////////////////////////////////////////////////////////////////
 
 JsonArrayEncoder::JsonArrayEncoder(Print& out) : AbstractJsonEncoder(out) {
-  PrintStringLiteral(out_, "[");
+  out_.print('[');
 }
 
-JsonArrayEncoder::~JsonArrayEncoder() { PrintStringLiteral(out_, "]"); }
+JsonArrayEncoder::~JsonArrayEncoder() { out_.print(']'); }
 
 void JsonArrayEncoder::AddIntegerElement(const int32_t value) {
   StartItem();
@@ -137,9 +155,9 @@ void JsonArrayEncoder::AddBooleanElement(const bool value) {
   PrintBoolean(out_, value);
 }
 
-void JsonArrayEncoder::AddStringElement(const StringView& value) {
+void JsonArrayEncoder::AddStringElement(const EncodeableString& value) {
   StartItem();
-  value.escaped().printTo(out_);
+  value.printJsonEscapedTo(out_);
 }
 
 void JsonArrayEncoder::AddArrayElement(JsonElementSource& source) {
@@ -181,59 +199,61 @@ void JsonArrayEncoder::AddObjectElement(
 ////////////////////////////////////////////////////////////////////////////////
 
 JsonObjectEncoder::JsonObjectEncoder(Print& out) : AbstractJsonEncoder(out) {
-  PrintStringLiteral(out_, "{");
+  out_.print('{');
 }
 
-JsonObjectEncoder::~JsonObjectEncoder() { PrintStringLiteral(out_, "}"); }
+JsonObjectEncoder::~JsonObjectEncoder() { out_.print('}'); }
 
-void JsonObjectEncoder::StartProperty(const StringView& name) {
+void JsonObjectEncoder::StartProperty(const EncodeableString& name) {
   StartItem();
-  name.escaped().printTo(out_);
-  PrintStringLiteral(out_, ": ");
+  name.printJsonEscapedTo(out_);
+  out_.print(':');
+  out_.print(' ');
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const StringView& name,
+void JsonObjectEncoder::AddIntegerProperty(const EncodeableString& name,
                                            int32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const StringView& name,
+void JsonObjectEncoder::AddIntegerProperty(const EncodeableString& name,
                                            uint32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const StringView& name,
+void JsonObjectEncoder::AddFloatingPointProperty(const EncodeableString& name,
                                                  float value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const StringView& name,
+void JsonObjectEncoder::AddFloatingPointProperty(const EncodeableString& name,
                                                  double value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }
 
-void JsonObjectEncoder::AddBooleanProperty(const StringView& name,
+void JsonObjectEncoder::AddBooleanProperty(const EncodeableString& name,
                                            const bool value) {
   StartProperty(name);
   PrintBoolean(out_, value);
 }
 
-void JsonObjectEncoder::AddStringProperty(const StringView& name,
-                                          const StringView& value) {
+void JsonObjectEncoder::AddStringProperty(const EncodeableString& name,
+                                          const EncodeableString& value) {
   StartProperty(name);
-  value.escaped().printTo(out_);
+  value.printJsonEscapedTo(out_);
 }
-void JsonObjectEncoder::AddArrayProperty(const StringView& name,
+
+void JsonObjectEncoder::AddArrayProperty(const EncodeableString& name,
                                          JsonElementSource& source) {
   StartProperty(name);
   EncodeChildArray(source);
 }
 
-void JsonObjectEncoder::AddObjectProperty(const StringView& name,
+void JsonObjectEncoder::AddObjectProperty(const EncodeableString& name,
                                           JsonPropertySource& source) {
   StartProperty(name);
   EncodeChildObject(source);
@@ -254,13 +274,13 @@ void JsonObjectEncoder::Encode(const JsonPropertySourceFunction& func,
 }
 
 void JsonObjectEncoder::AddArrayProperty(
-    const StringView& name, const JsonElementSourceFunction& func) {
+    const EncodeableString& name, const JsonElementSourceFunction& func) {
   ElementSourceFunctionAdapter source(func);
   AddArrayProperty(name, source);
 }
 
 void JsonObjectEncoder::AddObjectProperty(
-    const StringView& name, const JsonPropertySourceFunction& func) {
+    const EncodeableString& name, const JsonPropertySourceFunction& func) {
   PropertySourceFunctionAdapter source(func);
   AddObjectProperty(name, source);
 }
