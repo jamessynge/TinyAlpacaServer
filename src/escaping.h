@@ -5,19 +5,20 @@
 // JSON strings (e.g. Ctrl-A) are not printed.
 
 #include "platform.h"
-#include "string_view.h"
+
+#if TAS_HOST_TARGET
+#include <ostream>
+#endif  // TAS_HOST_TARGET
 
 namespace alpaca {
 
 // Print c with appropriate escaping for JSON.
 size_t PrintCharJsonEscaped(Print& out, char c);
 
-// Returns a StringView of the JSON representation of the ASCII character c.
-// An empty StringView is returned if the character is not valid in JSON (e.g.
-// Ctrl-A). A reference to the character is required because for characters
-// that don't need escaping, the StringView is constructed as a length 1 view
-// of that single character.
-StringView GetCharJsonEscaped(const char& c);
+#if TAS_HOST_TARGET
+// Insert the escaped character into the ostream.
+void StreamCharJsonEscaped(std::ostream& out, const char c);
+#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca
 

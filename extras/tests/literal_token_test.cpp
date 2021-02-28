@@ -44,19 +44,18 @@ struct LitCases {
   const char* char_ptr;
   LitCase exact;
   LitCase caseless;
-  LitCase lowered;
 };
 
 TEST(LiteralTokenTest, Mismatch) {
   // No match for an empty string.
   {
     uint8_t matched_id = 0;
-    EXPECT_FALSE(MaybeMatchLiteralTokensExactly("", kLMUTokens, matched_id));
-    EXPECT_EQ(matched_id, 0);
     EXPECT_FALSE(
-        MaybeMatchLiteralTokensCaseInsensitively("", kLMUTokens, matched_id));
+        MaybeMatchLiteralTokensExactly(StringView(""), kLMUTokens, matched_id));
     EXPECT_EQ(matched_id, 0);
-    EXPECT_FALSE(MaybeMatchLoweredLiteralTokens("", kLMUTokens, matched_id));
+    EXPECT_FALSE(MaybeMatchLiteralTokensCaseInsensitively(
+        StringView(""), kLMUTokens, matched_id));
+    EXPECT_EQ(matched_id, 0);
     EXPECT_EQ(matched_id, 0);
   }
   // Doesn't match a string of the same length, but different content.
@@ -71,25 +70,14 @@ TEST(LiteralTokenTest, Mismatch) {
     EXPECT_FALSE(
         MaybeMatchLiteralTokensCaseInsensitively(view, kLMUTokens, matched_id));
     EXPECT_EQ(matched_id, 0);
-    EXPECT_FALSE(MaybeMatchLoweredLiteralTokens(view, kLMUTokens, matched_id));
-    EXPECT_EQ(matched_id, 0);
   }
 }
 
 TEST(LiteralTokenTest, LMUTokens) {
   for (const auto& lit_cases : {
-           LitCases{kAllLowerStr,
-                    {true, kAllLowerId},
-                    {true, kAllLowerId},
-                    {true, kAllLowerId}},
-           LitCases{kMixedCaseStr,
-                    {true, kMixedCaseId},
-                    {true, kAllLowerId},
-                    {false, 0}},
-           LitCases{kAllUpperStr,
-                    {true, kAllUpperId},
-                    {true, kAllLowerId},
-                    {false, 0}},
+           LitCases{kAllLowerStr, {true, kAllLowerId}, {true, kAllLowerId}},
+           LitCases{kMixedCaseStr, {true, kMixedCaseId}, {true, kAllLowerId}},
+           LitCases{kAllUpperStr, {true, kAllUpperId}, {true, kAllLowerId}},
        }) {
     // Make a copy of the string so ptr equality is known to not happen.
     std::string str(lit_cases.char_ptr);
@@ -132,25 +120,6 @@ TEST(LiteralTokenTest, LMUTokens) {
         EXPECT_EQ(matched_id, kNoMatchId);
       }
     }
-
-    // Case-insensitive match.
-    {
-      auto lit_case = lit_cases.lowered;
-      const uint8_t kNoMatchId = ~lit_case.match_id;
-      uint8_t matched_id = kNoMatchId;
-
-      if (lit_case.matches) {
-        EXPECT_TRUE(
-            MaybeMatchLoweredLiteralTokens(view, kLMUTokens, matched_id))
-            << "\nview: " << view.ToHexEscapedString();
-        EXPECT_EQ(matched_id, lit_case.match_id);
-      } else {
-        EXPECT_FALSE(
-            MaybeMatchLoweredLiteralTokens(view, kLMUTokens, matched_id))
-            << "\nview: " << view.ToHexEscapedString();
-        EXPECT_EQ(matched_id, kNoMatchId);
-      }
-    }
   }
 }
 
@@ -158,16 +127,13 @@ TEST(LiteralTokenTest, UMLTokens) {
   for (const auto& lit_cases : {
            LitCases{kAllLowerStr,
                     {true, kAllLowerId},   // exact
-                    {true, kAllUpperId},   // caseless
-                    {true, kAllUpperId}},  // lowered
+                    {true, kAllUpperId}},  // caseless
            LitCases{kMixedCaseStr,
                     {true, kMixedCaseId},  // exact
-                    {true, kAllUpperId},   // caseless
-                    {false, 0}},           // lowered
+                    {true, kAllUpperId}},  // caseless
            LitCases{kAllUpperStr,
-                    {true, kAllUpperId},  // exact
-                    {true, kAllUpperId},  // caseless
-                    {false, 0}},          // lowered
+                    {true, kAllUpperId},   // exact
+                    {true, kAllUpperId}},  // caseless
        }) {
     // Make a copy of the string so ptr equality is known to not happen.
     std::string str(lit_cases.char_ptr);
@@ -206,25 +172,6 @@ TEST(LiteralTokenTest, UMLTokens) {
       } else {
         EXPECT_FALSE(MaybeMatchLiteralTokensCaseInsensitively(view, kUMLTokens,
                                                               matched_id))
-            << "\nview: " << view.ToHexEscapedString();
-        EXPECT_EQ(matched_id, kNoMatchId);
-      }
-    }
-
-    // Case-insensitive match.
-    {
-      auto lit_case = lit_cases.lowered;
-      const uint8_t kNoMatchId = ~lit_case.match_id;
-      uint8_t matched_id = kNoMatchId;
-
-      if (lit_case.matches) {
-        EXPECT_TRUE(
-            MaybeMatchLoweredLiteralTokens(view, kUMLTokens, matched_id))
-            << "\nview: " << view.ToHexEscapedString();
-        EXPECT_EQ(matched_id, lit_case.match_id);
-      } else {
-        EXPECT_FALSE(
-            MaybeMatchLoweredLiteralTokens(view, kUMLTokens, matched_id))
             << "\nview: " << view.ToHexEscapedString();
         EXPECT_EQ(matched_id, kNoMatchId);
       }

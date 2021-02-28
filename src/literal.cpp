@@ -18,36 +18,26 @@ char Literal::at(const Literal::size_type pos) const {
   return pgm_read_char(ptr_ + pos);
 }
 
-bool Literal::operator==(const StringView& view) const {
-  if (size_ != view.size()) {
+bool Literal::equal(const char* other, size_type other_size) const {
+  if (size_ != other_size) {
     return false;
   }
-  return 0 == memcmp_P(ptr_, view.data(), size_);
+  return 0 == memcmp_P(ptr_, other, size_);
 }
 
-bool Literal::operator!=(const StringView& view) const {
-  return !(*this == view);
-}
-
-bool Literal::case_equal(const StringView& view) const {
-  if (size_ != view.size()) {
+bool Literal::case_equal(const char* other, size_type other_size) const {
+  if (size_ != other_size) {
     return false;
   }
-  return 0 == strncasecmp_P(ptr_, view.data(), size_);
+  return 0 == strncasecmp_P(ptr_, other, size_);
 }
 
-bool Literal::lowered_equal(const StringView& view) const {
-  if (size_ != view.size()) {
+bool Literal::is_prefix_of(const char* other, size_type other_size) const {
+  if (size_ > other_size) {
+    // Can't be a prefix of a shorter string.
     return false;
   }
-  for (size_type offset = 0; offset < size_; ++offset) {
-    const char c = at(offset);
-    const char lc_c = isUpperCase(c) ? (c | static_cast<char>(0x20)) : c;
-    if (lc_c != view.at(offset)) {
-      return false;
-    }
-  }
-  return true;
+  return 0 == memcmp_P(ptr_, other, size_);
 }
 
 bool Literal::copyTo(char* out, size_type size) {

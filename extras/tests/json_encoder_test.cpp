@@ -68,11 +68,19 @@ TEST_F(JsonEncodersTest, EmptyObject) {
 }
 
 TEST_F(JsonEncodersTest, ObjectWithStringValues) {
-  auto func = [](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddStringProperty("empty", "");
-    object_encoder.AddStringProperty("a", "some text");
-    object_encoder.AddStringProperty("b", "with \" quotes and \\ backslashes");
-    object_encoder.AddStringProperty("c", "with controls \r\n");
+  constexpr char kSomeTextStr[] = "some text";
+  const Literal kSomeText(kSomeTextStr);
+  constexpr char kWithQuotesAndBackslashesStr[] =
+      "with \" quotes and \\ backslashes";
+  const Literal kWithQuotesAndBackslashes(kWithQuotesAndBackslashesStr);
+
+  auto func = [&](JsonObjectEncoder& object_encoder) {
+    object_encoder.AddStringProperty(StringView("empty"), StringView());
+    object_encoder.AddStringProperty(StringView("a"), kSomeText);
+    object_encoder.AddStringProperty(StringView("b"),
+                                     kWithQuotesAndBackslashes);
+    object_encoder.AddStringProperty(StringView("c"),
+                                     StringView("with controls \r\n"));
   };
   ConfirmEncoding(func,
                   "{\"empty\": \"\", "
@@ -83,27 +91,27 @@ TEST_F(JsonEncodersTest, ObjectWithStringValues) {
 
 TEST_F(JsonEncodersTest, ObjectWithBooleanValues) {
   auto func = [](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddBooleanProperty("So true!", true);
-    object_encoder.AddBooleanProperty("Heck no!", false);
+    object_encoder.AddBooleanProperty(StringView("So true!"), true);
+    object_encoder.AddBooleanProperty(StringView("Heck no!"), false);
   };
   ConfirmEncoding(func, "{\"So true!\": true, \"Heck no!\": false}");
 }
 
 TEST_F(JsonEncodersTest, ObjectWithIntegerValues) {
   auto func = [](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddIntegerProperty("min int8",
+    object_encoder.AddIntegerProperty(StringView("min int8"),
                                       std::numeric_limits<int8_t>::min());
-    object_encoder.AddIntegerProperty("max int8",
+    object_encoder.AddIntegerProperty(StringView("max int8"),
                                       std::numeric_limits<int8_t>::max());
 
-    object_encoder.AddIntegerProperty("min int32",
+    object_encoder.AddIntegerProperty(StringView("min int32"),
                                       std::numeric_limits<int32_t>::min());
-    object_encoder.AddIntegerProperty("max int32",
+    object_encoder.AddIntegerProperty(StringView("max int32"),
                                       std::numeric_limits<int32_t>::max());
 
-    object_encoder.AddIntegerProperty("min uint32",
+    object_encoder.AddIntegerProperty(StringView("min uint32"),
                                       std::numeric_limits<uint32_t>::min());
-    object_encoder.AddIntegerProperty("max uint32",
+    object_encoder.AddIntegerProperty(StringView("max uint32"),
                                       std::numeric_limits<uint32_t>::max());
   };
   ConfirmEncoding(func,
@@ -114,17 +122,19 @@ TEST_F(JsonEncodersTest, ObjectWithIntegerValues) {
 
 TEST_F(JsonEncodersTest, ObjectWithFloatValues) {
   auto func = [](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddFloatingPointProperty("float zero",
+    object_encoder.AddFloatingPointProperty(StringView("float zero"),
                                             static_cast<float>(0));
-    object_encoder.AddFloatingPointProperty("float one", static_cast<float>(1));
+    object_encoder.AddFloatingPointProperty(StringView("float one"),
+                                            static_cast<float>(1));
 
     EXPECT_TRUE(std::numeric_limits<float>::has_infinity);
     object_encoder.AddFloatingPointProperty(
-        "float -Inf", -std::numeric_limits<float>::infinity());
+        StringView("float -Inf"), -std::numeric_limits<float>::infinity());
     object_encoder.AddFloatingPointProperty(
-        "float Inf", std::numeric_limits<float>::infinity());
+        StringView("float Inf"), std::numeric_limits<float>::infinity());
 
-    object_encoder.AddFloatingPointProperty("float NaN", std::nanf("99999999"));
+    object_encoder.AddFloatingPointProperty(StringView("float NaN"),
+                                            std::nanf("99999999"));
   };
   ConfirmEncoding(
       func,
@@ -136,18 +146,19 @@ TEST_F(JsonEncodersTest, ObjectWithFloatValues) {
 
 TEST_F(JsonEncodersTest, ObjectWithDoubleValues) {
   auto func = [](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddFloatingPointProperty("double zero",
+    object_encoder.AddFloatingPointProperty(StringView("double zero"),
                                             static_cast<double>(0));
-    object_encoder.AddFloatingPointProperty("double one",
+    object_encoder.AddFloatingPointProperty(StringView("double one"),
                                             static_cast<double>(1));
 
     EXPECT_TRUE(std::numeric_limits<double>::has_infinity);
     object_encoder.AddFloatingPointProperty(
-        "double -Inf", -std::numeric_limits<double>::infinity());
+        StringView("double -Inf"), -std::numeric_limits<double>::infinity());
     object_encoder.AddFloatingPointProperty(
-        "double Inf", std::numeric_limits<double>::infinity());
+        StringView("double Inf"), std::numeric_limits<double>::infinity());
 
-    object_encoder.AddFloatingPointProperty("double NaN", std::nan("1"));
+    object_encoder.AddFloatingPointProperty(StringView("double NaN"),
+                                            std::nan("1"));
   };
   ConfirmEncoding(
       func,
@@ -160,14 +171,14 @@ TEST_F(JsonEncodersTest, ObjectWithDoubleValues) {
 TEST_F(JsonEncodersTest, ObjectWithArrayValues) {
   const double kPi = 3.14159265359L;
   auto func = [kPi](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddArrayProperty("empty",
+    object_encoder.AddArrayProperty(StringView("empty"),
                                     [](JsonArrayEncoder& array_encoder) {});
     object_encoder.AddArrayProperty(
-        "mixed", [kPi](JsonArrayEncoder& array_encoder) {
+        StringView("mixed"), [kPi](JsonArrayEncoder& array_encoder) {
           array_encoder.AddBooleanElement(true);
           array_encoder.AddFloatingPointElement(kPi);
           array_encoder.AddIntegerElement(43);
-          array_encoder.AddStringElement("xyzzy");
+          array_encoder.AddStringElement(StringView("xyzzy"));
         });
   };
   ConfirmEncoding(func, absl::StrCat("{\"empty\": [], \"mixed\": [true, ",
@@ -177,11 +188,13 @@ TEST_F(JsonEncodersTest, ObjectWithArrayValues) {
 TEST_F(JsonEncodersTest, ObjectWithObjectValues) {
   const double kPi = 3.14159265359L;
   auto func = [kPi](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddObjectProperty("empty", [](JsonObjectEncoder&) {});
+    object_encoder.AddObjectProperty(StringView("empty"),
+                                     [](JsonObjectEncoder&) {});
     object_encoder.AddObjectProperty(
-        "mixed", [kPi](JsonObjectEncoder& object_encoder) {
-          object_encoder.AddBooleanProperty("Too darn true!", true);
-          object_encoder.AddFloatingPointProperty("Gimme some pie!", kPi);
+        StringView("mixed"), [kPi](JsonObjectEncoder& object_encoder) {
+          object_encoder.AddBooleanProperty(StringView("Too darn true!"), true);
+          object_encoder.AddFloatingPointProperty(StringView("Gimme some pie!"),
+                                                  kPi);
         });
   };
   ConfirmEncoding(
@@ -203,15 +216,18 @@ TEST_F(JsonEncodersTest, ArrayOfEmptyStructures) {
 }
 
 TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
-  auto func = [](JsonArrayEncoder& array_encoder) {
+  constexpr char kSomeTextStr[] = "some text \r\n with escaping characters";
+  const Literal kSomeText(kSomeTextStr);
+
+  auto func = [&](JsonArrayEncoder& array_encoder) {
     array_encoder.AddBooleanElement(false);
-    array_encoder.AddStringElement("");
-    array_encoder.AddStringElement("some text \r\n with escaping characters");
+    array_encoder.AddStringElement(StringView());  // Empty string.
+    array_encoder.AddStringElement(kSomeText);
     array_encoder.AddIntegerElement(std::numeric_limits<int32_t>::min());
     array_encoder.AddIntegerElement(std::numeric_limits<uint32_t>::max());
     array_encoder.AddFloatingPointElement(-1.0F);
     array_encoder.AddObjectElement([](JsonObjectEncoder& object_encoder) {
-      object_encoder.AddArrayProperty("inner-empty-array",
+      object_encoder.AddArrayProperty(StringView("inner-empty-array"),
                                       [](JsonArrayEncoder&) {});
     });
   };

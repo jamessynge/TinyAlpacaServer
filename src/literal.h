@@ -13,7 +13,6 @@
 // attempt to place them early in the address space.
 
 #include "platform.h"
-#include "string_view.h"
 
 // Can place a DEFINE_LITERAL in any source file, where it will be a no-op.
 // This allows them to be documentation in that context, and makes them
@@ -46,7 +45,7 @@ class Literal {
   // NOTE: The length of a C++ string literal includes the NUL (\0) at the end,
   // so we subtract one from N to get the length of the string before that.
   template <size_type N>
-  TAS_CONSTEXPR_FUNC Literal(const char (&buf)[N] PROGMEM)  // NOLINT
+  explicit TAS_CONSTEXPR_FUNC Literal(const char (&buf)[N] PROGMEM)
       : ptr_(buf), size_(N - 1) {}
 
   // Construct with a specified length. This supports storing multiple Literals
@@ -68,26 +67,14 @@ class Literal {
 
   // Returns true if the two strings are equal, with case sensitive comparison
   // of characters.
-  bool operator==(const StringView& view) const;
-
-  // Returns false if the two strings are equal, with case sensitive comparison
-  // of characters.
-  bool operator!=(const StringView& view) const;
+  bool equal(const char* other, size_type other_size) const;
 
   // Returns true if the two strings are equal, with case insensitive comparison
-  // of characters. Neither string may have a NUL in the first 'size'
-  // characters, else the comparison result may be wrong.
-  bool case_equal(const StringView& view) const;
+  // of characters.
+  bool case_equal(const char* other, size_type other_size) const;
 
-  // Returns true if the two strings are equal, after transforming the
-  // characters of this string to lower case, but not those of the view. This
-  // supports having only one copy of a string such as "Connected"; when used as
-  // an ASCOM method, it must be all lower case, but when returned to the client
-  // as a JSON property name, it must be in PascalCase.
-  bool lowered_equal(const StringView& view) const;
-
-  // Returns true if view starts with this literal string.
-  bool is_prefix_of(const StringView& view) const;
+  // Returns true if the other string starts with this literal string.
+  bool is_prefix_of(const char* other, size_type other_size) const;
 
   // If 'size_' is not greater than the provided 'size', copies the literal
   // string into *out. No NUL terminator is copied.

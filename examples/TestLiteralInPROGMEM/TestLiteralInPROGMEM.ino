@@ -1,5 +1,9 @@
+#ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
+#else
+#include "TinyAlpacaServer.h"
+#endif
 
 using alpaca::Literal;
 

@@ -8,13 +8,10 @@
 
 #include "literal.h"
 #include "platform.h"
+#include "string_compare.h"
+#include "string_view.h"
 
 namespace alpaca {
-namespace internal {
-bool ExactlyEqual(const Literal& literal, const StringView& view);
-bool CaseEqual(const Literal& literal, const StringView& view);
-bool LoweredEqual(const Literal& literal, const StringView& view);
-}  // namespace internal
 
 template <typename T>
 struct LiteralToken {
@@ -37,7 +34,7 @@ bool FindFirstMatchingLiteralToken(const StringView& view,
     if (func(token.str, view)) {
       TAS_DVLOG(3, "FindFirstMatchingLiteralToken matched "
                        << token.str.escaped() << " to " << view.escaped()
-                       << ", with id " << token.id);
+                       << ", with id " << (token.id + 0L));
       matched_id = token.id;
       return true;
     }
@@ -54,8 +51,7 @@ bool MaybeMatchLiteralTokensExactly(const StringView& view,
                                     const LiteralToken<T> (&tokens)[N],
                                     T& matched_id) {
   TAS_DVLOG(3, "MaybeMatchLiteralTokensExactly view: " << view.escaped());
-  return FindFirstMatchingLiteralToken(view, tokens, internal::ExactlyEqual,
-                                       matched_id);
+  return FindFirstMatchingLiteralToken(view, tokens, ExactlyEqual, matched_id);
 }
 
 // Returns true if one of the literals matches the view case-insensitively, and
@@ -65,19 +61,7 @@ bool MaybeMatchLiteralTokensCaseInsensitively(
     const StringView& view, const LiteralToken<T> (&tokens)[N], T& matched_id) {
   TAS_DVLOG(
       3, "MaybeMatchLiteralTokensCaseInsensitively view: " << view.escaped());
-  return FindFirstMatchingLiteralToken(view, tokens, internal::CaseEqual,
-                                       matched_id);
-}
-
-// Returns true if one of the literals, when converted to lower case, matches
-// the view exactly, and if so sets matched_id to the id of that literal.
-template <typename T, int N>
-bool MaybeMatchLoweredLiteralTokens(const StringView& view,
-                                    const LiteralToken<T> (&tokens)[N],
-                                    T& matched_id) {
-  TAS_DVLOG(3, "MaybeMatchLoweredLiteralTokens view: " << view.escaped());
-  return FindFirstMatchingLiteralToken(view, tokens, internal::LoweredEqual,
-                                       matched_id);
+  return FindFirstMatchingLiteralToken(view, tokens, CaseEqual, matched_id);
 }
 
 }  // namespace alpaca

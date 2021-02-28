@@ -4,7 +4,6 @@
 
 #include "literals.h"
 #include "platform.h"
-#include "string_view.h"
 
 namespace alpaca {
 namespace {
@@ -78,28 +77,6 @@ JsonElementSource::~JsonElementSource() {}
 
 JsonPropertySource::~JsonPropertySource() {}
 
-AbstractJsonEncoder::EncodeableString::EncodeableString(const Literal& literal)
-    : literal_(literal), is_literal_(true) {}
-
-AbstractJsonEncoder::EncodeableString::EncodeableString(const StringView& view)
-    : view_(view), is_literal_(false) {}
-
-size_t AbstractJsonEncoder::EncodeableString::printTo(Print& out) const {
-  if (is_literal_) {
-    return literal_.printTo(out);
-  } else {
-    return view_.printTo(out);
-  }
-}
-size_t AbstractJsonEncoder::EncodeableString::printJsonEscapedTo(
-    Print& out) const {
-  if (is_literal_) {
-    return literal_.printJsonEscapedTo(out);
-  } else {
-    return view_.escaped().printTo(out);
-  }
-}
-
 AbstractJsonEncoder::AbstractJsonEncoder(Print& out)
     : out_(out), first_(true) {}
 
@@ -155,7 +132,7 @@ void JsonArrayEncoder::AddBooleanElement(const bool value) {
   PrintBoolean(out_, value);
 }
 
-void JsonArrayEncoder::AddStringElement(const EncodeableString& value) {
+void JsonArrayEncoder::AddStringElement(const AnyString& value) {
   StartItem();
   value.printJsonEscapedTo(out_);
 }
@@ -204,56 +181,56 @@ JsonObjectEncoder::JsonObjectEncoder(Print& out) : AbstractJsonEncoder(out) {
 
 JsonObjectEncoder::~JsonObjectEncoder() { out_.print('}'); }
 
-void JsonObjectEncoder::StartProperty(const EncodeableString& name) {
+void JsonObjectEncoder::StartProperty(const AnyString& name) {
   StartItem();
   name.printJsonEscapedTo(out_);
   out_.print(':');
   out_.print(' ');
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const EncodeableString& name,
+void JsonObjectEncoder::AddIntegerProperty(const AnyString& name,
                                            int32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const EncodeableString& name,
+void JsonObjectEncoder::AddIntegerProperty(const AnyString& name,
                                            uint32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const EncodeableString& name,
+void JsonObjectEncoder::AddFloatingPointProperty(const AnyString& name,
                                                  float value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const EncodeableString& name,
+void JsonObjectEncoder::AddFloatingPointProperty(const AnyString& name,
                                                  double value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }
 
-void JsonObjectEncoder::AddBooleanProperty(const EncodeableString& name,
+void JsonObjectEncoder::AddBooleanProperty(const AnyString& name,
                                            const bool value) {
   StartProperty(name);
   PrintBoolean(out_, value);
 }
 
-void JsonObjectEncoder::AddStringProperty(const EncodeableString& name,
-                                          const EncodeableString& value) {
+void JsonObjectEncoder::AddStringProperty(const AnyString& name,
+                                          const AnyString& value) {
   StartProperty(name);
   value.printJsonEscapedTo(out_);
 }
 
-void JsonObjectEncoder::AddArrayProperty(const EncodeableString& name,
+void JsonObjectEncoder::AddArrayProperty(const AnyString& name,
                                          JsonElementSource& source) {
   StartProperty(name);
   EncodeChildArray(source);
 }
 
-void JsonObjectEncoder::AddObjectProperty(const EncodeableString& name,
+void JsonObjectEncoder::AddObjectProperty(const AnyString& name,
                                           JsonPropertySource& source) {
   StartProperty(name);
   EncodeChildObject(source);
@@ -274,13 +251,13 @@ void JsonObjectEncoder::Encode(const JsonPropertySourceFunction& func,
 }
 
 void JsonObjectEncoder::AddArrayProperty(
-    const EncodeableString& name, const JsonElementSourceFunction& func) {
+    const AnyString& name, const JsonElementSourceFunction& func) {
   ElementSourceFunctionAdapter source(func);
   AddArrayProperty(name, source);
 }
 
 void JsonObjectEncoder::AddObjectProperty(
-    const EncodeableString& name, const JsonPropertySourceFunction& func) {
+    const AnyString& name, const JsonPropertySourceFunction& func) {
   PropertySourceFunctionAdapter source(func);
   AddObjectProperty(name, source);
 }

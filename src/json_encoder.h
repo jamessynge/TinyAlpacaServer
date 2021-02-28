@@ -6,9 +6,9 @@
 //
 // Author: james.synge@gmail.com
 
-#include "literal.h"
+#include "any_string.h"
+#include "extras/host_arduino/print.h"
 #include "platform.h"
-#include "string_view.h"
 
 #if TAS_HOST_TARGET
 #include <functional>
@@ -40,31 +40,6 @@ using JsonPropertySourceFunction = std::function<void(JsonObjectEncoder&)>;
 // Base class for the object and array encoders.
 class AbstractJsonEncoder {
  protected:
-  // This is essentially a std::variant<Literal, StringView>. It avoids the need
-  // to define two methods where a parameter is some kind of string.
-  class EncodeableString {
-   public:
-    // Deliberately NOT explicit.
-    EncodeableString(const Literal& literal);  // NOLINT
-    EncodeableString(const StringView& view);  // NOLINT
-#if TAS_HOST_TARGET
-    // In support of tests, construct a StringView variant.
-    template <StringView::size_type N>
-    constexpr EncodeableString(const char (&buf)[N])  // NOLINT
-        : EncodeableString(StringView(buf)) {}
-#endif  // TAS_HOST_TARGET
-
-    size_t printTo(Print& out) const;
-    size_t printJsonEscapedTo(Print& out) const;
-
-   private:
-    union {
-      const Literal literal_;
-      const StringView view_;
-    };
-    const bool is_literal_;
-  };
-
   explicit AbstractJsonEncoder(Print& out);
 
   AbstractJsonEncoder(const AbstractJsonEncoder&) = delete;
@@ -92,7 +67,7 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
   void AddFloatingPointElement(float value);
   void AddFloatingPointElement(double value);
   void AddBooleanElement(const bool value);
-  void AddStringElement(const EncodeableString& value);
+  void AddStringElement(const AnyString& value);
   void AddArrayElement(JsonElementSource& source);
   void AddObjectElement(JsonPropertySource& source);
 
@@ -119,25 +94,22 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
 // JSON encoder for objects.
 class JsonObjectEncoder : public AbstractJsonEncoder {
  public:
-  void AddIntegerProperty(const EncodeableString& name, int32_t value);
-  void AddIntegerProperty(const EncodeableString& name, uint32_t value);
-  void AddFloatingPointProperty(const EncodeableString& name, float value);
-  void AddFloatingPointProperty(const EncodeableString& name, double value);
-  void AddBooleanProperty(const EncodeableString& name, const bool value);
-  void AddStringProperty(const EncodeableString& name,
-                         const EncodeableString& value);
-  void AddArrayProperty(const EncodeableString& name,
-                        JsonElementSource& source);
-  void AddObjectProperty(const EncodeableString& name,
-                         JsonPropertySource& source);
+  void AddIntegerProperty(const AnyString& name, int32_t value);
+  void AddIntegerProperty(const AnyString& name, uint32_t value);
+  void AddFloatingPointProperty(const AnyString& name, float value);
+  void AddFloatingPointProperty(const AnyString& name, double value);
+  void AddBooleanProperty(const AnyString& name, const bool value);
+  void AddStringProperty(const AnyString& name, const AnyString& value);
+  void AddArrayProperty(const AnyString& name, JsonElementSource& source);
+  void AddObjectProperty(const AnyString& name, JsonPropertySource& source);
 
   static void Encode(JsonPropertySource& source, Print& out);
 
 #if TAS_HOST_TARGET
   static void Encode(const JsonPropertySourceFunction& func, Print& out);
-  void AddArrayProperty(const EncodeableString& name,
+  void AddArrayProperty(const AnyString& name,
                         const JsonElementSourceFunction& func);
-  void AddObjectProperty(const EncodeableString& name,
+  void AddObjectProperty(const AnyString& name,
                          const JsonPropertySourceFunction& func);
 #endif  // TAS_HOST_TARGET
 
@@ -152,7 +124,7 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
 
   ~JsonObjectEncoder();
 
-  void StartProperty(const EncodeableString& name);
+  void StartProperty(const AnyString& name);
 };
 
 }  // namespace alpaca

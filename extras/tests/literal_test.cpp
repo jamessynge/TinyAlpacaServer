@@ -7,6 +7,8 @@
 #include "extras/tests/test_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "string_compare.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace {
@@ -41,22 +43,16 @@ TEST(LiteralTest, LowerComparison) {
   EXPECT_NE(literal, kLowerView.prefix(8));
 
   // Case-insensitively equal to all of the variants.
-  EXPECT_TRUE(literal.case_equal(view));
-  EXPECT_TRUE(literal.case_equal(kLowerView));
-  EXPECT_TRUE(literal.case_equal(kMixedView));
-  EXPECT_TRUE(literal.case_equal(kUpperView));
+  EXPECT_TRUE(CaseEqual(literal, view));
+  EXPECT_TRUE(CaseEqual(literal, kLowerView));
+  EXPECT_TRUE(CaseEqual(literal, kMixedView));
+  EXPECT_TRUE(CaseEqual(literal, kUpperView));
 
   // Not case-insensitively equal to an empty string, nor to prefixes of itself.
-  EXPECT_FALSE(literal.case_equal(""));
-  EXPECT_FALSE(literal.case_equal(kLowerView.prefix(1)));
-  EXPECT_FALSE(literal.case_equal(kLowerView.prefix(kLowerView.size() - 1)));
-
-  // Equal to kLowerView if we lower-case the literal, but not equal to the
-  // other variants.
-  EXPECT_TRUE(literal.lowered_equal(kLowerView));
-  EXPECT_FALSE(literal.lowered_equal(kMixedView));
-  EXPECT_FALSE(literal.lowered_equal(kUpperView));
-  EXPECT_FALSE(literal.lowered_equal(""));
+  EXPECT_FALSE(CaseEqual(literal, StringView()));
+  EXPECT_FALSE(CaseEqual(literal, StringView("")));
+  EXPECT_FALSE(CaseEqual(literal, kLowerView.prefix(1)));
+  EXPECT_FALSE(CaseEqual(literal, kLowerView.prefix(kLowerView.size() - 1)));
 
   // at() will return the appropriate character.
   EXPECT_EQ(literal.at(0), 's');
@@ -81,22 +77,16 @@ TEST(LiteralTest, MixedComparison) {
   EXPECT_NE(literal, kMixedView.prefix(8));
 
   // Case-insensitively equal to all of the variants.
-  EXPECT_TRUE(literal.case_equal(view));
-  EXPECT_TRUE(literal.case_equal(kLowerView));
-  EXPECT_TRUE(literal.case_equal(kMixedView));
-  EXPECT_TRUE(literal.case_equal(kUpperView));
+  EXPECT_TRUE(CaseEqual(literal, view));
+  EXPECT_TRUE(CaseEqual(literal, kLowerView));
+  EXPECT_TRUE(CaseEqual(literal, kMixedView));
+  EXPECT_TRUE(CaseEqual(literal, kUpperView));
 
   // Not case-insensitively equal to an empty string, nor to prefixes of itself.
-  EXPECT_FALSE(literal.case_equal(""));
-  EXPECT_FALSE(literal.case_equal(kMixedView.prefix(1)));
-  EXPECT_FALSE(literal.case_equal(kMixedView.prefix(kMixedView.size() - 1)));
-
-  // Equal to kLowerView if we lower-case the literal, but not equal to the
-  // other variants.
-  EXPECT_TRUE(literal.lowered_equal(kLowerView));
-  EXPECT_FALSE(literal.lowered_equal(kMixedView));
-  EXPECT_FALSE(literal.lowered_equal(kUpperView));
-  EXPECT_FALSE(literal.lowered_equal(""));
+  EXPECT_FALSE(CaseEqual(literal, StringView("")));
+  EXPECT_FALSE(CaseEqual(literal, StringView()));
+  EXPECT_FALSE(CaseEqual(literal, kMixedView.prefix(1)));
+  EXPECT_FALSE(CaseEqual(literal, kMixedView.prefix(kMixedView.size() - 1)));
 
   // at() will return the appropriate character.
   EXPECT_EQ(literal.at(0), 'S');
@@ -121,22 +111,15 @@ TEST(LiteralTest, UpperComparison) {
   EXPECT_NE(literal, kUpperView.prefix(8));
 
   // Case-insensitively equal to all of the variants.
-  EXPECT_TRUE(literal.case_equal(view));
-  EXPECT_TRUE(literal.case_equal(kLowerView));
-  EXPECT_TRUE(literal.case_equal(kMixedView));
-  EXPECT_TRUE(literal.case_equal(kUpperView));
+  EXPECT_TRUE(CaseEqual(literal, view));
+  EXPECT_TRUE(CaseEqual(literal, kLowerView));
+  EXPECT_TRUE(CaseEqual(literal, kMixedView));
+  EXPECT_TRUE(CaseEqual(literal, kUpperView));
 
   // Not case-insensitively equal to an empty string, nor to prefixes of itself.
-  EXPECT_FALSE(literal.case_equal(""));
-  EXPECT_FALSE(literal.case_equal(kUpperView.prefix(1)));
-  EXPECT_FALSE(literal.case_equal(kUpperView.prefix(kUpperView.size() - 1)));
-
-  // Equal to kLowerView if we lower-case the literal, but not equal to the
-  // other variants.
-  EXPECT_TRUE(literal.lowered_equal(kLowerView));
-  EXPECT_FALSE(literal.lowered_equal(kMixedView));
-  EXPECT_FALSE(literal.lowered_equal(kUpperView));
-  EXPECT_FALSE(literal.lowered_equal(""));
+  EXPECT_FALSE(CaseEqual(literal, StringView("")));
+  EXPECT_FALSE(CaseEqual(literal, kUpperView.prefix(1)));
+  EXPECT_FALSE(CaseEqual(literal, kUpperView.prefix(kUpperView.size() - 1)));
 
   // at() will return the appropriate character.
   EXPECT_EQ(literal.at(0), 'S');

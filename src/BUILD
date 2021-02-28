@@ -13,6 +13,17 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "any_string",
+    srcs = ["any_string.cc"],
+    hdrs = ["any_string.h"],
+    deps = [
+        ":literal",
+        ":platform",
+        ":string_view",
+    ],
+)
+
 # config.h specifies the set of features available (e.g. std::string) on
 # the target platform of the Tiny Alpaca Server.
 cc_library(
@@ -36,6 +47,16 @@ cc_library(
 )
 
 cc_library(
+    name = "escaping",
+    srcs = ["escaping.cc"],
+    hdrs = ["escaping.h"],
+    deps = [
+        ":logging",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "extra_parameters",
     hdrs = ["extra_parameters.h"],
     deps = [
@@ -51,10 +72,10 @@ cc_library(
     srcs = ["json_encoder.cc"],
     hdrs = ["json_encoder.h"],
     deps = [
-        ":literal",
+        ":any_string",
         ":literals",
         ":platform",
-        ":string_view",
+        ":print",
     ],
 )
 
@@ -64,6 +85,7 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":json_encoder",
+        ":literals",
         ":platform",
     ],
 )
@@ -73,19 +95,20 @@ cc_library(
     srcs = ["literal.cc"],
     hdrs = ["literal.h"],
     deps = [
+        ":escaping",
         ":logging",
         ":platform",
-        ":string_view",
     ],
 )
 
 cc_library(
     name = "literal_token",
-    srcs = ["literal_token.cc"],
     hdrs = ["literal_token.h"],
     deps = [
         ":literal",
         ":platform",
+        ":string_compare",
+        ":string_view",
     ],
 )
 
@@ -106,15 +129,24 @@ cc_library(
 )
 
 cc_library(
-    name = "platform",
-    hdrs = ["platform.h"],
-    deps = [":arduino"],
+    name = "match_literals",
+    srcs = ["match_literals.cc"],
+    hdrs = ["match_literals.h"],
+    deps = [
+        ":decoder_constants",
+        ":literal",
+        ":literal_token",
+        ":literals",
+        ":logging",
+        ":platform",
+        ":string_view",
+    ],
 )
 
 cc_library(
-    name = "progmem_pointer",
-    hdrs = ["progmem_pointer.h"],
-    deps = [":platform"],
+    name = "platform",
+    hdrs = ["platform.h"],
+    deps = [":arduino"],
 )
 
 cc_library(
@@ -125,12 +157,13 @@ cc_library(
         ":alpaca_request",
         ":config",
         ":decoder_constants",
+        ":literals",
         ":logging",
+        ":match_literals",
         ":platform",
         ":request_decoder_listener",
+        ":string_compare",
         ":string_view",
-        ":token",
-        ":tokens",
     ],
 )
 
@@ -165,16 +198,26 @@ cc_library(
 )
 
 cc_library(
+    name = "string_compare",
+    srcs = ["string_compare.cc"],
+    hdrs = ["string_compare.h"],
+    deps = [
+        ":literal",
+        ":platform",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "string_view",
     srcs = [
-        "escaping.cc",
         "string_view.cc",
     ],
     hdrs = [
-        "escaping.h",
         "string_view.h",
     ],
     deps = [
+        ":escaping",
         ":logging",
         ":platform",
         "//absl/strings",
@@ -189,6 +232,7 @@ cc_library(
         ":config",
         ":counting_bitbucket",
         ":decoder_constants",
+        ":escaping",
         ":extra_parameters",
         ":json_encoder",
         ":json_response",
@@ -196,46 +240,12 @@ cc_library(
         ":literal_token",
         ":literals",
         ":logging",
+        ":match_literals",
         ":platform",
         ":request_decoder",
         ":request_decoder_listener",
         ":server",
         ":server_description",
         ":string_view",
-        ":token_tables",
-    ],
-)
-
-cc_library(
-    name = "token",
-    hdrs = ["token.h"],
-    deps = [
-        ":platform",
-        ":string_view",
-    ],
-)
-
-cc_library(
-    name = "token_tables",
-    srcs = ["token_tables.cc"],
-    hdrs = ["token_tables.h"],
-    deps = [
-        ":decoder_constants",
-        ":literal",
-        ":literal_token",
-        ":literals",
-        ":platform",
-        ":string_view",
-    ],
-)
-
-cc_library(
-    name = "tokens",
-    hdrs = ["tokens.h"],
-    deps = [
-        ":decoder_constants",
-        ":platform",
-        ":string_view",
-        ":token",
     ],
 )

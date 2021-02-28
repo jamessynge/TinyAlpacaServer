@@ -135,49 +135,49 @@ std::ostream& operator<<(std::ostream& out, EDeviceType v) {
   return out << invalid << " (invalid EDeviceType)";
 }
 
-std::ostream& operator<<(std::ostream& out, EMethod v) {
+std::ostream& operator<<(std::ostream& out, EDeviceMethod v) {
   switch (v) {
-    case EMethod::kUnknown:
+    case EDeviceMethod::kUnknown:
       return out << "kUnknown";
-    case EMethod::kSetup:
+    case EDeviceMethod::kSetup:
       return out << "kSetup";
-    case EMethod::kConnected:
+    case EDeviceMethod::kConnected:
       return out << "kConnected";
-    case EMethod::kDescription:
+    case EDeviceMethod::kDescription:
       return out << "kDescription";
-    case EMethod::kDriverInfo:
+    case EDeviceMethod::kDriverInfo:
       return out << "kDriverInfo";
-    case EMethod::kDriverVersion:
+    case EDeviceMethod::kDriverVersion:
       return out << "kDriverVersion";
-    case EMethod::kInterfaceVersion:
+    case EDeviceMethod::kInterfaceVersion:
       return out << "kInterfaceVersion";
-    case EMethod::kName:
+    case EDeviceMethod::kName:
       return out << "kName";
-    case EMethod::kSupportedActions:
+    case EDeviceMethod::kSupportedActions:
       return out << "kSupportedActions";
-    case EMethod::kAveragePeriod:
+    case EDeviceMethod::kAveragePeriod:
       return out << "kAveragePeriod";
-    case EMethod::kCloudCover:
+    case EDeviceMethod::kCloudCover:
       return out << "kCloudCover";
-    case EMethod::kDewPoint:
+    case EDeviceMethod::kDewPoint:
       return out << "kDewPoint";
-    case EMethod::kHumidity:
+    case EDeviceMethod::kHumidity:
       return out << "kHumidity";
-    case EMethod::kPressure:
+    case EDeviceMethod::kPressure:
       return out << "kPressure";
-    case EMethod::kRainRate:
+    case EDeviceMethod::kRainRate:
       return out << "kRainRate";
-    case EMethod::kRefresh:
+    case EDeviceMethod::kRefresh:
       return out << "kRefresh";
-    case EMethod::kTemperature:
+    case EDeviceMethod::kTemperature:
       return out << "kTemperature";
-    case EMethod::kSensorDescription:
+    case EDeviceMethod::kSensorDescription:
       return out << "kSensorDescription";
-    case EMethod::kIsSafe:
+    case EDeviceMethod::kIsSafe:
       return out << "kIsSafe";
   }
-  auto invalid = static_cast<std::underlying_type<EMethod>::type>(v);
-  return out << invalid << " (invalid EMethod)";
+  auto invalid = static_cast<std::underlying_type<EDeviceMethod>::type>(v);
+  return out << invalid << " (invalid EDeviceMethod)";
 }
 
 std::ostream& operator<<(std::ostream& out, EParameter v) {

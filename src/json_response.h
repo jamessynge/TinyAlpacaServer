@@ -3,6 +3,7 @@
 
 #include "alpaca_request.h"
 #include "json_encoder.h"
+#include "literals.h"
 #include "platform.h"
 
 namespace alpaca {
@@ -21,15 +22,15 @@ class CommonJsonResponse : public JsonPropertySource {
 
   void AddTo(JsonObjectEncoder& object_encoder) override {
     if (request_.found_client_transaction_id) {
-      object_encoder.AddIntegerProperty("ClientTransactionId",
+      object_encoder.AddIntegerProperty(Literals::ClientTransactionId(),
                                         request_.client_transaction_id);
     }
     if (request_.have_server_transaction_id) {
-      object_encoder.AddIntegerProperty("ServerTransactionId",
+      object_encoder.AddIntegerProperty(Literals::ServerTransactionId(),
                                         request_.server_transaction_id);
     }
-    object_encoder.AddIntegerProperty("ErrorNumber", error_number_);
-    object_encoder.AddStringProperty("ErrorMessage",
+    object_encoder.AddIntegerProperty(Literals::ErrorNumber(), error_number_);
+    object_encoder.AddStringProperty(Literals::ErrorMessage(),
                                      StringView::FromCString(error_message_));
   }
 

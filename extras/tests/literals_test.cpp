@@ -1,6 +1,8 @@
 #include "literals.h"
 
 #include "googletest/gtest.h"
+#include "string_compare.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace {
@@ -12,9 +14,9 @@ TEST(LiteralsTest, Basics) {
   EXPECT_NE(Literals::PUT().prog_data_for_tests(), "PUT");
 
   auto literal1 = Literals::ClientId();
-  EXPECT_EQ(literal1, "ClientId");
+  EXPECT_EQ(literal1, StringView("ClientId"));
   auto literal2 = Literals::ClientId();
-  EXPECT_EQ(literal2, "ClientId");
+  EXPECT_EQ(literal2, StringView("ClientId"));
   EXPECT_EQ(literal1.prog_data_for_tests(), literal2.prog_data_for_tests());
 }
 

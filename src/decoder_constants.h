@@ -78,6 +78,7 @@ enum class EHttpMethod : EHttpMethod_UnderlyingType {
 std::ostream& operator<<(std::ostream& out, EHttpMethod value);
 #endif  // TAS_HOST_TARGET
 
+using EApiGroup_UnderlyingType = uint8_t;
 enum class EApiGroup : uint8_t {
   kUnknown = 0,
   kDevice,      // Path: /api...
@@ -88,6 +89,7 @@ enum class EApiGroup : uint8_t {
 std::ostream& operator<<(std::ostream& out, EApiGroup value);
 #endif  // TAS_HOST_TARGET
 
+using EAlpacaApi_UnderlyingType = uint8_t;
 enum class EAlpacaApi : uint8_t {
   kUnknown = 0,
   kDeviceApi,    // Path: /api/v1/{device_type}/{device_number}/{method}
@@ -101,7 +103,8 @@ enum class EAlpacaApi : uint8_t {
 std::ostream& operator<<(std::ostream& out, EAlpacaApi value);
 #endif  // TAS_HOST_TARGET
 
-enum class EManagementMethod {
+using EManagementMethod_UnderlyingType = uint8_t;
+enum class EManagementMethod : EManagementMethod_UnderlyingType {
   kUnknown,
   kDescription,
   kConfiguredDevices,
@@ -110,7 +113,8 @@ enum class EManagementMethod {
 std::ostream& operator<<(std::ostream& out, EManagementMethod value);
 #endif  // TAS_HOST_TARGET
 
-enum class EDeviceType {
+using EDeviceType_UnderlyingType = uint8_t;
+enum class EDeviceType : EDeviceType_UnderlyingType {
   kUnknown,
   kCamera,
   kCoverCalibrator,
@@ -132,9 +136,10 @@ std::ostream& operator<<(std::ostream& out, EDeviceType value);
 // "Connected"). Note that in the path the name must be lower case, while it may
 // be mixed case in the list of parameters. IF we can rely on the compiler and
 // linker to share literal strings, then it shouldn't be a problem to define an
-// enum in both EMethod and EParameter, and a corresponding Token for each in
-// requests.cc.
-enum class EMethod : uint8_t {
+// enum in both EDeviceMethod and EParameter, and a corresponding Token for each
+// in requests.cc.
+using EDeviceMethod_UnderlyingType = uint8_t;
+enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
   kUnknown,
 
   // This is the only method for EAlpacaApi::kDeviceSetup:
@@ -164,12 +169,13 @@ enum class EMethod : uint8_t {
   kIsSafe,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EMethod value);
+std::ostream& operator<<(std::ostream& out, EDeviceMethod value);
 #endif  // TAS_HOST_TARGET
 
 // These are parameter names used in *requests*, not responses. Names such as
 // ServerTransactionId and ErrorNumber should not be in this list.
-enum class EParameter : uint8_t {
+using EParameter_UnderlyingType = uint8_t;
+enum class EParameter : EParameter_UnderlyingType {
   kUnknown,
 
   kClientId,
@@ -190,7 +196,8 @@ enum class EHttpHeader : EHttpHeader_UnderlyingType {
   kHttpAccept,
   kHttpContentLength,
   kHttpContentType,
-  // Added to enable testing.
+
+  // Added to enable testing of RequestDecoderListener::OnExtraHeader.
   kHttpContentEncoding,
 };
 #if TAS_HOST_TARGET

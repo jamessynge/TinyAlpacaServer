@@ -51,24 +51,6 @@ bool StringView::operator!=(const StringView& other) const {
   return !(*this == other);
 }
 
-bool StringView::equals_other_lowered(const StringView& other) const {
-  if (size_ != other.size()) {
-    return false;
-  }
-  for (StringView::size_type pos = 0; pos < size_; ++pos) {
-    const char our_lc_char = ptr_[pos];
-    TAS_DCHECK(!isUpperCase(our_lc_char), substr(pos, 1));
-    const char other_char = other.at(pos);
-    const char other_lc_char = isUpperCase(other_char)
-                                   ? (other_char | static_cast<char>(0x20))
-                                   : other_char;
-    if (our_lc_char != other_lc_char) {
-      return false;
-    }
-  }
-  return true;
-}
-
 bool StringView::to_uint32(uint32_t& out) const {
   TAS_DVLOG(2, "StringView::to_uint32 converting " << ToHexEscapedString());
   if (empty()) {
@@ -127,31 +109,6 @@ size_t JsonStringView::printTo(Print& p) const {
   return total;
 }
 
-// // static
-// StringView JsonStringView::GetJsonEscaped(const char& c) {  // NOLINT
-//   if (isPrintable(c)) {
-//     if (c == '"') {
-//       return StringView("\\\"");
-//     } else if (c == '\\') {
-//       return StringView("\\\\");
-//     } else {
-//       return StringView(&c, 1);
-//     }
-//   } else if (c == '\b') {
-//     return StringView("\\b");
-//   } else if (c == '\f') {
-//     return StringView("\\f");
-//   } else if (c == '\n') {
-//     return StringView("\\n");
-//   } else if (c == '\r') {
-//     return StringView("\\r");
-//   } else if (c == '\t') {
-//     return StringView("\\t");
-//   }
-//   TAS_DCHECK(false, "Unsupported JSON character: 0x" << std::hex << (c + 0));
-//   return StringView("");
-// }
-
 #if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, const StringView& view) {
   return out.write(view.data(), view.size());
@@ -159,8 +116,8 @@ std::ostream& operator<<(std::ostream& out, const StringView& view) {
 
 std::ostream& operator<<(std::ostream& out, const JsonStringView& view) {
   out << StringView("\"");
-  for (const char& c : view.view()) {
-    out << GetCharJsonEscaped(c);
+  for (const char c : view.view()) {
+    StreamCharJsonEscaped(out, c);
   }
   out << StringView("\"");
   return out;

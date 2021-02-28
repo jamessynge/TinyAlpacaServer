@@ -38,8 +38,8 @@ struct AlpacaRequest {
   EDeviceType device_type;
   uint32_t device_number;
 
-  // The ascom_method is only field in when api is EAlpacaApi::kDeviceApi.
-  EMethod ascom_method;
+  // The device_method is only field in when api is EAlpacaApi::kDeviceApi.
+  EDeviceMethod device_method;
 
   // Parameters, either from the path (GET) or the body (PUT).
   //

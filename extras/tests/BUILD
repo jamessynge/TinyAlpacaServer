@@ -39,6 +39,8 @@ cc_test(
     srcs = ["literal_test.cc"],
     deps = [
         ":literal",
+        ":string_compare",
+        ":string_view",
         ":test_utils",
         "//absl/strings",
         "//googletest:gunit_main",
@@ -62,6 +64,20 @@ cc_test(
     srcs = ["literals_test.cc"],
     deps = [
         ":literals",
+        ":string_compare",
+        ":string_view",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "match_literals_test",
+    srcs = ["match_literals_test.cc"],
+    deps = [
+        ":decoder_constants",
+        ":match_literals",
+        ":test_utils",
+        "//absl/strings",
         "//googletest:gunit_main",
     ],
 )

@@ -20,7 +20,7 @@ void AlpacaRequest::Reset() {
   api = EAlpacaApi::kUnknown;
   device_type = EDeviceType::kUnknown;
   device_number = kResetDeviceNumber;
-  ascom_method = EMethod::kUnknown;
+  device_method = EDeviceMethod::kUnknown;
 
   // This is a value set at the start of the decoding process.
   server_transaction_id = kResetServerTransactionId;

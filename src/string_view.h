@@ -58,7 +58,7 @@ class StringView {
   // NOTE: There is no (const char* ptr) constructor because it blocks use of
   // this constructor for literals.
   template <size_type N>
-  constexpr StringView(const char (&buf)[N])  // NOLINT
+  explicit constexpr StringView(const char (&buf)[N])
       : ptr_(buf), size_(N - 1) {}
 
   // Construct with a specified length.
@@ -68,7 +68,7 @@ class StringView {
 #if TAS_HOST_TARGET
   // Construct from a std::string. This is used for tests.
   explicit StringView(const std::string& str);
-#endif
+#endif  // TAS_HOST_TARGET
 
   // Copy constructor.
   TAS_CONSTEXPR_FUNC StringView(const StringView& other) = default;
@@ -163,11 +163,6 @@ class StringView {
   constexpr bool ends_with(const char c) const {
     return size_ > 0 && ptr_[size_ - 1] == c;
   }
-
-  // Compares this view with other (converted to lower-case ASCII), returning
-  // true if they are equal. This means that this view must contain no
-  // upper-case letters, else it will never match other.
-  bool equals_other_lowered(const StringView& other) const;
 
   // Returns true if this starts with s.
   constexpr bool starts_with(const StringView& s) const {

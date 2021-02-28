@@ -2,8 +2,12 @@
 // measuring the program (FLASH) and globals (RAM) storage requirements of
 // producing an HTTP response with a JSON body using JsonObjectEncoder.
 
+#ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
+#else
+#include "TinyAlpacaServer.h"
+#endif
 
 using ::alpaca::AlpacaRequest;
 using ::alpaca::CountingBitbucket;

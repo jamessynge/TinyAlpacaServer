@@ -18,12 +18,12 @@
 #include "literal_token.h"
 #include "literals.h"
 #include "logging.h"
+#include "match_literals.h"
 #include "platform.h"
 #include "request_decoder.h"
 #include "request_decoder_listener.h"
 #include "server.h"
 #include "server_description.h"
 #include "string_view.h"
-#include "token_tables.h"
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_

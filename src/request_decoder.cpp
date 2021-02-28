@@ -17,10 +17,11 @@
 #include "request_decoder.h"
 
 #include "config.h"
+#include "literals.h"
 #include "logging.h"
+#include "match_literals.h"
 #include "platform.h"
-#include "token.h"
-#include "tokens.h"
+#include "string_compare.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified
 // as the rest of HTTP (AFAICT), so I'm assuming that:
@@ -43,11 +44,11 @@ namespace {
 using DecodeFunction = RequestDecoderState::DecodeFunction;
 using CharMatchFunction = bool (*)(char c);
 
+TAS_CONSTEXPR_VAR StringView kHttpMethodTerminators(" ");
 TAS_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
 TAS_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
-TAS_CONSTEXPR_VAR StringView kAscomPathPrefix("/api/v1/");
 TAS_CONSTEXPR_VAR StringView kPathSeparator("/");
-TAS_CONSTEXPR_VAR StringView kPathTerminator("? ");
+TAS_CONSTEXPR_VAR StringView kPathTerminators("? ");
 TAS_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
 TAS_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
 TAS_CONSTEXPR_VAR StringView kSupportedVersion("v1");
@@ -118,43 +119,6 @@ void TrimTrailingOptionalWhitespace(StringView& view) {
   }
 }
 
-// Find the token in tokens that matches the view.
-template <typename E, int N>
-E MatchTokensExactly(const StringView& view, E unknown_id,
-                     const Token<E> (&tokens)[N]) {
-  for (int i = 0; i < N; ++i) {
-    if (tokens[i].str == view) {
-      TAS_DVLOG(3, "MatchTokensExactly matched "
-                       << tokens[i].str.ToHexEscapedString() << " to "
-                       << view.ToHexEscapedString() << ", returning "
-                       << tokens[i].id);
-      return tokens[i].id;
-    }
-  }
-  TAS_DVLOG(3, "MatchTokensExactly unable to match "
-                   << view.ToHexEscapedString() << ", returning "
-                   << unknown_id);
-  return unknown_id;
-}
-
-template <typename E, int N>
-E LowerMatchTokens(const StringView& view, E unknown_id,
-                   const Token<E> (&tokens)[N]) {
-  for (int i = 0; i < N; ++i) {
-    if (tokens[i].str.equals_other_lowered(view)) {
-      TAS_DVLOG(3, "LowerMatchTokens matched "
-                       << tokens[i].str.ToHexEscapedString() << " to "
-                       << view.ToHexEscapedString() << ", returning "
-                       << tokens[i].id);
-      return tokens[i].id;
-    }
-  }
-  TAS_DVLOG(3, "LowerMatchTokens unable to match " << view.ToHexEscapedString()
-                                                   << ", returning "
-                                                   << unknown_id);
-  return unknown_id;
-}
-
 bool ExtractMatchingPrefix(StringView& view, StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
@@ -175,11 +139,11 @@ using NameProcessor = EDecodeStatus (*)(RequestDecoderState& state,
 
 EDecodeStatus ExtractAndProcessName(RequestDecoderState& state,
                                     StringView& view,
-                                    const StringView& valid_terminators,
+                                    const StringView& valid_terminating_chars,
                                     const NameProcessor processor,
                                     const bool consume_terminator_char,
                                     const EDecodeStatus bad_terminator_error) {
-  TAS_DCHECK(!valid_terminators.empty(), "");
+  TAS_DCHECK(!valid_terminating_chars.empty(), "");
   TAS_DCHECK_GT(bad_terminator_error, EDecodeStatus::kHttpOk, "");
   StringView matched_text;
   if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
@@ -189,15 +153,15 @@ EDecodeStatus ExtractAndProcessName(RequestDecoderState& state,
   }
   TAS_DCHECK(!view.empty(), "");
 
-  if (!valid_terminators.contains(view.front())) {
+  if (!valid_terminating_chars.contains(view.front())) {
     // Doesn't end with something appropriate for the path to end in. Perhaps an
     // unexpected/unsupported delimiter. Reporting Not Found because the error
     // is with the path.
     return bad_terminator_error;
   } else if (consume_terminator_char) {
     // For now, we expect that:
-    //    consume_terminator_char == (valid_terminators.size() ==1)
-    TAS_DCHECK_EQ(valid_terminators.size(), 1, "");
+    //    consume_terminator_char == (valid_terminating_chars.size() ==1)
+    TAS_DCHECK_EQ(valid_terminating_chars.size(), 1, "");
     view.remove_prefix(1);
   }
 
@@ -311,9 +275,8 @@ EDecodeStatus DecodeHeaderValue(RequestDecoderState& state, StringView& view) {
 EDecodeStatus ProcessHeaderName(RequestDecoderState& state,
                                 const StringView& matched_text,
                                 StringView& view) {
-  state.current_header = LowerMatchTokens(matched_text, EHttpHeader::kUnknown,
-                                          kRecognizedHttpHeaders);
-  if (state.current_header == EHttpHeader::kUnknown) {
+  state.current_header = EHttpHeader::kUnknown;
+  if (!MatchHttpHeader(matched_text, state.current_header)) {
     return state.SetDecodeFunctionAfterListenerCall(
         DecodeHeaderValue, state.listener.OnUnknownHeaderName(matched_text));
   }
@@ -365,10 +328,12 @@ EDecodeStatus DecodeHeaderLines(RequestDecoderState& state, StringView& view) {
 // An HTTP/1.1 Request Start Line should always end with "HTTP/1.1\r\n".
 // (We're not supporting HTTP/1.0 or earlier.)
 EDecodeStatus MatchHttpVersion(RequestDecoderState& state, StringView& view) {
-  if (view.match_and_consume(kHttp_1_1_EOL)) {
+  const Literal expected = Literals::HttpVersionEndOfLine();
+  if (StartsWith(view, expected)) {
+    view.remove_prefix(expected.size());
     state.is_decoding_start_line = false;
     return state.SetDecodeFunction(DecodeHeaderLines);
-  } else if (kHttp_1_1_EOL.starts_with(view)) {
+  } else if (view.size() < expected.size()) {
     return EDecodeStatus::kNeedMoreInput;
   } else {
     return EDecodeStatus::kHttpVersionNotSupported;
@@ -470,13 +435,12 @@ EDecodeStatus DecodeParamValue(RequestDecoderState& state, StringView& view) {
 EDecodeStatus ProcessParamName(RequestDecoderState& state,
                                const StringView& matched_text,
                                StringView& view) {
-  state.current_parameter = LowerMatchTokens(matched_text, EParameter::kUnknown,
-                                             kRecognizedParameters);
-  if (state.current_parameter == EParameter::kUnknown) {
-    return state.SetDecodeFunctionAfterListenerCall(
-        DecodeParamValue, state.listener.OnUnknownParameterName(matched_text));
+  state.current_parameter = EParameter::kUnknown;
+  if (MatchParameter(matched_text, state.current_parameter)) {
+    return state.SetDecodeFunction(DecodeParamValue);
   }
-  return state.SetDecodeFunction(DecodeParamValue);
+  return state.SetDecodeFunctionAfterListenerCall(
+      DecodeParamValue, state.listener.OnUnknownParameterName(matched_text));
 }
 
 EDecodeStatus DecodeParamName(RequestDecoderState& state, StringView& view) {
@@ -506,33 +470,31 @@ EDecodeStatus DecodeEndOfPath(RequestDecoderState& state, StringView& view) {
   return state.SetDecodeFunction(next_decode_function);
 }
 
-EDecodeStatus ProcessAscomMethod(RequestDecoderState& state,
-                                 const StringView& matched_text,
-                                 StringView& view) {
-  TAS_DVLOG(3, "ProcessAscomMethod matched_text: "
+EDecodeStatus ProcessDeviceMethod(RequestDecoderState& state,
+                                  const StringView& matched_text,
+                                  StringView& view) {
+  TAS_DVLOG(3, "ProcessDeviceMethod matched_text: "
                    << matched_text.ToHexEscapedString());
 
   // A separator/terminating character should be present after the method.
   TAS_DCHECK(!view.empty(), "");
 
-  const EMethod method = MatchTokensExactly(matched_text, EMethod::kUnknown,
-                                            kRecognizedAscomMethods);
-  if (method == EMethod::kUnknown) {
-    return EDecodeStatus::kHttpNotFound;
-  } else if ((method == EMethod::kSetup &&
-              state.request.api != EAlpacaApi::kDeviceSetup) ||
-             (method != EMethod::kSetup &&
-              state.request.api != EAlpacaApi::kDeviceApi)) {
-    // Should this be NOT FOUND, or OK with some ascom specific error number?
-    return EDecodeStatus::kHttpNotFound;
+  EDeviceMethod method;
+  if (MatchDeviceMethod(state.request.api_group, state.request.device_type,
+                        matched_text, method)) {
+    TAS_DCHECK(method == EDeviceMethod::kSetup ||
+               state.request.api == EAlpacaApi::kDeviceApi);
+    TAS_DCHECK(method != EDeviceMethod::kSetup ||
+               state.request.api == EAlpacaApi::kDeviceSetup);
+    state.request.device_method = method;
+    return state.SetDecodeFunction(DecodeEndOfPath);
   }
-  state.request.ascom_method = method;
-  return state.SetDecodeFunction(DecodeEndOfPath);
+  return EDecodeStatus::kHttpNotFound;
 }
 
-EDecodeStatus DecodeAscomMethod(RequestDecoderState& state, StringView& view) {
+EDecodeStatus DecodeDeviceMethod(RequestDecoderState& state, StringView& view) {
   return ExtractAndProcessName(
-      state, view, kPathTerminator, ProcessAscomMethod,
+      state, view, kPathTerminators, ProcessDeviceMethod,
       /*consume_terminator_char=*/false,
       /*bad_terminator_error=*/EDecodeStatus::kHttpNotFound);
 }
@@ -543,7 +505,7 @@ EDecodeStatus ProcessDeviceNumber(RequestDecoderState& state,
   if (!matched_text.to_uint32(state.request.device_number)) {
     return EDecodeStatus::kHttpNotFound;
   }
-  return state.SetDecodeFunction(DecodeAscomMethod);
+  return state.SetDecodeFunction(DecodeDeviceMethod);
 }
 
 EDecodeStatus DecodeDeviceNumber(RequestDecoderState& state, StringView& view) {
@@ -556,13 +518,13 @@ EDecodeStatus DecodeDeviceNumber(RequestDecoderState& state, StringView& view) {
 EDecodeStatus ProcessDeviceType(RequestDecoderState& state,
                                 const StringView& matched_text,
                                 StringView& view) {
-  const EDeviceType device_type = MatchTokensExactly(
-      matched_text, EDeviceType::kUnknown, kRecognizedDeviceTypes);
-  if (device_type == EDeviceType::kUnknown) {
-    return EDecodeStatus::kHttpNotFound;
+  EDeviceType device_type;
+  if (MatchDeviceType(matched_text, device_type)) {
+    TAS_DVLOG(3, "device_type: " << device_type);
+    state.request.device_type = device_type;
+    return state.SetDecodeFunction(DecodeDeviceNumber);
   }
-  state.request.device_type = device_type;
-  return state.SetDecodeFunction(DecodeDeviceNumber);
+  return EDecodeStatus::kHttpNotFound;
 }
 
 // After the path prefix, we expect the name of a supported device type.
@@ -595,17 +557,22 @@ EDecodeStatus ProcessManagementMethod(RequestDecoderState& state,
                                       const StringView& matched_text,
                                       StringView& view) {
   TAS_DCHECK(!view.empty(), "");
-  EManagementMethod method = MatchTokensExactly(
-      matched_text, EManagementMethod::kUnknown, kAllManagementMethods);
-  if (method == EManagementMethod::kDescription) {
-    state.request.api = EAlpacaApi::kManagementDescription;
-  } else if (method == EManagementMethod::kConfiguredDevices) {
-    state.request.api = EAlpacaApi::kManagementConfiguredDevices;
-  } else {
-    TAS_DCHECK_EQ(method, EManagementMethod::kUnknown, "");
-    return EDecodeStatus::kHttpNotFound;
+  EManagementMethod method;
+  if (MatchManagementMethod(matched_text, method)) {
+    TAS_DVLOG(3, "method: " << method);
+    if (method == EManagementMethod::kDescription) {
+      state.request.api = EAlpacaApi::kManagementDescription;
+    } else if (method == EManagementMethod::kConfiguredDevices) {
+      state.request.api = EAlpacaApi::kManagementConfiguredDevices;
+    } else {
+      // COV_NF_START
+      TAS_DCHECK(false, "method (" << method << ") unexpected");
+      return EDecodeStatus::kHttpInternalServerError;
+      // COV_NF_END
+    }
+    return state.SetDecodeFunction(DecodeEndOfPath);
   }
-  return state.SetDecodeFunction(DecodeEndOfPath);
+  return EDecodeStatus::kHttpNotFound;
 }
 
 EDecodeStatus DecodeManagementMethod(RequestDecoderState& state,
@@ -643,9 +610,8 @@ EDecodeStatus ProcessApiGroup(RequestDecoderState& state,
                               const StringView& matched_text,
                               StringView& view) {
   TAS_DCHECK(!view.empty(), "");
-  EApiGroup group =
-      MatchTokensExactly(matched_text, EApiGroup::kUnknown, kAllApiGroups);
-  if (group == EApiGroup::kUnknown) {
+  EApiGroup group;
+  if (!MatchApiGroup(matched_text, group)) {
     return EDecodeStatus::kHttpNotFound;
   }
   state.request.api_group = group;
@@ -704,14 +670,15 @@ EDecodeStatus MatchStartOfPath(RequestDecoderState& state, StringView& view) {
 EDecodeStatus ProcessHttpMethod(RequestDecoderState& state,
                                 const StringView& matched_text,
                                 StringView& view) {
-  EHttpMethod method = MatchTokensExactly(matched_text, EHttpMethod::kUnknown,
-                                          kRecognizedHttpMethods);
-  if (method == EHttpMethod::kUnknown) {
+  EHttpMethod method;
+  if (MatchHttpMethod(matched_text, method)) {
+    TAS_DVLOG(3, "method: " << method);
+    state.request.http_method = method;
+    return state.SetDecodeFunction(MatchStartOfPath);
+
+  } else {
     return EDecodeStatus::kHttpMethodNotImplemented;
   }
-  TAS_DVLOG(3, "method: " << method);
-  state.request.http_method = method;
-  return state.SetDecodeFunction(MatchStartOfPath);
 }
 
 // Decode one of the few supported HTTP methods. If definitely not present,
@@ -722,7 +689,7 @@ EDecodeStatus ProcessHttpMethod(RequestDecoderState& state,
 // single request per TCP connection (i.e. we won't support Keep-Alive).
 EDecodeStatus DecodeHttpMethod(RequestDecoderState& state, StringView& view) {
   return ExtractAndProcessName(
-      state, view, " ", ProcessHttpMethod,
+      state, view, kHttpMethodTerminators, ProcessHttpMethod,
       /*consume_terminator_char=*/true,
       /*bad_terminator_error=*/EDecodeStatus::kHttpBadRequest);
 }
@@ -736,7 +703,7 @@ std::ostream& operator<<(std::ostream& out, DecodeFunction decode_function) {
 
   OUTPUT_METHOD_NAME(DecodeApiGroup);
   OUTPUT_METHOD_NAME(DecodeApiVersion);
-  OUTPUT_METHOD_NAME(DecodeAscomMethod);
+  OUTPUT_METHOD_NAME(DecodeDeviceMethod);
   OUTPUT_METHOD_NAME(DecodeDeviceNumber);
   OUTPUT_METHOD_NAME(DecodeDeviceType);
   OUTPUT_METHOD_NAME(DecodeEndOfPath);

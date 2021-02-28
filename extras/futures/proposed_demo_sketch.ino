@@ -47,8 +47,12 @@
 //
 // Author: james.synge@gmail.com
 
+#ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
+#else
+#include "TinyAlpacaServer.h"
+#endif
 
 using ::alpaca::AlpacaRequest;
 using ::alpaca::CommonDeviceHandler;
@@ -106,14 +110,14 @@ class Dht22Handler : CommonDeviceHandler {
   }
 
   void HandleGetRequest(const AlpacaRequest& request, Print& out) override {
-    switch (request.ascom_method) {
-      case EMethod::kHumidity:
+    switch (request.device_method) {
+      case EDeviceMethod::kHumidity:
         return SendJsonDoubleResponse(dht22.get_relative_humidity());
 
-      case EMethod::kTemperature:
+      case EDeviceMethod::kTemperature:
         return SendJsonDoubleResponse(dht22.get_temperature());
 
-      case EMethod::kSensorDescription:
+      case EDeviceMethod::kSensorDescription:
         return HandleSensorDescriptionRequest(request, out);
 
       default:
@@ -169,23 +173,23 @@ class AagCloudWatcherHandler : CommonDeviceHandler {
       : CommonDeviceHandler(kObservingConditionsCommonInfo) {}
 
   void HandleGetRequest(const AlpacaRequest& request, Print& out) override {
-    switch (request.ascom_method) {
-      case EMethod::kHumidity:
+    switch (request.device_method) {
+      case EDeviceMethod::kHumidity:
         return SendJsonDoubleResponse(aag.get_relative_humidity());
 
-      case EMethod::kRainRate:
+      case EDeviceMethod::kRainRate:
         return SendJsonDoubleResponse(aag.get_rain_rate());
 
-      case EMethod::kSkyBrightness:
+      case EDeviceMethod::kSkyBrightness:
         return SendJsonDoubleResponse(aag.get_sky_brightness());
 
-      case EMethod::kSkyTemperature:
+      case EDeviceMethod::kSkyTemperature:
         return SendJsonDoubleResponse(aag.get_sky_temp());
 
-      case EMethod::kTemperature:
+      case EDeviceMethod::kTemperature:
         return SendJsonDoubleResponse(aag.get_ambient_temperature());
 
-      case EMethod::kSensorDescription:
+      case EDeviceMethod::kSensorDescription:
         return HandleSensorDescriptionRequest(request, out);
 
       default:

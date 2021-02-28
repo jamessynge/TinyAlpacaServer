@@ -2,6 +2,7 @@
 
 #include "escaping.h"
 
+#include "logging.h"
 #include "platform.h"
 
 namespace alpaca {
@@ -34,33 +35,46 @@ size_t PrintCharJsonEscaped(Print& out, const char c) {
     total += out.print('\\');
     total += out.print('t');
   } else {
-    TAS_DCHECK(false, "Unsupported JSON character:" << std::hex << (c + 0L));
+    // This used to be a DCHECK, but a DVLOG is better because the character
+    // could come from client input.
+    TAS_DVLOG(4, "Unsupported JSON character: " << std::hex << (c + 0L));
   }
   return total;
 }
 
-StringView GetCharJsonEscaped(const char& c) {  // NOLINT
+#if TAS_HOST_TARGET
+void StreamCharJsonEscaped(std::ostream& out, const char c) {
   if (isPrintable(c)) {
     if (c == '"') {
-      return StringView("\\\"");
+      out.put('\\');
+      out.put('"');
     } else if (c == '\\') {
-      return StringView("\\\\");
+      out.put('\\');
+      out.put('\\');
     } else {
-      return StringView(&c, 1);
+      out.put(c);
     }
   } else if (c == '\b') {
-    return StringView("\\b");
+    out.put('\\');
+    out.put('b');
   } else if (c == '\f') {
-    return StringView("\\f");
+    out.put('\\');
+    out.put('f');
   } else if (c == '\n') {
-    return StringView("\\n");
+    out.put('\\');
+    out.put('n');
   } else if (c == '\r') {
-    return StringView("\\r");
+    out.put('\\');
+    out.put('r');
   } else if (c == '\t') {
-    return StringView("\\t");
+    out.put('\\');
+    out.put('t');
+  } else {
+    // This used to be a DCHECK, but a DVLOG is better because the character
+    // could come from client input.
+    TAS_DVLOG(4, "Unsupported JSON character: " << std::hex << (c + 0L));
   }
-  TAS_DCHECK(false, "Unsupported JSON character: " << std::hex << (c + 0L));
-  return StringView();
 }
+#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

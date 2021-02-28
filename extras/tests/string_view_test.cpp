@@ -139,13 +139,13 @@ TEST(StringViewTest, MatchAndConsume) {
   EXPECT_EQ(view.data(), view_all.data() + 1);
   EXPECT_EQ(view.size(), view_all.size() - 2);
 
-  EXPECT_FALSE(view.match_and_consume("123"));
-  EXPECT_FALSE(view.match_and_consume("23456789"));
-  EXPECT_FALSE(view.match_and_consume("678"));
+  EXPECT_FALSE(view.match_and_consume(StringView("123")));
+  EXPECT_FALSE(view.match_and_consume(StringView("23456789")));
+  EXPECT_FALSE(view.match_and_consume(StringView("678")));
 
   EXPECT_EQ(view, std::string("2345678"));
 
-  EXPECT_TRUE(view.match_and_consume("23"));
+  EXPECT_TRUE(view.match_and_consume(StringView("23")));
   EXPECT_EQ(view, view_all.substr(3, 5));
 }
 
@@ -194,9 +194,9 @@ TEST(StringViewTest, Equals) {
 
   // Case: both strings have different pointers, but point to underlying strings
   // with the same value.
-  view1 = "123";
+  view1 = StringView("123");
   constexpr char kConstStr[] = "123";
-  view2 = kConstStr;
+  view2 = StringView(kConstStr);
 
   EXPECT_EQ(view1, view2);
   EXPECT_NE(view1.data(), view2.data());
@@ -204,7 +204,7 @@ TEST(StringViewTest, Equals) {
   EXPECT_EQ(view2.size(), 3);
 
   // Case: both strings have the same pointer but different lengths.
-  view1 = "1234";
+  view1 = StringView("1234");
   view2 = view1.prefix(3);
   EXPECT_NE(view1, view2);  // Tests operator!=
   EXPECT_EQ(view1.data(), view2.data());
@@ -236,21 +236,21 @@ TEST(StringViewTest, ContainsStringView) {
 
   EXPECT_EQ(view, buffer);
   EXPECT_EQ(view, StringView("abcdefghijkl"));
-  EXPECT_TRUE(view.contains("abcdefghijkl"));
-  EXPECT_TRUE(view.contains("abc"));
-  EXPECT_TRUE(view.contains("def"));
-  EXPECT_TRUE(view.contains("jkl"));
+  EXPECT_TRUE(view.contains(StringView("abcdefghijkl")));
+  EXPECT_TRUE(view.contains(StringView("abc")));
+  EXPECT_TRUE(view.contains(StringView("def")));
+  EXPECT_TRUE(view.contains(StringView("jkl")));
 
   view.remove_prefix(3);
   view.remove_suffix(3);
 
-  EXPECT_FALSE(view.contains("abcdefghijkl"));
-  EXPECT_FALSE(view.contains("abc"));
-  EXPECT_TRUE(view.contains("defghi"));
-  EXPECT_TRUE(view.contains("def"));
-  EXPECT_TRUE(view.contains("ghi"));
-  EXPECT_FALSE(view.contains("ghijkl"));
-  EXPECT_FALSE(view.contains("jkl"));
+  EXPECT_FALSE(view.contains(StringView("abcdefghijkl")));
+  EXPECT_FALSE(view.contains(StringView("abc")));
+  EXPECT_TRUE(view.contains(StringView("defghi")));
+  EXPECT_TRUE(view.contains(StringView("def")));
+  EXPECT_TRUE(view.contains(StringView("ghi")));
+  EXPECT_FALSE(view.contains(StringView("ghijkl")));
+  EXPECT_FALSE(view.contains(StringView("jkl")));
 }
 
 TEST(StringViewTest, EndsWithChar) {
@@ -260,43 +260,6 @@ TEST(StringViewTest, EndsWithChar) {
   EXPECT_FALSE(view.ends_with('3'));
   EXPECT_TRUE(view.ends_with('4'));
   EXPECT_FALSE(view.ends_with('5'));
-}
-
-TEST(StringViewTest, EqualsOtherLowered) {
-  const char kLower[] = "some text with numbers 123";
-  const char kMixed[] = "Some Text WITH numbers 123";
-  const StringView token(kLower);
-  const std::string buffer(kMixed);
-  const StringView input(buffer);
-
-  EXPECT_EQ(token, token);
-  EXPECT_EQ(input, input);
-  EXPECT_NE(token, input);
-  EXPECT_TRUE(token.equals_other_lowered(token));
-  EXPECT_TRUE(token.equals_other_lowered(input));
-  EXPECT_FALSE(token.equals_other_lowered("ome Text WITH numbers 123"));
-  EXPECT_FALSE(token.equals_other_lowered("some text with numbers 12"));
-  EXPECT_FALSE(token.equals_other_lowered("some text with numbers 124"));
-  EXPECT_FALSE(token.equals_other_lowered("some text-with numbers 123"));
-}
-
-TEST(StringViewDeathTest, EqualsOtherLoweredDcheckThisIsLower) {
-  const char kLower[] = "some text with numbers 123";
-  const char kMixed[] = "Some Text WITH numbers 123";
-  const StringView token(kLower);
-  const std::string buffer(kMixed);
-  const StringView input(buffer);
-
-  EXPECT_EQ(token, token);
-  EXPECT_EQ(input, input);
-  EXPECT_NE(token, input);
-  EXPECT_TRUE(token.equals_other_lowered(token));
-  EXPECT_TRUE(token.equals_other_lowered(input));
-
-  EXPECT_DEBUG_DEATH({ EXPECT_FALSE(input.equals_other_lowered(input)); },
-                     "isUpper");
-  EXPECT_DEBUG_DEATH({ EXPECT_FALSE(input.equals_other_lowered(token)); },
-                     "isUpper");
 }
 
 TEST(StringViewTest, StartsWithStringView) {
@@ -463,8 +426,7 @@ TEST(JsonStringViewTest, StreamOutOperatorObeysLimits) {
   }
 }
 
-TEST(JsonStringViewDeathTest,
-     StreamOutOperatorDropsUnsupportedControlCharacters) {
+TEST(JsonStringViewTest, StreamOutOperatorDropsUnsupportedControlCharacters) {
   for (const std::string& str : {
            std::string(1, '\0'),    // NUL
            std::string(1, '\a'),    // BEL
@@ -477,12 +439,8 @@ TEST(JsonStringViewDeathTest,
     JsonStringView json(view);
     EXPECT_EQ(json.view().size(), 1);
     LOG(INFO) << "json.view: " << json.view().ToHexEscapedString();
-    EXPECT_DEBUG_DEATH(
-        {
-          oss << json;
-          EXPECT_EQ(oss.str(), "\"\"");
-        },
-        "Unsupported JSON character");
+    oss << json;
+    EXPECT_EQ(oss.str(), "\"\"");
   }
 }
 

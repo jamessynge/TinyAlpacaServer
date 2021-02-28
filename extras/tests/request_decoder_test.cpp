@@ -237,7 +237,7 @@ TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
     EXPECT_EQ(alpaca_request.api, EAlpacaApi::kDeviceApi);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 0);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kIsSafe);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
     EXPECT_FALSE(alpaca_request.found_client_id);
     EXPECT_FALSE(alpaca_request.found_client_transaction_id);
 
@@ -271,7 +271,7 @@ TEST(RequestDecoderTest, SmallestDeviceSetupRequest) {
     EXPECT_EQ(alpaca_request.api, EAlpacaApi::kDeviceSetup);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 9);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kSetup);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kSetup);
     EXPECT_FALSE(alpaca_request.found_client_id);
     EXPECT_FALSE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
@@ -307,7 +307,7 @@ TEST(RequestDecoderTest, SmallestApiVersionsRequest) {
 
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kUnknown);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
     EXPECT_FALSE(alpaca_request.found_client_id);
     EXPECT_FALSE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
@@ -343,7 +343,7 @@ TEST(RequestDecoderTest, SmallestConfiguredDevicesRequest) {
 
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kUnknown);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
     EXPECT_FALSE(alpaca_request.found_client_id);
     EXPECT_FALSE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
@@ -382,7 +382,7 @@ TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
 
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kUnknown);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
     EXPECT_FALSE(alpaca_request.found_client_id);
     EXPECT_FALSE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
@@ -418,7 +418,7 @@ TEST(RequestDecoderTest, SmallestServerSetupRequest) {
 
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kUnknown);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
     EXPECT_FALSE(alpaca_request.found_client_id);
     EXPECT_FALSE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
@@ -454,7 +454,7 @@ TEST(RequestDecoderTest, SmallestPutRequest) {
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kObservingConditions);
     EXPECT_EQ(alpaca_request.device_number, 0);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kRefresh);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kRefresh);
     EXPECT_TRUE(alpaca_request.found_client_id);
     EXPECT_TRUE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(alpaca_request.client_id, 123);
@@ -515,7 +515,7 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 9999);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kConnected);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
     EXPECT_TRUE(alpaca_request.found_client_id);
     EXPECT_TRUE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(alpaca_request.client_id, 321);
@@ -708,7 +708,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
             EDecodeStatus::kHttpLengthRequired);
   EXPECT_EQ(alpaca_request.device_number, 1);
-  EXPECT_EQ(alpaca_request.ascom_method, EMethod::kIsSafe);
+  EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
 
   // Now a non-integer Content-Length.
   request =
@@ -720,7 +720,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
             EDecodeStatus::kHttpBadRequest);
   EXPECT_EQ(alpaca_request.device_number, 2);
-  EXPECT_EQ(alpaca_request.ascom_method, EMethod::kIsSafe);
+  EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
 
   // Now provide a size that is too large.
   request =
@@ -1140,7 +1140,7 @@ TEST(RequestDecoderTest, BadHeaderLineEnd) {
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 0);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kConnected);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
 
     if (TestHasFailed()) {
       break;
@@ -1323,7 +1323,7 @@ TEST(RequestDecoderTest, VerboseLogging) {
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 9999);
-    EXPECT_EQ(alpaca_request.ascom_method, EMethod::kConnected);
+    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
     EXPECT_TRUE(alpaca_request.found_client_id);
     EXPECT_TRUE(alpaca_request.found_client_transaction_id);
     EXPECT_EQ(alpaca_request.client_id, 321);
