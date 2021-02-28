@@ -1,6 +1,7 @@
 #include "token_tables.h"
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// Implements lookups mapping a StringView to an enum, by way of
+// matching the StringView agains a table of LiteralTokens.
 
 #include "decoder_constants.h"
 #include "literal.h"
@@ -12,11 +13,14 @@ namespace alpaca {
 
 namespace {
 
-#define MAKE_HTTP_METHOD_LITERAL_TOKEN(method)                       \
-  LiteralToken<EHttpMethod_UnderlyingType> {                         \
-    Literal(progmem::k##method),                                     \
-        static_cast<EHttpMethod_UnderlyingType>(EHttpMethod::method) \
+#define MAKE_ENUM_LITERAL_TOKEN(enum_type, literal_name, enum_value)                       \
+  LiteralToken<enum_type ## _UnderlyingType> {                         \
+    Literal(progmem::k ## literal_name),                                     \
+        static_cast<enum_type ## _UnderlyingType>(enum_type::enum_value) \
   }
+
+#define MAKE_HTTP_METHOD_LITERAL_TOKEN(method)                       \
+  MAKE_ENUM_LITERAL_TOKEN(EHttpMethod, method, method)
 
 TAS_CONSTEXPR_VAR LiteralToken<EHttpMethod_UnderlyingType>
     kRecognizedHttpMethods[] = {

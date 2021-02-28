@@ -7,10 +7,8 @@
 //
 // NOTE: This only addresses (hah) "near" addresses, i.e. in the first
 
-#include <cstddef>
-
-#include "extras/host_arduino/pgmspace.h"
 #include "platform.h"
+
 namespace alpaca {
 
 template <typename T, typename P = PGM_P>
