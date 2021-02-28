@@ -28,7 +28,7 @@
 #define TAS_ENABLE_DEBUGGING 1
 #endif  // NDEBUG
 
-#include "extras/host_arduino/Arduino.h"  // IWYU pragma: export
+#include "extras/host_arduino/arduino.h"  // IWYU pragma: export
 
 #endif  // ARDUINO
 

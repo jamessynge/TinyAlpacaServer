@@ -11,8 +11,8 @@
 
 cc_library(
     name = "arduino",
-    srcs = ["Arduino.cc"],
-    hdrs = ["Arduino.h"],
+    srcs = ["arduino.cc"],
+    hdrs = ["arduino.h"],
     deps = [
         ":pgmspace",
         ":print",
@@ -29,6 +29,6 @@ cc_library(
 
 cc_library(
     name = "print",
-    srcs = ["Print.cc"],
-    hdrs = ["Print.h"],
+    srcs = ["print.cc"],
+    hdrs = ["print.h"],
 )

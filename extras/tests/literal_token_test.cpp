@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-#include "extras/host_arduino/Arduino.h"
 #include "extras/tests/test_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"

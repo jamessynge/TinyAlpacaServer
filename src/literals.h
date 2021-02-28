@@ -2,11 +2,10 @@
 #define TINY_ALPACA_SERVER_SRC_LITERALS_H_
 
 // To avoid wasting RAM on string literals on Arduino's based on Microchip
-// Techonology's AVR microcontrollers, we use the Literal class to access those
-// strings from PROGMEM (i.e. Program Memory, Flash). To hide some of the
-// complexities, we expose accessor methods which return Literal instances; this
-// has the benefit that we don't occupy RAM for the Literal instances, though at
-// the expense of more small functions for returning the Literals.
+// Techonology's AVR microcontrollers, we gather the strings together in
+// literals.inc, and then include that file here to define arrays in PROGMEM for
+// those strings, and to define factory functions for corresponding Literal
+// instances.
 
 #include "literal.h"
 #include "platform.h"
@@ -16,15 +15,20 @@
 #endif  // DEFINE_LITERAL
 
 namespace alpaca {
-// Define string literal constants in an inner progmem namespace.
-namespace progmem {
+// Define string literal constants in a nested namespace.
+namespace progmem_data {
 #define DEFINE_LITERAL(name, literal) \
   constexpr char k##name[] PROGMEM = literal;
 #include "literals.inc"
 #undef DEFINE_LITERAL
-}  // namespace progmem
+}  // namespace progmem_data
 
-#define DEFINE_LITERAL(name, literal) static Literal name();
+// Define static Literal factory methods in a struct, acting as a nested
+// namespace.
+#define DEFINE_LITERAL(name, literal)               \
+  inline static TAS_CONSTEXPR_FUNC Literal name() { \
+    return Literal(progmem_data::k##name);          \
+  }
 
 struct Literals {
 #include "literals.inc"

@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "extras/host_arduino/Print.h"     // IWYU pragma: export
 #include "extras/host_arduino/pgmspace.h"  // IWYU pragma: export
+#include "extras/host_arduino/print.h"     // IWYU pragma: export
 
 namespace alpaca {
 

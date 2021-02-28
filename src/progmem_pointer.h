@@ -8,7 +8,6 @@
 // NOTE: This only addresses (hah) "near" addresses, i.e. in the first
 
 #include "platform.h"
-
 namespace alpaca {
 
 template <typename T, typename P = PGM_P>
@@ -21,7 +20,7 @@ class ProgMemPtr {
   static constexpr size_t kStepSize = sizeof(unit_array_type);
 
   ProgMemPtr() : ProgMemPtr(0) {}
-  ProgMemPtr(P ptr) : ptr_(ptr), loaded_temp_(false) {}
+  explicit ProgMemPtr(P ptr) : ptr_(ptr), loaded_temp_(false) {}
 
   const reference_type operator*() {
     load_temp();

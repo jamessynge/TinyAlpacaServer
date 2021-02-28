@@ -269,16 +269,6 @@ class JsonStringView : public Printable {
 
   const StringView& view() const { return view_; }
 
-  // // Returns a StringView of the JSON representation of the ASCII character
-  // c.
-  // // An empty StringView is returned if the character is not valid in JSON
-  // (e.g.
-  // // Ctrl-A). A reference to the character is required because for characters
-  // // that don't need escaping, the StringView is constructed as a length 1
-  // view
-  // // of that single character.
-  // static StringView GetJsonEscaped(const char& c);
-
  private:
   const StringView view_;
 };

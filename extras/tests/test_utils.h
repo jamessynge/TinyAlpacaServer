@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-#include "extras/host_arduino/Print.h"
+#include "extras/host_arduino/print.h"
 
 namespace alpaca {
 

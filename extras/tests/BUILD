@@ -49,7 +49,6 @@ cc_test(
     name = "literal_token_test",
     srcs = ["literal_token_test.cc"],
     deps = [
-        ":arduino",
         ":literal_token",
         ":platform",
         ":string_view",

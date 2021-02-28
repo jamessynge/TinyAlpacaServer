@@ -91,7 +91,6 @@ cc_library(
 
 cc_library(
     name = "literals",
-    srcs = ["literals.cc"],
     hdrs = ["literals.h"],
     textual_hdrs = ["literals.inc"],
     deps = [
@@ -115,10 +114,7 @@ cc_library(
 cc_library(
     name = "progmem_pointer",
     hdrs = ["progmem_pointer.h"],
-    deps = [
-        ":pgmspace",
-        ":platform",
-    ],
+    deps = [":platform"],
 )
 
 cc_library(
@@ -195,12 +191,18 @@ cc_library(
         ":decoder_constants",
         ":extra_parameters",
         ":json_encoder",
+        ":json_response",
+        ":literal",
+        ":literal_token",
+        ":literals",
+        ":logging",
         ":platform",
         ":request_decoder",
         ":request_decoder_listener",
+        ":server",
+        ":server_description",
         ":string_view",
-        ":token",
-        ":tokens",
+        ":token_tables",
     ],
 )
 
