@@ -137,6 +137,16 @@ or a Print instance.
     also generate or update literals.inc, the set of strings to be stored in
     PROGMEM.
 
+*   Start using subfolders of src/, for example:
+
+    *   strings/ for StringView, TinyString, Literal (maybe renamed as
+        LiteralString), AnyString, literals.inc, and the code that supports
+        them.
+    *   request_decoder/ for request_decoder*.
+    *   json/ for the generic JSON encoder and supporting code.
+    *   response_encoder/ for the HTTP response encoder, including Alpaca
+        specific JSON support.
+
 ## Misc. Notes
 
 *   I'm inclined to think that the SafetyMonitor::IsSafe function should be
@@ -151,3 +161,20 @@ or a Print instance.
     and possibly times thereafter. Look at:
     https://tools.ietf.org/id/draft-ogud-dhc-udp-time-option-00.html and at
     related docs.
+
+*   For reading and writing from EEPROM, it may be useful to use an approach
+    such as:
+
+    *   All "things" that want to use EEPROM are registered with a single EEPROM
+        manager.
+    *   Each registrant has a unique Tag (e.g. a semi-random uint16) that is
+        used when reading to identify the owner of the data.
+    *   Store data in EEPROM using TLV format (Tag, Length, Value).
+    *   When writing to EEPROM, re-write all data so that we avoid the need to
+        defragment it.
+    *   Consider using a semi-spaces approach, where we write from the bottom of
+        EEPROM on one write pass, and next time we need to update it we write
+        from the top (i.e. backwards). The purpose is to reduce the risk of
+        losing data if writing is interrupted.
+    *   We might need some temporary storage in RAM during writing, for which we
+        could use an Arduino String class, which has a reserve method.

@@ -14,6 +14,7 @@
 #include "decoder_constants.h"
 #include "platform.h"
 #include "string_view.h"
+#include "tiny_string.h"
 
 // The minimum is 2 to allow for testing of this feature.
 
@@ -32,28 +33,6 @@ static_assert(0 <= TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH &&
 
 constexpr uint8_t kMaxExtraParameterValueLength =
     TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH;
-
-// A very, very small string class with an embedded char array and size.
-template <uint8_t N>
-class TinyString {
- public:
-  void Clear() { size_ = 0; }
-
-  bool Set(const StringView& view) {
-    Clear();
-    if (view.size() > N) {
-      return false;
-    }
-    memcpy(data_, view.data(), view.size());
-    return true;
-  }
-
-  StringView ToStringView() const { return StringView(data_, size_); }
-
- private:
-  uint8_t size_{0};
-  char data_[N];
-};
 
 struct ExtraParameterValue {
   EParameter parameter;
@@ -82,15 +61,14 @@ class ExtraParameterValueMap {
   const_iterator end() const { return &entries_[size_]; }
 
   EInsertResult insert(EParameter parameter, const StringView& value) {
-    if (value.size() > kMaxExtraParameterValueLength) {
-      return kValueTooLong;
-    } else if (contains(parameter)) {
+    if (contains(parameter)) {
       return kDuplicateParameter;
     } else if (size_ >= kMaxExtraParameters) {
       return kTooManyParameters;
+    } else if (!entries_[size_].value.Set(value.data(), value.size())) {
+      return kValueTooLong;
     } else {
       entries_[size_].parameter = parameter;
-      entries_[size_].value.Set(value);
       ++size_;
     }
     return kInserted;
@@ -108,7 +86,8 @@ class ExtraParameterValueMap {
   StringView find(EParameter parameter) const {
     for (int ndx = 0; ndx < size_; ++ndx) {
       if (entries_[ndx].parameter == parameter) {
-        return entries_[ndx].value.ToStringView();
+        return StringView(entries_[ndx].value.data(),
+                          entries_[ndx].value.size());
       }
     }
     return StringView();

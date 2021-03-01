@@ -11,6 +11,9 @@ namespace alpaca {
 // encoder, and avoids the need to define two methods where a parameter is some
 // kind of string. It is essentially an adapter around a std::variant<Literal,
 // StringView>, except std::variant isn't available on Arduino.
+//
+// TODO(jamessynge): Add support for TinyString here.
+//
 class AnyString : public Printable {
  public:
   // Deliberately NOT marked explicit so that either type may be used.
@@ -20,11 +23,7 @@ class AnyString : public Printable {
   size_t printTo(Print& out) const override;
   size_t printJsonEscapedTo(Print& out) const;
 
-  // #if TAS_HOST_TARGET
-  //   // Support for tests and logging.
-  //   friend std::ostream& operator<<(std::ostream& out,
-  //                                   const Printable& printable);
-  // #endif  // TAS_HOST_TARGET
+  // TODO(jamessynge): Add support for writing to EEPROM.
 
  private:
   union {

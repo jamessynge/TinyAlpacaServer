@@ -59,6 +59,20 @@ cc_library(
 )
 
 cc_library(
+    name = "device_info_cc",
+    srcs = ["device_info.cc"],
+    hdrs = ["device_info.h"],
+    deps = [
+        ":decoder_constants",
+        ":json_encoder",
+        ":literal",
+        ":literals",
+        ":platform",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "escaping",
     srcs = ["escaping.cc"],
     hdrs = ["escaping.h"],
@@ -76,6 +90,7 @@ cc_library(
         ":decoder_constants",
         ":platform",
         ":string_view",
+        ":tiny_string",
     ],
 )
 
@@ -265,4 +280,10 @@ cc_library(
         ":string_compare",
         ":string_view",
     ],
+)
+
+cc_library(
+    name = "tiny_string",
+    hdrs = ["tiny_string.h"],
+    deps = [":platform"],
 )
