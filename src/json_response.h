@@ -20,7 +20,7 @@ class CommonJsonResponse : public JsonPropertySource {
         error_number_(error_number),
         error_message_(error_message ? error_message : "") {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) override {
+  void AddTo(JsonObjectEncoder& object_encoder) const override {
     if (request_.found_client_transaction_id) {
       object_encoder.AddIntegerProperty(Literals::ClientTransactionId(),
                                         request_.client_transaction_id);

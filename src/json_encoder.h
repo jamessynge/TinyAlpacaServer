@@ -22,13 +22,37 @@ class JsonObjectEncoder;
 class JsonElementSource {
  public:
   virtual ~JsonElementSource();
-  virtual void AddTo(JsonArrayEncoder& encoder) = 0;
+  virtual void AddTo(JsonArrayEncoder& encoder) const = 0;
 };
 
 class JsonPropertySource {
  public:
   virtual ~JsonPropertySource();
-  virtual void AddTo(JsonObjectEncoder& object_encoder) = 0;
+  virtual void AddTo(JsonObjectEncoder& encoder) const = 0;
+};
+
+template <class T>
+class JsonElementSourceAdapter : public JsonElementSource {
+ public:
+  explicit JsonElementSourceAdapter(const T& wrapped) : wrapped_(wrapped) {}
+  void AddTo(JsonArrayEncoder& encoder) const override {
+    wrapped_.AddTo(encoder);
+  }
+
+ private:
+  const T& wrapped_;
+};
+
+template <class T>
+class JsonPropertySourceAdapter : public JsonPropertySource {
+ public:
+  explicit JsonPropertySourceAdapter(const T& wrapped) : wrapped_(wrapped) {}
+  void AddTo(JsonObjectEncoder& encoder) const override {
+    wrapped_.AddTo(encoder);
+  }
+
+ private:
+  const T& wrapped_;
 };
 
 #if TAS_HOST_TARGET
@@ -50,8 +74,8 @@ class AbstractJsonEncoder {
   // Prints the comma between elements in an array or properties in an object.
   void StartItem();
 
-  void EncodeChildArray(JsonElementSource& source);
-  void EncodeChildObject(JsonPropertySource& source);
+  void EncodeChildArray(const JsonElementSource& source);
+  void EncodeChildObject(const JsonPropertySource& source);
 
   Print& out_;
 
@@ -68,10 +92,10 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
   void AddFloatingPointElement(double value);
   void AddBooleanElement(const bool value);
   void AddStringElement(const AnyString& value);
-  void AddArrayElement(JsonElementSource& source);
-  void AddObjectElement(JsonPropertySource& source);
+  void AddArrayElement(const JsonElementSource& source);
+  void AddObjectElement(const JsonPropertySource& source);
 
-  static void Encode(JsonElementSource& source, Print& out);
+  static void Encode(const JsonElementSource& source, Print& out);
 
 #if TAS_HOST_TARGET
   static void Encode(const JsonElementSourceFunction& func, Print& out);
@@ -100,10 +124,11 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
   void AddFloatingPointProperty(const AnyString& name, double value);
   void AddBooleanProperty(const AnyString& name, const bool value);
   void AddStringProperty(const AnyString& name, const AnyString& value);
-  void AddArrayProperty(const AnyString& name, JsonElementSource& source);
-  void AddObjectProperty(const AnyString& name, JsonPropertySource& source);
+  void AddArrayProperty(const AnyString& name, const JsonElementSource& source);
+  void AddObjectProperty(const AnyString& name,
+                         const JsonPropertySource& source);
 
-  static void Encode(JsonPropertySource& source, Print& out);
+  static void Encode(const JsonPropertySource& source, Print& out);
 
 #if TAS_HOST_TARGET
   static void Encode(const JsonPropertySourceFunction& func, Print& out);

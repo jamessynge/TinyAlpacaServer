@@ -14,14 +14,6 @@
 
 #include "platform.h"
 
-// Can place a DEFINE_LITERAL in any source file, where it will be a no-op.
-// This allows them to be documentation in that context, and makes them
-// available for a script to find them all and place them in literals.inc.
-#ifdef DEFINE_LITERAL
-#undef DEFINE_LITERAL
-#endif  // DEFINE_LITERAL
-#define DEFINE_LITERAL
-
 namespace alpaca {
 class JsonLiteral;
 // We include the TAS_CONSTEXPR_FUNC specifier only on constructors, as those
@@ -45,7 +37,7 @@ class Literal {
   // NOTE: The length of a C++ string literal includes the NUL (\0) at the end,
   // so we subtract one from N to get the length of the string before that.
   template <size_type N>
-  explicit TAS_CONSTEXPR_FUNC Literal(const char (&buf)[N] PROGMEM)
+  explicit constexpr Literal(const char (&buf)[N] PROGMEM)
       : ptr_(buf), size_(N - 1) {}
 
   // Construct with a specified length. This supports storing multiple Literals
@@ -57,6 +49,12 @@ class Literal {
   // Copy constructor and assignment operator.
   TAS_CONSTEXPR_FUNC Literal(const Literal&) = default;
   Literal& operator=(const Literal&) = default;
+
+  // Returns true if the other literal has the same value.
+  bool operator==(const Literal& other) const;
+
+  // Returns true if the other literal pointers to the same string literal.
+  bool same(const Literal& other) const;
 
   // Returns the number of characters in the string.
   size_type size() const { return size_; }
@@ -105,6 +103,8 @@ class Literal {
   size_type size_;
 };
 
+using LiteralArray = Literal[];
+
 // JsonLiteral is a simple helper to allow us to output the JSON escaped form
 // of a Literal, e.g. for debugging. For example.
 //     Literal literal = ....;
@@ -122,5 +122,18 @@ class JsonLiteral : public Printable {
 };
 
 }  // namespace alpaca
+
+// Can place a TAS_DEFINE_LITERAL in any source file, where it will create a
+// constexpr 'variable' and a function creating a Literal based on that
+// variable.
+#ifndef TAS_DEFINE_LITERAL
+
+#define TAS_DEFINE_LITERAL(name, literal)             \
+  constexpr char kLiteral_##name[] PROGMEM = literal; \
+  inline constexpr ::alpaca::Literal name() {         \
+    return ::alpaca::Literal(kLiteral_##name);        \
+  }
+
+#endif  // !TAS_DEFINE_LITERAL
 
 #endif  // TINY_ALPACA_SERVER_SRC_LITERAL_H_

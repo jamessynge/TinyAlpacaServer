@@ -22,18 +22,18 @@ TEST(LiteralsTest, Basics) {
 
 // Generate a trivial test for each Literal in literals.inc.
 
-#ifdef DEFINE_LITERAL
-#undef DEFINE_LITERAL
-#endif  // DEFINE_LITERAL
+#ifdef TAS_DEFINE_BUILTIN_LITERAL
+#undef TAS_DEFINE_BUILTIN_LITERAL
+#endif  // TAS_DEFINE_BUILTIN_LITERAL
 
-#define DEFINE_LITERAL(name, literal)               \
+#define TAS_DEFINE_BUILTIN_LITERAL(name, literal)   \
   TEST(GeneratedLiteralsTest, name##_IsAvailable) { \
     std::string expected(literal);                  \
     StringView view(expected);                      \
     EXPECT_EQ(Literals::name(), view);              \
   }
 #include "literals.inc"
-#undef DEFINE_LITERAL
+#undef TAS_DEFINE_BUILTIN_LITERAL
 
 }  // namespace
 }  // namespace alpaca

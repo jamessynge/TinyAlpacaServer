@@ -1,104 +1,108 @@
-// This file is included in literals.h and literals.cc, where the DEFINE_LITERAL
-// macro has several different definitions, depending on the action being
-// performed (e.g. declaring an accessor method).
+// This file is included in literals.h, where the TAS_DEFINE_BUILTIN_LITERAL
+// macro has multiple definitions, depending on the action being performed (e.g. declaring an accessor method).
 //
-// DEFINE_LITERAL1 is used for Literals where the id (name) of the literal is
+// TAS_DEFINE_BUILTIN_LITERAL1 is used for Literals where the id (name) of the literal is
 // the same as the string literal itself.
 
-#ifdef DEFINE_LITERAL1
-#undef DEFINE_LITERAL1
-#endif  // DEFINE_LITERAL1
+#ifdef TAS_DEFINE_BUILTIN_LITERAL1
+#undef TAS_DEFINE_BUILTIN_LITERAL1
+#endif  // TAS_DEFINE_BUILTIN_LITERAL1
 
-#define DEFINE_LITERAL1(symbol) DEFINE_LITERAL(symbol, #symbol)
+#define TAS_DEFINE_BUILTIN_LITERAL1(symbol) \
+  TAS_DEFINE_BUILTIN_LITERAL(symbol, #symbol)
 
-DEFINE_LITERAL1(action)
-DEFINE_LITERAL1(api)
-DEFINE_LITERAL1(averageperiod)
-DEFINE_LITERAL1(brightness)
-DEFINE_LITERAL1(calibratoroff)
-DEFINE_LITERAL1(calibratoron)
-DEFINE_LITERAL1(calibratorstate)
-DEFINE_LITERAL1(camera)
-DEFINE_LITERAL1(ClientId)
-DEFINE_LITERAL1(ClientTransactionId)
-DEFINE_LITERAL1(closecover)
-DEFINE_LITERAL1(cloudcover)
-DEFINE_LITERAL1(commandblind)
-DEFINE_LITERAL1(commandbool)
-DEFINE_LITERAL1(commandstring)
-DEFINE_LITERAL1(configureddevices)
-DEFINE_LITERAL1(connected)  // Lower case for path matching.
-DEFINE_LITERAL1(Connected)  // Mixed case for output.
-DEFINE_LITERAL1(covercalibrator)
-DEFINE_LITERAL1(coverstate)
-DEFINE_LITERAL1(description)
-DEFINE_LITERAL1(dewpoint)
-DEFINE_LITERAL1(dome)
-DEFINE_LITERAL1(driverinfo)
-DEFINE_LITERAL1(driverversion)
-DEFINE_LITERAL1(ErrorMessage)
-DEFINE_LITERAL1(ErrorNumber)
-DEFINE_LITERAL1(filterwheel)
-DEFINE_LITERAL1(focuser)
-DEFINE_LITERAL1(GET)
-DEFINE_LITERAL1(haltcover)
-DEFINE_LITERAL1(HEAD)
-DEFINE_LITERAL1(humidity)
-DEFINE_LITERAL1(interfaceversion)
-DEFINE_LITERAL1(issafe)
-DEFINE_LITERAL1(management)
-DEFINE_LITERAL1(maxbrightness)
-DEFINE_LITERAL1(Maximum)  // Used in AxisRatesResponse
-DEFINE_LITERAL1(Minimum)  // Used in AxisRatesResponse
-DEFINE_LITERAL1(name)
-DEFINE_LITERAL1(observingconditions)
-DEFINE_LITERAL1(opencover)
-DEFINE_LITERAL1(pressure)
-DEFINE_LITERAL1(PUT)
-DEFINE_LITERAL1(rainrate)
-DEFINE_LITERAL1(refresh)
-DEFINE_LITERAL1(rotator)
-DEFINE_LITERAL1(safetymonitor)
-DEFINE_LITERAL1(sensordescription)
-DEFINE_LITERAL1(ServerTransactionId)
-DEFINE_LITERAL1(setup)
-DEFINE_LITERAL1(skybrightness)
-DEFINE_LITERAL1(skyquality)
-DEFINE_LITERAL1(skytemperature)
-DEFINE_LITERAL1(starfwhm)
-DEFINE_LITERAL1(supportedactions)
-DEFINE_LITERAL1(telescope)
-DEFINE_LITERAL1(temperature)
-DEFINE_LITERAL1(timesincelastupdate)
-DEFINE_LITERAL1(Value)
-DEFINE_LITERAL1(winddirection)
-DEFINE_LITERAL1(windgust)
-DEFINE_LITERAL1(windspeed)
+TAS_DEFINE_BUILTIN_LITERAL1(action)
+TAS_DEFINE_BUILTIN_LITERAL1(api)
+TAS_DEFINE_BUILTIN_LITERAL1(averageperiod)
+TAS_DEFINE_BUILTIN_LITERAL1(brightness)
+TAS_DEFINE_BUILTIN_LITERAL1(calibratoroff)
+TAS_DEFINE_BUILTIN_LITERAL1(calibratoron)
+TAS_DEFINE_BUILTIN_LITERAL1(calibratorstate)
+TAS_DEFINE_BUILTIN_LITERAL1(camera)
+TAS_DEFINE_BUILTIN_LITERAL1(ClientId)
+TAS_DEFINE_BUILTIN_LITERAL1(ClientTransactionId)
+TAS_DEFINE_BUILTIN_LITERAL1(closecover)
+TAS_DEFINE_BUILTIN_LITERAL1(cloudcover)
+TAS_DEFINE_BUILTIN_LITERAL1(commandblind)
+TAS_DEFINE_BUILTIN_LITERAL1(commandbool)
+TAS_DEFINE_BUILTIN_LITERAL1(commandstring)
+TAS_DEFINE_BUILTIN_LITERAL1(configureddevices)
+TAS_DEFINE_BUILTIN_LITERAL1(connected)  // Lower case for path matching.
+TAS_DEFINE_BUILTIN_LITERAL1(Connected)  // Mixed case for output.
+TAS_DEFINE_BUILTIN_LITERAL1(covercalibrator)
+TAS_DEFINE_BUILTIN_LITERAL1(coverstate)
+TAS_DEFINE_BUILTIN_LITERAL1(description)
+TAS_DEFINE_BUILTIN_LITERAL1(dewpoint)
+TAS_DEFINE_BUILTIN_LITERAL1(dome)
+TAS_DEFINE_BUILTIN_LITERAL1(driverinfo)
+TAS_DEFINE_BUILTIN_LITERAL1(driverversion)
+TAS_DEFINE_BUILTIN_LITERAL1(ErrorMessage)
+TAS_DEFINE_BUILTIN_LITERAL1(ErrorNumber)
+TAS_DEFINE_BUILTIN_LITERAL1(filterwheel)
+TAS_DEFINE_BUILTIN_LITERAL1(focuser)
+TAS_DEFINE_BUILTIN_LITERAL1(GET)
+TAS_DEFINE_BUILTIN_LITERAL1(haltcover)
+TAS_DEFINE_BUILTIN_LITERAL1(HEAD)
+TAS_DEFINE_BUILTIN_LITERAL1(humidity)
+TAS_DEFINE_BUILTIN_LITERAL1(interfaceversion)
+TAS_DEFINE_BUILTIN_LITERAL1(issafe)
+TAS_DEFINE_BUILTIN_LITERAL1(Location)
+TAS_DEFINE_BUILTIN_LITERAL1(management)
+TAS_DEFINE_BUILTIN_LITERAL1(Manufacturer)
+TAS_DEFINE_BUILTIN_LITERAL1(ManufacturerVersion)
+TAS_DEFINE_BUILTIN_LITERAL1(maxbrightness)
+TAS_DEFINE_BUILTIN_LITERAL1(Maximum)  // Used in AxisRatesResponse
+TAS_DEFINE_BUILTIN_LITERAL1(Minimum)  // Used in AxisRatesResponse
+TAS_DEFINE_BUILTIN_LITERAL1(name)
+TAS_DEFINE_BUILTIN_LITERAL1(observingconditions)
+TAS_DEFINE_BUILTIN_LITERAL1(opencover)
+TAS_DEFINE_BUILTIN_LITERAL1(pressure)
+TAS_DEFINE_BUILTIN_LITERAL1(PUT)
+TAS_DEFINE_BUILTIN_LITERAL1(rainrate)
+TAS_DEFINE_BUILTIN_LITERAL1(refresh)
+TAS_DEFINE_BUILTIN_LITERAL1(rotator)
+TAS_DEFINE_BUILTIN_LITERAL1(safetymonitor)
+TAS_DEFINE_BUILTIN_LITERAL1(sensordescription)
+TAS_DEFINE_BUILTIN_LITERAL1(ServerName)
+TAS_DEFINE_BUILTIN_LITERAL1(ServerTransactionId)
+TAS_DEFINE_BUILTIN_LITERAL1(setup)
+TAS_DEFINE_BUILTIN_LITERAL1(skybrightness)
+TAS_DEFINE_BUILTIN_LITERAL1(skyquality)
+TAS_DEFINE_BUILTIN_LITERAL1(skytemperature)
+TAS_DEFINE_BUILTIN_LITERAL1(starfwhm)
+TAS_DEFINE_BUILTIN_LITERAL1(supportedactions)
+TAS_DEFINE_BUILTIN_LITERAL1(telescope)
+TAS_DEFINE_BUILTIN_LITERAL1(temperature)
+TAS_DEFINE_BUILTIN_LITERAL1(timesincelastupdate)
+TAS_DEFINE_BUILTIN_LITERAL1(Value)
+TAS_DEFINE_BUILTIN_LITERAL1(winddirection)
+TAS_DEFINE_BUILTIN_LITERAL1(windgust)
+TAS_DEFINE_BUILTIN_LITERAL1(windspeed)
 
 // Other literals whose name can not be the same as the value, or whose name I
 // desire to be different for some reason.
 
 
-DEFINE_LITERAL(HttpVersionEndOfLine, "HTTP/1.1\r\n")
-DEFINE_LITERAL(HttpAccept, "Accept")
-DEFINE_LITERAL(HttpContentEncoding, "Content-Encoding")
-DEFINE_LITERAL(HttpContentLength, "Content-Length")
-DEFINE_LITERAL(HttpContentType, "Content-Type")
-DEFINE_LITERAL(JsonTrue, "true") // Used in json_encoder.
-DEFINE_LITERAL(JsonFalse, "false") // Used in json_encoder.
-DEFINE_LITERAL(JsonNan, "NaN") // Used in json_encoder.
-DEFINE_LITERAL(JsonNegInf, "-Inf") // Used in json_encoder.
-DEFINE_LITERAL(JsonInf, "Inf") // Could add constexpr Literal::substr.
-DEFINE_LITERAL(MimeTypeJson, "application/json")
-DEFINE_LITERAL(MimeTypeWwwFormUrlEncoded, "application/x-www-form-urlencoded")
-DEFINE_LITERAL(DeviceTypeSwitch, "switch")
+TAS_DEFINE_BUILTIN_LITERAL(HttpVersionEndOfLine, "HTTP/1.1\r\n")
+TAS_DEFINE_BUILTIN_LITERAL(HttpAccept, "Accept")
+TAS_DEFINE_BUILTIN_LITERAL(HttpContentEncoding, "Content-Encoding")
+TAS_DEFINE_BUILTIN_LITERAL(HttpContentLength, "Content-Length")
+TAS_DEFINE_BUILTIN_LITERAL(HttpContentType, "Content-Type")
+TAS_DEFINE_BUILTIN_LITERAL(JsonTrue, "true") // Used in json_encoder.
+TAS_DEFINE_BUILTIN_LITERAL(JsonFalse, "false") // Used in json_encoder.
+TAS_DEFINE_BUILTIN_LITERAL(JsonNan, "NaN") // Used in json_encoder.
+TAS_DEFINE_BUILTIN_LITERAL(JsonNegInf, "-Inf") // Used in json_encoder.
+TAS_DEFINE_BUILTIN_LITERAL(JsonInf, "Inf") // Could add constexpr Literal::substr.
+TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
+TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded, "application/x-www-form-urlencoded")
+TAS_DEFINE_BUILTIN_LITERAL(DeviceTypeSwitch, "switch")
 
 // Common fixedHTTP Response Headers. For now, assuming that we're NOT
 // keeping the connection open from request to request. That could change.
-DEFINE_LITERAL(kCommonResponseHeaders,
+TAS_DEFINE_BUILTIN_LITERAL(kCommonResponseHeaders,
   "\r\n"  // We assume the response start line comes first, then ...
   "Server: TinyAlpacaServer\r\n"
   "Connection: close\r\n")
 
 
-#undef DEFINE_LITERAL1
+#undef TAS_DEFINE_BUILTIN_LITERAL1

@@ -1,0 +1,44 @@
+#ifndef TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_
+#define TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_
+
+// DeviceInfo provides data used used to respond to "Common ASCOM Methods", i.e.
+// requests for common info about a device, and it also provides the list of
+// support custom actions (also accessed via the common ASCOM methods).
+#include "decoder_constants.h"
+#include "json_encoder.h"
+#include "literal.h"
+#include "platform.h"
+#include "string_view.h"
+
+namespace alpaca {
+
+using LiteralArray = Literal[];
+
+// There should be exactly one instance of ServerDescription in a sketch.
+struct DeviceInfo {
+  // Write the description of this server to the specified JsonObjectEncoder.
+  // The encoder should be for the nested object that is the value of the
+  // "Value" property of the response object, NOT the outermost object that is
+  // the body of the response to /man
+  void AddTo(JsonObjectEncoder& object_encoder) const;
+
+  const EDeviceType device_type;
+  const uint32_t device_number;
+  const Literal name;
+  const Literal description;
+  const Literal driver_info;
+  const Literal driver_version;
+  const Literal interface_version;
+  const LiteralArray& supported_actions;
+
+  // The config_id is a random number generated when a device is added, when the
+  // *type(s)* of device(s) used changes, or perhaps when calibration parameters
+  // have been changed such that the values shouldn't be compared with prior
+  // values from this device. The config_id can be used, along with other info,
+  // to generate a UUID for the device, for use as its UniqueId.
+  const uint32_t config_id;
+};
+
+}  // namespace alpaca
+
+#endif  // TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_

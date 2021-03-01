@@ -47,15 +47,18 @@
 //
 // Author: james.synge@gmail.com
 
+#include "literal_token.h"
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 #else
 #include "TinyAlpacaServer.h"
+#include "extras/futures/pretend_devices.h"
 #endif
 
 using ::alpaca::AlpacaRequest;
 using ::alpaca::CommonDeviceHandler;
+using ::alpaca::Literal;
 using ::alpaca::StringView;
 
 // Two devices supported by the software. This sketch assumes that they can fail
@@ -63,17 +66,24 @@ using ::alpaca::StringView;
 static Dht22Device dht22;
 static AagDevice aag;
 
-//
-constexpr alpaca::ServerDescription kServerDescription{
-    .server_name = "Our Spiffy Weather Box",
-    .manufacturer = "Friends of AAVSO & ATMoB",
-    .version = "git commit SHA of the hardware or software, OR 2021.05.10",
-    // .location to be stored in EEPROM, set via /setup?
-};
+// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
+TAS_DEFINE_LITERAL(ServerName, "Our Spiffy Weather Box");
+TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
+TAS_DEFINE_LITERAL(ManufacturerVersion,
+                   "9099c8af5796a80137ce334713a67a718fd0cd3f");
+
+// TODO(jamessynge): Add support for storing in EEPROM.
+TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory");
+
+// For responding to /management/v1/description
+constexpr alpaca::ServerDescription kServerDescription(ServerName(),
+                                                       Manufacturer(),
+                                                       Manufacturer(),
+                                                       DeviceLocation());
 
 // Neither sensor supports extra actions (maybe not true), so they can
 // share the list of no action names.
-constexpr alpaca::SupportedActionNames kObservingConditionsActions{};  // None
+constexpr Literal kObservingConditionsActions[] = {};  // None
 
 constexpr alpaca::DeviceInfo kDht22DeviceInfo{
     .device_type = EDeviceType::kObservingConditions,

@@ -17,16 +17,20 @@ struct ServerDescription {
   // be compatible with Arduino IDE.
   constexpr ServerDescription(const Literal& server_name,
                               const Literal& manufacturer,
-                              const Literal& version)
+                              const Literal& manufacturer_version,
+                              const Literal& location)
       : server_name(server_name),
         manufacturer(manufacturer),
-        version(version) {}
+        manufacturer_version(manufacturer_version),
+        location(location) {}
 
   // Write the description of this server to the specified JsonObjectEncoder.
-  // This is filling in the nested object that is the value of the "Value"
-  // property of the response object.
-  void EncodeDescription(JsonObjectEncoder& object_encoder);
+  // The encoder should be for the nested object that is the value of the
+  // "Value" property of the response object, NOT the outermost object that is
+  // the body of the response to /man
+  void AddTo(JsonObjectEncoder& object_encoder) const;
 
+#if 0
   // TODO(jamessynge): Implement support for recording the server's physical
   // location (e.g. the Lat-Long of the observatory) in EEPROM, and fetching it
   // here. Ideas for the API:
@@ -46,10 +50,12 @@ struct ServerDescription {
   // In particular, the idea of having "Persistable" objects, similar to a
   // Printable object (already a part of the Arduino API).
   size_t SaveLocation(const StringView& location) const;
+#endif
 
   const Literal server_name;
   const Literal manufacturer;
-  const Literal version;
+  const Literal manufacturer_version;
+  const Literal location;
 };
 
 }  // namespace alpaca

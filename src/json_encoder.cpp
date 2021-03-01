@@ -54,7 +54,7 @@ class ElementSourceFunctionAdapter : public JsonElementSource {
  public:
   explicit ElementSourceFunctionAdapter(const JsonElementSourceFunction& func)
       : func_(func) {}
-  void AddTo(JsonArrayEncoder& encoder) override { func_(encoder); }
+  void AddTo(JsonArrayEncoder& encoder) const override { func_(encoder); }
 
  private:
   const JsonElementSourceFunction& func_;
@@ -64,7 +64,7 @@ class PropertySourceFunctionAdapter : public JsonPropertySource {
  public:
   explicit PropertySourceFunctionAdapter(const JsonPropertySourceFunction& func)
       : func_(func) {}
-  void AddTo(JsonObjectEncoder& encoder) override { func_(encoder); }
+  void AddTo(JsonObjectEncoder& encoder) const override { func_(encoder); }
 
  private:
   const JsonPropertySourceFunction& func_;
@@ -89,12 +89,12 @@ void AbstractJsonEncoder::StartItem() {
   }
 }
 
-void AbstractJsonEncoder::EncodeChildArray(JsonElementSource& source) {
+void AbstractJsonEncoder::EncodeChildArray(const JsonElementSource& source) {
   JsonArrayEncoder encoder(out_);
   source.AddTo(encoder);
 }
 
-void AbstractJsonEncoder::EncodeChildObject(JsonPropertySource& source) {
+void AbstractJsonEncoder::EncodeChildObject(const JsonPropertySource& source) {
   JsonObjectEncoder encoder(out_);
   source.AddTo(encoder);
 }
@@ -137,18 +137,18 @@ void JsonArrayEncoder::AddStringElement(const AnyString& value) {
   value.printJsonEscapedTo(out_);
 }
 
-void JsonArrayEncoder::AddArrayElement(JsonElementSource& source) {
+void JsonArrayEncoder::AddArrayElement(const JsonElementSource& source) {
   StartItem();
   EncodeChildArray(source);
 }
 
-void JsonArrayEncoder::AddObjectElement(JsonPropertySource& source) {
+void JsonArrayEncoder::AddObjectElement(const JsonPropertySource& source) {
   StartItem();
   EncodeChildObject(source);
 }
 
 // static
-void JsonArrayEncoder::Encode(JsonElementSource& source, Print& out) {
+void JsonArrayEncoder::Encode(const JsonElementSource& source, Print& out) {
   JsonArrayEncoder encoder(out);
   source.AddTo(encoder);
 }
@@ -225,19 +225,19 @@ void JsonObjectEncoder::AddStringProperty(const AnyString& name,
 }
 
 void JsonObjectEncoder::AddArrayProperty(const AnyString& name,
-                                         JsonElementSource& source) {
+                                         const JsonElementSource& source) {
   StartProperty(name);
   EncodeChildArray(source);
 }
 
 void JsonObjectEncoder::AddObjectProperty(const AnyString& name,
-                                          JsonPropertySource& source) {
+                                          const JsonPropertySource& source) {
   StartProperty(name);
   EncodeChildObject(source);
 }
 
 // static
-void JsonObjectEncoder::Encode(JsonPropertySource& source, Print& out) {
+void JsonObjectEncoder::Encode(const JsonPropertySource& source, Print& out) {
   JsonObjectEncoder encoder(out);
   source.AddTo(encoder);
 }

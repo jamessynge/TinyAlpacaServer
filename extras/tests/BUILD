@@ -22,6 +22,16 @@ cc_test(
 )
 
 cc_test(
+    name = "device_info_test",
+    srcs = ["device_info_test.cc"],
+    deps = [
+        ":device_info",
+        ":test_utils",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "json_encoder_test",
     srcs = ["json_encoder_test.cc"],
     deps = [
@@ -125,6 +135,16 @@ cc_test(
         "//absl/flags:flag",
         "//absl/strings",
         "//core:logging",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "server_description_test",
+    srcs = ["server_description_test.cc"],
+    deps = [
+        ":server_description",
+        ":test_utils",
         "//googletest:gunit_main",
     ],
 )

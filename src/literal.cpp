@@ -13,6 +13,26 @@ inline char pgm_read_char(PGM_P ptr) {
 }
 }  // namespace
 
+// Returns true if the other literal has the same value.
+bool Literal::operator==(const Literal& other) const {
+  if (size_ == other.size_) {
+    if (ptr_ == other.ptr_) {
+      return true;
+    }
+    for (size_type offset = 0; offset < size_; ++offset) {
+      if (at(offset) != other.at(offset)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
+bool Literal::same(const Literal& other) const {
+  return ptr_ == other.ptr_ && size_ == other.size_;
+}
+
 char Literal::at(const Literal::size_type pos) const {
   TAS_DCHECK_LT(pos, size_, "");
   return pgm_read_char(ptr_ + pos);

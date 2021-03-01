@@ -10,22 +10,22 @@
 #include "literal.h"
 #include "platform.h"
 
-#ifdef DEFINE_LITERAL
-#undef DEFINE_LITERAL
-#endif  // DEFINE_LITERAL
+#ifdef TAS_DEFINE_BUILTIN_LITERAL
+#undef TAS_DEFINE_BUILTIN_LITERAL
+#endif  // TAS_DEFINE_BUILTIN_LITERAL
 
 namespace alpaca {
 // Define string literal constants in a nested namespace.
 namespace progmem_data {
-#define DEFINE_LITERAL(name, literal) \
+#define TAS_DEFINE_BUILTIN_LITERAL(name, literal) \
   constexpr char k##name[] PROGMEM = literal;
 #include "literals.inc"
-#undef DEFINE_LITERAL
+#undef TAS_DEFINE_BUILTIN_LITERAL
 }  // namespace progmem_data
 
 // Define static Literal factory methods in a struct, acting as a nested
 // namespace.
-#define DEFINE_LITERAL(name, literal)               \
+#define TAS_DEFINE_BUILTIN_LITERAL(name, literal)   \
   inline static TAS_CONSTEXPR_FUNC Literal name() { \
     return Literal(progmem_data::k##name);          \
   }
@@ -34,7 +34,7 @@ struct Literals {
 #include "literals.inc"
 };
 
-#undef DEFINE_LITERAL
+#undef TAS_DEFINE_BUILTIN_LITERAL
 
 }  // namespace alpaca
 

@@ -7,9 +7,11 @@
 // TODO(jamessynge): Reduce this list to just the necessary headers.
 
 #include "alpaca_request.h"
+#include "any_string.h"
 #include "config.h"
 #include "counting_bitbucket.h"
 #include "decoder_constants.h"
+#include "device_info.h"
 #include "escaping.h"
 #include "extra_parameters.h"
 #include "json_encoder.h"
@@ -24,6 +26,7 @@
 #include "request_decoder_listener.h"
 #include "server.h"
 #include "server_description.h"
+#include "string_compare.h"
 #include "string_view.h"
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_

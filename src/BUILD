@@ -47,6 +47,18 @@ cc_library(
 )
 
 cc_library(
+    name = "device_info",
+    hdrs = ["device_info.h"],
+    deps = [
+        ":decoder_constants",
+        ":json_encoder",
+        ":literal",
+        ":platform",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "escaping",
     srcs = ["escaping.cc"],
     hdrs = ["escaping.h"],
@@ -188,10 +200,12 @@ cc_library(
 
 cc_library(
     name = "server_description",
+    srcs = ["server_description.cc"],
     hdrs = ["server_description.h"],
     deps = [
         ":json_encoder",
         ":literal",
+        ":literals",
         ":platform",
         ":string_view",
     ],
@@ -229,9 +243,11 @@ cc_library(
     hdrs = ["TinyAlpacaServer.h"],
     deps = [
         ":alpaca_request",
+        ":any_string",
         ":config",
         ":counting_bitbucket",
         ":decoder_constants",
+        ":device_info",
         ":escaping",
         ":extra_parameters",
         ":json_encoder",
@@ -246,6 +262,7 @@ cc_library(
         ":request_decoder_listener",
         ":server",
         ":server_description",
+        ":string_compare",
         ":string_view",
     ],
 )
