@@ -482,10 +482,14 @@ EDecodeStatus ProcessDeviceMethod(RequestDecoderState& state,
   EDeviceMethod method;
   if (MatchDeviceMethod(state.request.api_group, state.request.device_type,
                         matched_text, method)) {
-    TAS_DCHECK(method == EDeviceMethod::kSetup ||
-               state.request.api == EAlpacaApi::kDeviceApi);
-    TAS_DCHECK(method != EDeviceMethod::kSetup ||
-               state.request.api == EAlpacaApi::kDeviceSetup);
+    TAS_DCHECK(
+        method == EDeviceMethod::kSetup ||
+            state.request.api == EAlpacaApi::kDeviceApi,
+        "Wrong combo: method=" << method << ", api=" << state.request.api);
+    TAS_DCHECK(
+        method != EDeviceMethod::kSetup ||
+            state.request.api == EAlpacaApi::kDeviceSetup,
+        "Wrong combo: method=" << method << ", api=" << state.request.api);
     state.request.device_method = method;
     return state.SetDecodeFunction(DecodeEndOfPath);
   }

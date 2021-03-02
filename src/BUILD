@@ -102,7 +102,6 @@ cc_library(
         ":any_string",
         ":literals",
         ":platform",
-        ":print",
     ],
 )
 

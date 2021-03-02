@@ -178,3 +178,11 @@ or a Print instance.
         losing data if writing is interrupted.
     *   We might need some temporary storage in RAM during writing, for which we
         could use an Arduino String class, which has a reserve method.
+
+## Ultra Tiny HTTP Decoder?
+
+The request decoder I've written is customized for Alpaca. It is possible that
+makes it slightly larger (in code) than if I had a generic decoder and an Alpaca
+specific handler of decoding events (OnMethod, OnPathStart, OnPathSegment,
+etc.). If this were to become an issue, it *might* be worth considering this
+approach.

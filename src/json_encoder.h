@@ -7,7 +7,6 @@
 // Author: james.synge@gmail.com
 
 #include "any_string.h"
-#include "extras/host_arduino/print.h"
 #include "platform.h"
 
 #if TAS_HOST_TARGET
