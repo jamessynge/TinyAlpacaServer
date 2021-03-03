@@ -5,8 +5,6 @@
 #include "absl/strings/case.h"
 #include "absl/strings/string_view.h"
 
-namespace alpaca {
-
 uint8_t pgm_read_byte(const uint8_t* ptr) { return *ptr; }
 
 int memcmp_P(const void* lhs, const void* rhs, size_t count) {
@@ -28,5 +26,3 @@ int strncasecmp_P(const char* s1, const char* s2, size_t n) {
 void* memcpy_P(void* dest, const void* src, size_t n) {
   return memcpy(dest, src, n);
 }
-
-}  // namespace alpaca

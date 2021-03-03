@@ -10,8 +10,6 @@
 #include <cstdint>
 #include <ostream>
 
-namespace alpaca {
-
 class Print;
 
 class Printable {
@@ -38,6 +36,7 @@ class Print {
   size_t write(const char* str);
   size_t write(const char* buffer, size_t size);
 
+  size_t print(const char*);
   size_t print(char c);
   size_t print(uint8_t value);
   size_t print(int16_t value);
@@ -47,11 +46,19 @@ class Print {
   size_t print(double value);
   size_t print(const Printable& value);
 
+  size_t println(const char[]);
+  size_t println(char c);
+  size_t println(uint8_t value);
+  size_t println(int16_t value);
+  size_t println(uint16_t value);
+  size_t println(int32_t value);
+  size_t println(uint32_t value);
+  size_t println(double value);
+  size_t println(const Printable& value);
+
  private:
   size_t printInteger(int64_t value);
   size_t printDouble(double value);
 };
-
-}  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_PRINT_H_

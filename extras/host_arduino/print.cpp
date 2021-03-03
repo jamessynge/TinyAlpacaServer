@@ -3,8 +3,6 @@
 #include <cstring>
 #include <ostream>
 
-namespace alpaca {
-
 Printable::~Printable() {}
 
 Print::Print() {}
@@ -17,6 +15,8 @@ size_t Print::write(const char* str) {
 size_t Print::write(const char* buffer, size_t size) {
   return write(reinterpret_cast<const uint8_t*>(buffer), size);
 }
+
+size_t Print::print(const char* buffer) { return write(buffer); }
 
 size_t Print::print(char c) { return write(c); }
 
@@ -33,6 +33,53 @@ size_t Print::print(uint32_t value) { return printInteger(value); }
 size_t Print::print(double value) { return printDouble(value); }
 
 size_t Print::print(const Printable& value) { return value.printTo(*this); }
+
+#define EOL '\n'
+
+size_t Print::println(const char* buffer) {
+  size_t count = write(buffer);
+  return count + write(EOL);
+}
+
+size_t Print::println(char c) {
+  size_t count = write(c);
+  return count + write(EOL);
+}
+
+size_t Print::println(uint8_t value) {
+  size_t count = printInteger(value);
+  return count + write(EOL);
+}
+
+size_t Print::println(int16_t value) {
+  size_t count = printInteger(value);
+  return count + write(EOL);
+}
+
+size_t Print::println(uint16_t value) {
+  size_t count = printInteger(value);
+  return count + write(EOL);
+}
+
+size_t Print::println(int32_t value) {
+  size_t count = printInteger(value);
+  return count + write(EOL);
+}
+
+size_t Print::println(uint32_t value) {
+  size_t count = printInteger(value);
+  return count + write(EOL);
+}
+
+size_t Print::println(double value) {
+  size_t count = printDouble(value);
+  return count + write(EOL);
+}
+
+size_t Print::println(const Printable& value) {
+  size_t count = value.printTo(*this);
+  return count + write(EOL);
+}
 
 size_t Print::printInteger(int64_t value) {
   auto s = std::to_string(value);
@@ -70,5 +117,3 @@ std::ostream& operator<<(std::ostream& out, const Printable& printable) {
   printable.printTo(adapter);
   return out;
 }
-
-}  // namespace alpaca

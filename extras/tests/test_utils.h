@@ -19,6 +19,10 @@ class PrintToString : public Print {
     return size;
   }
 
+  // Pull in the other variants of write; otherwise, only the above two are
+  // visible.
+  using Print::write;
+
   std::string str() const { return out_.str(); }
 
   void reset() { out_.str(""); }

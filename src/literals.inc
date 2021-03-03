@@ -32,9 +32,8 @@ TAS_DEFINE_BUILTIN_LITERAL1(Connected)  // Mixed case for output.
 TAS_DEFINE_BUILTIN_LITERAL1(covercalibrator)
 TAS_DEFINE_BUILTIN_LITERAL1(coverstate)
 TAS_DEFINE_BUILTIN_LITERAL1(description)
-TAS_DEFINE_BUILTIN_LITERAL1(DeviceType)
 TAS_DEFINE_BUILTIN_LITERAL1(DeviceNumber)
-TAS_DEFINE_BUILTIN_LITERAL1(UniqueID)
+TAS_DEFINE_BUILTIN_LITERAL1(DeviceType)
 TAS_DEFINE_BUILTIN_LITERAL1(dewpoint)
 TAS_DEFINE_BUILTIN_LITERAL1(dome)
 TAS_DEFINE_BUILTIN_LITERAL1(driverinfo)
@@ -56,8 +55,8 @@ TAS_DEFINE_BUILTIN_LITERAL1(ManufacturerVersion)
 TAS_DEFINE_BUILTIN_LITERAL1(maxbrightness)
 TAS_DEFINE_BUILTIN_LITERAL1(Maximum)  // Used in AxisRatesResponse
 TAS_DEFINE_BUILTIN_LITERAL1(Minimum)  // Used in AxisRatesResponse
+TAS_DEFINE_BUILTIN_LITERAL1(Name)     // Mixed case for output.
 TAS_DEFINE_BUILTIN_LITERAL1(name)
-TAS_DEFINE_BUILTIN_LITERAL1(Name)
 TAS_DEFINE_BUILTIN_LITERAL1(observingconditions)
 TAS_DEFINE_BUILTIN_LITERAL1(opencover)
 TAS_DEFINE_BUILTIN_LITERAL1(pressure)
@@ -78,14 +77,14 @@ TAS_DEFINE_BUILTIN_LITERAL1(supportedactions)
 TAS_DEFINE_BUILTIN_LITERAL1(telescope)
 TAS_DEFINE_BUILTIN_LITERAL1(temperature)
 TAS_DEFINE_BUILTIN_LITERAL1(timesincelastupdate)
+TAS_DEFINE_BUILTIN_LITERAL1(UniqueID)
 TAS_DEFINE_BUILTIN_LITERAL1(Value)
 TAS_DEFINE_BUILTIN_LITERAL1(winddirection)
 TAS_DEFINE_BUILTIN_LITERAL1(windgust)
 TAS_DEFINE_BUILTIN_LITERAL1(windspeed)
 
-// Other literals whose name can not be the same as the value, or whose name I
-// desire to be different for some reason.
-
+// Other literals whose name can not be the same as the value (e.g. switch and
+// true), or whose name I desire to be different for some reason.
 
 TAS_DEFINE_BUILTIN_LITERAL(HttpVersionEndOfLine, "HTTP/1.1\r\n")
 TAS_DEFINE_BUILTIN_LITERAL(HttpAccept, "Accept")
@@ -101,12 +100,11 @@ TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded, "application/x-www-form-urlencoded")
 TAS_DEFINE_BUILTIN_LITERAL(DeviceTypeSwitch, "switch")
 
-// Common fixedHTTP Response Headers. For now, assuming that we're NOT
+// Common fixed HTTP Response Headers. For now, assuming that we're NOT
 // keeping the connection open from request to request. That could change.
 TAS_DEFINE_BUILTIN_LITERAL(kCommonResponseHeaders,
   "\r\n"  // We assume the response start line comes first, then ...
   "Server: TinyAlpacaServer\r\n"
   "Connection: close\r\n")
-
 
 #undef TAS_DEFINE_BUILTIN_LITERAL1

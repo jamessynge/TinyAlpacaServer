@@ -6,6 +6,7 @@
 // length string; for example, storing the values of some parameters that might
 // come in requests.
 
+#include "logging.h"
 #include "platform.h"
 
 namespace alpaca {

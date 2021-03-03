@@ -172,7 +172,11 @@ cc_library(
 cc_library(
     name = "platform",
     hdrs = ["platform.h"],
-    deps = [":arduino"],
+    deps = [
+        ":arduino",
+        ":pgmspace",
+        ":print",
+    ],
 )
 
 cc_library(
@@ -284,5 +288,8 @@ cc_library(
 cc_library(
     name = "tiny_string",
     hdrs = ["tiny_string.h"],
-    deps = [":platform"],
+    deps = [
+        ":logging",
+        ":platform",
+    ],
 )

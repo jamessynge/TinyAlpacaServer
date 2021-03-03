@@ -16,7 +16,24 @@ cc_library(
     deps = [
         ":pgmspace",
         ":print",
+        ":serial",
         "//absl/strings",
+    ],
+)
+
+cc_library(
+    name = "arduino_main",
+    srcs = ["arduino_main.cc"],
+    linkopts = [
+        # Don't complain that setup and loop aren't defined. They'll be provided
+        # by the cc_binary that links in this library, by way of the setup and
+        # loop functions in the source of the sketch (.ino file).
+        "-Wl,--undefined=setup",
+        "-Wl,--undefined=loop",
+    ],
+    deps = [
+        "//absl/flags:flag",
+        "//base",
     ],
 )
 
@@ -31,4 +48,11 @@ cc_library(
     name = "print",
     srcs = ["print.cc"],
     hdrs = ["print.h"],
+)
+
+cc_library(
+    name = "serial",
+    srcs = ["serial.cc"],
+    hdrs = ["serial.h"],
+    deps = [":print"],
 )
