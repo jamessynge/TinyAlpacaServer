@@ -38,6 +38,18 @@ cc_library(
 )
 
 cc_library(
+    name = "client",
+    hdrs = ["client.h"],
+    deps = [":stream"],
+)
+
+cc_library(
+    name = "ethernet_client",
+    hdrs = ["ethernet_client.h"],
+    deps = [":client"],
+)
+
+cc_library(
     name = "pgmspace",
     srcs = ["pgmspace.cc"],
     hdrs = ["pgmspace.h"],
@@ -54,5 +66,11 @@ cc_library(
     name = "serial",
     srcs = ["serial.cc"],
     hdrs = ["serial.h"],
+    deps = [":print"],
+)
+
+cc_library(
+    name = "stream",
+    hdrs = ["stream.h"],
     deps = [":print"],
 )
