@@ -27,8 +27,8 @@ void setup() {
   Serial.begin(9600);  // start serial port at 9600 bps:
 
   // wait for serial port to connect. Needed for native USB port only
-  while (!Serial) {
-  }  //  1784/184 program/ram bytes
+  while (!Serial) {}   //  1784/184 program/ram bytes
+
 }
 
 // Add unreferenced listener instance: no change
@@ -50,11 +50,11 @@ void loop() {
   // Calling remove_prefix: 2456/247 (unreferenced?)
   buffer_view.remove_prefix(1);
 
-  // Add call to reset_decoder (hence to RequestDecoder::Request): 7970/583
-  // (i.e. +4198/+526) Calling Reset() likely brought in all of the
-  // DecodeFunctions because the first of them is referenced by Reset, and
-  // they're chained together. RAM rose so much because of all the literal
-  // strings that get copied into RAM in order to be used.
+  // Add call to reset_decoder (hence to RequestDecoder::Request): 7970/583 (i.e.
+  // +4198/+526) Calling Reset() likely brought in all of the DecodeFunctions
+  // because the first of them is referenced by Reset, and they're chained
+  // together. RAM rose so much because of all the literal strings that get copied
+  // into RAM in order to be used.
   decoder.Reset();
 
   // Adding call to to_uint32: 7988/583
