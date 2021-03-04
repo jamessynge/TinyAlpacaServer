@@ -180,9 +180,8 @@ cc_library(
 )
 
 cc_library(
-    name = "request_decoder",
-    srcs = ["request_decoder.cc"],
-    hdrs = ["request_decoder.h"],
+    name = "platform_ethernet",
+    hdrs = ["platform_ethernet.h"],
     deps = [
         ":alpaca_request",
         ":config",
@@ -283,6 +282,12 @@ cc_library(
         ":string_compare",
         ":string_view",
     ],
+)
+
+cc_library(
+    name = "tiny_alpaca_server_h",
+    hdrs = ["tiny_alpaca_server.h"],
+    deps = [":platform"],
 )
 
 cc_library(

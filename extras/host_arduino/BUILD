@@ -14,6 +14,8 @@ cc_library(
     srcs = ["arduino.cc"],
     hdrs = ["arduino.h"],
     deps = [
+        ":character",
+        ":int_types",
         ":pgmspace",
         ":print",
         ":serial",
@@ -38,15 +40,30 @@ cc_library(
 )
 
 cc_library(
+    name = "character",
+    srcs = ["character.cc"],
+    hdrs = ["character.h"],
+    deps = ["//absl/strings"],
+)
+
+cc_library(
     name = "client",
     hdrs = ["client.h"],
     deps = [":stream"],
 )
 
 cc_library(
-    name = "ethernet_client",
-    hdrs = ["ethernet_client.h"],
-    deps = [":client"],
+    name = "int_types",
+    hdrs = ["int_types.h"],
+)
+
+cc_library(
+    name = "ip_address",
+    hdrs = ["ip_address.h"],
+    deps = [
+        ":int_types",
+        ":print",
+    ],
 )
 
 cc_library(
