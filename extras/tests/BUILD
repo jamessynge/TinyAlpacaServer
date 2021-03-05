@@ -9,6 +9,7 @@ cc_test(
         ":alpaca_response",
         ":json_test_utils",
         ":test_utils",
+        "//absl/strings",
         "//googletest:gunit_main",
     ],
 )

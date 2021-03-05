@@ -1,8 +1,7 @@
 #ifndef TINY_ALPACA_SERVER_SRC_ALPACA_RESPONSE_H_
 #define TINY_ALPACA_SERVER_SRC_ALPACA_RESPONSE_H_
 
-// So that we don't block loop while delivering a response, we h
-// We need to
+// Functions for generating an HTTP response message to a Print instance.
 
 #include "alpaca_request.h"
 #include "any_string.h"

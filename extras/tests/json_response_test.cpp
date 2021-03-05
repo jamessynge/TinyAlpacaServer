@@ -10,7 +10,6 @@ namespace {
 
 TEST(JsonMethodResponseTest, AllFields) {
   AlpacaRequest request;
-  request.Reset();
   request.set_server_transaction_id(123);
   request.set_client_transaction_id(789);
 
