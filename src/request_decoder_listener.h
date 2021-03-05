@@ -6,7 +6,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "decoder_constants.h"
+#include "constants.h"
 #include "platform.h"
 #include "string_view.h"
 
@@ -29,23 +29,23 @@ class RequestDecoderListener {
   // value is interpreted as an error, though the value should be an HTTP
   // Response Status Code, not an enum whose underlying value is below 400
   // kNeedMoreInput or kHttpOk(those are converted to kHttpInternalServerError).
-  virtual EDecodeStatus OnExtraParameter(EParameter param,
-                                         const StringView& value);
+  virtual EHttpStatusCode OnExtraParameter(EParameter param,
+                                           const StringView& value);
 
   // As above, but for recognized but not directly supported EHttpHeader values.
-  virtual EDecodeStatus OnExtraHeader(EHttpHeader header,
-                                      const StringView& value);
+  virtual EHttpStatusCode OnExtraHeader(EHttpHeader header,
+                                        const StringView& value);
 
   // Called to handle unrecognized parameters, with one call for the name and
   // another for the value. There is no guarantee that the name will still be
   // in the underlying buffer when the value method is called.
   // The return value is treated as described above.
-  virtual EDecodeStatus OnUnknownParameterName(const StringView& name);
-  virtual EDecodeStatus OnUnknownParameterValue(const StringView& value);
+  virtual EHttpStatusCode OnUnknownParameterName(const StringView& name);
+  virtual EHttpStatusCode OnUnknownParameterValue(const StringView& value);
 
   // As above, but for unrecognized headers.
-  virtual EDecodeStatus OnUnknownHeaderName(const StringView& name);
-  virtual EDecodeStatus OnUnknownHeaderValue(const StringView& value);
+  virtual EHttpStatusCode OnUnknownHeaderName(const StringView& name);
+  virtual EHttpStatusCode OnUnknownHeaderValue(const StringView& value);
 };
 
 }  // namespace alpaca

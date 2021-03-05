@@ -1,15 +1,64 @@
 # Bazel BUILD file for this package.
 
 cc_library(
+    name = "TinyAlpacaServer",
+    hdrs = ["TinyAlpacaServer.h"],
+    deps = [
+        ":alpaca_request",
+        ":alpaca_response",
+        ":any_string",
+        ":config",
+        ":constants",
+        ":counting_bitbucket",
+        ":device_api_handler_base",
+        ":device_info",
+        ":escaping",
+        ":extra_parameters",
+        ":http_response_header",
+        ":json_encoder",
+        ":json_response",
+        ":literal",
+        ":literal_token",
+        ":literals",
+        ":logging",
+        ":match_literals",
+        ":platform",
+        ":platform_ethernet",
+        ":request_decoder",
+        ":request_decoder_listener",
+        ":server_description",
+        ":string_compare",
+        ":string_view",
+        ":tiny_alpaca_server",
+        ":tiny_string",
+    ],
+)
+
+cc_library(
     name = "alpaca_request",
     srcs = ["alpaca_request.cc"],
     hdrs = ["alpaca_request.h"],
     deps = [
         ":config",
-        ":decoder_constants",
+        ":constants",
         ":extra_parameters",
+        ":logging",
         ":platform",
         ":string_view",
+    ],
+)
+
+cc_library(
+    name = "alpaca_response",
+    srcs = ["alpaca_response.cc"],
+    hdrs = ["alpaca_response.h"],
+    deps = [
+        ":alpaca_request",
+        ":any_string",
+        ":http_response_header",
+        ":json_encoder",
+        ":json_response",
+        ":platform",
     ],
 )
 
@@ -32,6 +81,13 @@ cc_library(
 )
 
 cc_library(
+    name = "constants",
+    srcs = ["constants.cc"],
+    hdrs = ["constants.h"],
+    deps = [":platform"],
+)
+
+cc_library(
     name = "counting_bitbucket",
     hdrs = ["counting_bitbucket.h"],
     deps = [
@@ -40,30 +96,28 @@ cc_library(
 )
 
 cc_library(
-    name = "decoder_constants",
-    srcs = ["decoder_constants.cc"],
-    hdrs = ["decoder_constants.h"],
-    deps = [":platform"],
-)
-
-cc_library(
-    name = "device_info",
-    hdrs = ["device_info.h"],
+    name = "device_api_handler_base",
+    srcs = ["device_api_handler_base.cc"],
+    hdrs = ["device_api_handler_base.h"],
     deps = [
-        ":decoder_constants",
+        ":alpaca_request",
+        ":alpaca_response",
+        ":constants",
+        ":counting_bitbucket",
+        ":device_info",
+        ":http_response_header",
         ":json_encoder",
         ":literal",
         ":platform",
-        ":string_view",
     ],
 )
 
 cc_library(
-    name = "device_info_cc",
+    name = "device_info",
     srcs = ["device_info.cc"],
     hdrs = ["device_info.h"],
     deps = [
-        ":decoder_constants",
+        ":constants",
         ":json_encoder",
         ":literal",
         ":literals",
@@ -87,10 +141,23 @@ cc_library(
     hdrs = ["extra_parameters.h"],
     deps = [
         ":config",
-        ":decoder_constants",
+        ":constants",
         ":platform",
         ":string_view",
         ":tiny_string",
+    ],
+)
+
+cc_library(
+    name = "http_response_header",
+    srcs = ["http_response_header.cc"],
+    hdrs = ["http_response_header.h"],
+    deps = [
+        ":any_string",
+        ":constants",
+        ":literal",
+        ":literals",
+        ":platform",
     ],
 )
 
@@ -100,6 +167,7 @@ cc_library(
     hdrs = ["json_encoder.h"],
     deps = [
         ":any_string",
+        ":counting_bitbucket",
         ":literals",
         ":platform",
     ],
@@ -110,9 +178,11 @@ cc_library(
     hdrs = ["json_response.h"],
     deps = [
         ":alpaca_request",
+        ":any_string",
         ":json_encoder",
         ":literals",
         ":platform",
+        ":string_view",
     ],
 )
 
@@ -159,7 +229,7 @@ cc_library(
     srcs = ["match_literals.cc"],
     hdrs = ["match_literals.h"],
     deps = [
-        ":decoder_constants",
+        ":constants",
         ":literal",
         ":literal_token",
         ":literals",
@@ -185,7 +255,7 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":config",
-        ":decoder_constants",
+        ":constants",
         ":literals",
         ":logging",
         ":match_literals",
@@ -201,18 +271,11 @@ cc_library(
     srcs = ["request_decoder_listener.cc"],
     hdrs = ["request_decoder_listener.h"],
     deps = [
-        ":decoder_constants",
+        ":constants",
         ":logging",
         ":platform",
         ":string_view",
     ],
-)
-
-cc_library(
-    name = "server",
-    srcs = ["server.cc"],
-    hdrs = ["server.h"],
-    deps = [":platform"],
 )
 
 cc_library(
@@ -257,35 +320,7 @@ cc_library(
 
 cc_library(
     name = "tiny_alpaca_server",
-    hdrs = ["TinyAlpacaServer.h"],
-    deps = [
-        ":alpaca_request",
-        ":any_string",
-        ":config",
-        ":counting_bitbucket",
-        ":decoder_constants",
-        ":device_info",
-        ":escaping",
-        ":extra_parameters",
-        ":json_encoder",
-        ":json_response",
-        ":literal",
-        ":literal_token",
-        ":literals",
-        ":logging",
-        ":match_literals",
-        ":platform",
-        ":request_decoder",
-        ":request_decoder_listener",
-        ":server",
-        ":server_description",
-        ":string_compare",
-        ":string_view",
-    ],
-)
-
-cc_library(
-    name = "tiny_alpaca_server_h",
+    srcs = ["tiny_alpaca_server.cc"],
     hdrs = ["tiny_alpaca_server.h"],
     deps = [":platform"],
 )

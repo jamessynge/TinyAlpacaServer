@@ -4,7 +4,8 @@
 // Author: james.synge@gmail.com
 
 #include "config.h"
-#include "decoder_constants.h"
+#include "constants.h"
+#include "logging.h"
 #include "platform.h"
 #include "string_view.h"
 
@@ -23,10 +24,33 @@ constexpr uint32_t kResetClientTransactionId = 198765432;
 constexpr uint32_t kResetServerTransactionId = 543212345;
 
 struct AlpacaRequest {
+  AlpacaRequest();
+
   // This resets the fields that won't always be explicity set when a request is
   // successfully decoded (i.e. http_method will be set always, but client_id
   // might not be).
+  // TODO(jamessynge): Add a StartDecoding method that takes care of setting
+  // server_transaction_id after calling AlpacaRequest::Reset, perhaps somewhere
+  // like TinyAlpacaServer.
   void Reset();
+
+  void set_client_id(uint32_t id) {
+    TAS_DCHECK(!have_client_id, "");
+    client_id = id;
+    have_client_id = true;
+  }
+
+  void set_client_transaction_id(uint32_t id) {
+    TAS_DCHECK(!have_client_transaction_id, "");
+    client_transaction_id = id;
+    have_client_transaction_id = true;
+  }
+
+  void set_server_transaction_id(uint32_t id) {
+    TAS_DCHECK(!have_server_transaction_id, "");
+    server_transaction_id = id;
+    have_server_transaction_id = true;
+  }
 
   // From the HTTP method and path:
   EHttpMethod http_method;
@@ -57,8 +81,8 @@ struct AlpacaRequest {
   uint32_t server_transaction_id;
 
   // Set to zero by Reset, set to 1 when the corresponding field is set.
-  unsigned int found_client_id : 1;
-  unsigned int found_client_transaction_id : 1;
+  unsigned int have_client_id : 1;
+  unsigned int have_client_transaction_id : 1;
   unsigned int have_server_transaction_id : 1;
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS

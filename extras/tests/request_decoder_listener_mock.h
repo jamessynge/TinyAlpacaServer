@@ -12,17 +12,17 @@ namespace alpaca {
 
 class MockRequestDecoderListener : public RequestDecoderListener {
  public:
-  MOCK_METHOD(EDecodeStatus, OnExtraParameter, (EParameter, const StringView&),
+  MOCK_METHOD(EHttpStatusCode, OnExtraParameter,
+              (EParameter, const StringView&), (override));
+  MOCK_METHOD(EHttpStatusCode, OnExtraHeader, (EHttpHeader, const StringView&),
               (override));
-  MOCK_METHOD(EDecodeStatus, OnExtraHeader, (EHttpHeader, const StringView&),
+  MOCK_METHOD(EHttpStatusCode, OnUnknownParameterName, (const StringView&),
               (override));
-  MOCK_METHOD(EDecodeStatus, OnUnknownParameterName, (const StringView&),
+  MOCK_METHOD(EHttpStatusCode, OnUnknownParameterValue, (const StringView&),
               (override));
-  MOCK_METHOD(EDecodeStatus, OnUnknownParameterValue, (const StringView&),
+  MOCK_METHOD(EHttpStatusCode, OnUnknownHeaderName, (const StringView&),
               (override));
-  MOCK_METHOD(EDecodeStatus, OnUnknownHeaderName, (const StringView&),
-              (override));
-  MOCK_METHOD(EDecodeStatus, OnUnknownHeaderValue, (const StringView&),
+  MOCK_METHOD(EHttpStatusCode, OnUnknownHeaderValue, (const StringView&),
               (override));
 };
 

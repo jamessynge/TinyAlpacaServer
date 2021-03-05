@@ -103,7 +103,19 @@ class Literal {
   size_type size_;
 };
 
-using LiteralArray = Literal[];
+// This is an array of Literal instances, stored in RAM, not PROGMEM.
+struct LiteralArray {
+  constexpr LiteralArray() : array(nullptr), size(0) {}
+  template <size_t N>
+  explicit constexpr LiteralArray(const Literal (&literal_strings)[N])
+      : array(literal_strings), size(N) {}
+
+  const Literal* begin() const { return array; }
+  const Literal* end() const { return array + size; }
+
+  const Literal* array;
+  const size_t size;
+};
 
 // JsonLiteral is a simple helper to allow us to output the JSON escaped form
 // of a Literal, e.g. for debugging. For example.

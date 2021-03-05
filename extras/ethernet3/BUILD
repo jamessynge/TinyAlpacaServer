@@ -3,20 +3,20 @@
 # socket APIs).
 
 cc_library(
-    name = "ethernet",
-    srcs = ["ethernet.cc"],
-    hdrs = ["ethernet.h"],
-    deps = [":ip_address"],
-)
-
-cc_library(
     name = "ethernet3",
     hdrs = ["ethernet3.h"],
     deps = [
-        ":ethernet",
+        ":ethernet_class",
         ":ethernet_client",
         ":ip_address",
     ],
+)
+
+cc_library(
+    name = "ethernet_class",
+    srcs = ["ethernet_class.cc"],
+    hdrs = ["ethernet_class.h"],
+    deps = [":ip_address"],
 )
 
 cc_library(

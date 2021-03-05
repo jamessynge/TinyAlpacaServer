@@ -2,6 +2,7 @@
 
 // Author: james.synge@gmail.com
 
+#include "counting_bitbucket.h"
 #include "literals.h"
 #include "platform.h"
 
@@ -48,28 +49,6 @@ void PrintFloatingPoint(Print& out, const T value) {
   }
 #endif
 }
-
-#if TAS_HOST_TARGET
-class ElementSourceFunctionAdapter : public JsonElementSource {
- public:
-  explicit ElementSourceFunctionAdapter(const JsonElementSourceFunction& func)
-      : func_(func) {}
-  void AddTo(JsonArrayEncoder& encoder) const override { func_(encoder); }
-
- private:
-  const JsonElementSourceFunction& func_;
-};
-
-class PropertySourceFunctionAdapter : public JsonPropertySource {
- public:
-  explicit PropertySourceFunctionAdapter(const JsonPropertySourceFunction& func)
-      : func_(func) {}
-  void AddTo(JsonObjectEncoder& encoder) const override { func_(encoder); }
-
- private:
-  const JsonPropertySourceFunction& func_;
-};
-#endif  // TAS_HOST_TARGET
 
 }  // namespace
 
@@ -153,25 +132,12 @@ void JsonArrayEncoder::Encode(const JsonElementSource& source, Print& out) {
   source.AddTo(encoder);
 }
 
-#if TAS_HOST_TARGET
 // static
-void JsonArrayEncoder::Encode(const JsonElementSourceFunction& func,
-                              Print& out) {
-  ElementSourceFunctionAdapter source(func);
-  Encode(source, out);
+size_t JsonArrayEncoder::EncodedSize(const JsonElementSource& source) {
+  CountingBitbucket counter;
+  Encode(source, counter);
+  return counter.count();
 }
-
-void JsonArrayEncoder::AddArrayElement(const JsonElementSourceFunction& func) {
-  ElementSourceFunctionAdapter source(func);
-  AddArrayElement(source);
-}
-
-void JsonArrayEncoder::AddObjectElement(
-    const JsonPropertySourceFunction& func) {
-  PropertySourceFunctionAdapter source(func);
-  AddObjectElement(source);
-}
-#endif  // TAS_HOST_TARGET
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -242,25 +208,11 @@ void JsonObjectEncoder::Encode(const JsonPropertySource& source, Print& out) {
   source.AddTo(encoder);
 }
 
-#if TAS_HOST_TARGET
 // static
-void JsonObjectEncoder::Encode(const JsonPropertySourceFunction& func,
-                               Print& out) {
-  PropertySourceFunctionAdapter source(func);
-  Encode(source, out);
+size_t JsonObjectEncoder::EncodedSize(const JsonPropertySource& source) {
+  CountingBitbucket counter;
+  Encode(source, counter);
+  return counter.count();
 }
-
-void JsonObjectEncoder::AddArrayProperty(
-    const AnyString& name, const JsonElementSourceFunction& func) {
-  ElementSourceFunctionAdapter source(func);
-  AddArrayProperty(name, source);
-}
-
-void JsonObjectEncoder::AddObjectProperty(
-    const AnyString& name, const JsonPropertySourceFunction& func) {
-  PropertySourceFunctionAdapter source(func);
-  AddObjectProperty(name, source);
-}
-#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

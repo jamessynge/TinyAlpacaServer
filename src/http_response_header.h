@@ -1,0 +1,34 @@
+#ifndef TINY_ALPACA_SERVER_SRC_HTTP_RESPONSE_HEADER_H_
+#define TINY_ALPACA_SERVER_SRC_HTTP_RESPONSE_HEADER_H_
+
+// HttpResponseHeader holds the data needed to emit an HTTP response header.
+// Should be entirely filled out before emitting (printing/streaming) the
+// response, after which it should be const so that we can emit it multiple
+// times if needed (unlikely).
+
+#include "any_string.h"
+#include "constants.h"
+#include "literal.h"
+#include "platform.h"
+
+namespace alpaca {
+
+struct HttpResponseHeader : public Printable {
+  HttpResponseHeader();
+  void Reset();
+  size_t printTo(Print& out) const override;
+
+  EHttpStatusCode status_code;
+  Literal reason_phrase;
+  EContentType content_type;
+  uint16_t content_length;
+
+ private:
+  size_t WriteHeaderLine(const Literal& name, const AnyString& value);
+};
+
+// Declare stuff
+
+}  // namespace alpaca
+
+#endif  // TINY_ALPACA_SERVER_SRC_HTTP_RESPONSE_HEADER_H_

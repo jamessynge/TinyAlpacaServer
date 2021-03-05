@@ -19,8 +19,8 @@ cc_library(
         "manual",
     ],
     deps = [
+        ":TinyAlpacaServer",
         ":literal_token",
         ":pretend_devices",
-        ":tiny_alpaca_server",
     ],
 )

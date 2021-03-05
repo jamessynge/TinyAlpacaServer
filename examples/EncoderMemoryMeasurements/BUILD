@@ -5,7 +5,7 @@ cc_binary(
     name = "encoder_memory_measurements",
     srcs = ["EncoderMemoryMeasurements.ino.cc"],
     deps = [
+        ":TinyAlpacaServer",
         ":arduino_main",
-        ":tiny_alpaca_server",
     ],
 )

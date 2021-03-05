@@ -149,6 +149,11 @@ or a Print instance.
 
 ## Misc. Notes
 
+*   I'm assuming that the networking chip has enough buffer space to handle the
+    entire response (probably a few hundred bytes, assuming no image arrays),
+    and therefore we don't need to design a system for incrementally returning
+    responses.
+
 *   I'm inclined to think that the SafetyMonitor::IsSafe function should be
     implemented server side, not embedded, so that it can combine multiple
     signals and calibrated parameters to make the decision. The embedded system

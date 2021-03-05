@@ -16,7 +16,7 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "alpaca_request.h"
-#include "decoder_constants.h"
+#include "constants.h"
 #include "extras/tests/request_decoder_listener_mock.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
@@ -92,7 +92,7 @@ bool TestHasFailed() {
 
 // Decode the contents of buffer until the decoder needs more input or returns
 // an error.
-EDecodeStatus DecodeBuffer(
+EHttpStatusCode DecodeBuffer(
     RequestDecoder& decoder, std::string& buffer, const bool at_end,
     const size_t max_decode_buffer_size = kDecodeBufferSize) {
   CHECK_GT(max_decode_buffer_size, 0);
@@ -124,8 +124,8 @@ EDecodeStatus DecodeBuffer(
     // Remove the decoded prefix of buffer.
     buffer.erase(0, initial_size - view.size());
 
-    if (status != EDecodeStatus::kNeedMoreInput) {
-      EXPECT_GE(status, EDecodeStatus::kHttpOk);
+    if (status != EHttpStatusCode::kNeedMoreInput) {
+      EXPECT_GE(status, EHttpStatusCode::kHttpOk);
       return status;
     } else if (was_empty) {
       return status;
@@ -135,7 +135,7 @@ EDecodeStatus DecodeBuffer(
   }
 }
 
-EDecodeStatus ResetAndDecodeFullBuffer(
+EHttpStatusCode ResetAndDecodeFullBuffer(
     RequestDecoder& decoder, std::string& buffer,
     const size_t max_decode_buffer_size = kDecodeBufferSize) {
   decoder.Reset();
@@ -145,7 +145,7 @@ EDecodeStatus ResetAndDecodeFullBuffer(
 // Apply the decoder to decoding the provided partition of a request. Returns
 // the final decode status, the remainder of the last buffer passed in, and
 // all the remaining undecoded text.
-std::tuple<EDecodeStatus, std::string, std::string> DecodePartitionedRequest(
+std::tuple<EHttpStatusCode, std::string, std::string> DecodePartitionedRequest(
     RequestDecoder& decoder, const std::vector<std::string>& partition,
     const size_t max_decode_buffer_size = kDecodeBufferSize) {
   CHECK_NE(partition.size(), 0);
@@ -157,11 +157,11 @@ std::tuple<EDecodeStatus, std::string, std::string> DecodePartitionedRequest(
     const bool at_end = (ndx + 1) == partition.size();
     buffer += partition[ndx];
     auto status = DecodeBuffer(decoder, buffer, at_end, max_decode_buffer_size);
-    if (status != EDecodeStatus::kNeedMoreInput) {
+    if (status != EHttpStatusCode::kNeedMoreInput) {
       return {status, buffer, AppendRemainder(buffer, partition, ndx + 1)};
     }
   }
-  return {EDecodeStatus::kNeedMoreInput, buffer, buffer};
+  return {EHttpStatusCode::kNeedMoreInput, buffer, buffer};
 }
 
 size_t GetNumExtraParameters(const AlpacaRequest& request) {
@@ -208,7 +208,7 @@ TEST(RequestDecoderTest, ResetRequired) {
   auto buffer = full_request;
 
   EXPECT_EQ(DecodeBuffer(decoder, buffer, /*at_end=*/true),
-            EDecodeStatus::kHttpInternalServerError);
+            EHttpStatusCode::kHttpInternalServerError);
   EXPECT_EQ(buffer, full_request);  // No input has been consumed.
 }
 
@@ -224,11 +224,11 @@ TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
@@ -238,8 +238,8 @@ TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 0);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
-    EXPECT_FALSE(alpaca_request.found_client_id);
-    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_FALSE(alpaca_request.have_client_id);
+    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
 
     if (TestHasFailed()) {
       break;
@@ -259,11 +259,11 @@ TEST(RequestDecoderTest, SmallestDeviceSetupRequest) {
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
@@ -272,8 +272,8 @@ TEST(RequestDecoderTest, SmallestDeviceSetupRequest) {
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 9);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kSetup);
-    EXPECT_FALSE(alpaca_request.found_client_id);
-    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_FALSE(alpaca_request.have_client_id);
+    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
 
     if (TestHasFailed()) {
@@ -294,11 +294,11 @@ TEST(RequestDecoderTest, SmallestApiVersionsRequest) {
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
@@ -308,8 +308,8 @@ TEST(RequestDecoderTest, SmallestApiVersionsRequest) {
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.found_client_id);
-    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_FALSE(alpaca_request.have_client_id);
+    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
 
     if (TestHasFailed()) {
@@ -330,11 +330,11 @@ TEST(RequestDecoderTest, SmallestConfiguredDevicesRequest) {
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
@@ -344,8 +344,8 @@ TEST(RequestDecoderTest, SmallestConfiguredDevicesRequest) {
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.found_client_id);
-    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_FALSE(alpaca_request.have_client_id);
+    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
 
     if (TestHasFailed()) {
@@ -369,11 +369,11 @@ TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
     }
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
@@ -383,8 +383,8 @@ TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.found_client_id);
-    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_FALSE(alpaca_request.have_client_id);
+    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
 
     if (TestHasFailed()) {
@@ -405,11 +405,11 @@ TEST(RequestDecoderTest, SmallestServerSetupRequest) {
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
@@ -419,8 +419,8 @@ TEST(RequestDecoderTest, SmallestServerSetupRequest) {
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
     EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.found_client_id);
-    EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+    EXPECT_FALSE(alpaca_request.have_client_id);
+    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
 
     if (TestHasFailed()) {
@@ -444,19 +444,19 @@ TEST(RequestDecoderTest, SmallestPutRequest) {
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kObservingConditions);
     EXPECT_EQ(alpaca_request.device_number, 0);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kRefresh);
-    EXPECT_TRUE(alpaca_request.found_client_id);
-    EXPECT_TRUE(alpaca_request.found_client_transaction_id);
+    EXPECT_TRUE(alpaca_request.have_client_id);
+    EXPECT_TRUE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(alpaca_request.client_id, 123);
     EXPECT_EQ(alpaca_request.client_transaction_id, 432);
 
@@ -505,19 +505,19 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
 
     Mock::VerifyAndClearExpectations(&listener);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 9999);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
-    EXPECT_TRUE(alpaca_request.found_client_id);
-    EXPECT_TRUE(alpaca_request.found_client_transaction_id);
+    EXPECT_TRUE(alpaca_request.have_client_id);
+    EXPECT_TRUE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(alpaca_request.client_id, 321);
     EXPECT_EQ(alpaca_request.client_transaction_id, 9);
 
@@ -541,16 +541,16 @@ TEST(RequestDecoderTest, RequestsWithClientId) {
           absl::StrCat("GET ", path, "?", param_name, "=3456 HTTP/1.1\r\n\r\n");
       auto request = full_request;
       EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-                EDecodeStatus::kHttpOk);
+                EHttpStatusCode::kHttpOk);
       EXPECT_THAT(request, IsEmpty());
 
       EXPECT_EQ(alpaca_request.device_type, EDeviceType::kObservingConditions);
       EXPECT_EQ(alpaca_request.device_number, 987654);
 
-      EXPECT_TRUE(alpaca_request.found_client_id);
+      EXPECT_TRUE(alpaca_request.have_client_id);
       EXPECT_EQ(alpaca_request.client_id, 3456);
 
-      EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+      EXPECT_FALSE(alpaca_request.have_client_transaction_id);
       EXPECT_EQ(alpaca_request.client_transaction_id,
                 kResetClientTransactionId);
     }
@@ -572,16 +572,16 @@ TEST(RequestDecoderTest, RequestsWithClientTransactionId) {
           absl::StrCat("GET ", path, "?", param_name, "=0 HTTP/1.1\r\n\r\n");
       auto request = full_request;
       EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-                EDecodeStatus::kHttpOk);
+                EHttpStatusCode::kHttpOk);
       EXPECT_THAT(request, IsEmpty());
 
       EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
       EXPECT_EQ(alpaca_request.device_number, 7777);
 
-      EXPECT_FALSE(alpaca_request.found_client_id);
+      EXPECT_FALSE(alpaca_request.have_client_id);
       EXPECT_EQ(alpaca_request.client_id, kResetClientId);
 
-      EXPECT_TRUE(alpaca_request.found_client_transaction_id);
+      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
       EXPECT_EQ(alpaca_request.client_transaction_id, 0);
     }
   }
@@ -597,20 +597,21 @@ TEST(RequestDecoderTest, ParamSeparatorsAtEndOfBody) {
   std::string request =
       absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
                    "Content-Length: ", body.size(), "\r\n", "\r\n", body);
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request), EDecodeStatus::kHttpOk);
-  EXPECT_TRUE(alpaca_request.found_client_id);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpOk);
+  EXPECT_TRUE(alpaca_request.have_client_id);
   EXPECT_EQ(alpaca_request.client_id, 876);
-  EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+  EXPECT_FALSE(alpaca_request.have_client_transaction_id);
 
   // Extra spaces at the end, not acceptable.
   body = "ClientId=654&&&&&&&&&   ";
   request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
                          "Content-Length: ", body.size(), "\r\n", "\r\n", body);
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
-  EXPECT_TRUE(alpaca_request.found_client_id);
+            EHttpStatusCode::kHttpBadRequest);
+  EXPECT_TRUE(alpaca_request.have_client_id);
   EXPECT_EQ(alpaca_request.client_id, 654);
-  EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+  EXPECT_FALSE(alpaca_request.have_client_transaction_id);
 }
 
 TEST(RequestDecoderTest, DetectsOutOfRangeDeviceNumber) {
@@ -625,7 +626,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeDeviceNumber) {
 
   alpaca_request.client_id = kResetClientId;
   EXPECT_EQ(DecodeBuffer(decoder, full_request, true, kDecodeBufferSize),
-            EDecodeStatus::kHttpNotFound);
+            EHttpStatusCode::kHttpNotFound);
   EXPECT_EQ(alpaca_request.client_id,
             kResetClientId);  // Hasn't been overwritten.
   // It isn't important how much of the request has been processed, however we
@@ -648,9 +649,9 @@ TEST(RequestDecoderTest, DetectsOutOfRangeClientId) {
               OnExtraParameter(EParameter::kClientId, Eq("4294967296")));
   alpaca_request.client_id = kResetClientId;
   EXPECT_EQ(DecodeBuffer(decoder, full_request, true, kDecodeBufferSize),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
   EXPECT_EQ(alpaca_request.device_number, 4294967295UL);
-  EXPECT_FALSE(alpaca_request.found_client_id);
+  EXPECT_FALSE(alpaca_request.have_client_id);
   EXPECT_EQ(alpaca_request.client_id,
             kResetClientId);  // Hasn't been overwritten.
 }
@@ -666,11 +667,12 @@ TEST(RequestDecoderTest, DetectsOutOfRangeClientTransactionId) {
       absl::StrCat("PUT /api/v1/safetymonitor/7/connected HTTP/1.1\r\n",
                    "Content-Length:", body.size(), "\r\n\r\n", body);
 
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request), EDecodeStatus::kHttpOk);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpOk);
   EXPECT_EQ(alpaca_request.device_number, 7);
-  EXPECT_TRUE(alpaca_request.found_client_transaction_id);
+  EXPECT_TRUE(alpaca_request.have_client_transaction_id);
   EXPECT_EQ(alpaca_request.client_transaction_id, 444444444);
-  EXPECT_TRUE(alpaca_request.found_client_id);
+  EXPECT_TRUE(alpaca_request.have_client_id);
   EXPECT_EQ(alpaca_request.client_id, 1);
 
   // Append another digit, now too big to fit in a uint32_t. This will prevent
@@ -684,10 +686,10 @@ TEST(RequestDecoderTest, DetectsOutOfRangeClientTransactionId) {
   EXPECT_CALL(listener, OnExtraParameter(EParameter::kClientTransactionId,
                                          Eq("4444444444")));
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
   EXPECT_EQ(alpaca_request.device_number, 7);
-  EXPECT_FALSE(alpaca_request.found_client_id);
-  EXPECT_FALSE(alpaca_request.found_client_transaction_id);
+  EXPECT_FALSE(alpaca_request.have_client_id);
+  EXPECT_FALSE(alpaca_request.have_client_transaction_id);
   // Confirm that neither client id hasn't been overwritten.
   EXPECT_EQ(alpaca_request.client_id, kResetClientId);
   EXPECT_EQ(alpaca_request.client_transaction_id, kResetClientTransactionId);
@@ -706,7 +708,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
       "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
       "\r\n";
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpLengthRequired);
+            EHttpStatusCode::kHttpLengthRequired);
   EXPECT_EQ(alpaca_request.device_number, 1);
   EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
 
@@ -718,7 +720,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
   EXPECT_CALL(listener,
               OnExtraHeader(EHttpHeader::kHttpContentLength, Eq(".0")));
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
   EXPECT_EQ(alpaca_request.device_number, 2);
   EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
 
@@ -730,7 +732,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
   EXPECT_CALL(listener,
               OnExtraHeader(EHttpHeader::kHttpContentLength, Eq("256")));
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpPayloadTooLarge);
+            EHttpStatusCode::kHttpPayloadTooLarge);
   Mock::VerifyAndClearExpectations(&listener);
   EXPECT_EQ(alpaca_request.device_number, 1);
 
@@ -740,7 +742,8 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
       "GET /api/v1/safetymonitor/3/issafe HTTP/1.1\r\n"
       "CONTENT-LENGTH: 256\r\n"
       "\r\n";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request), EDecodeStatus::kHttpOk);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpOk);
   EXPECT_EQ(alpaca_request.device_number, 3);
 
   // A 255 char length can be decoded. Need to make a body of that size which is
@@ -759,7 +762,8 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
       .Times(AnyNumber());
   EXPECT_CALL(listener, OnUnknownParameterName(Eq("a")));
   EXPECT_CALL(listener, OnUnknownParameterValue(Eq("0124567890123")));
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request), EDecodeStatus::kHttpOk);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpOk);
   EXPECT_EQ(alpaca_request.device_number, 1);
 }
 
@@ -775,7 +779,7 @@ TEST(RequestDecoderTest, DetectsPayloadTruncated) {
       "Content-Length: 1\r\n"
       "\r\n";
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
 
   // "=value" is missing after a parameter name.
   request =
@@ -784,7 +788,7 @@ TEST(RequestDecoderTest, DetectsPayloadTruncated) {
       "\r\n"
       "param_name";
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
 }
 
 TEST(RequestDecoderTest, DetectsPayloadTooLong) {
@@ -798,7 +802,7 @@ TEST(RequestDecoderTest, DetectsPayloadTooLong) {
       "\r\n"
       "12";
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpPayloadTooLarge);
+            EHttpStatusCode::kHttpPayloadTooLarge);
 }
 
 TEST(RequestDecoderTest, DetectsParameterValueIsTooLong) {
@@ -818,7 +822,7 @@ TEST(RequestDecoderTest, DetectsParameterValueIsTooLong) {
 
     alpaca_request.client_id = kResetClientId;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
-              EDecodeStatus::kHttpOk);
+              EHttpStatusCode::kHttpOk);
     EXPECT_EQ(alpaca_request.client_id, max_size);
     EXPECT_THAT(ok_request, IsEmpty());
 
@@ -828,7 +832,7 @@ TEST(RequestDecoderTest, DetectsParameterValueIsTooLong) {
 
     alpaca_request.client_id = kResetClientId;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request, max_size),
-              EDecodeStatus::kHttpRequestHeaderFieldsTooLarge);
+              EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
     EXPECT_EQ(alpaca_request.client_id, kResetClientId);
     EXPECT_THAT(long_request, StartsWith(long_value));
   }
@@ -862,7 +866,7 @@ TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
     EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Some-Name")));
     EXPECT_CALL(listener, OnUnknownHeaderValue(Eq(max_size_str)));
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
-              EDecodeStatus::kHttpOk);
+              EHttpStatusCode::kHttpOk);
     EXPECT_EQ(alpaca_request.client_id, kResetClientId);
     EXPECT_THAT(ok_request, IsEmpty());
 
@@ -873,7 +877,7 @@ TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
     alpaca_request.client_id = kResetClientId;
     EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Some-Name")));
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request, max_size),
-              EDecodeStatus::kHttpRequestHeaderFieldsTooLarge);
+              EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
     EXPECT_EQ(alpaca_request.client_id, kResetClientId);
     EXPECT_THAT(long_request, StartsWith(long_value));
   }
@@ -894,7 +898,7 @@ TEST(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
     const std::string full_request = method + " " + request_after_method;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpMethodNotImplemented);
+              EHttpStatusCode::kHttpMethodNotImplemented);
     EXPECT_THAT(request, EndsWith(request_after_method));
   }
 }
@@ -923,7 +927,7 @@ TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
                                      request_after_ascom_method;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpNotFound);
+              EHttpStatusCode::kHttpNotFound);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_ascom_method));
   }
@@ -965,7 +969,7 @@ TEST(RequestDecoderTest, NotFoundPaths) {
     const auto full_request = absl::StrCat("GET ", path, " HTTP/1.1\r\n\r\n");
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpNotFound)
+              EHttpStatusCode::kHttpNotFound)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
   }
@@ -984,7 +988,7 @@ TEST(RequestDecoderTest, MethodNotAllowedPaths) {
     const auto full_request = absl::StrCat("PUT ", path, " HTTP/1.1\r\n\r\n");
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpMethodNotAllowed)
+              EHttpStatusCode::kHttpMethodNotAllowed)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
   }
@@ -1013,7 +1017,7 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
         "GET" + bogus_path_start + request_after_path_start;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpBadRequest);
+              EHttpStatusCode::kHttpBadRequest);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_path_start));
   }
@@ -1029,7 +1033,7 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
         "GET" + bogus_path_start + request_after_path_start;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpNotFound)
+              EHttpStatusCode::kHttpNotFound)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_path_start));
@@ -1061,7 +1065,7 @@ TEST(RequestDecoderTest, RejectsUnknownOrMalformedDeviceType) {
                                      request_after_device_number;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EDecodeStatus::kHttpNotFound);
+              EHttpStatusCode::kHttpNotFound);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_device_number));
   }
@@ -1076,7 +1080,7 @@ TEST(RequestDecoderTest, RejectsUnsupportedHttpVersion) {
       "GET /api/v1/safetymonitor/0/name HTTP/1.0\r\n"
       "\r\n");
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpVersionNotSupported);
+            EHttpStatusCode::kHttpVersionNotSupported);
 }
 
 TEST(RequestDecoderTest, RejectsInvalidParamNameValueSeparator) {
@@ -1088,7 +1092,7 @@ TEST(RequestDecoderTest, RejectsInvalidParamNameValueSeparator) {
       "GET /api/v1/safetymonitor/0/name?ClientId:1 HTTP/1.1\r\n"
       "\r\n");
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
 }
 
 TEST(RequestDecoderTest, RejectsInvalidParamSeparator) {
@@ -1100,7 +1104,7 @@ TEST(RequestDecoderTest, RejectsInvalidParamSeparator) {
       "GET /api/v1/safetymonitor/0/name?ClientId=1] HTTP/1.1\r\n"
       "\r\n");
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
 }
 
 TEST(RequestDecoderTest, BadHeaderNameEnd) {
@@ -1113,7 +1117,7 @@ TEST(RequestDecoderTest, BadHeaderNameEnd) {
       "Content-Length : ");
 
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpBadRequest);
+            EHttpStatusCode::kHttpBadRequest);
   EXPECT_EQ(request, " : ");
 }
 
@@ -1131,11 +1135,11 @@ TEST(RequestDecoderTest, BadHeaderLineEnd) {
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
     auto result = DecodePartitionedRequest(decoder, partition);
 
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpBadRequest);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpBadRequest);
     EXPECT_EQ(remainder, "\n\r\r\nabc=123456");
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
@@ -1161,16 +1165,17 @@ TEST(RequestDecoderTest, NotifiesListenerOfUnexpectedAccept) {
 
   EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpAccept,
                                       Eq("application/x-www-form-urlencoded")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   auto request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request), EDecodeStatus::kHttpOk);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpOk);
 
   EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpAccept,
                                       Eq("application/x-www-form-urlencoded")))
-      .WillOnce(Return(EDecodeStatus::kHttpUnsupportedMediaType));
+      .WillOnce(Return(EHttpStatusCode::kHttpUnsupportedMediaType));
   request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpUnsupportedMediaType);
+            EHttpStatusCode::kHttpUnsupportedMediaType);
 }
 
 TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedContentType) {
@@ -1188,18 +1193,18 @@ TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedContentType) {
   // Decoder will override status if listener doesn't return an error status.
   EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpContentType,
                                       Eq("application/json")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   auto request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpUnsupportedMediaType);
+            EHttpStatusCode::kHttpUnsupportedMediaType);
 
   // But will return an error status provided by the listener.
   EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpContentType,
                                       Eq("application/json")))
-      .WillOnce(Return(EDecodeStatus::kHttpNotFound));
+      .WillOnce(Return(EHttpStatusCode::kHttpNotFound));
   request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpNotFound);
+            EHttpStatusCode::kHttpNotFound);
 }
 
 TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedAndUnknownHeaders) {
@@ -1216,41 +1221,42 @@ TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedAndUnknownHeaders) {
   // OK if the listener says "continue decoding".
   EXPECT_CALL(listener,
               OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   EXPECT_CALL(listener, OnUnknownHeaderValue(Eq("deflate")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   auto request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request), EDecodeStatus::kHttpOk);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpOk);
 
   // But bails if the listeners returns an error status.
   EXPECT_CALL(listener,
               OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   EXPECT_CALL(listener, OnUnknownHeaderValue(Eq("deflate")))
-      .WillOnce(Return(EDecodeStatus::kHttpMethodNotImplemented));
+      .WillOnce(Return(EHttpStatusCode::kHttpMethodNotImplemented));
   request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpMethodNotImplemented);
+            EHttpStatusCode::kHttpMethodNotImplemented);
 
   EXPECT_CALL(listener,
               OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
-      .WillOnce(Return(EDecodeStatus::kContinueDecoding));
+      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
-      .WillOnce(Return(EDecodeStatus::kHttpInternalServerError));
+      .WillOnce(Return(EHttpStatusCode::kHttpInternalServerError));
   request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpInternalServerError);
+            EHttpStatusCode::kHttpInternalServerError);
 
   EXPECT_CALL(listener,
               OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
-      .WillOnce(Return(EDecodeStatus::kHttpPayloadTooLarge));
+      .WillOnce(Return(EHttpStatusCode::kHttpPayloadTooLarge));
   request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EDecodeStatus::kHttpPayloadTooLarge);
+            EHttpStatusCode::kHttpPayloadTooLarge);
 }
 
 TEST(RequestDecoderDeathTest, ListenerReturnsInvalidResponse) {
@@ -1271,9 +1277,9 @@ TEST(RequestDecoderDeathTest, ListenerReturnsInvalidResponse) {
       {
         EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpContentEncoding,
                                             Eq("gzip")))
-            .WillOnce(Return(EDecodeStatus::kNeedMoreInput));
+            .WillOnce(Return(EHttpStatusCode::kNeedMoreInput));
         EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-                  EDecodeStatus::kHttpInternalServerError);
+                  EHttpStatusCode::kHttpInternalServerError);
         EXPECT_EQ(request, "\r\n\r\n");
       },
       "kNeedMoreInput");
@@ -1313,19 +1319,19 @@ TEST(RequestDecoderTest, VerboseLogging) {
     }
 
     auto result = DecodePartitionedRequest(decoder, partition);
-    const EDecodeStatus status = std::get<0>(result);
+    const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
 
-    EXPECT_EQ(status, EDecodeStatus::kHttpOk);
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
     EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
     EXPECT_EQ(alpaca_request.device_number, 9999);
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
-    EXPECT_TRUE(alpaca_request.found_client_id);
-    EXPECT_TRUE(alpaca_request.found_client_transaction_id);
+    EXPECT_TRUE(alpaca_request.have_client_id);
+    EXPECT_TRUE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(alpaca_request.client_id, 321);
     EXPECT_EQ(alpaca_request.client_transaction_id, 9);
 

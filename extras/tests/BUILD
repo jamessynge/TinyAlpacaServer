@@ -3,6 +3,17 @@
 # them as code to be compiled for the target microcontroller.
 
 cc_test(
+    name = "alpaca_response_test",
+    srcs = ["alpaca_response_test.cc"],
+    deps = [
+        ":alpaca_response",
+        ":json_test_utils",
+        ":test_utils",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "config_test",
     srcs = ["config_test.cc"],
     deps = [
@@ -32,15 +43,50 @@ cc_test(
 )
 
 cc_test(
+    name = "http_response_header_test",
+    srcs = ["http_response_header_test.cc"],
+    deps = [
+        ":constants",
+        ":http_response_header",
+        ":literals",
+        ":test_utils",
+        "//absl/strings",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "json_encoder_test",
     srcs = ["json_encoder_test.cc"],
     deps = [
         ":counting_bitbucket",
         ":json_encoder",
+        ":json_test_utils",
         ":test_utils",
         "//absl/strings",
         "//core:logging",
         "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "json_response_test",
+    srcs = ["json_response_test.cc"],
+    deps = [
+        ":json_response",
+        ":json_test_utils",
+        ":test_utils",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_library(
+    name = "json_test_utils",
+    srcs = ["json_test_utils.cc"],
+    hdrs = ["json_test_utils.h"],
+    deps = [
+        ":json_encoder",
+        ":platform",
     ],
 )
 
@@ -84,7 +130,7 @@ cc_test(
     name = "match_literals_test",
     srcs = ["match_literals_test.cc"],
     deps = [
-        ":decoder_constants",
+        ":constants",
         ":match_literals",
         ":test_utils",
         "//absl/strings",
@@ -127,7 +173,7 @@ cc_test(
     srcs = ["request_decoder_test.cc"],
     deps = [
         ":alpaca_request",
-        ":decoder_constants",
+        ":constants",
         ":request_decoder",
         ":request_decoder_listener",
         ":request_decoder_listener_mock",

@@ -2,20 +2,26 @@
 
 // Author: james.synge@gmail.com
 
-#include "decoder_constants.h"
+#include "constants.h"
 
 namespace alpaca {
+
+AlpacaRequest::AlpacaRequest() {
+  // This call is mainly a benefit to tests. The server/decoder should call
+  // Reset when it is starting to decode a new HTTP request.
+  Reset();
+}
 
 void AlpacaRequest::Reset() {
   http_method = EHttpMethod::kUnknown;
 
-  found_client_id = false;
-  found_client_transaction_id = false;
+  have_client_id = false;
+  have_client_transaction_id = false;
   have_server_transaction_id = false;
 
   // Theoretically we don't need to clear the following fields because they
-  // shouldn't be examined unless the decoder has returned
-  // EDecodeStatus::kHttpOk. However, it makes writing tests easier if we do so.
+  // shouldn't be examined unless the decoder has returned kHttpOk. However, it
+  // makes writing tests easier if we do so.
   api_group = EApiGroup::kUnknown;
   api = EAlpacaApi::kUnknown;
   device_type = EDeviceType::kUnknown;

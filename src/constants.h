@@ -1,8 +1,8 @@
-#ifndef TINY_ALPACA_SERVER_SRC_DECODER_CONSTANTS_H_
-#define TINY_ALPACA_SERVER_SRC_DECODER_CONSTANTS_H_
+#ifndef TINY_ALPACA_SERVER_SRC_CONSTANTS_H_
+#define TINY_ALPACA_SERVER_SRC_CONSTANTS_H_
 
-// Enums defining the decoder return values and enums corresponding to each kind
-// of token to be decoded.
+// Enums defining the HTTP status and enums corresponding to each kind of token
+// to be decoded.
 //
 // Note that we include the streaming operators in support of testing; these
 // should not be used in the embedded code (except in DLOG or DCHECK type
@@ -18,9 +18,9 @@
 
 namespace alpaca {
 
-// Some of these are based on HTTP Response Status Codes, the others are below
+// Most of these are based on HTTP Response Status Codes, the others are below
 // 100 (HTTP's continue status).
-enum class EDecodeStatus : uint16_t {
+enum class EHttpStatusCode : uint16_t {
   // kContinueDecoding is first/zero because it will be the default value
   // returned by gmock, thus saving us the trouble of adding
   // .WillOnce(Return(...)) all over the place.
@@ -62,7 +62,7 @@ enum class EDecodeStatus : uint16_t {
   kHttpVersionNotSupported = 505,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EDecodeStatus value);
+std::ostream& operator<<(std::ostream& out, EHttpStatusCode value);
 #endif  // TAS_HOST_TARGET
 
 using EHttpMethod_UnderlyingType = uint8_t;
@@ -204,6 +204,12 @@ enum class EHttpHeader : EHttpHeader_UnderlyingType {
 std::ostream& operator<<(std::ostream& out, EHttpHeader value);
 #endif  // TAS_HOST_TARGET
 
+// This is used for generating responses, not for input.
+enum class EContentType : uint8_t {
+  kApplicationJson = 0,
+  kTextPlain,
+};
+
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_DECODER_CONSTANTS_H_
+#endif  // TINY_ALPACA_SERVER_SRC_CONSTANTS_H_

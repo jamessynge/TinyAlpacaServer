@@ -45,6 +45,9 @@
 // The code below doesn't include any indication of how the /setup paths will be
 // handled.
 //
+// Note that there isn't a need for the static configuration data to be valid
+// constexprs as we're not storing them in PROGMEM.
+//
 // Author: james.synge@gmail.com
 
 #include "literal_token.h"
@@ -57,7 +60,7 @@
 #endif
 
 using ::alpaca::AlpacaRequest;
-using ::alpaca::CommonDeviceHandler;
+using ::alpaca::DeviceApiHandlerBase;
 using ::alpaca::Literal;
 using ::alpaca::StringView;
 
@@ -71,29 +74,31 @@ TAS_DEFINE_LITERAL(ServerName, "Our Spiffy Weather Box");
 TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
 TAS_DEFINE_LITERAL(ManufacturerVersion,
                    "9099c8af5796a80137ce334713a67a718fd0cd3f");
+TAS_DEFINE_LITERAL(DHT22Name, "DHT22");
+TAS_DEFINE_LITERAL(DHT22Description, "DHT22 Humidity and Temperature Sensor");
+TAS_DEFINE_LITERAL(DHT22DriverInfo, "https://github/aavso/...");
 
 // TODO(jamessynge): Add support for storing in EEPROM.
 TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory");
 
 // For responding to /management/v1/description
-constexpr alpaca::ServerDescription kServerDescription(ServerName(),
-                                                       Manufacturer(),
-                                                       Manufacturer(),
-                                                       DeviceLocation());
+const alpaca::ServerDescription kServerDescription(ServerName(), Manufacturer(),
+                                                   Manufacturer(),
+                                                   DeviceLocation());
 
 // Neither sensor supports extra actions (maybe not true), so they can
 // share the list of no action names.
-constexpr Literal kObservingConditionsActions[] = {};  // None
+const auto kSupportedActions = alpaca::LiteralArray({});  // None
 
-constexpr alpaca::DeviceInfo kDht22DeviceInfo{
-    .device_type = EDeviceType::kObservingConditions,
+const alpaca::DeviceInfo kDht22DeviceInfo{
+    .device_type = alpaca::EDeviceType::kObservingConditions,
     .device_number = 1,
-    .name = "DHT22",
-    .description = "DHT22 Humidity and Temperature Sensor",
-    .driverinfo = "https://github/aavso/...",
+    .name = DHT22Name(),
+    .description = DHT22Description(),
+    .driverinfo = DHT22DriverInfo(),
     .driverversion = "2021-05-10 OR git commit SHA=abcdef0123456 OR ?",
     .interfaceversion = 1,
-    .supported_actions = kObservingConditionsActions,
+    .supported_actions = kSupportedActions,
 
     // The config_id is a random number generated when a device is added,
     // when the *type(s)* of device(s) used changes, or perhaps when
@@ -104,9 +109,9 @@ constexpr alpaca::DeviceInfo kDht22DeviceInfo{
     .config_id = 179122466,
 };
 
-class Dht22Handler : CommonDeviceHandler {
+class Dht22Handler : DeviceApiHandlerBase {
  public:
-  Dht22Handler() : CommonDeviceHandler(kDht22DeviceInfo) {}
+  Dht22Handler() : DeviceApiHandlerBase(kDht22DeviceInfo) {}
 
   // Fill buffer with up to buffer_size unique bytes from the hardware, return
   // the number of bytes copied. Return 0 (or don't override) if the hardware
@@ -135,7 +140,7 @@ class Dht22Handler : CommonDeviceHandler {
         // as HandleGetDescription, and for unsupported methods (e.g.
         // "cloudcover"), and will delegate to methods such
         return CommonDeviceHandler::HandleGetRequest(request, out);
-    };
+    }
   }
 
   bool GetConnected() override {

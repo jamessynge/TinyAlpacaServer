@@ -10,15 +10,10 @@
 #endif
 
 using ::alpaca::AlpacaRequest;
-using ::alpaca::CommonJsonResponse;
 using ::alpaca::CountingBitbucket;
-using ::alpaca::JsonArrayEncoder;
-using ::alpaca::JsonElementSource;
+using ::alpaca::JsonMethodResponse;
 using ::alpaca::JsonObjectEncoder;
 using ::alpaca::JsonPropertySource;
-using ::alpaca::RequestDecoder;
-using ::alpaca::RequestDecoderListener;
-using ::alpaca::StringView;
 
 // Empty sketch (with or without include of TinyAlpacaServer): 662 program
 // bytes, 9 bytes of ram.
@@ -81,7 +76,7 @@ uint32_t MeasureJsonSize(JsonPropertySource &source) {
 
 // Calling this from loop: 3648/298
 uint32_t MeasureCommonJsonResponseSize() {
-  CommonJsonResponse source(request);
+  JsonMethodResponse source(request);
   return MeasureJsonSize(source);
 }
 
@@ -97,6 +92,6 @@ void PrintCommonHTTPResponse() {
   Serial.print("\r\n\r\n");
 
   // Adding in the writing of the JSON body: 3962/380
-  CommonJsonResponse source(request);
+  JsonMethodResponse source(request);
   JsonObjectEncoder::Encode(source, Serial);
 }

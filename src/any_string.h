@@ -13,7 +13,6 @@ namespace alpaca {
 // StringView>, except std::variant isn't available on Arduino.
 //
 // TODO(jamessynge): Add support for TinyString here.
-//
 class AnyString : public Printable {
  public:
   // Deliberately NOT marked explicit so that either type may be used.

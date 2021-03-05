@@ -5,7 +5,7 @@
 // std::underlying_type<EnumTypeName>, but on the Arduino we don't have
 // <type_traits>.
 
-#include "decoder_constants.h"
+#include "constants.h"
 #include "literal.h"
 #include "literal_token.h"
 #include "literals.h"

@@ -3,7 +3,7 @@
 
 // Functions to match (lookup) the enum value corresponding to a given string.
 
-#include "decoder_constants.h"
+#include "constants.h"
 #include "string_view.h"
 
 namespace alpaca {

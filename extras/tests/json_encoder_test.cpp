@@ -12,6 +12,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "counting_bitbucket.h"
+#include "extras/tests/json_test_utils.h"
 #include "extras/tests/test_utils.h"
 #include "googletest/gtest.h"
 #include "logging.h"
@@ -23,35 +24,30 @@ class JsonEncodersTest : public testing::Test {
  protected:
   void ConfirmEncoding(const JsonElementSourceFunction& func,
                        const std::string& expected) {
+    ElementSourceFunctionAdapter source(func);
     // Confirm that we print the expected characters.
     {
       PrintToString out;
-      JsonArrayEncoder::Encode(func, out);
+      JsonArrayEncoder::Encode(source, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();
     }
     // Confirm that we count the expected number of characters.
-    {
-      CountingBitbucket out;
-      JsonArrayEncoder::Encode(func, out);
-      ASSERT_EQ(out.count(), expected.size());
-    }
+    ASSERT_EQ(JsonArrayEncoder::EncodedSize(source), expected.size());
   }
+
   void ConfirmEncoding(const JsonPropertySourceFunction& func,
                        const std::string& expected) {
+    PropertySourceFunctionAdapter source(func);
     // Confirm that we print the expected characters.
     {
       PrintToString out;
-      JsonObjectEncoder::Encode(func, out);
+      JsonObjectEncoder::Encode(source, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();
     }
     // Confirm that we count the expected number of characters.
-    {
-      CountingBitbucket out;
-      JsonObjectEncoder::Encode(func, out);
-      ASSERT_EQ(out.count(), expected.size());
-    }
+    ASSERT_EQ(JsonObjectEncoder::EncodedSize(source), expected.size());
   }
 };
 
@@ -171,15 +167,15 @@ TEST_F(JsonEncodersTest, ObjectWithDoubleValues) {
 TEST_F(JsonEncodersTest, ObjectWithArrayValues) {
   const double kPi = 3.14159265359L;
   auto func = [kPi](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddArrayProperty(StringView("empty"),
-                                    [](JsonArrayEncoder& array_encoder) {});
-    object_encoder.AddArrayProperty(
-        StringView("mixed"), [kPi](JsonArrayEncoder& array_encoder) {
-          array_encoder.AddBooleanElement(true);
-          array_encoder.AddFloatingPointElement(kPi);
-          array_encoder.AddIntegerElement(43);
-          array_encoder.AddStringElement(StringView("xyzzy"));
-        });
+    AddArrayProperty(object_encoder, StringView("empty"),
+                     [](JsonArrayEncoder& array_encoder) {});
+    AddArrayProperty(object_encoder, StringView("mixed"),
+                     [kPi](JsonArrayEncoder& array_encoder) {
+                       array_encoder.AddBooleanElement(true);
+                       array_encoder.AddFloatingPointElement(kPi);
+                       array_encoder.AddIntegerElement(43);
+                       array_encoder.AddStringElement(StringView("xyzzy"));
+                     });
   };
   ConfirmEncoding(func, absl::StrCat("{\"empty\": [], \"mixed\": [true, ",
                                      std::to_string(kPi), ", 43, \"xyzzy\"]}"));
@@ -188,14 +184,15 @@ TEST_F(JsonEncodersTest, ObjectWithArrayValues) {
 TEST_F(JsonEncodersTest, ObjectWithObjectValues) {
   const double kPi = 3.14159265359L;
   auto func = [kPi](JsonObjectEncoder& object_encoder) {
-    object_encoder.AddObjectProperty(StringView("empty"),
-                                     [](JsonObjectEncoder&) {});
-    object_encoder.AddObjectProperty(
-        StringView("mixed"), [kPi](JsonObjectEncoder& object_encoder) {
-          object_encoder.AddBooleanProperty(StringView("Too darn true!"), true);
-          object_encoder.AddFloatingPointProperty(StringView("Gimme some pie!"),
-                                                  kPi);
-        });
+    AddObjectProperty(object_encoder, StringView("empty"),
+                      [](JsonObjectEncoder&) {});
+    AddObjectProperty(object_encoder, StringView("mixed"),
+                      [kPi](JsonObjectEncoder& object_encoder) {
+                        object_encoder.AddBooleanProperty(
+                            StringView("Too darn true!"), true);
+                        object_encoder.AddFloatingPointProperty(
+                            StringView("Gimme some pie!"), kPi);
+                      });
   };
   ConfirmEncoding(
       func,
@@ -209,8 +206,8 @@ TEST_F(JsonEncodersTest, EmptyArray) {
 
 TEST_F(JsonEncodersTest, ArrayOfEmptyStructures) {
   auto func = [](JsonArrayEncoder& array_encoder) {
-    array_encoder.AddArrayElement([](JsonArrayEncoder&) {});
-    array_encoder.AddObjectElement([](JsonObjectEncoder&) {});
+    AddArrayElement(array_encoder, [](JsonArrayEncoder&) {});
+    AddObjectElement(array_encoder, [](JsonObjectEncoder&) {});
   };
   ConfirmEncoding(func, "[[], {}]");
 }
@@ -226,9 +223,9 @@ TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
     array_encoder.AddIntegerElement(std::numeric_limits<int32_t>::min());
     array_encoder.AddIntegerElement(std::numeric_limits<uint32_t>::max());
     array_encoder.AddFloatingPointElement(-1.0F);
-    array_encoder.AddObjectElement([](JsonObjectEncoder& object_encoder) {
-      object_encoder.AddArrayProperty(StringView("inner-empty-array"),
-                                      [](JsonArrayEncoder&) {});
+    AddObjectElement(array_encoder, [](JsonObjectEncoder& object_encoder) {
+      AddArrayProperty(object_encoder, StringView("inner-empty-array"),
+                       [](JsonArrayEncoder&) {});
     });
   };
   ConfirmEncoding(

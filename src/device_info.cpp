@@ -2,7 +2,7 @@
 
 #include "device_info.h"
 
-#include "decoder_constants.h"
+#include "constants.h"
 #include "json_encoder.h"
 #include "literals.h"
 

@@ -58,6 +58,7 @@ TAS_DEFINE_BUILTIN_LITERAL1(Minimum)  // Used in AxisRatesResponse
 TAS_DEFINE_BUILTIN_LITERAL1(Name)     // Mixed case for output.
 TAS_DEFINE_BUILTIN_LITERAL1(name)
 TAS_DEFINE_BUILTIN_LITERAL1(observingconditions)
+TAS_DEFINE_BUILTIN_LITERAL1(OK)
 TAS_DEFINE_BUILTIN_LITERAL1(opencover)
 TAS_DEFINE_BUILTIN_LITERAL1(pressure)
 TAS_DEFINE_BUILTIN_LITERAL1(PUT)
@@ -86,7 +87,10 @@ TAS_DEFINE_BUILTIN_LITERAL1(windspeed)
 // Other literals whose name can not be the same as the value (e.g. switch and
 // true), or whose name I desire to be different for some reason.
 
+TAS_DEFINE_BUILTIN_LITERAL(HttpVersion, "HTTP/1.1")
+TAS_DEFINE_BUILTIN_LITERAL(HttpOkStatus, "HTTP/1.1 200 OK")
 TAS_DEFINE_BUILTIN_LITERAL(HttpVersionEndOfLine, "HTTP/1.1\r\n")
+TAS_DEFINE_BUILTIN_LITERAL(HttpEndOfLine, "\r\n")
 TAS_DEFINE_BUILTIN_LITERAL(HttpAccept, "Accept")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentEncoding, "Content-Encoding")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentLength, "Content-Length")
@@ -98,13 +102,14 @@ TAS_DEFINE_BUILTIN_LITERAL(JsonNegInf, "-Inf") // Used in json_encoder.
 TAS_DEFINE_BUILTIN_LITERAL(JsonInf, "Inf") // Could add constexpr Literal::substr.
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded, "application/x-www-form-urlencoded")
+TAS_DEFINE_BUILTIN_LITERAL(MimeTypeTextPlain, "text/plain")
 TAS_DEFINE_BUILTIN_LITERAL(DeviceTypeSwitch, "switch")
 
 // Common fixed HTTP Response Headers. For now, assuming that we're NOT
 // keeping the connection open from request to request. That could change.
-TAS_DEFINE_BUILTIN_LITERAL(kCommonResponseHeaders,
+TAS_DEFINE_BUILTIN_LITERAL(CommonResponseHeaders,
   "\r\n"  // We assume the response start line comes first, then ...
   "Server: TinyAlpacaServer\r\n"
-  "Connection: close\r\n")
+  "Connection: close")
 
 #undef TAS_DEFINE_BUILTIN_LITERAL1

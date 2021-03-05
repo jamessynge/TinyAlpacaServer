@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_ETHERNET_H_
-#define TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_ETHERNET_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_ETHERNET_CLASS_H_
+#define TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_ETHERNET_CLASS_H_
 
 // Just enough of EthernetClass for Tiny Alpaca Server to compile on host, maybe
 // to be a TCP server.
@@ -50,4 +50,4 @@ class EthernetClass {
 
 extern EthernetClass Ethernet;
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_ETHERNET_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_ETHERNET_CLASS_H_

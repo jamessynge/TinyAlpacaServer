@@ -1,45 +1,45 @@
 // GENERATED FILE
 
-#include "decoder_constants.h"
+#include "constants.h"
 
 #if TAS_HOST_TARGET
 #include <type_traits>
 
 namespace alpaca {
 
-std::ostream& operator<<(std::ostream& out, EDecodeStatus v) {
+std::ostream& operator<<(std::ostream& out, EHttpStatusCode v) {
   switch (v) {
-    case EDecodeStatus::kContinueDecoding:
+    case EHttpStatusCode::kContinueDecoding:
       return out << "kContinueDecoding";
-    case EDecodeStatus::kNeedMoreInput:
+    case EHttpStatusCode::kNeedMoreInput:
       return out << "kNeedMoreInput";
-    case EDecodeStatus::kHttpOk:
+    case EHttpStatusCode::kHttpOk:
       return out << "kHttpOk";
-    case EDecodeStatus::kHttpBadRequest:
+    case EHttpStatusCode::kHttpBadRequest:
       return out << "kHttpBadRequest";
-    case EDecodeStatus::kHttpNotFound:
+    case EHttpStatusCode::kHttpNotFound:
       return out << "kHttpNotFound";
-    case EDecodeStatus::kHttpMethodNotAllowed:
+    case EHttpStatusCode::kHttpMethodNotAllowed:
       return out << "kHttpMethodNotAllowed";
-    case EDecodeStatus::kHttpNotAcceptable:
+    case EHttpStatusCode::kHttpNotAcceptable:
       return out << "kHttpNotAcceptable";
-    case EDecodeStatus::kHttpLengthRequired:
+    case EHttpStatusCode::kHttpLengthRequired:
       return out << "kHttpLengthRequired";
-    case EDecodeStatus::kHttpPayloadTooLarge:
+    case EHttpStatusCode::kHttpPayloadTooLarge:
       return out << "kHttpPayloadTooLarge";
-    case EDecodeStatus::kHttpUnsupportedMediaType:
+    case EHttpStatusCode::kHttpUnsupportedMediaType:
       return out << "kHttpUnsupportedMediaType";
-    case EDecodeStatus::kHttpRequestHeaderFieldsTooLarge:
+    case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
       return out << "kHttpRequestHeaderFieldsTooLarge";
-    case EDecodeStatus::kHttpInternalServerError:
+    case EHttpStatusCode::kHttpInternalServerError:
       return out << "kHttpInternalServerError";
-    case EDecodeStatus::kHttpMethodNotImplemented:
+    case EHttpStatusCode::kHttpMethodNotImplemented:
       return out << "kHttpMethodNotImplemented";
-    case EDecodeStatus::kHttpVersionNotSupported:
+    case EHttpStatusCode::kHttpVersionNotSupported:
       return out << "kHttpVersionNotSupported";
   }
-  auto invalid = static_cast<std::underlying_type<EDecodeStatus>::type>(v);
-  return out << invalid << " (invalid EDecodeStatus)";
+  auto invalid = static_cast<std::underlying_type<EHttpStatusCode>::type>(v);
+  return out << invalid << " (invalid EHttpStatusCode)";
 }
 
 std::ostream& operator<<(std::ostream& out, EHttpMethod v) {

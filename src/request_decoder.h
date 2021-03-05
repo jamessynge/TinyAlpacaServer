@@ -1,13 +1,13 @@
 #ifndef TINY_ALPACA_SERVER_SRC_REQUEST_DECODER_H_
 #define TINY_ALPACA_SERVER_SRC_REQUEST_DECODER_H_
 
-// RequestDecoder is a (fairly) strict HTTP/1.1 Request Message decoder
-// targetted at the requests defined for the ASCOM Alpaca REST API.
+// RequestDecoder is an HTTP/1.1 Request Message decoder targetted at the
+// requests defined for the ASCOM Alpaca REST API.
 //
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
-#include "decoder_constants.h"
+#include "constants.h"
 #include "platform.h"
 #include "request_decoder_listener.h"
 #include "string_view.h"
@@ -20,7 +20,7 @@ namespace alpaca {
 // HTTP error message, thus not needing a large buffer.
 
 struct RequestDecoderState {
-  using DecodeFunction = EDecodeStatus (*)(RequestDecoderState&, StringView&);
+  using DecodeFunction = EHttpStatusCode (*)(RequestDecoderState&, StringView&);
 
   RequestDecoderState(AlpacaRequest& request, RequestDecoderListener& listener);
 
@@ -29,22 +29,22 @@ struct RequestDecoderState {
 
   // Repeatedly applies the current decode function to the input until done,
   // needs more input than is in buffer, or an error is detected.
-  EDecodeStatus DecodeBuffer(StringView& buffer, bool buffer_is_full,
-                             bool at_end_of_input);
+  EHttpStatusCode DecodeBuffer(StringView& buffer, bool buffer_is_full,
+                               bool at_end_of_input);
 
   // Set the function to be used for decoding the leading edge of the input.
   // Returns kParseInProgress.
-  EDecodeStatus SetDecodeFunction(DecodeFunction func);
+  EHttpStatusCode SetDecodeFunction(DecodeFunction func);
 
-  EDecodeStatus SetDecodeFunctionAfterListenerCall(DecodeFunction func,
-                                                   EDecodeStatus status);
+  EHttpStatusCode SetDecodeFunctionAfterListenerCall(DecodeFunction func,
+                                                     EHttpStatusCode status);
 
  private:
   // Apply decode_function just once, compute new status.
-  // EDecodeStatus DecodeBufferAtEnd(StringView& buffer);
-  // EDecodeStatus ApplyDecodeFunction(StringView& buffer);
-  EDecodeStatus DecodeMessageHeader(StringView& buffer, bool at_end_of_input);
-  EDecodeStatus DecodeMessageBody(StringView& buffer, bool at_end_of_input);
+  // EHttpStatusCode DecodeBufferAtEnd(StringView& buffer);
+  // EHttpStatusCode ApplyDecodeFunction(StringView& buffer);
+  EHttpStatusCode DecodeMessageHeader(StringView& buffer, bool at_end_of_input);
+  EHttpStatusCode DecodeMessageBody(StringView& buffer, bool at_end_of_input);
 
  public:
   DecodeFunction decode_function;

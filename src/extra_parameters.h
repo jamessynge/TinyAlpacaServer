@@ -11,7 +11,7 @@
 // Author: james.synge@gmail.com
 
 #include "config.h"
-#include "decoder_constants.h"
+#include "constants.h"
 #include "platform.h"
 #include "string_view.h"
 #include "tiny_string.h"

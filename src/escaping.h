@@ -16,7 +16,8 @@ namespace alpaca {
 size_t PrintCharJsonEscaped(Print& out, char c);
 
 #if TAS_HOST_TARGET
-// Insert the escaped character into the ostream.
+// Insert the escaped character into the ostream. Supports streaming
+// JsonStringView instances, useful for logging and debugging.
 void StreamCharJsonEscaped(std::ostream& out, const char c);
 #endif  // TAS_HOST_TARGET
 

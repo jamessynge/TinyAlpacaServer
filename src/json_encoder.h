@@ -9,10 +9,6 @@
 #include "any_string.h"
 #include "platform.h"
 
-#if TAS_HOST_TARGET
-#include <functional>
-#endif  // TAS_HOST_TARGET
-
 namespace alpaca {
 
 class JsonArrayEncoder;
@@ -30,6 +26,9 @@ class JsonPropertySource {
   virtual void AddTo(JsonObjectEncoder& encoder) const = 0;
 };
 
+// JsonElementSourceAdapter allows an object that can't have a virtual function
+// table (e.g. it is constexpr and maybe stored in PROGMEM) to act as a
+// JsonElementSource.
 template <class T>
 class JsonElementSourceAdapter : public JsonElementSource {
  public:
@@ -42,6 +41,9 @@ class JsonElementSourceAdapter : public JsonElementSource {
   const T& wrapped_;
 };
 
+// JsonPropertySourceAdapter allows an object that can't have a virtual function
+// table (e.g. it is constexpr and maybe stored in PROGMEM) to act as a
+// JsonPropertySource.
 template <class T>
 class JsonPropertySourceAdapter : public JsonPropertySource {
  public:
@@ -53,12 +55,6 @@ class JsonPropertySourceAdapter : public JsonPropertySource {
  private:
   const T& wrapped_;
 };
-
-#if TAS_HOST_TARGET
-// These support tests.
-using JsonElementSourceFunction = std::function<void(JsonArrayEncoder&)>;
-using JsonPropertySourceFunction = std::function<void(JsonObjectEncoder&)>;
-#endif  // TAS_HOST_TARGET
 
 // Base class for the object and array encoders.
 class AbstractJsonEncoder {
@@ -95,12 +91,7 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
   void AddObjectElement(const JsonPropertySource& source);
 
   static void Encode(const JsonElementSource& source, Print& out);
-
-#if TAS_HOST_TARGET
-  static void Encode(const JsonElementSourceFunction& func, Print& out);
-  void AddArrayElement(const JsonElementSourceFunction& func);
-  void AddObjectElement(const JsonPropertySourceFunction& func);
-#endif  // TAS_HOST_TARGET
+  static size_t EncodedSize(const JsonElementSource& source);
 
  private:
   friend class AbstractJsonEncoder;
@@ -128,14 +119,7 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
                          const JsonPropertySource& source);
 
   static void Encode(const JsonPropertySource& source, Print& out);
-
-#if TAS_HOST_TARGET
-  static void Encode(const JsonPropertySourceFunction& func, Print& out);
-  void AddArrayProperty(const AnyString& name,
-                        const JsonElementSourceFunction& func);
-  void AddObjectProperty(const AnyString& name,
-                         const JsonPropertySourceFunction& func);
-#endif  // TAS_HOST_TARGET
+  static size_t EncodedSize(const JsonPropertySource& source);
 
  private:
   friend class AbstractJsonEncoder;

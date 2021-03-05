@@ -4,15 +4,13 @@
 // DeviceInfo provides data used used to respond to "Common ASCOM Methods", i.e.
 // requests for common info about a device, and it also provides the list of
 // support custom actions (also accessed via the common ASCOM methods).
-#include "decoder_constants.h"
+#include "constants.h"
 #include "json_encoder.h"
 #include "literal.h"
 #include "platform.h"
 #include "string_view.h"
 
 namespace alpaca {
-
-using LiteralArray = Literal[];
 
 // Stores the fields to be returned in the response to a configureddevices
 // request, and provides a method for adding that data to the Value array.
@@ -60,7 +58,7 @@ struct DeviceInfo {
   const Literal driver_info;
   const Literal driver_version;
   const Literal interface_version;
-  const LiteralArray& supported_actions;
+  const LiteralArray supported_actions;
 
   // The config_id is a random number generated when a device is added, when the
   // *type(s)* of device(s) used changes, or perhaps when calibration parameters

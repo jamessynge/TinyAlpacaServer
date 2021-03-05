@@ -100,6 +100,7 @@ size_t JsonLiteral::printTo(Print& p) const {
 }
 
 #if TAS_HOST_TARGET
+// Supports streaming literals, useful for logging and debugging.
 class PrintableLiteral : public Printable {
  public:
   explicit PrintableLiteral(const Literal& literal) : literal_(literal) {}
