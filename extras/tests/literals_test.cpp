@@ -1,8 +1,8 @@
 #include "literals.h"
 
 #include "googletest/gtest.h"
-#include "string_compare.h"
-#include "string_view.h"
+#include "utils/string_compare.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace {

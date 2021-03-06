@@ -5,8 +5,8 @@
 #include "extras/tests/test_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
-#include "literal.h"
 #include "literals.h"
+#include "utils/literal.h"
 
 namespace alpaca {
 namespace {

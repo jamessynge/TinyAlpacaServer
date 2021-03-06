@@ -7,8 +7,8 @@
 // those strings, and to define factory functions for corresponding Literal
 // instances.
 
-#include "literal.h"
-#include "platform.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
 
 #ifdef TAS_DEFINE_BUILTIN_LITERAL
 #undef TAS_DEFINE_BUILTIN_LITERAL

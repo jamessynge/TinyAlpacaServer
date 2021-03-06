@@ -7,11 +7,11 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
-#include "any_string.h"
-#include "json_encoder.h"
 #include "literals.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/any_string.h"
+#include "utils/json_encoder.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 

@@ -1,4 +1,4 @@
-#include "counting_bitbucket.h"
+#include "utils/counting_bitbucket.h"
 
 // Tests of CountingBitbucket.
 //

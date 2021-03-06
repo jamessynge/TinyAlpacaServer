@@ -2,7 +2,7 @@
 
 #include "tiny_alpaca_server.h"
 
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

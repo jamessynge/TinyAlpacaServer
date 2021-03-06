@@ -1,9 +1,9 @@
 // TODO(jamessynge): Describe why this file exists/what it provides.
 
-#include "escaping.h"
+#include "utils/escaping.h"
 
-#include "logging.h"
-#include "platform.h"
+#include "utils/logging.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

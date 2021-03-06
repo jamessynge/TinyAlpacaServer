@@ -1,9 +1,9 @@
-#ifndef TINY_ALPACA_SERVER_SRC_PLATFORM_ETHERNET_H_
-#define TINY_ALPACA_SERVER_SRC_PLATFORM_ETHERNET_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_ETHERNET_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_ETHERNET_H_
 
 // Exports the Ethernet support needed by some parts of Tiny Alpaca Server.
 
-#include "platform.h"
+#include "utils/platform.h"
 
 #if TAS_EMBEDDED_TARGET
 
@@ -21,4 +21,4 @@ namespace alpaca {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_PLATFORM_ETHERNET_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_ETHERNET_H_

@@ -5,10 +5,10 @@
 // requests for common info about a device, and it also provides the list of
 // support custom actions (also accessed via the common ASCOM methods).
 #include "constants.h"
-#include "json_encoder.h"
-#include "literal.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/json_encoder.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 

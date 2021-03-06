@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_SRC_PLATFORM_H_
-#define TINY_ALPACA_SERVER_SRC_PLATFORM_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_H_
 
 // Provides platform setup and exporting of platform specific header files.
 //
@@ -59,4 +59,4 @@ constexpr size_t MaxOf4(size_t a, size_t b, size_t c, size_t d) {
   return MaxOf2(MaxOf2(a, b), MaxOf2(c, d));
 }
 
-#endif  // TINY_ALPACA_SERVER_SRC_PLATFORM_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_H_

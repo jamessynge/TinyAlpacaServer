@@ -6,10 +6,10 @@
 // response, after which it should be const so that we can emit it multiple
 // times if needed (unlikely).
 
-#include "any_string.h"
 #include "constants.h"
-#include "literal.h"
-#include "platform.h"
+#include "utils/any_string.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

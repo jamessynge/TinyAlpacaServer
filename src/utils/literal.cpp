@@ -1,8 +1,8 @@
-#include "literal.h"
+#include "utils/literal.h"
 
-#include "escaping.h"
-#include "logging.h"
-#include "platform.h"
+#include "utils/escaping.h"
+#include "utils/logging.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 namespace {

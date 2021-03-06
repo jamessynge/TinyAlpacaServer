@@ -10,7 +10,8 @@
 // Learn more about writing custom iterators here:
 //    https://internalpointers.com/post/writing-custom-iterators-modern-cpp
 
-#include "platform.h"
+#include "utils/platform.h"
+
 namespace alpaca {
 
 template <typename T, typename P = PGM_P>

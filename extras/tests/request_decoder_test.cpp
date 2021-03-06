@@ -22,7 +22,7 @@
 #include "googletest/gtest.h"
 #include "logging.h"
 #include "request_decoder_listener.h"
-#include "string_view.h"
+#include "utils/string_view.h"
 
 ABSL_DECLARE_FLAG(int, v);
 

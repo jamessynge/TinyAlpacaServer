@@ -7,8 +7,8 @@
 // Author: james.synge@gmail.com
 
 #include "constants.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 

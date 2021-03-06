@@ -1,6 +1,6 @@
-#include "string_compare.h"
+#include "utils/string_compare.h"
 
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

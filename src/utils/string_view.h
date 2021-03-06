@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_SRC_STRING_VIEW_H_
-#define TINY_ALPACA_SERVER_SRC_STRING_VIEW_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_STRING_VIEW_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_STRING_VIEW_H_
 
 // StringView supports referencing subsequences of a string without making any
 // copies. Does not support modifying the underlying string.
@@ -21,8 +21,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include "logging.h"
-#include "platform.h"
+#include "utils/logging.h"
+#include "utils/platform.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>
@@ -283,4 +283,4 @@ bool operator==(std::string_view a, const StringView& b);
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_STRING_VIEW_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_STRING_VIEW_H_

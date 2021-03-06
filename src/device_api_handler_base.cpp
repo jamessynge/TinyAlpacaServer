@@ -2,11 +2,11 @@
 
 #include "alpaca_response.h"
 #include "constants.h"
-#include "counting_bitbucket.h"
 #include "http_response_header.h"
-#include "json_encoder.h"
-#include "literal.h"
-#include "platform.h"
+#include "utils/counting_bitbucket.h"
+#include "utils/json_encoder.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

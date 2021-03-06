@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_SRC_LITERAL_H_
-#define TINY_ALPACA_SERVER_SRC_LITERAL_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_LITERAL_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_LITERAL_H_
 
 // This is an incomplete prototype of a Literal class, which references strings
 // stored in PROGMEM (flash), avoiding the need to copy it into RAM. This is
@@ -12,7 +12,7 @@
 // placement of variables marked PROGMEM, in particular whether there is an
 // attempt to place them early in the address space.
 
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 class JsonLiteral;
@@ -148,4 +148,4 @@ class JsonLiteral : public Printable {
 
 #endif  // !TAS_DEFINE_LITERAL
 
-#endif  // TINY_ALPACA_SERVER_SRC_LITERAL_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_LITERAL_H_

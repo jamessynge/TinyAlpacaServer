@@ -2,7 +2,7 @@
 
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace {
 

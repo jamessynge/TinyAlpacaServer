@@ -3,7 +3,7 @@
 
 // See: https://ascom-standards.org/Help/Developer/html/T_ASCOM_ErrorCodes.htm
 
-#include "platform.h"
+#include "utils/platform.h"
 #include "utils/status.h"
 
 namespace alpaca {

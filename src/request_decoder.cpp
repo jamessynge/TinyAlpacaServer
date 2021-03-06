@@ -18,10 +18,10 @@
 
 #include "config.h"
 #include "literals.h"
-#include "logging.h"
 #include "match_literals.h"
-#include "platform.h"
-#include "string_compare.h"
+#include "utils/logging.h"
+#include "utils/platform.h"
+#include "utils/string_compare.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified
 // as the rest of HTTP (AFAICT), so I'm assuming that:

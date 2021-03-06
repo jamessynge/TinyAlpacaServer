@@ -1,19 +1,25 @@
-#include "json_encoder.h"
+#include "utils/json_encoder.h"
 
 // Author: james.synge@gmail.com
 
-#include "counting_bitbucket.h"
-#include "literals.h"
-#include "platform.h"
+#include "utils/counting_bitbucket.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 namespace {
 
+TAS_DEFINE_LITERAL(JsonTrue, "true")
+TAS_DEFINE_LITERAL(JsonFalse, "false")
+TAS_DEFINE_LITERAL(JsonNan, "NaN")
+TAS_DEFINE_LITERAL(JsonNegInf, "-Inf")
+TAS_DEFINE_LITERAL(JsonInf, "Inf")
+
 void PrintBoolean(Print& out, const bool value) {
   if (value) {
-    Literals::JsonTrue().printTo(out);
+    JsonTrue().printTo(out);
   } else {
-    Literals::JsonFalse().printTo(out);
+    JsonFalse().printTo(out);
   }
 }
 
@@ -33,12 +39,12 @@ void PrintFloatingPoint(Print& out, const T value) {
   // Haven't got std::isnan or std::isfinite in the Arduino environment.
   // TODO(jamessynge): Consider using isnan and isfinite from avr-libc's math.h.
   if (std::isnan(value)) {
-    Literals::JsonNan().printJsonEscapedTo(out);
+    JsonNan().printJsonEscapedTo(out);
   } else if (!std::isfinite(value)) {
     if (value > 0) {
-      Literals::JsonInf().printJsonEscapedTo(out);
+      JsonInf().printJsonEscapedTo(out);
     } else {
-      Literals::JsonNegInf().printJsonEscapedTo(out);
+      JsonNegInf().printJsonEscapedTo(out);
     }
   } else {
 #endif

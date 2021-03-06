@@ -2,8 +2,8 @@
 
 #include "server_description.h"
 
-#include "json_encoder.h"
 #include "literals.h"
+#include "utils/json_encoder.h"
 
 namespace alpaca {
 

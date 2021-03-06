@@ -10,7 +10,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "platform.h"
+#include "utils/platform.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>

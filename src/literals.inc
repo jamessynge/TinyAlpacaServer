@@ -95,11 +95,6 @@ TAS_DEFINE_BUILTIN_LITERAL(HttpAccept, "Accept")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentEncoding, "Content-Encoding")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentLength, "Content-Length")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentType, "Content-Type")
-TAS_DEFINE_BUILTIN_LITERAL(JsonTrue, "true") // Used in json_encoder.
-TAS_DEFINE_BUILTIN_LITERAL(JsonFalse, "false") // Used in json_encoder.
-TAS_DEFINE_BUILTIN_LITERAL(JsonNan, "NaN") // Used in json_encoder.
-TAS_DEFINE_BUILTIN_LITERAL(JsonNegInf, "-Inf") // Used in json_encoder.
-TAS_DEFINE_BUILTIN_LITERAL(JsonInf, "Inf") // Could add constexpr Literal::substr.
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded, "application/x-www-form-urlencoded")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeTextPlain, "text/plain")

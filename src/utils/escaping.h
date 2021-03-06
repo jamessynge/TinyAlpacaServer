@@ -1,10 +1,10 @@
-#ifndef TINY_ALPACA_SERVER_SRC_ESCAPING_H_
-#define TINY_ALPACA_SERVER_SRC_ESCAPING_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_ESCAPING_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_ESCAPING_H_
 
 // Core of support for printing JSON strings. Characters that are not valid in
 // JSON strings (e.g. Ctrl-A) are not printed.
 
-#include "platform.h"
+#include "utils/platform.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>
@@ -23,4 +23,4 @@ void StreamCharJsonEscaped(std::ostream& out, const char c);
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_ESCAPING_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_ESCAPING_H_

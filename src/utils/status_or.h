@@ -4,8 +4,8 @@
 // This is a simplistic version of absl::StatusOr, supporting methods that
 // need to return a value, or an error status.
 
-#include "logging.h"
-#include "platform.h"
+#include "utils/logging.h"
+#include "utils/platform.h"
 #include "utils/status.h"
 
 namespace alpaca {

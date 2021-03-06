@@ -1,9 +1,9 @@
-#ifndef TINY_ALPACA_SERVER_SRC_ANY_STRING_H_
-#define TINY_ALPACA_SERVER_SRC_ANY_STRING_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_ANY_STRING_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_ANY_STRING_H_
 
-#include "literal.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 
@@ -34,4 +34,4 @@ class AnyString : public Printable {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_ANY_STRING_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_ANY_STRING_H_

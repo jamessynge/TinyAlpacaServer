@@ -1,8 +1,8 @@
 // TODO(jamessynge): Describe why this file exists/what it provides.
 
-#include "any_string.h"
+#include "utils/any_string.h"
 
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

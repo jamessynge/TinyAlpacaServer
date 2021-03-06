@@ -1,10 +1,10 @@
 #ifndef TINY_ALPACA_SERVER_SRC_SERVER_DESCRIPTION_H_
 #define TINY_ALPACA_SERVER_SRC_SERVER_DESCRIPTION_H_
 
-#include "json_encoder.h"
-#include "literal.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/json_encoder.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 

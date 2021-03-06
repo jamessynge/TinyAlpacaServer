@@ -6,8 +6,8 @@
 
 #include <functional>
 
-#include "json_encoder.h"
-#include "platform.h"
+#include "utils/json_encoder.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

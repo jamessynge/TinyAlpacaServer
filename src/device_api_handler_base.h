@@ -11,7 +11,7 @@
 
 #include "alpaca_request.h"
 #include "device_info.h"
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

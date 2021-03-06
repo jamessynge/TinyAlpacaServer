@@ -2,7 +2,7 @@
 
 #include "ascom_error_codes.h"
 
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

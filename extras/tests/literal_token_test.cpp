@@ -1,12 +1,12 @@
-#include "literal_token.h"
+#include "utils/literal_token.h"
 
 #include <cstdint>
 
 #include "extras/tests/test_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace {

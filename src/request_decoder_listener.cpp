@@ -3,8 +3,8 @@
 // Author: james.synge@gmail.com
 
 #include "constants.h"
-#include "logging.h"
-#include "string_view.h"
+#include "utils/logging.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 

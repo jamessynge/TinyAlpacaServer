@@ -1,11 +1,11 @@
-#ifndef TINY_ALPACA_SERVER_SRC_STRING_COMPARE_H_
-#define TINY_ALPACA_SERVER_SRC_STRING_COMPARE_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_STRING_COMPARE_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_STRING_COMPARE_H_
 
 // TODO(jamessynge): Describe why this file exists/what it provides.
 
-#include "literal.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 
@@ -27,4 +27,4 @@ bool StartsWith(const StringView& text, const Literal& prefix);
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_STRING_COMPARE_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_STRING_COMPARE_H_

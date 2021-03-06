@@ -24,7 +24,7 @@
 // * TAS handles the UDP packets of the Alpaca discovery protocol using data
 //   provided at startup (e.g. the set of attached devices).
 
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

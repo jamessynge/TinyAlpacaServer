@@ -5,9 +5,9 @@
 
 #include "config.h"
 #include "constants.h"
-#include "logging.h"
-#include "platform.h"
-#include "string_view.h"
+#include "utils/logging.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 #include "extra_parameters.h"

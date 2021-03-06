@@ -50,7 +50,6 @@
 //
 // Author: james.synge@gmail.com
 
-#include "literal_token.h"
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
@@ -58,6 +57,7 @@
 #include "TinyAlpacaServer.h"
 #include "extras/futures/pretend_devices.h"
 #endif
+
 /*
 using ::alpaca::AlpacaRequest;
 using ::alpaca::DeviceApiHandlerBase;

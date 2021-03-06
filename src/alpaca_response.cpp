@@ -1,9 +1,9 @@
 #include "alpaca_response.h"
 
 #include "http_response_header.h"
-#include "json_encoder.h"
 #include "json_response.h"
-#include "platform.h"
+#include "utils/json_encoder.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 namespace {

@@ -1,13 +1,13 @@
-#ifndef TINY_ALPACA_SERVER_SRC_TINY_STRING_H_
-#define TINY_ALPACA_SERVER_SRC_TINY_STRING_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_TINY_STRING_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_TINY_STRING_H_
 
 // TinyString is a string with a fixed maximum size and no NUL termination.
 // It can be used where we know the maximum size needed for a small, variable
 // length string; for example, storing the values of some parameters that might
 // come in requests.
 
-#include "logging.h"
-#include "platform.h"
+#include "utils/logging.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 
@@ -57,4 +57,4 @@ class TinyString {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_TINY_STRING_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_TINY_STRING_H_

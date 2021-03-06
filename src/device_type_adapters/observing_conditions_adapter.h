@@ -4,7 +4,7 @@
 // TODO(jamessynge): Describe why this file exists/what it provides.
 
 #include "device_api_handler_base.h"
-#include "platform.h"
+#include "utils/platform.h"
 #include "utils/status_or.h"
 
 namespace alpaca {

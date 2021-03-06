@@ -4,9 +4,9 @@
 // Functions for generating an HTTP response message to a Print instance.
 
 #include "alpaca_request.h"
-#include "any_string.h"
-#include "json_encoder.h"
-#include "platform.h"
+#include "utils/any_string.h"
+#include "utils/json_encoder.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

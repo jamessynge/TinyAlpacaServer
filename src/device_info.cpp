@@ -3,8 +3,8 @@
 #include "device_info.h"
 
 #include "constants.h"
-#include "json_encoder.h"
 #include "literals.h"
+#include "utils/json_encoder.h"
 
 namespace alpaca {
 

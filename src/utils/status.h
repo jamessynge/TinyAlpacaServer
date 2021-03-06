@@ -9,7 +9,7 @@
 //         Reserved error code (0x8004040C) to indicate that the
 //         requested action is not implemented in this driver.
 
-#include "platform.h"
+#include "utils/platform.h"
 
 namespace alpaca {
 

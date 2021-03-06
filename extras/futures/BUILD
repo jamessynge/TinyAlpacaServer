@@ -8,7 +8,9 @@ cc_library(
 cc_library(
     name = "progmem_pointer",
     hdrs = ["progmem_pointer.h"],
-    deps = [":platform"],
+    deps = [
+        ":platform",
+    ],
 )
 
 cc_library(
@@ -20,7 +22,6 @@ cc_library(
     ],
     deps = [
         ":TinyAlpacaServer",
-        ":literal_token",
         ":pretend_devices",
     ],
 )

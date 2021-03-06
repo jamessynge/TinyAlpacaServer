@@ -1,15 +1,15 @@
-#ifndef TINY_ALPACA_SERVER_SRC_LITERAL_TOKEN_H_
-#define TINY_ALPACA_SERVER_SRC_LITERAL_TOKEN_H_
+#ifndef TINY_ALPACA_SERVER_SRC_UTILS_LITERAL_TOKEN_H_
+#define TINY_ALPACA_SERVER_SRC_UTILS_LITERAL_TOKEN_H_
 
 // Provides support for searching fixed size tables of Literals for a match to
 // a StringView. For now these tables are in the .data section (i.e. copied into
 // RAM), but ideally we'd be able store these in PROGMEM and thus save RAM on
 // the AVR chips used on Arduino Unos, Megas, and related boards.
 
-#include "literal.h"
-#include "platform.h"
-#include "string_compare.h"
-#include "string_view.h"
+#include "utils/literal.h"
+#include "utils/platform.h"
+#include "utils/string_compare.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 
@@ -66,4 +66,4 @@ bool MaybeMatchLiteralTokensCaseInsensitively(
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_LITERAL_TOKEN_H_
+#endif  // TINY_ALPACA_SERVER_SRC_UTILS_LITERAL_TOKEN_H_

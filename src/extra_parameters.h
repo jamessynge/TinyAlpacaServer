@@ -12,9 +12,9 @@
 
 #include "config.h"
 #include "constants.h"
-#include "platform.h"
-#include "string_view.h"
-#include "tiny_string.h"
+#include "utils/platform.h"
+#include "utils/string_view.h"
+#include "utils/tiny_string.h"
 
 // The minimum is 2 to allow for testing of this feature.
 

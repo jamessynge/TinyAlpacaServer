@@ -1,9 +1,9 @@
-#include "string_view.h"
+#include "utils/string_view.h"
 
 // Author: james.synge@gmail.com
 
-#include "escaping.h"
-#include "platform.h"
+#include "utils/escaping.h"
+#include "utils/platform.h"
 
 #if TAS_HOST_TARGET
 #include "absl/strings/escaping.h"
