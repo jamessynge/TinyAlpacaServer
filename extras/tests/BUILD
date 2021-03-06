@@ -8,6 +8,8 @@ cc_test(
     deps = [
         ":alpaca_response",
         ":json_test_utils",
+        ":literal",
+        ":literals",
         ":test_utils",
         "//absl/strings",
         "//googletest:gunit_main",

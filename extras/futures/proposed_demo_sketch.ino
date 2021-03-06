@@ -58,7 +58,7 @@
 #include "TinyAlpacaServer.h"
 #include "extras/futures/pretend_devices.h"
 #endif
-
+/*
 using ::alpaca::AlpacaRequest;
 using ::alpaca::DeviceApiHandlerBase;
 using ::alpaca::Literal;
@@ -77,6 +77,7 @@ TAS_DEFINE_LITERAL(ManufacturerVersion,
 TAS_DEFINE_LITERAL(DHT22Name, "DHT22");
 TAS_DEFINE_LITERAL(DHT22Description, "DHT22 Humidity and Temperature Sensor");
 TAS_DEFINE_LITERAL(DHT22DriverInfo, "https://github/aavso/...");
+TAS_DEFINE_LITERAL(DHT22DriverVersion, "https://github/aavso/...");
 
 // TODO(jamessynge): Add support for storing in EEPROM.
 TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory");
@@ -95,9 +96,9 @@ const alpaca::DeviceInfo kDht22DeviceInfo{
     .device_number = 1,
     .name = DHT22Name(),
     .description = DHT22Description(),
-    .driverinfo = DHT22DriverInfo(),
-    .driverversion = "2021-05-10 OR git commit SHA=abcdef0123456 OR ?",
-    .interfaceversion = 1,
+    .driver_info = DHT22DriverInfo(),
+    .driver_version = DHT22DriverVersion(),
+    .interface_version = 1,
     .supported_actions = kSupportedActions,
 
     // The config_id is a random number generated when a device is added,
@@ -109,157 +110,158 @@ const alpaca::DeviceInfo kDht22DeviceInfo{
     .config_id = 179122466,
 };
 
+
 class Dht22Handler : DeviceApiHandlerBase {
- public:
-  Dht22Handler() : DeviceApiHandlerBase(kDht22DeviceInfo) {}
+public:
+Dht22Handler() : DeviceApiHandlerBase(kDht22DeviceInfo) {}
 
-  // Fill buffer with up to buffer_size unique bytes from the hardware, return
-  // the number of bytes copied. Return 0 (or don't override) if the hardware
-  // can not provide this.
-  // Ideally, we'd provide a /setup page allowing the UniqueId generated for
-  // a device to be cleared, i.e. when we have had to replace a sensor with
-  // another of the same type. Perhaps we should do this via the "actions"
-  // ASCOM method?
-  size_t GetUniqueBytes(uint8_t* buffer, size_t buffer_size) override {
-    return 0;
-  }
+// Fill buffer with up to buffer_size unique bytes from the hardware, return
+// the number of bytes copied. Return 0 (or don't override) if the hardware
+// can not provide this.
+// Ideally, we'd provide a /setup page allowing the UniqueId generated for
+// a device to be cleared, i.e. when we have had to replace a sensor with
+// another of the same type. Perhaps we should do this via the "actions"
+// ASCOM method?
+size_t GetUniqueBytes(uint8_t* buffer, size_t buffer_size) override {
+return 0;
+}
 
-  void HandleGetRequest(const AlpacaRequest& request, Print& out) override {
-    switch (request.device_method) {
-      case EDeviceMethod::kHumidity:
-        return SendJsonDoubleResponse(dht22.get_relative_humidity());
+void HandleGetRequest(const AlpacaRequest& request, Print& out) override {
+switch (request.device_method) {
+case EDeviceMethod::kHumidity:
+return SendJsonDoubleResponse(dht22.get_relative_humidity());
 
-      case EDeviceMethod::kTemperature:
-        return SendJsonDoubleResponse(dht22.get_temperature());
+case EDeviceMethod::kTemperature:
+return SendJsonDoubleResponse(dht22.get_temperature());
 
-      case EDeviceMethod::kSensorDescription:
-        return HandleSensorDescriptionRequest(request, out);
+case EDeviceMethod::kSensorDescription:
+return HandleSensorDescriptionRequest(request, out);
 
-      default:
-        // For common methods, this will delegate to overrideable methods such
-        // as HandleGetDescription, and for unsupported methods (e.g.
-        // "cloudcover"), and will delegate to methods such
-        return CommonDeviceHandler::HandleGetRequest(request, out);
-    }
-  }
+default:
+// For common methods, this will delegate to overrideable methods such
+// as HandleGetDescription, and for unsupported methods (e.g.
+// "cloudcover"), and will delegate to methods such
+return CommonDeviceHandler::HandleGetRequest(request, out);
+}
+}
 
-  bool GetConnected() override {
-    return ...;  // Return true if able to talk to the device.
-  }
+bool GetConnected() override {
+return ...;  // Return true if able to talk to the device.
+}
 
-  bool SetConnected(bool value) override {
-    // do something...
-    return value == GetConnected();
-  }
+bool SetConnected(bool value) override {
+// do something...
+return value == GetConnected();
+}
 
- private:
-  // Non-virtual support methods.
+private:
+// Non-virtual support methods.
 
-  void HandleSensorDescriptionRequest(const AlpacaRequest& request,
-                                      Print& out) {
-    if (!request.extra_parameters.contains(EParameter::kSensorName)) {
-      return SendMissingParameter(EParameter::kSensorName);
-    }
-    StringView sensor_name =
-        request.extra_parameters.find(EParameter::kSensorName);
-    if (sensor_name.case_equals(alpaca::Literals::kHumidity) ||
-        sensor_name.case_equals(alpaca::Literals::kTemperature)) {
-      return SendJsonStringResponse("DHT22 Temperature-Humidity Sensor");
-    }
-    return SendInvalidParameterValue(request, out, EParameter::kSensorName,
-                                     sensor_name);
-  }
+void HandleSensorDescriptionRequest(const AlpacaRequest& request,
+                              Print& out) {
+if (!request.extra_parameters.contains(EParameter::kSensorName)) {
+return SendMissingParameter(EParameter::kSensorName);
+}
+StringView sensor_name =
+request.extra_parameters.find(EParameter::kSensorName);
+if (sensor_name.case_equals(alpaca::Literals::kHumidity) ||
+sensor_name.case_equals(alpaca::Literals::kTemperature)) {
+return SendJsonStringResponse("DHT22 Temperature-Humidity Sensor");
+}
+return SendInvalidParameterValue(request, out, EParameter::kSensorName,
+                             sensor_name);
+}
 };
 
 constexpr alpaca::DeviceInfo kAagDeviceInfo{
-    .device_type = EDeviceType::kObservingConditions,
-    .device_number = 2,
-    .name = "AAG CloudWatcher",
-    .description = "Lunatico Astro AAG CloudWatcher",
-    .driverinfo = "https://github/aavso/...",
-    .driverversion =
-        "2021-05-10, git commit SHA=abcdef0123456".interfaceversion = 1,
-    .supported_actions = kObservingConditionsActions,
+.device_type = EDeviceType::kObservingConditions,
+.device_number = 2,
+.name = "AAG CloudWatcher",
+.description = "Lunatico Astro AAG CloudWatcher",
+.driverinfo = "https://github/aavso/...",
+.driverversion =
+"2021-05-10, git commit SHA=abcdef0123456".interfaceversion = 1,
+.supported_actions = kObservingConditionsActions,
 };
 
 class AagCloudWatcherHandler : CommonDeviceHandler {
- public:
-  AagCloudWatcherHandler()
-      : CommonDeviceHandler(kObservingConditionsCommonInfo) {}
+public:
+AagCloudWatcherHandler()
+: CommonDeviceHandler(kObservingConditionsCommonInfo) {}
 
-  void HandleGetRequest(const AlpacaRequest& request, Print& out) override {
-    switch (request.device_method) {
-      case EDeviceMethod::kHumidity:
-        return SendJsonDoubleResponse(aag.get_relative_humidity());
+void HandleGetRequest(const AlpacaRequest& request, Print& out) override {
+switch (request.device_method) {
+case EDeviceMethod::kHumidity:
+return SendJsonDoubleResponse(aag.get_relative_humidity());
 
-      case EDeviceMethod::kRainRate:
-        return SendJsonDoubleResponse(aag.get_rain_rate());
+case EDeviceMethod::kRainRate:
+return SendJsonDoubleResponse(aag.get_rain_rate());
 
-      case EDeviceMethod::kSkyBrightness:
-        return SendJsonDoubleResponse(aag.get_sky_brightness());
+case EDeviceMethod::kSkyBrightness:
+return SendJsonDoubleResponse(aag.get_sky_brightness());
 
-      case EDeviceMethod::kSkyTemperature:
-        return SendJsonDoubleResponse(aag.get_sky_temp());
+case EDeviceMethod::kSkyTemperature:
+return SendJsonDoubleResponse(aag.get_sky_temp());
 
-      case EDeviceMethod::kTemperature:
-        return SendJsonDoubleResponse(aag.get_ambient_temperature());
+case EDeviceMethod::kTemperature:
+return SendJsonDoubleResponse(aag.get_ambient_temperature());
 
-      case EDeviceMethod::kSensorDescription:
-        return HandleSensorDescriptionRequest(request, out);
+case EDeviceMethod::kSensorDescription:
+return HandleSensorDescriptionRequest(request, out);
 
-      default:
-        // For common methods, this will delegate to overrideable methods such
-        // as HandleGetDescription, and for unsupported methods (e.g.
-        // "cloudcover"), and will delegate to methods such
-        return CommonDeviceHandler::HandleGetRequest(request, out);
-    };
-  }
+default:
+// For common methods, this will delegate to overrideable methods such
+// as HandleGetDescription, and for unsupported methods (e.g.
+// "cloudcover"), and will delegate to methods such
+return CommonDeviceHandler::HandleGetRequest(request, out);
+}
+}
 
-  bool GetConnected() override {
-    return ...;  // Return true if able to talk to the device.
-  }
+bool GetConnected() override {
+return ...;  // Return true if able to talk to the device.
+}
 
-  bool SetConnected(bool value) override {
-    // do something, return a value.
-    return value == GetConnected();
-  }
+bool SetConnected(bool value) override {
+// do something, return a value.
+return value == GetConnected();
+}
 
-  void HandlePutRequest(const AlpacaRequest& request, Print& out) {
-    // do something, issue a response
-  }
+void HandlePutRequest(const AlpacaRequest& request, Print& out) {
+// do something, issue a response
+}
 
- private:
-  // Non-virtual support methods.
+private:
+// Non-virtual support methods.
 
-  void HandleSensorDescriptionRequest(const AlpacaRequest& request,
-                                      Print& out) {
-    if (!request.extra_parameters.contains(EParameter::kSensorName)) {
-      return SendMissingParameter(EParameter::kSensorName);
-    }
-    StringView sensor_name =
-        request.extra_parameters.find(EParameter::kSensorName);
-    if (sensor_name.case_equals(alpaca::Literals::kHumidity) ||
-        sensor_name.case_equals(alpaca::Literals::kRainRate) ||
-        sensor_name.case_equals(alpaca::Literals::kSkyBrightness) ||
-        sensor_name.case_equals(alpaca::Literals::kSkyTemperature) ||
-        sensor_name.case_equals(alpaca::Literals::kTemperature)) {
-      return SendJsonStringResponse("AAG CloudWatcher");
-    }
-    return SendInvalidParameterValue(request, out, EParameter::kSensorName,
-                                     sensor_name);
-  }
+void HandleSensorDescriptionRequest(const AlpacaRequest& request,
+                              Print& out) {
+if (!request.extra_parameters.contains(EParameter::kSensorName)) {
+return SendMissingParameter(EParameter::kSensorName);
+}
+StringView sensor_name =
+request.extra_parameters.find(EParameter::kSensorName);
+if (sensor_name.case_equals(alpaca::Literals::kHumidity) ||
+sensor_name.case_equals(alpaca::Literals::kRainRate) ||
+sensor_name.case_equals(alpaca::Literals::kSkyBrightness) ||
+sensor_name.case_equals(alpaca::Literals::kSkyTemperature) ||
+sensor_name.case_equals(alpaca::Literals::kTemperature)) {
+return SendJsonStringResponse("AAG CloudWatcher");
+}
+return SendInvalidParameterValue(request, out, EParameter::kSensorName,
+                             sensor_name);
+}
 };
 
 static Dht22Handler dht_handler;
 static AagCloudWatcherHandler aag_handler;
 
 constexpr alpaca::CommonDeviceHandler& kDeviceHandlers[]{
-    dht_handler,
-    aag_handler,
+dht_handler,
+aag_handler,
 };
 
 static alpaca::Server alpaca_server(kServerDescription, kDeviceHandlers);
-
+*/
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
   // read.
@@ -269,33 +271,37 @@ void setup() {
   while (!Serial) {
   }
 
-  // Ask alpaca::Server to verify settings.
-  if (!alpaca_server.VerifyConfig()) {
-    announceFailure("Unable to verify Tiny Alpaca Server configuration");
-  }
+  //   // Ask alpaca::Server to verify settings.
+  //   if (!alpaca_server.VerifyConfig()) {
+  //     announceFailure("Unable to verify Tiny Alpaca Server configuration");
+  //   }
 
-  // Do hardware setup (e.g. init connection to sensors).
-  // TBD
+  //   // Do hardware setup (e.g. init connection to sensors).
+  //   // TBD
 
-  // The microcontroller may be ready before the network chip (based on docs and
-  // experience), so we wait a bit for hardware to be ready.
-  delay(200);
+  //   // The microcontroller may be ready before the network chip (based on
+  //   docs and
+  //   // experience), so we wait a bit for hardware to be ready.
+  //   delay(200);
 
-  // Initialize networking. Provide an "Organizationally Unique Identifier"
-  // that will be the first 3 bytes of the MAC addresses generated; this means
-  // that all boards running this sketch will share the first 3 bytes of their
-  // MAC addresses, which may help with locating them if other discovery means
-  // are failing.
-  OuiPrefix oui_prefix(0x52, 0xC4, 0x55);  // TODO Choose a value.
-  if (!alpaca_server.SetupNetworking(&oui_prefix)) {
-    announceFailure("Unable to initialize networking!");
-  }
+  //   // Initialize networking. Provide an "Organizationally Unique Identifier"
+  //   // that will be the first 3 bytes of the MAC addresses generated; this
+  //   means
+  //   // that all boards running this sketch will share the first 3 bytes of
+  //   their
+  //   // MAC addresses, which may help with locating them if other discovery
+  //   means
+  //   // are failing.
+  //   OuiPrefix oui_prefix(0x52, 0xC4, 0x55);  // TODO Choose a value.
+  //   if (!alpaca_server.SetupNetworking(&oui_prefix)) {
+  //     announceFailure("Unable to initialize networking!");
+  //   }
 }
 
 // For now only supporting one request at a time. Unless there are multiple
 // clients, and some clients are slow to write requests or read responses,
 // this shouldn't be a problem.
-static AlpacaRequest request;
+// static AlpacaRequest request;
 
 void loop() {
   // If there is a new client HTTP connection, start decoding the request;
@@ -307,5 +313,5 @@ void loop() {
   // W5500, both from Wiznet) have buffers of their own for TCP/IP packets, so
   // for the size of response we're likely to write (i.e. not image buffers),
   // we can reasonably expect to be able do so during one call to PerformIO.
-  alpaca_server.PerformIO(request);
+  // alpaca_server.PerformIO(request);
 }

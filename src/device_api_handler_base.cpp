@@ -30,25 +30,14 @@ void DeviceApiHandlerBase::HandleGetRequest(const AlpacaRequest& request,
       return WriteStringResponse(request, device_info_.driver_version, out);
 
     case EDeviceMethod::kInterfaceVersion:
-      return WriteStringResponse(request, device_info_.interface_version, out);
+      return WriteIntegerResponse(request, device_info_.interface_version, out);
 
     case EDeviceMethod::kName:
       return WriteStringResponse(request, device_info_.name, out);
 
     case EDeviceMethod::kSupportedActions:
-      return WriteArrayResponse(request, device_info_.supported_actions, out);
-
-      //       case EDeviceMethod::kConnected:
-      //         return SendJsonDoubleResponse(dht22.get_relative_humidity());
-
-      //       case EDeviceMethod::kConnected:
-      //         return SendJsonDoubleResponse(dht22.get_relative_humidity());
-
-      //       case EDeviceMethod::kTemperature:
-      //         return SendJsonDoubleResponse(dht22.get_temperature());
-
-      //       case EDeviceMethod::kSensorDescription:
-      //         return HandleSensorDescriptionRequest(request, out);
+      return WriteLiteralArrayResponse(request, device_info_.supported_actions,
+                                       out);
 
     default:
       // TODO(jamessynge): Write a NOT IMPLEMENTED error response.

@@ -5,6 +5,8 @@
 #include "extras/tests/test_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "literal.h"
+#include "literals.h"
 
 namespace alpaca {
 namespace {
@@ -22,20 +24,41 @@ TEST(AlpacaResponseTest, SimpleOk) {
                    kEOL, "Content-Length: 2", kEOL, kEOL, "{}"));
 }
 
-TEST(AlpacaResponseTest, ValueTrue) {
+TEST(AlpacaResponseTest, ArrayOfLiterals) {
+  const Literal kLiterals[] = {Literals::DeviceType(),
+                               Literals::ManufacturerVersion()};
+  LiteralArray value(kLiterals);
+
+  AlpacaRequest request;
+  PrintToString out;
+  WriteLiteralArrayResponse(request, value, out);
+
+  const std::string expected_body =
+      R"({"Value": ["DeviceType", "ManufacturerVersion"],)"
+      R"( "ErrorNumber": 0, "ErrorMessage": ""})";
+  EXPECT_EQ(
+      out.str(),
+      absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
+                   "Connection: close", kEOL, "Content-Type: application/json",
+                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
+                   expected_body));
+}
+
+TEST(AlpacaResponseTest, BoolTrue) {
   AlpacaRequest request;
   request.set_server_transaction_id(0);
   PrintToString out;
   WriteBoolResponse(request, true, out);
 
-  std::string body = R"({"Value": true, "ServerTransactionId": 0,)"
-                     R"( "ErrorNumber": 0, "ErrorMessage": ""})";
-
+  const std::string expected_body =
+      R"({"Value": true, "ServerTransactionId": 0,)"
+      R"( "ErrorNumber": 0, "ErrorMessage": ""})";
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
                    "Connection: close", kEOL, "Content-Type: application/json",
-                   kEOL, "Content-Length: ", body.size(), kEOL, kEOL, body));
+                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
+                   expected_body));
 }
 
 TEST(AlpacaResponseTest, Double) {
@@ -52,15 +75,15 @@ TEST(AlpacaResponseTest, Double) {
   PrintToString out;
   WriteDoubleResponse(request, value, out);
 
-  std::string body = absl::StrCat(R"({"Value": )", value_str,
-                                  R"(, "ClientTransactionId": 99,)",
-                                  R"( "ErrorNumber": 0, "ErrorMessage": ""})");
-
+  const std::string expected_body = absl::StrCat(
+      R"({"Value": )", value_str, R"(, "ClientTransactionId": 99,)",
+      R"( "ErrorNumber": 0, "ErrorMessage": ""})");
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
                    "Connection: close", kEOL, "Content-Type: application/json",
-                   kEOL, "Content-Length: ", body.size(), kEOL, kEOL, body));
+                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
+                   expected_body));
 }
 
 }  // namespace

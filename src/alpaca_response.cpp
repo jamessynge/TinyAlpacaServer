@@ -35,14 +35,9 @@ void WriteOkResponse(const JsonPropertySource& source, Print& out) {
 }
 
 void WriteArrayResponse(const AlpacaRequest& request,
-                        const JsonElementSource& elements, Print& out) {
-  JsonArrayResponse source(request, elements);
+                        const JsonElementSource& value, Print& out) {
+  JsonArrayResponse source(request, value);
   WriteOkResponse(source, out);
-}
-
-void WriteArrayResponse(const AlpacaRequest& request,
-                        const LiteralArray& literals, Print& out) {
-  WriteArrayResponse(request, LiteralArraySource(literals), out);
 }
 
 void WriteBoolResponse(const AlpacaRequest& request, bool value, Print& out) {
@@ -59,6 +54,23 @@ void WriteDoubleResponse(const AlpacaRequest& request, double value,
 void WriteFloatResponse(const AlpacaRequest& request, float value, Print& out) {
   JsonFloatResponse source(request, value);
   WriteOkResponse(source, out);
+}
+
+void WriteIntegerResponse(const AlpacaRequest& request, uint32_t value,
+                          Print& out) {
+  JsonUnsignedIntegerResponse source(request, value);
+  WriteOkResponse(source, out);
+}
+
+void WriteIntegerResponse(const AlpacaRequest& request, int32_t value,
+                          Print& out) {
+  JsonIntegerResponse source(request, value);
+  WriteOkResponse(source, out);
+}
+
+void WriteLiteralArrayResponse(const AlpacaRequest& request,
+                               const LiteralArray& value, Print& out) {
+  WriteArrayResponse(request, LiteralArraySource(value), out);
 }
 
 void WriteStringResponse(const AlpacaRequest& request, const AnyString& value,

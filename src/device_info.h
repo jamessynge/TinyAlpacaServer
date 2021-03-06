@@ -57,7 +57,7 @@ struct DeviceInfo {
   const Literal description;
   const Literal driver_info;
   const Literal driver_version;
-  const Literal interface_version;
+  const int16_t interface_version;
   const LiteralArray supported_actions;
 
   // The config_id is a random number generated when a device is added, when the

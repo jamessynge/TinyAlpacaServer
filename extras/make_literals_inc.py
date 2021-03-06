@@ -9,7 +9,7 @@ def process_source_file(fpath: str) -> Dict[str, str]:
   # Read source file as a single string, repeatedly use regexp to locate start
   # of a DEFINE_LITERAL, then other regexp to pull out the name and value of
   # the literal.
-  pass
+  return {fpath: fpath}  # Just to shut up the linter until I write the impl.
 
 
 def main(argv: Sequence[str]) -> None:

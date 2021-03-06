@@ -105,6 +105,34 @@ class JsonFloatResponse : public JsonMethodResponse {
   const float value_;
 };
 
+class JsonUnsignedIntegerResponse : public JsonMethodResponse {
+ public:
+  JsonUnsignedIntegerResponse(const AlpacaRequest& request, uint32_t value)
+      : JsonMethodResponse(request), value_(value) {}
+
+  void AddTo(JsonObjectEncoder& object_encoder) const override {
+    object_encoder.AddIntegerProperty(Literals::Value(), value_);
+    JsonMethodResponse::AddTo(object_encoder);
+  }
+
+ private:
+  const uint32_t value_;
+};
+
+class JsonIntegerResponse : public JsonMethodResponse {
+ public:
+  JsonIntegerResponse(const AlpacaRequest& request, int32_t value)
+      : JsonMethodResponse(request), value_(value) {}
+
+  void AddTo(JsonObjectEncoder& object_encoder) const override {
+    object_encoder.AddIntegerProperty(Literals::Value(), value_);
+    JsonMethodResponse::AddTo(object_encoder);
+  }
+
+ private:
+  const int32_t value_;
+};
+
 class JsonStringResponse : public JsonMethodResponse {
  public:
   JsonStringResponse(const AlpacaRequest& request, AnyString value)

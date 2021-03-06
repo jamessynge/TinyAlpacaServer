@@ -73,6 +73,16 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "ascom_error_codes",
+    srcs = ["ascom_error_codes.cc"],
+    hdrs = ["ascom_error_codes.h"],
+    deps = [
+        ":platform",
+        ":status",
+    ],
+)
+
 # config.h specifies the set of features available (e.g. std::string) on
 # the target platform of the Tiny Alpaca Server.
 cc_library(
