@@ -10,6 +10,8 @@
 
 namespace alpaca {
 
+// T can not be a class with virtual functions, nor with a destructor, because
+// it must be valid as the type of a member of an anonymous union.
 template <typename T>
 class StatusOr {
  public:

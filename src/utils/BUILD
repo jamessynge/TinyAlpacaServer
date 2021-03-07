@@ -84,7 +84,39 @@ cc_library(
 cc_library(
     name = "platform_ethernet",
     hdrs = ["platform_ethernet.h"],
-    deps = [":platform"],
+    deps = [
+        ":host_sockets",
+        ":platform",
+    ],
+)
+
+cc_library(
+    name = "platform_ethernet_cc",
+    srcs = ["platform_ethernet.cc"],
+    hdrs = ["platform_ethernet.h"],
+    deps = [
+        ":host_sockets",
+        ":platform",
+    ],
+)
+
+cc_library(
+    name = "server_connection_base",
+    srcs = ["server_connection_base.cc"],
+    hdrs = ["server_connection_base.h"],
+    deps = [
+        ":logging",
+        ":platform",
+        ":platform_ethernet_cc",
+    ],
+)
+
+cc_library(
+    name = "status",
+    hdrs = ["status.h"],
+    deps = [
+        ":platform",
+    ],
 )
 
 cc_library(

@@ -213,6 +213,12 @@ cc_library(
 )
 
 cc_library(
+    name = "server_connection",
+    hdrs = ["server_connection.h"],
+    deps = [":platform"],
+)
+
+cc_library(
     name = "server_description",
     srcs = ["server_description.cc"],
     hdrs = ["server_description.h"],

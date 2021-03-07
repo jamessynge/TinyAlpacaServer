@@ -8,6 +8,7 @@ cc_library(
     deps = [
         ":ethernet_class",
         ":ethernet_client",
+        ":ethernet_config",
         ":ip_address",
     ],
 )
@@ -24,5 +25,20 @@ cc_library(
     hdrs = ["ethernet_client.h"],
     deps = [
         ":client",
+    ],
+)
+
+cc_library(
+    name = "ethernet_config",
+    hdrs = ["ethernet_config.h"],
+)
+
+cc_library(
+    name = "host_sockets",
+    srcs = ["host_sockets.cc"],
+    hdrs = ["host_sockets.h"],
+    deps = [
+        ":ethernet_config",
+        "//core:logging",
     ],
 )
