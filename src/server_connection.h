@@ -6,17 +6,25 @@
 // allocation and a fixed maximum number of TCP connections, we pre-allocate
 // everything needed to handle one TCP connection.
 
+#include "alpaca_request.h"
 #include "utils/platform.h"
+#include "utils/server_connection_base.h"
 
 namespace alpaca {
 
-class ServerConnection {
+class ServerConnection : public ServerConnectionBase {
  public:
-  ServerConnection(uint16_t tcp_port, int sock_num);
+  ServerConnection(int sock_num, uint16_t tcp_port);
+
+  // Methods from base class. These are public here to allow for testing.
+  void OnConnect(EthernetClient& client) override;
+  void OnCanRead(EthernetClient& client) override;
+  void OnClientDone(EthernetClient& client) override;
 
  private:
-  const uint16_t tcp_port_;
   const int sock_num_;
+  const uint16_t tcp_port_;
+  AlpacaRequest request_;
 };
 
 }  // namespace alpaca

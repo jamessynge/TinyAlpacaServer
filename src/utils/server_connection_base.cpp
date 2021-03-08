@@ -1,5 +1,6 @@
 #include "utils/server_connection_base.h"
 
+#include "extras/ethernet3/host_sockets.h"
 #include "utils/logging.h"
 #include "utils/platform_ethernet.h"
 
@@ -28,44 +29,42 @@ ServerConnectionBase::ServerConnectionBase(int sock_num, uint16_t tcp_port)
 ServerConnectionBase::~ServerConnectionBase() {}
 
 void ServerConnectionBase::BeginListening() {
-  // We assume the socket is not in use, but complain in debug if we made a
-  // mistake.
+  // We assume the socket is not in use, but fail in debug if we made a mistake.
   TAS_DCHECK(!was_connected_,
              "Why is socket " << sock_num_ << " already connected?");
+  DoListen();
+}
 
-  InitializeTcpListenerSocket(sock_num_, tcp_port_);
+void ServerConnectionBase::DoListen() {
   was_connected_ = false;
+  // TODO(jamessynge): Are there timeouts we should specify, e.g. for detecting
+  // a client that doesn't ACK fast enough, or doesn't keep the connection
+  // alive?
+  InitializeTcpListenerSocket(sock_num_, tcp_port_);
 }
 
 void ServerConnectionBase::PerformIO() {
   ExtendedEthernetClient client(sock_num_);
 
   if (!was_connected_) {
-    if (client.connected()) {
-      return;
-    }
-    OnConnect(client);
-    if (client.stopped()) {
-      InitializeTcpListenerSocket(sock_num_, tcp_port_);
+    if (!AcceptConnection(sock_num_)) {
       return;
     }
     was_connected_ = true;
+    OnConnect(client);
+  } else {
+    // TODO(jamessynge): Detect connection timeout based disconnection (i.e. no
+    // ACKs from peer for long enough).
+    if (client.available() > 0) {
+      OnCanRead(client);
+    } else if (IsClientDone(sock_num_)) {
+      // We've read all we can from the client, but the connection is still open
+      // so we can still write.
+      OnClientDone(client);
+    }
   }
-
-  if (IsClientDone(sock_num_)) {
-    // We've read all we can from the client, but the connection is still open
-    // so we can still write.
-    OnClientDone(client);
-  }
-
-  if (client.available() > 0) {
-    OnCanRead(client);
-  }
-
   if (client.stopped()) {
-    InitializeTcpListenerSocket(sock_num_, tcp_port_);
-    was_connected_ = false;
-    return;
+    DoListen();
   }
 }
 

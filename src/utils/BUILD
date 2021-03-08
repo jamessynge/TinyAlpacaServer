@@ -105,6 +105,7 @@ cc_library(
     srcs = ["server_connection_base.cc"],
     hdrs = ["server_connection_base.h"],
     deps = [
+        ":host_sockets",
         ":logging",
         ":platform",
         ":platform_ethernet_cc",

@@ -215,7 +215,11 @@ cc_library(
 cc_library(
     name = "server_connection",
     hdrs = ["server_connection.h"],
-    deps = [":platform"],
+    deps = [
+        ":alpaca_request",
+        ":platform",
+        ":server_connection_base",
+    ],
 )
 
 cc_library(

@@ -21,6 +21,9 @@ bool InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port);
 // connected to a client, and a new connection is available, accept it.
 bool AcceptConnection(int sock_num);
 
+// Returns true if socket 'sock_num' is connected to a peer.
+bool IsConnected(int sock_num);
+
 // SnSR::CLOSE_WAIT && no data available to read.
 bool IsClientDone(int sock_num);
 

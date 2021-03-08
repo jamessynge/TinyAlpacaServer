@@ -6,6 +6,12 @@
 
 #include "extras/host_arduino/ip_address.h"  // IWYU pragma: export
 
+#define DHCP_CHECK_NONE (0)
+#define DHCP_CHECK_RENEW_FAIL (1)
+#define DHCP_CHECK_RENEW_OK (2)
+#define DHCP_CHECK_REBIND_FAIL (3)
+#define DHCP_CHECK_REBIND_OK (4)
+
 class EthernetClass {
  public:
   // Declaring functions in the order called.
@@ -19,19 +25,15 @@ class EthernetClass {
   }
 
   // Maintains lease on DHCP, returns DHCP_CHECK_RENEW_OK, etc.
-  int maintain();
+  int maintain() { return DHCP_CHECK_RENEW_OK; }
 
-  IPAddress localIP();
+  IPAddress localIP() { return IPAddress(127, 0, 0, 1); }
   // IPAddress subnetMask();
   // IPAddress gatewayIP();
   // IPAddress dnsServerIP();
 
   // static EthernetLinkStatus linkStatus();
   // static EthernetHardwareStatus hardwareStatus();
-
-  // Pretend version of begin, does nothing.
-  template <class... T>
-  static void begin(T&&...) {}
 
   // static void MACAddress(uint8_t *mac_address);
   // static IPAddress localIP();
