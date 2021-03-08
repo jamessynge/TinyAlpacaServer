@@ -7,6 +7,7 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
+#include "config.h"
 #include "constants.h"
 #include "request_decoder_listener.h"
 #include "utils/platform.h"
@@ -22,7 +23,8 @@ namespace alpaca {
 struct RequestDecoderState {
   using DecodeFunction = EHttpStatusCode (*)(RequestDecoderState&, StringView&);
 
-  RequestDecoderState(AlpacaRequest& request, RequestDecoderListener& listener);
+  explicit RequestDecoderState(AlpacaRequest& request,
+                               RequestDecoderListener* listener = nullptr);
 
   // Prepares for decoding a new request
   void Reset();
@@ -67,7 +69,9 @@ struct RequestDecoderState {
   unsigned int found_content_length : 1;
 
   AlpacaRequest& request;
-  RequestDecoderListener& listener;
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+  RequestDecoderListener* const listener;
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 };
 
 // Supports decoding the request headers of HTTP messages (one at a time).

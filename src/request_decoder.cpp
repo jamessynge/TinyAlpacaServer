@@ -17,6 +17,7 @@
 #include "request_decoder.h"
 
 #include "config.h"
+#include "constants.h"
 #include "literals.h"
 #include "match_literals.h"
 #include "utils/logging.h"
@@ -226,10 +227,15 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
     // This is not a very complete comparison (i.e. would also match
     // "xxapplication/json+xyz"), but probably sufficient for our purpose.
     if (!value.contains(StringView("application/json"))) {
-      status = state.listener.OnExtraHeader(EHttpHeader::kHttpAccept, value);
-      // We're taking the status from the listener, even if it is
-      // kContinueDecoding, because it isn't a problem for this server if we
-      // produce a JSON result that the client didn't desire to receive.
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+      if (state.listener) {
+        // We're taking the status from the listener, even if it is
+        // kContinueDecoding, because it isn't a problem for this server if we
+        // produce a JSON result that the client didn't desire to receive.
+        status = state.listener->OnExtraHeader(EHttpHeader::kHttpAccept, value);
+        TAS_DCHECK_NE(status, EHttpStatusCode::kNeedMoreInput, "");
+      }
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     }
   } else if (state.current_header == EHttpHeader::kHttpContentLength) {
     // Note, we "ignore" the content-length for GET; it doesn't matter if it
@@ -239,16 +245,22 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
     const bool needed = state.request.http_method == EHttpMethod::PUT;
     if (state.found_content_length || !converted_ok ||
         (content_length > RequestDecoderState::kMaxPayloadSize && needed)) {
-      status =
-          state.listener.OnExtraHeader(EHttpHeader::kHttpContentLength, value);
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+      if (state.listener) {
+        status = state.listener->OnExtraHeader(EHttpHeader::kHttpContentLength,
+                                               value);
+      }
       if (status <= EHttpStatusCode::kHttpOk) {
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
         if (content_length > 0) {
           // It's out of range for our decoder.
           status = EHttpStatusCode::kHttpPayloadTooLarge;
         } else {
           status = EHttpStatusCode::kHttpBadRequest;
         }
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
       }
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     } else if (needed) {
       // We only keep the length if we're going to use it.
       state.remaining_content_length = content_length;
@@ -257,17 +269,27 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
   } else if (state.current_header == EHttpHeader::kHttpContentType) {
     if (state.request.http_method == EHttpMethod::PUT &&
         value != StringView("application/x-www-form-urlencoded")) {
-      status =
-          state.listener.OnExtraHeader(EHttpHeader::kHttpContentType, value);
-      if (status <= EHttpStatusCode::kHttpOk) {
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+      if (state.listener) {
+        status =
+            state.listener->OnExtraHeader(EHttpHeader::kHttpContentType, value);
+        if (status <= EHttpStatusCode::kHttpOk) {
+          status = EHttpStatusCode::kHttpUnsupportedMediaType;
+        }
+      } else {
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
         status = EHttpStatusCode::kHttpUnsupportedMediaType;
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
       }
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     }
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
   } else if (state.current_header == EHttpHeader::kUnknown) {
-    status = state.listener.OnUnknownHeaderValue(value);
+    status = state.listener->OnUnknownHeaderValue(value);
   } else {
     // Recognized but no built-in support.
-    status = state.listener.OnExtraHeader(state.current_header, value);
+    status = state.listener->OnExtraHeader(state.current_header, value);
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   }
   return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderLineEnd, status);
 }
@@ -277,8 +299,13 @@ EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
                                   StringView& view) {
   state.current_header = EHttpHeader::kUnknown;
   if (!MatchHttpHeader(matched_text, state.current_header)) {
-    return state.SetDecodeFunctionAfterListenerCall(
-        DecodeHeaderValue, state.listener.OnUnknownHeaderName(matched_text));
+    EHttpStatusCode status;
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+    status = state.listener->OnUnknownHeaderName(matched_text);
+#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
+    status = EHttpStatusCode::kContinueDecoding;
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+    return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderValue, status);
   }
   return state.SetDecodeFunction(DecodeHeaderValue);
 }
@@ -407,10 +434,14 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_id || !converted_ok) {
-      status = state.listener.OnExtraParameter(EParameter::kClientId, value);
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+      status = state.listener->OnExtraParameter(EParameter::kClientId, value);
       if (status <= EHttpStatusCode::kHttpOk) {
         status = EHttpStatusCode::kHttpBadRequest;
       }
+#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
+      status = EHttpStatusCode::kHttpBadRequest;
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     } else {
       state.request.set_client_id(id);
     }
@@ -418,19 +449,25 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_transaction_id || !converted_ok) {
-      status = state.listener.OnExtraParameter(EParameter::kClientTransactionId,
-                                               value);
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+      status = state.listener->OnExtraParameter(
+          EParameter::kClientTransactionId, value);
       if (status <= EHttpStatusCode::kHttpOk) {
         status = EHttpStatusCode::kHttpBadRequest;
       }
+#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
+      status = EHttpStatusCode::kHttpBadRequest;
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     } else {
       state.request.set_client_transaction_id(id);
     }
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
   } else if (state.current_parameter == EParameter::kUnknown) {
-    status = state.listener.OnUnknownParameterValue(value);
+    status = state.listener->OnUnknownParameterValue(value);
   } else {
     // Recognized but no built-in support.
-    status = state.listener.OnExtraParameter(state.current_parameter, value);
+    status = state.listener->OnExtraParameter(state.current_parameter, value);
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   }
   return state.SetDecodeFunctionAfterListenerCall(DecodeParamSeparator, status);
 }
@@ -442,8 +479,13 @@ EHttpStatusCode ProcessParamName(RequestDecoderState& state,
   if (MatchParameter(matched_text, state.current_parameter)) {
     return state.SetDecodeFunction(DecodeParamValue);
   }
-  return state.SetDecodeFunctionAfterListenerCall(
-      DecodeParamValue, state.listener.OnUnknownParameterName(matched_text));
+  EHttpStatusCode status;
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+  status = state.listener->OnUnknownParameterName(matched_text);
+#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
+  status = EHttpStatusCode::kContinueDecoding;
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+  return state.SetDecodeFunctionAfterListenerCall(DecodeParamValue, status);
 }
 
 EHttpStatusCode DecodeParamName(RequestDecoderState& state, StringView& view) {
@@ -741,8 +783,15 @@ std::ostream& operator<<(std::ostream& out, DecodeFunction decode_function) {
 #endif
 
 RequestDecoderState::RequestDecoderState(AlpacaRequest& request,
-                                         RequestDecoderListener& listener)
-    : decode_function(nullptr), request(request), listener(listener) {}
+                                         RequestDecoderListener* listener)
+    : decode_function(nullptr),
+      request(request)
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+      ,
+      listener(listener)
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+{
+}
 
 void RequestDecoderState::Reset() {
   TAS_DVLOG(1,

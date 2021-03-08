@@ -41,7 +41,7 @@ RequestDecoderListener listener;
 AlpacaRequest request;
 
 // Add decoder instance, referencing the other two: 2456/247 (i.e. +672/+63)
-RequestDecoder decoder(request, listener);
+RequestDecoder decoder(request, &listener);
 
 // Adding request_data_buffer: no change (because unreferenced)
 char request_data_buffer[64];

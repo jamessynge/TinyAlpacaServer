@@ -10,6 +10,8 @@
 //
 // Author: james.synge@gmail.com
 
+#define TAS_ENABLE_REQUEST_DECODER_LISTENER 0
+
 // This isn't fully fleshed out, but the basics are there for storing the
 // parameter enum and short string value of parameter types that are defined
 // and have token entries in kRecognizedParameters passed

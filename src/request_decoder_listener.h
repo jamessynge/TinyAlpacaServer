@@ -32,10 +32,6 @@ class RequestDecoderListener {
   virtual EHttpStatusCode OnExtraParameter(EParameter param,
                                            const StringView& value);
 
-  // As above, but for recognized but not directly supported EHttpHeader values.
-  virtual EHttpStatusCode OnExtraHeader(EHttpHeader header,
-                                        const StringView& value);
-
   // Called to handle unrecognized parameters, with one call for the name and
   // another for the value. There is no guarantee that the name will still be
   // in the underlying buffer when the value method is called.
@@ -43,7 +39,13 @@ class RequestDecoderListener {
   virtual EHttpStatusCode OnUnknownParameterName(const StringView& name);
   virtual EHttpStatusCode OnUnknownParameterValue(const StringView& value);
 
-  // As above, but for unrecognized headers.
+  // Like OnExtraParameter, but for recognized but not directly supported
+  // EHttpHeader values, or second appearances of the same supported header (an
+  // error).
+  virtual EHttpStatusCode OnExtraHeader(EHttpHeader header,
+                                        const StringView& value);
+
+  // Like the OnUnknownParameter* methods, but for unrecognized headers.
   virtual EHttpStatusCode OnUnknownHeaderName(const StringView& name);
   virtual EHttpStatusCode OnUnknownHeaderValue(const StringView& value);
 };
