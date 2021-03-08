@@ -233,7 +233,6 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
         // kContinueDecoding, because it isn't a problem for this server if we
         // produce a JSON result that the client didn't desire to receive.
         status = state.listener->OnExtraHeader(EHttpHeader::kHttpAccept, value);
-        TAS_DCHECK_NE(status, EHttpStatusCode::kNeedMoreInput, "");
       }
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     }
@@ -263,6 +262,8 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     } else if (needed) {
       // We only keep the length if we're going to use it.
+      // TODO(jamessynge): Reconsider this in order to support multiple requests
+      // per connection.
       state.remaining_content_length = content_length;
       state.found_content_length = true;
     }
@@ -273,9 +274,6 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
       if (state.listener) {
         status =
             state.listener->OnExtraHeader(EHttpHeader::kHttpContentType, value);
-        if (status <= EHttpStatusCode::kHttpOk) {
-          status = EHttpStatusCode::kHttpUnsupportedMediaType;
-        }
       } else {
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
         status = EHttpStatusCode::kHttpUnsupportedMediaType;
@@ -285,10 +283,14 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
     }
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   } else if (state.current_header == EHttpHeader::kUnknown) {
-    status = state.listener->OnUnknownHeaderValue(value);
+    if (state.listener) {
+      status = state.listener->OnUnknownHeaderValue(value);
+    }
   } else {
     // Recognized but no built-in support.
-    status = state.listener->OnExtraHeader(state.current_header, value);
+    if (state.listener) {
+      status = state.listener->OnExtraHeader(state.current_header, value);
+    }
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   }
   return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderLineEnd, status);
@@ -299,11 +301,11 @@ EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
                                   StringView& view) {
   state.current_header = EHttpHeader::kUnknown;
   if (!MatchHttpHeader(matched_text, state.current_header)) {
-    EHttpStatusCode status;
+    EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
-    status = state.listener->OnUnknownHeaderName(matched_text);
-#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
-    status = EHttpStatusCode::kContinueDecoding;
+    if (state.listener) {
+      status = state.listener->OnUnknownHeaderName(matched_text);
+    }
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderValue, status);
   }
@@ -435,7 +437,9 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_id || !converted_ok) {
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      status = state.listener->OnExtraParameter(EParameter::kClientId, value);
+      if (state.listener) {
+        status = state.listener->OnExtraParameter(EParameter::kClientId, value);
+      }
       if (status <= EHttpStatusCode::kHttpOk) {
         status = EHttpStatusCode::kHttpBadRequest;
       }
@@ -450,8 +454,10 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_transaction_id || !converted_ok) {
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      status = state.listener->OnExtraParameter(
-          EParameter::kClientTransactionId, value);
+      if (state.listener) {
+        status = state.listener->OnExtraParameter(
+            EParameter::kClientTransactionId, value);
+      }
       if (status <= EHttpStatusCode::kHttpOk) {
         status = EHttpStatusCode::kHttpBadRequest;
       }
@@ -463,10 +469,14 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     }
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   } else if (state.current_parameter == EParameter::kUnknown) {
-    status = state.listener->OnUnknownParameterValue(value);
+    if (state.listener) {
+      status = state.listener->OnUnknownParameterValue(value);
+    }
   } else {
     // Recognized but no built-in support.
-    status = state.listener->OnExtraParameter(state.current_parameter, value);
+    if (state.listener) {
+      status = state.listener->OnExtraParameter(state.current_parameter, value);
+    }
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   }
   return state.SetDecodeFunctionAfterListenerCall(DecodeParamSeparator, status);
@@ -479,11 +489,12 @@ EHttpStatusCode ProcessParamName(RequestDecoderState& state,
   if (MatchParameter(matched_text, state.current_parameter)) {
     return state.SetDecodeFunction(DecodeParamValue);
   }
-  EHttpStatusCode status;
+  // Unrecognized parameter name.
+  EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  status = state.listener->OnUnknownParameterName(matched_text);
-#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
-  status = EHttpStatusCode::kContinueDecoding;
+  if (state.listener) {
+    status = state.listener->OnUnknownParameterName(matched_text);
+  }
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   return state.SetDecodeFunctionAfterListenerCall(DecodeParamValue, status);
 }
