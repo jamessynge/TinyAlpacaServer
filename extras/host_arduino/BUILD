@@ -49,7 +49,10 @@ cc_library(
 cc_library(
     name = "client",
     hdrs = ["client.h"],
-    deps = [":stream"],
+    deps = [
+        ":ip_address",
+        ":stream",
+    ],
 )
 
 cc_library(

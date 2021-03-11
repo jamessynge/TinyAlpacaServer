@@ -31,6 +31,7 @@
 #include "extras/host_arduino/arduino.h"   // IWYU pragma: export
 #include "extras/host_arduino/pgmspace.h"  // IWYU pragma: export
 #include "extras/host_arduino/print.h"     // IWYU pragma: export
+#include "extras/host_arduino/stream.h"    // IWYU pragma: export
 
 #endif  // ARDUINO
 

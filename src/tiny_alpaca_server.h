@@ -24,27 +24,73 @@
 // * TAS handles the UDP packets of the Alpaca discovery protocol using data
 //   provided at startup (e.g. the set of attached devices).
 
+#include <cstddef>
+
+#include "device_api_handler_base.h"
+#include "request_listener.h"
+#include "server_connection.h"
+#include "server_description.h"
 #include "utils/platform.h"
 
 namespace alpaca {
 
-class TinyAlpacaServer {
+class TinyAlpacaServer : RequestListener {
  public:
-  TinyAlpacaServer(/*static data to configure the server*/) {}
+  TinyAlpacaServer(uint16_t tcp_port,
+                   const ServerDescription& server_description,
+                   DeviceApiHandlerBase* device_handlers,
+                   size_t num_device_handlers);
 
-  // Initializes the network chip, prepares to receive TCP connections and UDP
-  // packets. Returns true if able to setup the network chip, even if the
-  // network cable is not currently connected or DHCP fails. Returns false if
-  // there is a fundamental problem (e.g. no network chip).
+  template <size_t N>
+  TinyAlpacaServer(uint16_t tcp_port,
+                   const ServerDescription& server_description,
+                   DeviceApiHandlerBase (&device_handlers)[N])
+      : TinyAlpacaServer(tcp_port, server_description, device_handlers, N) {}
+
+  // Prepares ServerConnections to receive TCP connections and a UDP listener to
+  // receive Alpaca Discovery Protocol packets. Returns true if able to do so,
+  // false otherwise.
   bool begin();
 
   // Performs network IO as appropriate.
   void loop();
 
-  static uint32_t GetNextServerTransactionId();
+ protected:
+  void OnStartDecoding(AlpacaRequest& request) override;
+
+  // Called when a request has been successfully decoded. 'out' should be used
+  // to write a response to the client. Return true to continue decoding more
+  // requests from the client, false to disconnect.
+  bool OnRequestDecoded(AlpacaRequest& request, Print& out) override;
+
+  // Called when decoding of a request has failed. 'out' should be used to write
+  // an error response to the client. The connection to the client will be
+  // closed after the response is returned.
+  void OnRequestDecodingError(AlpacaRequest& request, EHttpStatusCode status,
+                              Print& out) override;
 
  private:
-  static uint32_t server_transaction_id_;
+  // Not using all of the ports, need to reserve one for UDP and maybe one for
+  // outbound connections to a time server.
+  static constexpr size_t kNumServerConnections = 4;
+  using ServerConnectionsArray = ServerConnection[kNumServerConnections];
+  static constexpr size_t kServerConnectionsStorage =
+      sizeof(ServerConnectionsArray);
+
+  // Returns a pointer to the ServerConnection with index 'ndx', where 'ndx' is
+  // in the range [0, kNumServerConnections-1].
+  ServerConnection* GetServerConnection(size_t ndx);
+
+  void InitializeServerConnections(uint16_t tcp_port);
+
+  uint32_t server_transaction_id_;
+
+  const ServerDescription& server_description_;
+  DeviceApiHandlerBase* const device_handlers_;
+  const size_t num_device_handlers_;
+
+  alignas(ServerConnection) uint8_t
+      connections_storage_[kServerConnectionsStorage];
 };
 
 }  // namespace alpaca

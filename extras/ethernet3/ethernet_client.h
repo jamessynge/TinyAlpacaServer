@@ -10,6 +10,9 @@ class EthernetClient : public Client {
  public:
   explicit EthernetClient(uint8_t sock);
 
+  int connect(IPAddress ip, uint16_t port) override { return 0; }
+  int connect(const char *host, uint16_t port) override { return 0; }
+
   // Returns the status of the socket, from the Socket n Status Register.
   uint8_t status();
 
@@ -30,14 +33,18 @@ class EthernetClient : public Client {
   int read() override;
 
   // Read up to 'size' bytes from the stream, returns the number read.
-  virtual int read(uint8_t *buf, size_t size);
+  int read(uint8_t *buf, size_t size) override;
 
   // Returns the next available byte/
   int peek() override;
 
-  virtual void flush();
-  virtual void stop();
-  virtual uint8_t connected();
+  void flush() override;
+  void stop() override;
+  uint8_t connected() override;
+
+  explicit operator bool() override { return connected() != 0; }
+
+  uint8_t getSocketNumber();
 
  private:
   uint8_t sock_;

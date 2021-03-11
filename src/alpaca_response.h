@@ -4,6 +4,7 @@
 // Functions for generating an HTTP response message to a Print instance.
 
 #include "alpaca_request.h"
+#include "constants.h"
 #include "utils/any_string.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
@@ -13,6 +14,10 @@ namespace alpaca {
 // Writes to 'out' an OK response with a JSON body whose content is provided by
 // 'source'.
 void WriteOkResponse(const JsonPropertySource& source, Print& out);
+
+// Writes an error response with a text body to out.
+void WriteErrorResponse(EHttpStatusCode status_code, AnyString& body,
+                        Print& out);
 
 // The following write to 'out' an OK response with JSON body whose 'Value'
 // property is from the 'value' parameter, which is of the specified type.

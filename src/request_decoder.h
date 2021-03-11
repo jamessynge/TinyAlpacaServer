@@ -41,12 +41,16 @@ struct RequestDecoderState {
   EHttpStatusCode SetDecodeFunctionAfterListenerCall(DecodeFunction func,
                                                      EHttpStatusCode status);
 
+  RequestDecoderStatus status() const { return decoder_status; }
+
  private:
   // Apply decode_function just once, compute new status.
   // EHttpStatusCode DecodeBufferAtEnd(StringView& buffer);
   // EHttpStatusCode ApplyDecodeFunction(StringView& buffer);
   EHttpStatusCode DecodeMessageHeader(StringView& buffer, bool at_end_of_input);
   EHttpStatusCode DecodeMessageBody(StringView& buffer, bool at_end_of_input);
+
+  RequestDecoderStatus decoder_status;
 
  public:
   DecodeFunction decode_function;
@@ -80,6 +84,7 @@ class RequestDecoder : RequestDecoderState {
   using RequestDecoderState::DecodeBuffer;
   using RequestDecoderState::RequestDecoderState;
   using RequestDecoderState::Reset;
+  using RequestDecoderState::status;
 };
 
 }  // namespace alpaca

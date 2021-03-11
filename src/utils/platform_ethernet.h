@@ -3,11 +3,13 @@
 
 // Exports the Ethernet support needed by some parts of Tiny Alpaca Server.
 
-#include "utils/platform.h"
+#include "utils/platform.h"  // IWYU pragma: export
 
 #if TAS_EMBEDDED_TARGET
 
+#include <Client.h>     // IWYU pragma: export
 #include <Ethernet3.h>  // IWYU pragma: export
+#include <Stream.h>     // IWYU pragma: export
 
 namespace alpaca {
 
@@ -29,6 +31,7 @@ bool IsClientDone(int sock_num);
 
 #include "extras/ethernet3/ethernet3.h"     // IWYU pragma: export
 #include "extras/ethernet3/host_sockets.h"  // IWYU pragma: export
+#include "extras/host_arduino/client.h"     // IWYU pragma : export
 
 #endif  // TAS_EMBEDDED_TARGET
 

@@ -18,6 +18,16 @@
 
 namespace alpaca {
 
+// At a high-level, what is going on with the decoder?
+enum class RequestDecoderStatus : uint8_t {
+  kReset,
+  kDecoding,
+  kDecoded,
+};
+#if TAS_HOST_TARGET
+std::ostream& operator<<(std::ostream& out, RequestDecoderStatus value);
+#endif  // TAS_HOST_TARGET
+
 // Most of these are based on HTTP Response Status Codes, the others are below
 // 100 (HTTP's continue status).
 enum class EHttpStatusCode : uint16_t {

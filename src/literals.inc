@@ -95,10 +95,15 @@ TAS_DEFINE_BUILTIN_LITERAL(HttpAccept, "Accept")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentEncoding, "Content-Encoding")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentLength, "Content-Length")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentType, "Content-Type")
+
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
-TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded, "application/x-www-form-urlencoded")
+TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded,
+                           "application/x-www-form-urlencoded")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeTextPlain, "text/plain")
+
 TAS_DEFINE_BUILTIN_LITERAL(DeviceTypeSwitch, "switch")
+TAS_DEFINE_BUILTIN_LITERAL(NoRequestListener,
+                           "No RequestListener is installed.")
 
 // Common fixed HTTP Response Headers. For now, assuming that we're NOT
 // keeping the connection open from request to request. That could change.

@@ -6,6 +6,7 @@
 // accepting a new connection, reading and writing data and closing the
 // connection.
 
+#include "utils/connection.h"
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"
 
@@ -17,8 +18,9 @@ class ServerConnectionBase {
   virtual ~ServerConnectionBase();
 
   // Call once at server startup to configure socket 'sock_num' to listen for
-  // new connections to the TCP port number 'tcp_port'.
-  void BeginListening();
+  // new connections to the TCP port number 'tcp_port'. Returns true if able to
+  // do so, false otherwise (e.g. if the sock_num or tcp_port is invalid).
+  bool BeginListening();
 
   // Handles changes in state of the socket (i.e. a new connection from a
   // client, available data to read, room to write, client disconnect). The
@@ -26,6 +28,10 @@ class ServerConnectionBase {
   // call to PerformIO. This method is expected to be called from the loop()
   // function of an Arduino sketch.
   void PerformIO();
+
+  // Accessors.
+  int sock_num() const { return sock_num_; }
+  uint16_t tcp_port() const { return tcp_port_; }
 
  protected:
   // Called when a new connection from a client is received.
@@ -58,14 +64,14 @@ class ServerConnectionBase {
   // virtual void OnDisconnect(int sock_num) = 0;
 
  private:
-  void DoListen();
+  bool DoListen();
 
   const int sock_num_;
   const uint16_t tcp_port_;
 
-  // At the last PerformIO call, was the socket connected (this includes
-  // CLOSE_WAIT with data available to read).
-  bool was_connected_;
+  // At the end of the last PerformIO call, was the socket connected (this
+  // includes CLOSE_WAIT with data available to read).
+  bool connected_;
 };
 
 }  // namespace alpaca

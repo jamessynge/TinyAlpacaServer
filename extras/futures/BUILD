@@ -25,3 +25,21 @@ cc_library(
         ":pretend_devices",
     ],
 )
+
+cc_library(
+    name = "socket",
+    hdrs = ["socket.h"],
+    deps = [
+        ":platform_ethernet",
+        ":socket_listener",
+    ],
+)
+
+cc_library(
+    name = "socket_listener",
+    hdrs = ["socket_listener.h"],
+    deps = [
+        ":platform",
+        ":platform_ethernet",
+    ],
+)

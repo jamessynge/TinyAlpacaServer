@@ -24,33 +24,33 @@ class ExtendedEthernetClient : public EthernetClient {
 }  // namespace
 
 ServerConnectionBase::ServerConnectionBase(int sock_num, uint16_t tcp_port)
-    : sock_num_(sock_num), tcp_port_(tcp_port), was_connected_(false) {}
+    : sock_num_(sock_num), tcp_port_(tcp_port), connected_(false) {}
 
 ServerConnectionBase::~ServerConnectionBase() {}
 
-void ServerConnectionBase::BeginListening() {
+bool ServerConnectionBase::BeginListening() {
   // We assume the socket is not in use, but fail in debug if we made a mistake.
-  TAS_DCHECK(!was_connected_,
+  TAS_DCHECK(!connected_,
              "Why is socket " << sock_num_ << " already connected?");
-  DoListen();
+  return DoListen();
 }
 
-void ServerConnectionBase::DoListen() {
-  was_connected_ = false;
+bool ServerConnectionBase::DoListen() {
+  connected_ = false;
   // TODO(jamessynge): Are there timeouts we should specify, e.g. for detecting
   // a client that doesn't ACK fast enough, or doesn't keep the connection
   // alive?
-  InitializeTcpListenerSocket(sock_num_, tcp_port_);
+  return InitializeTcpListenerSocket(sock_num_, tcp_port_);
 }
 
 void ServerConnectionBase::PerformIO() {
   ExtendedEthernetClient client(sock_num_);
 
-  if (!was_connected_) {
+  if (!connected_) {
     if (!AcceptConnection(sock_num_)) {
       return;
     }
-    was_connected_ = true;
+    connected_ = true;
     OnConnect(client);
   } else {
     // TODO(jamessynge): Detect connection timeout based disconnection (i.e. no

@@ -813,6 +813,7 @@ void RequestDecoderState::Reset() {
   is_decoding_start_line = true;
   is_final_input = false;
   found_content_length = false;
+  decoder_status = RequestDecoderStatus::kReset;
 }
 
 // TODO(jamessynge): This is an annoyingly complicated function. Consider how to
@@ -834,6 +835,11 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
     return EHttpStatusCode::kHttpInternalServerError;
   }
 
+  TAS_DCHECK_NE(decoder_status, RequestDecoderStatus::kDecoded);
+  if (decoder_status == RequestDecoderStatus::kReset) {
+    decoder_status = RequestDecoderStatus::kDecoding;
+  }
+
   const auto start_size = buffer.size();
   EHttpStatusCode status;
   if (is_decoding_header) {
@@ -852,6 +858,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
   }
   if (status >= EHttpStatusCode::kHttpOk) {
     decode_function = nullptr;
+    decoder_status = RequestDecoderStatus::kDecoded;
   }
   TAS_DVLOG(1, "DecodeBuffer --> " << status);
   return status;

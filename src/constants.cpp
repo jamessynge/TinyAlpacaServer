@@ -7,6 +7,20 @@
 
 namespace alpaca {
 
+std::ostream& operator<<(std::ostream& out, RequestDecoderStatus v) {
+  switch (v) {
+    case RequestDecoderStatus::kReset:
+      return out << "kReset";
+    case RequestDecoderStatus::kDecoding:
+      return out << "kDecoding";
+    case RequestDecoderStatus::kDecoded:
+      return out << "kDecoded";
+  }
+  auto invalid =
+      static_cast<std::underlying_type<RequestDecoderStatus>::type>(v);
+  return out << invalid << " (invalid RequestDecoderStatus)";
+}
+
 std::ostream& operator<<(std::ostream& out, EHttpStatusCode v) {
   switch (v) {
     case EHttpStatusCode::kContinueDecoding:

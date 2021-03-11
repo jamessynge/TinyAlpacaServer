@@ -55,6 +55,7 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":any_string",
+        ":constants",
         ":http_response_header",
         ":json_encoder",
         ":json_response",
@@ -213,12 +214,42 @@ cc_library(
 )
 
 cc_library(
+    name = "request_listener",
+    hdrs = ["request_listener.h"],
+    deps = [
+        ":alpaca_request",
+        ":constants",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "server_connection",
     hdrs = ["server_connection.h"],
     deps = [
         ":alpaca_request",
         ":platform",
+        ":request_decoder",
+        ":request_listener",
         ":server_connection_base",
+    ],
+)
+
+cc_library(
+    name = "server_connection_cc",
+    srcs = ["server_connection.cc"],
+    hdrs = ["server_connection.h"],
+    deps = [
+        ":alpaca_request",
+        ":alpaca_response",
+        ":constants",
+        ":literals",
+        ":platform",
+        ":platform_ethernet",
+        ":request_decoder",
+        ":request_listener",
+        ":server_connection_base",
+        ":string_view",
     ],
 )
 
@@ -240,6 +271,10 @@ cc_library(
     srcs = ["tiny_alpaca_server.cc"],
     hdrs = ["tiny_alpaca_server.h"],
     deps = [
+        ":device_api_handler_base",
         ":platform",
+        ":request_listener",
+        ":server_connection",
+        ":server_description",
     ],
 )

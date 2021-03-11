@@ -14,6 +14,16 @@ cc_library(
 )
 
 cc_library(
+    name = "connection",
+    srcs = ["connection.cc"],
+    hdrs = ["connection.h"],
+    deps = [
+        ":platform",
+        ":platform_ethernet",
+    ],
+)
+
+cc_library(
     name = "counting_bitbucket",
     hdrs = ["counting_bitbucket.h"],
     deps = [
@@ -78,6 +88,7 @@ cc_library(
         ":arduino",
         ":pgmspace",
         ":print",
+        ":stream",
     ],
 )
 
@@ -85,6 +96,7 @@ cc_library(
     name = "platform_ethernet",
     hdrs = ["platform_ethernet.h"],
     deps = [
+        ":client",
         ":host_sockets",
         ":platform",
     ],
@@ -95,6 +107,7 @@ cc_library(
     srcs = ["platform_ethernet.cc"],
     hdrs = ["platform_ethernet.h"],
     deps = [
+        ":client",
         ":host_sockets",
         ":platform",
     ],
@@ -105,6 +118,7 @@ cc_library(
     srcs = ["server_connection_base.cc"],
     hdrs = ["server_connection_base.h"],
     deps = [
+        ":connection",
         ":host_sockets",
         ":logging",
         ":platform",
