@@ -1,6 +1,6 @@
 #include "server_description.h"
 
-#include "extras/tests/test_utils.h"
+#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
@@ -20,7 +20,7 @@ namespace alpaca {
 namespace {
 
 TEST(ServerDescriptionTest, Output) {
-  PrintToString out;
+  PrintToStdString out;
   JsonPropertySourceAdapter<ServerDescription> adapter(kServerDescription);
   JsonObjectEncoder::Encode(adapter, out);
   EXPECT_EQ(

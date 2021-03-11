@@ -2,7 +2,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "constants.h"
-#include "extras/tests/test_utils.h"
+#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "literals.h"
@@ -19,7 +19,7 @@ TEST(HttpResponseHeaderTest, Json) {
   hrh.content_type = EContentType::kApplicationJson;
   hrh.content_length = 65535;
 
-  PrintToString out;
+  PrintToStdString out;
   hrh.printTo(out);
   EXPECT_EQ(
       out.str(),
@@ -35,7 +35,7 @@ TEST(HttpResponseHeaderTest, Error) {
   hrh.content_type = EContentType::kTextPlain;
   hrh.content_length = 123;
 
-  PrintToString out;
+  PrintToStdString out;
   hrh.printTo(out);
   EXPECT_EQ(
       out.str(),

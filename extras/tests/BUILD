@@ -10,18 +10,8 @@ cc_test(
         ":json_test_utils",
         ":literal",
         ":literals",
-        ":test_utils",
+        ":print_to_std_string",
         "//absl/strings",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
-    name = "array_test",
-    srcs = ["array_test.cc"],
-    deps = [
-        ":array",
-        ":test_utils",
         "//googletest:gunit_main",
     ],
 )
@@ -37,20 +27,11 @@ cc_test(
 )
 
 cc_test(
-    name = "counting_bitbucket_test",
-    srcs = ["counting_bitbucket_test.cc"],
-    deps = [
-        ":counting_bitbucket",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
     name = "device_info_test",
     srcs = ["device_info_test.cc"],
     deps = [
         ":device_info",
-        ":test_utils",
+        ":print_to_std_string",
         "//googletest:gunit_main",
     ],
 )
@@ -62,22 +43,8 @@ cc_test(
         ":constants",
         ":http_response_header",
         ":literals",
-        ":test_utils",
+        ":print_to_std_string",
         "//absl/strings",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
-    name = "json_encoder_test",
-    srcs = ["json_encoder_test.cc"],
-    deps = [
-        ":counting_bitbucket",
-        ":json_encoder",
-        ":json_test_utils",
-        ":test_utils",
-        "//absl/strings",
-        "//core:logging",
         "//googletest:gunit_main",
     ],
 )
@@ -88,42 +55,7 @@ cc_test(
     deps = [
         ":json_response",
         ":json_test_utils",
-        ":test_utils",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_library(
-    name = "json_test_utils",
-    srcs = ["json_test_utils.cc"],
-    hdrs = ["json_test_utils.h"],
-    deps = [
-        ":json_encoder",
-        ":platform",
-    ],
-)
-
-cc_test(
-    name = "literal_test",
-    srcs = ["literal_test.cc"],
-    deps = [
-        ":literal",
-        ":string_compare",
-        ":string_view",
-        ":test_utils",
-        "//absl/strings",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
-    name = "literal_token_test",
-    srcs = ["literal_token_test.cc"],
-    deps = [
-        ":literal_token",
-        ":platform",
-        ":string_view",
-        ":test_utils",
+        ":print_to_std_string",
         "//googletest:gunit_main",
     ],
 )
@@ -145,28 +77,8 @@ cc_test(
     deps = [
         ":constants",
         ":match_literals",
-        ":test_utils",
+        ":print_to_std_string",
         "//absl/strings",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
-    name = "pgmspace_test",
-    srcs = ["pgmspace_test.cc"],
-    deps = [
-        ":pgmspace",
-        "//absl/strings",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
-    name = "print_test",
-    srcs = ["print_test.cc"],
-    deps = [
-        ":print",
-        ":test_utils",
         "//googletest:gunit_main",
     ],
 )
@@ -202,25 +114,8 @@ cc_test(
     name = "server_description_test",
     srcs = ["server_description_test.cc"],
     deps = [
+        ":print_to_std_string",
         ":server_description",
-        ":test_utils",
         "//googletest:gunit_main",
     ],
-)
-
-cc_test(
-    name = "string_view_test",
-    srcs = ["string_view_test.cc"],
-    deps = [
-        ":config",
-        ":string_view",
-        "//core:logging",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_library(
-    name = "test_utils",
-    hdrs = ["test_utils.h"],
-    deps = [":print"],
 )

@@ -1,7 +1,7 @@
 #include "json_response.h"
 
-#include "extras/tests/json_test_utils.h"
-#include "extras/tests/test_utils.h"
+#include "extras/test_tools/json_test_utils.h"
+#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
@@ -17,7 +17,7 @@ TEST(JsonMethodResponseTest, AllFields) {
       request, /*error_number=*/98765,
       /*error_message=*/StringView("Are you saying \"Hey, look at that!\"?"));
 
-  PrintToString out;
+  PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(),
             R"({"ClientTransactionId": 789, )"
@@ -33,7 +33,7 @@ TEST(JsonArrayResponseTest, Empty) {
   request.set_server_transaction_id(0);
   JsonArrayResponse response(request, elements);
 
-  PrintToString out;
+  PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [], )"
                        R"("ServerTransactionId": 0, )"
@@ -50,7 +50,7 @@ TEST(JsonArrayResponseTest, Mixed) {
   AlpacaRequest request;
   JsonArrayResponse response(request, elements);
 
-  PrintToString out;
+  PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [false, -1, ")"
                        "\\r\\n"
@@ -63,7 +63,7 @@ TEST(JsonBoolResponseTest, True) {
   AlpacaRequest request;
   JsonBoolResponse response(request, true);
 
-  PrintToString out;
+  PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": true, )"
                        R"("ErrorNumber": 0, )"
@@ -76,7 +76,7 @@ TEST(JsonBoolResponseTest, False) {
   request.set_server_transaction_id(3);
   JsonBoolResponse response(request, false);
 
-  PrintToString out;
+  PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": false, )"
                        R"("ClientTransactionId": 2, )"

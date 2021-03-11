@@ -11,8 +11,8 @@
 #include <string>
 
 #include "absl/strings/str_cat.h"
-#include "extras/tests/json_test_utils.h"
-#include "extras/tests/test_utils.h"
+#include "extras/test_tools/json_test_utils.h"
+#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gtest.h"
 #include "logging.h"
 #include "utils/counting_bitbucket.h"
@@ -27,7 +27,7 @@ class JsonEncodersTest : public testing::Test {
     ElementSourceFunctionAdapter source(func);
     // Confirm that we print the expected characters.
     {
-      PrintToString out;
+      PrintToStdString out;
       JsonArrayEncoder::Encode(source, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();
@@ -41,7 +41,7 @@ class JsonEncodersTest : public testing::Test {
     PropertySourceFunctionAdapter source(func);
     // Confirm that we print the expected characters.
     {
-      PrintToString out;
+      PrintToStdString out;
       JsonObjectEncoder::Encode(source, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();

@@ -1,8 +1,8 @@
 #include "alpaca_response.h"
 
 #include "absl/strings/str_cat.h"
-#include "extras/tests/json_test_utils.h"
-#include "extras/tests/test_utils.h"
+#include "extras/test_tools/json_test_utils.h"
+#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "literals.h"
@@ -15,7 +15,7 @@ constexpr char kEOL[] = "\r\n";
 
 TEST(AlpacaResponseTest, SimpleOk) {
   PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
-  PrintToString out;
+  PrintToStdString out;
   WriteOkResponse(source, EHttpMethod::PUT, out);
   EXPECT_EQ(
       out.str(),
@@ -30,7 +30,7 @@ TEST(AlpacaResponseTest, ArrayOfLiterals) {
   LiteralArray value(kLiterals);
 
   AlpacaRequest request;
-  PrintToString out;
+  PrintToStdString out;
   WriteLiteralArrayResponse(request, value, out);
 
   const std::string expected_body =
@@ -47,7 +47,7 @@ TEST(AlpacaResponseTest, ArrayOfLiterals) {
 TEST(AlpacaResponseTest, BoolTrue) {
   AlpacaRequest request;
   request.set_server_transaction_id(0);
-  PrintToString out;
+  PrintToStdString out;
   WriteBoolResponse(request, true, out);
 
   const std::string expected_body =
@@ -65,14 +65,14 @@ TEST(AlpacaResponseTest, Double) {
   const double value = 3.1415926;
   std::string value_str;
   {
-    PrintToString out;
+    PrintToStdString out;
     out.print(value);
     value_str = out.str();
   }
 
   AlpacaRequest request;
   request.set_client_transaction_id(99);
-  PrintToString out;
+  PrintToStdString out;
   WriteDoubleResponse(request, value, out);
 
   const std::string expected_body = absl::StrCat(

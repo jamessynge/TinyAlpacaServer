@@ -4,7 +4,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
-#include "extras/tests/test_utils.h"
+#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/string_compare.h"
@@ -152,7 +152,7 @@ TEST(LiteralTest, Copy) {
 
 TEST(LiteralTest, PrintTo) {
   Literal literal(kMixedStr);
-  PrintToString out;
+  PrintToStdString out;
   EXPECT_EQ(literal.printTo(out), literal.size());
   EXPECT_EQ(out.str(), kMixedStr);
 }
@@ -160,7 +160,7 @@ TEST(LiteralTest, PrintTo) {
 TEST(LiteralTest, PrintJsonEscapedTo) {
   Literal literal(kLowerStr);
   const std::string expected(kLowerJson);
-  PrintToString out;
+  PrintToStdString out;
   EXPECT_EQ(literal.printJsonEscapedTo(out), expected.size());
   EXPECT_EQ(out.str(), expected);
 }

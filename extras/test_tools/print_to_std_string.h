@@ -1,5 +1,8 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_TESTS_TEST_UTILS_H_
-#define TINY_ALPACA_SERVER_EXTRAS_TESTS_TEST_UTILS_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_PRINT_TO_STD_STRING_H_
+#define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_PRINT_TO_STD_STRING_H_
+
+// Helps with testing methods that accept a Print& instance and print/write to
+// it.
 
 #include <sstream>
 
@@ -7,7 +10,7 @@
 
 namespace alpaca {
 
-class PrintToString : public Print {
+class PrintToStdString : public Print {
  public:
   size_t write(uint8_t b) override {
     const uint8_t* buffer = &b;
@@ -33,4 +36,4 @@ class PrintToString : public Print {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_TESTS_TEST_UTILS_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_PRINT_TO_STD_STRING_H_

@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "extras/tests/test_utils.h"
+#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
@@ -22,7 +22,7 @@ TEST(PrintTest, SamplePrintable) {
   constexpr char kText[] = "asdlkjasd;flkjasf";
   SamplePrintable sp;
   sp.str = kText;
-  PrintToString out;
+  PrintToStdString out;
   EXPECT_EQ(sp.printTo(out), sp.str.size());
   EXPECT_EQ(out.str(), kText);
 }
