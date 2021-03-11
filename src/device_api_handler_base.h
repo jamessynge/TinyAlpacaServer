@@ -24,11 +24,28 @@ class DeviceApiHandlerBase {
   EDeviceType device_type() const { return device_info_.device_type; }
   uint32_t device_number() const { return device_info_.device_number; }
 
-  // Handle a GET 'request', write the HTTP response message to out.
-  virtual void HandleGetRequest(const AlpacaRequest& request, Print& out);
+  // Handles an ASCOM Device API, dispatches to the appropriate method based on
+  // the HTTP method name. Returns true to indicate that the response was
+  // written without error, otherwise false, in which case the connection to the
+  // client will be closed.
+  virtual bool HandleDeviceSetupRequest(const AlpacaRequest& request,
+                                        Print& out);
 
-  // Handle a PUT 'request', write the HTTP response message to out.
-  virtual void HandlePutRequest(const AlpacaRequest& request, Print& out);
+  // Handles an ASCOM Device API, dispatches to the appropriate method based on
+  // the HTTP method name. Returns true to indicate that the response was
+  // written without error, otherwise false, in which case the connection to the
+  // client will be closed.
+  virtual bool HandleDeviceApiRequest(const AlpacaRequest& request, Print& out);
+
+  // Handles a GET 'request', writing the HTTP response message to out. Returns
+  // true to indicate that the response was written without error, otherwise
+  // false, in which case the connection to the client will be closed.
+  virtual bool HandleGetRequest(const AlpacaRequest& request, Print& out);
+
+  // Handles a PUT 'request', writing the HTTP response message to out. Returns
+  // true to indicate that the response was written without error, otherwise
+  // false, in which case the connection to the client will be closed.
+  virtual bool HandlePutRequest(const AlpacaRequest& request, Print& out);
 
   // Default implementations of common methods.
 

@@ -14,6 +14,12 @@ cc_library(
 )
 
 cc_library(
+    name = "array",
+    hdrs = ["array.h"],
+    deps = [":platform"],
+)
+
+cc_library(
     name = "connection",
     srcs = ["connection.cc"],
     hdrs = ["connection.h"],
@@ -110,6 +116,19 @@ cc_library(
         ":client",
         ":host_sockets",
         ":platform",
+    ],
+)
+
+cc_library(
+    name = "printable_str_cat",
+    srcs = ["printable_str_cat.cc"],
+    hdrs = ["printable_str_cat.h"],
+    deps = [
+        ":any_string",
+        ":literal",
+        ":platform",
+        ":print",
+        ":string_view",
     ],
 )
 

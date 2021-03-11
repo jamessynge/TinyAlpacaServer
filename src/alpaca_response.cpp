@@ -1,7 +1,9 @@
 #include "alpaca_response.h"
 
+#include "ascom_error_codes.h"
 #include "http_response_header.h"
 #include "json_response.h"
+#include "literals.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
 
@@ -24,59 +26,134 @@ class LiteralArraySource : public JsonElementSource {
 
 }  // namespace
 
-void WriteOkResponse(const JsonPropertySource& source, Print& out) {
+bool WriteOkResponse(const JsonPropertySource& source, EHttpMethod http_method,
+                     Print& out) {
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
   hrh.reason_phrase = Literals::OK();
   hrh.content_type = EContentType::kApplicationJson;
   hrh.content_length = JsonObjectEncoder::EncodedSize(source);
   hrh.printTo(out);
-  JsonObjectEncoder::Encode(source, out);
+  if (http_method != EHttpMethod::HEAD) {
+    JsonObjectEncoder::Encode(source, out);
+  }
+  return true;
 }
 
-void WriteArrayResponse(const AlpacaRequest& request,
+bool WriteArrayResponse(const AlpacaRequest& request,
                         const JsonElementSource& value, Print& out) {
   JsonArrayResponse source(request, value);
-  WriteOkResponse(source, out);
+  return WriteOkResponse(source, request.http_method, out);
 }
 
-void WriteBoolResponse(const AlpacaRequest& request, bool value, Print& out) {
+bool WriteBoolResponse(const AlpacaRequest& request, bool value, Print& out) {
   JsonBoolResponse source(request, value);
-  WriteOkResponse(source, out);
+  return WriteOkResponse(source, request.http_method, out);
 }
 
-void WriteDoubleResponse(const AlpacaRequest& request, double value,
+bool WriteDoubleResponse(const AlpacaRequest& request, double value,
                          Print& out) {
   JsonDoubleResponse source(request, value);
-  WriteOkResponse(source, out);
+  return WriteOkResponse(source, request.http_method, out);
 }
 
-void WriteFloatResponse(const AlpacaRequest& request, float value, Print& out) {
+bool WriteFloatResponse(const AlpacaRequest& request, float value, Print& out) {
   JsonFloatResponse source(request, value);
-  WriteOkResponse(source, out);
+  return WriteOkResponse(source, request.http_method, out);
 }
 
-void WriteIntegerResponse(const AlpacaRequest& request, uint32_t value,
+bool WriteIntegerResponse(const AlpacaRequest& request, uint32_t value,
                           Print& out) {
   JsonUnsignedIntegerResponse source(request, value);
-  WriteOkResponse(source, out);
+  return WriteOkResponse(source, request.http_method, out);
 }
 
-void WriteIntegerResponse(const AlpacaRequest& request, int32_t value,
+bool WriteIntegerResponse(const AlpacaRequest& request, int32_t value,
                           Print& out) {
   JsonIntegerResponse source(request, value);
-  WriteOkResponse(source, out);
+  return WriteOkResponse(source, request.http_method, out);
 }
 
-void WriteLiteralArrayResponse(const AlpacaRequest& request,
+bool WriteLiteralArrayResponse(const AlpacaRequest& request,
                                const LiteralArray& value, Print& out) {
   WriteArrayResponse(request, LiteralArraySource(value), out);
+  return true;
 }
 
-void WriteStringResponse(const AlpacaRequest& request, const AnyString& value,
+bool WriteStringResponse(const AlpacaRequest& request, const AnyString& value,
                          Print& out) {
   JsonStringResponse source(request, value);
-  WriteOkResponse(source, out);
+  return WriteOkResponse(source, request.http_method, out);
 }
 
+bool WriteAscomErrorResponse(const AlpacaRequest& request,
+                             uint32_t error_number, AnyString error_message,
+                             Print& out) {
+  JsonMethodResponse source(request, error_number, error_message);
+  return WriteOkResponse(source, request.http_method, out);
+}
+
+bool WriteAscomNotImplementedErrorResponse(const AlpacaRequest& request,
+                                           Print& out) {
+  return WriteAscomErrorResponse(request,
+                                 ErrorCodes::ActionNotImplemented().code(),
+                                 Literals::HttpMethodNotImplemented(), out);
+}
+
+bool WriteHttpErrorResponse(EHttpStatusCode status_code, AnyString& body,
+                            Print& out) {
+  TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest,
+                "Status code should be for an error.");
+  if (status_code < EHttpStatusCode::kHttpBadRequest) {
+    status_code = EHttpStatusCode::kHttpInternalServerError;
+  }
+
+  HttpResponseHeader hrh;
+  hrh.status_code = status_code;
+
+  switch (status_code) {
+    case EHttpStatusCode::kHttpBadRequest:
+      hrh.reason_phrase = Literals::HttpBadRequest();
+      break;
+    case EHttpStatusCode::kHttpNotFound:
+      hrh.reason_phrase = Literals::HttpNotFound();
+      break;
+    case EHttpStatusCode::kHttpMethodNotAllowed:
+      hrh.reason_phrase = Literals::HttpMethodNotAllowed();
+      break;
+    case EHttpStatusCode::kHttpNotAcceptable:
+      hrh.reason_phrase = Literals::HttpNotAcceptable();
+      break;
+    case EHttpStatusCode::kHttpLengthRequired:
+      hrh.reason_phrase = Literals::HttpLengthRequired();
+      break;
+    case EHttpStatusCode::kHttpPayloadTooLarge:
+      hrh.reason_phrase = Literals::HttpPayloadTooLarge();
+      break;
+    case EHttpStatusCode::kHttpUnsupportedMediaType:
+      hrh.reason_phrase = Literals::HttpUnsupportedMediaType();
+      break;
+    case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
+      hrh.reason_phrase = Literals::HttpRequestHeaderFieldsTooLarge();
+      break;
+    case EHttpStatusCode::kHttpMethodNotImplemented:
+      hrh.reason_phrase = Literals::HttpMethodNotImplemented();
+      break;
+    case EHttpStatusCode::kHttpVersionNotSupported:
+      hrh.reason_phrase = Literals::HttpVersionNotSupported();
+      break;
+    case EHttpStatusCode::kHttpInternalServerError:
+    // ABSL_FALLTHROUGH_INTENDED
+    default:
+      hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
+      hrh.reason_phrase = Literals::HttpInternalServerError();
+      break;
+  }
+
+  hrh.content_type = EContentType::kTextPlain;
+  hrh.content_length = body.size();
+  hrh.printTo(out);
+  body.printTo(out);
+  return false;
+}
 }  // namespace alpaca

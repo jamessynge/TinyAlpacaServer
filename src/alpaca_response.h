@@ -8,33 +8,70 @@
 #include "utils/any_string.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
+#include "utils/status_or.h"
 
 namespace alpaca {
 
 // Writes to 'out' an OK response with a JSON body whose content is provided by
-// 'source'.
-void WriteOkResponse(const JsonPropertySource& source, Print& out);
+// 'source'. If http_method==HEAD, then the body is not written, but the header
+// contains the content-length that would be send for a GET request. Returns
+// true if there is no problem with writing the response.
+bool WriteOkResponse(const JsonPropertySource& source, EHttpMethod http_method,
+                     Print& out);
 
-// Writes an error response with a text body to out.
-void WriteErrorResponse(EHttpStatusCode status_code, AnyString& body,
-                        Print& out);
+// The following WriteXyzResponse write to 'out' an OK response with JSON body
+// whose 'Value' property is from the 'value' parameter, which is of the
+// specified type. Returns true if there is no problem with writing the
+// response.
 
-// The following write to 'out' an OK response with JSON body whose 'Value'
-// property is from the 'value' parameter, which is of the specified type.
-void WriteArrayResponse(const AlpacaRequest& request,
+bool WriteArrayResponse(const AlpacaRequest& request,
                         const JsonElementSource& value, Print& out);
-void WriteBoolResponse(const AlpacaRequest& request, bool value, Print& out);
-void WriteDoubleResponse(const AlpacaRequest& request, double value,
+
+bool WriteBoolResponse(const AlpacaRequest& request, bool value, Print& out);
+bool WriteBoolResponse(const AlpacaRequest& request,
+                       StatusOr<bool> status_or_value, Print& out);
+
+bool WriteDoubleResponse(const AlpacaRequest& request, double value,
                          Print& out);
-void WriteFloatResponse(const AlpacaRequest& request, float value, Print& out);
-void WriteIntegerResponse(const AlpacaRequest& request, uint32_t value,
+bool WriteDoubleResponse(const AlpacaRequest& request,
+                         StatusOr<double> status_or_value, Print& out);
+
+bool WriteFloatResponse(const AlpacaRequest& request, float value, Print& out);
+bool WriteFloatResponse(const AlpacaRequest& request,
+                        StatusOr<float> status_or_value, Print& out);
+
+bool WriteIntegerResponse(const AlpacaRequest& request, uint32_t value,
                           Print& out);
-void WriteIntegerResponse(const AlpacaRequest& request, int32_t value,
+bool WriteIntegerResponse(const AlpacaRequest& request,
+                          StatusOr<uint32_t> status_or_value, Print& out);
+
+bool WriteIntegerResponse(const AlpacaRequest& request, int32_t value,
                           Print& out);
-void WriteLiteralArrayResponse(const AlpacaRequest& request,
+bool WriteIntegerResponse(const AlpacaRequest& request,
+                          StatusOr<int32_t> status_or_value, Print& out);
+
+bool WriteLiteralArrayResponse(const AlpacaRequest& request,
                                const LiteralArray& value, Print& out);
-void WriteStringResponse(const AlpacaRequest& request, const AnyString& value,
+bool WriteLiteralArrayResponse(const AlpacaRequest& request,
+                               StatusOr<LiteralArray> status_or_value,
+                               Print& out);
+
+bool WriteStringResponse(const AlpacaRequest& request, AnyString value,
                          Print& out);
+bool WriteStringResponse(const AlpacaRequest& request,
+                         StatusOr<AnyString> status_or_value, Print& out);
+
+// Writes an ASCOM error response JSON body in an HTTP OK response message.
+// Returns true if there is no problem with writing the response.
+bool WriteAscomErrorResponse(const AlpacaRequest& request,
+                             uint32_t error_number, AnyString error_message,
+                             Print& out);
+bool WriteAscomNotImplementedErrorResponse(const AlpacaRequest& request,
+                                           Print& out);
+
+// Writes an HTTP error response with a text body to out. Returns false.
+bool WriteHttpErrorResponse(EHttpStatusCode status_code, AnyString body,
+                            Print& out);
 
 }  // namespace alpaca
 

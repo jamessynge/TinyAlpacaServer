@@ -129,7 +129,17 @@ TAS_CONSTEXPR_VAR LiteralToken<EDeviceMethod_UnderlyingType>
         MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, refresh, kRefresh),
         MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, sensordescription,
                                 kSensorDescription),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, skybrightness, kSkyBrightness),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, skyquality, kSkyQuality),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, skytemperature, kSkyTemperature),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, starfullwidthhalfmax,
+                                kStarFullWidthHalfMax),
         MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, temperature, kTemperature),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, timesincelastupdate,
+                                kTimeSinceLastUpdate),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, winddirection, kWindDirection),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, windgust, kWindGust),
+        MAKE_ENUM_LITERAL_TOKEN(EDeviceMethod, windspeed, kWindSpeed),
 };
 
 bool MatchObservingConditionsMethod(const StringView& view,

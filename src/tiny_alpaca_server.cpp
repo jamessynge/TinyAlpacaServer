@@ -2,18 +2,18 @@
 
 #include "tiny_alpaca_server.h"
 
+#include "alpaca_response.h"
+#include "literals.h"
 #include "utils/platform.h"
 
 namespace alpaca {
 
 TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
                                    const ServerDescription& server_description,
-                                   DeviceApiHandlerBase* device_handlers,
-                                   size_t num_device_handlers)
+                                   Array<DeviceApiHandlerBase> device_handlers)
     : server_transaction_id_(0),
       server_description_(server_description),
-      device_handlers_(device_handlers),
-      num_device_handlers_(num_device_handlers) {
+      device_handlers_(device_handlers) {
   InitializeServerConnections(tcp_port);
 }
 
@@ -53,6 +53,34 @@ void TinyAlpacaServer::OnStartDecoding(AlpacaRequest& request) {
 // to write a response to the client. Return true to continue decoding more
 // requests from the client, false to disconnect.
 bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
+  switch (request.api) {
+    case EAlpacaApi::kUnknown:
+      WriteHttpErrorResponse(EHttpStatusCode::kHttpInternalServerError,
+                             Literals::ApiUnknown(), out);
+      return false;
+    case EAlpacaApi::kDeviceApi:
+      // ABSL_FALLTHROUGH_INTENDED
+    case EAlpacaApi::kDeviceSetup:
+      for (auto& handler : device_handlers_) {
+        if (request.device_type == handler.device_type() &&
+            request.device_number == handler.device_number()) {
+          return DispatchDeviceRequest(request, handler, out);
+        }
+      }
+      // Should this be an ASCOM error, or is an HTTP status OK?
+      WriteHttpErrorResponse(EHttpStatusCode::kHttpNotFound,
+                             Literals::NoSuchDevice(), out);
+      break;
+    case EAlpacaApi::kManagementApiVersions:
+      break;
+    case EAlpacaApi::kManagementDescription:
+      break;
+    case EAlpacaApi::kManagementConfiguredDevices:
+      break;
+    case EAlpacaApi::kServerSetup:
+      break;
+  }
+
   // TODO(jamessynge): Lookup the handler based on the request, dispatch to that
   // code.
 
@@ -65,5 +93,18 @@ bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
 void TinyAlpacaServer::OnRequestDecodingError(AlpacaRequest& request,
                                               EHttpStatusCode status,
                                               Print& out) {}
+
+bool TinyAlpacaServer::DispatchDeviceRequest(AlpacaRequest& request,
+                                             DeviceApiHandlerBase& handler,
+                                             Print& out) {
+  if (request.api == EAlpacaApi::kDeviceApi) {
+    return handler.HandleDeviceApiRequest(request, out);
+  } else if (request.api == EAlpacaApi::kDeviceSetup) {
+    return handler.HandleDeviceApiRequest(request, out);
+  } else {
+    return WriteHttpErrorResponse(EHttpStatusCode::kHttpInternalServerError,
+                                  Literals::HttpMethodNotImplemented(), out);
+  }
+}
 
 }  // namespace alpaca

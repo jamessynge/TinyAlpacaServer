@@ -55,11 +55,14 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":any_string",
+        ":ascom_error_codes",
         ":constants",
         ":http_response_header",
         ":json_encoder",
         ":json_response",
+        ":literals",
         ":platform",
+        ":status_or",
     ],
 )
 
@@ -96,12 +99,13 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":alpaca_response",
+        ":ascom_error_codes",
         ":constants",
         ":counting_bitbucket",
         ":device_info",
         ":http_response_header",
         ":json_encoder",
-        ":literal",
+        ":literals",
         ":platform",
     ],
 )
@@ -271,7 +275,10 @@ cc_library(
     srcs = ["tiny_alpaca_server.cc"],
     hdrs = ["tiny_alpaca_server.h"],
     deps = [
+        ":alpaca_response",
+        ":array",
         ":device_api_handler_base",
+        ":literals",
         ":platform",
         ":request_listener",
         ":server_connection",

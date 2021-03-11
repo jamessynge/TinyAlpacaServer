@@ -174,7 +174,7 @@ class StringView {
     return size_ > 0 && *ptr_ == c;
   }
 
-  // Returns the number of characters in the StringView. Alias for length.
+  // Returns the number of characters in the StringView.
   constexpr size_type size() const { return size_; }
 
   // Returns true if there are no characters in the view.
@@ -197,7 +197,7 @@ class StringView {
 
   // Returns a view of a portion of this view (at offset `pos` and length `n`)
   // as another StringView. Does NOT validate the parameters, so pos+n must not
-  // be greater than length(). This is currently only used for non-embedded
+  // be greater than size(). This is currently only used for non-embedded
   // code, hence the DCHECKs instead of ensuring that the result is valid.
   TAS_CONSTEXPR_FUNC StringView substr(size_type pos, size_type n) const {
     TAS_DCHECK_LE(pos, size_, "");

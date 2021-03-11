@@ -77,6 +77,7 @@ TAS_DEFINE_BUILTIN_LITERAL1(starfwhm)
 TAS_DEFINE_BUILTIN_LITERAL1(supportedactions)
 TAS_DEFINE_BUILTIN_LITERAL1(telescope)
 TAS_DEFINE_BUILTIN_LITERAL1(temperature)
+TAS_DEFINE_BUILTIN_LITERAL1(starfullwidthhalfmax)
 TAS_DEFINE_BUILTIN_LITERAL1(timesincelastupdate)
 TAS_DEFINE_BUILTIN_LITERAL1(UniqueID)
 TAS_DEFINE_BUILTIN_LITERAL1(Value)
@@ -87,8 +88,9 @@ TAS_DEFINE_BUILTIN_LITERAL1(windspeed)
 // Other literals whose name can not be the same as the value (e.g. switch and
 // true), or whose name I desire to be different for some reason.
 
-TAS_DEFINE_BUILTIN_LITERAL(HttpVersion, "HTTP/1.1")
-TAS_DEFINE_BUILTIN_LITERAL(HttpOkStatus, "HTTP/1.1 200 OK")
+TAS_DEFINE_BUILTIN_LITERAL(DeviceTypeSwitch, "switch")
+
+// Literals used during decoding of the request, and maybe for output.
 TAS_DEFINE_BUILTIN_LITERAL(HttpVersionEndOfLine, "HTTP/1.1\r\n")
 TAS_DEFINE_BUILTIN_LITERAL(HttpEndOfLine, "\r\n")
 TAS_DEFINE_BUILTIN_LITERAL(HttpAccept, "Accept")
@@ -96,14 +98,16 @@ TAS_DEFINE_BUILTIN_LITERAL(HttpContentEncoding, "Content-Encoding")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentLength, "Content-Length")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentType, "Content-Type")
 
-TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded,
                            "application/x-www-form-urlencoded")
+
+// Output Content-Types.
+TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeTextPlain, "text/plain")
 
-TAS_DEFINE_BUILTIN_LITERAL(DeviceTypeSwitch, "switch")
-TAS_DEFINE_BUILTIN_LITERAL(NoRequestListener,
-                           "No RequestListener is installed.")
+// Literals used during output.
+TAS_DEFINE_BUILTIN_LITERAL(HttpVersion, "HTTP/1.1")
+TAS_DEFINE_BUILTIN_LITERAL(HttpOkStatus, "HTTP/1.1 200 OK")
 
 // Common fixed HTTP Response Headers. For now, assuming that we're NOT
 // keeping the connection open from request to request. That could change.
@@ -111,5 +115,25 @@ TAS_DEFINE_BUILTIN_LITERAL(CommonResponseHeaders,
   "\r\n"  // We assume the response start line comes first, then ...
   "Server: TinyAlpacaServer\r\n"
   "Connection: close")
+
+// HTTP Response Reason Phrases:
+TAS_DEFINE_BUILTIN_LITERAL(HttpBadRequest, "Bad Request")
+TAS_DEFINE_BUILTIN_LITERAL(HttpNotFound, "Not Found")
+TAS_DEFINE_BUILTIN_LITERAL(HttpMethodNotAllowed, "Method Not Allowed")
+TAS_DEFINE_BUILTIN_LITERAL(HttpNotAcceptable, "Not Acceptable")
+TAS_DEFINE_BUILTIN_LITERAL(HttpLengthRequired, "Length Required")
+TAS_DEFINE_BUILTIN_LITERAL(HttpPayloadTooLarge, "Payload Too Large")
+TAS_DEFINE_BUILTIN_LITERAL(HttpUnsupportedMediaType, "Unsupported Media Type")
+TAS_DEFINE_BUILTIN_LITERAL(HttpRequestHeaderFieldsTooLarge,
+                           "Request Header Fields Too Large")
+TAS_DEFINE_BUILTIN_LITERAL(HttpMethodNotImplemented, "Method Not Implemented")
+TAS_DEFINE_BUILTIN_LITERAL(HttpVersionNotSupported,
+                           "HTTP Version Not Supported")
+TAS_DEFINE_BUILTIN_LITERAL(HttpInternalServerError, "Internal Server Error")
+
+// Error bodies:
+TAS_DEFINE_BUILTIN_LITERAL(ApiUnknown,
+                           "request.api value is unknown/unexpected (bug).")
+TAS_DEFINE_BUILTIN_LITERAL(NoSuchDevice, "Device type and number not found.")
 
 #undef TAS_DEFINE_BUILTIN_LITERAL1

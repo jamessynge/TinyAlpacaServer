@@ -6,6 +6,12 @@
 // literals.inc, and then include that file here to define arrays in PROGMEM for
 // those strings, and to define factory functions for corresponding Literal
 // instances.
+//
+// TODO(jamessynge): Define a macro, SHARED_LITERAL(Name, Value), which can be
+// be used where I currently would use Literals::Name(), which in fact expands
+// into that. But then create a tool, gather_shared_literals.py, which reads all
+// of the C++ files under src/, finds the uses of SHARED_LITERAL(\w+, \"...\")
+// and uses that to update a "GENERATED LITERALS" section of literals.inc.
 
 #include "utils/literal.h"
 #include "utils/platform.h"

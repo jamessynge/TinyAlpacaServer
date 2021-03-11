@@ -164,7 +164,7 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
   kName,
   kSupportedActions,
 
-  // Supported ObservingConditions methods:
+  // ObservingConditions methods:
   kAveragePeriod,
   kCloudCover,
   kDewPoint,
@@ -172,8 +172,16 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
   kPressure,
   kRainRate,
   kRefresh,
-  kTemperature,
   kSensorDescription,
+  kSkyBrightness,
+  kSkyQuality,
+  kSkyTemperature,
+  kStarFullWidthHalfMax,
+  kTemperature,
+  kTimeSinceLastUpdate,
+  kWindDirection,
+  kWindGust,
+  kWindSpeed,
 
   // Supported SafetyMonitor methods:
   kIsSafe,

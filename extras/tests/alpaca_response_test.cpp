@@ -16,7 +16,7 @@ constexpr char kEOL[] = "\r\n";
 TEST(AlpacaResponseTest, SimpleOk) {
   PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
   PrintToString out;
-  WriteOkResponse(source, out);
+  WriteOkResponse(source, EHttpMethod::PUT, out);
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,

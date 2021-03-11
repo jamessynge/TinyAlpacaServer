@@ -183,10 +183,26 @@ std::ostream& operator<<(std::ostream& out, EDeviceMethod v) {
       return out << "kRainRate";
     case EDeviceMethod::kRefresh:
       return out << "kRefresh";
-    case EDeviceMethod::kTemperature:
-      return out << "kTemperature";
     case EDeviceMethod::kSensorDescription:
       return out << "kSensorDescription";
+    case EDeviceMethod::kSkyBrightness:
+      return out << "kSkyBrightness";
+    case EDeviceMethod::kSkyQuality:
+      return out << "kSkyQuality";
+    case EDeviceMethod::kSkyTemperature:
+      return out << "kSkyTemperature";
+    case EDeviceMethod::kStarFullWidthHalfMax:
+      return out << "kStarFullWidthHalfMax";
+    case EDeviceMethod::kTemperature:
+      return out << "kTemperature";
+    case EDeviceMethod::kTimeSinceLastUpdate:
+      return out << "kTimeSinceLastUpdate";
+    case EDeviceMethod::kWindDirection:
+      return out << "kWindDirection";
+    case EDeviceMethod::kWindGust:
+      return out << "kWindGust";
+    case EDeviceMethod::kWindSpeed:
+      return out << "kWindSpeed";
     case EDeviceMethod::kIsSafe:
       return out << "kIsSafe";
   }

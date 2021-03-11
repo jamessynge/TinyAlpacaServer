@@ -17,6 +17,16 @@ cc_test(
 )
 
 cc_test(
+    name = "array_test",
+    srcs = ["array_test.cc"],
+    deps = [
+        ":array",
+        ":test_utils",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "config_test",
     srcs = ["config_test.cc"],
     deps = [
