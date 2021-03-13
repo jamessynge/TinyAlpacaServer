@@ -29,10 +29,6 @@ size_t AnyString::printTo(Print& out) const {
   }
 }
 
-size_t AnyString::printJsonEscapedTo(Print& out) const {
-  return PrintJsonEscapedStringTo(*this, out);
-}
-
 size_t AnyString::size() const {
   if (is_literal_) {
     return literal_.size();

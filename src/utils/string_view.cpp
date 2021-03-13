@@ -1,5 +1,7 @@
 #include "utils/string_view.h"
 
+#include <string_view>
+
 // Author: james.synge@gmail.com
 
 #include "utils/escaping.h"
@@ -52,7 +54,8 @@ bool StringView::operator!=(const StringView& other) const {
 }
 
 bool StringView::to_uint32(uint32_t& out) const {
-  TAS_DVLOG(2, "StringView::to_uint32 converting " << ToHexEscapedString());
+  TAS_DVLOG(2,
+            "StringView::to_uint32 converting " << ToHexEscapedString(*this));
   if (empty()) {
     return false;
   }
@@ -80,47 +83,20 @@ bool StringView::to_uint32(uint32_t& out) const {
   return true;
 }
 
-JsonStringView StringView::escaped() const { return JsonStringView(*this); }
-
 size_t StringView::printTo(Print& p) const { return p.write(ptr_, size_); }
 
 #if TAS_HOST_TARGET
-// void StringView::WriteTo(std::ostream& out) const { out.write(ptr_, size_); }
-
-std::string_view StringView::ToStdStringView() const {
-  return std::string_view(data(), size());
+std::string ToStdString(const StringView& view) {
+  return std::string(view.data(), view.size());
 }
 
-std::string StringView::ToString() const { return std::string(data(), size()); }
-
-std::string StringView::ToHexEscapedString() const {
-  return absl::StrCat("\"", absl::CHexEscape(ToStdStringView()), "\"");
-}
-#endif
-
-JsonStringView::JsonStringView(const StringView& view) : view_(view) {}
-
-size_t JsonStringView::printTo(Print& p) const {
-  size_t total = p.print('"');
-  for (const char& c : view_) {
-    total += PrintCharJsonEscaped(p, c);
-  }
-  total += p.print('"');
-  return total;
+std::string ToHexEscapedString(const StringView& view) {
+  auto std_view = std::string_view(view.data(), view.size());
+  return absl::StrCat("\"", absl::CHexEscape(std_view), "\"");
 }
 
-#if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, const StringView& view) {
   return out.write(view.data(), view.size());
-}
-
-std::ostream& operator<<(std::ostream& out, const JsonStringView& view) {
-  out << StringView("\"");
-  for (const char c : view.view()) {
-    StreamCharJsonEscaped(out, c);
-  }
-  out << StringView("\"");
-  return out;
 }
 
 bool operator==(const StringView& a, std::string_view b) {

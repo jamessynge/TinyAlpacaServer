@@ -41,5 +41,9 @@
 #include "extras/host/arduino/stream.h"  // IWYU pragma: export
 
 uint32_t millis();
+uint32_t micros();
+
+void delay(uint32_t ms);
+void delayMicroseconds(uint32_t us);
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_

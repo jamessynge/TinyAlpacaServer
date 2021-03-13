@@ -46,7 +46,7 @@ class Print {
   // number of bytes written.
   size_t write(const char* buffer, size_t size);
 
-  // Prints (writes) a various things using the above methods.
+  // Prints (writes) a value of various types.
   size_t print(const char str[]);
   size_t print(char c);
   size_t print(uint8_t value);
@@ -57,7 +57,7 @@ class Print {
   size_t print(double value);
   size_t print(const Printable& value);
 
-  // Print various things, with a trailing \n.
+  // Prints (writes) a value of various types, with a trailing \n.
   size_t println(const char str[]);
   size_t println(char c);
   size_t println(uint8_t value);
@@ -67,6 +67,7 @@ class Print {
   size_t println(uint32_t value);
   size_t println(double value);
   size_t println(const Printable& value);
+  size_t println();
 
  private:
   size_t printInteger(int64_t value);

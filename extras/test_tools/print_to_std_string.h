@@ -5,6 +5,7 @@
 // it.
 
 #include <sstream>
+#include <string>
 
 #include "extras/host/arduino/print.h"
 

@@ -91,6 +91,7 @@ cc_library(
         ":escaping",
         ":logging",
         ":platform",
+        "//absl/strings",
     ],
 )
 

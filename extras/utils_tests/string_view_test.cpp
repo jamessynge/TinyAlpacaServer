@@ -18,12 +18,6 @@ namespace alpaca {
 namespace {
 using ::testing::IsEmpty;
 
-TAS_CONSTEXPR_FUNC const StringView kSomeText("some-text");
-
-std::string ToString(const StringView& view) {
-  return std::string(view.data(), view.size());
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor Tests.
 
@@ -41,8 +35,8 @@ TEST(StringViewTest, CreateFromConstExpr) {
   EXPECT_EQ(view1.data(), kConstStr1);
   EXPECT_EQ(view1.size(), 3);
   EXPECT_FALSE(view1 == nullptr);
-  EXPECT_EQ(view1.ToString(), "123");
-  EXPECT_EQ(view1.ToHexEscapedString(), "\"123\"");
+  EXPECT_EQ(ToStdString(view1), "123");
+  EXPECT_EQ(ToHexEscapedString(view1), "\"123\"");
 
   std::string str1(kConstStr1);
   EXPECT_EQ(str1, view1);
@@ -184,13 +178,13 @@ TEST(StringViewTest, Equals) {
 
   EXPECT_EQ(view1, view2);  // Tests operator==
   EXPECT_TRUE(view1 == nullptr);
-  EXPECT_THAT(view1.ToString(), IsEmpty());
-  EXPECT_EQ(view1.ToHexEscapedString(), "\"\"");
+  EXPECT_THAT(ToStdString(view1), IsEmpty());
+  EXPECT_EQ(ToHexEscapedString(view1), "\"\"");
   EXPECT_NE(view1.data(), view2.data());
   EXPECT_EQ(view1.size(), 0);
   EXPECT_EQ(view2.size(), 0);
-  EXPECT_THAT(view2.ToString(), IsEmpty());
-  EXPECT_EQ(view2.ToHexEscapedString(), "\"\"");
+  EXPECT_THAT(ToStdString(view2), IsEmpty());
+  EXPECT_EQ(ToHexEscapedString(view2), "\"\"");
 
   // Case: both strings have different pointers, but point to underlying strings
   // with the same value.
@@ -373,74 +367,6 @@ TEST(StringViewTest, StreamOutOperatorObeysLimits) {
     StringView view;
     oss << view;
     EXPECT_EQ(oss.str(), "");
-  }
-}
-
-TEST(JsonStringViewTest, StreamOutOperator) {
-  {
-    std::ostringstream oss;
-    StringView view("abc");
-    JsonStringView json(view);
-    oss << json;
-    EXPECT_EQ(oss.str(), "\"abc\"");
-  }
-  {
-    // Note: Even though JSON allows a forward slash ('/') to be escaped, it
-    // does not require it.
-    std::ostringstream oss;
-    StringView view("<tag attr=\"value with slash ('\\')\">\b\f\n\r\t</tag>");
-    JsonStringView json(view);
-    oss << json;
-    EXPECT_EQ(oss.str(),
-              "\"<tag attr=\\\"value with slash ('\\\\')\\\">"
-              "\\b\\f\\n\\r\\t</tag>\"");
-  }
-}
-
-TEST(JsonStringViewTest, StreamOutOperatorObeysLimits) {
-  {
-    // Confirm that it doesn't print beyond the size it has.
-    std::ostringstream oss;
-    StringView view("abcdef", 4);
-    JsonStringView json(view);
-    oss << json;
-    EXPECT_EQ(oss.str(), "\"abcd\"");
-  }
-  {
-    // Confirm that it doesn't print beyond the size it has.
-    std::ostringstream oss;
-    StringView view("\tbcdefgh\t");
-    view.remove_prefix(3);
-    view.remove_suffix(3);
-    JsonStringView json(view);
-    oss << json;
-    EXPECT_EQ(oss.str(), "\"def\"");
-  }
-  {
-    // Confirm that it doesn't print beyond the size it has.
-    std::ostringstream oss;
-    StringView view;
-    JsonStringView json(view);
-    oss << json;
-    EXPECT_EQ(oss.str(), "\"\"");
-  }
-}
-
-TEST(JsonStringViewTest, StreamOutOperatorDropsUnsupportedControlCharacters) {
-  for (const std::string& str : {
-           std::string(1, '\0'),    // NUL
-           std::string(1, '\a'),    // BEL
-           std::string(1, '\e'),    // ESC
-           std::string(1, '\x7f'),  // DEL
-       }) {
-    EXPECT_EQ(str.size(), 1);
-    std::ostringstream oss;
-    StringView view(str);
-    JsonStringView json(view);
-    EXPECT_EQ(json.view().size(), 1);
-    LOG(INFO) << "json.view: " << json.view().ToHexEscapedString();
-    oss << json;
-    EXPECT_EQ(oss.str(), "\"\"");
   }
 }
 

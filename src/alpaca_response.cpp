@@ -56,6 +56,14 @@ bool WriteDoubleResponse(const AlpacaRequest& request, double value,
   JsonDoubleResponse source(request, value);
   return WriteOkResponse(source, request.http_method, out);
 }
+bool WriteDoubleResponse(const AlpacaRequest& request,
+                         StatusOr<double> status_or_value, Print& out) {
+  if (status_or_value.ok()) {
+    return WriteDoubleResponse(request, status_or_value.value(), out);
+  } else {
+    return WriteAscomErrorResponse(request, status_or_value.status(), out);
+  }
+}
 
 bool WriteFloatResponse(const AlpacaRequest& request, float value, Print& out) {
   JsonFloatResponse source(request, value);
@@ -103,6 +111,14 @@ bool WriteAscomErrorResponse(const AlpacaRequest& request,
                              uint32_t error_number, Printable& error_message,
                              Print& out) {
   JsonMethodResponse source(request, error_number, error_message);
+  return WriteOkResponse(source, request.http_method, out);
+}
+
+bool WriteAscomErrorResponse(const AlpacaRequest& request, Status error_status,
+                             Print& out) {
+  AnyString error_message;  // TODO(jamessynge): Come up with a way for Status
+                            // to carry a message.
+  JsonMethodResponse source(request, error_status.code(), error_message);
   return WriteOkResponse(source, request.http_method, out);
 }
 

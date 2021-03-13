@@ -15,10 +15,6 @@ namespace alpaca {
 // Wraps a Print instance, forwards output to that instance with JSON escaping
 // applied. Note that this does NOT add double quotes before and after the
 // output.
-//
-// TODO(jamessynge): Replace JsonStringView and JsonLiteral with use of
-// PrintJsonEscaped (except possibly for logging escaped strings, where those
-// mechanisms can also use PrintJsonEscaped).
 class PrintJsonEscaped : public Print {
  public:
   explicit PrintJsonEscaped(Print& wrapped);

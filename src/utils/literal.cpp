@@ -1,8 +1,16 @@
 #include "utils/literal.h"
 
+#if TAS_HOST_TARGET
+#include <string_view>
+#endif  // TAS_HOST_TARGET
+
 #include "utils/escaping.h"
 #include "utils/logging.h"
 #include "utils/platform.h"
+
+#if TAS_HOST_TARGET
+#include "absl/strings/escaping.h"
+#endif
 
 namespace alpaca {
 namespace {
@@ -81,25 +89,21 @@ size_t Literal::printTo(Print& out) const {
   return total;
 }
 
-size_t Literal::printJsonEscapedTo(Print& out) const {
-  size_t total = out.print('"');
-  for (size_type offset = 0; offset < size_; ++offset) {
-    char c = pgm_read_char(ptr_ + offset);
-    total += PrintCharJsonEscaped(out, c);
-  }
-  total += out.print('"');
-  return total;
-}
-
-JsonLiteral Literal::escaped() const { return JsonLiteral(*this); }
-
-JsonLiteral::JsonLiteral(const Literal& literal) : literal_(literal) {}
-
-size_t JsonLiteral::printTo(Print& p) const {
-  return literal_.printJsonEscapedTo(p);
-}
-
 #if TAS_HOST_TARGET
+std::string_view ToStdStringView(const Literal& literal) {
+  return std::string_view(
+      reinterpret_cast<const char*>(literal.prog_data_for_tests()),
+      literal.size());
+}
+
+std::string ToStdString(const Literal& literal) {
+  return std::string(ToStdStringView(literal));
+}
+
+std::string ToHexEscapedString(const Literal& literal) {
+  return absl::StrCat("\"", absl::CHexEscape(ToStdStringView(literal)), "\"");
+}
+
 // Supports streaming literals, useful for logging and debugging.
 class PrintableLiteral : public Printable {
  public:

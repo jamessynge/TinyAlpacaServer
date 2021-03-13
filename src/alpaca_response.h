@@ -72,6 +72,9 @@ bool WriteAscomErrorResponse(const AlpacaRequest& request,
 bool WriteAscomErrorResponse(const AlpacaRequest& request,
                              uint32_t error_number, Printable& error_message,
                              Print& out);
+// Write the ASCOM error contained in the Status instance.
+bool WriteAscomErrorResponse(const AlpacaRequest& request, Status error_status,
+                             Print& out);
 bool WriteAscomNotImplementedErrorResponse(const AlpacaRequest& request,
                                            Print& out);
 

@@ -79,6 +79,8 @@ class AbstractJsonEncoder {
   void EncodeChildArray(const JsonElementSource& source);
   void EncodeChildObject(const JsonPropertySource& source);
 
+  void PrintString(const Printable& printable);
+
   Print& out_;
 
  private:

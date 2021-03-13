@@ -24,6 +24,8 @@ constexpr StringView kUpperView(kUpperStr);
 
 constexpr char kLowerJson[] PROGMEM =
     "\"some\\\\thing\\twith\\r\\n\\b\\f\\\"quotes\\\".\"";
+constexpr char kLowerHexEscaped[] PROGMEM =
+    "\"some\\\\thing\\twith\\r\\n\\x08\\x0c\\\"quotes\\\".\"";
 
 TEST(LiteralTest, LowerComparison) {
   Literal literal(kLowerStr);
@@ -157,14 +159,6 @@ TEST(LiteralTest, PrintTo) {
   EXPECT_EQ(out.str(), kMixedStr);
 }
 
-TEST(LiteralTest, PrintJsonEscapedTo) {
-  Literal literal(kLowerStr);
-  const std::string expected(kLowerJson);
-  PrintToStdString out;
-  EXPECT_EQ(literal.printJsonEscapedTo(out), expected.size());
-  EXPECT_EQ(out.str(), expected);
-}
-
 TEST(LiteralTest, StreamMixed) {
   // This tests features used only on the host.
   Literal literal(kMixedStr);
@@ -181,11 +175,11 @@ TEST(LiteralTest, StreamUpper) {
   EXPECT_EQ(oss.str(), kUpperStr);
 }
 
-TEST(LiteralTest, StreamJson) {
+TEST(LiteralTest, StreamHexEscaped) {
   Literal literal(kLowerStr);
   std::ostringstream oss;
-  oss << literal.escaped();
-  EXPECT_EQ(oss.str(), kLowerJson);
+  oss << ToHexEscapedString(literal);
+  EXPECT_EQ(oss.str(), kLowerHexEscaped);
 }
 
 }  // namespace

@@ -81,6 +81,8 @@ size_t Print::println(const Printable& value) {
   return count + write(EOL);
 }
 
+size_t Print::println() { return write(EOL); }
+
 size_t Print::printInteger(int64_t value) {
   auto s = std::to_string(value);
   return write(s.data(), s.size());

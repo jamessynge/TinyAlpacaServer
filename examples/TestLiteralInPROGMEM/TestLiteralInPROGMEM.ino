@@ -3,6 +3,7 @@
 #include <TinyAlpacaServer.h>
 #else
 #include "TinyAlpacaServer.h"
+#include "extras/host/arduino/arduino.h"
 #endif
 
 using alpaca::Literal;
@@ -233,8 +234,8 @@ unsigned int test_dense_switch_to_calculations() {
   }
 }
 
-long test_sparse_switch_map() {
-  long microseconds = micros();
+int32_t test_sparse_switch_map() {
+  auto microseconds = micros();
   // This kind of switch statement, where the case values are sparse,
   // does not end up as a data table.
   switch (microseconds) {
@@ -333,7 +334,7 @@ long test_sparse_switch_map() {
   }
 }
 
-int test_if_sequence() {
+uint32_t test_if_sequence() {
   // This does not get turned into a table in RAM.
   auto t = millis() % 100;
   if (t == 0) return 16695;
@@ -394,8 +395,8 @@ void loop() {
   Serial.println();
   Serial.println();
 
-  Serial.print("JSON literal: ");
-  literal.printJsonEscapedTo(Serial);
+  Serial.print("JSON escaped literal: ");
+  alpaca::PrintJsonEscapedStringTo(alpaca::AnyString(literal), Serial);
   Serial.println();
   Serial.println();
 }

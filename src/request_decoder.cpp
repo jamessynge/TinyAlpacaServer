@@ -47,7 +47,6 @@ using CharMatchFunction = bool (*)(char c);
 
 TAS_CONSTEXPR_VAR StringView kHttpMethodTerminators(" ");
 TAS_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
-TAS_CONSTEXPR_VAR StringView kHttp_1_1_EOL("HTTP/1.1\r\n");
 TAS_CONSTEXPR_VAR StringView kPathSeparator("/");
 TAS_CONSTEXPR_VAR StringView kPathTerminators("? ");
 TAS_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
@@ -123,7 +122,7 @@ void TrimTrailingOptionalWhitespace(StringView& view) {
 bool ExtractMatchingPrefix(StringView& view, StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
-  TAS_DVLOG(3, "ExtractMatchingPrefix of " << view.ToHexEscapedString()
+  TAS_DVLOG(3, "ExtractMatchingPrefix of " << ToHexEscapedString(view)
                                            << " found " << (beyond + 0)
                                            << " matching characters");
   if (beyond == StringView::kMaxSize) {
@@ -215,11 +214,11 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
       !ExtractMatchingPrefix(view, value, IsFieldContent)) {
     return EHttpStatusCode::kNeedMoreInput;
   }
-  TAS_DVLOG(1, "DecodeHeaderValue raw value: " << value.ToHexEscapedString());
+  TAS_DVLOG(1, "DecodeHeaderValue raw value: " << ToHexEscapedString(value));
   // Trim OWS from the end of the header value.
   TrimTrailingOptionalWhitespace(value);
   TAS_DVLOG(1,
-            "DecodeHeaderValue trimmed value: " << value.ToHexEscapedString());
+            "DecodeHeaderValue trimmed value: " << ToHexEscapedString(value));
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_header == EHttpHeader::kHttpAccept) {
     // Not tracking whether there are multiple accept headers.
@@ -376,7 +375,7 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   const auto beyond = FindFirstNotOf(view, IsParamSeparator);
   if (beyond == StringView::kMaxSize) {
     TAS_DVLOG(3, "DecodeParamSeparator found no non-separators in "
-                     << view.ToHexEscapedString());
+                     << ToHexEscapedString(view));
     // All the available characters are separators, or the view is empty.
     if (!state.is_decoding_header && state.is_final_input) {
       // We've reached the end of the body of the request.
@@ -430,7 +429,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     value = view;
     view.remove_prefix(value.size());
   }
-  TAS_DVLOG(1, "DecodeParamValue value: " << value.ToHexEscapedString());
+  TAS_DVLOG(1, "DecodeParamValue value: " << ToHexEscapedString(value));
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_parameter == EParameter::kClientId) {
     uint32_t id;
@@ -530,7 +529,7 @@ EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
                                     const StringView& matched_text,
                                     StringView& view) {
   TAS_DVLOG(3, "ProcessDeviceMethod matched_text: "
-                   << matched_text.ToHexEscapedString());
+                   << ToHexEscapedString(matched_text));
 
   // A separator/terminating character should be present after the method.
   TAS_DCHECK(!view.empty(), "");
@@ -823,7 +822,7 @@ void RequestDecoderState::Reset() {
 EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
                                                   const bool buffer_is_full,
                                                   const bool at_end_of_input) {
-  TAS_DVLOG(1, "DecodeBuffer " << buffer.ToHexEscapedString());
+  TAS_DVLOG(1, "DecodeBuffer " << ToHexEscapedString(buffer));
   if (decode_function == nullptr) {
     // Need to call Reset first.
     //
@@ -869,14 +868,14 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
 // DecodeHeaderLines to find the end.
 EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     StringView& buffer, const bool at_end_of_input) {
-  TAS_DVLOG(1, "DecodeMessageHeader " << buffer.ToHexEscapedString());
+  TAS_DVLOG(1, "DecodeMessageHeader " << ToHexEscapedString(buffer));
 
   EHttpStatusCode status;
   do {
 #if TAS_ENABLE_DEBUGGING
     const auto buffer_size_before_decode = buffer.size();
     auto old_decode_function = decode_function;
-    TAS_DVLOG(2, decode_function << "(" << buffer.ToHexEscapedString() << " ("
+    TAS_DVLOG(2, decode_function << "(" << ToHexEscapedString(buffer) << " ("
                                  << static_cast<size_t>(buffer.size())
                                  << " chars))");
 #endif
@@ -920,7 +919,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 // (i.e. remaining_content_length tells us how many ASCII characters remain).
 EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
                                                        bool at_end_of_input) {
-  TAS_DVLOG(1, "DecodeMessageBody " << buffer.ToHexEscapedString());
+  TAS_DVLOG(1, "DecodeMessageBody " << ToHexEscapedString(buffer));
   TAS_DCHECK(found_content_length, "");
   TAS_DCHECK_EQ(request.http_method, EHttpMethod::PUT, "");
 
@@ -951,7 +950,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
     const auto buffer_size_before_decode = buffer.size();
 #if TAS_ENABLE_DEBUGGING
     const auto old_decode_function = decode_function;
-    TAS_DVLOG(2, decode_function << "(" << buffer.ToHexEscapedString() << " ("
+    TAS_DVLOG(2, decode_function << "(" << ToHexEscapedString(buffer) << " ("
                                  << (buffer.size() + 0) << " chars))");
 #endif
 

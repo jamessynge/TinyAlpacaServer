@@ -12,10 +12,15 @@
 // placement of variables marked PROGMEM, in particular whether there is an
 // attempt to place them early in the address space.
 
+#if TAS_HOST_TARGET
+#include <ostream>
+#include <string>
+#endif  // TAS_HOST_TARGET
+
 #include "utils/platform.h"
 
 namespace alpaca {
-class JsonLiteral;
+
 // We include the TAS_CONSTEXPR_FUNC specifier only on constructors, as those
 // are the only one's we're trying to guarantee are executable at compile time.
 // However, if we want to be able to create Literals from substrings (e.g.
@@ -83,13 +88,6 @@ class Literal {
   // remove the ability for this to have a constexpr ctor in C++ < 20.
   size_t printTo(Print& out) const;
 
-  // Print the string to the provided Print instance, surrounded by double
-  // quotes and with escaping as required by JSON.
-  size_t printJsonEscapedTo(Print& out) const;
-
-  // Returns a copy of this Literal wrapped in a JsonLiteral.
-  JsonLiteral escaped() const;
-
   // In support of tests, returns the address in PROGMEM of the string.
   // On a typical (Von Neumann) host, this is in the same address space as data.
   PGM_VOID_P prog_data_for_tests() const { return ptr_; }
@@ -117,21 +115,13 @@ struct LiteralArray {
   const size_t size;
 };
 
-// JsonLiteral is a simple helper to allow us to output the JSON escaped form
-// of a Literal, e.g. for debugging. For example.
-//     Literal literal = ....;
-//     TAS_DCHECK_LE(literal.size(), 9,  "Too long: " << literal.escaped());
-class JsonLiteral : public Printable {
- public:
-  explicit JsonLiteral(const Literal& literal);
+#if TAS_HOST_TARGET
+// Returns a std::string with the value of the view.
+std::string ToStdString(const Literal& literal);
 
-  size_t printTo(Print& p) const override;
-
-  const Literal& literal() const { return literal_; }
-
- private:
-  const Literal literal_;
-};
+// Returns a quoted and hex escaped string from the characters in the view.
+std::string ToHexEscapedString(const Literal& literal);
+#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca
 

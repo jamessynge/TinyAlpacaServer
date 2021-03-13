@@ -40,12 +40,12 @@ void PrintFloatingPoint(Print& out, const T value) {
   // Haven't got std::isnan or std::isfinite in the Arduino environment.
   // TODO(jamessynge): Consider using isnan and isfinite from avr-libc's math.h.
   if (std::isnan(value)) {
-    JsonNan().printJsonEscapedTo(out);
+    PrintJsonEscapedStringTo(AnyString(JsonNan()), out);
   } else if (!std::isfinite(value)) {
     if (value > 0) {
-      JsonInf().printJsonEscapedTo(out);
+      PrintJsonEscapedStringTo(AnyString(JsonInf()), out);
     } else {
-      JsonNegInf().printJsonEscapedTo(out);
+      PrintJsonEscapedStringTo(AnyString(JsonNegInf()), out);
     }
   } else {
 #endif
@@ -85,6 +85,10 @@ void AbstractJsonEncoder::EncodeChildObject(const JsonPropertySource& source) {
   source.AddTo(encoder);
 }
 
+void AbstractJsonEncoder::PrintString(const Printable& printable) {
+  PrintJsonEscapedStringTo(printable, out_);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 JsonArrayEncoder::JsonArrayEncoder(Print& out) : AbstractJsonEncoder(out) {
@@ -120,12 +124,12 @@ void JsonArrayEncoder::AddBooleanElement(const bool value) {
 
 void JsonArrayEncoder::AddStringElement(AnyString value) {
   StartItem();
-  PrintJsonEscapedStringTo(value, out_);
+  PrintString(value);
 }
 
 void JsonArrayEncoder::AddStringElement(const Printable& value) {
   StartItem();
-  PrintJsonEscapedStringTo(value, out_);
+  PrintString(value);
 }
 
 void JsonArrayEncoder::AddArrayElement(const JsonElementSource& source) {
@@ -161,7 +165,7 @@ JsonObjectEncoder::~JsonObjectEncoder() { out_.print('}'); }
 
 void JsonObjectEncoder::StartProperty(const AnyString& name) {
   StartItem();
-  name.printJsonEscapedTo(out_);
+  PrintString(name);
   out_.print(':');
   out_.print(' ');
 }
@@ -199,13 +203,13 @@ void JsonObjectEncoder::AddBooleanProperty(const AnyString& name,
 void JsonObjectEncoder::AddStringProperty(const AnyString& name,
                                           AnyString value) {
   StartProperty(name);
-  PrintJsonEscapedStringTo(value, out_);
+  PrintString(value);
 }
 
 void JsonObjectEncoder::AddStringProperty(const AnyString& name,
                                           const Printable& value) {
   StartProperty(name);
-  PrintJsonEscapedStringTo(value, out_);
+  PrintString(value);
 }
 
 void JsonObjectEncoder::AddArrayProperty(const AnyString& name,

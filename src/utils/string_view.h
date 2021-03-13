@@ -32,8 +32,6 @@
 
 namespace alpaca {
 
-class JsonStringView;
-
 class StringView {
  public:
   // These two definitions must be changed together.
@@ -220,9 +218,6 @@ class StringView {
   // out.
   bool to_uint32(uint32_t& out) const;
 
-  // Returns this StringView wrapped in a JsonStringView.
-  JsonStringView escaped() const;
-
   // Print the string to Print by calling Print::write(data(), size()). The
   // name printTo comes from Arduino's Printable::printTo, with which this is
   // mostly compatible; the exception is that it is not virtual because that
@@ -230,49 +225,21 @@ class StringView {
   // constructable.
   size_t printTo(Print& p) const;
 
-#if TAS_HOST_TARGET
-  // The following methods are for testing and debugging on a "real" computer,
-  // not for the embedded device.
-
-  //   // Writes the string to the ostream.
-  //   void WriteTo(std::ostream& out) const;
-
-  // Convert to std::string_view.
-  std::string_view ToStdStringView() const;
-
-  // Copy the contents of the view into a std::string.
-  std::string ToString() const;
-
-  // Returns a quoted and hex escaped string from the characters in the view.
-  std::string ToHexEscapedString() const;
-#endif
-
  private:
   const char* ptr_;
   size_type size_;
 };
 
-// JsonStringView is a simple helper to allow us to output the JSON escaped form
-// of a StringView. For example.
-//     StringView view = ....;
-//     TAS_DCHECK_LT(view.size(), 10,  "View is too long: " << view.escaped());
-class JsonStringView : public Printable {
- public:
-  explicit JsonStringView(const StringView& view);
-
-  size_t printTo(Print& p) const override;
-
-  const StringView& view() const { return view_; }
-
- private:
-  const StringView view_;
-};
-
 #if TAS_HOST_TARGET
-// The insertion streaming operators (i.e. operator<<) for values of type
-// StringView and JsonStringView are used for tests, DCHECK_EQ, DVLOG, etc.
+// Returns a std::string with the value of the view.
+std::string ToStdString(const StringView& view);
+
+// Returns a quoted and hex escaped string from the characters in the view.
+std::string ToHexEscapedString(const StringView& view);
+
+// Insertion streaming operator (i.e. operator<<) for values of type StringView,
+// used for tests, DCHECK_EQ, DVLOG, etc.
 std::ostream& operator<<(std::ostream& out, const StringView& view);
-std::ostream& operator<<(std::ostream& out, const JsonStringView& view);
 
 // The equals operators below are used for tests, CHECK_EQ, etc., where we want
 // to compare StringViews against strings from the standard library. They aren't

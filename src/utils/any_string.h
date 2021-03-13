@@ -23,8 +23,8 @@ class AnyString : public Printable {
 
   AnyString(const AnyString& other);
 
+  // Print the string to the provided Print instance.
   size_t printTo(Print& out) const override;
-  size_t printJsonEscapedTo(Print& out) const;
 
   // Returns the size in bytes (i.e. number of ASCII characters) in the string.
   size_t size() const;
