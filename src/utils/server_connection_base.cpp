@@ -1,6 +1,5 @@
 #include "utils/server_connection_base.h"
 
-#include "extras/ethernet3/host_sockets.h"
 #include "utils/logging.h"
 #include "utils/platform_ethernet.h"
 

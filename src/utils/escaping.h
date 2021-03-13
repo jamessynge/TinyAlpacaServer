@@ -4,7 +4,6 @@
 // Core of support for printing JSON strings. Characters that are not valid in
 // JSON strings (e.g. Ctrl-A) are not printed.
 
-#include "extras/host_arduino/print.h"
 #include "utils/platform.h"
 
 #if TAS_HOST_TARGET

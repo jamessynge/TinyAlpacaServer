@@ -24,8 +24,6 @@
 // * TAS handles the UDP packets of the Alpaca discovery protocol using data
 //   provided at startup (e.g. the set of attached devices).
 
-#include <cstddef>
-
 #include "device_api_handler_base.h"
 #include "request_listener.h"
 #include "server_connection.h"

@@ -9,7 +9,6 @@
 // For those captured items that reference temporaries not contained by the
 // capture, the item needs to outlive the AnyPrintable.
 
-#include "extras/host_arduino/print.h"
 #include "utils/any_string.h"
 #include "utils/literal.h"
 #include "utils/platform.h"

@@ -6,8 +6,6 @@
 // It exists to make it easier to iterate through static arrays provided to
 // TinyAlpacaServer as its configuration data.
 
-#include <cstddef>
-
 #include "utils/array_view.h"
 #include "utils/logging.h"
 #include "utils/platform.h"

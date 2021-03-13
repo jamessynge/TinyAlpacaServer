@@ -11,7 +11,6 @@
 //
 // Author: james.synge@gmail.com
 
-#include "extras/host_arduino/print.h"
 #include "utils/any_printable.h"
 #include "utils/array.h"
 #include "utils/platform.h"
