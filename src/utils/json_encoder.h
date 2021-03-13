@@ -6,6 +6,13 @@
 //
 // Author: james.synge@gmail.com
 
+// TODO(jamessynge): Study
+// http://p-nand-q.com/programming/cplusplus/duck_typing_and_templates.html to
+// determine if it can make it easier to implement the methods below that take
+// an AnyString or a Printable&. We just want to accept any X that has a |size_t
+// X::printTo(Print&) const| method, or for which there is a |size_t
+// Print::print(X)| method.
+
 #include "utils/any_string.h"
 #include "utils/platform.h"
 
@@ -86,7 +93,8 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
   void AddFloatingPointElement(float value);
   void AddFloatingPointElement(double value);
   void AddBooleanElement(const bool value);
-  void AddStringElement(const AnyString& value);
+  void AddStringElement(AnyString value);
+  void AddStringElement(const Printable& value);
   void AddArrayElement(const JsonElementSource& source);
   void AddObjectElement(const JsonPropertySource& source);
 
@@ -113,7 +121,8 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
   void AddFloatingPointProperty(const AnyString& name, float value);
   void AddFloatingPointProperty(const AnyString& name, double value);
   void AddBooleanProperty(const AnyString& name, const bool value);
-  void AddStringProperty(const AnyString& name, const AnyString& value);
+  void AddStringProperty(const AnyString& name, AnyString value);
+  void AddStringProperty(const AnyString& name, const Printable& value);
   void AddArrayProperty(const AnyString& name, const JsonElementSource& source);
   void AddObjectProperty(const AnyString& name,
                          const JsonPropertySource& source);

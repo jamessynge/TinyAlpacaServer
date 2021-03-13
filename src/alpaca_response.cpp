@@ -80,7 +80,13 @@ bool WriteLiteralArrayResponse(const AlpacaRequest& request,
   return true;
 }
 
-bool WriteStringResponse(const AlpacaRequest& request, const AnyString& value,
+bool WriteStringResponse(const AlpacaRequest& request, AnyString value,
+                         Print& out) {
+  JsonStringResponse source(request, value);
+  return WriteOkResponse(source, request.http_method, out);
+}
+
+bool WriteStringResponse(const AlpacaRequest& request, Printable& value,
                          Print& out) {
   JsonStringResponse source(request, value);
   return WriteOkResponse(source, request.http_method, out);
@@ -88,6 +94,13 @@ bool WriteStringResponse(const AlpacaRequest& request, const AnyString& value,
 
 bool WriteAscomErrorResponse(const AlpacaRequest& request,
                              uint32_t error_number, AnyString error_message,
+                             Print& out) {
+  JsonMethodResponse source(request, error_number, error_message);
+  return WriteOkResponse(source, request.http_method, out);
+}
+
+bool WriteAscomErrorResponse(const AlpacaRequest& request,
+                             uint32_t error_number, Printable& error_message,
                              Print& out) {
   JsonMethodResponse source(request, error_number, error_message);
   return WriteOkResponse(source, request.http_method, out);

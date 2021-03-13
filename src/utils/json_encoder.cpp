@@ -3,6 +3,7 @@
 // Author: james.synge@gmail.com
 
 #include "utils/counting_bitbucket.h"
+#include "utils/escaping.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
 
@@ -117,9 +118,14 @@ void JsonArrayEncoder::AddBooleanElement(const bool value) {
   PrintBoolean(out_, value);
 }
 
-void JsonArrayEncoder::AddStringElement(const AnyString& value) {
+void JsonArrayEncoder::AddStringElement(AnyString value) {
   StartItem();
-  value.printJsonEscapedTo(out_);
+  PrintJsonEscapedStringTo(value, out_);
+}
+
+void JsonArrayEncoder::AddStringElement(const Printable& value) {
+  StartItem();
+  PrintJsonEscapedStringTo(value, out_);
 }
 
 void JsonArrayEncoder::AddArrayElement(const JsonElementSource& source) {
@@ -191,9 +197,15 @@ void JsonObjectEncoder::AddBooleanProperty(const AnyString& name,
 }
 
 void JsonObjectEncoder::AddStringProperty(const AnyString& name,
-                                          const AnyString& value) {
+                                          AnyString value) {
   StartProperty(name);
-  value.printJsonEscapedTo(out_);
+  PrintJsonEscapedStringTo(value, out_);
+}
+
+void JsonObjectEncoder::AddStringProperty(const AnyString& name,
+                                          const Printable& value) {
+  StartProperty(name);
+  PrintJsonEscapedStringTo(value, out_);
 }
 
 void JsonObjectEncoder::AddArrayProperty(const AnyString& name,

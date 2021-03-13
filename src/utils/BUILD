@@ -3,10 +3,24 @@
 # sketch.
 
 cc_library(
+    name = "any_printable",
+    srcs = ["any_printable.cc"],
+    hdrs = ["any_printable.h"],
+    deps = [
+        ":any_string",
+        ":literal",
+        ":platform",
+        ":print",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "any_string",
     srcs = ["any_string.cc"],
     hdrs = ["any_string.h"],
     deps = [
+        ":escaping",
         ":literal",
         ":platform",
         ":string_view",
@@ -16,6 +30,16 @@ cc_library(
 cc_library(
     name = "array",
     hdrs = ["array.h"],
+    deps = [
+        ":array_view",
+        ":logging",
+        ":platform",
+    ],
+)
+
+cc_library(
+    name = "array_view",
+    hdrs = ["array_view.h"],
     deps = [":platform"],
 )
 
@@ -44,6 +68,7 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
+        ":print",
     ],
 )
 
@@ -54,6 +79,7 @@ cc_library(
     deps = [
         ":any_string",
         ":counting_bitbucket",
+        ":escaping",
         ":literal",
         ":platform",
     ],
@@ -120,15 +146,15 @@ cc_library(
 )
 
 cc_library(
-    name = "printable_str_cat",
-    srcs = ["printable_str_cat.cc"],
-    hdrs = ["printable_str_cat.h"],
+    name = "printable_cat",
+    srcs = ["printable_cat.cc"],
+    hdrs = ["printable_cat.h"],
     deps = [
-        ":any_string",
-        ":literal",
+        ":any_printable",
+        ":array",
+        ":array_view",
         ":platform",
         ":print",
-        ":string_view",
     ],
 )
 

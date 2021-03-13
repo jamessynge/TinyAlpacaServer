@@ -16,6 +16,7 @@ cc_test(
     deps = [
         ":print",
         ":print_to_std_string",
+        ":sample_printable",
         "//googletest:gunit_main",
     ],
 )

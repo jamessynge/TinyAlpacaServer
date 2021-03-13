@@ -53,6 +53,7 @@ cc_test(
     name = "json_response_test",
     srcs = ["json_response_test.cc"],
     deps = [
+        ":any_printable",
         ":json_response",
         ":json_test_utils",
         ":print_to_std_string",

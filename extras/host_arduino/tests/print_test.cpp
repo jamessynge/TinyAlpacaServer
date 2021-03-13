@@ -3,19 +3,11 @@
 #include <sstream>
 
 #include "extras/test_tools/print_to_std_string.h"
+#include "extras/test_tools/sample_printable.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
 namespace alpaca {
-
-struct SamplePrintable : public Printable {
-  size_t printTo(Print& p) const override {
-    return p.write(str.data(), str.size());
-  }
-
-  std::string str;
-};
-
 namespace {
 
 TEST(PrintTest, SamplePrintable) {

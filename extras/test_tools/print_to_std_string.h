@@ -34,6 +34,13 @@ class PrintToStdString : public Print {
   std::ostringstream out_;
 };
 
+template <class T>
+std::string PrintValueToStdString(const T& t) {
+  PrintToStdString out;
+  out.print(t);
+  return out.str();
+}
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_PRINT_TO_STD_STRING_H_

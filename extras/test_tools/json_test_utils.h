@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_TESTS_JSON_TEST_UTILS_H_
-#define TINY_ALPACA_SERVER_EXTRAS_TESTS_JSON_TEST_UTILS_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_JSON_TEST_UTILS_H_
+#define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_JSON_TEST_UTILS_H_
 
 // To make it easier for tests to drive the JSON encoders, we provide these
 // helpers.
@@ -52,4 +52,4 @@ size_t JsonEncodedObjectSize(const JsonPropertySourceFunction& func);
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_TESTS_JSON_TEST_UTILS_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_JSON_TEST_UTILS_H_

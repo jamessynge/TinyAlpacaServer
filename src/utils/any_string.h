@@ -8,7 +8,7 @@
 namespace alpaca {
 
 // AnyString allows either a Literal or a StringView to be output using the JSON
-// encoder, and avoids the need to define two methods where one of the parameter
+// encoder, and avoids the need to define two methods when one of the parameters
 // is either a StringView or a Literal. It is essentially an adapter around a
 // std::variant<Literal, StringView>, except std::variant isn't available on
 // Arduino.
@@ -17,8 +17,11 @@ namespace alpaca {
 class AnyString : public Printable {
  public:
   // Deliberately NOT marked explicit so that either type may be used.
+  AnyString();
   AnyString(Literal literal);  // NOLINT
   AnyString(StringView view);  // NOLINT
+
+  AnyString(const AnyString& other);
 
   size_t printTo(Print& out) const override;
   size_t printJsonEscapedTo(Print& out) const;
@@ -26,15 +29,12 @@ class AnyString : public Printable {
   // Returns the size in bytes (i.e. number of ASCII characters) in the string.
   size_t size() const;
 
-  // TODO(jamessynge): Add support for writing to EEPROM. That might just be
-  // a Print implementation that supports doing that.
-
  private:
   union {
-    const Literal literal_;
-    const StringView view_;
+    Literal literal_;
+    StringView view_;
   };
-  const bool is_literal_;
+  bool is_literal_;
 };
 
 }  // namespace alpaca

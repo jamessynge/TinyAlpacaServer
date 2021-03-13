@@ -4,6 +4,7 @@
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/any_printable.h"
 
 namespace alpaca {
 namespace {
@@ -13,9 +14,11 @@ TEST(JsonMethodResponseTest, AllFields) {
   request.set_server_transaction_id(123);
   request.set_client_transaction_id(789);
 
-  JsonMethodResponse response(
-      request, /*error_number=*/98765,
-      /*error_message=*/StringView("Are you saying \"Hey, look at that!\"?"));
+  uint32_t error_number = 98765;
+  AnyPrintable error_message(
+      StringView("Are you saying \"Hey, look at that!\"?"));
+
+  JsonMethodResponse response(request, error_number, error_message);
 
   PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);

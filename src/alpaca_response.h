@@ -5,6 +5,7 @@
 
 #include "alpaca_request.h"
 #include "constants.h"
+#include "utils/any_printable.h"
 #include "utils/any_string.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
@@ -52,26 +53,37 @@ bool WriteIntegerResponse(const AlpacaRequest& request,
 
 bool WriteLiteralArrayResponse(const AlpacaRequest& request,
                                const LiteralArray& value, Print& out);
-bool WriteLiteralArrayResponse(const AlpacaRequest& request,
-                               StatusOr<LiteralArray> status_or_value,
-                               Print& out);
+// bool WriteLiteralArrayResponse(const AlpacaRequest& request,
+//                                StatusOr<LiteralArray> status_or_value,
+//                                Print& out);
 
 bool WriteStringResponse(const AlpacaRequest& request, AnyString value,
                          Print& out);
-bool WriteStringResponse(const AlpacaRequest& request,
-                         StatusOr<AnyString> status_or_value, Print& out);
+bool WriteStringResponse(const AlpacaRequest& request, Printable& value,
+                         Print& out);
+// bool WriteStringResponse(const AlpacaRequest& request,
+//                          StatusOr<AnyString> status_or_value, Print& out);
 
 // Writes an ASCOM error response JSON body in an HTTP OK response message.
 // Returns true if there is no problem with writing the response.
 bool WriteAscomErrorResponse(const AlpacaRequest& request,
                              uint32_t error_number, AnyString error_message,
                              Print& out);
+bool WriteAscomErrorResponse(const AlpacaRequest& request,
+                             uint32_t error_number, Printable& error_message,
+                             Print& out);
 bool WriteAscomNotImplementedErrorResponse(const AlpacaRequest& request,
                                            Print& out);
 
 // Writes an HTTP error response with a text body to out. Returns false.
-bool WriteHttpErrorResponse(EHttpStatusCode status_code, AnyString body,
+bool WriteHttpErrorResponse(EHttpStatusCode status_code, const Printable& body,
                             Print& out);
+bool WriteHttpErrorResponse(EHttpStatusCode status_code,
+                            const AnyPrintable& body, Print& out);
+
+// Writes a 500 Internal Server Error response with a text body to out. Returns
+// false.
+bool WriteHttpInternalServerError(Printable& body, Print& out);
 
 }  // namespace alpaca
 

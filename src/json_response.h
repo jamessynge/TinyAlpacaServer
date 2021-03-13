@@ -19,15 +19,16 @@ namespace alpaca {
 class JsonMethodResponse : public JsonPropertySource {
  public:
   explicit JsonMethodResponse(const AlpacaRequest& request)
-      : JsonMethodResponse(request, 0, StringView()) {}
+      : request_(request), error_number_(0), error_message_(nullptr) {}
 
-  // If the error_message is a StringView, the underlying string must remain
-  // valid while the response object exists.
   JsonMethodResponse(const AlpacaRequest& request, uint32_t error_number,
-                     const AnyString& error_message)
+                     const Printable& error_message)
       : request_(request),
         error_number_(error_number),
-        error_message_(error_message) {}
+        error_message_(&error_message) {}
+
+  JsonMethodResponse(const JsonMethodResponse&) = delete;
+  JsonMethodResponse(JsonMethodResponse&&) = delete;
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
     if (request_.have_client_transaction_id) {
@@ -39,13 +40,18 @@ class JsonMethodResponse : public JsonPropertySource {
                                         request_.server_transaction_id);
     }
     object_encoder.AddIntegerProperty(Literals::ErrorNumber(), error_number_);
-    object_encoder.AddStringProperty(Literals::ErrorMessage(), error_message_);
+    if (error_message_ == nullptr) {
+      object_encoder.AddStringProperty(Literals::ErrorMessage(), AnyString());
+    } else {
+      object_encoder.AddStringProperty(Literals::ErrorMessage(),
+                                       *error_message_);
+    }
   }
 
  private:
   const AlpacaRequest& request_;
   const uint32_t error_number_;
-  const AnyString error_message_;
+  const Printable* error_message_;
 };
 
 class JsonArrayResponse : public JsonMethodResponse {
@@ -135,7 +141,7 @@ class JsonIntegerResponse : public JsonMethodResponse {
 
 class JsonStringResponse : public JsonMethodResponse {
  public:
-  JsonStringResponse(const AlpacaRequest& request, AnyString value)
+  JsonStringResponse(const AlpacaRequest& request, Printable& value)
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
@@ -144,7 +150,7 @@ class JsonStringResponse : public JsonMethodResponse {
   }
 
  private:
-  const AnyString value_;
+  Printable& value_;
 };
 
 }  // namespace alpaca

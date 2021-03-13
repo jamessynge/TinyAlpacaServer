@@ -1,10 +1,30 @@
 # TODO(jamessynge): describe this package.
 
 cc_test(
+    name = "any_printable_test",
+    srcs = ["any_printable_test.cc"],
+    deps = [
+        ":any_printable",
+        ":print_to_std_string",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "array_test",
     srcs = ["array_test.cc"],
     deps = [
         ":array",
+        ":print_to_std_string",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "array_view_test",
+    srcs = ["array_view_test.cc"],
+    deps = [
+        ":array_view",
         ":print_to_std_string",
         "//googletest:gunit_main",
     ],
@@ -20,6 +40,19 @@ cc_test(
 )
 
 cc_test(
+    name = "escaping_test",
+    srcs = ["escaping_test.cc"],
+    deps = [
+        ":any_string",
+        ":escaping",
+        ":print_to_std_string",
+        ":string_view",
+        "//googletest:gunit_main",
+        "//util/gtl:map_util",
+    ],
+)
+
+cc_test(
     name = "json_encoder_test",
     srcs = ["json_encoder_test.cc"],
     deps = [
@@ -27,6 +60,7 @@ cc_test(
         ":json_encoder",
         ":json_test_utils",
         ":print_to_std_string",
+        ":sample_printable",
         "//absl/strings",
         "//core:logging",
         "//googletest:gunit_main",
@@ -54,6 +88,17 @@ cc_test(
         ":platform",
         ":print_to_std_string",
         ":string_view",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "printable_cat_test",
+    srcs = ["printable_cat_test.cc"],
+    deps = [
+        ":print_to_std_string",
+        ":printable_cat",
+        "//absl/strings",
         "//googletest:gunit_main",
     ],
 )

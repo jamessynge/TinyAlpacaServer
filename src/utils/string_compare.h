@@ -1,7 +1,7 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_STRING_COMPARE_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_STRING_COMPARE_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// Defines string comparison methods for Literal and StringView instances.
 
 #include "utils/literal.h"
 #include "utils/platform.h"

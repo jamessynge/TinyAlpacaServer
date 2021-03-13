@@ -15,3 +15,9 @@ cc_library(
     hdrs = ["print_to_std_string.h"],
     deps = [":print"],
 )
+
+cc_library(
+    name = "sample_printable",
+    hdrs = ["sample_printable.h"],
+    deps = [":print"],
+)

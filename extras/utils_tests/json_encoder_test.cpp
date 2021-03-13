@@ -13,6 +13,7 @@
 #include "absl/strings/str_cat.h"
 #include "extras/test_tools/json_test_utils.h"
 #include "extras/test_tools/print_to_std_string.h"
+#include "extras/test_tools/sample_printable.h"
 #include "googletest/gtest.h"
 #include "logging.h"
 #include "utils/counting_bitbucket.h"
@@ -69,14 +70,14 @@ TEST_F(JsonEncodersTest, ObjectWithStringValues) {
   constexpr char kWithQuotesAndBackslashesStr[] =
       "with \" quotes and \\ backslashes";
   const Literal kWithQuotesAndBackslashes(kWithQuotesAndBackslashesStr);
+  const SamplePrintable kPrintableValue("with controls \r\n");
 
   auto func = [&](JsonObjectEncoder& object_encoder) {
     object_encoder.AddStringProperty(StringView("empty"), StringView());
-    object_encoder.AddStringProperty(StringView("a"), kSomeText);
+    object_encoder.AddStringProperty(Literal("a"), kSomeText);
     object_encoder.AddStringProperty(StringView("b"),
                                      kWithQuotesAndBackslashes);
-    object_encoder.AddStringProperty(StringView("c"),
-                                     StringView("with controls \r\n"));
+    object_encoder.AddStringProperty(StringView("c"), kPrintableValue);
   };
   ConfirmEncoding(func,
                   "{\"empty\": \"\", "
@@ -215,10 +216,12 @@ TEST_F(JsonEncodersTest, ArrayOfEmptyStructures) {
 TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
   constexpr char kSomeTextStr[] = "some text \r\n with escaping characters";
   const Literal kSomeText(kSomeTextStr);
+  const SamplePrintable kPrintableValue("just printable");
 
   auto func = [&](JsonArrayEncoder& array_encoder) {
     array_encoder.AddBooleanElement(false);
     array_encoder.AddStringElement(StringView());  // Empty string.
+    array_encoder.AddStringElement(kPrintableValue);
     array_encoder.AddStringElement(kSomeText);
     array_encoder.AddIntegerElement(std::numeric_limits<int32_t>::min());
     array_encoder.AddIntegerElement(std::numeric_limits<uint32_t>::max());
@@ -230,7 +233,7 @@ TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
   };
   ConfirmEncoding(
       func, absl::StrCat(
-                "[false, \"\", "
+                "[false, \"\", \"just printable\", "
                 "\"some text \\r\\n with escaping characters\", ",
                 std::to_string(std::numeric_limits<int32_t>::min() + 0), ", ",
                 std::to_string(std::numeric_limits<uint32_t>::max() + 0), ", ",

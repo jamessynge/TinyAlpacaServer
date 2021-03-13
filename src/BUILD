@@ -54,6 +54,7 @@ cc_library(
     hdrs = ["alpaca_response.h"],
     deps = [
         ":alpaca_request",
+        ":any_printable",
         ":any_string",
         ":ascom_error_codes",
         ":constants",
@@ -276,6 +277,7 @@ cc_library(
     hdrs = ["tiny_alpaca_server.h"],
     deps = [
         ":alpaca_response",
+        ":any_string",
         ":array",
         ":device_api_handler_base",
         ":literals",

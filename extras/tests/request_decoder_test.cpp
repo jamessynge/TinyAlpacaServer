@@ -30,15 +30,18 @@ namespace alpaca {
 namespace {
 constexpr const size_t kDecodeBufferSize = 40;
 
-using ::testing::AnyNumber;
 using ::testing::EndsWith;
-using ::testing::Eq;
-using ::testing::InSequence;
 using ::testing::IsEmpty;
 using ::testing::Mock;
-using ::testing::Return;
 using ::testing::StartsWith;
 using ::testing::StrictMock;
+
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+using ::testing::AnyNumber;
+using ::testing::Eq;
+using ::testing::InSequence;
+using ::testing::Return;
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 
 std::vector<std::string> SplitEveryN(const std::string& full_request,
                                      const size_t n) {

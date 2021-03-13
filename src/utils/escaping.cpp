@@ -7,6 +7,34 @@
 
 namespace alpaca {
 
+PrintJsonEscaped::PrintJsonEscaped(Print& wrapped) : wrapped_(wrapped) {}
+PrintJsonEscaped::~PrintJsonEscaped() {}
+
+size_t PrintJsonEscaped::write(uint8_t b) {
+  return PrintCharJsonEscaped(wrapped_, static_cast<char>(b));
+}
+
+size_t PrintJsonEscaped::write(const uint8_t* buffer, size_t size) {
+  size_t count = 0;
+  for (int ndx = 0; ndx < size; ++ndx) {
+    count += PrintCharJsonEscaped(wrapped_, static_cast<char>(buffer[ndx]));
+  }
+  return count;
+}
+
+size_t PrintJsonEscapedTo(const Printable& value, Print& raw_output) {
+  PrintJsonEscaped out(raw_output);
+  return value.printTo(out);
+}
+
+size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output) {
+  PrintJsonEscaped out(raw_output);
+  size_t count = raw_output.print('"');
+  count += value.printTo(out);
+  count += raw_output.print('"');
+  return count;
+}
+
 size_t PrintCharJsonEscaped(Print& out, const char c) {
   size_t total = 0;
   if (isPrintable(c)) {

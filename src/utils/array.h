@@ -1,59 +1,123 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_ARRAY_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_ARRAY_H_
 
-// Array is similar to std::array and std::initializer_list, wraps a C++ array
-// of T (or const T) of known (fixed) size, and provides support for iterating
-// through the array. It exists to make it easier to iterate through static
-// arrays provided to TinyAlpacaServer as its configuration data.
+// Array is similar to std::array; it contains a C-style array of T (or const T)
+// of known (fixed) size, and provides support for iterating through the array.
+// It exists to make it easier to iterate through static arrays provided to
+// TinyAlpacaServer as its configuration data.
 
+#include <cstddef>
+
+#include "utils/array_view.h"
+#include "utils/logging.h"
 #include "utils/platform.h"
 
 namespace alpaca {
 
-template <typename T>
-class Array {
+template <typename T, size_t SIZE>
+struct Array {
  public:
-  // These two definitions must be changed together.
-  using size_type = uint8_t;
-  static constexpr size_type kMaxSize = 255;
-
   using value_type = T;
+  using size_type = size_t;
+  using difference_type = std::ptrdiff_t;
   using reference = value_type&;
-  using const_iterator = const value_type*;
+  using const_reference = const value_type&;
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
   using iterator = value_type*;
+  using const_iterator = const value_type*;
 
-  // Construct empty.
-  constexpr Array() noexcept : ptr_(nullptr), size_(0) {}
+  // Copy from the provided array.
+  template <typename U, size_t N>
+  void copy(const U (&data)[N]) {
+    size_type limit = N > SIZE ? SIZE : N;
+    for (size_type ndx = 0; ndx < limit; ++ndx) {
+      elems_[ndx] = data[ndx];
+    }
+  }
 
-  // Construct with a specified length.
-  constexpr Array(T* ptr, size_type length)
-      : ptr_(length > 0 ? ptr : nullptr), size_(length) {}
-
-  // Constructs from a literal T[] (i.e. array of T). The goal of this is to get
-  // the compiler to populate the size, rather than computing it at runtime.
-  template <size_type N>
-  explicit Array(T (&array)[N]) : Array(array, N) {}
-
-  iterator begin() { return ptr_; }
-  const_iterator begin() const { return ptr_; }
-  iterator end() { return ptr_ + size_; }
-  const_iterator end() const { return ptr_ + size_; }
+  iterator begin() { return elems_; }
+  const_iterator begin() const { return elems_; }
+  iterator end() { return elems_ + SIZE; }
+  const_iterator end() const { return elems_ + SIZE; }
 
   // Returns the number of elements in the array.
-  constexpr size_type size() const { return size_; }
+  constexpr size_type size() const { return SIZE; }
+  constexpr bool empty() const { return false; }
+
+  // Element access:
+  reference operator[](size_type ndx) {
+    TAS_DCHECK_LT(ndx, SIZE, "");
+    return elems_[ndx];
+  }
+  const_reference operator[](size_type ndx) const {
+    TAS_DCHECK_LT(ndx, SIZE, "");
+    return elems_[ndx];
+  }
+  reference at(size_type ndx) {
+    TAS_DCHECK_LT(ndx, SIZE, "");
+    return elems_[ndx];
+  }
+  const_reference at(size_type ndx) const {
+    TAS_DCHECK_LT(ndx, SIZE, "");
+    return elems_[ndx];
+  }
 
   // Returns a pointer to the first element of the underlying array.
-  constexpr const T* data() const { return ptr_; }
+  reference front() { return elems_[0]; }
+  const_reference front() const { return elems_[0]; }
+  reference back() { return elems_[SIZE - 1]; }
+  const_reference back() const { return elems_[SIZE - 1]; }
 
- private:
-  T* ptr_;
-  size_type size_;
+  // Returns a pointer to the first element of the underlying array.
+  constexpr pointer data() { return elems_; }
+  constexpr const_pointer data() const { return elems_; }
+
+  // The actual data.
+  value_type elems_[SIZE];  // NOLINT
 };
 
-template <typename T, int N>
-Array<T> MakeArray(T (&array)[N]) {
-  return Array<T>(array, N);
+// Helpers to build an Array from some values.
+template <typename T, int SIZE>
+Array<T, SIZE> MakeFromArray(const T (&data)[SIZE]) {
+  Array<T, SIZE> array;
+  array.copy(data);
+  return array;
 }
+
+template <typename T>
+Array<T, 1> MakeArray(T a) {
+  return {a};
+}
+
+template <typename T>
+Array<T, 2> MakeArray(T a, T b) {
+  return {a, b};
+}
+
+template <typename T>
+Array<T, 3> MakeArray(T a, T b, T c) {
+  return {a, b, c};
+}
+
+template <typename T>
+Array<T, 4> MakeArray(T a, T b, T c, T d) {
+  return {a, b, c, d};
+}
+
+// Struggling to make these work in a useful fashion.
+// template <typename T, size_t SIZE>
+// ArrayView<T> ToArrayView(Array<T, SIZE>& array) {
+//   return ArrayView<T>(array.data(), SIZE);
+// }
+// template <typename T, size_t SIZE>
+// ArrayView<const T> ToArrayView(const Array<T, SIZE>& array) {
+//   return ArrayView<T>(array.data(), SIZE);
+// }
+// template <typename T, size_t SIZE>
+// ArrayView<const T> ToArrayView(const Array<const T, SIZE>& array) {
+//   return ArrayView<T>(array.data(), SIZE);
+// }
 
 }  // namespace alpaca
 

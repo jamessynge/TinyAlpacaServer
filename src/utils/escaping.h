@@ -4,6 +4,7 @@
 // Core of support for printing JSON strings. Characters that are not valid in
 // JSON strings (e.g. Ctrl-A) are not printed.
 
+#include "extras/host_arduino/print.h"
 #include "utils/platform.h"
 
 #if TAS_HOST_TARGET
@@ -11,6 +12,38 @@
 #endif  // TAS_HOST_TARGET
 
 namespace alpaca {
+
+// Wraps a Print instance, forwards output to that instance with JSON escaping
+// applied. Note that this does NOT add double quotes before and after the
+// output.
+//
+// TODO(jamessynge): Replace JsonStringView and JsonLiteral with use of
+// PrintJsonEscaped (except possibly for logging escaped strings, where those
+// mechanisms can also use PrintJsonEscaped).
+class PrintJsonEscaped : public Print {
+ public:
+  explicit PrintJsonEscaped(Print& wrapped);
+  ~PrintJsonEscaped() override;
+
+  // These are the two abstract virtual methods in Arduino's Print class. I'm
+  // presuming that the uint8_t 'b' is actually an ASCII char.
+  size_t write(uint8_t b) override;
+  size_t write(const uint8_t* buffer, size_t size) override;
+
+  // Export the other write methods.
+  using Print::write;
+
+ private:
+  Print& wrapped_;
+};
+
+// Print 'value' to 'raw_output', with the characters JSON escaped. Note that
+// this does NOT add double quotes before and after the output.
+size_t PrintJsonEscapedTo(const Printable& value, Print& raw_output);
+
+// Print 'value' to 'raw_output' as a JSON string, i.e. starting and ending with
+// double quotes, and with the characters printed by 'value' JSON escaped.
+size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output);
 
 // Print c with appropriate escaping for JSON.
 size_t PrintCharJsonEscaped(Print& out, char c);
