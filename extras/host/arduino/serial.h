@@ -5,7 +5,7 @@
 // demo sketches. There is no attempt to support input; it just outputs to
 // std::cout.
 
-#include "extras/host_arduino/print.h"  // IWYU pragma: export
+#include "extras/host/arduino/print.h"  // IWYU pragma: export
 
 class FakeSerial : public Print {
  public:

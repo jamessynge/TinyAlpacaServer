@@ -28,10 +28,10 @@
 #define TAS_ENABLE_DEBUGGING 1
 #endif  // NDEBUG
 
-#include "extras/host_arduino/arduino.h"   // IWYU pragma: export
-#include "extras/host_arduino/pgmspace.h"  // IWYU pragma: export
-#include "extras/host_arduino/print.h"     // IWYU pragma: export
-#include "extras/host_arduino/stream.h"    // IWYU pragma: export
+#include "extras/host/arduino/arduino.h"   // IWYU pragma: export
+#include "extras/host/arduino/pgmspace.h"  // IWYU pragma: export
+#include "extras/host/arduino/print.h"     // IWYU pragma: export
+#include "extras/host/arduino/stream.h"    // IWYU pragma: export
 
 #endif  // ARDUINO
 

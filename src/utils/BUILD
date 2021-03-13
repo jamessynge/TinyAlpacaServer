@@ -115,7 +115,6 @@ cc_library(
     name = "platform",
     hdrs = ["platform.h"],
     deps = [
-        ":arduino",
         ":pgmspace",
         ":print",
         ":stream",

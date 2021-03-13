@@ -3,7 +3,7 @@
 
 // Declares the subset of Arduino's Stream needed for Tiny Alpaca Server.
 
-#include "extras/host_arduino/print.h"
+#include "extras/host/arduino/print.h"
 
 class Stream : public Print {
  public:

@@ -16,7 +16,7 @@
 // These AVR specific libraries are included directly or indirectly by
 // Arduino.h.
 
-#include "extras/host_arduino/pgmspace.h"  // IWYU pragma: export
+#include "extras/host/arduino/pgmspace.h"  // IWYU pragma: export
 
 // #include avr/io   // Not needed (or implemented) on host.
 // #include avr/interrupt  // Not needed on host.
@@ -31,14 +31,14 @@
 // language code rather than a lookup table. IFF short on flash, consider
 // whether it would be smaller if I wrote my own for the few functions I need
 // while decoding a request.
-#include "extras/host_arduino/character.h"  // IWYU pragma: export
-#include "extras/host_arduino/int_types.h"  // IWYU pragma: export
+#include "extras/host/arduino/character.h"  // IWYU pragma: export
+#include "extras/host/arduino/int_types.h"  // IWYU pragma: export
 
 // Arduino's HardwareSerial.h includes Stream.h, which in turn includes Print.h.
 // I'm explicitly including them here to make it easier to work with IWYU.
-#include "extras/host_arduino/print.h"   // IWYU pragma: export
-#include "extras/host_arduino/serial.h"  // IWYU pragma: export
-#include "extras/host_arduino/stream.h"  // IWYU pragma: export
+#include "extras/host/arduino/print.h"   // IWYU pragma: export
+#include "extras/host/arduino/serial.h"  // IWYU pragma: export
+#include "extras/host/arduino/stream.h"  // IWYU pragma: export
 
 uint32_t millis();
 

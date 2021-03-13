@@ -3,7 +3,7 @@
 
 // SamplePrintable supports testing APIs that accept a Printable.
 
-#include "extras/host_arduino/print.h"
+#include "extras/host/arduino/print.h"
 
 namespace alpaca {
 

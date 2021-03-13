@@ -4,8 +4,8 @@
 // IPAddress holds and can print an IPv4 address. The Arduino version has more
 // features that I've not yet needed for Tiny Alpaca Server/
 
-#include "extras/host_arduino/int_types.h"
-#include "extras/host_arduino/print.h"
+#include "extras/host/arduino/int_types.h"
+#include "extras/host/arduino/print.h"
 
 class IPAddress : public Printable {
  public:

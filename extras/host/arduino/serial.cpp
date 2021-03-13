@@ -1,4 +1,4 @@
-#include "extras/host_arduino/serial.h"
+#include "extras/host/arduino/serial.h"
 
 #include <iostream>
 
