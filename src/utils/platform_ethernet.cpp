@@ -2,8 +2,6 @@
 
 #include "utils/platform_ethernet.h"
 
-#include <map>
-
 #include "utils/platform.h"
 
 namespace alpaca {

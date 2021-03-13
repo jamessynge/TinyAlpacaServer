@@ -1,7 +1,8 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_HOST_SOCKETS_H_
-#define TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_HOST_SOCKETS_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ETHERNET3_HOST_SOCKETS_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ETHERNET3_HOST_SOCKETS_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// Methods to hide the differences between the Berkley Socket API (on Linux) and
+// the API exposed by the various Ethernet libraries for Arduino.
 
 // TODO(jamessynge): Consider implementing Ethernet3/src/utility/socket.* using
 // the *nix Socket API, along with relevant portions of utility/w5500.* needed
@@ -29,4 +30,4 @@ bool IsClientDone(int sock_num);
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_ETHERNET3_HOST_SOCKETS_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ETHERNET3_HOST_SOCKETS_H_

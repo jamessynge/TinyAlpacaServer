@@ -10,7 +10,6 @@ cc_library(
         ":any_string",
         ":literal",
         ":platform",
-        ":print",
         ":string_view",
     ],
 )
@@ -68,7 +67,6 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
-        ":print",
     ],
 )
 
@@ -154,7 +152,6 @@ cc_library(
         ":array",
         ":array_view",
         ":platform",
-        ":print",
     ],
 )
 
@@ -164,7 +161,6 @@ cc_library(
     hdrs = ["server_connection_base.h"],
     deps = [
         ":connection",
-        ":host_sockets",
         ":logging",
         ":platform",
         ":platform_ethernet_cc",

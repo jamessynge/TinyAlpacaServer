@@ -16,7 +16,7 @@ size_t Print::write(const char* buffer, size_t size) {
   return write(reinterpret_cast<const uint8_t*>(buffer), size);
 }
 
-size_t Print::print(const char* buffer) { return write(buffer); }
+size_t Print::print(const char str[]) { return write(str); }
 
 size_t Print::print(char c) { return write(c); }
 
@@ -36,8 +36,8 @@ size_t Print::print(const Printable& value) { return value.printTo(*this); }
 
 #define EOL '\n'
 
-size_t Print::println(const char* buffer) {
-  size_t count = write(buffer);
+size_t Print::println(const char str[]) {
+  size_t count = write(str);
   return count + write(EOL);
 }
 

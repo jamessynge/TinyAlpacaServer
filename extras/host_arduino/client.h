@@ -15,7 +15,7 @@ class Client : public Stream {
   virtual void flush() = 0;
   virtual void stop() = 0;
   virtual uint8_t connected() = 0;
-  virtual operator bool() = 0;
+  virtual operator bool() = 0;  // NOLINT
 };
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_CLIENT_H_

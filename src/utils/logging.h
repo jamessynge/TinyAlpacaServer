@@ -4,8 +4,9 @@
 // To enable logging (for debugging) when compiled to run on a host, we use
 // these TAS_* log macros to define our log statements. On Arduino, they're
 // no-ops, but on the host they redirect to the Google defined logging macros,
-// which are available publicly in the TensorFlow file:
-// core/platform/default/logging.h.
+// which are available publicly in several Google published libraries, such as:
+// Google Logging Library's <glog/logging.h>
+// TensorFlow's core/platform/default/logging.h.
 //
 // Author: james.synge@gmail.com
 

@@ -1,4 +1,4 @@
-#include "extras/ethernet3/host_sockets.h"
+#include "extras/host_arduino/ethernet3/host_sockets.h"
 
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -11,7 +11,7 @@
 #include <map>
 #include <memory>
 
-#include "extras/ethernet3/ethernet_config.h"
+#include "extras/host_arduino/ethernet3/ethernet_config.h"
 #include "logging.h"
 
 namespace alpaca {

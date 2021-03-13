@@ -29,14 +29,25 @@ class Print {
   virtual ~Print();
 
   // These are the two abstract virtual methods in Arduino's Print class.
+
+  // Writes 'b', one byte, to the output, returns the number of bytes (0 or 1)
+  // actually written (i.e. 0 if something has gone wrong, else 1).
   virtual size_t write(uint8_t b) = 0;
+
+  // Writes the 'size' bytes starting at *buffer to the output, returns the
+  // number of bytes written.
   virtual size_t write(const uint8_t* buffer, size_t size) = 0;
 
-  // These are the specializations they provide for handling chars.
+  // Writes the NUL terminated string 'str' to the output, returns the number of
+  // bytes written.
   size_t write(const char* str);
+
+  // Writes the 'size' characters starting at *buffer to the output, returns the
+  // number of bytes written.
   size_t write(const char* buffer, size_t size);
 
-  size_t print(const char*);
+  // Prints (writes) a various things using the above methods.
+  size_t print(const char str[]);
   size_t print(char c);
   size_t print(uint8_t value);
   size_t print(int16_t value);
@@ -46,7 +57,8 @@ class Print {
   size_t print(double value);
   size_t print(const Printable& value);
 
-  size_t println(const char[]);
+  // Print various things, with a trailing \n.
+  size_t println(const char str[]);
   size_t println(char c);
   size_t println(uint8_t value);
   size_t println(int16_t value);

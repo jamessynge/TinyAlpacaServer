@@ -1,8 +1,8 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_IP_ADDRESS_H_
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_IP_ADDRESS_H_
 
-// Arduino core provides IPAddress, this has (will have) the portion I need for
-// Tiny Alpaca Server on the host.
+// IPAddress holds and can print an IPv4 address. The Arduino version has more
+// features that I've not yet needed for Tiny Alpaca Server/
 
 #include "extras/host_arduino/int_types.h"
 #include "extras/host_arduino/print.h"

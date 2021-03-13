@@ -29,9 +29,9 @@ bool IsClientDone(int sock_num);
 
 #else  // !TAS_EMBEDDED_TARGET
 
-#include "extras/ethernet3/ethernet3.h"     // IWYU pragma: export
-#include "extras/ethernet3/host_sockets.h"  // IWYU pragma: export
-#include "extras/host_arduino/client.h"     // IWYU pragma : export
+#include "extras/host_arduino/client.h"                  // IWYU pragma : export
+#include "extras/host_arduino/ethernet3/ethernet3.h"     // IWYU pragma: export
+#include "extras/host_arduino/ethernet3/host_sockets.h"  // IWYU pragma: export
 
 #endif  // TAS_EMBEDDED_TARGET
 

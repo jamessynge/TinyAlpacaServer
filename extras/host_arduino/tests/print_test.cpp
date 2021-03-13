@@ -7,8 +7,9 @@
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
-namespace alpaca {
 namespace {
+using ::alpaca::PrintToStdString;
+using ::alpaca::SamplePrintable;
 
 TEST(PrintTest, SamplePrintable) {
   constexpr char kText[] = "asdlkjasd;flkjasf";
@@ -32,4 +33,3 @@ TEST(PrintTest, StreamPrintable) {
 }
 
 }  // namespace
-}  // namespace alpaca

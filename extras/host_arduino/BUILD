@@ -19,7 +19,8 @@ cc_library(
         ":pgmspace",
         ":print",
         ":serial",
-        "//absl/strings",
+        ":stream",
+        "//absl/time",
     ],
 )
 

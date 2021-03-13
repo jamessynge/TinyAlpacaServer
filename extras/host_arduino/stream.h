@@ -1,7 +1,6 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_STREAM_H_
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_STREAM_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
 // Declares the subset of Arduino's Stream needed for Tiny Alpaca Server.
 
 #include "extras/host_arduino/print.h"

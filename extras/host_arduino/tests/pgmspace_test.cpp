@@ -4,7 +4,6 @@
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
-namespace alpaca {
 namespace {
 
 TEST(ProgramSpace, memcmp_P) {
@@ -56,4 +55,3 @@ TEST(ProgramSpace, memcpy_P) {
 }
 
 }  // namespace
-}  // namespace alpaca

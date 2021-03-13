@@ -1,8 +1,8 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_INT_TYPES_H_
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_INT_TYPES_H_
 
-// The basic integer types, and alternate approach to the max macro provided by
-// Arduino.h.
+// The basic integer types, and an alternate approach to the max macro provided
+// by Arduino.h.
 
 #include <cstdint>
 
