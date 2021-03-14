@@ -60,7 +60,7 @@ bool DeviceApiHandlerBase::HandleGetRequest(const AlpacaRequest& request,
       return WriteStringResponse(request, device_info_.driver_version, out);
 
     case EDeviceMethod::kInterfaceVersion:
-      return WriteIntegerResponse(request, device_info_.interface_version, out);
+      return WriteIntResponse(request, device_info_.interface_version, out);
 
     case EDeviceMethod::kName:
       return WriteStringResponse(request, device_info_.name, out);

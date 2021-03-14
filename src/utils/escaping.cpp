@@ -8,7 +8,6 @@
 namespace alpaca {
 
 PrintJsonEscaped::PrintJsonEscaped(Print& wrapped) : wrapped_(wrapped) {}
-PrintJsonEscaped::~PrintJsonEscaped() {}
 
 size_t PrintJsonEscaped::write(uint8_t b) {
   return PrintCharJsonEscaped(wrapped_, static_cast<char>(b));

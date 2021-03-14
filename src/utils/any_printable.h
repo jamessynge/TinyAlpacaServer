@@ -4,10 +4,11 @@
 // AnyPrintable allows anything that we know can be passed to an overload of
 // Print::print to be captured and passed around. This is in support of
 // preparing responses to Alpaca requests by "concatenating" multiple printable
-// values into a single Printable instance via PrintableStrCat.
+// values into a single Printable instance via PrintableCat.
 //
-// For those captured items that reference temporaries not contained by the
-// capture, the item needs to outlive the AnyPrintable.
+// For those captured items that reference values to be printed but not
+// contained by the captured item, the referenced value needs to outlive the
+// AnyPrintable.
 
 #include "utils/any_string.h"
 #include "utils/literal.h"
@@ -19,7 +20,6 @@ namespace alpaca {
 class AnyPrintable : public Printable {
   enum EFragmentType {
     kEmpty,
-    kAnyString,
     kLiteral,
     kStringView,
     kPrintable,
@@ -51,14 +51,11 @@ class AnyPrintable : public Printable {
   AnyPrintable(const AnyPrintable&);
   AnyPrintable& operator=(const AnyPrintable&);
 
-  ~AnyPrintable() override;
-
   size_t printTo(Print& out) const override;
 
  private:
   EFragmentType type_;
   union {
-    AnyString any_string_;
     Literal literal_;
     StringView view_;
     char char_;

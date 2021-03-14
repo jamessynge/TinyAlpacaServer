@@ -24,7 +24,7 @@ ServerConnection::ServerConnection(int sock_num, uint16_t tcp_port,
       input_buffer_size_(0) {}
 
 void ServerConnection::OnConnect(EthernetClient& client) {
-  TAS_DCHECK_EQ(sock_num(), client.getSocketNumber());
+  TAS_DCHECK_EQ(sock_num(), client.getSocketNumber(), "");
   request_decoder_.Reset();
   input_buffer_size_ = 0;
 }
@@ -63,9 +63,9 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
       input_buffer_size_ = 0;
     } else {
       // Verify that any removed bytes constitute a prefix of input_buffer_.
-      TAS_DCHECK_LE(view.size(), input_buffer_size_);
+      TAS_DCHECK_LE(view.size(), input_buffer_size_, "");
       TAS_DCHECK_EQ(view.data() + view.size(),
-                    input_buffer_ + input_buffer_size_);
+                    input_buffer_ + input_buffer_size_, "");
 
       if (view.size() < input_buffer_size_) {
         // Move the undecoded bytes to the front of the buffer.
@@ -101,7 +101,7 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
 }
 
 void ServerConnection::OnClientDone(EthernetClient& client) {
-  TAS_DCHECK_EQ(sock_num(), client.getSocketNumber());
+  TAS_DCHECK_EQ(sock_num(), client.getSocketNumber(), "");
 }
 
 }  // namespace alpaca

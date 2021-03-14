@@ -24,19 +24,21 @@ ServerConnection* TinyAlpacaServer::GetServerConnection(size_t ndx) {
 }
 
 void TinyAlpacaServer::InitializeServerConnections(uint16_t tcp_port) {
-  for (int ndx = 0; ndx < kNumServerConnections; ++ndx) {
+  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     // Use 'placement new' to initialize an array within this TinyAlpacaServer
     // with references to this instance.
-    void* memory = GetServerConnection(ndx);
-    new (memory) ServerConnection(/*sock_num=*/ndx, tcp_port, *this);
+    //    void* memory = GetServerConnection(ndx);
+    //    new (memory) ServerConnection(/*sock_num=*/ndx, tcp_port, *this);
+    new (GetServerConnection(ndx))
+        ServerConnection(/*sock_num=*/ndx, tcp_port, *this);
   }
 }
 
 bool TinyAlpacaServer::begin() {
-  for (int ndx = 0; ndx < kNumServerConnections; ++ndx) {
+  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     auto* conn = GetServerConnection(ndx);
     if (!conn->BeginListening()) {
-      TAS_LOG(ERROR) << "Unable to initialize ServerConnection #" << ndx;
+      TAS_LOG(ERROR, "Unable to initialize ServerConnection #" << ndx);
       return false;
     }
   }

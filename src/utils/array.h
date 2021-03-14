@@ -17,7 +17,9 @@ struct Array {
  public:
   using value_type = T;
   using size_type = size_t;
-  using difference_type = std::ptrdiff_t;
+#ifndef ARDUINO_ARCH_AVR
+  using difference_type = ptrdiff_t;
+#endif  // !ARDUINO_ARCH_AVR
   using reference = value_type&;
   using const_reference = const value_type&;
   using pointer = value_type*;
@@ -68,7 +70,7 @@ struct Array {
   const_reference back() const { return elems_[SIZE - 1]; }
 
   // Returns a pointer to the first element of the underlying array.
-  constexpr pointer data() { return elems_; }
+  pointer data() { return elems_; }
   constexpr const_pointer data() const { return elems_; }
 
   // The actual data.

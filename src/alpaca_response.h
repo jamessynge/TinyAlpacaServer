@@ -41,15 +41,14 @@ bool WriteFloatResponse(const AlpacaRequest& request, float value, Print& out);
 bool WriteFloatResponse(const AlpacaRequest& request,
                         StatusOr<float> status_or_value, Print& out);
 
-bool WriteIntegerResponse(const AlpacaRequest& request, uint32_t value,
-                          Print& out);
-bool WriteIntegerResponse(const AlpacaRequest& request,
-                          StatusOr<uint32_t> status_or_value, Print& out);
+bool WriteUIntResponse(const AlpacaRequest& request, uint32_t value,
+                       Print& out);
+bool WriteUIntResponse(const AlpacaRequest& request,
+                       StatusOr<uint32_t> status_or_value, Print& out);
 
-bool WriteIntegerResponse(const AlpacaRequest& request, int32_t value,
-                          Print& out);
-bool WriteIntegerResponse(const AlpacaRequest& request,
-                          StatusOr<int32_t> status_or_value, Print& out);
+bool WriteIntResponse(const AlpacaRequest& request, int32_t value, Print& out);
+bool WriteIntResponse(const AlpacaRequest& request,
+                      StatusOr<int32_t> status_or_value, Print& out);
 
 bool WriteLiteralArrayResponse(const AlpacaRequest& request,
                                const LiteralArray& value, Print& out);

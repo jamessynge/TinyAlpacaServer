@@ -834,7 +834,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
     return EHttpStatusCode::kHttpInternalServerError;
   }
 
-  TAS_DCHECK_NE(decoder_status, RequestDecoderStatus::kDecoded);
+  TAS_DCHECK_NE(decoder_status, RequestDecoderStatus::kDecoded, "");
   if (decoder_status == RequestDecoderStatus::kReset) {
     decoder_status = RequestDecoderStatus::kDecoding;
   }

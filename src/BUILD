@@ -242,18 +242,6 @@ cc_library(
 
 cc_library(
     name = "server_connection",
-    hdrs = ["server_connection.h"],
-    deps = [
-        ":alpaca_request",
-        ":platform",
-        ":request_decoder",
-        ":request_listener",
-        ":server_connection_base",
-    ],
-)
-
-cc_library(
-    name = "server_connection_cc",
     srcs = ["server_connection.cc"],
     hdrs = ["server_connection.h"],
     deps = [

@@ -4,16 +4,6 @@
 
 cc_library(
     name = "observing_conditions_adapter",
-    hdrs = ["observing_conditions_adapter.h"],
-    deps = [
-        ":device_api_handler_base",
-        ":platform",
-        ":status_or",
-    ],
-)
-
-cc_library(
-    name = "observing_conditions_adapter_cc",
     srcs = ["observing_conditions_adapter.cc"],
     hdrs = ["observing_conditions_adapter.h"],
     deps = [

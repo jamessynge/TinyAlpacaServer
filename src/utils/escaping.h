@@ -18,7 +18,6 @@ namespace alpaca {
 class PrintJsonEscaped : public Print {
  public:
   explicit PrintJsonEscaped(Print& wrapped);
-  ~PrintJsonEscaped() override;
 
   // These are the two abstract virtual methods in Arduino's Print class. I'm
   // presuming that the uint8_t 'b' is actually an ASCII char.

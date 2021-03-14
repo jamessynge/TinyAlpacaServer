@@ -70,14 +70,13 @@ bool WriteFloatResponse(const AlpacaRequest& request, float value, Print& out) {
   return WriteOkResponse(source, request.http_method, out);
 }
 
-bool WriteIntegerResponse(const AlpacaRequest& request, uint32_t value,
-                          Print& out) {
+bool WriteUIntResponse(const AlpacaRequest& request, uint32_t value,
+                       Print& out) {
   JsonUnsignedIntegerResponse source(request, value);
   return WriteOkResponse(source, request.http_method, out);
 }
 
-bool WriteIntegerResponse(const AlpacaRequest& request, int32_t value,
-                          Print& out) {
+bool WriteIntResponse(const AlpacaRequest& request, int32_t value, Print& out) {
   JsonIntegerResponse source(request, value);
   return WriteOkResponse(source, request.http_method, out);
 }

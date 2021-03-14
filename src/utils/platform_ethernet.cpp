@@ -9,8 +9,11 @@ namespace alpaca {
 #if TAS_EMBEDDED_TARGET
 
 bool InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port) {
-  ::close(sock_num);
-  return ::socket(sock, SnMR::TCP, _port, 0) && ::listen(sock);
+  EthernetClient client(sock_num);
+  client.stop();
+
+  //  ::close(sock_num);
+  //  return ::socket(sock, SnMR::TCP, _port, 0) && ::listen(sock);
 }
 
 bool IsClientDone(int sock_num) {

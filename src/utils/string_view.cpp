@@ -1,15 +1,15 @@
 #include "utils/string_view.h"
 
+#if TAS_HOST_TARGET
 #include <string_view>
-
-// Author: james.synge@gmail.com
+#endif  // TAS_HOST_TARGET
 
 #include "utils/escaping.h"
 #include "utils/platform.h"
 
 #if TAS_HOST_TARGET
 #include "absl/strings/escaping.h"
-#endif
+#endif  // TAS_HOST_TARGET
 
 namespace alpaca {
 

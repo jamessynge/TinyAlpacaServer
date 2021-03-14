@@ -12,17 +12,12 @@ namespace {
 #ifdef TEST_TEMPORARY_PRINTABLE
 // For testing that we can't pass temporary Printable instances into an
 // AnyPrintable constructor.
-class SomePrintable : public Printable {
- public:
-  size_t printTo(Print& out) const override { return 0; }
-};
-
 TEST(AnyPrintableTest, PrintableNegativeCompilation) {
   // None of these lines should compile.
-  auto a = AnyPrintable{SomePrintable()};
-  auto b = AnyPrintable(SomePrintable());
-  AnyPrintable c = SomePrintable();
-  AnyPrintable d((SomePrintable()));
+  auto a = AnyPrintable{SamplePrintable()};
+  auto b = AnyPrintable(SamplePrintable());
+  AnyPrintable c = SamplePrintable();
+  AnyPrintable d((SamplePrintable()));
 }
 #endif
 

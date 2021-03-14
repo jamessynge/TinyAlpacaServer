@@ -12,7 +12,6 @@ namespace alpaca {
 struct SamplePrintable : public Printable {
   SamplePrintable() {}
   explicit SamplePrintable(const std::string& value) : str(value) {}
-  ~SamplePrintable() override {}
 
   size_t printTo(Print& p) const override {
     return p.write(str.data(), str.size());

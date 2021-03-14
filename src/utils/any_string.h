@@ -35,6 +35,8 @@ class AnyString : public Printable {
     StringView view_;
   };
   bool is_literal_;
+
+  friend class AnyPrintable;
 };
 
 }  // namespace alpaca

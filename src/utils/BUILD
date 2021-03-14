@@ -124,16 +124,6 @@ cc_library(
 
 cc_library(
     name = "platform_ethernet",
-    hdrs = ["platform_ethernet.h"],
-    deps = [
-        ":client",
-        ":host_sockets",
-        ":platform",
-    ],
-)
-
-cc_library(
-    name = "platform_ethernet_cc",
     srcs = ["platform_ethernet.cc"],
     hdrs = ["platform_ethernet.h"],
     deps = [
@@ -163,7 +153,7 @@ cc_library(
         ":connection",
         ":logging",
         ":platform",
-        ":platform_ethernet_cc",
+        ":platform_ethernet",
     ],
 )
 

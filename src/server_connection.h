@@ -24,6 +24,9 @@ class ServerConnection : public ServerConnectionBase {
   void OnCanRead(EthernetClient& client) override;
   void OnClientDone(EthernetClient& client) override;
 
+  // Placement new operator.
+  void* operator new(size_t size, void* ptr) { return ptr; }
+
  private:
   RequestListener& request_listener_;
   AlpacaRequest request_;

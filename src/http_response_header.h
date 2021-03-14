@@ -15,6 +15,7 @@ namespace alpaca {
 
 struct HttpResponseHeader : public Printable {
   HttpResponseHeader();
+
   void Reset();
   size_t printTo(Print& out) const override;
 

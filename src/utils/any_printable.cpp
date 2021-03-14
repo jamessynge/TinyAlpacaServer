@@ -6,8 +6,15 @@ namespace alpaca {
 
 AnyPrintable::AnyPrintable() : type_(AnyPrintable::kEmpty), signed_(0) {}
 
-AnyPrintable::AnyPrintable(AnyString value)
-    : type_(AnyPrintable::kAnyString), any_string_(value) {}
+AnyPrintable::AnyPrintable(AnyString value) {
+  if (value.is_literal_) {
+    type_ = kLiteral;
+    literal_ = value.literal_;
+  } else {
+    type_ = kStringView;
+    view_ = value.view_;
+  }
+}
 
 AnyPrintable::AnyPrintable(Literal value)
     : type_(AnyPrintable::kLiteral), literal_(value) {}
@@ -38,15 +45,10 @@ AnyPrintable::AnyPrintable(double value)
 
 AnyPrintable::AnyPrintable(const AnyPrintable& other) { *this = other; }
 
-AnyPrintable::~AnyPrintable() {}
-
 AnyPrintable& AnyPrintable::operator=(const AnyPrintable& other) {
   type_ = other.type_;
   switch (type_) {
     case kEmpty:
-      break;
-    case kAnyString:
-      any_string_ = other.any_string_;
       break;
     case kLiteral:
       literal_ = other.literal_;
@@ -84,8 +86,6 @@ size_t AnyPrintable::printTo(Print& out) const {
       // compiler/coverage analysis doesn't "believe" that type_ might not have
       // an invalid value.
       break;
-    case kAnyString:
-      return any_string_.printTo(out);
     case kLiteral:
       return literal_.printTo(out);
     case kStringView:
