@@ -6,44 +6,44 @@
 
 // TODO(jamessynge): Reduce this list to just the necessary headers.
 
-#include "alpaca_request.h"
-#include "alpaca_response.h"
-#include "ascom_error_codes.h"
-#include "config.h"
-#include "constants.h"
-#include "device_api_handler_base.h"
-#include "device_info.h"
-#include "device_type_adapters/observing_conditions_adapter.h"
-#include "extra_parameters.h"
-#include "http_response_header.h"
-#include "json_response.h"
-#include "literals.h"
-#include "match_literals.h"
-#include "request_decoder.h"
-#include "request_decoder_listener.h"
-#include "request_listener.h"
-#include "server_connection.h"
-#include "server_description.h"
-#include "tiny_alpaca_server.h"
-#include "utils/any_printable.h"
-#include "utils/any_string.h"
-#include "utils/array.h"
-#include "utils/array_view.h"
-#include "utils/connection.h"
-#include "utils/counting_bitbucket.h"
-#include "utils/escaping.h"
-#include "utils/json_encoder.h"
-#include "utils/literal.h"
-#include "utils/literal_token.h"
-#include "utils/logging.h"
-#include "utils/platform.h"
-#include "utils/platform_ethernet.h"
-#include "utils/printable_cat.h"
-#include "utils/server_connection_base.h"
-#include "utils/status.h"
-#include "utils/status_or.h"
-#include "utils/string_compare.h"
-#include "utils/string_view.h"
-#include "utils/tiny_string.h"
+#include "alpaca_request.h"           // IWYU pragma: export
+#include "alpaca_response.h"          // IWYU pragma: export
+#include "ascom_error_codes.h"        // IWYU pragma: export
+#include "config.h"                   // IWYU pragma: export
+#include "constants.h"                // IWYU pragma: export
+#include "device_api_handler_base.h"  // IWYU pragma: export
+#include "device_info.h"              // IWYU pragma: export
+#include "device_type_adapters/observing_conditions_adapter.h"  // IWYU pragma: export
+#include "extra_parameters.h"              // IWYU pragma: export
+#include "http_response_header.h"          // IWYU pragma: export
+#include "json_response.h"                 // IWYU pragma: export
+#include "literals.h"                      // IWYU pragma: export
+#include "match_literals.h"                // IWYU pragma: export
+#include "request_decoder.h"               // IWYU pragma: export
+#include "request_decoder_listener.h"      // IWYU pragma: export
+#include "request_listener.h"              // IWYU pragma: export
+#include "server_connection.h"             // IWYU pragma: export
+#include "server_description.h"            // IWYU pragma: export
+#include "tiny_alpaca_server.h"            // IWYU pragma: export
+#include "utils/any_printable.h"           // IWYU pragma: export
+#include "utils/any_string.h"              // IWYU pragma: export
+#include "utils/array.h"                   // IWYU pragma: export
+#include "utils/array_view.h"              // IWYU pragma: export
+#include "utils/connection.h"              // IWYU pragma: export
+#include "utils/counting_bitbucket.h"      // IWYU pragma: export
+#include "utils/escaping.h"                // IWYU pragma: export
+#include "utils/json_encoder.h"            // IWYU pragma: export
+#include "utils/literal.h"                 // IWYU pragma: export
+#include "utils/literal_token.h"           // IWYU pragma: export
+#include "utils/logging.h"                 // IWYU pragma: export
+#include "utils/platform.h"                // IWYU pragma: export
+#include "utils/platform_ethernet.h"       // IWYU pragma: export
+#include "utils/printable_cat.h"           // IWYU pragma: export
+#include "utils/server_connection_base.h"  // IWYU pragma: export
+#include "utils/status.h"                  // IWYU pragma: export
+#include "utils/status_or.h"               // IWYU pragma: export
+#include "utils/string_compare.h"          // IWYU pragma: export
+#include "utils/string_view.h"             // IWYU pragma: export
+#include "utils/tiny_string.h"             // IWYU pragma: export
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_

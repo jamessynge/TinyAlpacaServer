@@ -58,10 +58,14 @@ bool WriteLiteralArrayResponse(const AlpacaRequest& request,
 
 bool WriteStringResponse(const AlpacaRequest& request, AnyString value,
                          Print& out);
+inline bool WriteStringResponse(const AlpacaRequest& request, Literal value,
+                                Print& out) {
+  return WriteStringResponse(request, AnyString(value), out);
+}
 bool WriteStringResponse(const AlpacaRequest& request, Printable& value,
                          Print& out);
-// bool WriteStringResponse(const AlpacaRequest& request,
-//                          StatusOr<AnyString> status_or_value, Print& out);
+bool WriteStringResponse(const AlpacaRequest& request,
+                         StatusOr<Literal> status_or_value, Print& out);
 
 // Writes an ASCOM error response JSON body in an HTTP OK response message.
 // Returns true if there is no problem with writing the response.
@@ -80,8 +84,10 @@ bool WriteAscomNotImplementedErrorResponse(const AlpacaRequest& request,
 // Writes an HTTP error response with a text body to out. Returns false.
 bool WriteHttpErrorResponse(EHttpStatusCode status_code, const Printable& body,
                             Print& out);
-bool WriteHttpErrorResponse(EHttpStatusCode status_code,
-                            const AnyPrintable& body, Print& out);
+inline bool WriteHttpErrorResponse(EHttpStatusCode status_code, Literal body,
+                                   Print& out) {
+  return WriteHttpErrorResponse(status_code, AnyPrintable(body), out);
+}
 
 // Writes a 500 Internal Server Error response with a text body to out. Returns
 // false.

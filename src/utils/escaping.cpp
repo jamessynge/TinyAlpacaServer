@@ -15,7 +15,7 @@ size_t PrintJsonEscaped::write(uint8_t b) {
 
 size_t PrintJsonEscaped::write(const uint8_t* buffer, size_t size) {
   size_t count = 0;
-  for (int ndx = 0; ndx < size; ++ndx) {
+  for (size_t ndx = 0; ndx < size; ++ndx) {
     count += PrintCharJsonEscaped(wrapped_, static_cast<char>(buffer[ndx]));
   }
   return count;

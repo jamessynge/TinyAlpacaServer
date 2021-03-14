@@ -4,6 +4,7 @@
 #include "http_response_header.h"
 #include "json_response.h"
 #include "literals.h"
+#include "utils/counting_bitbucket.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
 
@@ -99,6 +100,16 @@ bool WriteStringResponse(const AlpacaRequest& request, Printable& value,
   return WriteOkResponse(source, request.http_method, out);
 }
 
+bool WriteStringResponse(const AlpacaRequest& request,
+                         StatusOr<Literal> status_or_value, Print& out) {
+  if (status_or_value.ok()) {
+    AnyString any_string(status_or_value.value());
+    return WriteStringResponse(request, any_string, out);
+  } else {
+    return WriteAscomErrorResponse(request, status_or_value.status(), out);
+  }
+}
+
 bool WriteAscomErrorResponse(const AlpacaRequest& request,
                              uint32_t error_number, AnyString error_message,
                              Print& out) {
@@ -128,7 +139,7 @@ bool WriteAscomNotImplementedErrorResponse(const AlpacaRequest& request,
                                  Literals::HttpMethodNotImplemented(), out);
 }
 
-bool WriteHttpErrorResponse(EHttpStatusCode status_code, AnyString& body,
+bool WriteHttpErrorResponse(EHttpStatusCode status_code, const Printable& body,
                             Print& out) {
   TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest,
                 "Status code should be for an error.");
@@ -179,7 +190,7 @@ bool WriteHttpErrorResponse(EHttpStatusCode status_code, AnyString& body,
   }
 
   hrh.content_type = EContentType::kTextPlain;
-  hrh.content_length = body.size();
+  hrh.content_length = CountingBitbucket::SizeOfPrintable(body);
   hrh.printTo(out);
   body.printTo(out);
   return false;

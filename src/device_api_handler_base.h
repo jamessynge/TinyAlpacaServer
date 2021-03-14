@@ -24,6 +24,16 @@ class DeviceApiHandlerBase {
   EDeviceType device_type() const { return device_info_.device_type; }
   uint32_t device_number() const { return device_info_.device_number; }
 
+  // Fill buffer with up to buffer_size unique bytes from the hardware, return
+  // the number of unique bytes available. Return 0 (or don't override) if the
+  // hardware can not provide any unique bytes.
+  //
+  // NOTE: Ideally, we'd provide a /setup page allowing the UniqueId generated
+  // for a device to be cleared, i.e. when we have had to replace a sensor with
+  // another of the same type. Perhaps we should do this via the "actions"
+  // ASCOM method?
+  virtual size_t GetUniqueBytes(uint8_t* buffer, size_t buffer_size);
+
   // Handles an ASCOM Device API, dispatches to the appropriate method based on
   // the HTTP method name. Returns true to indicate that the response was
   // written without error, otherwise false, in which case the connection to the

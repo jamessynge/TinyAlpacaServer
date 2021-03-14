@@ -12,7 +12,7 @@ namespace {}
 
 TinyAlpacaServer::TinyAlpacaServer(
     uint16_t tcp_port, const ServerDescription& server_description,
-    ArrayView<DeviceApiHandlerBase> device_handlers)
+    ArrayView<DeviceApiHandlerBasePtr> device_handlers)
     : server_transaction_id_(0),
       server_description_(server_description),
       device_handlers_(device_handlers) {
@@ -64,10 +64,10 @@ bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
     case EAlpacaApi::kDeviceApi:
       // ABSL_FALLTHROUGH_INTENDED
     case EAlpacaApi::kDeviceSetup:
-      for (auto& handler : device_handlers_) {
-        if (request.device_type == handler.device_type() &&
-            request.device_number == handler.device_number()) {
-          return DispatchDeviceRequest(request, handler, out);
+      for (DeviceApiHandlerBasePtr handler : device_handlers_) {
+        if (request.device_type == handler->device_type() &&
+            request.device_number == handler->device_number()) {
+          return DispatchDeviceRequest(request, *handler, out);
         }
       }
       // Should this be an ASCOM error, or is an HTTP status OK?

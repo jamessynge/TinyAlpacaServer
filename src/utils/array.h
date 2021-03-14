@@ -86,22 +86,22 @@ Array<T, SIZE> MakeFromArray(const T (&data)[SIZE]) {
 }
 
 template <typename T>
-Array<T, 1> MakeArray(T a) {
+constexpr Array<T, 1> MakeArray(T a) {
   return {a};
 }
 
 template <typename T>
-Array<T, 2> MakeArray(T a, T b) {
+constexpr Array<T, 2> MakeArray(T a, T b) {
   return {a, b};
 }
 
 template <typename T>
-Array<T, 3> MakeArray(T a, T b, T c) {
+constexpr Array<T, 3> MakeArray(T a, T b, T c) {
   return {a, b, c};
 }
 
 template <typename T>
-Array<T, 4> MakeArray(T a, T b, T c, T d) {
+constexpr Array<T, 4> MakeArray(T a, T b, T c, T d) {
   return {a, b, c, d};
 }
 

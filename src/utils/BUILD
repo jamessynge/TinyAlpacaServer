@@ -129,6 +129,7 @@ cc_library(
     deps = [
         ":client",
         ":host_sockets",
+        ":logging",
         ":platform",
     ],
 )
@@ -161,6 +162,7 @@ cc_library(
     name = "status",
     hdrs = ["status.h"],
     deps = [
+        ":literal",
         ":platform",
     ],
 )

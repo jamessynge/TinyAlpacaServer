@@ -9,6 +9,7 @@
 //         Reserved error code (0x8004040C) to indicate that the
 //         requested action is not implemented in this driver.
 
+#include "utils/literal.h"
 #include "utils/platform.h"
 
 namespace alpaca {
@@ -17,6 +18,7 @@ class Status {
  public:
   Status() : code_(0) {}
   explicit Status(uint32_t code) : code_(code) {}
+  Status(uint32_t code, Literal message) : code_(code) {}
   bool ok() const { return code_ == 0; }
   uint32_t code() const { return code_; }
 

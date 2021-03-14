@@ -22,9 +22,12 @@ cc_library(
 
 cc_library(
     name = "ethernet_client",
+    srcs = ["ethernet_client.cc"],
     hdrs = ["ethernet_client.h"],
     deps = [
         ":client",
+        ":ethernet_config",
+        ":platform",
     ],
 )
 

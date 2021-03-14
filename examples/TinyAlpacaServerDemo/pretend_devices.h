@@ -1,7 +1,7 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_FUTURES_PRETEND_DEVICES_H_
-#define TINY_ALPACA_SERVER_EXTRAS_FUTURES_PRETEND_DEVICES_H_
+#ifndef TINY_ALPACA_SERVER_EXAMPLES_TINYALPACASERVERDEMO_PRETEND_DEVICES_H_
+#define TINY_ALPACA_SERVER_EXAMPLES_TINYALPACASERVERDEMO_PRETEND_DEVICES_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// Pretend devices for use in this demo.
 
 struct Dht22Device {
   float get_relative_humidity() const { return 50; }
@@ -16,4 +16,4 @@ struct AagDevice {
   float get_sky_temp() const { return 0; }
 };
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_FUTURES_PRETEND_DEVICES_H_
+#endif  // TINY_ALPACA_SERVER_EXAMPLES_TINYALPACASERVERDEMO_PRETEND_DEVICES_H_

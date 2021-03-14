@@ -12,26 +12,26 @@
 
 #ifdef ARDUINO
 
-#define TAS_LOG(severity, msg)
-#define TAS_VLOG(level, msg)
-#define TAS_DLOG(severity, msg)
-#define TAS_DVLOG(level, msg)
+#define TAS_LOG(severity, ...)
+#define TAS_VLOG(level, ...)
+#define TAS_DLOG(severity, ...)
+#define TAS_DVLOG(level, ...)
 
-#define TAS_CHECK(expression, msg)
-#define TAS_CHECK_EQ(a, b, msg)
-#define TAS_CHECK_NE(a, b, msg)
-#define TAS_CHECK_LE(a, b, msg)
-#define TAS_CHECK_LT(a, b, msg)
-#define TAS_CHECK_GE(a, b, msg)
-#define TAS_CHECK_GT(a, b, msg)
+#define TAS_CHECK(expression, ...)
+#define TAS_CHECK_EQ(a, b, ...)
+#define TAS_CHECK_NE(a, b, ...)
+#define TAS_CHECK_LE(a, b, ...)
+#define TAS_CHECK_LT(a, b, ...)
+#define TAS_CHECK_GE(a, b, ...)
+#define TAS_CHECK_GT(a, b, ...)
 
-#define TAS_DCHECK(expression, msg)
-#define TAS_DCHECK_EQ(a, b, msg)
-#define TAS_DCHECK_NE(a, b, msg)
-#define TAS_DCHECK_LE(a, b, msg)
-#define TAS_DCHECK_LT(a, b, msg)
-#define TAS_DCHECK_GE(a, b, msg)
-#define TAS_DCHECK_GT(a, b, msg)
+#define TAS_DCHECK(expression, ...)
+#define TAS_DCHECK_EQ(a, b, ...)
+#define TAS_DCHECK_NE(a, b, ...)
+#define TAS_DCHECK_LE(a, b, ...)
+#define TAS_DCHECK_LT(a, b, ...)
+#define TAS_DCHECK_GE(a, b, ...)
+#define TAS_DCHECK_GT(a, b, ...)
 
 #else  //! ARDUINO
 

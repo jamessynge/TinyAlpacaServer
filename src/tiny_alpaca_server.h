@@ -35,16 +35,19 @@ namespace alpaca {
 
 class TinyAlpacaServer : RequestListener {
  public:
+  using DeviceApiHandlerBasePtr = DeviceApiHandlerBase* const;
+
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   ArrayView<DeviceApiHandlerBase> device_handlers);
+                   ArrayView<DeviceApiHandlerBasePtr> device_handlers);
 
   template <size_t N>
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   DeviceApiHandlerBase (&device_handlers)[N])
-      : TinyAlpacaServer(tcp_port, server_description,
-                         ArrayView<DeviceApiHandlerBase>(device_handlers, N)) {}
+                   DeviceApiHandlerBasePtr (&device_handlers)[N])
+      : TinyAlpacaServer(
+            tcp_port, server_description,
+            ArrayView<DeviceApiHandlerBasePtr>(device_handlers, N)) {}
 
   // Prepares ServerConnections to receive TCP connections and a UDP listener to
   // receive Alpaca Discovery Protocol packets. Returns true if able to do so,
@@ -93,7 +96,7 @@ class TinyAlpacaServer : RequestListener {
   uint32_t server_transaction_id_;
 
   const ServerDescription& server_description_;
-  ArrayView<DeviceApiHandlerBase> device_handlers_;
+  ArrayView<DeviceApiHandlerBasePtr> device_handlers_;
 
   alignas(ServerConnection) uint8_t
       connections_storage_[kServerConnectionsStorage];

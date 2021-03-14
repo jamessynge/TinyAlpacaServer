@@ -15,6 +15,12 @@ class CountingBitbucket : public Print {
  public:
   CountingBitbucket() : Print(), count_(0) {}
 
+  static size_t SizeOfPrintable(const Printable& value) {
+    CountingBitbucket counter;
+    value.printTo(counter);
+    return counter.count();
+  }
+
   // Sums the values of count passed to write. These are the overrides of the
   // two abstract virtual methods in Arduino's Print class.
   size_t write(uint8_t) override {

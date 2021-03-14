@@ -10,6 +10,7 @@ cc_library(
         ":alpaca_response",
         ":ascom_error_codes",
         ":device_api_handler_base",
+        ":literals",
         ":platform",
         ":status_or",
     ],

@@ -136,4 +136,27 @@ TAS_DEFINE_BUILTIN_LITERAL(ApiUnknown,
                            "request.api value is unknown/unexpected (bug).")
 TAS_DEFINE_BUILTIN_LITERAL(NoSuchDevice, "Device type and number not found.")
 
+TAS_DEFINE_BUILTIN_LITERAL(SensorNameMissing, "SensorName parameter not found.")
+
+// ASCOM Error Messages (to be refined).
+TAS_DEFINE_BUILTIN_LITERAL(ErrorActionNotImplemented,
+                           "The requested action is not implemented")
+TAS_DEFINE_BUILTIN_LITERAL(
+    ErrorInvalidOperationException,
+    "The requested operation can not be undertaken at this time")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorInvalidValue, "InvalidValue")
+TAS_DEFINE_BUILTIN_LITERAL(
+    ErrorInvalidWhileParked,
+    "The operation is invalid because the mount is parked.")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorInvalidWhileSlaved,
+                           "The operation is invalid because the mount is "
+                           "currently in a Slaved state.")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorNotConnected,
+                           "The communications channel is not connected")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorNotImplemented, "The method is not implemented")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorNotInCacheException, "NotInCacheException")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorSettingsProviderError, "SettingsProviderError")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorValueNotSet, "The value has not been set.")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorUnspecifiedError, "UnspecifiedError")
+
 #undef TAS_DEFINE_BUILTIN_LITERAL1

@@ -70,6 +70,7 @@ cc_library(
         ":any_string",
         ":ascom_error_codes",
         ":constants",
+        ":counting_bitbucket",
         ":http_response_header",
         ":json_encoder",
         ":json_response",
@@ -84,6 +85,7 @@ cc_library(
     srcs = ["ascom_error_codes.cc"],
     hdrs = ["ascom_error_codes.h"],
     deps = [
+        ":literals",
         ":platform",
         ":status",
     ],

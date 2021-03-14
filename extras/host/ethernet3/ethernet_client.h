@@ -10,8 +10,8 @@ class EthernetClient : public Client {
  public:
   explicit EthernetClient(uint8_t sock);
 
-  int connect(IPAddress ip, uint16_t port) override { return 0; }
-  int connect(const char *host, uint16_t port) override { return 0; }
+  int connect(IPAddress ip, uint16_t port) override;
+  int connect(const char *host, uint16_t port) override;
 
   // Returns the status of the socket, from the Socket n Status Register.
   uint8_t status();
@@ -42,7 +42,7 @@ class EthernetClient : public Client {
   void stop() override;
   uint8_t connected() override;
 
-  explicit operator bool() override { return connected() != 0; }
+  explicit operator bool() override;
 
   uint8_t getSocketNumber();
 

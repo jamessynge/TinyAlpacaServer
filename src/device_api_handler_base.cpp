@@ -15,6 +15,11 @@ DeviceApiHandlerBase::DeviceApiHandlerBase(const DeviceInfo& device_info)
     : device_info_(device_info) {}
 DeviceApiHandlerBase::~DeviceApiHandlerBase() {}
 
+size_t DeviceApiHandlerBase::GetUniqueBytes(uint8_t* buffer,
+                                            size_t buffer_size) {
+  return 0;
+}
+
 bool DeviceApiHandlerBase::HandleDeviceSetupRequest(
     const AlpacaRequest& request, Print& out) {
   return WriteAscomErrorResponse(request,
@@ -75,6 +80,12 @@ bool DeviceApiHandlerBase::HandleGetRequest(const AlpacaRequest& request,
                                      ErrorCodes::ActionNotImplemented().code(),
                                      Literals::HttpMethodNotImplemented(), out);
   }
+}
+
+bool DeviceApiHandlerBase::HandlePutRequest(const AlpacaRequest& request,
+                                            Print& out) {
+  return WriteHttpErrorResponse(EHttpStatusCode::kHttpInternalServerError,
+                                Literals::HttpMethodNotImplemented(), out);
 }
 
 }  // namespace alpaca

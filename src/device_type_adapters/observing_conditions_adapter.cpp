@@ -4,6 +4,7 @@
 
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
+#include "literals.h"
 #include "utils/platform.h"
 
 namespace alpaca {
@@ -29,6 +30,8 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
       return WriteDoubleResponse(request, GetPressure(), out);
     case EDeviceMethod::kRainRate:
       return WriteDoubleResponse(request, GetRainRate(), out);
+    case EDeviceMethod::kSensorDescription:
+      return HandleGetSensorDescription(request, out);
     case EDeviceMethod::kSkyBrightness:
       return WriteDoubleResponse(request, GetSkyBrightness(), out);
     case EDeviceMethod::kSkyQuality:
@@ -103,15 +106,40 @@ StatusOr<double> ObservingConditionsAdapter::GetWindSpeed() {
 StatusOr<double> ObservingConditionsAdapter::GetTimeSinceLastUpdate() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<Literal> ObservingConditionsAdapter::GetSensorDescription(
-    StringView sensor_name) {
-  return ErrorCodes::ActionNotImplemented();
-}
 
 Status ObservingConditionsAdapter::SetAveragePeriod(double value) {
   return ErrorCodes::ActionNotImplemented();
 }
 Status ObservingConditionsAdapter::Refresh() {
+  return ErrorCodes::ActionNotImplemented();
+}
+
+bool ObservingConditionsAdapter::HandleGetSensorDescription(
+    const AlpacaRequest& request, Print& out) {
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
+  if (request.extra_parameters.contains(EParameter::kSensorName)) {
+    StringView sensor_name =
+        request.extra_parameters.find(EParameter::kSensorName);
+    if (!sensor_name.empty()) {
+      return HandleGetNamedSensorDescription(request, sensor_name, out);
+    }
+  }
+  return WriteAscomErrorResponse(request, ErrorCodes::InvalidValue().code(),
+                                 Literals::SensorNameMissing(), out);
+#else   // !TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
+  return WriteAscomErrorResponse(request,
+                                 ErrorCodes::ActionNotImplemented().code(),
+                                 Literals::HttpMethodNotImplemented(), out);
+#endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
+}
+
+bool ObservingConditionsAdapter::HandleGetNamedSensorDescription(
+    const AlpacaRequest& request, StringView sensor_name, Print& out) {
+  return WriteStringResponse(request, GetSensorDescription(sensor_name), out);
+}
+
+StatusOr<Literal> ObservingConditionsAdapter::GetSensorDescription(
+    StringView sensor_name) {
   return ErrorCodes::ActionNotImplemented();
 }
 
