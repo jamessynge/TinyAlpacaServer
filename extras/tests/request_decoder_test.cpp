@@ -169,7 +169,7 @@ std::tuple<EHttpStatusCode, std::string, std::string> DecodePartitionedRequest(
 
 size_t GetNumExtraParameters(const AlpacaRequest& request) {
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-  return request.size();
+  return request.extra_parameters.size();
 #else
   return 0;
 #endif
@@ -525,6 +525,17 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
     EXPECT_TRUE(alpaca_request.have_client_transaction_id);
     EXPECT_EQ(alpaca_request.client_id, 321);
     EXPECT_EQ(alpaca_request.client_transaction_id, 9);
+
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
+    // TODO(jamessynge): Implement this feature.
+    // EXPECT_EQ(GetNumExtraParameters(alpaca_request), 1);
+    // EXPECT_TRUE(
+    //     alpaca_request.extra_parameters.contains(EParameter::kConnected));
+    // EXPECT_EQ(alpaca_request.extra_parameters.find(EParameter::kConnected),
+    //           StringView("abc"));
+#else
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+#endif
 
     if (TestHasFailed()) {
       break;

@@ -4,7 +4,6 @@
 #include <string_view>
 #endif  // TAS_HOST_TARGET
 
-#include "utils/escaping.h"
 #include "utils/logging.h"
 #include "utils/platform.h"
 

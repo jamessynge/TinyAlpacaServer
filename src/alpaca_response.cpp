@@ -27,8 +27,9 @@ class LiteralArraySource : public JsonElementSource {
 
 }  // namespace
 
-bool WriteOkResponse(const JsonPropertySource& source, EHttpMethod http_method,
-                     Print& out) {
+// static
+bool WriteResponse::OkResponse(const JsonPropertySource& source,
+                               EHttpMethod http_method, Print& out) {
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
   hrh.reason_phrase = Literals::OK();
@@ -41,106 +42,111 @@ bool WriteOkResponse(const JsonPropertySource& source, EHttpMethod http_method,
   return true;
 }
 
-bool WriteArrayResponse(const AlpacaRequest& request,
-                        const JsonElementSource& value, Print& out) {
+// static
+bool WriteResponse::ArrayResponse(const AlpacaRequest& request,
+                                  const JsonElementSource& value, Print& out) {
   JsonArrayResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
+  return OkResponse(source, request.http_method, out);
 }
 
-bool WriteBoolResponse(const AlpacaRequest& request, bool value, Print& out) {
+// static
+bool WriteResponse::BoolResponse(const AlpacaRequest& request, bool value,
+                                 Print& out) {
   JsonBoolResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
+  return OkResponse(source, request.http_method, out);
 }
 
-bool WriteDoubleResponse(const AlpacaRequest& request, double value,
-                         Print& out) {
+// static
+bool WriteResponse::DoubleResponse(const AlpacaRequest& request, double value,
+                                   Print& out) {
   JsonDoubleResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
+  return OkResponse(source, request.http_method, out);
 }
-bool WriteDoubleResponse(const AlpacaRequest& request,
-                         StatusOr<double> status_or_value, Print& out) {
-  if (status_or_value.ok()) {
-    return WriteDoubleResponse(request, status_or_value.value(), out);
-  } else {
-    return WriteAscomErrorResponse(request, status_or_value.status(), out);
-  }
-}
-
-bool WriteFloatResponse(const AlpacaRequest& request, float value, Print& out) {
-  JsonFloatResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteUIntResponse(const AlpacaRequest& request, uint32_t value,
-                       Print& out) {
-  JsonUnsignedIntegerResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteIntResponse(const AlpacaRequest& request, int32_t value, Print& out) {
-  JsonIntegerResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteLiteralArrayResponse(const AlpacaRequest& request,
-                               const LiteralArray& value, Print& out) {
-  WriteArrayResponse(request, LiteralArraySource(value), out);
-  return true;
-}
-
-bool WriteStringResponse(const AlpacaRequest& request, AnyString value,
-                         Print& out) {
-  JsonStringResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteStringResponse(const AlpacaRequest& request, Printable& value,
-                         Print& out) {
-  JsonStringResponse source(request, value);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteStringResponse(const AlpacaRequest& request,
-                         StatusOr<Literal> status_or_value, Print& out) {
-  if (status_or_value.ok()) {
-    AnyString any_string(status_or_value.value());
-    return WriteStringResponse(request, any_string, out);
-  } else {
-    return WriteAscomErrorResponse(request, status_or_value.status(), out);
-  }
-}
-
-bool WriteAscomErrorResponse(const AlpacaRequest& request,
-                             uint32_t error_number, AnyString error_message,
-                             Print& out) {
-  JsonMethodResponse source(request, error_number, error_message);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteAscomErrorResponse(const AlpacaRequest& request,
-                             uint32_t error_number, Printable& error_message,
-                             Print& out) {
-  JsonMethodResponse source(request, error_number, error_message);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteAscomErrorResponse(const AlpacaRequest& request, Status error_status,
-                             Print& out) {
-  AnyString error_message;  // TODO(jamessynge): Come up with a way for Status
-                            // to carry a message.
-  JsonMethodResponse source(request, error_status.code(), error_message);
-  return WriteOkResponse(source, request.http_method, out);
-}
-
-bool WriteAscomNotImplementedErrorResponse(const AlpacaRequest& request,
+// static
+bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
+                                           StatusOr<double> status_or_value,
                                            Print& out) {
-  return WriteAscomErrorResponse(request,
-                                 ErrorCodes::ActionNotImplemented().code(),
-                                 Literals::HttpMethodNotImplemented(), out);
+  if (status_or_value.ok()) {
+    return DoubleResponse(request, status_or_value.value(), out);
+  } else {
+    return AscomErrorResponse(request, status_or_value.status(), out);
+  }
 }
 
-bool WriteHttpErrorResponse(EHttpStatusCode status_code, const Printable& body,
-                            Print& out) {
+// static
+bool WriteResponse::FloatResponse(const AlpacaRequest& request, float value,
+                                  Print& out) {
+  JsonFloatResponse source(request, value);
+  return OkResponse(source, request.http_method, out);
+}
+
+// static
+bool WriteResponse::UIntResponse(const AlpacaRequest& request, uint32_t value,
+                                 Print& out) {
+  JsonUnsignedIntegerResponse source(request, value);
+  return OkResponse(source, request.http_method, out);
+}
+
+// static
+bool WriteResponse::IntResponse(const AlpacaRequest& request, int32_t value,
+                                Print& out) {
+  JsonIntegerResponse source(request, value);
+  return OkResponse(source, request.http_method, out);
+}
+
+// static
+bool WriteResponse::LiteralArrayResponse(const AlpacaRequest& request,
+                                         const LiteralArray& value,
+                                         Print& out) {
+  return ArrayResponse(request, LiteralArraySource(value), out);
+}
+
+// static
+bool WriteResponse::StringResponse(const AlpacaRequest& request,
+                                   const AnyPrintable& value, Print& out) {
+  JsonStringResponse source(request, value);
+  return OkResponse(source, request.http_method, out);
+}
+
+// static
+bool WriteResponse::StatusOrStringResponse(const AlpacaRequest& request,
+                                           StatusOr<Literal> status_or_value,
+                                           Print& out) {
+  if (status_or_value.ok()) {
+    return StringResponse(request, status_or_value.value(), out);
+  } else {
+    return AscomErrorResponse(request, status_or_value.status(), out);
+  }
+}
+
+// static
+bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
+                                       uint32_t error_number,
+                                       const AnyPrintable& error_message,
+                                       Print& out) {
+  JsonMethodResponse source(request, error_number, error_message);
+  return OkResponse(source, request.http_method, out);
+}
+
+// static
+bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
+                                       Status error_status, Print& out) {
+  // TODO(jamessynge): Come up with a way for Status to carry a message.
+  AnyPrintable error_message;
+  JsonMethodResponse source(request, error_status.code(), error_message);
+  return OkResponse(source, request.http_method, out);
+}
+
+// static
+bool WriteResponse::AscomNotImplementedErrorResponse(
+    const AlpacaRequest& request, Print& out) {
+  return AscomErrorResponse(request, ErrorCodes::ActionNotImplemented().code(),
+                            Literals::HttpMethodNotImplemented(), out);
+}
+
+// static
+bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
+                                      const Printable& body, Print& out) {
   TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest,
                 "Status code should be for an error.");
   if (status_code < EHttpStatusCode::kHttpBadRequest) {

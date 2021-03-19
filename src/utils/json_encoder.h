@@ -6,14 +6,7 @@
 //
 // Author: james.synge@gmail.com
 
-// TODO(jamessynge): Study
-// http://p-nand-q.com/programming/cplusplus/duck_typing_and_templates.html to
-// determine if it can make it easier to implement the methods below that take
-// an AnyString or a Printable&. We just want to accept any X that has a |size_t
-// X::printTo(Print&) const| method, or for which there is a |size_t
-// Print::print(X)| method.
-
-#include "utils/any_string.h"
+#include "utils/any_printable.h"
 #include "utils/platform.h"
 
 namespace alpaca {
@@ -95,7 +88,7 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
   void AddFloatingPointElement(float value);
   void AddFloatingPointElement(double value);
   void AddBooleanElement(const bool value);
-  void AddStringElement(AnyString value);
+  void AddStringElement(const AnyPrintable& value);
   void AddStringElement(const Printable& value);
   void AddArrayElement(const JsonElementSource& source);
   void AddObjectElement(const JsonPropertySource& source);
@@ -118,15 +111,16 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
 // JSON encoder for objects.
 class JsonObjectEncoder : public AbstractJsonEncoder {
  public:
-  void AddIntegerProperty(const AnyString& name, int32_t value);
-  void AddIntegerProperty(const AnyString& name, uint32_t value);
-  void AddFloatingPointProperty(const AnyString& name, float value);
-  void AddFloatingPointProperty(const AnyString& name, double value);
-  void AddBooleanProperty(const AnyString& name, const bool value);
-  void AddStringProperty(const AnyString& name, AnyString value);
-  void AddStringProperty(const AnyString& name, const Printable& value);
-  void AddArrayProperty(const AnyString& name, const JsonElementSource& source);
-  void AddObjectProperty(const AnyString& name,
+  void AddIntegerProperty(const AnyPrintable& name, int32_t value);
+  void AddIntegerProperty(const AnyPrintable& name, uint32_t value);
+  void AddFloatingPointProperty(const AnyPrintable& name, float value);
+  void AddFloatingPointProperty(const AnyPrintable& name, double value);
+  void AddBooleanProperty(const AnyPrintable& name, const bool value);
+  void AddStringProperty(const AnyPrintable& name, const AnyPrintable& value);
+  void AddStringProperty(const AnyPrintable& name, const Printable& value);
+  void AddArrayProperty(const AnyPrintable& name,
+                        const JsonElementSource& source);
+  void AddObjectProperty(const AnyPrintable& name,
                          const JsonPropertySource& source);
 
   static void Encode(const JsonPropertySource& source, Print& out);
@@ -143,7 +137,7 @@ class JsonObjectEncoder : public AbstractJsonEncoder {
 
   ~JsonObjectEncoder();
 
-  void StartProperty(const AnyString& name);
+  void StartProperty(const AnyPrintable& name);
 };
 
 }  // namespace alpaca

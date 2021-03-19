@@ -6,6 +6,7 @@
 
 #include <functional>
 
+#include "utils/any_printable.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
 
@@ -42,9 +43,9 @@ void AddObjectElement(JsonArrayEncoder& encoder,
 void JsonEncodeArray(const JsonElementSourceFunction& func, Print& out);
 size_t JsonEncodedArraySize(const JsonElementSourceFunction& func);
 
-void AddArrayProperty(JsonObjectEncoder& encoder, const AnyString& name,
+void AddArrayProperty(JsonObjectEncoder& encoder, const AnyPrintable& name,
                       const JsonElementSourceFunction& func);
-void AddObjectProperty(JsonObjectEncoder& encoder, const AnyString& name,
+void AddObjectProperty(JsonObjectEncoder& encoder, const AnyPrintable& name,
                        const JsonPropertySourceFunction& func);
 
 void JsonEncodeObject(const JsonPropertySourceFunction& func, Print& out);

@@ -7,7 +7,7 @@
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "util/gtl/map_util.h"
-#include "utils/any_string.h"
+#include "utils/literal.h"
 #include "utils/string_view.h"
 
 namespace alpaca {
@@ -95,10 +95,9 @@ TEST(PrintJsonEscapedTest, CLiteralStringWithEscapes) {
 
 TEST(PrintJsonEscapedToTest, StringViewWithEscapes) {
   StringView view("<tag attr=\"value with slash ('\\')\">\b\f\n\r\t</tag>");
-  AnyString any_string(view);
 
   PrintToStdString out;
-  const size_t count = PrintJsonEscapedTo(any_string, out);
+  const size_t count = PrintJsonEscapedTo(view, out);
   const std::string expected =
       "<tag attr=\\\"value with slash ('\\\\')\\\">"
       "\\b\\f\\n\\r\\t</tag>";
@@ -109,10 +108,9 @@ TEST(PrintJsonEscapedToTest, StringViewWithEscapes) {
 
 TEST(PrintJsonEscapedStringToTest, LiteralWithEscapes) {
   Literal literal("<tag attr=\"value with slash ('\\')\">\b\f\n\r\t</tag>");
-  AnyString any_string(literal);
 
   PrintToStdString out;
-  const size_t count = PrintJsonEscapedStringTo(any_string, out);
+  const size_t count = PrintJsonEscapedStringTo(literal, out);
   const std::string expected =
       "\"<tag attr=\\\"value with slash ('\\\\')\\\">"
       "\\b\\f\\n\\r\\t</tag>\"";

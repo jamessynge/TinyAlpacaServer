@@ -43,8 +43,8 @@ cc_test(
     name = "escaping_test",
     srcs = ["escaping_test.cc"],
     deps = [
-        ":any_string",
         ":escaping",
+        ":literal",
         ":print_to_std_string",
         ":string_view",
         "//googletest:gunit_main",
@@ -96,8 +96,11 @@ cc_test(
     name = "printable_cat_test",
     srcs = ["printable_cat_test.cc"],
     deps = [
+        ":any_printable",
+        ":literal",
         ":print_to_std_string",
         ":printable_cat",
+        ":string_view",
         "//absl/strings",
         "//googletest:gunit_main",
     ],

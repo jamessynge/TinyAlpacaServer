@@ -6,16 +6,6 @@ namespace alpaca {
 
 AnyPrintable::AnyPrintable() : type_(AnyPrintable::kEmpty), signed_(0) {}
 
-AnyPrintable::AnyPrintable(AnyString value) {
-  if (value.is_literal_) {
-    type_ = kLiteral;
-    literal_ = value.literal_;
-  } else {
-    type_ = kStringView;
-    view_ = value.view_;
-  }
-}
-
 AnyPrintable::AnyPrintable(Literal value)
     : type_(AnyPrintable::kLiteral), literal_(value) {}
 

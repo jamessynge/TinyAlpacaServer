@@ -1,5 +1,3 @@
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "utils/platform_ethernet.h"
 
 #include "utils/logging.h"
@@ -7,24 +5,27 @@
 
 namespace alpaca {
 
+bool PlatformEthernet::IsClientDone(int sock_num) {
+  TAS_DCHECK_LE(0, sock_num);
+  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
 #if TAS_EMBEDDED_TARGET
-
-bool InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port) {
-  TAS_DCHECK_NE(sock_num, MAX_SOCK_NUM);
-  // EthernetClient client(sock_num);
-  // client.stop();
-  //  ::close(sock_num);
-  //  return ::socket(sock, SnMR::TCP, _port, 0) && ::listen(sock);
-  return false;
-}
-
-bool IsClientDone(int sock_num) {
-  TAS_DCHECK_NE(sock_num, MAX_SOCK_NUM);
-  // auto status = w5500.readSnSR(sock_num);
-  // return s == SnSR::CLOSE_WAIT && w5500.getRXReceivedSize(sock_num) == 0;
-  return true;
-}
-
+  EthernetClient client(sock_num);
+  return client.status() == SnSR::CLOSE_WAIT;
+#else   // !TAS_EMBEDDED_TARGET
+  return HostSockets::IsClientDone(sock_num);
 #endif  // TAS_EMBEDDED_TARGET
+}
+
+bool PlatformEthernet::IsOpenForWriting(int sock_num) {
+#if TAS_EMBEDDED_TARGET
+  TAS_DCHECK_LE(0, sock_num);
+  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+  EthernetClient client(sock_num);
+  auto status = client.status();
+  return status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT;
+#else   // !TAS_EMBEDDED_TARGET
+  return HostSockets::IsOpenForWriting(sock_num);
+#endif  // TAS_EMBEDDED_TARGET
+}
 
 }  // namespace alpaca

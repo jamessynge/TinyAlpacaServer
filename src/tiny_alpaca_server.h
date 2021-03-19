@@ -83,7 +83,7 @@ class TinyAlpacaServer : RequestListener {
   // in the range [0, kNumServerConnections-1].
   ServerConnection* GetServerConnection(size_t ndx);
 
-  void InitializeServerConnections(uint16_t tcp_port);
+  void InitializeServerConnections();
 
   bool DispatchDeviceRequest(AlpacaRequest& request,
                              DeviceApiHandlerBase& handler, Print& out);
@@ -94,6 +94,7 @@ class TinyAlpacaServer : RequestListener {
   bool HandleServerSetup(AlpacaRequest& request, Print& out);
 
   uint32_t server_transaction_id_;
+  uint16_t tcp_port_;
 
   const ServerDescription& server_description_;
   ArrayView<DeviceApiHandlerBasePtr> device_handlers_;

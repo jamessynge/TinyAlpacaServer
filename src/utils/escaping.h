@@ -4,6 +4,7 @@
 // Core of support for printing JSON strings. Characters that are not valid in
 // JSON strings (e.g. Ctrl-A) are not printed.
 
+#include "utils/any_printable.h"
 #include "utils/platform.h"
 
 #if TAS_HOST_TARGET
@@ -34,10 +35,18 @@ class PrintJsonEscaped : public Print {
 // Print 'value' to 'raw_output', with the characters JSON escaped. Note that
 // this does NOT add double quotes before and after the output.
 size_t PrintJsonEscapedTo(const Printable& value, Print& raw_output);
+inline size_t PrintJsonEscapedTo(const AnyPrintable& value, Print& raw_output) {
+  return PrintJsonEscapedTo(static_cast<const Printable&>(value), raw_output);
+}
 
 // Print 'value' to 'raw_output' as a JSON string, i.e. starting and ending with
 // double quotes, and with the characters printed by 'value' JSON escaped.
 size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output);
+inline size_t PrintJsonEscapedStringTo(const AnyPrintable& value,
+                                       Print& raw_output) {
+  return PrintJsonEscapedStringTo(static_cast<const Printable&>(value),
+                                  raw_output);
+}
 
 // Print c with appropriate escaping for JSON.
 size_t PrintCharJsonEscaped(Print& out, char c);

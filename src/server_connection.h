@@ -16,13 +16,13 @@ namespace alpaca {
 
 class ServerConnection : public ServerConnectionBase {
  public:
-  ServerConnection(int sock_num, uint16_t tcp_port,
-                   RequestListener& request_listener);
+  explicit ServerConnection(RequestListener& request_listener);
 
   // Methods from base class. These are public here to allow for testing.
   void OnConnect(EthernetClient& client) override;
   void OnCanRead(EthernetClient& client) override;
   void OnClientDone(EthernetClient& client) override;
+  void OnDisconnect() override;
 
   // Placement new operator.
   void* operator new(size_t size, void* ptr) { return ptr; }
@@ -31,6 +31,7 @@ class ServerConnection : public ServerConnectionBase {
   RequestListener& request_listener_;
   AlpacaRequest request_;
   RequestDecoder request_decoder_;
+  bool between_requests_;
   uint8_t input_buffer_size_;
   char input_buffer_[32];
 };

@@ -40,12 +40,12 @@ void PrintFloatingPoint(Print& out, const T value) {
   // Haven't got std::isnan or std::isfinite in the Arduino environment.
   // TODO(jamessynge): Consider using isnan and isfinite from avr-libc's math.h.
   if (std::isnan(value)) {
-    PrintJsonEscapedStringTo(AnyString(JsonNan()), out);
+    PrintJsonEscapedStringTo(JsonNan(), out);
   } else if (!std::isfinite(value)) {
     if (value > 0) {
-      PrintJsonEscapedStringTo(AnyString(JsonInf()), out);
+      PrintJsonEscapedStringTo(JsonInf(), out);
     } else {
-      PrintJsonEscapedStringTo(AnyString(JsonNegInf()), out);
+      PrintJsonEscapedStringTo(JsonNegInf(), out);
     }
   } else {
 #endif
@@ -122,7 +122,7 @@ void JsonArrayEncoder::AddBooleanElement(const bool value) {
   PrintBoolean(out_, value);
 }
 
-void JsonArrayEncoder::AddStringElement(AnyString value) {
+void JsonArrayEncoder::AddStringElement(const AnyPrintable& value) {
   StartItem();
   PrintString(value);
 }
@@ -163,62 +163,62 @@ JsonObjectEncoder::JsonObjectEncoder(Print& out) : AbstractJsonEncoder(out) {
 
 JsonObjectEncoder::~JsonObjectEncoder() { out_.print('}'); }
 
-void JsonObjectEncoder::StartProperty(const AnyString& name) {
+void JsonObjectEncoder::StartProperty(const AnyPrintable& name) {
   StartItem();
   PrintString(name);
   out_.print(':');
   out_.print(' ');
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const AnyString& name,
+void JsonObjectEncoder::AddIntegerProperty(const AnyPrintable& name,
                                            int32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const AnyString& name,
+void JsonObjectEncoder::AddIntegerProperty(const AnyPrintable& name,
                                            uint32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const AnyString& name,
+void JsonObjectEncoder::AddFloatingPointProperty(const AnyPrintable& name,
                                                  float value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const AnyString& name,
+void JsonObjectEncoder::AddFloatingPointProperty(const AnyPrintable& name,
                                                  double value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }
 
-void JsonObjectEncoder::AddBooleanProperty(const AnyString& name,
+void JsonObjectEncoder::AddBooleanProperty(const AnyPrintable& name,
                                            const bool value) {
   StartProperty(name);
   PrintBoolean(out_, value);
 }
 
-void JsonObjectEncoder::AddStringProperty(const AnyString& name,
-                                          AnyString value) {
+void JsonObjectEncoder::AddStringProperty(const AnyPrintable& name,
+                                          const AnyPrintable& value) {
   StartProperty(name);
   PrintString(value);
 }
 
-void JsonObjectEncoder::AddStringProperty(const AnyString& name,
+void JsonObjectEncoder::AddStringProperty(const AnyPrintable& name,
                                           const Printable& value) {
   StartProperty(name);
   PrintString(value);
 }
 
-void JsonObjectEncoder::AddArrayProperty(const AnyString& name,
+void JsonObjectEncoder::AddArrayProperty(const AnyPrintable& name,
                                          const JsonElementSource& source) {
   StartProperty(name);
   EncodeChildArray(source);
 }
 
-void JsonObjectEncoder::AddObjectProperty(const AnyString& name,
+void JsonObjectEncoder::AddObjectProperty(const AnyPrintable& name,
                                           const JsonPropertySource& source) {
   StartProperty(name);
   EncodeChildObject(source);

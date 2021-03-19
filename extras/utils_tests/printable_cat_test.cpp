@@ -6,6 +6,9 @@
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/any_printable.h"
+#include "utils/literal.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace {
@@ -14,7 +17,7 @@ TEST(PrintableCatTest, Strings) {
   char space = ' ';
   StringView abc("abc");
   Literal def("def");
-  AnyString ghi(StringView("ghi"));
+  AnyPrintable ghi(StringView("ghi"));
   auto p = PrintableCat(abc, space, def, space, ghi);
   EXPECT_EQ(PrintValueToStdString(p), "abc def ghi");
 }

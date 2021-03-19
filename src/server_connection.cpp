@@ -16,16 +16,13 @@
 
 namespace alpaca {
 
-ServerConnection::ServerConnection(int sock_num, uint16_t tcp_port,
-                                   RequestListener& request_listener)
-    : ServerConnectionBase(sock_num, tcp_port),
-      request_listener_(request_listener),
-      request_decoder_(request_),
-      input_buffer_size_(0) {}
+ServerConnection::ServerConnection(RequestListener& request_listener)
+    : request_listener_(request_listener), request_decoder_(request_) {}
 
 void ServerConnection::OnConnect(EthernetClient& client) {
   TAS_DCHECK_EQ(sock_num(), client.getSocketNumber(), "");
   request_decoder_.Reset();
+  between_requests_ = true;
   input_buffer_size_ = 0;
 }
 
@@ -41,6 +38,7 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
         (sizeof input_buffer_) - input_buffer_size_);
     if (ret > 0) {
       input_buffer_size_ += ret;
+      between_requests_ = false;
     }
   }
 
@@ -52,7 +50,8 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
 
     StringView view(input_buffer_, input_buffer_size_);
     const bool buffer_is_full = input_buffer_size_ == sizeof input_buffer_;
-    const bool at_end = IsClientDone(client.getSocketNumber());
+    const bool at_end =
+        PlatformEthernet::IsClientDone(client.getSocketNumber());
 
     EHttpStatusCode status_code =
         request_decoder_.DecodeBuffer(view, buffer_is_full, at_end);
@@ -81,6 +80,9 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
     }
     bool close_connection = false;
     if (status_code == EHttpStatusCode::kHttpOk) {
+      if (input_buffer_size_ == 0) {
+        between_requests_ = true;
+      }
       if (!request_listener_.OnRequestDecoded(request_, client)) {
         close_connection = true;
       }
@@ -101,7 +103,14 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
 }
 
 void ServerConnection::OnClientDone(EthernetClient& client) {
-  TAS_DCHECK_EQ(sock_num(), client.getSocketNumber(), "");
+  if (!between_requests_) {
+    // We've read some data but haven't been able to decode a complete request.
+    request_listener_.OnRequestDecodingError(
+        request_, EHttpStatusCode::kHttpBadRequest, client);
+  }
+  client.stop();
 }
+
+void ServerConnection::OnDisconnect() {}
 
 }  // namespace alpaca

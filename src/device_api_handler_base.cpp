@@ -22,9 +22,9 @@ size_t DeviceApiHandlerBase::GetUniqueBytes(uint8_t* buffer,
 
 bool DeviceApiHandlerBase::HandleDeviceSetupRequest(
     const AlpacaRequest& request, Print& out) {
-  return WriteAscomErrorResponse(request,
-                                 ErrorCodes::ActionNotImplemented().code(),
-                                 Literals::HttpMethodNotImplemented(), out);
+  return WriteResponse::AscomErrorResponse(
+      request, ErrorCodes::ActionNotImplemented().code(),
+      Literals::HttpMethodNotImplemented(), out);
 }
 
 bool DeviceApiHandlerBase::HandleDeviceApiRequest(const AlpacaRequest& request,
@@ -45,47 +45,53 @@ bool DeviceApiHandlerBase::HandleDeviceApiRequest(const AlpacaRequest& request,
   // explicitly listed above. So returning kHttpInternalServerError rather than
   // kHttpMethodNotImplemented, but using the HttpMethodNotImplemented reason
   // phrase.
-  return WriteHttpErrorResponse(EHttpStatusCode::kHttpInternalServerError,
-                                Literals::HttpMethodNotImplemented(), out);
+  return WriteResponse::HttpErrorResponse(
+      EHttpStatusCode::kHttpInternalServerError,
+      Literals::HttpMethodNotImplemented(), out);
 }
 
 bool DeviceApiHandlerBase::HandleGetRequest(const AlpacaRequest& request,
                                             Print& out) {
   switch (request.device_method) {
     case EDeviceMethod::kConnected:
-      return WriteBoolResponse(request, GetConnected(), out);
+      return WriteResponse::BoolResponse(request, GetConnected(), out);
 
     case EDeviceMethod::kDescription:
-      return WriteStringResponse(request, device_info_.description, out);
+      return WriteResponse::StringResponse(request, device_info_.description,
+                                           out);
 
     case EDeviceMethod::kDriverInfo:
-      return WriteStringResponse(request, device_info_.driver_info, out);
+      return WriteResponse::StringResponse(request, device_info_.driver_info,
+                                           out);
 
     case EDeviceMethod::kDriverVersion:
-      return WriteStringResponse(request, device_info_.driver_version, out);
+      return WriteResponse::StringResponse(request, device_info_.driver_version,
+                                           out);
 
     case EDeviceMethod::kInterfaceVersion:
-      return WriteIntResponse(request, device_info_.interface_version, out);
+      return WriteResponse::IntResponse(request, device_info_.interface_version,
+                                        out);
 
     case EDeviceMethod::kName:
-      return WriteStringResponse(request, device_info_.name, out);
+      return WriteResponse::StringResponse(request, device_info_.name, out);
 
     case EDeviceMethod::kSupportedActions:
-      return WriteLiteralArrayResponse(request, device_info_.supported_actions,
-                                       out);
+      return WriteResponse::LiteralArrayResponse(
+          request, device_info_.supported_actions, out);
 
     default:
       // TODO(jamessynge): Write a NOT IMPLEMENTED error response.
-      return WriteAscomErrorResponse(request,
-                                     ErrorCodes::ActionNotImplemented().code(),
-                                     Literals::HttpMethodNotImplemented(), out);
+      return WriteResponse::AscomErrorResponse(
+          request, ErrorCodes::ActionNotImplemented().code(),
+          Literals::HttpMethodNotImplemented(), out);
   }
 }
 
 bool DeviceApiHandlerBase::HandlePutRequest(const AlpacaRequest& request,
                                             Print& out) {
-  return WriteHttpErrorResponse(EHttpStatusCode::kHttpInternalServerError,
-                                Literals::HttpMethodNotImplemented(), out);
+  return WriteResponse::HttpErrorResponse(
+      EHttpStatusCode::kHttpInternalServerError,
+      Literals::HttpMethodNotImplemented(), out);
 }
 
 }  // namespace alpaca

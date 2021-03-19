@@ -199,6 +199,7 @@ TAS_CONSTEXPR_VAR LiteralToken<EParameter_UnderlyingType>
         MAKE_ENUM_LITERAL_TOKEN(EParameter, ClientTransactionId,
                                 kClientTransactionId),
         MAKE_ENUM_LITERAL_TOKEN(EParameter, Connected, kConnected),
+        MAKE_ENUM_LITERAL_TOKEN(EParameter, SensorName, kSensorName),
 };
 }  // namespace
 

@@ -220,6 +220,8 @@ std::ostream& operator<<(std::ostream& out, EParameter v) {
       return out << "kClientTransactionId";
     case EParameter::kConnected:
       return out << "kConnected";
+    case EParameter::kSensorName:
+      return out << "kSensorName";
   }
   auto invalid = static_cast<std::underlying_type<EParameter>::type>(v);
   return out << invalid << " (invalid EParameter)";

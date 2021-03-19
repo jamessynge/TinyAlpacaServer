@@ -8,7 +8,7 @@
 
 #include "alpaca_request.h"
 #include "literals.h"
-#include "utils/any_string.h"
+#include "utils/any_printable.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
 #include "utils/string_view.h"
@@ -41,7 +41,8 @@ class JsonMethodResponse : public JsonPropertySource {
     }
     object_encoder.AddIntegerProperty(Literals::ErrorNumber(), error_number_);
     if (error_message_ == nullptr) {
-      object_encoder.AddStringProperty(Literals::ErrorMessage(), AnyString());
+      object_encoder.AddStringProperty(Literals::ErrorMessage(),
+                                       AnyPrintable());
     } else {
       object_encoder.AddStringProperty(Literals::ErrorMessage(),
                                        *error_message_);
@@ -141,7 +142,7 @@ class JsonIntegerResponse : public JsonMethodResponse {
 
 class JsonStringResponse : public JsonMethodResponse {
  public:
-  JsonStringResponse(const AlpacaRequest& request, Printable& value)
+  JsonStringResponse(const AlpacaRequest& request, const AnyPrintable& value)
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
@@ -150,7 +151,7 @@ class JsonStringResponse : public JsonMethodResponse {
   }
 
  private:
-  Printable& value_;
+  const AnyPrintable& value_;
 };
 
 }  // namespace alpaca

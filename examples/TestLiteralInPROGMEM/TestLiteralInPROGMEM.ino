@@ -396,7 +396,7 @@ void loop() {
   Serial.println();
 
   Serial.print("JSON escaped literal: ");
-  alpaca::PrintJsonEscapedStringTo(alpaca::AnyString(literal), Serial);
+  alpaca::PrintJsonEscapedStringTo(alpaca::AnyPrintable(literal), Serial);
   Serial.println();
   Serial.println();
 }

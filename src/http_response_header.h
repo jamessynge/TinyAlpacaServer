@@ -7,7 +7,6 @@
 // times if needed (unlikely).
 
 #include "constants.h"
-#include "utils/any_string.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
 
@@ -23,9 +22,6 @@ struct HttpResponseHeader : public Printable {
   Literal reason_phrase;
   EContentType content_type;
   uint16_t content_length;
-
- private:
-  size_t WriteHeaderLine(const Literal& name, const AnyString& value);
 };
 
 // Declare stuff

@@ -18,38 +18,47 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
                                                   Print& out) {
   switch (request.device_method) {
     case EDeviceMethod::kAveragePeriod:
-      return WriteBoolResponse(request, GetConnected(), out);
+      return WriteResponse::BoolResponse(request, GetConnected(), out);
 
     case EDeviceMethod::kCloudCover:
-      return WriteDoubleResponse(request, GetCloudCover(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetCloudCover(),
+                                                   out);
     case EDeviceMethod::kDewPoint:
-      return WriteDoubleResponse(request, GetDewPoint(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetDewPoint(), out);
     case EDeviceMethod::kHumidity:
-      return WriteDoubleResponse(request, GetHumidity(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetHumidity(), out);
     case EDeviceMethod::kPressure:
-      return WriteDoubleResponse(request, GetPressure(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetPressure(), out);
     case EDeviceMethod::kRainRate:
-      return WriteDoubleResponse(request, GetRainRate(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetRainRate(), out);
     case EDeviceMethod::kSensorDescription:
       return HandleGetSensorDescription(request, out);
     case EDeviceMethod::kSkyBrightness:
-      return WriteDoubleResponse(request, GetSkyBrightness(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetSkyBrightness(),
+                                                   out);
     case EDeviceMethod::kSkyQuality:
-      return WriteDoubleResponse(request, GetSkyQuality(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetSkyQuality(),
+                                                   out);
     case EDeviceMethod::kSkyTemperature:
-      return WriteDoubleResponse(request, GetSkyTemperature(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetSkyTemperature(),
+                                                   out);
     case EDeviceMethod::kStarFullWidthHalfMax:
-      return WriteDoubleResponse(request, GetStarFullWidthHalfMax(), out);
+      return WriteResponse::StatusOrDoubleResponse(
+          request, GetStarFullWidthHalfMax(), out);
     case EDeviceMethod::kTemperature:
-      return WriteDoubleResponse(request, GetTemperature(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetTemperature(),
+                                                   out);
     case EDeviceMethod::kWindDirection:
-      return WriteDoubleResponse(request, GetWindDirection(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetWindDirection(),
+                                                   out);
     case EDeviceMethod::kWindGust:
-      return WriteDoubleResponse(request, GetWindGust(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetWindGust(), out);
     case EDeviceMethod::kWindSpeed:
-      return WriteDoubleResponse(request, GetWindSpeed(), out);
+      return WriteResponse::StatusOrDoubleResponse(request, GetWindSpeed(),
+                                                   out);
     case EDeviceMethod::kTimeSinceLastUpdate:
-      return WriteDoubleResponse(request, GetTimeSinceLastUpdate(), out);
+      return WriteResponse::StatusOrDoubleResponse(
+          request, GetTimeSinceLastUpdate(), out);
     default:
       return DeviceApiHandlerBase::HandleGetRequest(request, out);
   }
@@ -124,18 +133,20 @@ bool ObservingConditionsAdapter::HandleGetSensorDescription(
       return HandleGetNamedSensorDescription(request, sensor_name, out);
     }
   }
-  return WriteAscomErrorResponse(request, ErrorCodes::InvalidValue().code(),
-                                 Literals::SensorNameMissing(), out);
+  return WriteResponse::AscomErrorResponse(request,
+                                           ErrorCodes::InvalidValue().code(),
+                                           Literals::SensorNameMissing(), out);
 #else   // !TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-  return WriteAscomErrorResponse(request,
-                                 ErrorCodes::ActionNotImplemented().code(),
-                                 Literals::HttpMethodNotImplemented(), out);
+  return WriteResponse::AscomErrorResponse(
+      request, ErrorCodes::ActionNotImplemented().code(),
+      Literals::HttpMethodNotImplemented(), out);
 #endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 }
 
 bool ObservingConditionsAdapter::HandleGetNamedSensorDescription(
     const AlpacaRequest& request, StringView sensor_name, Print& out) {
-  return WriteStringResponse(request, GetSensorDescription(sensor_name), out);
+  return WriteResponse::StatusOrStringResponse(
+      request, GetSensorDescription(sensor_name), out);
 }
 
 StatusOr<Literal> ObservingConditionsAdapter::GetSensorDescription(

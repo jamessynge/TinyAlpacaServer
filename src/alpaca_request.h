@@ -69,10 +69,6 @@ struct AlpacaRequest {
   uint32_t client_id;
   uint32_t client_transaction_id;
 
-  // TODO(jamessynge): Consider adding enum ESensorName and a field here to
-  // store the value if provided in parameters. This would support the Sensor
-  // Description method.
-
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know
   // whether the request is valid, we can start logging (if we do logging).

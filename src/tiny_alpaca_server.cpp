@@ -4,8 +4,8 @@
 
 #include "alpaca_response.h"
 #include "literals.h"
-#include "utils/any_string.h"
 #include "utils/platform.h"
+#include "utils/platform_ethernet.h"
 
 namespace alpaca {
 namespace {}
@@ -14,29 +14,24 @@ TinyAlpacaServer::TinyAlpacaServer(
     uint16_t tcp_port, const ServerDescription& server_description,
     ArrayView<DeviceApiHandlerBasePtr> device_handlers)
     : server_transaction_id_(0),
+      tcp_port_(tcp_port),
       server_description_(server_description),
       device_handlers_(device_handlers) {
-  InitializeServerConnections(tcp_port);
+  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
+    new (GetServerConnection(ndx)) ServerConnection(*this);
+  }
 }
 
 ServerConnection* TinyAlpacaServer::GetServerConnection(size_t ndx) {
   return reinterpret_cast<ServerConnection*>(connections_storage_) + ndx;
 }
 
-void TinyAlpacaServer::InitializeServerConnections(uint16_t tcp_port) {
-  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
-    new (GetServerConnection(ndx))
-        ServerConnection(/*sock_num=*/ndx, tcp_port, *this);
-  }
-}
-
 bool TinyAlpacaServer::begin() {
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
-    auto* conn = GetServerConnection(ndx);
-    if (conn && !conn->BeginListening()) {
-      TAS_LOG(ERROR, "Unable to initialize ServerConnection #" << ndx);
-      return false;
-    }
+    // EthernetServer::begin() finds a closed hardware socket and puts it to use
+    // listening for connections to a TCP port.
+    EthernetServer listener(tcp_port_);
+    listener.begin();
   }
   // TODO(jamessynge): Add UDP listener too.
   return true;
@@ -74,8 +69,8 @@ bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
         }
       }
       // Should this be an ASCOM error, or is an HTTP status OK?
-      return WriteHttpErrorResponse(EHttpStatusCode::kHttpNotFound,
-                                    Literals::NoSuchDevice(), out);
+      return WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpNotFound,
+                                              Literals::NoSuchDevice(), out);
 
     case EAlpacaApi::kManagementApiVersions:
       return HandleManagementApiVersions(request, out);
@@ -90,8 +85,8 @@ bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
       return HandleServerSetup(request, out);
   }
 
-  return WriteHttpErrorResponse(EHttpStatusCode::kHttpInternalServerError,
-                                Literals::ApiUnknown(), out);
+  return WriteResponse::HttpErrorResponse(
+      EHttpStatusCode::kHttpInternalServerError, Literals::ApiUnknown(), out);
 }
 
 // Called when decoding of a request has failed. 'out' should be used to write
@@ -109,8 +104,9 @@ bool TinyAlpacaServer::DispatchDeviceRequest(AlpacaRequest& request,
   } else if (request.api == EAlpacaApi::kDeviceSetup) {
     return handler.HandleDeviceApiRequest(request, out);
   } else {
-    return WriteHttpErrorResponse(EHttpStatusCode::kHttpInternalServerError,
-                                  Literals::HttpMethodNotImplemented(), out);
+    return WriteResponse::HttpErrorResponse(
+        EHttpStatusCode::kHttpInternalServerError,
+        Literals::HttpMethodNotImplemented(), out);
   }
 }
 

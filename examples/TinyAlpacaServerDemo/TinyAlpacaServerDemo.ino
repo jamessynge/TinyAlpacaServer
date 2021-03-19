@@ -118,12 +118,12 @@ class Dht22Handler : public ObservingConditionsAdapter {
   bool HandleGetRequest(const AlpacaRequest& request, Print& out) override {
     switch (request.device_method) {
       case EDeviceMethod::kHumidity:
-        return alpaca::WriteDoubleResponse(request,
-                                           dht22.get_relative_humidity(), out);
+        return alpaca::WriteResponse::DoubleResponse(
+            request, dht22.get_relative_humidity(), out);
 
       case EDeviceMethod::kTemperature:
-        return alpaca::WriteDoubleResponse(request, dht22.get_temperature(),
-                                           out);
+        return alpaca::WriteResponse::DoubleResponse(
+            request, dht22.get_temperature(), out);
 
       default:
         // For common methods, this will delegate to overrideable methods such

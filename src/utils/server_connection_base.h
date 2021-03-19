@@ -2,11 +2,12 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_SERVER_CONNECTION_BASE_H_
 
 // ServerConnection is a base class for the server-side handling of a TCP
-// connection; it works with EthernetClass, etc. to handle listening on a port,
+// connection; it works with EthernetServer, etc. to handle listening on a port,
 // accepting a new connection, reading and writing data and closing the
 // connection.
 
 #include "utils/connection.h"
+#include "utils/logging.h"
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"
 
@@ -14,24 +15,25 @@ namespace alpaca {
 
 class ServerConnectionBase {
  public:
-  ServerConnectionBase(int sock_num, uint16_t tcp_port);
+  ServerConnectionBase() : sock_num_(-1) {}
   virtual ~ServerConnectionBase();
 
-  // Call once at server startup to configure socket 'sock_num' to listen for
-  // new connections to the TCP port number 'tcp_port'. Returns true if able to
-  // do so, false otherwise (e.g. if the sock_num or tcp_port is invalid).
-  bool BeginListening();
+  // Sets a socket number that has been accepted. Returns true if this
+  // connection instance not already in use, in which case sock_num_ has been
+  // set to the socket number. If already in use, returns false; this is a
+  // programming error, so a DCHECK is will trigger.
+  bool set_sock_num(uint8_t sock_num);
 
-  // Handles changes in state of the socket (i.e. a new connection from a
-  // client, available data to read, room to write, client disconnect). The
-  // current implementation will make at most one of the On<Event> calls per
-  // call to PerformIO. This method is expected to be called from the loop()
-  // function of an Arduino sketch.
+  // Reads and decodes requests from, and writes responses to, the socket. Only
+  // called when the socket is connected. Calls the subclasses's On<EventName>
+  // as appropriate. The current implementation will make at most one of the
+  // On<EventName> calls per call to PerformIO. This method is expected to be
+  // called from the loop() function of an Arduino sketch.
   void PerformIO();
 
   // Accessors.
   int sock_num() const { return sock_num_; }
-  uint16_t tcp_port() const { return tcp_port_; }
+  bool is_connected() const { return sock_num_ >= 0; }
 
  protected:
   // Called when a new connection from a client is received.
@@ -41,12 +43,12 @@ class ServerConnectionBase {
   virtual void OnCanRead(EthernetClient& client) = 0;
 
   // Called when there is no more data to come from the client (i.e. it has
-  // half closed the socket). Note that compliant routers, firewalls, etc.,
-  // should support the TCP connection staying in this half-closed state for a
-  // long time (i.e. so that we can stream a response slowly), those middle
-  // boxes may interpret a FIN from one peer in the connection as a sign that
-  // they connection will soon close, and will wait very little time before
-  // effectively breaking the connection.
+  // half closed the socket). Note that while compliant routers, firewalls,
+  // etc., *should* support the TCP connection staying in this half-closed state
+  // for a long time (i.e. so that we can stream a response slowly), in practice
+  // those middle boxes may interpret a FIN from one peer in the connection as a
+  // sign that they connection will soon close, and will wait very little time
+  // before effectively breaking the connection.
   virtual void OnClientDone(EthernetClient& client) = 0;
 
   // Need to figure out if we need OnCanWrite, and if so how to track when
@@ -55,23 +57,17 @@ class ServerConnectionBase {
   // // Called when there is room to write a new connection is received.
   // virtual void OnCanWrite(EthernetClient& client) = 0;
 
-  // // Called when we discover that the connection has been broken.
-  // // TODO(jamessynge): To avoid calling OnDisconnect unnecessarily, need to
-  // come
-  // // up with a way to detect whether we closed the connection, or the client
-  // // did. This could be done by creating a sub-class of EthernetClient that
-  // // records when stop has been called.
-  // virtual void OnDisconnect(int sock_num) = 0;
+  // Called when we discover that the connection has been broken.
+  // TODO(jamessynge): To avoid calling OnDisconnect unnecessarily, need to come
+  // up with a way to detect whether we closed the connection, or the client
+  // did. This could be done by creating a sub-class of EthernetClient that
+  // records when stop has been called.
+  virtual void OnDisconnect() = 0;
 
  private:
-  bool DoListen();
-
-  const int sock_num_;
-  const uint16_t tcp_port_;
-
-  // At the end of the last PerformIO call, was the socket connected (this
-  // includes CLOSE_WAIT with data available to read).
-  bool connected_;
+  // If negative, not connected. Starts negative, gets set by set_sock_num, then
+  // gets set back to negative when the connection is closed or broken.
+  int sock_num_;
 };
 
 }  // namespace alpaca

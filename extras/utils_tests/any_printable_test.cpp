@@ -67,7 +67,7 @@ TEST(AnyPrintableTest, Empty) {
   EXPECT_THAT(AnyPrintableToString(any_printable), testing::IsEmpty());
 }
 
-// This provides coverage of various AnyString, Literal and StringView methods.
+// This provides coverage of various Literal and StringView methods.
 template <int N>
 void VerifyStringLiteralPrinting(const char (&buf)[N]) {
   const std::string expected(buf);
@@ -77,18 +77,12 @@ void VerifyStringLiteralPrinting(const char (&buf)[N]) {
     Literal value(buf);
     EXPECT_EQ(value.size(), expected.size());
     EXPECT_EQ(AnyPrintableToString(value), expected);
-    AnyString any_string(value);
-    EXPECT_EQ(any_string.size(), expected.size());
-    EXPECT_EQ(AnyPrintableToString(any_string), expected);
   }
 
   {
     StringView value(buf);
     EXPECT_EQ(value.size(), expected.size());
     EXPECT_EQ(AnyPrintableToString(value), expected);
-    AnyString any_string(value);
-    EXPECT_EQ(any_string.size(), expected.size());
-    EXPECT_EQ(AnyPrintableToString(any_string), expected);
   }
 }
 
@@ -101,19 +95,19 @@ TEST(AnyPrintableTest, StringLiterals) {
 TEST(AnyPrintableTest, PrintableReference) {
   constexpr char kStr[] = "some more text";
   StringView view(kStr);
-  AnyString any_string(view);
-  Printable& printable = any_string;
-  AnyPrintable any_printable(printable);
-  EXPECT_EQ(AnyPrintableToString(any_printable), kStr);
+  AnyPrintable printable1(view);
+  Printable& printable2 = printable1;
+  AnyPrintable printable3(printable2);
+  EXPECT_EQ(AnyPrintableToString(printable3), kStr);
 }
 
 TEST(AnyPrintableTest, ConstPrintableReference) {
   constexpr char kStr[] = "some other text";
-  StringView view(kStr);
-  const AnyString any_string(view);
-  const Printable& printable = any_string;
-  AnyPrintable any_printable(printable);
-  EXPECT_EQ(AnyPrintableToString(any_printable), kStr);
+  const StringView view(kStr);
+  const AnyPrintable printable1(view);
+  const Printable& printable2 = printable1;
+  const AnyPrintable printable3(printable2);
+  EXPECT_EQ(AnyPrintableToString(printable3), kStr);
 }
 
 TEST(AnyPrintableTest, ManyTypes) {
@@ -149,7 +143,7 @@ TEST(AnyPrintableTest, ManyTypes) {
   StringView some_text("some_text");
   EXPECT_EQ(PrintRefViaAnyPrintable(some_text), "some_text");
   EXPECT_EQ(PrintValueViaAnyPrintable(some_text), "some_text");
-  EXPECT_EQ(PrintValueViaAnyPrintable(AnyString(some_text)), "some_text");
+  EXPECT_EQ(PrintValueViaAnyPrintable(AnyPrintable(some_text)), "some_text");
 }
 
 }  // namespace

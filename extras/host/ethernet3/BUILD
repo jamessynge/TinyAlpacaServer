@@ -9,6 +9,7 @@ cc_library(
         ":ethernet_class",
         ":ethernet_client",
         ":ethernet_config",
+        ":ethernet_server",
         ":ip_address",
     ],
 )
@@ -17,7 +18,10 @@ cc_library(
     name = "ethernet_class",
     srcs = ["ethernet_class.cc"],
     hdrs = ["ethernet_class.h"],
-    deps = [":ip_address"],
+    deps = [
+        ":ethernet_config",
+        ":ip_address",
+    ],
 )
 
 cc_library(
@@ -27,7 +31,9 @@ cc_library(
     deps = [
         ":client",
         ":ethernet_config",
+        ":host_sockets",
         ":platform",
+        ":w5500",
     ],
 )
 
@@ -37,11 +43,33 @@ cc_library(
 )
 
 cc_library(
+    name = "ethernet_server",
+    srcs = ["ethernet_server.cc"],
+    hdrs = ["ethernet_server.h"],
+    deps = [
+        ":ethernet_class",
+        ":ethernet_client",
+        ":host_sockets",
+        ":w5500",
+        "//absl/time",
+        "//core:logging",
+    ],
+)
+
+cc_library(
     name = "host_sockets",
     srcs = ["host_sockets.cc"],
     hdrs = ["host_sockets.h"],
     deps = [
         ":ethernet_config",
+        ":logging",
+        ":w5500",
         "//core:logging",
     ],
+)
+
+cc_library(
+    name = "w5500",
+    hdrs = ["w5500.h"],
+    deps = [":int_types"],
 )

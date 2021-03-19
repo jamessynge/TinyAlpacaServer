@@ -10,7 +10,6 @@
 // contained by the captured item, the referenced value needs to outlive the
 // AnyPrintable.
 
-#include "utils/any_string.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
 #include "utils/string_view.h"
@@ -32,11 +31,14 @@ class AnyPrintable : public Printable {
 
  public:
   AnyPrintable();
-  AnyPrintable(AnyString value);         // NOLINT
-  AnyPrintable(Literal value);           // NOLINT
-  AnyPrintable(StringView value);        // NOLINT
-  AnyPrintable(Printable& value);        // NOLINT
-  AnyPrintable(const Printable& value);  // NOLINT
+  // For values that are clearly strings, we allow implicit conversion to
+  // AnyPrintable.
+  AnyPrintable(Literal value);     // NOLINT
+  AnyPrintable(StringView value);  // NOLINT
+  // To avoid implicit conversions of values that aren't (weren't) necessarily
+  // strings, we require the conversion to be explicit.
+  explicit AnyPrintable(Printable& value);
+  explicit AnyPrintable(const Printable& value);
   explicit AnyPrintable(char value);
   explicit AnyPrintable(int32_t value);
   explicit AnyPrintable(uint32_t value);

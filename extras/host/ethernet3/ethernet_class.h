@@ -5,6 +5,7 @@
 // to be a TCP server.
 
 #include "extras/host/arduino/ip_address.h"  // IWYU pragma: export
+#include "extras/host/ethernet3/ethernet_config.h"
 
 #define DHCP_CHECK_NONE (0)
 #define DHCP_CHECK_RENEW_FAIL (1)
@@ -14,6 +15,10 @@
 
 class EthernetClass {
  public:
+  static uint8_t state_[MAX_SOCK_NUM];
+  // Records the port that is/was last being listened to on the socket.
+  static uint16_t server_port_[MAX_SOCK_NUM];
+
   // Declaring functions in the order called.
   void setHostname(const char* hostname);
 

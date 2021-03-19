@@ -5,6 +5,7 @@ cc_library(
     srcs = ["json_test_utils.cc"],
     hdrs = ["json_test_utils.h"],
     deps = [
+        ":any_printable",
         ":json_encoder",
         ":platform",
     ],

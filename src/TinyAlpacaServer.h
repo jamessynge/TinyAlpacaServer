@@ -26,7 +26,6 @@
 #include "server_description.h"            // IWYU pragma: export
 #include "tiny_alpaca_server.h"            // IWYU pragma: export
 #include "utils/any_printable.h"           // IWYU pragma: export
-#include "utils/any_string.h"              // IWYU pragma: export
 #include "utils/array.h"                   // IWYU pragma: export
 #include "utils/array_view.h"              // IWYU pragma: export
 #include "utils/connection.h"              // IWYU pragma: export

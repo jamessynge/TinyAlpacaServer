@@ -26,13 +26,13 @@ size_t JsonEncodedArraySize(const JsonElementSourceFunction& func) {
   return JsonArrayEncoder::EncodedSize(source);
 }
 
-void AddArrayProperty(JsonObjectEncoder& encoder, const AnyString& name,
+void AddArrayProperty(JsonObjectEncoder& encoder, const AnyPrintable& name,
                       const JsonElementSourceFunction& func) {
   ElementSourceFunctionAdapter source(func);
   encoder.AddArrayProperty(name, source);
 }
 
-void AddObjectProperty(JsonObjectEncoder& encoder, const AnyString& name,
+void AddObjectProperty(JsonObjectEncoder& encoder, const AnyPrintable& name,
                        const JsonPropertySourceFunction& func) {
   PropertySourceFunctionAdapter source(func);
   encoder.AddObjectProperty(name, source);

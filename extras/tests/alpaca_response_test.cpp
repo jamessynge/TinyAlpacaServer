@@ -16,7 +16,7 @@ constexpr char kEOL[] = "\r\n";
 TEST(AlpacaResponseTest, SimpleOk) {
   PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
   PrintToStdString out;
-  WriteOkResponse(source, EHttpMethod::PUT, out);
+  EXPECT_TRUE(WriteResponse::OkResponse(source, EHttpMethod::PUT, out));
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
@@ -31,7 +31,7 @@ TEST(AlpacaResponseTest, ArrayOfLiterals) {
 
   AlpacaRequest request;
   PrintToStdString out;
-  WriteLiteralArrayResponse(request, value, out);
+  EXPECT_TRUE(WriteResponse::LiteralArrayResponse(request, value, out));
 
   const std::string expected_body =
       R"({"Value": ["DeviceType", "ManufacturerVersion"],)"
@@ -48,7 +48,7 @@ TEST(AlpacaResponseTest, BoolTrue) {
   AlpacaRequest request;
   request.set_server_transaction_id(0);
   PrintToStdString out;
-  WriteBoolResponse(request, true, out);
+  EXPECT_TRUE(WriteResponse::BoolResponse(request, true, out));
 
   const std::string expected_body =
       R"({"Value": true, "ServerTransactionId": 0,)"
@@ -73,7 +73,7 @@ TEST(AlpacaResponseTest, Double) {
   AlpacaRequest request;
   request.set_client_transaction_id(99);
   PrintToStdString out;
-  WriteDoubleResponse(request, value, out);
+  EXPECT_TRUE(WriteResponse::DoubleResponse(request, value, out));
 
   const std::string expected_body = absl::StrCat(
       R"({"Value": )", value_str, R"(, "ClientTransactionId": 99,)",

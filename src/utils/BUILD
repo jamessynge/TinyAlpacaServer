@@ -7,19 +7,6 @@ cc_library(
     srcs = ["any_printable.cc"],
     hdrs = ["any_printable.h"],
     deps = [
-        ":any_string",
-        ":literal",
-        ":platform",
-        ":string_view",
-    ],
-)
-
-cc_library(
-    name = "any_string",
-    srcs = ["any_string.cc"],
-    hdrs = ["any_string.h"],
-    deps = [
-        ":escaping",
         ":literal",
         ":platform",
         ":string_view",
@@ -65,6 +52,7 @@ cc_library(
     srcs = ["escaping.cc"],
     hdrs = ["escaping.h"],
     deps = [
+        ":any_printable",
         ":logging",
         ":platform",
     ],
@@ -75,7 +63,7 @@ cc_library(
     srcs = ["json_encoder.cc"],
     hdrs = ["json_encoder.h"],
     deps = [
-        ":any_string",
+        ":any_printable",
         ":counting_bitbucket",
         ":escaping",
         ":literal",
@@ -88,7 +76,6 @@ cc_library(
     srcs = ["literal.cc"],
     hdrs = ["literal.h"],
     deps = [
-        ":escaping",
         ":logging",
         ":platform",
         "//absl/strings",
@@ -197,7 +184,6 @@ cc_library(
         "string_view.h",
     ],
     deps = [
-        ":escaping",
         ":logging",
         ":platform",
         "//absl/strings",

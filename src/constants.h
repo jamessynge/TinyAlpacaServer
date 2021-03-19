@@ -199,6 +199,7 @@ enum class EParameter : EParameter_UnderlyingType {
   kClientId,
   kClientTransactionId,
   kConnected,
+  kSensorName,
 };
 #if TAS_HOST_TARGET
 std::ostream& operator<<(std::ostream& out, EParameter value);

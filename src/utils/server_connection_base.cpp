@@ -22,48 +22,47 @@ class ExtendedEthernetClient : public EthernetClient {
 };
 }  // namespace
 
-ServerConnectionBase::ServerConnectionBase(int sock_num, uint16_t tcp_port)
-    : sock_num_(sock_num), tcp_port_(tcp_port), connected_(false) {}
-
 ServerConnectionBase::~ServerConnectionBase() {}
 
-bool ServerConnectionBase::BeginListening() {
-  // We assume the socket is not in use, but fail in debug if we made a mistake.
-  TAS_DCHECK(!connected_,
-             "Why is socket " << sock_num_ << " already connected?");
-  return DoListen();
-}
-
-bool ServerConnectionBase::DoListen() {
-  connected_ = false;
-  // TODO(jamessynge): Are there timeouts we should specify, e.g. for detecting
-  // a client that doesn't ACK fast enough, or doesn't keep the connection
-  // alive?
-  return InitializeTcpListenerSocket(sock_num_, tcp_port_);
+bool ServerConnectionBase::set_sock_num(uint8_t sock_num) {
+  TAS_DCHECK(!is_connected(), "sock_num_: " << sock_num_);
+  if (is_connected()) {
+    return false;
+  }
+  sock_num_ = sock_num;
+  ExtendedEthernetClient client(sock_num_);
+  OnConnect(client);
+  if (client.stopped()) {
+    sock_num_ = -1;
+  }
+  return true;
 }
 
 void ServerConnectionBase::PerformIO() {
+  TAS_DCHECK(is_connected());
+  if (!is_connected()) {
+    return;
+  }
+  // Are we still connected?
+  // TODO(jamessynge): Is this enough to detect a network partition? Or do we
+  // need to do something to enable keep-alive, or use a timeout to detect a
+  // client that is effectively dead.
+  if (!PlatformEthernet::IsOpenForWriting(sock_num_)) {
+    // Not any more.
+    OnDisconnect();
+    sock_num_ = -1;
+    return;
+  }
   ExtendedEthernetClient client(sock_num_);
-
-  if (!connected_) {
-    if (!AcceptConnection(sock_num_)) {
-      return;
-    }
-    connected_ = true;
-    OnConnect(client);
-  } else {
-    // TODO(jamessynge): Detect connection timeout based disconnection (i.e. no
-    // ACKs from peer for long enough).
-    if (client.available() > 0) {
-      OnCanRead(client);
-    } else if (IsClientDone(sock_num_)) {
-      // We've read all we can from the client, but the connection is still open
-      // so we can still write.
-      OnClientDone(client);
-    }
+  if (client.available() > 0) {
+    OnCanRead(client);
+  } else if (PlatformEthernet::IsClientDone(sock_num_)) {
+    // We've read all we can from the client, but the connection is still
+    // open so we can still write.
+    OnClientDone(client);
   }
   if (client.stopped()) {
-    DoListen();
+    sock_num_ = -1;
   }
 }
 

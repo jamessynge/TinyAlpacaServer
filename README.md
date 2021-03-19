@@ -137,15 +137,8 @@ or a Print instance.
     also generate or update literals.inc, the set of strings to be stored in
     PROGMEM.
 
-*   Start using subfolders of src/, for example:
-
-    *   strings/ for StringView, TinyString, Literal (maybe renamed as
-        LiteralString), AnyString, literals.inc, and the code that supports
-        them.
-    *   request_decoder/ for request_decoder*.
-    *   json/ for the generic JSON encoder and supporting code.
-    *   response_encoder/ for the HTTP response encoder, including Alpaca
-        specific JSON support.
+*   Consider splitting src/utils out into its own Arduino library, or at least
+    those parts that are truly not related to Alpaca.
 
 ## Misc. Notes
 
@@ -183,6 +176,12 @@ or a Print instance.
         losing data if writing is interrupted.
     *   We might need some temporary storage in RAM during writing, for which we
         could use an Arduino String class, which has a reserve method.
+
+*   Can a
+    [Duck Typing](http://p-nand-q.com/programming/cplusplus/duck_typing_and_templates.html)
+    approach make it easier to pass printable things into `JsonEncoder`, et al?
+    I.e. could we accept any `X` that has a `size_t X::printTo(Print&) const`
+    method, or for which there is a `size_t Print::print(X)`` method.
 
 ## Ultra Tiny HTTP Decoder?
 

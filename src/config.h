@@ -15,9 +15,9 @@
 // This isn't fully fleshed out, but the basics are there for storing the
 // parameter enum and short string value of parameter types that are defined
 // and have token entries in kRecognizedParameters passed
-#define TAS_ENABLE_EXTRA_REQUEST_PARAMETERS 0
-#define TAS_MAX_EXTRA_REQUEST_PARAMETERS 2
-#define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 16
+#define TAS_ENABLE_EXTRA_REQUEST_PARAMETERS 1
+#define TAS_MAX_EXTRA_REQUEST_PARAMETERS 1
+#define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 32
 
 // Ethernet interface configuration... if needed
 

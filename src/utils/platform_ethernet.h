@@ -11,22 +11,6 @@
 #include <Ethernet3.h>  // IWYU pragma: export
 #include <Stream.h>     // IWYU pragma: export
 
-namespace alpaca {
-
-// Set socket 'sock_num' to listen for new TCP connections on port 'tcp_port',
-// regardless of what that socket is doing now. Returns true if able to do so;
-// false if not (e.g. if sock_num or tcp_port is invalid).
-bool InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port);
-
-// If socket 'sock_num' is listening for TCP connections, and is not already
-// connected to a client, and a new connection is available, accept it.
-bool AcceptConnection(int sock_num);
-
-// SnSR::CLOSE_WAIT && no data available to read.
-bool IsClientDone(int sock_num);
-
-}  // namespace alpaca
-
 #else  // !TAS_EMBEDDED_TARGET
 
 #include "extras/host/arduino/client.h"          // IWYU pragma : export
@@ -34,5 +18,19 @@ bool IsClientDone(int sock_num);
 #include "extras/host/ethernet3/host_sockets.h"  // IWYU pragma: export
 
 #endif  // TAS_EMBEDDED_TARGET
+
+namespace alpaca {
+
+// Helper for testing with the same API on host and embedded.
+struct PlatformEthernet {
+  // SnSR::CLOSE_WAIT && no data available to read.
+  static bool IsClientDone(int sock_num);
+
+  // Is the connection open for writing (i.e. this end hasn't closed or
+  // half-closed it)?
+  static bool IsOpenForWriting(int sock_num);
+};
+
+}  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_ETHERNET_H_

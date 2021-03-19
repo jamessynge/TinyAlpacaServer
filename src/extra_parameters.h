@@ -16,9 +16,9 @@
 #include "utils/string_view.h"
 #include "utils/tiny_string.h"
 
-// The minimum is 2 to allow for testing of this feature.
+// The minimum is 1 to allow for testing of this feature.
 
-static_assert(2 <= TAS_MAX_EXTRA_REQUEST_PARAMETERS &&
+static_assert(1 <= TAS_MAX_EXTRA_REQUEST_PARAMETERS &&
                   TAS_MAX_EXTRA_REQUEST_PARAMETERS < 256,
               "TAS_MAX_EXTRA_REQUEST_PARAMETERS must be in the range [2, 255]");
 
@@ -43,6 +43,7 @@ struct ExtraParameterValue {
 class ExtraParameterValueMap {
  public:
   using size_type = uint8_t;
+  using value_type = ExtraParameterValue;
   using const_iterator = const ExtraParameterValue*;
   using iterator = const_iterator;
   enum EInsertResult {
