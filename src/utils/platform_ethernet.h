@@ -7,9 +7,10 @@
 
 #if TAS_EMBEDDED_TARGET
 
-#include <Client.h>     // IWYU pragma: export
-#include <Ethernet3.h>  // IWYU pragma: export
-#include <Stream.h>     // IWYU pragma: export
+#include <Client.h>          // IWYU pragma: export
+#include <Ethernet3.h>       // IWYU pragma: export
+#include <Stream.h>          // IWYU pragma: export
+#include <utility/socket.h>  // IWYU pragma: export
 
 #else  // !TAS_EMBEDDED_TARGET
 
@@ -23,12 +24,24 @@ namespace alpaca {
 
 // Helper for testing with the same API on host and embedded.
 struct PlatformEthernet {
+  // Set socket 'sock_num' to listen for new TCP connections on port 'tcp_port',
+  // regardless of what that socket is doing now. Returns true if able to do so;
+  // false if not (e.g. if sock_num or tcp_port is invalid).
+  static bool InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port);
+
+  // Returns true if the socket is connected to a peer.
+  static bool SocketIsConnected(int sock_num);
+
   // SnSR::CLOSE_WAIT && no data available to read.
   static bool IsClientDone(int sock_num);
 
   // Is the connection open for writing (i.e. this end hasn't closed or
   // half-closed it)?
   static bool IsOpenForWriting(int sock_num);
+
+  // Returns true if the socket is completely closed (not in use for any
+  // purpose).
+  static bool SocketIsClosed(int sock_num);
 };
 
 }  // namespace alpaca

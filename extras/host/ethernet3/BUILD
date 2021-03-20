@@ -11,6 +11,7 @@ cc_library(
         ":ethernet_config",
         ":ethernet_server",
         ":ip_address",
+        ":w5500",
     ],
 )
 

@@ -205,6 +205,8 @@ struct HostSocketInfo {
     }
   }
 
+  bool IsClosed() { return listener_socket < 0 && connection_socket < 0; }
+
   bool IsUnused() {
     return listener_socket < 0 && connection_socket < 0 && tcp_port == 0;
   }
@@ -248,13 +250,13 @@ HostSocketInfo* GetHostSocketInfo(int sock_num) {
 }  // namespace
 
 bool HostSockets::InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port) {
+  if (!(0 < tcp_port && tcp_port < 65536)) {
+    LOG(ERROR) << "tcp_port must not be zero";
+    return false;
+  }
   auto* info = GetHostSocketInfo(sock_num);
   if (info != nullptr) {
-    if (tcp_port == 0) {
-      LOG(ERROR) << "tcp_port must not be zero";
-    } else {
-      return info->InitializeTcpListener(tcp_port);
-    }
+    return info->InitializeTcpListener(tcp_port);
   }
   return false;
 }
@@ -294,6 +296,14 @@ bool HostSockets::IsOpenForWriting(int sock_num) {
   auto* info = GetHostSocketInfo(sock_num);
   if (info != nullptr) {
     return info->IsConnectionHalfClosed();
+  }
+  return false;
+}
+
+bool HostSockets::SocketIsClosed(int sock_num) {
+  auto* info = GetHostSocketInfo(sock_num);
+  if (info != nullptr) {
+    return info->IsClosed();
   }
   return false;
 }

@@ -83,7 +83,12 @@ class TinyAlpacaServer : RequestListener {
   // in the range [0, kNumServerConnections-1].
   ServerConnection* GetServerConnection(size_t ndx);
 
-  void InitializeServerConnections();
+  // Returns a pointer to the ServerConnection assigned to socket 'sock_num'.
+  ServerConnection* GetServerConnectionForSocket(int sock_num);
+
+  // Finds a ServerConnection that isn't in use and assigns it to the specified
+  // socket.
+  bool AssignServerConnectionToSocket(int sock_num);
 
   bool DispatchDeviceRequest(AlpacaRequest& request,
                              DeviceApiHandlerBase& handler, Print& out);

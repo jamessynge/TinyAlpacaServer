@@ -3,12 +3,21 @@
 #include "tiny_alpaca_server.h"
 
 #include "alpaca_response.h"
+#include "extras/host/ethernet3/ethernet_client.h"
+#include "extras/host/ethernet3/ethernet_config.h"
 #include "literals.h"
+#include "utils/logging.h"
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
-namespace {}
+namespace {
+bool SocketIsConnected(int sock_num) {
+  EthernetClient client(sock_num);
+  auto status = client.status();
+  return status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT;
+}
+}  // namespace
 
 TinyAlpacaServer::TinyAlpacaServer(
     uint16_t tcp_port, const ServerDescription& server_description,
@@ -22,10 +31,6 @@ TinyAlpacaServer::TinyAlpacaServer(
   }
 }
 
-ServerConnection* TinyAlpacaServer::GetServerConnection(size_t ndx) {
-  return reinterpret_cast<ServerConnection*>(connections_storage_) + ndx;
-}
-
 bool TinyAlpacaServer::begin() {
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     // EthernetServer::begin() finds a closed hardware socket and puts it to use
@@ -37,14 +42,67 @@ bool TinyAlpacaServer::begin() {
   return true;
 }
 
-// Performs network IO as appropriate.
+// Performs network IO.
 void TinyAlpacaServer::loop() {
+  // Find ServerConnections which have been disconnected.
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     auto* conn = GetServerConnection(ndx);
-    if (conn) {
+    if (conn && conn->has_socket()) {
+      if (!SocketIsConnected(conn->sock_num())) {
+        // Not connected. Call PerformIO which will detect the missing
+        // connection and take the appropriate action.
+        conn->PerformIO();
+        TAS_DCHECK(!conn->has_socket(), conn->sock_num());
+      }
+    }
+  }
+
+  // Find new TCP connections and assign ServerConnections to them, and find
+  // recently closed sockets that should resume listening.
+  for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
+    if (SocketIsConnected(sock_num)) {
+      if (GetServerConnectionForSocket(sock_num) == nullptr) {
+        // New connection.
+        AssignServerConnectionToSocket(sock_num);
+      }
+    } else if (EthernetClass::server_port_[sock_num] == tcp_port_ &&
+               PlatformEthernet::SocketIsClosed(sock_num)) {
+      // Resume listening.
+      PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_);
+    }
+  }
+
+  // For all the ServerConnections with TCP connections to clients, perform IO.
+  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
+    auto* conn = GetServerConnection(ndx);
+    if (conn && conn->has_socket()) {
       conn->PerformIO();
     }
   }
+}
+
+ServerConnection* TinyAlpacaServer::GetServerConnection(size_t ndx) {
+  return reinterpret_cast<ServerConnection*>(connections_storage_) + ndx;
+}
+
+ServerConnection* TinyAlpacaServer::GetServerConnectionForSocket(int sock_num) {
+  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
+    auto* conn = GetServerConnection(ndx);
+    if (conn && conn->sock_num() == sock_num) {
+      return conn;
+    }
+  }
+  return nullptr;
+}
+bool TinyAlpacaServer::AssignServerConnectionToSocket(int sock_num) {
+  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
+    auto* conn = GetServerConnection(ndx);
+    if (conn && !conn->has_socket() && conn->set_sock_num(sock_num)) {
+      return true;
+    }
+  }
+  TAS_LOG(WARNING, "There aren't enough ServerConnections");
+  return false;
 }
 
 void TinyAlpacaServer::OnStartDecoding(AlpacaRequest& request) {

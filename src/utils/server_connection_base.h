@@ -33,7 +33,7 @@ class ServerConnectionBase {
 
   // Accessors.
   int sock_num() const { return sock_num_; }
-  bool is_connected() const { return sock_num_ >= 0; }
+  bool has_socket() const { return sock_num_ >= 0; }
 
  protected:
   // Called when a new connection from a client is received.

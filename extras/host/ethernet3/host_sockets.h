@@ -39,6 +39,10 @@ struct HostSockets {
   // half-closed it)?
   static bool IsOpenForWriting(int sock_num);
 
+  // Returns true if the socket is completely closed (not in use for any
+  // purpose).
+  static bool SocketIsClosed(int sock_num);
+
   // Returns an SnSR value.
   static uint8_t SocketStatus(int sock_num);
 

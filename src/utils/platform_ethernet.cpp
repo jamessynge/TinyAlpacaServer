@@ -5,6 +5,33 @@
 
 namespace alpaca {
 
+bool PlatformEthernet::InitializeTcpListenerSocket(int sock_num,
+                                                   uint16_t tcp_port) {
+  TAS_DCHECK_LE(0, sock_num);
+  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+#if TAS_EMBEDDED_TARGET
+  EthernetClient client(sock_num);
+  if (client.status() == SnSR::CLOSED) {
+    if (EthernetClass::_server_port[sock_num] == tcp_port ||
+        EthernetClass::_server_port[sock_num] == 0) {
+      ::socket(sock_num, SnMR::TCP, tcp_port, 0);
+      ::listen(sock_num);
+      EthernetClass::_server_port[sock_num] = tcp_port;
+      return true;
+    }
+  }
+  return false;
+#else   // !TAS_EMBEDDED_TARGET
+  return HostSockets::InitializeTcpListenerSocket(sock_num, tcp_port);
+#endif  // TAS_EMBEDDED_TARGET
+}
+
+bool PlatformEthernet::SocketIsConnected(int sock_num) {
+  // Since we don't half-close (shutdown) sockets, checking to see if it is
+  // writeable is sufficient.
+  return IsOpenForWriting(sock_num);
+}
+
 bool PlatformEthernet::IsClientDone(int sock_num) {
   TAS_DCHECK_LE(0, sock_num);
   TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
@@ -17,14 +44,25 @@ bool PlatformEthernet::IsClientDone(int sock_num) {
 }
 
 bool PlatformEthernet::IsOpenForWriting(int sock_num) {
-#if TAS_EMBEDDED_TARGET
   TAS_DCHECK_LE(0, sock_num);
   TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+#if TAS_EMBEDDED_TARGET
   EthernetClient client(sock_num);
   auto status = client.status();
   return status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT;
 #else   // !TAS_EMBEDDED_TARGET
   return HostSockets::IsOpenForWriting(sock_num);
+#endif  // TAS_EMBEDDED_TARGET
+}
+
+bool PlatformEthernet::SocketIsClosed(int sock_num) {
+  TAS_DCHECK_LE(0, sock_num);
+  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+#if TAS_EMBEDDED_TARGET
+  EthernetClient client(sock_num);
+  return client.status() == SnSR::CLOSED;
+#else   // !TAS_EMBEDDED_TARGET
+  return HostSockets::SocketIsClosed(sock_num);
 #endif  // TAS_EMBEDDED_TARGET
 }
 
