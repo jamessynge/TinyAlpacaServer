@@ -84,6 +84,7 @@ cc_test(
     name = "literal_token_test",
     srcs = ["literal_token_test.cc"],
     deps = [
+        ":array_view",
         ":literal_token",
         ":platform",
         ":print_to_std_string",

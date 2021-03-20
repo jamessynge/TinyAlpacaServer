@@ -7,6 +7,7 @@
 
 #include "constants.h"
 #include "literals.h"
+#include "utils/array_view.h"
 #include "utils/literal.h"
 #include "utils/literal_token.h"
 #include "utils/logging.h"
@@ -37,8 +38,8 @@ TAS_CONSTEXPR_VAR LiteralToken<EHttpMethod_UnderlyingType>
 
 bool MatchHttpMethod(const StringView& view, EHttpMethod& match) {
   auto* match_ptr = reinterpret_cast<EHttpMethod_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensExactly(view, kRecognizedHttpMethods,
-                                        *match_ptr);
+  return MaybeMatchLiteralTokensExactly(
+      view, MakeArrayView(kRecognizedHttpMethods), *match_ptr);
 }
 
 namespace {
@@ -51,7 +52,8 @@ TAS_CONSTEXPR_VAR LiteralToken<EApiGroup_UnderlyingType> kAllApiGroups[] = {
 
 bool MatchApiGroup(const StringView& view, EApiGroup& match) {
   auto* match_ptr = reinterpret_cast<EApiGroup_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensExactly(view, kAllApiGroups, *match_ptr);
+  return MaybeMatchLiteralTokensExactly(view, MakeArrayView(kAllApiGroups),
+                                        *match_ptr);
 }
 
 namespace {
@@ -66,8 +68,8 @@ TAS_CONSTEXPR_VAR LiteralToken<EManagementMethod_UnderlyingType>
 
 bool MatchManagementMethod(const StringView& view, EManagementMethod& match) {
   auto* match_ptr = reinterpret_cast<EManagementMethod_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensExactly(view, kAllManagementMethods,
-                                        *match_ptr);
+  return MaybeMatchLiteralTokensExactly(
+      view, MakeArrayView(kAllManagementMethods), *match_ptr);
 }
 
 namespace {
@@ -89,8 +91,8 @@ TAS_CONSTEXPR_VAR LiteralToken<EDeviceType_UnderlyingType>
 
 bool MatchDeviceType(const StringView& view, EDeviceType& match) {
   auto* match_ptr = reinterpret_cast<EDeviceType_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensExactly(view, kRecognizedDeviceTypes,
-                                        *match_ptr);
+  return MaybeMatchLiteralTokensExactly(
+      view, MakeArrayView(kRecognizedDeviceTypes), *match_ptr);
 }
 
 namespace {
@@ -112,7 +114,8 @@ namespace internal {
 // Exposed for testing.
 bool MatchCommonDeviceMethod(const StringView& view, EDeviceMethod& match) {
   auto* match_ptr = reinterpret_cast<EDeviceMethod_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensExactly(view, kCommonDeviceMethods, *match_ptr);
+  return MaybeMatchLiteralTokensExactly(
+      view, MakeArrayView(kCommonDeviceMethods), *match_ptr);
 }
 }  // namespace internal
 
@@ -145,8 +148,8 @@ TAS_CONSTEXPR_VAR LiteralToken<EDeviceMethod_UnderlyingType>
 bool MatchObservingConditionsMethod(const StringView& view,
                                     EDeviceMethod& match) {
   auto* match_ptr = reinterpret_cast<EDeviceMethod_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensExactly(view, kObservingConditionsMethods,
-                                        *match_ptr);
+  return MaybeMatchLiteralTokensExactly(
+      view, MakeArrayView(kObservingConditionsMethods), *match_ptr);
 }
 
 bool MatchSafetyMonitorMethod(const StringView& view, EDeviceMethod& match) {
@@ -205,8 +208,8 @@ TAS_CONSTEXPR_VAR LiteralToken<EParameter_UnderlyingType>
 
 bool MatchParameter(const StringView& view, EParameter& match) {
   auto* match_ptr = reinterpret_cast<EParameter_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensCaseInsensitively(view, kRecognizedParameters,
-                                                  *match_ptr);
+  return MaybeMatchLiteralTokensCaseInsensitively(
+      view, MakeArrayView(kRecognizedParameters), *match_ptr);
 }
 
 namespace {
@@ -231,8 +234,8 @@ TAS_CONSTEXPR_VAR LiteralToken<ESensorName_UnderlyingType>
 
 bool MatchSensorName(const StringView& view, ESensorName& match) {
   auto* match_ptr = reinterpret_cast<ESensorName_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensCaseInsensitively(view, kRecognizedSensorNames,
-                                                  *match_ptr);
+  return MaybeMatchLiteralTokensCaseInsensitively(
+      view, MakeArrayView(kRecognizedSensorNames), *match_ptr);
 }
 
 namespace {
@@ -253,8 +256,8 @@ TAS_CONSTEXPR_VAR LiteralToken<EHttpHeader_UnderlyingType>
 
 bool MatchHttpHeader(const StringView& view, EHttpHeader& match) {
   auto* match_ptr = reinterpret_cast<EHttpHeader_UnderlyingType*>(&match);
-  return MaybeMatchLiteralTokensCaseInsensitively(view, kRecognizedHttpHeaders,
-                                                  *match_ptr);
+  return MaybeMatchLiteralTokensCaseInsensitively(
+      view, MakeArrayView(kRecognizedHttpHeaders), *match_ptr);
 }
 
 }  // namespace alpaca

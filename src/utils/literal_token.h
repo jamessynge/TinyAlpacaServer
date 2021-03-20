@@ -6,6 +6,7 @@
 // RAM), but ideally we'd be able store these in PROGMEM and thus save RAM on
 // the AVR chips used on Arduino Unos, Megas, and related boards.
 
+#include "utils/array_view.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
 #include "utils/string_compare.h"
@@ -25,12 +26,11 @@ using LiteralMatchFunction = bool (*)(const Literal&, const StringView&);
 
 // Returns true if func returns true for one of the literals, and sets
 // matched_id to the corresponding id.
-template <typename T, int N>
-bool FindFirstMatchingLiteralToken(const StringView& view,
-                                   const LiteralToken<T> (&tokens)[N],
-                                   LiteralMatchFunction func, T& matched_id) {
-  for (int i = 0; i < N; ++i) {
-    const auto& token = tokens[i];
+template <typename T>
+bool FindFirstMatchingLiteralToken(
+    const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
+    LiteralMatchFunction func, T& matched_id) {
+  for (const auto& token : tokens) {
     if (func(token.str, view)) {
       TAS_DVLOG(3, "FindFirstMatchingLiteralToken matched "
                        << ToHexEscapedString(token.str) << " to "
@@ -47,10 +47,10 @@ bool FindFirstMatchingLiteralToken(const StringView& view,
 
 // Returns true if one of the literals exactly matches the view, and if so sets
 // matched_id to the id of that literal.
-template <typename T, int N>
-bool MaybeMatchLiteralTokensExactly(const StringView& view,
-                                    const LiteralToken<T> (&tokens)[N],
-                                    T& matched_id) {
+template <typename T>
+bool MaybeMatchLiteralTokensExactly(
+    const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
+    T& matched_id) {
   TAS_DVLOG(
       3, "MaybeMatchLiteralTokensExactly view: " << ToHexEscapedString(view));
   return FindFirstMatchingLiteralToken(view, tokens, ExactlyEqual, matched_id);
@@ -58,9 +58,10 @@ bool MaybeMatchLiteralTokensExactly(const StringView& view,
 
 // Returns true if one of the literals matches the view case-insensitively, and
 // if so sets matched_id to the id of that literal.
-template <typename T, int N>
+template <typename T>
 bool MaybeMatchLiteralTokensCaseInsensitively(
-    const StringView& view, const LiteralToken<T> (&tokens)[N], T& matched_id) {
+    const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
+    T& matched_id) {
   TAS_DVLOG(3, "MaybeMatchLiteralTokensCaseInsensitively view: "
                    << ToHexEscapedString(view));
   return FindFirstMatchingLiteralToken(view, tokens, CaseEqual, matched_id);

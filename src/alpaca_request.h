@@ -35,19 +35,19 @@ struct AlpacaRequest {
   void Reset();
 
   void set_client_id(uint32_t id) {
-    TAS_DCHECK(!have_client_id, "");
+    TAS_DCHECK(!have_client_id);
     client_id = id;
     have_client_id = true;
   }
 
   void set_client_transaction_id(uint32_t id) {
-    TAS_DCHECK(!have_client_transaction_id, "");
+    TAS_DCHECK(!have_client_transaction_id);
     client_transaction_id = id;
     have_client_transaction_id = true;
   }
 
   void set_server_transaction_id(uint32_t id) {
-    TAS_DCHECK(!have_server_transaction_id, "");
+    TAS_DCHECK(!have_server_transaction_id);
     server_transaction_id = id;
     have_server_transaction_id = true;
   }

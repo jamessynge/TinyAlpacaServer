@@ -8,6 +8,10 @@
 // should not be used in the embedded code (except in DLOG or DCHECK type
 // macro invocations).
 //
+// The <EnumName>_UnderlyingType declarations are present to help with reducing
+// the number of unique template instantiations of the literal_token.h
+// functions, with the aim of reducing the amount of PROGMEM (flash) required.
+//
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"

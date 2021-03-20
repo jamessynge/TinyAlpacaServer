@@ -189,6 +189,7 @@ cc_library(
     srcs = ["match_literals.cc"],
     hdrs = ["match_literals.h"],
     deps = [
+        ":array_view",
         ":constants",
         ":literal",
         ":literal_token",

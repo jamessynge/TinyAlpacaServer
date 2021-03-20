@@ -18,7 +18,7 @@ namespace alpaca {
 #if TAS_HOST_TARGET
 StringView::StringView(const std::string& str)
     : ptr_(str.data()), size_(str.size()) {
-  TAS_DCHECK_LE(str.size(), kMaxSize, "");
+  TAS_DCHECK_LE(str.size(), kMaxSize);
 }
 #endif
 

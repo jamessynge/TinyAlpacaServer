@@ -86,6 +86,7 @@ cc_library(
     name = "literal_token",
     hdrs = ["literal_token.h"],
     deps = [
+        ":array_view",
         ":literal",
         ":platform",
         ":string_compare",

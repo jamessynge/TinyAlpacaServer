@@ -142,15 +142,15 @@ EHttpStatusCode ExtractAndProcessName(
     const StringView& valid_terminating_chars, const NameProcessor processor,
     const bool consume_terminator_char,
     const EHttpStatusCode bad_terminator_error) {
-  TAS_DCHECK(!valid_terminating_chars.empty(), "");
-  TAS_DCHECK_GT(bad_terminator_error, EHttpStatusCode::kHttpOk, "");
+  TAS_DCHECK(!valid_terminating_chars.empty());
+  TAS_DCHECK_GT(bad_terminator_error, EHttpStatusCode::kHttpOk);
   StringView matched_text;
   if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
     // We didn't find a character that IsNameChar doesn't match, so we don't
     // know if we have enough input yet.
     return EHttpStatusCode::kNeedMoreInput;
   }
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
 
   if (!valid_terminating_chars.contains(view.front())) {
     // Doesn't end with something appropriate for the path to end in. Perhaps an
@@ -160,7 +160,7 @@ EHttpStatusCode ExtractAndProcessName(
   } else if (consume_terminator_char) {
     // For now, we expect that:
     //    consume_terminator_char == (valid_terminating_chars.size() ==1)
-    TAS_DCHECK_EQ(valid_terminating_chars.size(), 1, "");
+    TAS_DCHECK_EQ(valid_terminating_chars.size(), 1);
     view.remove_prefix(1);
   }
 
@@ -176,7 +176,7 @@ EHttpStatusCode ExtractAndProcessName(RequestDecoderState& state,
     // know if we have enough input yet.
     return EHttpStatusCode::kNeedMoreInput;
   }
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
   return processor(state, matched_text, view);
 }
 
@@ -394,7 +394,7 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   TAS_DVLOG(3, "DecodeParamSeparator found "
                    << (beyond + 0)
                    << " separators, followed by a non-separator");
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
 
   // There are zero or more separators, followed by a non-separator. This means
   // that this isn't the body of a request with one of these separators as the
@@ -439,7 +439,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     }
     // Ah, we're decoding the body of the request, and this is last buffer of
     // input from the client, so we can treat the end of input as the separator.
-    TAS_DCHECK_EQ(state.remaining_content_length, view.size(), "");
+    TAS_DCHECK_EQ(state.remaining_content_length, view.size());
     value = view;
     view.remove_prefix(value.size());
   }
@@ -514,7 +514,7 @@ EHttpStatusCode DecodeParamName(RequestDecoderState& state, StringView& view) {
 EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state, StringView& view) {
   // A separator/terminating character should be present, else we would not have
   // been able to determine that the previous segment was done.
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
   DecodeFunction next_decode_function;
   if (view.match_and_consume('?')) {
     next_decode_function = DecodeParamName;
@@ -535,7 +535,7 @@ EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
                    << ToHexEscapedString(matched_text));
 
   // A separator/terminating character should be present after the method.
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
 
   EDeviceMethod method;
   if (MatchDeviceMethod(state.request.api_group, state.request.device_type,
@@ -620,7 +620,7 @@ EHttpStatusCode DecodeApiVersion(RequestDecoderState& state, StringView& view) {
 EHttpStatusCode ProcessManagementMethod(RequestDecoderState& state,
                                         const StringView& matched_text,
                                         StringView& view) {
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
   EManagementMethod method;
   if (MatchManagementMethod(matched_text, method)) {
     TAS_DVLOG(3, "method: " << method);
@@ -648,7 +648,7 @@ EHttpStatusCode DecodeManagementMethod(RequestDecoderState& state,
 EHttpStatusCode ProcessManagementType(RequestDecoderState& state,
                                       const StringView& matched_text,
                                       StringView& view) {
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
   if (matched_text == kSupportedVersion) {
     if (view.match_and_consume('/')) {
       return state.SetDecodeFunction(DecodeManagementMethod);
@@ -673,7 +673,7 @@ EHttpStatusCode DecodeManagementType(RequestDecoderState& state,
 EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
                                 const StringView& matched_text,
                                 StringView& view) {
-  TAS_DCHECK(!view.empty(), "");
+  TAS_DCHECK(!view.empty());
   EApiGroup group;
   if (!MatchApiGroup(matched_text, group)) {
     return EHttpStatusCode::kHttpNotFound;
@@ -692,7 +692,7 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
     } else if (group == EApiGroup::kSetup) {
       state.request.api = EAlpacaApi::kDeviceSetup;
     } else {
-      TAS_DCHECK_EQ(group, EApiGroup::kDevice, "");
+      TAS_DCHECK_EQ(group, EApiGroup::kDevice);
       state.request.api = EAlpacaApi::kDeviceApi;
     }
     TAS_DCHECK((group == EApiGroup::kDevice || group == EApiGroup::kSetup),
@@ -837,7 +837,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
     return EHttpStatusCode::kHttpInternalServerError;
   }
 
-  TAS_DCHECK_NE(decoder_status, RequestDecoderStatus::kDecoded, "");
+  TAS_DCHECK_NE(decoder_status, RequestDecoderStatus::kDecoded);
   if (decoder_status == RequestDecoderStatus::kReset) {
     decoder_status = RequestDecoderStatus::kDecoding;
   }
@@ -849,7 +849,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
   } else {
     status = DecodeMessageBody(buffer, at_end_of_input);
   }
-  TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding, "");
+  TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding);
 
   if (buffer_is_full && status == EHttpStatusCode::kNeedMoreInput &&
       start_size == buffer.size()) {
@@ -886,7 +886,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     status = decode_function(*this, buffer);
 
 #if TAS_ENABLE_DEBUGGING
-    TAS_DCHECK_LE(buffer.size(), buffer_size_before_decode, "");
+    TAS_DCHECK_LE(buffer.size(), buffer_size_before_decode);
     auto consumed_chars = buffer_size_before_decode - buffer.size();
 
     TAS_DVLOG(3, "decode_function returned "
@@ -923,8 +923,8 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
                                                        bool at_end_of_input) {
   TAS_DVLOG(1, "DecodeMessageBody " << ToHexEscapedString(buffer));
-  TAS_DCHECK(found_content_length, "");
-  TAS_DCHECK_EQ(request.http_method, EHttpMethod::PUT, "");
+  TAS_DCHECK(found_content_length);
+  TAS_DCHECK_EQ(request.http_method, EHttpMethod::PUT);
 
   if (buffer.size() > remaining_content_length) {
     // We assume that the HTTP client has not sent pipelined requests.
@@ -966,10 +966,10 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
                      << " characters, decode function "
                      << (old_decode_function == decode_function ? "unchanged"
                                                                 : "changed"));
-    TAS_DCHECK_LE(buffer.size(), buffer_size_before_decode, "");
-    TAS_DCHECK_LE(consumed_chars, remaining_content_length, "");
+    TAS_DCHECK_LE(buffer.size(), buffer_size_before_decode);
+    TAS_DCHECK_LE(consumed_chars, remaining_content_length);
     if (decode_function == old_decode_function) {
-      TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding, "");
+      TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding);
     }
     if (buffer_size_before_decode == 0) {
       // We don't bother checking whether the buffer is empty at the start or
@@ -977,46 +977,46 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
       // exchange for another pass through the loop, thus requiring a
       // DecodeFunction to notice that there isn't enough input for it to
       // succeed.
-      TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding, "");
+      TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding);
     }
 #endif
 
     remaining_content_length -= consumed_chars;
   } while (status == EHttpStatusCode::kContinueDecoding);
 
-  TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding, "");
+  TAS_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding);
 
   if (status >= EHttpStatusCode::kHttpOk) {
 #if TAS_ENABLE_DEBUGGING
     if (status == EHttpStatusCode::kHttpOk) {
-      TAS_DCHECK_EQ(remaining_content_length, 0, "");
-      TAS_DCHECK(at_end_of_input, "");
+      TAS_DCHECK_EQ(remaining_content_length, 0);
+      TAS_DCHECK(at_end_of_input);
     }
 #endif
     return status;
   }
 
-  TAS_DCHECK_EQ(status, EHttpStatusCode::kNeedMoreInput, "");
+  TAS_DCHECK_EQ(status, EHttpStatusCode::kNeedMoreInput);
   if (at_end_of_input) {
     return EHttpStatusCode::kHttpBadRequest;
   }
 
-  TAS_DCHECK_GT(remaining_content_length, 0, "");
+  TAS_DCHECK_GT(remaining_content_length, 0);
   return status;
 }
 
 EHttpStatusCode RequestDecoderState::SetDecodeFunction(
     const DecodeFunction func) {
   TAS_DVLOG(3, "SetDecodeFunction(" << func << ")");
-  TAS_DCHECK_NE(decode_function, nullptr, "");
-  TAS_DCHECK_NE(decode_function, func, "");
+  TAS_DCHECK_NE(decode_function, nullptr);
+  TAS_DCHECK_NE(decode_function, func);
   decode_function = func;
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderState::SetDecodeFunctionAfterListenerCall(
     DecodeFunction func, EHttpStatusCode status) {
-  TAS_DCHECK_NE(status, EHttpStatusCode::kNeedMoreInput, "");
+  TAS_DCHECK_NE(status, EHttpStatusCode::kNeedMoreInput);
   if (status == EHttpStatusCode::kContinueDecoding) {
     return SetDecodeFunction(func);
   } else if (static_cast<int>(status) < 100) {
