@@ -413,6 +413,20 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   }
 }
 
+EHttpStatusCode ReportExtraParameter(RequestDecoderState& state,
+                                     StringView value) {
+  EHttpStatusCode status = EHttpStatusCode::kHttpBadRequest;
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+  if (state.listener) {
+    status = state.listener->OnExtraParameter(state.current_parameter, value);
+    if (status <= EHttpStatusCode::kHttpOk) {
+      status = EHttpStatusCode::kHttpBadRequest;
+    }
+  }
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+  return status;
+}
+
 // Note that a parameter value may be empty, which makes detecting the end of it
 // tricky if also at the end of the body of a a request.
 EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
@@ -435,16 +449,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_id || !converted_ok) {
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      if (state.listener) {
-        status = state.listener->OnExtraParameter(EParameter::kClientId, value);
-      }
-      if (status <= EHttpStatusCode::kHttpOk) {
-        status = EHttpStatusCode::kHttpBadRequest;
-      }
-#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
-      status = EHttpStatusCode::kHttpBadRequest;
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+      status = ReportExtraParameter(state, value);
     } else {
       state.request.set_client_id(id);
     }
@@ -452,19 +457,17 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_transaction_id || !converted_ok) {
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      if (state.listener) {
-        status = state.listener->OnExtraParameter(
-            EParameter::kClientTransactionId, value);
-      }
-      if (status <= EHttpStatusCode::kHttpOk) {
-        status = EHttpStatusCode::kHttpBadRequest;
-      }
-#else   // !TAS_ENABLE_REQUEST_DECODER_LISTENER
-      status = EHttpStatusCode::kHttpBadRequest;
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+      status = ReportExtraParameter(state, value);
     } else {
       state.request.set_client_transaction_id(id);
+    }
+  } else if (state.current_parameter == EParameter::kSensorName) {
+    ESensorName matched;
+    if (state.request.sensor_name != ESensorName::kUnknown ||
+        !MatchSensorName(value, matched)) {
+      status = ReportExtraParameter(state, value);
+    } else {
+      state.request.sensor_name = matched;
     }
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   } else if (state.current_parameter == EParameter::kUnknown) {

@@ -210,6 +210,32 @@ bool MatchParameter(const StringView& view, EParameter& match) {
 }
 
 namespace {
+TAS_CONSTEXPR_VAR LiteralToken<ESensorName_UnderlyingType>
+    kRecognizedSensorNames[] = {
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, cloudcover, kCloudCover),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, dewpoint, kDewPoint),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, humidity, kHumidity),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, pressure, kPressure),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, rainrate, kRainRate),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, skybrightness, kSkyBrightness),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, skyquality, kSkyQuality),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, skytemperature, kSkyTemperature),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, starfullwidthhalfmax,
+                                kStarFullWidthHalfMax),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, temperature, kTemperature),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, winddirection, kWindDirection),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, windgust, kWindGust),
+        MAKE_ENUM_LITERAL_TOKEN(ESensorName, windspeed, kWindSpeed),
+};
+}  // namespace
+
+bool MatchSensorName(const StringView& view, ESensorName& match) {
+  auto* match_ptr = reinterpret_cast<ESensorName_UnderlyingType*>(&match);
+  return MaybeMatchLiteralTokensCaseInsensitively(view, kRecognizedSensorNames,
+                                                  *match_ptr);
+}
+
+namespace {
 TAS_CONSTEXPR_VAR LiteralToken<EHttpHeader_UnderlyingType>
     kRecognizedHttpHeaders[] = {
         MAKE_ENUM_LITERAL_TOKEN(EHttpHeader, HttpAccept, kHttpAccept),

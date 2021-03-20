@@ -3,8 +3,6 @@
 #include "tiny_alpaca_server.h"
 
 #include "alpaca_response.h"
-#include "extras/host/ethernet3/ethernet_client.h"
-#include "extras/host/ethernet3/ethernet_config.h"
 #include "literals.h"
 #include "utils/logging.h"
 #include "utils/platform.h"
@@ -65,7 +63,7 @@ void TinyAlpacaServer::loop() {
         // New connection.
         AssignServerConnectionToSocket(sock_num);
       }
-    } else if (EthernetClass::server_port_[sock_num] == tcp_port_ &&
+    } else if (EthernetClass::_server_port[sock_num] == tcp_port_ &&
                PlatformEthernet::SocketIsClosed(sock_num)) {
       // Resume listening.
       PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_);
@@ -170,21 +168,21 @@ bool TinyAlpacaServer::DispatchDeviceRequest(AlpacaRequest& request,
 
 bool TinyAlpacaServer::HandleManagementApiVersions(AlpacaRequest& request,
                                                    Print& out) {
-  return false;
+  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 bool TinyAlpacaServer::HandleManagementDescription(AlpacaRequest& request,
                                                    Print& out) {
-  return false;
+  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 bool TinyAlpacaServer::HandleManagementConfiguredDevices(AlpacaRequest& request,
                                                          Print& out) {
-  return false;
+  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 bool TinyAlpacaServer::HandleServerSetup(AlpacaRequest& request, Print& out) {
-  return false;
+  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 }  // namespace alpaca

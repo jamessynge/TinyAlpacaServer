@@ -3,6 +3,6 @@
 EthernetClass Ethernet;
 
 // static
-uint8_t EthernetClass::state_[MAX_SOCK_NUM];
+uint8_t EthernetClass::_state[MAX_SOCK_NUM];
 // static
-uint16_t EthernetClass::server_port_[MAX_SOCK_NUM];
+uint16_t EthernetClass::_server_port[MAX_SOCK_NUM];

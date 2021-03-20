@@ -205,6 +205,31 @@ enum class EParameter : EParameter_UnderlyingType {
 std::ostream& operator<<(std::ostream& out, EParameter value);
 #endif  // TAS_HOST_TARGET
 
+// These are sensor names used in an ObservingConditions SensorDescription
+// requests, e.g. DewPoint or SkyBrightness. These are to be matched case
+// insensitively.
+using ESensorName_UnderlyingType = uint8_t;
+enum class ESensorName : ESensorName_UnderlyingType {
+  kUnknown,
+
+  kCloudCover,
+  kDewPoint,
+  kHumidity,
+  kPressure,
+  kRainRate,
+  kSkyBrightness,
+  kSkyQuality,
+  kSkyTemperature,
+  kStarFullWidthHalfMax,
+  kTemperature,
+  kWindDirection,
+  kWindGust,
+  kWindSpeed,
+};
+#if TAS_HOST_TARGET
+std::ostream& operator<<(std::ostream& out, ESensorName value);
+#endif  // TAS_HOST_TARGET
+
 using EHttpHeader_UnderlyingType = uint8_t;
 enum class EHttpHeader : EHttpHeader_UnderlyingType {
   kUnknown,

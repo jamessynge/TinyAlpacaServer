@@ -22,6 +22,8 @@ bool MatchParameter(const StringView& view, EParameter& match);
 
 bool MatchHttpHeader(const StringView& view, EHttpHeader& match);
 
+bool MatchSensorName(const StringView& view, ESensorName& match);
+
 namespace internal {
 // This is exposed only for testing.
 bool MatchCommonDeviceMethod(const StringView& view, EDeviceMethod& match);

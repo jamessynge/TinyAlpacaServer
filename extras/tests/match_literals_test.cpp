@@ -305,6 +305,35 @@ TEST(MatchLiteralsTest, MatchParameter) {
   }
 }
 
+TEST(MatchLiteralsTest, MatchSensorName) {
+  const std::vector<std::pair<std::string, ESensorName>> test_cases = {
+      {"CloudCover", ESensorName::kCloudCover},
+      {"DEWPOINT", ESensorName::kDewPoint},
+      {"huMIDity", ESensorName::kHumidity},
+      {"pressure", ESensorName::kPressure},
+      {"RAINrate", ESensorName::kRainRate},
+      {"skybrightness", ESensorName::kSkyBrightness},
+      {"skyQuality", ESensorName::kSkyQuality},
+      {"", ESensorName::kUnknown},
+      {"cloud-cover", ESensorName::kUnknown},
+      {"Content-Length", ESensorName::kUnknown},
+  };
+  const ESensorName kBogusEnum = static_cast<ESensorName>(0xff);
+  for (const auto [text, expected_enum] : test_cases) {
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
+    ESensorName matched = kBogusEnum;
+    if (expected_enum == ESensorName::kUnknown) {
+      EXPECT_FALSE(MatchSensorName(StringView(text), matched));
+      EXPECT_EQ(matched, kBogusEnum);
+
+    } else {
+      EXPECT_TRUE(MatchSensorName(StringView(text), matched));
+      EXPECT_EQ(matched, expected_enum);
+    }
+  }
+}
+
 TEST(MatchLiteralsTest, EHttpHeader) {
   const std::vector<std::pair<std::string, EHttpHeader>> test_cases = {
       {"Accept", EHttpHeader::kHttpAccept},

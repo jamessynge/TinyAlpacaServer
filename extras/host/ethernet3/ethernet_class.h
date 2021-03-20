@@ -15,9 +15,9 @@
 
 class EthernetClass {
  public:
-  static uint8_t state_[MAX_SOCK_NUM];
+  static uint8_t _state[MAX_SOCK_NUM];  // NOLINT
   // Records the port that is/was last being listened to on the socket.
-  static uint16_t server_port_[MAX_SOCK_NUM];
+  static uint16_t _server_port[MAX_SOCK_NUM];  // NOLINT
 
   // Declaring functions in the order called.
   void setHostname(const char* hostname);

@@ -13,7 +13,7 @@ void EthernetServer::begin() {
   VLOG(3) << "EthernetServer::begin entry";
   auto sock_num = alpaca::HostSockets::InitializeTcpListenerSocket(port_);
   if (sock_num >= 0) {
-    EthernetClass::server_port_[sock_num] = port_;
+    EthernetClass::_server_port[sock_num] = port_;
   } else {
     LOG(WARNING) << "Unable to find a socket available for listening to port "
                  << port_;
@@ -30,7 +30,7 @@ void EthernetServer::accept() {
   int listening = 0;
   for (int sock = 0; sock < MAX_SOCK_NUM; sock++) {
     EthernetClient client(sock);
-    if (EthernetClass::server_port_[sock] == port_) {
+    if (EthernetClass::_server_port[sock] == port_) {
       auto status = client.status();
       VLOG(3) << "EthernetServer::accept found socket " << sock
               << " listening to port " << port_ << " with status " << std::hex
@@ -57,7 +57,7 @@ EthernetClient EthernetServer::available() {
   VLOG(3) << "EthernetServer::available() loop entry";
   for (int sock = 0; sock < MAX_SOCK_NUM; sock++) {
     EthernetClient client(sock);
-    if (EthernetClass::server_port_[sock] == port_ &&
+    if (EthernetClass::_server_port[sock] == port_ &&
         (client.status() == SnSR::ESTABLISHED ||
          client.status() == SnSR::CLOSE_WAIT)) {
       VLOG(3) << "available: Socket " << sock

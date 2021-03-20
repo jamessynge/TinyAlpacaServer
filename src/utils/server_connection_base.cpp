@@ -44,11 +44,8 @@ void ServerConnectionBase::PerformIO() {
     return;
   }
   // Are we still connected?
-  // TODO(jamessynge): Is this enough to detect a network partition? Or do we
-  // need to do something to enable keep-alive, or use a timeout to detect a
-  // client that is effectively dead.
   if (!PlatformEthernet::IsOpenForWriting(sock_num_)) {
-    // Not any more.
+    // Not anymore.
     OnDisconnect();
     sock_num_ = -1;
     return;

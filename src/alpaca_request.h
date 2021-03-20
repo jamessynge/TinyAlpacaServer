@@ -68,6 +68,7 @@ struct AlpacaRequest {
   // Parameters, either from the path (GET) or the body (PUT).
   uint32_t client_id;
   uint32_t client_transaction_id;
+  ESensorName sensor_name;
 
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know

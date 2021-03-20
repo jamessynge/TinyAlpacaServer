@@ -227,6 +227,41 @@ std::ostream& operator<<(std::ostream& out, EParameter v) {
   return out << invalid << " (invalid EParameter)";
 }
 
+std::ostream& operator<<(std::ostream& out, ESensorName v) {
+  switch (v) {
+    case ESensorName::kUnknown:
+      return out << "kUnknown";
+    case ESensorName::kCloudCover:
+      return out << "kCloudCover";
+    case ESensorName::kDewPoint:
+      return out << "kDewPoint";
+    case ESensorName::kHumidity:
+      return out << "kHumidity";
+    case ESensorName::kPressure:
+      return out << "kPressure";
+    case ESensorName::kRainRate:
+      return out << "kRainRate";
+    case ESensorName::kSkyBrightness:
+      return out << "kSkyBrightness";
+    case ESensorName::kSkyQuality:
+      return out << "kSkyQuality";
+    case ESensorName::kSkyTemperature:
+      return out << "kSkyTemperature";
+    case ESensorName::kStarFullWidthHalfMax:
+      return out << "kStarFullWidthHalfMax";
+    case ESensorName::kTemperature:
+      return out << "kTemperature";
+    case ESensorName::kWindDirection:
+      return out << "kWindDirection";
+    case ESensorName::kWindGust:
+      return out << "kWindGust";
+    case ESensorName::kWindSpeed:
+      return out << "kWindSpeed";
+  }
+  auto invalid = static_cast<std::underlying_type<ESensorName>::type>(v);
+  return out << invalid << " (invalid ESensorName)";
+}
+
 std::ostream& operator<<(std::ostream& out, EHttpHeader v) {
   switch (v) {
     case EHttpHeader::kUnknown:

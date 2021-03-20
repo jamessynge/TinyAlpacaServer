@@ -14,6 +14,7 @@ AlpacaRequest::AlpacaRequest() {
 
 void AlpacaRequest::Reset() {
   http_method = EHttpMethod::kUnknown;
+  sensor_name = ESensorName::kUnknown;
 
   have_client_id = false;
   have_client_transaction_id = false;
@@ -28,7 +29,9 @@ void AlpacaRequest::Reset() {
   device_number = kResetDeviceNumber;
   device_method = EDeviceMethod::kUnknown;
 
-  // This is a value set at the start of the decoding process.
+  // The server transaction id is set at the start of the decoding process, with
+  // the aim of correlating error logs and responses with the request; this
+  // assumes that the client sends a transaction id of its own.
   server_transaction_id = kResetServerTransactionId;
 
   // Parameters that may be provided for all requests, so we handle them
