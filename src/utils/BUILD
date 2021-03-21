@@ -3,6 +3,18 @@
 # sketch.
 
 cc_library(
+    name = "addresses",
+    srcs = ["addresses.cc"],
+    hdrs = ["addresses.h"],
+    deps = [
+        ":eeprom_io",
+        ":ip_address",
+        ":logging",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "any_printable",
     srcs = ["any_printable.cc"],
     hdrs = ["any_printable.h"],
@@ -48,6 +60,16 @@ cc_library(
 )
 
 cc_library(
+    name = "eeprom_io",
+    srcs = ["eeprom_io.cc"],
+    hdrs = ["eeprom_io.h"],
+    deps = [
+        ":logging",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "escaping",
     srcs = ["escaping.cc"],
     hdrs = ["escaping.h"],
@@ -55,6 +77,18 @@ cc_library(
         ":any_printable",
         ":logging",
         ":platform",
+    ],
+)
+
+cc_library(
+    name = "ip_device",
+    srcs = ["ip_device.cc"],
+    hdrs = ["ip_device.h"],
+    deps = [
+        ":addresses",
+        ":ethernet_class",
+        ":platform",
+        ":platform_ethernet",
     ],
 )
 
@@ -104,21 +138,13 @@ cc_library(
     name = "platform",
     hdrs = ["platform.h"],
     deps = [
-        ":pgmspace",
-        ":print",
-        ":stream",
-    ],
-)
-
-cc_library(
-    name = "platform_ethernet",
-    srcs = ["platform_ethernet.cc"],
-    hdrs = ["platform_ethernet.h"],
-    deps = [
         ":client",
         ":host_sockets",
         ":logging",
+        ":pgmspace",
         ":platform",
+        ":print",
+        ":stream",
     ],
 )
 

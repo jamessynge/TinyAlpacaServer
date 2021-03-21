@@ -2,7 +2,7 @@
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_IP_ADDRESS_H_
 
 // IPAddress holds and can print an IPv4 address. The Arduino version has more
-// features that I've not yet needed for Tiny Alpaca Server/
+// features that I've not yet needed for Tiny Alpaca Server.
 
 #include "extras/host/arduino/int_types.h"
 #include "extras/host/arduino/print.h"
@@ -30,6 +30,15 @@ class IPAddress : public Printable {
     count += out.print('.');
     count += out.print(octets_[3] + short_zero);
     return count;
+  }
+
+  // Access to the bytes of the address.
+  uint8_t operator[](int index) const { return octets_[index]; }
+  uint8_t& operator[](int index) { return octets_[index]; }
+
+  bool operator==(const IPAddress& other) const {
+    return octets_[0] == other.octets_[0] && octets_[1] == other.octets_[1] &&
+           octets_[2] == other.octets_[2] && octets_[3] == other.octets_[3];
   }
 
  private:

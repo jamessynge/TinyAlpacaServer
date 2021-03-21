@@ -3,6 +3,9 @@
 #include <cstring>
 #include <ostream>
 
+#include "absl/strings/str_cat.h"
+#include "logging.h"
+
 Printable::~Printable() {}
 
 Print::Print() {}
@@ -29,6 +32,10 @@ size_t Print::print(uint16_t value) { return printInteger(value); }
 size_t Print::print(int32_t value) { return printInteger(value); }
 
 size_t Print::print(uint32_t value) { return printInteger(value); }
+
+size_t Print::print(uint32_t value, int base) {
+  return printInteger(value, base);
+}
 
 size_t Print::print(double value) { return printDouble(value); }
 
@@ -86,6 +93,18 @@ size_t Print::println() { return write(EOL); }
 size_t Print::printInteger(int64_t value) {
   auto s = std::to_string(value);
   return write(s.data(), s.size());
+}
+
+size_t Print::printInteger(int64_t value, int base) {
+  if (base == 10) {
+    return printInteger(value);
+  } else if (base == 16) {
+    auto s = absl::StrCat(absl::Hex(value));
+    return write(s.data(), s.size());
+  } else {
+    CHECK(false) << "Unsupported base " << base;
+    return 0;
+  }
 }
 
 size_t Print::printDouble(double value) {

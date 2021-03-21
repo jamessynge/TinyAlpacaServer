@@ -3,9 +3,15 @@
 # socket APIs).
 
 cc_library(
+    name = "dhcp_class",
+    hdrs = ["dhcp_class.h"],
+)
+
+cc_library(
     name = "ethernet3",
     hdrs = ["ethernet3.h"],
     deps = [
+        ":dhcp_class",
         ":ethernet_class",
         ":ethernet_client",
         ":ethernet_config",
@@ -20,6 +26,7 @@ cc_library(
     srcs = ["ethernet_class.cc"],
     hdrs = ["ethernet_class.h"],
     deps = [
+        ":dhcp_class",
         ":ethernet_config",
         ":ip_address",
     ],
@@ -33,7 +40,6 @@ cc_library(
         ":client",
         ":ethernet_config",
         ":host_sockets",
-        ":platform",
         ":w5500",
     ],
 )

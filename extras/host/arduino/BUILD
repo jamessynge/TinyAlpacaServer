@@ -18,6 +18,7 @@ cc_library(
         ":int_types",
         ":pgmspace",
         ":print",
+        ":random",
         ":serial",
         ":stream",
         "//absl/time",
@@ -81,6 +82,20 @@ cc_library(
     name = "print",
     srcs = ["print.cc"],
     hdrs = ["print.h"],
+    deps = [
+        "//absl/strings",
+        "//core:logging",
+    ],
+)
+
+cc_library(
+    name = "random",
+    srcs = ["random.cc"],
+    hdrs = ["random.h"],
+    deps = [
+        "//absl/random",
+        "//absl/time",
+    ],
 )
 
 cc_library(

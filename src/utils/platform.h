@@ -16,6 +16,7 @@
 #define TAS_ENABLE_DEBUGGING 0
 
 #include <Arduino.h>  // IWYU pragma: export
+#include <EEPROM.h>
 
 #else  // !ARDUINO
 
@@ -32,6 +33,7 @@
 #include "extras/host/arduino/pgmspace.h"  // IWYU pragma: export
 #include "extras/host/arduino/print.h"     // IWYU pragma: export
 #include "extras/host/arduino/stream.h"    // IWYU pragma: export
+#include "extras/host/eeprom/eeprom.h"     // IWYU pragma: export
 
 #endif  // ARDUINO
 

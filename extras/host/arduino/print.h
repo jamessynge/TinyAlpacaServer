@@ -22,6 +22,9 @@ class Printable {
                                   const Printable& printable);
 };
 
+#define DEC 10
+#define HEX 16
+
 // This is just enough to support our needs, no more... I hope.
 class Print {
  public:
@@ -54,6 +57,7 @@ class Print {
   size_t print(uint16_t value);
   size_t print(int32_t value);
   size_t print(uint32_t value);
+  size_t print(uint32_t value, int base);
   size_t print(double value);
   size_t print(const Printable& value);
 
@@ -71,6 +75,7 @@ class Print {
 
  private:
   size_t printInteger(int64_t value);
+  size_t printInteger(int64_t value, int base);
   size_t printDouble(double value);
 };
 

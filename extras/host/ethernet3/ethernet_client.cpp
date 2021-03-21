@@ -5,7 +5,8 @@
 #include "extras/host/ethernet3/ethernet_config.h"
 #include "extras/host/ethernet3/host_sockets.h"
 #include "extras/host/ethernet3/w5500.h"
-#include "utils/platform.h"
+// #include
+// "experimental/users/jamessynge/tiny-alpaca-server/src/utils/platform.h"
 
 EthernetClient::EthernetClient(uint8_t sock) : sock_(sock) {}
 

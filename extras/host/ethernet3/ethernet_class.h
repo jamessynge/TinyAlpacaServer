@@ -5,6 +5,7 @@
 // to be a TCP server.
 
 #include "extras/host/arduino/ip_address.h"  // IWYU pragma: export
+#include "extras/host/ethernet3/dhcp_class.h"
 #include "extras/host/ethernet3/ethernet_config.h"
 
 #define DHCP_CHECK_NONE (0)
@@ -15,9 +16,26 @@
 
 class EthernetClass {
  public:
-  static uint8_t _state[MAX_SOCK_NUM];  // NOLINT
-  // Records the port that is/was last being listened to on the socket.
-  static uint16_t _server_port[MAX_SOCK_NUM];  // NOLINT
+  // TODO(jamessynge): Modify EthernetClass upstream so that 'new' is not used
+  // to allocate a DhcpInstance.
+  EthernetClass();
+
+  // Initialize W5500 with fewer sockets but more RX/TX Buffer space per socket.
+  // maxSockNum = 1 Socket 0 -> RX/TX Buffer 16k
+  // maxSockNum = 2 Socket 0, 1 -> RX/TX Buffer 8k
+  // maxSockNum = 4 Socket 0...3 -> RX/TX Buffer 4k
+  // maxSockNum = 8 (Standard) all sockets -> RX/TX Buffer 2k
+  //
+  // Note: MAX_SOCK_NUM is set at compile type, and doesn't reflect the value
+  // passed to init().
+  void init(uint8_t maxSockNum = 8);
+
+  uint8_t softreset();  // can set only after Ethernet.begin
+  void hardreset();     // You need to set the Rst pin
+
+  void setRstPin(uint8_t pinRST);
+  void setCsPin(uint8_t pinCS);
+  void set_dhcp(DhcpClass* dhcp) { _dhcp = dhcp; }
 
   // Declaring functions in the order called.
   void setHostname(const char* hostname);
@@ -32,27 +50,36 @@ class EthernetClass {
   // Maintains lease on DHCP, returns DHCP_CHECK_RENEW_OK, etc.
   int maintain() { return DHCP_CHECK_RENEW_OK; }
 
-  IPAddress localIP() { return IPAddress(127, 0, 0, 1); }
-  // IPAddress subnetMask();
-  // IPAddress gatewayIP();
-  // IPAddress dnsServerIP();
+  // returns the linkstate, 1 = linked, 0 = no link
+  uint8_t link() const { return 1; }
 
-  // static EthernetLinkStatus linkStatus();
-  // static EthernetHardwareStatus hardwareStatus();
+  void macAddress(uint8_t mac[]) {
+    for (int ndx = 0; ndx < 6; ++ndx) {
+      auto nibble2 = ndx * 2 + 1;
+      auto nibble1 = ndx * 2;
+      mac[ndx] = (nibble2 << 4) + nibble1;
+    }
+  }
 
-  // static void MACAddress(uint8_t *mac_address);
-  // static IPAddress localIP();
-  // static IPAddress subnetMask();
-  // static IPAddress gatewayIP();
-  // static IPAddress dnsServerIP() { return _dnsServerAddress; }
+  IPAddress localIP() { return IPAddress(127, 0, 9, 9); }
+  IPAddress subnetMask() { return IPAddress(255, 255, 0, 0); }
+  IPAddress gatewayIP() { return IPAddress(127, 0, 0, 1); }
+  IPAddress dnsServerIP() { return IPAddress(127, 0, 8, 8); }
 
-  // void setMACAddress(const uint8_t *mac_address);
-  // void setLocalIP(const IPAddress local_ip);
-  // void setSubnetMask(const IPAddress subnet);
-  // void setGatewayIP(const IPAddress gateway);
-  // void setDnsServerIP(const IPAddress dns_server) { _dnsServerAddress =
-  // dns_server; } void setRetransmissionTimeout(uint16_t milliseconds); void
-  // setRetransmissionCount(uint8_t num);
+  // Exposed fields.
+  uint8_t _maxSockNum;  // NOLINT
+  uint8_t _pinCS;       // NOLINT
+  uint8_t _pinRST;      // NOLINT
+
+  // Exposed static fields. Should really be members of a separate struct.
+  static uint8_t _state[MAX_SOCK_NUM];  // NOLINT
+  // Records the port that is/was last being listened to on the socket.
+  static uint16_t _server_port[MAX_SOCK_NUM];  // NOLINT
+
+ private:
+  IPAddress _dnsServerAddress;  // NOLINT
+  DhcpClass* _dhcp;             // NOLINT
+  char _customHostname[32];     // NOLINT
 };
 
 extern EthernetClass Ethernet;

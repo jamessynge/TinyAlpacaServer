@@ -37,6 +37,7 @@
 // Arduino's HardwareSerial.h includes Stream.h, which in turn includes Print.h.
 // I'm explicitly including them here to make it easier to work with IWYU.
 #include "extras/host/arduino/print.h"   // IWYU pragma: export
+#include "extras/host/arduino/random.h"  // IWYU pragma: export
 #include "extras/host/arduino/serial.h"  // IWYU pragma: export
 #include "extras/host/arduino/stream.h"  // IWYU pragma: export
 
@@ -45,5 +46,12 @@ uint32_t micros();
 
 void delay(uint32_t ms);
 void delayMicroseconds(uint32_t us);
+
+#define OUTPUT 99
+#define pinMode(pin_number, pin_mode)
+
+#define LOW 0
+#define HIGH 1
+#define digitalWrite(pin_number, value)
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_
