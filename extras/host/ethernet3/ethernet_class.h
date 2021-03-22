@@ -35,7 +35,7 @@ class EthernetClass {
 
   void setRstPin(uint8_t pinRST);
   void setCsPin(uint8_t pinCS);
-  void set_dhcp(DhcpClass* dhcp) { _dhcp = dhcp; }
+  void setDhcp(DhcpClass* dhcp) { _dhcp = dhcp; }
 
   // Declaring functions in the order called.
   void setHostname(const char* hostname);

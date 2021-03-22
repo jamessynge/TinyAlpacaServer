@@ -1,6 +1,5 @@
 #include "utils/ip_device.h"
 
-#include "extras/host/ethernet3/ethernet_class.h"
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"
 
@@ -43,13 +42,16 @@ bool IpDevice::setup(const OuiPrefix* oui_prefix) {
   Serial.println(addresses.ip);
 
   if (Ethernet.begin(addresses.mac.mac)) {
-    // Yeah, we were able to get an IP address via DHCP.
+    // Wonderful news, we were able to get an IP address via DHCP.
     using_dhcp_ = true;
   } else {
     // No DHCP server responded with a lease on an IP address.
     // Is there hardware?
-    if (!Ethernet.link()) {
+    MacAddress mac;
+    Ethernet.macAddress(mac.mac);
+    if (!(mac == addresses.mac)) {
       // Oops, this isn't the right board to run this sketch.
+      Serial.println("Found no hardware");
       return false;
     }
     Serial.println("No DHCP");
@@ -71,9 +73,7 @@ bool IpDevice::setup(const OuiPrefix* oui_prefix) {
     gateway[3] &= subnet[3];
     gateway[3] |= 1;
 
-    if (!Ethernet.begin(addresses.mac.mac, addresses.ip, subnet, gateway)) {
-      return false;
-    }
+    Ethernet.begin(addresses.mac.mac, addresses.ip, subnet, gateway);
   }
 
   return true;

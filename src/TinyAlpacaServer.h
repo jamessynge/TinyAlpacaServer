@@ -25,12 +25,15 @@
 #include "server_connection.h"             // IWYU pragma: export
 #include "server_description.h"            // IWYU pragma: export
 #include "tiny_alpaca_server.h"            // IWYU pragma: export
+#include "utils/addresses.h"               // IWYU pragma: export
 #include "utils/any_printable.h"           // IWYU pragma: export
 #include "utils/array.h"                   // IWYU pragma: export
 #include "utils/array_view.h"              // IWYU pragma: export
 #include "utils/connection.h"              // IWYU pragma: export
 #include "utils/counting_bitbucket.h"      // IWYU pragma: export
+#include "utils/eeprom_io.h"               // IWYU pragma: export
 #include "utils/escaping.h"                // IWYU pragma: export
+#include "utils/ip_device.h"               // IWYU pragma: export
 #include "utils/json_encoder.h"            // IWYU pragma: export
 #include "utils/literal.h"                 // IWYU pragma: export
 #include "utils/literal_token.h"           // IWYU pragma: export

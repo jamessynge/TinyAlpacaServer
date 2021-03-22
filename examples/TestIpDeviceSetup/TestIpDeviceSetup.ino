@@ -1,8 +1,7 @@
-#include "extras/host/ethernet3/dhcp_class.h"
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <Ethernet3.h>
-#include <utils/ip_device.h>
+#include <TinyAlpacaServer.h>
 #else
 #include "extras/host/ethernet3/ethernet3.h"
 #include "utils/addresses.h"
@@ -37,9 +36,17 @@ void announceAddresses() {
 }
 
 void setup() {
+  // Setup serial, wait for it to be ready so that our logging messages can be
+  // read.
+  Serial.begin(9600);
+  // Wait for serial port to connect, or at least some minimum amount of time
+  // (TBD), else the initial output gets lost.
+  while (!Serial) {
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
-  Ethernet.set_dhcp(&dhcp);
+  Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::setup_w5500();
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards
@@ -51,6 +58,63 @@ void setup() {
   }
 
   announceAddresses();
+
+  for (int sock_num = 0; sock_num < Ethernet._maxSockNum; ++sock_num) {
+    Serial.print("Socket ");
+    Serial.print(sock_num);
+    Serial.print(" status: ");
+    EthernetClient client(sock_num);
+    auto status = client.status();
+    switch (status) {
+      case SnSR::CLOSED:
+        Serial.println("CLOSED");
+        break;
+      case SnSR::INIT:
+        Serial.println("INIT");
+        break;
+      case SnSR::LISTEN:
+        Serial.println("LISTEN");
+        break;
+      case SnSR::SYNSENT:
+        Serial.println("SYNSENT");
+        break;
+      case SnSR::SYNRECV:
+        Serial.println("SYNRECV");
+        break;
+      case SnSR::ESTABLISHED:
+        Serial.println("ESTABLISHED");
+        break;
+      case SnSR::FIN_WAIT:
+        Serial.println("FIN_WAIT");
+        break;
+      case SnSR::CLOSING:
+        Serial.println("CLOSING");
+        break;
+      case SnSR::TIME_WAIT:
+        Serial.println("TIME_WAIT");
+        break;
+      case SnSR::CLOSE_WAIT:
+        Serial.println("CLOSE_WAIT");
+        break;
+      case SnSR::LAST_ACK:
+        Serial.println("LAST_ACK");
+        break;
+      case SnSR::UDP:
+        Serial.println("UDP");
+        break;
+      case SnSR::IPRAW:
+        Serial.println("IPRAW");
+        break;
+      case SnSR::MACRAW:
+        Serial.println("MACRAW");
+        break;
+      case SnSR::PPPOE:
+        Serial.println("PPPOE");
+        break;
+      default:
+        Serial.println(status); 
+    };
+  }
 }
 
 void loop() {

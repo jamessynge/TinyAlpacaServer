@@ -1,7 +1,5 @@
 #include "utils/addresses.h"
 
-#include <cstdint>
-
 #include "utils/logging.h"
 #include "utils/platform.h"
 
