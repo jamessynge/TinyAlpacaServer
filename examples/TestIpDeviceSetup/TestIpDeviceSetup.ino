@@ -1,7 +1,8 @@
+#include "extras/host/ethernet3/dhcp_class.h"
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <Ethernet3.h>
-#include <TinyAlpacaServer.h>
+#include <utils/ip_device.h>
 #else
 #include "extras/host/ethernet3/ethernet3.h"
 #include "utils/addresses.h"
@@ -112,8 +113,8 @@ void setup() {
         Serial.println("PPPOE");
         break;
       default:
-        Serial.println(status); 
-    };
+        Serial.println(status);
+    }
   }
 }
 

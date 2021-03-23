@@ -5,12 +5,7 @@
 
 #include "utils/eeprom_io.h"
 #include "utils/platform.h"
-
-#if TAS_EMBEDDED_TARGET
-#include <IPAddress.h>                       // IWYU pragma: export
-#else                                        // !TAS_EMBEDDED_TARGET
-#include "extras/host/arduino/ip_address.h"  // IWYU pragma : export
-#endif                                       // TAS_EMBEDDED_TARGET
+#include "utils/platform_ethernet.h"
 
 namespace alpaca {
 

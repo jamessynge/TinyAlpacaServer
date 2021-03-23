@@ -4,7 +4,10 @@
 // This file acts to export all of the headers that would be needed by a program
 // (i.e. an Arduino Sketch file) using the Tiny Alpaca Server.
 
-// TODO(jamessynge): Reduce this list to just the necessary headers.
+// TODO(jamessynge): Reduce this list to just the necessary headers. This will
+// probably be helped along by splitting this huge library into several smaller
+// ones (e.g. much of src/utils could be moved to a generic Arduino helpers
+// library).
 
 #include "alpaca_request.h"           // IWYU pragma: export
 #include "alpaca_response.h"          // IWYU pragma: export

@@ -8,9 +8,9 @@ cc_library(
     hdrs = ["addresses.h"],
     deps = [
         ":eeprom_io",
-        ":ip_address",
         ":logging",
         ":platform",
+        ":platform_ethernet",
     ],
 )
 
@@ -86,7 +86,6 @@ cc_library(
     hdrs = ["ip_device.h"],
     deps = [
         ":addresses",
-        ":ethernet_class",
         ":platform",
         ":platform_ethernet",
     ],
@@ -140,6 +139,7 @@ cc_library(
     deps = [
         ":client",
         ":host_sockets",
+        ":ip_address",
         ":logging",
         ":pgmspace",
         ":platform",
