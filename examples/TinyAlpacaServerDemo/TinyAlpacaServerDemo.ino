@@ -200,6 +200,7 @@ void setup() {
   // Initialize networking.
   Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::setup_w5500();
+
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
@@ -208,7 +209,6 @@ void setup() {
   if (!ip_device.setup(&oui_prefix)) {
     announceFailure("Unable to initialize networking!");
   }
-
   announceAddresses();
 
   tiny_alpaca_server.begin();

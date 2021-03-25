@@ -5,6 +5,7 @@ cc_library(
     hdrs = ["TinyAlpacaServer.h"],
     deps = [
         ":addresses",
+        ":alpaca_discovery_server",
         ":alpaca_request",
         ":alpaca_response",
         ":any_printable",

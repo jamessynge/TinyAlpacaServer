@@ -1,10 +1,11 @@
-# TODO(jamessynge): describe this package.
+# Sketch for testing that we can initialize the IpDevice (i.e. WIZnet W5500).
 
-cc_library(
-    name = "test_ip_device_setup_ino",
+cc_binary(
+    name = "TestIpDeviceSetup",
     srcs = ["TestIpDeviceSetup.ino.cc"],
     deps = [
         ":addresses",
+        ":arduino_main",
         ":dhcp_class",
         ":ip_device",
     ],

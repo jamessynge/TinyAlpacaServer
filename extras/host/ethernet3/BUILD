@@ -72,6 +72,7 @@ cc_library(
     deps = [
         ":ethernet_client",
         ":ethernet_config",
+        ":ip_address",
         ":platform",
         ":stream",
     ],

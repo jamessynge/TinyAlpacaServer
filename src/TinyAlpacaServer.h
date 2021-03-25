@@ -9,6 +9,7 @@
 // ones (e.g. much of src/utils could be moved to a generic Arduino helpers
 // library).
 
+#include "alpaca_discovery_server.h"  // IWYU pragma: export
 #include "alpaca_request.h"           // IWYU pragma: export
 #include "alpaca_response.h"          // IWYU pragma: export
 #include "ascom_error_codes.h"        // IWYU pragma: export
