@@ -17,6 +17,7 @@ cc_test(
         ":print",
         ":print_to_std_string",
         ":sample_printable",
+        "//absl/strings",
         "//googletest:gunit_main",
     ],
 )

@@ -10,7 +10,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "utils/print_ostream.h"
+#include "utils/o_print_stream.h"
 
 #ifdef ARDUINO
 
@@ -19,12 +19,17 @@
 #define TAS_DLOG(severity, ...)
 #define TAS_DVLOG(level, ...)
 
-#define TAS_CHECK(expression, ...)                                   \
-  if ((expression)) {                                                \
-  } else {                                                           \
-    alpaca::PrintOStream(Serial)                                     \
-        << "CHECK failed: "## #expression __VA_OPT__(<< "\n"         \
-                                                     <<) __VA_ARGS__ \
+// TAS_CHECK is NOT yet tested on Arduino; it also needs to call a function that
+// goes into an infinite loop reporting that a failure has occurred
+// periodically. The other TAS_CHECK methods need to call into this method,
+// though that really means that there should be a shared helper macro.
+#define TAS_CHECK(expression, ...)                       \
+  if ((expression)) {                                    \
+  } else {                                               \
+    alpaca::PrintOStream _o_print_stream_(Serial);       \
+    _o_print_stream_ << "CHECK failed: " << #expression; \
+    __VA_OPT__(_o_print_stream_ << "\n" <<)              \
+    __VA_ARGS__;                                         \
   }
 
 #define TAS_CHECK_EQ(a, b, ...)

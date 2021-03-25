@@ -84,6 +84,7 @@ cc_library(
     hdrs = ["print.h"],
     deps = [
         "//absl/strings",
+        "//absl/strings:str_format",
         "//core:logging",
     ],
 )

@@ -22,8 +22,8 @@
 // Author: james.synge@gmail.com
 
 #include "utils/logging.h"
+#include "utils/o_print_stream.h"
 #include "utils/platform.h"
-#include "utils/print_ostream.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>
@@ -226,7 +226,7 @@ class StringView {
   // constructable.
   size_t printTo(Print& p) const;
 
-  friend PrintOStream& operator<<(PrintOStream& out, const StringView& view);
+  friend OPrintStream& operator<<(OPrintStream& out, const StringView& view);
 
  private:
   const char* ptr_;

@@ -88,7 +88,7 @@ size_t Literal::printTo(Print& out) const {
   return total;
 }
 
-PrintOStream& operator<<(PrintOStream& out, const Literal& value) {
+OPrintStream& operator<<(OPrintStream& out, const Literal& value) {
   value.printTo(out.out);
   return out;
 }

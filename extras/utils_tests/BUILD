@@ -91,6 +91,16 @@ cc_test(
 )
 
 cc_test(
+    name = "o_print_stream_test",
+    srcs = ["o_print_stream_test.cc"],
+    deps = [
+        ":o_print_stream",
+        ":print_to_std_string",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "printable_cat_test",
     srcs = ["printable_cat_test.cc"],
     deps = [

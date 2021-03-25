@@ -130,15 +130,15 @@ TEST(AnyPrintableTest, ManyTypes) {
   EXPECT_EQ(PrintValueViaAnyPrintable(ui32), "12345678");
   EXPECT_EQ(PrintValueViaAnyPrintable(1234U), "1234");
 
-  float f = 3.14f;
-  EXPECT_EQ(PrintRefViaAnyPrintable(f), std::to_string(f));
-  EXPECT_EQ(PrintValueViaAnyPrintable(f), std::to_string(f));
-  EXPECT_EQ(PrintValueViaAnyPrintable(3.14f), std::to_string(f));
+  float f = 3.1415f;
+  EXPECT_EQ(PrintRefViaAnyPrintable(f), "3.14");
+  EXPECT_EQ(PrintValueViaAnyPrintable(f), "3.14");
+  EXPECT_EQ(PrintValueViaAnyPrintable(3.14f), "3.14");
 
-  double d = 3.14;
-  EXPECT_EQ(PrintRefViaAnyPrintable(d), std::to_string(d));
-  EXPECT_EQ(PrintValueViaAnyPrintable(d), std::to_string(d));
-  EXPECT_EQ(PrintValueViaAnyPrintable(3.14), std::to_string(d));
+  double d = 2.71828;
+  EXPECT_EQ(PrintRefViaAnyPrintable(d), "2.72");
+  EXPECT_EQ(PrintValueViaAnyPrintable(d), "2.72");
+  EXPECT_EQ(PrintValueViaAnyPrintable(2.71828), "2.72");
 
   StringView some_text("some_text");
   EXPECT_EQ(PrintRefViaAnyPrintable(some_text), "some_text");

@@ -24,9 +24,8 @@ TEST(PrintableCatTest, Strings) {
 
 TEST(PrintableCatTest, Numbers) {
   char space = ' ';
-  auto p = PrintableCat(0, space, 3.14f, space, 3.14);
-  EXPECT_EQ(PrintValueToStdString(p), absl::StrCat("0 ", std::to_string(3.14f),
-                                                   " ", std::to_string(3.14)));
+  auto p = PrintableCat(0, space, 3.1415f, space, 3.1415);
+  EXPECT_EQ(PrintValueToStdString(p), absl::StrCat("0 3.14 3.14"));
 }
 
 }  // namespace

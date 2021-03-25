@@ -49,34 +49,37 @@ class Print {
   // number of bytes written.
   size_t write(const char* buffer, size_t size);
 
-  // Prints (writes) a value of various types.
+  // Prints (writes) a value of various types. 'short' isn't supported on
+  // Arduino AVR, where int == uint16_t (i.e. int and short are the same type on
+  // that platform). To make it testable on host, we support short explicitly.
   size_t print(const char str[]);
   size_t print(char c);
-  size_t print(uint8_t value);
-  size_t print(int16_t value);
-  size_t print(uint16_t value);
-  size_t print(int32_t value);
-  size_t print(uint32_t value);
-  size_t print(uint32_t value, int base);
-  size_t print(double value);
+  size_t print(unsigned char value, int base = DEC);
+  size_t print(short value, int base = DEC);           // NOLINT
+  size_t print(unsigned short value, int base = DEC);  // NOLINT
+  size_t print(int value, int base = DEC);
+  size_t print(unsigned int value, int base = DEC);
+  size_t print(long value, int base = DEC);           // NOLINT
+  size_t print(unsigned long value, int base = DEC);  // NOLINT
+  size_t print(double value, int digits = 2);
   size_t print(const Printable& value);
 
   // Prints (writes) a value of various types, with a trailing \n.
   size_t println(const char str[]);
   size_t println(char c);
-  size_t println(uint8_t value);
-  size_t println(int16_t value);
-  size_t println(uint16_t value);
-  size_t println(int32_t value);
-  size_t println(uint32_t value);
-  size_t println(double value);
+  size_t println(unsigned char value, int base = DEC);
+  size_t println(int value, int base = DEC);
+  size_t println(unsigned int value, int base = DEC);
+  size_t println(short value, int base = DEC);           // NOLINT
+  size_t println(unsigned short value, int base = DEC);  // NOLINT
+  size_t println(long value, int base = DEC);            // NOLINT
+  size_t println(unsigned long value, int base = DEC);   // NOLINT
+  size_t println(double value, int digits = 2);
   size_t println(const Printable& value);
   size_t println();
 
  private:
-  size_t printInteger(int64_t value);
-  size_t printInteger(int64_t value, int base);
-  size_t printDouble(double value);
+  size_t printDouble(double value, int digits);
 };
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_PRINT_H_

@@ -135,8 +135,7 @@ TEST_F(JsonEncodersTest, ObjectWithFloatValues) {
   };
   ConfirmEncoding(
       func,
-      absl::StrCat("{\"float zero\": ", std::to_string(static_cast<float>(0)),
-                   ", \"float one\": ", std::to_string(static_cast<float>(1)),
+      absl::StrCat("{\"float zero\": ", "0.00", ", \"float one\": ", "1.00",
                    ", \"float -Inf\": \"-Inf\", \"float Inf\": \"Inf\""
                    ", \"float NaN\": \"NaN\"}"));
 }
@@ -159,8 +158,7 @@ TEST_F(JsonEncodersTest, ObjectWithDoubleValues) {
   };
   ConfirmEncoding(
       func,
-      absl::StrCat("{\"double zero\": ", std::to_string(static_cast<double>(0)),
-                   ", \"double one\": ", std::to_string(static_cast<double>(1)),
+      absl::StrCat("{\"double zero\": ", "0.00", ", \"double one\": ", "1.00",
                    ", \"double -Inf\": \"-Inf\", \"double Inf\": \"Inf\""
                    ", \"double NaN\": \"NaN\"}"));
 }
@@ -179,7 +177,7 @@ TEST_F(JsonEncodersTest, ObjectWithArrayValues) {
                      });
   };
   ConfirmEncoding(func, absl::StrCat("{\"empty\": [], \"mixed\": [true, ",
-                                     std::to_string(kPi), ", 43, \"xyzzy\"]}"));
+                                     "3.14", ", 43, \"xyzzy\"]}"));
 }
 
 TEST_F(JsonEncodersTest, ObjectWithObjectValues) {
@@ -198,7 +196,7 @@ TEST_F(JsonEncodersTest, ObjectWithObjectValues) {
   ConfirmEncoding(
       func,
       absl::StrCat("{\"empty\": {}, \"mixed\": {\"Too darn true!\": true, ",
-                   "\"Gimme some pie!\": ", std::to_string(kPi), "}}"));
+                   "\"Gimme some pie!\": ", "3.14", "}}"));
 }
 
 TEST_F(JsonEncodersTest, EmptyArray) {
@@ -232,12 +230,12 @@ TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
     });
   };
   ConfirmEncoding(
-      func, absl::StrCat(
-                "[false, \"\", \"just printable\", "
-                "\"some text \\r\\n with escaping characters\", ",
-                std::to_string(std::numeric_limits<int32_t>::min() + 0), ", ",
-                std::to_string(std::numeric_limits<uint32_t>::max() + 0), ", ",
-                std::to_string(-1.0F), ", {\"inner-empty-array\": []}]"));
+      func,
+      absl::StrCat("[false, \"\", \"just printable\", "
+                   "\"some text \\r\\n with escaping characters\", ",
+                   std::to_string(std::numeric_limits<int32_t>::min()), ", ",
+                   std::to_string(std::numeric_limits<uint32_t>::max()), ", ",
+                   "-1.00", ", {\"inner-empty-array\": []}]"));
 }
 
 }  // namespace

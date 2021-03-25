@@ -84,7 +84,7 @@ bool StringView::to_uint32(uint32_t& out) const {
 
 size_t StringView::printTo(Print& p) const { return p.write(ptr_, size_); }
 
-PrintOStream& operator<<(PrintOStream& out, const StringView& view) {
+OPrintStream& operator<<(OPrintStream& out, const StringView& view) {
   view.printTo(out.out);
   return out;
 }
