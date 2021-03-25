@@ -10,6 +10,7 @@
 #include "extras/host/ethernet3/ethernet_client.h"  // IWYU pragma: export
 #include "extras/host/ethernet3/ethernet_config.h"  // IWYU pragma: export
 #include "extras/host/ethernet3/ethernet_server.h"  // IWYU pragma: export
+#include "extras/host/ethernet3/ethernet_udp.h"     // IWYU pragma: export
 #include "extras/host/ethernet3/w5500.h"
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET3_H_

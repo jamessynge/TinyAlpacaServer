@@ -111,6 +111,7 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
+        ":print_ostream",
         "//absl/strings",
     ],
 )
@@ -129,8 +130,13 @@ cc_library(
 
 cc_library(
     name = "logging",
+    srcs = ["logging.cc"],
     hdrs = ["logging.h"],
-    deps = ["//core:logging"],
+    deps = [
+        ":platform",
+        ":print_ostream",
+        "//core:logging",
+    ],
 )
 
 cc_library(
@@ -145,6 +151,14 @@ cc_library(
         ":platform",
         ":print",
         ":stream",
+    ],
+)
+
+cc_library(
+    name = "print_ostream",
+    hdrs = ["print_ostream.h"],
+    deps = [
+        ":platform",
     ],
 )
 
@@ -213,6 +227,7 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
+        ":print_ostream",
         "//absl/strings",
     ],
 )

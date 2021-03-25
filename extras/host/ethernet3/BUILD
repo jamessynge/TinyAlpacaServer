@@ -16,6 +16,7 @@ cc_library(
         ":ethernet_client",
         ":ethernet_config",
         ":ethernet_server",
+        ":ethernet_udp",
         ":ip_address",
         ":w5500",
     ],
@@ -56,10 +57,23 @@ cc_library(
     deps = [
         ":ethernet_class",
         ":ethernet_client",
+        ":ethernet_config",
         ":host_sockets",
         ":w5500",
         "//absl/time",
         "//core:logging",
+    ],
+)
+
+cc_library(
+    name = "ethernet_udp",
+    srcs = ["ethernet_udp.cc"],
+    hdrs = ["ethernet_udp.h"],
+    deps = [
+        ":ethernet_client",
+        ":ethernet_config",
+        ":platform",
+        ":stream",
     ],
 )
 

@@ -1,24 +1,22 @@
 #include "utils/ip_device.h"
 
 #include "utils/platform.h"
-#include "utils/platform_ethernet.h"
 
 namespace alpaca {
+namespace {
+constexpr uint8_t kW5500ChipSelectPin = 10;
+constexpr uint8_t kW5500ResetPin = 7;
+constexpr uint8_t kSDcardSelectPin = 4;
+}  // namespace
 
 // static
-void Mega2560Eth::setup_w5500() {
-  // We may not need all of these as the Ethernet3 EthernetClass and W5500Class
-  // do some (or most) of this.
-  // pinMode(kW5500ChipSelectPin, OUTPUT);
-  // pinMode(kW5500ResetPin, OUTPUT);
+void Mega2560Eth::setup_w5500(uint8_t max_sock_num) {
+  // Make sure that the SD Card interface is not the selected SPI device.
   pinMode(kSDcardSelectPin, OUTPUT);
-
-  // Tell the W5500 chip it is the selected SPI device.
-  // digitalWrite(kW5500ChipSelectPin, LOW);
-
-  // Tell the SD Card interface chip it is NOT the selected SPI device.
   digitalWrite(kSDcardSelectPin, HIGH);
 
+  // Configure Ethernet3's EthernetClass instance with the pins used to access
+  // the W5500.
   Ethernet.setRstPin(kW5500ResetPin);
   Ethernet.setCsPin(kW5500ChipSelectPin);
 
@@ -26,7 +24,7 @@ void Mega2560Eth::setup_w5500() {
   // socket, and maybe more; our UDP uses include DHCP lease & lease renewal,
   // the Alpaca discovery protocol, and possibly for time. Then we need at least
   // one TCP socket, more if we want to handle multiple simultaneous requests.
-  Ethernet.init(MAX_SOCK_NUM);
+  Ethernet.init(max_sock_num);
 }
 
 bool IpDevice::setup(const OuiPrefix* oui_prefix) {

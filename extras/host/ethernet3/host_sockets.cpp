@@ -17,7 +17,6 @@
 #include <map>
 #include <memory>
 
-#include "extras/host/ethernet3/ethernet_config.h"
 #include "extras/host/ethernet3/w5500.h"
 #include "logging.h"
 #include "utils/logging.h"

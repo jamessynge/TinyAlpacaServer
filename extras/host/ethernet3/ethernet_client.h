@@ -5,6 +5,7 @@
 // maybe to be a TCP server.
 
 #include "extras/host/arduino/client.h"
+#include "extras/host/ethernet3/ethernet_config.h"
 
 class EthernetClient : public Client {
  public:

@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/array_view.h"

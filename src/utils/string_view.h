@@ -23,6 +23,7 @@
 
 #include "utils/logging.h"
 #include "utils/platform.h"
+#include "utils/print_ostream.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>
@@ -224,6 +225,8 @@ class StringView {
   // would prevent StringView instances being able to be constexpr
   // constructable.
   size_t printTo(Print& p) const;
+
+  friend PrintOStream& operator<<(PrintOStream& out, const StringView& view);
 
  private:
   const char* ptr_;

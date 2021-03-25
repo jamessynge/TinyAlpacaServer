@@ -1,11 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_CONFIG_H_
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_CONFIG_H_
 
-#include <cstdint>
+#include <inttypes.h>
 
 namespace alpaca {
 
-typedef std::uint8_t SOCKET;
+typedef uint8_t SOCKET;
 #define MAX_SOCK_NUM 8
 
 }  // namespace alpaca

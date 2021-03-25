@@ -4,6 +4,7 @@
 // TODO(jamessynge): Describe why this file exists/what it provides.
 
 #include "extras/host/ethernet3/ethernet_client.h"
+#include "extras/host/ethernet3/ethernet_config.h"
 
 class EthernetServer {
  public:

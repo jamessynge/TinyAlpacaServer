@@ -15,7 +15,6 @@ cc_test(
     srcs = ["array_test.cc"],
     deps = [
         ":array",
-        ":print_to_std_string",
         "//googletest:gunit_main",
     ],
 )
@@ -25,7 +24,6 @@ cc_test(
     srcs = ["array_view_test.cc"],
     deps = [
         ":array_view",
-        ":print_to_std_string",
         "//googletest:gunit_main",
     ],
 )
@@ -87,7 +85,6 @@ cc_test(
         ":array_view",
         ":literal_token",
         ":platform",
-        ":print_to_std_string",
         ":string_view",
         "//googletest:gunit_main",
     ],
@@ -103,6 +100,25 @@ cc_test(
         ":printable_cat",
         ":string_view",
         "//absl/strings",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "status_or_test",
+    srcs = ["status_or_test.cc"],
+    deps = [
+        ":status_or",
+        ":string_view",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
+    name = "status_test",
+    srcs = ["status_test.cc"],
+    deps = [
+        ":status",
         "//googletest:gunit_main",
     ],
 )

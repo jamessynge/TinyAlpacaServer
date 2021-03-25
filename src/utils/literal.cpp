@@ -88,6 +88,11 @@ size_t Literal::printTo(Print& out) const {
   return total;
 }
 
+PrintOStream& operator<<(PrintOStream& out, const Literal& value) {
+  value.printTo(out.out);
+  return out;
+}
+
 #if TAS_HOST_TARGET
 std::string_view ToStdStringView(const Literal& literal) {
   return std::string_view(

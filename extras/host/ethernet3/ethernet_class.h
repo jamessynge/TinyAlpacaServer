@@ -28,13 +28,13 @@ class EthernetClass {
   //
   // Note: MAX_SOCK_NUM is set at compile type, and doesn't reflect the value
   // passed to init().
-  void init(uint8_t maxSockNum = 8);
+  void init(uint8_t maxSockNum = 8) {}
 
   uint8_t softreset();  // can set only after Ethernet.begin
   void hardreset();     // You need to set the Rst pin
 
-  void setRstPin(uint8_t pinRST);
-  void setCsPin(uint8_t pinCS);
+  void setRstPin(uint8_t pinRST) {}
+  void setCsPin(uint8_t pinCS) {}
   void setDhcp(DhcpClass* dhcp) { _dhcp = dhcp; }
 
   // Declaring functions in the order called.

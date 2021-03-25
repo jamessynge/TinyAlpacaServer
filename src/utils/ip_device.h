@@ -6,24 +6,20 @@
 
 #include "utils/addresses.h"
 #include "utils/platform.h"
+#include "utils/platform_ethernet.h"
 
 namespace alpaca {
 
 struct Mega2560Eth {
-  static constexpr uint8_t kW5500ChipSelectPin = 10;
-  static constexpr uint8_t kW5500ResetPin = 7;
-  static constexpr uint8_t kSDcardSelectPin = 4;
-
   // Configures the pins necessary for talking to the W5500 on the RobotDyn Mega
-  // 2560 ETH board.
-  static void setup_w5500();
+  // 2560 ETH board. max_sock_num can be 8, 4, 2, or 1. An Alpaca server needs
+  // at least two UDP ports (DHCP and Alpaca Discovery), plus at least 1 TCP
+  // port for HTTP.
+  static void setup_w5500(uint8_t max_sock_num = MAX_SOCK_NUM);
 };
 
 class IpDevice {
  public:
-  // TODO(jamessynge): Consider providing a ctor or method for setting the  RST
-  // and CS pins; currently this must be done by the caller.
-
   // Set the MAC address of the Ethernet chip and get a DHCP assigned IP address
   // or use a generated address. Returns false if unable to configure addresses
   // or if there is no Ethernet hardware, else returns true.

@@ -9,8 +9,7 @@
 // by EthernetClient, then using Ethernet3/src/EthernetClient.* (approximately)
 // as is.
 
-#include <cstddef>
-#include <cstdint>
+#include "extras/host/ethernet3/ethernet_config.h"
 
 namespace alpaca {
 struct HostSockets {

@@ -43,6 +43,7 @@
 #include "utils/logging.h"                 // IWYU pragma: export
 #include "utils/platform.h"                // IWYU pragma: export
 #include "utils/platform_ethernet.h"       // IWYU pragma: export
+#include "utils/print_ostream.h"           // IWYU pragma: export
 #include "utils/printable_cat.h"           // IWYU pragma: export
 #include "utils/server_connection_base.h"  // IWYU pragma: export
 #include "utils/status.h"                  // IWYU pragma: export

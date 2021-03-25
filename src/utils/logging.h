@@ -10,6 +10,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include "utils/print_ostream.h"
+
 #ifdef ARDUINO
 
 #define TAS_LOG(severity, ...)
@@ -17,7 +19,14 @@
 #define TAS_DLOG(severity, ...)
 #define TAS_DVLOG(level, ...)
 
-#define TAS_CHECK(expression, ...)
+#define TAS_CHECK(expression, ...)                                   \
+  if ((expression)) {                                                \
+  } else {                                                           \
+    alpaca::PrintOStream(Serial)                                     \
+        << "CHECK failed: "## #expression __VA_OPT__(<< "\n"         \
+                                                     <<) __VA_ARGS__ \
+  }
+
 #define TAS_CHECK_EQ(a, b, ...)
 #define TAS_CHECK_NE(a, b, ...)
 #define TAS_CHECK_LE(a, b, ...)

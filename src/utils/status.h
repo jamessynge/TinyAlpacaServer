@@ -18,12 +18,15 @@ class Status {
  public:
   Status() : code_(0) {}
   explicit Status(uint32_t code) : code_(code) {}
-  Status(uint32_t code, Literal message) : code_(code) {}
+  Status(uint32_t code, Literal message)
+      : code_(code), message_(code != 0 ? message : Literal()) {}
   bool ok() const { return code_ == 0; }
   uint32_t code() const { return code_; }
+  const Literal message() const { return message_; }
 
  private:
   uint32_t code_;
+  Literal message_;
 };
 
 }  // namespace alpaca

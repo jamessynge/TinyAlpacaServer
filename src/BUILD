@@ -32,6 +32,7 @@ cc_library(
         ":observing_conditions_adapter",
         ":platform",
         ":platform_ethernet",
+        ":print_ostream",
         ":printable_cat",
         ":request_decoder",
         ":request_decoder_listener",
@@ -45,6 +46,20 @@ cc_library(
         ":string_view",
         ":tiny_alpaca_server",
         ":tiny_string",
+    ],
+)
+
+cc_library(
+    name = "alpaca_discovery_server",
+    srcs = ["alpaca_discovery_server.cc"],
+    hdrs = ["alpaca_discovery_server.h"],
+    deps = [
+        ":escaping",
+        ":literal",
+        ":platform",
+        ":platform_ethernet",
+        ":string_compare",
+        ":string_view",
     ],
 )
 
@@ -282,8 +297,6 @@ cc_library(
         ":alpaca_response",
         ":array",
         ":device_api_handler_base",
-        ":ethernet_client",
-        ":ethernet_config",
         ":literals",
         ":logging",
         ":platform",

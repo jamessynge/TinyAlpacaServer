@@ -18,6 +18,7 @@
 #endif  // TAS_HOST_TARGET
 
 #include "utils/platform.h"
+#include "utils/print_ostream.h"
 
 namespace alpaca {
 
@@ -62,7 +63,7 @@ class Literal {
   bool same(const Literal& other) const;
 
   // Returns the number of characters in the string.
-  size_type size() const { return size_; }
+  constexpr size_type size() const { return size_; }
 
   // Returns the character the the specified position ([0..size_)) within the
   // string.
@@ -91,6 +92,8 @@ class Literal {
   // In support of tests, returns the address in PROGMEM of the string.
   // On a typical (Von Neumann) host, this is in the same address space as data.
   PGM_VOID_P prog_data_for_tests() const { return ptr_; }
+
+  friend PrintOStream& operator<<(PrintOStream& out, const Literal& literal);
 
 #if TAS_HOST_TARGET
   friend std::ostream& operator<<(std::ostream& out, const Literal& literal);
