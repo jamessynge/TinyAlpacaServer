@@ -28,8 +28,8 @@ void TinyAlpacaDiscoveryServer::loop() {
   }
 
   OPrintStream strm(Serial);
-  strm << kReceivedMsg() << packet_size << " from "
-       << udp_.remoteIP() << ':' << udp_.remotePort() << '\n';
+  strm << kReceivedMsg() << packet_size << " from " << udp_.remoteIP() << ':'
+       << udp_.remotePort() << '\n';
 
   // // DEBUGGING STUFF, COMMENT OUT LATER, OR USE Literals.
   // TAS_DVLOG(1, "Received UDP message of size " << packet_size << " from "

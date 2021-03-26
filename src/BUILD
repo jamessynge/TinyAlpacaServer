@@ -57,6 +57,7 @@ cc_library(
     deps = [
         ":escaping",
         ":literal",
+        ":o_print_stream",
         ":platform",
         ":platform_ethernet",
         ":string_compare",

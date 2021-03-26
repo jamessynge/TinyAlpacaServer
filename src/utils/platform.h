@@ -18,6 +18,13 @@
 #include <Arduino.h>  // IWYU pragma: export
 #include <EEPROM.h>
 
+#ifdef ARDUINO_ARCH_AVR
+#include <avr/pgmspace.h>
+#define AVR_PROGMEM PROGMEM
+#else
+#define AVR_PROGMEM
+#endif  // ARDUINO_ARCH_AVR
+
 #else  // !ARDUINO
 
 #define TAS_EMBEDDED_TARGET 0
@@ -34,6 +41,8 @@
 #include "extras/host/arduino/print.h"     // IWYU pragma: export
 #include "extras/host/arduino/stream.h"    // IWYU pragma: export
 #include "extras/host/eeprom/eeprom.h"     // IWYU pragma: export
+
+#define AVR_PROGMEM
 
 #endif  // ARDUINO
 
@@ -61,6 +70,11 @@ constexpr inline size_t MaxOf2(const size_t a, const size_t b) {
 constexpr size_t MaxOf4(size_t a, size_t b, size_t c, size_t d) {
   return MaxOf2(MaxOf2(a, b), MaxOf2(c, d));
 }
+
+// The avr-gcc (C++11) compiler used by the Arduino IDE doesn't support
+// __VA_OPT__, which is needed for the current definition of TAS_CHECK, etc.
+// TODO(jamessynge): Come up with a way around that, including changing away
+// from using variadic macros.
 
 #if __cplusplus <= 201703 && defined __GNUC__ && !defined __clang__ && \
     !defined __EDG__  // Clang and EDG compilers may pretend to be GCC.

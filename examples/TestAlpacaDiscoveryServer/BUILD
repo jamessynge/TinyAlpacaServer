@@ -6,6 +6,5 @@ cc_binary(
     deps = [
         ":TinyAlpacaServer",
         ":arduino_main",
-        ":pretend_devices",
     ],
 )

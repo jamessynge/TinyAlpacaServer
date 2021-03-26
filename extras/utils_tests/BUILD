@@ -51,6 +51,16 @@ cc_test(
 )
 
 cc_test(
+    name = "inline_literal_test",
+    srcs = ["inline_literal_test.cc"],
+    deps = [
+        ":inline_literal",
+        ":print_to_std_string",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "json_encoder_test",
     srcs = ["json_encoder_test.cc"],
     deps = [

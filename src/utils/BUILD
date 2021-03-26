@@ -81,6 +81,16 @@ cc_library(
 )
 
 cc_library(
+    name = "inline_literal",
+    hdrs = ["inline_literal.h"],
+    copts = ["-std=c++11"],
+    deps = [
+        ":literal",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "ip_device",
     srcs = ["ip_device.cc"],
     hdrs = ["ip_device.h"],
