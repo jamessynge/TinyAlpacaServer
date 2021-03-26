@@ -12,6 +12,11 @@ struct OPrintStream {
   Print& out;
 };
 
+inline OPrintStream& operator<<(OPrintStream& out, const char* value) {
+  out.out.print(value);
+  return out;
+}
+
 inline OPrintStream& operator<<(OPrintStream& out, char value) {
   out.out.print(value);
   return out;
@@ -42,6 +47,7 @@ inline OPrintStream& operator<<(OPrintStream& out, uint32_t value) {
   return out;
 }
 
+#if TAS_HOST_TARGET
 inline OPrintStream& operator<<(OPrintStream& out, int64_t value) {
   out.out.print(value);
   return out;
@@ -51,6 +57,7 @@ inline OPrintStream& operator<<(OPrintStream& out, uint64_t value) {
   out.out.print(value);
   return out;
 }
+#endif  // TAS_HOST_TARGET
 
 inline OPrintStream& operator<<(OPrintStream& out, double value) {
   out.out.print(value);

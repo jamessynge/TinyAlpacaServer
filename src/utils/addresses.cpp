@@ -175,8 +175,8 @@ void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
 
 #ifndef NDEBUG
   Addresses loader;
-  TAS_CHECK(loader.load(oui_prefix));
-  TAS_CHECK_EQ(loader.ip, ip);
+  TAS_DCHECK(loader.load(oui_prefix));
+  TAS_DCHECK_EQ(loader.ip, ip);
 #endif
 }
 

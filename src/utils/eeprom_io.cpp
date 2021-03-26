@@ -1,21 +1,35 @@
 #include "utils/eeprom_io.h"
 
+#ifdef ARDUINO_ARCH_AVR
+#include <avr/pgmspace.h>
+#define AVR_PROGMEM PROGMEM
+#else
+#define AVR_PROGMEM
+#endif  // ARDUINO_ARCH_AVR
+
 #include "utils/logging.h"
 #include "utils/platform.h"
 
 namespace eeprom_io {
 namespace {
-// Based on https://www.arduino.cc/en/Tutorial/EEPROMCrc:
-constexpr uint32_t kCrcTable[16] PROGMEM = {
+
+// Values based on https://www.arduino.cc/en/Tutorial/EEPROMCrc:
+constexpr uint32_t kCrcTable[16] AVR_PROGMEM = {
     0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac, 0x76dc4190, 0x6b6b51f4,
     0x4db26158, 0x5005713c, 0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
     0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c};
 
 uint32_t GetCrcTableEntry(uint32_t key) {
   auto offset = key & 0x0f;  // One of the 16 entries in the table.
-  auto ptr = kCrcTable + offset;
-  return pgm_read_dword_far(ptr);
+#ifdef ARDUINO_ARCH_AVR
+  // Unable to get the far pointer support to work for some reason.
+  auto ptr = &kCrcTable[offset];
+  return pgm_read_dword_near(ptr);
+#else   // !ARDUINO_ARCH_AVR
+  return kCrcTable[offset];
+#endif  // ARDUINO_ARCH_AVR
 }
+
 }  // namespace
 
 Crc32::Crc32() : value_(~0L) {}

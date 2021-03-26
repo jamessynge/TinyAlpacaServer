@@ -20,7 +20,6 @@ inline char pgm_read_char(PGM_P ptr) {
 }
 }  // namespace
 
-// Returns true if the other literal has the same value.
 bool Literal::operator==(const Literal& other) const {
   if (size_ == other.size_) {
     if (ptr_ == other.ptr_) {
@@ -49,14 +48,14 @@ bool Literal::equal(const char* other, size_type other_size) const {
   if (size_ != other_size) {
     return false;
   }
-  return 0 == memcmp_P(ptr_, other, size_);
+  return 0 == memcmp_P(other, ptr_, size_);
 }
 
 bool Literal::case_equal(const char* other, size_type other_size) const {
   if (size_ != other_size) {
     return false;
   }
-  return 0 == strncasecmp_P(ptr_, other, size_);
+  return 0 == strncasecmp_P(other, ptr_, size_);
 }
 
 bool Literal::is_prefix_of(const char* other, size_type other_size) const {
@@ -64,7 +63,7 @@ bool Literal::is_prefix_of(const char* other, size_type other_size) const {
     // Can't be a prefix of a shorter string.
     return false;
   }
-  return 0 == memcmp_P(ptr_, other, size_);
+  return 0 == memcmp_P(other, ptr_, size_);
 }
 
 bool Literal::copyTo(char* out, size_type size) {
@@ -82,8 +81,7 @@ size_t Literal::printTo(Print& out) const {
   // operation.
   size_t total = 0;
   for (size_type offset = 0; offset < size_; ++offset) {
-    char c = pgm_read_char(ptr_ + offset);
-    total += out.print(c);
+    total += out.print(at(offset));
   }
   return total;
 }

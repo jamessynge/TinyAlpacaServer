@@ -1,11 +1,8 @@
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
-
-#include "pretend_devices.h"  // NOLINT
 #else
 #include "TinyAlpacaServer.h"
-#include "examples/TinyAlpacaServerDemo/pretend_devices.h"
 #endif
 
 DhcpClass dhcp;

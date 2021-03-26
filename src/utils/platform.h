@@ -62,4 +62,14 @@ constexpr size_t MaxOf4(size_t a, size_t b, size_t c, size_t d) {
   return MaxOf2(MaxOf2(a, b), MaxOf2(c, d));
 }
 
+#if __cplusplus <= 201703 && defined __GNUC__ && !defined __clang__ && \
+    !defined __EDG__  // Clang and EDG compilers may pretend to be GCC.
+#define VA_OPT_SUPPORTED false
+#else
+#define VA_OPT_SUPPORTED_I2(a, b, c, ...) c
+#define VA_OPT_SUPPORTED_I(...) \
+  VA_OPT_SUPPORTED_I2(__VA_OPT__(, ), true, false, )
+#define VA_OPT_SUPPORTED VA_OPT_SUPPORTED_I(?)
+#endif
+
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_H_

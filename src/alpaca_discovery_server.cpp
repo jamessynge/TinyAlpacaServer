@@ -2,6 +2,7 @@
 
 #include "utils/escaping.h"
 #include "utils/literal.h"
+#include "utils/o_print_stream.h"
 #include "utils/platform.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"
@@ -11,6 +12,9 @@ namespace {
 TAS_DEFINE_LITERAL(kAlpacaPortStart, R"({"alpacaport": )");
 TAS_DEFINE_LITERAL(kDiscoveryMessage, "alpacadiscovery1");
 constexpr uint16_t kAlpacaDiscoveryPort = 32227;
+
+TAS_DEFINE_LITERAL(kReceivedMsg, "Received UDP message of size ");
+
 }  // namespace
 
 bool TinyAlpacaDiscoveryServer::begin() {
@@ -23,14 +27,19 @@ void TinyAlpacaDiscoveryServer::loop() {
     return;
   }
 
-  // DEBUGGING STUFF, COMMENT OUT LATER, OR USE Literals.
-  TAS_DVLOG(1, "Received UDP message of size " << packet_size << " from "
-                                               << udp_.remoteIP() << ":"
-                                               << udp_.remotePort());
+  OPrintStream strm(Serial);
+  strm << kReceivedMsg() << packet_size << " from "
+       << udp_.remoteIP() << ':' << udp_.remotePort() << '\n';
 
-  if (packet_size == kDiscoveryMessage().size()) {
+  // // DEBUGGING STUFF, COMMENT OUT LATER, OR USE Literals.
+  // TAS_DVLOG(1, "Received UDP message of size " << packet_size << " from "
+  //                                              << udp_.remoteIP() << ":"
+  //                                              << udp_.remotePort());
+
+  if (packet_size != kDiscoveryMessage().size()) {
     // Ignoring unexpected message.
     TAS_DLOG(INFO, "Ignoring UDP message of unexpected length.");
+    strm << "Ignoring UDP message of unexpected length.\n";
     return;
   }
 
@@ -42,12 +51,15 @@ void TinyAlpacaDiscoveryServer::loop() {
   // TODO(jamessynge): If keeping this, then add a HexEscapedPrintable class to
   // escaping.h... plus support for streaming to Serial, of course.
   TAS_DVLOG(1, "UDP message contents: " << view);
+  strm << "UDP message contents: '" << view << "'\n";
 
   if (copied != packet_size) {
     // Ignoring unexpected message.
     TAS_LOG(WARNING, "Expected to read " << packet_size
                                          << " bytes, but actually got "
                                          << copied);
+    strm << "Expected to read " << packet_size << " bytes, but actually got "
+         << copied << '\n';
     return;
   }
 
@@ -57,6 +69,7 @@ void TinyAlpacaDiscoveryServer::loop() {
   if (kDiscoveryMessage() != view) {
     // Ignoring unexpected message.
     TAS_LOG(WARNING, "Received unexpected discovery message");
+    strm << "Received unexpected discovery message\n";
     return;
   }
 
