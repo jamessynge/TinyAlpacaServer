@@ -53,12 +53,12 @@
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
-#else
-#include "TinyAlpacaServer.h"
-#include "examples/TinyAlpacaServerDemo/pretend_devices.h"
-#endif
 
 #include "dht22_handler.h"
+#else
+#include "TinyAlpacaServer.h"
+#include "examples/TinyAlpacaServerDemo/dht22_handler.h"
+#endif
 
 using ::alpaca::DeviceApiHandlerBase;
 
@@ -67,6 +67,7 @@ TAS_DEFINE_LITERAL(ServerName, "Our Spiffy Weather Box");
 TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
 TAS_DEFINE_LITERAL(ManufacturerVersion,
                    "9099c8af5796a80137ce334713a67a718fd0cd3f");
+
 // TODO(jamessynge): Add support for storing in EEPROM.
 TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory, Westford, MA");
 

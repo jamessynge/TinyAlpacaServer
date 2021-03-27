@@ -1,3 +1,5 @@
+// TODO(jamessynge): Describe why this file exists/what it provides.
+
 #include "device_type_adapters/observing_conditions_adapter.h"
 
 #include "alpaca_response.h"
@@ -20,7 +22,7 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
 
     case EDeviceMethod::kCloudCover:
       return WriteResponse::StatusOrFloatResponse(request, GetCloudCover(),
-                                                   out);
+                                                  out);
     case EDeviceMethod::kDewPoint:
       return WriteResponse::StatusOrFloatResponse(request, GetDewPoint(), out);
     case EDeviceMethod::kHumidity:
@@ -33,27 +35,26 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
       return HandleGetSensorDescription(request, out);
     case EDeviceMethod::kSkyBrightness:
       return WriteResponse::StatusOrFloatResponse(request, GetSkyBrightness(),
-                                                   out);
+                                                  out);
     case EDeviceMethod::kSkyQuality:
       return WriteResponse::StatusOrFloatResponse(request, GetSkyQuality(),
-                                                   out);
+                                                  out);
     case EDeviceMethod::kSkyTemperature:
       return WriteResponse::StatusOrFloatResponse(request, GetSkyTemperature(),
-                                                   out);
+                                                  out);
     case EDeviceMethod::kStarFullWidthHalfMax:
       return WriteResponse::StatusOrFloatResponse(
           request, GetStarFullWidthHalfMax(), out);
     case EDeviceMethod::kTemperature:
       return WriteResponse::StatusOrFloatResponse(request, GetTemperature(),
-                                                   out);
+                                                  out);
     case EDeviceMethod::kWindDirection:
       return WriteResponse::StatusOrFloatResponse(request, GetWindDirection(),
-                                                   out);
+                                                  out);
     case EDeviceMethod::kWindGust:
       return WriteResponse::StatusOrFloatResponse(request, GetWindGust(), out);
     case EDeviceMethod::kWindSpeed:
-      return WriteResponse::StatusOrFloatResponse(request, GetWindSpeed(),
-                                                   out);
+      return WriteResponse::StatusOrFloatResponse(request, GetWindSpeed(), out);
     case EDeviceMethod::kTimeSinceLastUpdate:
       return WriteResponse::StatusOrFloatResponse(
           request, GetTimeSinceLastUpdate(), out);

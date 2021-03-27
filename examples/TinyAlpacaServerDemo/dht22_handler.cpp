@@ -1,4 +1,4 @@
-#include "dht22_handler.h"
+#include "examples/TinyAlpacaServerDemo/dht22_handler.h"
 
 #include "pretend_devices.h"
 

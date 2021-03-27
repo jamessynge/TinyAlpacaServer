@@ -226,8 +226,6 @@ class StringView {
   // constructable.
   size_t printTo(Print& p) const;
 
-  friend OPrintStream& operator<<(OPrintStream& out, const StringView& view);
-
  private:
   const char* ptr_;
   size_type size_;

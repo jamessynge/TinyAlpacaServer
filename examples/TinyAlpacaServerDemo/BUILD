@@ -6,6 +6,16 @@ cc_binary(
     deps = [
         ":TinyAlpacaServer",
         ":arduino_main",
+        ":dht22_handler",
+    ],
+)
+
+cc_library(
+    name = "dht22_handler",
+    srcs = ["dht22_handler.cc"],
+    hdrs = ["dht22_handler.h"],
+    deps = [
+        ":TinyAlpacaServer",
         ":pretend_devices",
     ],
 )

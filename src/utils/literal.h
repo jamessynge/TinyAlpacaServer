@@ -93,8 +93,6 @@ class Literal {
   // On a typical (Von Neumann) host, this is in the same address space as data.
   PGM_VOID_P prog_data_for_tests() const { return ptr_; }
 
-  friend OPrintStream& operator<<(OPrintStream& out, const Literal& literal);
-
 #if TAS_HOST_TARGET
   friend std::ostream& operator<<(std::ostream& out, const Literal& literal);
 #endif

@@ -9,7 +9,7 @@ namespace {
 
 TEST(InlineLiteralTest, Basic) {
   // Not yet working. Sigh.
-  // auto value = TASLIT("a");
+  TASLIT("a");
   // EXPECT_THAT(value, "a");
 }
 

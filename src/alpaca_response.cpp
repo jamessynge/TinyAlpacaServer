@@ -82,8 +82,8 @@ bool WriteResponse::FloatResponse(const AlpacaRequest& request, float value,
 
 // static
 bool WriteResponse::StatusOrFloatResponse(const AlpacaRequest& request,
-                                           StatusOr<float> status_or_value,
-                                           Print& out) {
+                                          StatusOr<float> status_or_value,
+                                          Print& out) {
   if (status_or_value.ok()) {
     return FloatResponse(request, status_or_value.value(), out);
   } else {

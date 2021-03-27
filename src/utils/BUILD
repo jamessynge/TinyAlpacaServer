@@ -152,7 +152,10 @@ cc_library(
 cc_library(
     name = "o_print_stream",
     hdrs = ["o_print_stream.h"],
-    deps = [":platform"],
+    deps = [
+        ":platform",
+        ":type_traits",
+    ],
 )
 
 cc_library(
@@ -247,4 +250,9 @@ cc_library(
         ":logging",
         ":platform",
     ],
+)
+
+cc_library(
+    name = "type_traits",
+    hdrs = ["type_traits.h"],
 )
