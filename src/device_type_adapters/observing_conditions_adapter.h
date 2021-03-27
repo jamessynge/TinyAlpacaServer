@@ -32,25 +32,25 @@ class ObservingConditionsAdapter : public DeviceApiHandlerBase {
 
   // Accessors for various sensor values. The default implementations return an
   // unimplemented error.
-  virtual StatusOr<double> GetAveragePeriod();
-  virtual StatusOr<double> GetCloudCover();
-  virtual StatusOr<double> GetDewPoint();
-  virtual StatusOr<double> GetHumidity();
-  virtual StatusOr<double> GetPressure();
-  virtual StatusOr<double> GetRainRate();
-  virtual StatusOr<double> GetSkyBrightness();
-  virtual StatusOr<double> GetSkyQuality();
-  virtual StatusOr<double> GetSkyTemperature();
-  virtual StatusOr<double> GetStarFullWidthHalfMax();
-  virtual StatusOr<double> GetTemperature();
-  virtual StatusOr<double> GetWindDirection();
-  virtual StatusOr<double> GetWindGust();
-  virtual StatusOr<double> GetWindSpeed();
-  virtual StatusOr<double> GetTimeSinceLastUpdate();
+  virtual StatusOr<float> GetAveragePeriod();
+  virtual StatusOr<float> GetCloudCover();
+  virtual StatusOr<float> GetDewPoint();
+  virtual StatusOr<float> GetHumidity();
+  virtual StatusOr<float> GetPressure();
+  virtual StatusOr<float> GetRainRate();
+  virtual StatusOr<float> GetSkyBrightness();
+  virtual StatusOr<float> GetSkyQuality();
+  virtual StatusOr<float> GetSkyTemperature();
+  virtual StatusOr<float> GetStarFullWidthHalfMax();
+  virtual StatusOr<float> GetTemperature();
+  virtual StatusOr<float> GetWindDirection();
+  virtual StatusOr<float> GetWindGust();
+  virtual StatusOr<float> GetWindSpeed();
+  virtual StatusOr<float> GetTimeSinceLastUpdate();
 
   // Records the period over which the caller wants sensor data to be averaged.
   // Returns OK if the implementation can perform averaging, else an error.
-  virtual Status SetAveragePeriod(double value);
+  virtual Status SetAveragePeriod(float value);
 
   // Refreshes sensor values from hardware.
   virtual Status Refresh();

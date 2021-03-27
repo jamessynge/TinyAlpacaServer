@@ -1,5 +1,3 @@
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "device_type_adapters/observing_conditions_adapter.h"
 
 #include "alpaca_response.h"
@@ -21,43 +19,43 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
       return WriteResponse::BoolResponse(request, GetConnected(), out);
 
     case EDeviceMethod::kCloudCover:
-      return WriteResponse::StatusOrDoubleResponse(request, GetCloudCover(),
+      return WriteResponse::StatusOrFloatResponse(request, GetCloudCover(),
                                                    out);
     case EDeviceMethod::kDewPoint:
-      return WriteResponse::StatusOrDoubleResponse(request, GetDewPoint(), out);
+      return WriteResponse::StatusOrFloatResponse(request, GetDewPoint(), out);
     case EDeviceMethod::kHumidity:
-      return WriteResponse::StatusOrDoubleResponse(request, GetHumidity(), out);
+      return WriteResponse::StatusOrFloatResponse(request, GetHumidity(), out);
     case EDeviceMethod::kPressure:
-      return WriteResponse::StatusOrDoubleResponse(request, GetPressure(), out);
+      return WriteResponse::StatusOrFloatResponse(request, GetPressure(), out);
     case EDeviceMethod::kRainRate:
-      return WriteResponse::StatusOrDoubleResponse(request, GetRainRate(), out);
+      return WriteResponse::StatusOrFloatResponse(request, GetRainRate(), out);
     case EDeviceMethod::kSensorDescription:
       return HandleGetSensorDescription(request, out);
     case EDeviceMethod::kSkyBrightness:
-      return WriteResponse::StatusOrDoubleResponse(request, GetSkyBrightness(),
+      return WriteResponse::StatusOrFloatResponse(request, GetSkyBrightness(),
                                                    out);
     case EDeviceMethod::kSkyQuality:
-      return WriteResponse::StatusOrDoubleResponse(request, GetSkyQuality(),
+      return WriteResponse::StatusOrFloatResponse(request, GetSkyQuality(),
                                                    out);
     case EDeviceMethod::kSkyTemperature:
-      return WriteResponse::StatusOrDoubleResponse(request, GetSkyTemperature(),
+      return WriteResponse::StatusOrFloatResponse(request, GetSkyTemperature(),
                                                    out);
     case EDeviceMethod::kStarFullWidthHalfMax:
-      return WriteResponse::StatusOrDoubleResponse(
+      return WriteResponse::StatusOrFloatResponse(
           request, GetStarFullWidthHalfMax(), out);
     case EDeviceMethod::kTemperature:
-      return WriteResponse::StatusOrDoubleResponse(request, GetTemperature(),
+      return WriteResponse::StatusOrFloatResponse(request, GetTemperature(),
                                                    out);
     case EDeviceMethod::kWindDirection:
-      return WriteResponse::StatusOrDoubleResponse(request, GetWindDirection(),
+      return WriteResponse::StatusOrFloatResponse(request, GetWindDirection(),
                                                    out);
     case EDeviceMethod::kWindGust:
-      return WriteResponse::StatusOrDoubleResponse(request, GetWindGust(), out);
+      return WriteResponse::StatusOrFloatResponse(request, GetWindGust(), out);
     case EDeviceMethod::kWindSpeed:
-      return WriteResponse::StatusOrDoubleResponse(request, GetWindSpeed(),
+      return WriteResponse::StatusOrFloatResponse(request, GetWindSpeed(),
                                                    out);
     case EDeviceMethod::kTimeSinceLastUpdate:
-      return WriteResponse::StatusOrDoubleResponse(
+      return WriteResponse::StatusOrFloatResponse(
           request, GetTimeSinceLastUpdate(), out);
     default:
       return DeviceApiHandlerBase::HandleGetRequest(request, out);
@@ -70,53 +68,53 @@ bool ObservingConditionsAdapter::HandlePutRequest(const AlpacaRequest& request,
   return DeviceApiHandlerBase::HandlePutRequest(request, out);
 }
 
-StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
+StatusOr<float> ObservingConditionsAdapter::GetAveragePeriod() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetCloudCover() {
+StatusOr<float> ObservingConditionsAdapter::GetCloudCover() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetDewPoint() {
+StatusOr<float> ObservingConditionsAdapter::GetDewPoint() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetHumidity() {
+StatusOr<float> ObservingConditionsAdapter::GetHumidity() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetPressure() {
+StatusOr<float> ObservingConditionsAdapter::GetPressure() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetRainRate() {
+StatusOr<float> ObservingConditionsAdapter::GetRainRate() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetSkyBrightness() {
+StatusOr<float> ObservingConditionsAdapter::GetSkyBrightness() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetSkyQuality() {
+StatusOr<float> ObservingConditionsAdapter::GetSkyQuality() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetSkyTemperature() {
+StatusOr<float> ObservingConditionsAdapter::GetSkyTemperature() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetStarFullWidthHalfMax() {
+StatusOr<float> ObservingConditionsAdapter::GetStarFullWidthHalfMax() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetTemperature() {
+StatusOr<float> ObservingConditionsAdapter::GetTemperature() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetWindDirection() {
+StatusOr<float> ObservingConditionsAdapter::GetWindDirection() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetWindGust() {
+StatusOr<float> ObservingConditionsAdapter::GetWindGust() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetWindSpeed() {
+StatusOr<float> ObservingConditionsAdapter::GetWindSpeed() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetTimeSinceLastUpdate() {
+StatusOr<float> ObservingConditionsAdapter::GetTimeSinceLastUpdate() {
   return ErrorCodes::ActionNotImplemented();
 }
 
-Status ObservingConditionsAdapter::SetAveragePeriod(double value) {
+Status ObservingConditionsAdapter::SetAveragePeriod(float value) {
   return ErrorCodes::ActionNotImplemented();
 }
 Status ObservingConditionsAdapter::Refresh() {

@@ -19,6 +19,8 @@
 #define TAS_MAX_EXTRA_REQUEST_PARAMETERS 1
 #define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 32
 
+#define TAS_DEBUG_HTTP
+
 // Ethernet interface configuration... if needed
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONFIG_H_

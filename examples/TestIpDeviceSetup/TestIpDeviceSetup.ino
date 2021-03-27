@@ -53,7 +53,7 @@ void setup() {
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
-  alpaca::OuiPrefix oui_prefix(0x53, 0x57, 0x76);
+  alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
   if (!ip_device.setup(&oui_prefix)) {
     announceFailure("Unable to initialize networking!");
   }

@@ -37,11 +37,18 @@ bool TinyAlpacaServer::begin() {
     listener.begin();
   }
   // TODO(jamessynge): Add UDP listener too.
+  for (DeviceApiHandlerBasePtr handler : device_handlers_) {
+    handler->Initialize();
+  }
   return true;
 }
 
 // Performs network IO.
 void TinyAlpacaServer::loop() {
+  // Give devices a chance to perform work.
+  for (DeviceApiHandlerBasePtr handler : device_handlers_) {
+    handler->Loop();
+  }
   // Find ServerConnections which have been disconnected.
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     auto* conn = GetServerConnection(ndx);

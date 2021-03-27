@@ -24,6 +24,14 @@ class DeviceApiHandlerBase {
   EDeviceType device_type() const { return device_info_.device_type; }
   uint32_t device_number() const { return device_info_.device_number; }
 
+  // Called to initialize the handler and underlying device.
+  virtual void Initialize() { SetConnected(true); }
+
+  // Called periodically to enable the device to perform long running
+  // operations (e.g. to measure the temperature and accumulate an
+  // average value).
+  virtual void Loop() {}
+
   // Fill buffer with up to buffer_size unique bytes from the hardware, return
   // the number of unique bytes available. Return 0 (or don't override) if the
   // hardware can not provide any unique bytes.

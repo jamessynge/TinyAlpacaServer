@@ -53,34 +53,20 @@
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
-
-#include "pretend_devices.h"  // NOLINT
 #else
 #include "TinyAlpacaServer.h"
 #include "examples/TinyAlpacaServerDemo/pretend_devices.h"
 #endif
 
-using ::alpaca::AlpacaRequest;
-using ::alpaca::DeviceApiHandlerBase;
-using ::alpaca::EDeviceMethod;
-using ::alpaca::Literal;
-using ::alpaca::ObservingConditionsAdapter;
-using ::alpaca::StatusOr;
-using ::alpaca::StringView;
+#include "dht22_handler.h"
 
-// Just one simple device, used to report Observing Conditions.
-static Dht22Device dht22;
+using ::alpaca::DeviceApiHandlerBase;
 
 // Define some literals, which get stored in PROGMEM (in the case of AVR chips).
 TAS_DEFINE_LITERAL(ServerName, "Our Spiffy Weather Box");
 TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
 TAS_DEFINE_LITERAL(ManufacturerVersion,
                    "9099c8af5796a80137ce334713a67a718fd0cd3f");
-TAS_DEFINE_LITERAL(DHT22Name, "DHT22");
-TAS_DEFINE_LITERAL(DHT22Description, "DHT22 Humidity and Temperature Sensor");
-TAS_DEFINE_LITERAL(DHT22DriverInfo, "https://github/aavso/...");
-TAS_DEFINE_LITERAL(DHT22DriverVersion, "https://github/aavso/...");
-
 // TODO(jamessynge): Add support for storing in EEPROM.
 TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory, Westford, MA");
 
@@ -89,79 +75,16 @@ const alpaca::ServerDescription kServerDescription(ServerName(), Manufacturer(),
                                                    Manufacturer(),
                                                    DeviceLocation());
 
-// No extra actions.
-const auto kSupportedActions = alpaca::LiteralArray({});  // None
-
-const alpaca::DeviceInfo kDht22DeviceInfo{
-    .device_type = alpaca::EDeviceType::kObservingConditions,
-    .device_number = 1,
-    .name = DHT22Name(),
-    .description = DHT22Description(),
-    .driver_info = DHT22DriverInfo(),
-    .driver_version = DHT22DriverVersion(),
-    .interface_version = 1,
-    .supported_actions = kSupportedActions,
-
-    // The config_id is a random number generated when a device is added,
-    // when the *type(s)* of device(s) used changes, or perhaps when
-    // calibration parameters have been changed such that the values shouldn't
-    // be compared with prior values from this device.
-    // The config_id can be used, along with other info, to generate a UUID
-    // for the device, for use as its UniqueId.
-    .config_id = 179122466,
-};
-
-class Dht22Handler : public ObservingConditionsAdapter {
- public:
-  Dht22Handler() : ObservingConditionsAdapter(kDht22DeviceInfo) {}
-
-  bool HandleGetRequest(const AlpacaRequest& request, Print& out) override {
-    switch (request.device_method) {
-      case EDeviceMethod::kHumidity:
-        return alpaca::WriteResponse::DoubleResponse(
-            request, dht22.get_relative_humidity(), out);
-
-      case EDeviceMethod::kTemperature:
-        return alpaca::WriteResponse::DoubleResponse(
-            request, dht22.get_temperature(), out);
-
-      default:
-        // For common methods, this will delegate to overrideable methods such
-        // as HandleGetDescription, and for unsupported methods (e.g.
-        // "cloudcover"), and will delegate to methods such
-        return ObservingConditionsAdapter::HandleGetRequest(request, out);
-    }
-  }
-
-  StatusOr<double> GetHumidity() override {
-    return dht22.get_relative_humidity();
-  }
-
-  StatusOr<double> GetTemperature() override { return dht22.get_temperature(); }
-
-  bool GetConnected() override {
-    return true;  // XXX: Return true if able to talk to the device.
-  }
-
-  StatusOr<Literal> GetSensorDescription(StringView sensor_name) override {
-    if (CaseEqual(sensor_name, alpaca::Literals::humidity()) ||
-        CaseEqual(sensor_name, alpaca::Literals::temperature())) {
-      return DHT22Description();
-    }
-    return alpaca::ErrorCodes::InvalidValue();
-  }
-};
-
 static Dht22Handler dht_handler;  // NOLINT
 
 constexpr DeviceApiHandlerBase* kDeviceHandlers[] = {&dht_handler};
-// alpaca::MakeArray<DeviceApiHandlerBase*>(&dht_handler);
 
-DhcpClass dhcp;
+static constexpr uint16_t kHttpPort = 80;
+static DhcpClass dhcp;
 static alpaca::IpDevice ip_device;
-
-static alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
-    80, kServerDescription, kDeviceHandlers);
+static alpaca::TinyAlpacaDiscoveryServer discovery_server(kHttpPort);  // NOLINT
+static alpaca::TinyAlpacaServer tiny_alpaca_server(                    // NOLINT
+    kHttpPort, kServerDescription, kDeviceHandlers);
 
 void announceAddresses() {
   Serial.println();
@@ -205,39 +128,16 @@ void setup() {
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
-  alpaca::OuiPrefix oui_prefix(0x53, 0x57, 0x76);
+  alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
   if (!ip_device.setup(&oui_prefix)) {
     announceFailure("Unable to initialize networking!");
   }
   announceAddresses();
 
+  if (!discovery_server.begin()) {
+    announceFailure("Unable to start listening for Alpaca Discovery messages!");
+  }
   tiny_alpaca_server.begin();
-
-  //   // Ask alpaca::Server to verify settings.
-  //   if (!alpaca_server.VerifyConfig()) {
-  //     announceFailure("Unable to verify Tiny Alpaca Server configuration");
-  //   }
-
-  //   // Do hardware setup (e.g. init connection to sensors).
-  //   // TBD
-
-  //   // The microcontroller may be ready before the network chip (based on
-  //   docs and
-  //   // experience), so we wait a bit for hardware to be ready.
-  //   delay(200);
-
-  //   // Initialize networking. Provide an "Organizationally Unique Identifier"
-  //   // that will be the first 3 bytes of the MAC addresses generated; this
-  //   means
-  //   // that all boards running this sketch will share the first 3 bytes of
-  //   their
-  //   // MAC addresses, which may help with locating them if other discovery
-  //   means
-  //   // are failing.
-  //   OuiPrefix oui_prefix(0x52, 0xC4, 0x55);  // TODO Choose a value.
-  //   if (!alpaca_server.SetupNetworking(&oui_prefix)) {
-  //     announceFailure("Unable to initialize networking!");
-  //   }
 }
 
 // For now only supporting one request at a time. Unless there are multiple
@@ -267,5 +167,6 @@ void loop() {
       Serial.println(dhcp_check);
   }
 
+  discovery_server.loop();
   tiny_alpaca_server.loop();
 }
