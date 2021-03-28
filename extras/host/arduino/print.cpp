@@ -154,6 +154,8 @@ size_t Print::println(const Printable& value) {
 
 size_t Print::println() { return write(EOL); }
 
+void Print::flush() {}
+
 size_t Print::printDouble(double value, int digits) {
   if (digits > 20) {
     digits = 20;

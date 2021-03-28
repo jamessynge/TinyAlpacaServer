@@ -20,6 +20,8 @@ class FakeSerial : public Print {
   // Pull in the other variants of write; otherwise, only the above two are
   // visible.
   using Print::write;
+
+  void flush() override;
 };
 
 extern FakeSerial Serial;  // NOLINT

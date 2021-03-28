@@ -12,4 +12,6 @@ size_t FakeSerial::write(const uint8_t* buffer, size_t size) {
   return size;
 }
 
+void FakeSerial::flush() { std::cout.flush(); }
+
 FakeSerial Serial;  // NOLINT

@@ -78,6 +78,8 @@ class Print {
   size_t println(const Printable& value);
   size_t println();
 
+  virtual void flush();
+
  private:
   size_t printDouble(double value, int digits);
 };
