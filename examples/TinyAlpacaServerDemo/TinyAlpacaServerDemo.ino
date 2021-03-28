@@ -50,15 +50,10 @@
 //
 // Author: james.synge@gmail.com
 
-#ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
 #include "dht22_handler.h"
-#else
-#include "TinyAlpacaServer.h"
-#include "examples/TinyAlpacaServerDemo/dht22_handler.h"
-#endif
 
 using ::alpaca::DeviceApiHandlerBase;
 

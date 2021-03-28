@@ -2,12 +2,8 @@
 // measuring the program (FLASH) and globals (RAM) storage requirements of
 // decoding an HTTP request with an optional body with URL encoded parameters.
 
-#ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
-#else
-#include "TinyAlpacaServer.h"
-#endif
 
 using ::alpaca::AlpacaRequest;
 using ::alpaca::CountingBitbucket;

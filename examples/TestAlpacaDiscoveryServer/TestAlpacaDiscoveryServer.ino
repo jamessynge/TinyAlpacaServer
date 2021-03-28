@@ -1,9 +1,5 @@
-#ifdef ARDUINO
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
-#else
-#include "TinyAlpacaServer.h"
-#endif
 
 DhcpClass dhcp;
 static alpaca::IpDevice ip_device;
