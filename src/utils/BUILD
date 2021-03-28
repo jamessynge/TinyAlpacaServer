@@ -143,7 +143,7 @@ cc_library(
     srcs = ["logging.cc"],
     hdrs = ["logging.h"],
     deps = [
-        ":o_print_stream",
+        ":log_sink",
         ":platform",
         "//core:logging",
     ],
@@ -255,4 +255,44 @@ cc_library(
 cc_library(
     name = "type_traits",
     hdrs = ["type_traits.h"],
+)
+
+cc_library(
+    name = "log_sink",
+    srcs = ["log_sink.cc"],
+    hdrs = ["log_sink.h"],
+    deps = [
+        ":o_print_stream",
+        ":platform",
+        "//base:logger",
+        "//base:logging_extensions",
+        "//core:logging",
+    ],
+)
+
+cc_library(
+    name = "log_experiment",
+    hdrs = ["log_experiment.h"],
+    deps = [
+        ":log_sink",
+        ":logging",
+    ],
+)
+
+cc_binary(
+    name = "log_experiment_disabled",
+    srcs = ["log_experiment_disabled.cc"],
+    deps = [
+        ":log_experiment",
+        "//base",
+    ],
+)
+
+cc_binary(
+    name = "log_experiment_enabled",
+    srcs = ["log_experiment_enabled.cc"],
+    deps = [
+        ":log_experiment",
+        "//base",
+    ],
 )

@@ -40,6 +40,14 @@ class OPrintStream {
     return out;
   }
 
+  template <typename T>
+  friend OPrintStream& operator<<(OPrintStream&& out, const T& value) {
+    // Selects the specialization of OPrintStream::print based on whether T
+    // has a printTo(Print&) member function.
+    OPrintStream::print(out.out_, value, has_print_to<T>{});
+    return out;
+  }
+
  protected:
   template <typename T>
   static void print(Print& out, const T& value, true_type /*has_print_to*/) {

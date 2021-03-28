@@ -10,25 +10,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "utils/o_print_stream.h"
-
-namespace alpaca {
-
-class LogSink : public OPrintStream {
- public:
-  explicit LogSink(Print& out) : OPrintStream(out) {}
-  ~LogSink() { out_.println(); }
-};
-
-class VoidSink {
- public:
-  template <typename T>
-  friend VoidSink& operator<<(VoidSink& sink, const T&) {
-    return sink;
-  }
-};
-
-}  // namespace alpaca
+#include "utils/log_sink.h"
 
 #ifdef ARDUINO
 

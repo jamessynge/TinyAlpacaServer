@@ -22,12 +22,15 @@ cc_library(
         ":escaping",
         ":extra_parameters",
         ":http_response_header",
+        ":inline_literal",
         ":ip_device",
         ":json_encoder",
         ":json_response",
         ":literal",
         ":literal_token",
         ":literals",
+        ":log_experiment",
+        ":log_sink",
         ":logging",
         ":match_literals",
         ":o_print_stream",
@@ -47,6 +50,7 @@ cc_library(
         ":string_view",
         ":tiny_alpaca_server",
         ":tiny_string",
+        ":type_traits",
     ],
 )
 
