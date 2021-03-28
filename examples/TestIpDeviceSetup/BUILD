@@ -4,9 +4,7 @@ cc_binary(
     name = "TestIpDeviceSetup",
     srcs = ["TestIpDeviceSetup.ino.cc"],
     deps = [
-        ":addresses",
+        ":TinyAlpacaServer",
         ":arduino_main",
-        ":dhcp_class",
-        ":ip_device",
     ],
 )

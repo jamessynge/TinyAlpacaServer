@@ -1,12 +1,10 @@
-#include "extras/host/ethernet3/dhcp_class.h"
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <Ethernet3.h>
-#include <utils/ip_device.h>
+#include <TinyAlpacaServer.h>
 #else
+#include "TinyAlpacaServer.h"
 #include "extras/host/ethernet3/ethernet3.h"
-#include "utils/addresses.h"
-#include "utils/ip_device.h"
 #endif
 
 DhcpClass dhcp;
