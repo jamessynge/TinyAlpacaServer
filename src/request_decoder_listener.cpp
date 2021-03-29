@@ -5,6 +5,8 @@
 #include "constants.h"
 #include "utils/logging.h"
 #include "utils/string_view.h"
+#include "utils/any_printable.h"
+#include "utils/escaping.h"
 
 namespace alpaca {
 
@@ -12,39 +14,38 @@ RequestDecoderListener::~RequestDecoderListener() {}
 
 EHttpStatusCode RequestDecoderListener::OnExtraParameter(
     EParameter param, const StringView& value) {
-  TAS_DVLOG(1, "OnExtraParameter(" << param << ", " << ToHexEscapedString(value)
-                                   << ")");
+  TAS_VLOG(1) << "OnExtraParameter(" << param << ", " << value << ")";
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnExtraHeader(EHttpHeader header,
                                                       const StringView& value) {
-  TAS_DVLOG(1, "OnExtraHeader(" << header << ", " << ToHexEscapedString(value)
-                                << ")");
+  TAS_VLOG(1) << "OnExtraHeader(" << header << ", " << HexEscaped(value)
+              << ")";
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownParameterName(
     const StringView& name) {
-  TAS_DVLOG(1, "OnUnknownParameterName(" << ToHexEscapedString(name) << ")");
+  TAS_VLOG(1) << "OnUnknownParameterName(" << HexEscaped(name) << ")";
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownParameterValue(
     const StringView& value) {
-  TAS_DVLOG(1, "OnUnknownParameterValue(" << ToHexEscapedString(value) << ")");
+  TAS_VLOG(1) << "OnUnknownParameterValue(" << HexEscaped(value) << ")";
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownHeaderName(
     const StringView& name) {
-  TAS_DVLOG(1, "OnUnknownHeaderName(" << ToHexEscapedString(name) << ")");
+  TAS_VLOG(1) << "OnUnknownHeaderName(" << HexEscaped(name) << ")";
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownHeaderValue(
     const StringView& value) {
-  TAS_DVLOG(1, "OnUnknownHeaderValue(" << ToHexEscapedString(value) << ")");
+  TAS_VLOG(1) << "OnUnknownHeaderValue(" << HexEscaped(value) << ")";
   return EHttpStatusCode::kContinueDecoding;
 }
 

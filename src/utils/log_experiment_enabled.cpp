@@ -1,3 +1,5 @@
+#ifndef ARDUINO
+
 #ifndef TAS_ENABLE_CHECK
 #define TAS_ENABLE_CHECK
 #endif
@@ -15,3 +17,5 @@ int main(int argc, char* argv[]) {
   LogExperimentTestFunction();
   return 0;
 }
+
+#endif

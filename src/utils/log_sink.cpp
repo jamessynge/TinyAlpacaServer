@@ -1,9 +1,12 @@
 #include "utils/log_sink.h"
 
+#if TAS_HOST_TARGET
 #include <cstdlib>
 
 #include "base/logger.h"
 #include "base/logging_extensions.h"
+#endif
+
 #include "utils/platform.h"
 
 namespace alpaca {
@@ -13,7 +16,7 @@ LogSink::LogSink(Print& out) : OPrintStream(out) {
   LOG(INFO) << "LogSink(Print&) ctor @" << std::hex << this;
 #else
   Serial.print("LogSink(Print&) ctor @");
-  Serial.println(static_cast<void*>(this), HEX)
+  Serial.println((unsigned int)this, HEX);
 #endif
 }
 LogSink::LogSink() : LogSink(::Serial) {
@@ -21,7 +24,7 @@ LogSink::LogSink() : LogSink(::Serial) {
   LOG(INFO) << "LogSink() ctor @" << std::hex << this;
 #else
   Serial.print("LogSink() ctor @");
-  Serial.println(static_cast<void*>(this), HEX)
+  Serial.println((unsigned int)this, HEX);
 #endif
 }
 
@@ -31,7 +34,7 @@ LogSink::~LogSink() {
   LOG(INFO) << "LogSink dtor @" << std::hex << this;
 #else
   Serial.print("LogSink() dtor @");
-  Serial.println(static_cast<void*>(this), HEX)
+  Serial.println((unsigned int)this, HEX);
 #endif
 }
 
@@ -40,7 +43,7 @@ CheckSink::CheckSink(Print& out) : OPrintStream(out) {
   LOG(INFO) << "CheckSink(Print&) ctor @" << std::hex << this;
 #else
   Serial.print("CheckSink(Print&) ctor @");
-  Serial.println(static_cast<void*>(this), HEX)
+  Serial.println((unsigned int)this, HEX);
 #endif
 }
 
@@ -49,7 +52,7 @@ CheckSink::CheckSink() : CheckSink(::Serial) {
   LOG(INFO) << "CheckSink() ctor @" << std::hex << this;
 #else
   Serial.print("CheckSink(Print&) ctor @");
-  Serial.println(static_cast<void*>(this), HEX)
+  Serial.println((unsigned int)this, HEX);
 #endif
 }
 

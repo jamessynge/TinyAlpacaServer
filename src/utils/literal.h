@@ -122,6 +122,9 @@ std::string ToStdString(const Literal& literal);
 
 // Returns a quoted and hex escaped string from the characters in the view.
 std::string ToHexEscapedString(const Literal& literal);
+#else
+// TODO(jamessynge): Implement a real facility for hex escaping printables.
+const Literal& ToHexEscapedString(const Literal& literal) { return literal; }
 #endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

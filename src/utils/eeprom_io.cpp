@@ -1,9 +1,10 @@
 #include "utils/eeprom_io.h"
 
+#include "utils/escaping.h"
 #include "utils/logging.h"
 #include "utils/platform.h"
 
-namespace eeprom_io {
+namespace alpaca {
 namespace {
 // Values from https://www.arduino.cc/en/Tutorial/EEPROMCrc:
 constexpr uint32_t kCrcTable[16] AVR_PROGMEM = {
@@ -27,31 +28,32 @@ uint32_t GetCrcTableEntry(uint32_t key) {
 Crc32::Crc32() : value_(~0L) {}
 
 void Crc32::appendByte(uint8_t v) {
-  TAS_DVLOG(1, "Crc32::appendByte(" << (v + 0) << ") old value=" << std::hex
-                                    << value_);
+  TAS_VLOG(1) << "Crc32::appendByte(" << (v + 0)
+              << ") old value=" << alpaca::HexEscaped(value_);
   value_ = GetCrcTableEntry(value_ ^ v) ^ (value_ >> 4);
   value_ = GetCrcTableEntry(value_ ^ (v >> 4)) ^ (value_ >> 4);
   value_ = ~value_;
-  TAS_DVLOG(1, "new value=" << std::hex << value_);
+  TAS_VLOG(1) << "new value=" << alpaca::HexEscaped(value_);
 }
 
 // Store the value at the specified address.
 int Crc32::put(int crcAddress) const {
   static_assert(4 == sizeof value_, "sizeof value_ is not 4");
-  TAS_DVLOG(1, "Crc32::put(" << crcAddress << ") value=" << std::hex << value_);
+  TAS_VLOG(1) << "Crc32::put(" << crcAddress
+              << ") value=" << alpaca::HexEscaped(value_);
   EEPROM.put(crcAddress, value_);
-  TAS_DCHECK(verify(crcAddress));
+  TAS_CHECK(verify(crcAddress));
   return crcAddress + static_cast<int>(sizeof value_);
 }
 
 // Validate that the computed value (value_) matches the value stored
 // at the specified address.
 bool Crc32::verify(int crcAddress) const {
-  TAS_DVLOG(1, "Crc32::verify(" << crcAddress << ") computed value=" << std::hex
-                                << value_);
+  TAS_VLOG(1) << "Crc32::verify(" << crcAddress
+              << ") computed value=" << alpaca::HexEscaped(value_);
   uint32_t stored = 0;
   EEPROM.get(crcAddress, stored);
-  TAS_DVLOG(1, "stored value=" << std::hex << stored);
+  TAS_VLOG(1) << "stored value=" << alpaca::HexEscaped(stored);
   return value_ == stored;
 }
 
@@ -96,4 +98,4 @@ void getBytes(int address, size_t numBytes, uint8_t* dest, Crc32* crc) {
   }
 }
 
-}  // namespace eeprom_io
+}  // namespace alpaca

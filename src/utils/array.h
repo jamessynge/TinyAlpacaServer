@@ -47,19 +47,19 @@ struct Array {
 
   // Element access:
   reference operator[](size_type ndx) {
-    TAS_DCHECK_LT(ndx, SIZE);
+    TAS_CHECK_LT(ndx, SIZE);
     return elems_[ndx];
   }
   const_reference operator[](size_type ndx) const {
-    TAS_DCHECK_LT(ndx, SIZE);
+    TAS_CHECK_LT(ndx, SIZE);
     return elems_[ndx];
   }
   reference at(size_type ndx) {
-    TAS_DCHECK_LT(ndx, SIZE);
+    TAS_CHECK_LT(ndx, SIZE);
     return elems_[ndx];
   }
   const_reference at(size_type ndx) const {
-    TAS_DCHECK_LT(ndx, SIZE);
+    TAS_CHECK_LT(ndx, SIZE);
     return elems_[ndx];
   }
 

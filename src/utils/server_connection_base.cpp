@@ -25,7 +25,7 @@ class ExtendedEthernetClient : public EthernetClient {
 ServerConnectionBase::~ServerConnectionBase() {}
 
 bool ServerConnectionBase::set_sock_num(uint8_t sock_num) {
-  TAS_DCHECK(!has_socket(), "sock_num_: " << sock_num_);
+  TAS_CHECK(!has_socket())<< "sock_num_: " << sock_num_;
   if (has_socket()) {
     return false;
   }
@@ -39,7 +39,7 @@ bool ServerConnectionBase::set_sock_num(uint8_t sock_num) {
 }
 
 void ServerConnectionBase::PerformIO() {
-  TAS_DCHECK(has_socket());
+  TAS_CHECK(has_socket());
   if (!has_socket()) {
     return;
   }

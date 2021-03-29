@@ -96,4 +96,24 @@ size_t AnyPrintable::printTo(Print& out) const {
   return 0;
 }
 
+namespace {
+class HexEscapedAnyPrintable : public HexEscapedPrintable {
+ public:
+  explicit HexEscapedAnyPrintable(AnyPrintable wrapped);
+
+  size_t printTo(Print& out) const override;
+
+ private:
+  AnyPrintable copied_;
+};
+}  // namespace
+
+HexEscapedPrintable HexEscaped(StringView view) {
+  return HexEscapedPrintable(AnyPrintable(view));
+}
+
+HexEscapedPrintable HexEscaped(Literal literal) {
+  return HexEscapedPrintable(AnyPrintable(literal));
+}
+
 }  // namespace alpaca

@@ -18,7 +18,12 @@ void setup() {
   while (!Serial) {
   }
 
+  Serial.println("calling test function");
   LogExperimentTestFunction();
 }
 
-void loop() {}
+void loop() {
+  Serial.println("loop entry");
+  
+  delay(1000);  
+}

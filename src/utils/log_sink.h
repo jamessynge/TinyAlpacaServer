@@ -5,7 +5,12 @@
 // VoidSink is used in place of LogSink when logging is disabled at compile
 // time.
 
+#include "utils/platform.h"
+
+#ifndef TAS_HOST_TARGET
 #include "logging.h"
+#endif 
+
 #include "utils/o_print_stream.h"
 
 namespace alpaca {
@@ -28,7 +33,6 @@ class VoidSink {
  public:
   VoidSink() {
 #if TAS_HOST_TARGET
-
     DVLOG(3) << "VoidSink() ctor @ " << std::hex << this << std::dec
              << ", count=" << count_;
 #endif
@@ -55,16 +59,16 @@ class VoidSink {
   friend VoidSink& operator<<(const VoidSink& sink, const T&) {
 #if TAS_HOST_TARGET
     DVLOG(3) << "operator<< const&";
-    return const_cast<VoidSink&>(sink);
 #endif
+    return const_cast<VoidSink&>(sink);
   }
 
   template <typename T>
   friend VoidSink& operator<<(VoidSink& sink, const T&) {
 #if TAS_HOST_TARGET
     DVLOG(3) << "operator<< &";
-    return sink;
 #endif
+    return sink;
   }
 
  private:

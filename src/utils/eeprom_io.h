@@ -6,7 +6,7 @@
 
 #include "utils/platform.h"
 
-namespace eeprom_io {
+namespace alpaca {
 
 // Class for computing a Cyclic Redundancy Check (a hash).
 // Used for verifying that the EEPROM is uncorrupted.
@@ -39,6 +39,6 @@ void putBytes(int address, const uint8_t* src, size_t numBytes, Crc32* crc);
 // Similarly, we can validate during restore.
 void getBytes(int address, size_t numBytes, uint8_t* dest, Crc32* crc);
 
-}  // namespace eeprom_io
+}  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_EEPROM_IO_H_

@@ -178,7 +178,7 @@ TEST(LiteralTest, StreamUpper) {
 TEST(LiteralTest, StreamHexEscaped) {
   Literal literal(kLowerStr);
   std::ostringstream oss;
-  oss << ToHexEscapedString(literal);
+  oss << HexEscaped(literal);
   EXPECT_EQ(oss.str(), kLowerHexEscaped);
 }
 

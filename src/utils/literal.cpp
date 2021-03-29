@@ -40,7 +40,7 @@ bool Literal::same(const Literal& other) const {
 }
 
 char Literal::at(const Literal::size_type pos) const {
-  TAS_DCHECK_LT(pos, size_);
+  TAS_CHECK_LT(pos, size_);
   return pgm_read_char(ptr_ + pos);
 }
 

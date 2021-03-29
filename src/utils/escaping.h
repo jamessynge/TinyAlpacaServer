@@ -4,21 +4,15 @@
 // Core of support for printing JSON strings. Characters that are not valid in
 // JSON strings (e.g. Ctrl-A) are not printed.
 
-#include "utils/any_printable.h"
 #include "utils/platform.h"
-
-#if TAS_HOST_TARGET
-#include <ostream>
-#endif  // TAS_HOST_TARGET
 
 namespace alpaca {
 
-// Wraps a Print instance, forwards output to that instance with JSON escaping
-// applied. Note that this does NOT add double quotes before and after the
-// output.
-class PrintJsonEscaped : public Print {
+size_t PrintCharHexEscaped(Print& out, const char c);
+
+class PrintHexEscaped : public Print {
  public:
-  explicit PrintJsonEscaped(Print& wrapped);
+  explicit PrintHexEscaped(Print& wrapped);
 
   // These are the two abstract virtual methods in Arduino's Print class. I'm
   // presuming that the uint8_t 'b' is actually an ASCII char.
@@ -32,30 +26,91 @@ class PrintJsonEscaped : public Print {
   Print& wrapped_;
 };
 
-// Print 'value' to 'raw_output', with the characters JSON escaped. Note that
-// this does NOT add double quotes before and after the output.
-size_t PrintJsonEscapedTo(const Printable& value, Print& raw_output);
-inline size_t PrintJsonEscapedTo(const AnyPrintable& value, Print& raw_output) {
-  return PrintJsonEscapedTo(static_cast<const Printable&>(value), raw_output);
+class HexEscapedPrintable : public Printable {
+ public:
+  explicit HexEscapedPrintable(const Printable& wrapped);
+
+  size_t printTo(Print& out) const override;
+
+ private:
+  const Printable& wrapped_;
+};
+
+class HexEscapedInteger : public Printable {
+ public:
+  explicit HexEscapedInteger(uint32_t value) : value_(value) {}
+
+  size_t printTo(Print& out) const override;
+
+ private:
+  const uint32_t value_;
+};
+
+namespace escaping_internal {
+
+template <class T>
+class HexEscapedLikePrintable : public Printable {
+ public:
+  explicit HexEscapedLikePrintable(const T& wrapped) : wrapped_(wrapped){}
+
+  size_t printTo(Print& out) const {
+  size_t count = raw_out.print('"');
+  PrintHexEscaped out(raw_out);
+  count += wrapped_.printTo(out);
+  count += raw_out.print('"');
+  return count;
 }
 
-// Print 'value' to 'raw_output' as a JSON string, i.e. starting and ending with
-// double quotes, and with the characters printed by 'value' JSON escaped.
-size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output);
-inline size_t PrintJsonEscapedStringTo(const AnyPrintable& value,
-                                       Print& raw_output) {
-  return PrintJsonEscapedStringTo(static_cast<const Printable&>(value),
-                                  raw_output);
+ private:
+  const Printable& wrapped_;
+};
+}  // namespace escaping_internal
+
+template <typename T>
+inline HexEscapedPrintable HexEscaped(const T& like_printable) {
+  return escaping_internal::HexEscaped
+
+      // Selects the specialization of OPrintStream::print based on whether T
+      // has a printTo(Print&) member function.
+      OPrintStream::print(out.out_, value, has_print_to<T>{});
+
+  return HexEscapedPrintable(printable);
 }
 
-// Print c with appropriate escaping for JSON.
-size_t PrintCharJsonEscaped(Print& out, char c);
+template <>
+inline HexEscapedPrintable HexEscaped(const Printable& printable) {
+  return HexEscapedPrintable(printable);
+}
 
-#if TAS_HOST_TARGET
-// Insert the escaped character into the ostream. Supports streaming
-// JsonStringView instances, useful for logging and debugging.
-void StreamCharJsonEscaped(std::ostream& out, const char c);
-#endif  // TAS_HOST_TARGET
+template <>
+inline HexEscapedInteger HexEscaped(uint8_t value) {
+  return HexEscapedInteger(value);
+}
+
+template <>
+inline HexEscapedInteger HexEscaped(int8_t value) {
+  return HexEscapedInteger(static_cast<uint32_t>(value));
+}
+
+template <>
+inline HexEscapedInteger HexEscaped(uint16_t value) {
+  return HexEscapedInteger(value);
+}
+
+template <>
+inline HexEscapedInteger HexEscaped(int16_t value) {
+  return HexEscapedInteger(static_cast<uint32_t>(value));
+}
+
+template <>
+inline HexEscapedInteger HexEscaped(uint32_t value) {
+  return HexEscapedInteger(value);
+}
+
+template <>
+inline HexEscapedInteger HexEscaped(int32_t value) {
+  return HexEscapedInteger(static_cast<uint32_t>(value));
+}
 
 }  // namespace alpaca
 

@@ -1,5 +1,6 @@
 #include "utils/addresses.h"
 
+#include "utils/escaping.h"
 #include "utils/logging.h"
 #include "utils/platform.h"
 
@@ -15,10 +16,10 @@ const char kName[] = "addrs";
 // inclusive. Learn more: https://tools.ietf.org/html/rfc3927
 void pickIPAddress(IPAddress* output) {
   int c = random(254) + 1;
-  TAS_DLOG(INFO, "pickIPAddress: c=" << c);
+  TAS_VLOG(5) << "pickIPAddress: c=" << c;
 
   int d = random(256);
-  TAS_DLOG(INFO, "pickIPAddress: d=" << d);
+  TAS_VLOG(5) << "pickIPAddress: d=" << d;
 
   (*output)[0] = 169;
   (*output)[1] = 254;
@@ -98,7 +99,7 @@ void MacAddress::generateAddress(const OuiPrefix* oui_prefix) {
       r = toOuiUnicast(r);
     }
     mac[i] = r;
-    TAS_DLOG(INFO, "mac[" << i << "] = 0x" << std::hex << mac[i]);
+    TAS_VLOG(4) << "mac[" << i << "] = 0x" << HexEscaped(mac[i]);
   }
 }
 
@@ -111,13 +112,13 @@ size_t MacAddress::printTo(Print& p) const {
   return result;
 }
 
-int MacAddress::save(int toAddress, eeprom_io::Crc32* crc) const {
-  eeprom_io::putBytes(toAddress, &mac[0], 6, crc);
+int MacAddress::save(int toAddress, Crc32* crc) const {
+  putBytes(toAddress, &mac[0], 6, crc);
   return toAddress + 6;
 }
 
-int MacAddress::read(int fromAddress, eeprom_io::Crc32* crc) {
-  eeprom_io::getBytes(fromAddress, 6, &mac[0], crc);
+int MacAddress::read(int fromAddress, Crc32* crc) {
+  getBytes(fromAddress, 6, &mac[0], crc);
   return fromAddress + 6;
 }
 
@@ -140,7 +141,7 @@ bool MacAddress::operator==(const MacAddress& other) const {
 // are some Arduino libraries where IPAddress also supports IPv6 addresses,
 // for which this code would need updating.
 
-int SaveableIPAddress::save(int toAddress, eeprom_io::Crc32* crc) const {
+int SaveableIPAddress::save(int toAddress, Crc32* crc) const {
   for (int i = 0; i < 4; ++i) {
     const uint8_t b = (*this)[i];
     EEPROM.update(toAddress++, b);
@@ -151,7 +152,7 @@ int SaveableIPAddress::save(int toAddress, eeprom_io::Crc32* crc) const {
   return toAddress;
 }
 
-int SaveableIPAddress::read(int fromAddress, eeprom_io::Crc32* crc) {
+int SaveableIPAddress::read(int fromAddress, Crc32* crc) {
   for (int i = 0; i < 4; ++i) {
     const uint8_t b = EEPROM.read(fromAddress++);
     (*this)[i] = b;
@@ -165,7 +166,7 @@ int SaveableIPAddress::read(int fromAddress, eeprom_io::Crc32* crc) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
-  TAS_DLOG(INFO, "Entered loadOrGenAndSave");
+  TAS_VLOG(3) << "Entered loadOrGenAndSave";
   if (load(oui_prefix)) {
     return;
   }
@@ -175,8 +176,8 @@ void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
 
 #ifndef NDEBUG
   Addresses loader;
-  TAS_DCHECK(loader.load(oui_prefix));
-  TAS_DCHECK_EQ(loader.ip, ip);
+  TAS_CHECK(loader.load(oui_prefix));
+  TAS_CHECK_EQ(loader.ip, ip);
 #endif
 }
 
@@ -184,32 +185,32 @@ void Addresses::save() const {
   Serial.print("Saving ");
   Serial.println(kName);
 
-  int ipAddress = eeprom_io::saveName(0, kName);
-  eeprom_io::Crc32 crc;
+  int ipAddress = saveName(0, kName);
+  Crc32 crc;
   int macAddress = ip.save(ipAddress, &crc);
   int crcAddress = mac.save(macAddress, &crc);
   crc.put(crcAddress);
   // int dataStartAddress = crcAddress + 4;
   // int dataAddress = ip.save(dataStartAddress, &crc);
   // dataAddress = mac.save(dataAddress, &crc);
-  // eeprom_io::putCrc(crcAddress, crc);
+  // putCrc(crcAddress, crc);
 }
 
 bool Addresses::load(const OuiPrefix* oui_prefix) {
   int ipAddress;
-  if (!eeprom_io::verifyName(0, kName, &ipAddress)) {
-    TAS_DLOG(WARNING, "Stored name mismatch");
+  if (!verifyName(0, kName, &ipAddress)) {
+    TAS_VLOG(2) << "Stored name mismatch";
     return false;
   }
-  eeprom_io::Crc32 crc;
+  Crc32 crc;
   int macAddress = ip.read(ipAddress, &crc);
   int crcAddress = mac.read(macAddress, &crc);
   if (!crc.verify(crcAddress)) {
-    TAS_DLOG(WARNING, "Stored crc mismatch");
+    TAS_VLOG(2) << "Stored crc mismatch";
     return false;
   }
   if (oui_prefix && !mac.hasOuiPrefix(*oui_prefix)) {
-    TAS_DLOG(WARNING, "Stored OUI prefix mismatch");
+    TAS_VLOG(2) << "Stored OUI prefix mismatch";
     return false;
   }
   return true;

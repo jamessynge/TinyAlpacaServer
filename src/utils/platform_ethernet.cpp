@@ -7,8 +7,8 @@ namespace alpaca {
 
 bool PlatformEthernet::InitializeTcpListenerSocket(int sock_num,
                                                    uint16_t tcp_port) {
-  TAS_DCHECK_LE(0, sock_num);
-  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+  TAS_CHECK_LE(0, sock_num);
+  TAS_CHECK_LT(sock_num, MAX_SOCK_NUM);
 #if TAS_EMBEDDED_TARGET
   EthernetClient client(sock_num);
   if (client.status() == SnSR::CLOSED) {
@@ -33,8 +33,8 @@ bool PlatformEthernet::SocketIsConnected(int sock_num) {
 }
 
 bool PlatformEthernet::IsClientDone(int sock_num) {
-  TAS_DCHECK_LE(0, sock_num);
-  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+  TAS_CHECK_LE(0, sock_num);
+  TAS_CHECK_LT(sock_num, MAX_SOCK_NUM);
 #if TAS_EMBEDDED_TARGET
   EthernetClient client(sock_num);
   return client.status() == SnSR::CLOSE_WAIT;
@@ -44,8 +44,8 @@ bool PlatformEthernet::IsClientDone(int sock_num) {
 }
 
 bool PlatformEthernet::IsOpenForWriting(int sock_num) {
-  TAS_DCHECK_LE(0, sock_num);
-  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+  TAS_CHECK_LE(0, sock_num);
+  TAS_CHECK_LT(sock_num, MAX_SOCK_NUM);
 #if TAS_EMBEDDED_TARGET
   EthernetClient client(sock_num);
   auto status = client.status();
@@ -56,8 +56,8 @@ bool PlatformEthernet::IsOpenForWriting(int sock_num) {
 }
 
 bool PlatformEthernet::SocketIsClosed(int sock_num) {
-  TAS_DCHECK_LE(0, sock_num);
-  TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
+  TAS_CHECK_LE(0, sock_num);
+  TAS_CHECK_LT(sock_num, MAX_SOCK_NUM);
 #if TAS_EMBEDDED_TARGET
   EthernetClient client(sock_num);
   return client.status() == SnSR::CLOSED;

@@ -10,6 +10,7 @@
 // contained by the captured item, the referenced value needs to outlive the
 // AnyPrintable.
 
+#include "utils/escaping.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
 #include "utils/string_view.h"
@@ -68,6 +69,18 @@ class AnyPrintable : public Printable {
     const Printable* printable_;
   };
 };
+
+// inline size_t PrintJsonEscapedTo(const AnyPrintable& value, Print& raw_output) {
+//   return PrintJsonEscapedTo(static_cast<const Printable&>(value), raw_output);
+// }
+// inline size_t PrintJsonEscapedStringTo(const AnyPrintable& value,
+//                                        Print& raw_output) {
+//   return PrintJsonEscapedStringTo(static_cast<const Printable&>(value),
+//                                   raw_output);
+// }
+
+HexEscapedPrintable HexEscaped(StringView view);
+HexEscapedPrintable HexEscaped(Literal literal);
 
 }  // namespace alpaca
 

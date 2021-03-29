@@ -93,12 +93,12 @@ TEST(LiteralTokenTest, LMUTokens) {
       if (lit_case.matches) {
         EXPECT_TRUE(MaybeMatchLiteralTokensExactly(
             view, MakeArrayView(kLMUTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, lit_case.match_id);
       } else {
         EXPECT_FALSE(MaybeMatchLiteralTokensExactly(
             view, MakeArrayView(kLMUTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, kNoMatchId);
       }
     }
@@ -112,12 +112,12 @@ TEST(LiteralTokenTest, LMUTokens) {
       if (lit_case.matches) {
         EXPECT_TRUE(MaybeMatchLiteralTokensCaseInsensitively(
             view, MakeArrayView(kLMUTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, lit_case.match_id);
       } else {
         EXPECT_FALSE(MaybeMatchLiteralTokensCaseInsensitively(
             view, MakeArrayView(kLMUTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, kNoMatchId);
       }
     }
@@ -149,12 +149,12 @@ TEST(LiteralTokenTest, UMLTokens) {
       if (lit_case.matches) {
         EXPECT_TRUE(MaybeMatchLiteralTokensExactly(
             view, MakeArrayView(kUMLTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, lit_case.match_id);
       } else {
         EXPECT_FALSE(MaybeMatchLiteralTokensExactly(
             view, MakeArrayView(kUMLTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, kNoMatchId);
       }
     }
@@ -168,12 +168,12 @@ TEST(LiteralTokenTest, UMLTokens) {
       if (lit_case.matches) {
         EXPECT_TRUE(MaybeMatchLiteralTokensCaseInsensitively(
             view, MakeArrayView(kUMLTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, lit_case.match_id);
       } else {
         EXPECT_FALSE(MaybeMatchLiteralTokensCaseInsensitively(
             view, MakeArrayView(kUMLTokens), matched_id))
-            << "\nview: " << ToHexEscapedString(view);
+            << "\nview: " << HexEscaped(view);
         EXPECT_EQ(matched_id, kNoMatchId);
       }
     }

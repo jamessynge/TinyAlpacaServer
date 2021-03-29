@@ -101,14 +101,14 @@ class StringView {
 
   // Remove the first prefix_length characters from the StringView.
   void remove_prefix(size_type prefix_length) noexcept {
-    TAS_DCHECK_LE(prefix_length, size_);
+    TAS_CHECK_LE(prefix_length, size_);
     size_ -= prefix_length;
     ptr_ += prefix_length;
   }
 
   // Remove the last suffix_length characters from the StringView.
   void remove_suffix(size_type suffix_length) {
-    TAS_DCHECK_LE(suffix_length, size_);
+    TAS_CHECK_LE(suffix_length, size_);
     size_ -= suffix_length;
   }
 
@@ -124,11 +124,11 @@ class StringView {
   const_iterator begin() const { return ptr_; }
   const_iterator end() const { return ptr_ + size_; }
   char front() const {
-    TAS_DCHECK(!empty());
+    TAS_CHECK(!empty());
     return *ptr_;
   }
   char back() const {
-    TAS_DCHECK(!empty());
+    TAS_CHECK(!empty());
     return ptr_[size_ - 1];
   }
 
@@ -186,8 +186,8 @@ class StringView {
   // unless you otherwise know that it is properly terminated.
   constexpr const char* data() const { return ptr_; }
 
-  constexpr char at(size_type pos) const {
-    TAS_DCHECK_LT(pos, size_);
+  char at(size_type pos) const {
+    TAS_CHECK_LT(pos, size_);
     return ptr_[pos];
   }
 
@@ -198,9 +198,9 @@ class StringView {
   // as another StringView. Does NOT validate the parameters, so pos+n must not
   // be greater than size(). This is currently only used for non-embedded
   // code, hence the DCHECKs instead of ensuring that the result is valid.
-  TAS_CONSTEXPR_FUNC StringView substr(size_type pos, size_type n) const {
-    TAS_DCHECK_LE(pos, size_);
-    TAS_DCHECK_LE(pos + n, size_);
+  StringView substr(size_type pos, size_type n) const {
+    TAS_CHECK_LE(pos, size_);
+    TAS_CHECK_LE(pos + n, size_);
     return StringView(ptr_ + pos, n);
   }
 
@@ -247,6 +247,10 @@ std::ostream& operator<<(std::ostream& out, const StringView& view);
 // used by the embedded portion of the decoder.
 bool operator==(const StringView& a, std::string_view b);
 bool operator==(std::string_view a, const StringView& b);
+
+#else
+// TODO(jamessynge): Implement a real facility for hex escaping printables.
+const StringView& ToHexEscapedString(const StringView& view) { return view; }
 #endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

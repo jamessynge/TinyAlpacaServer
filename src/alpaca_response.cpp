@@ -158,8 +158,8 @@ bool WriteResponse::AscomNotImplementedErrorResponse(
 // static
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
-  TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest,
-                "Status code should be for an error.");
+  TAS_CHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)<<
+                "Status code should be for an error.";
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
     status_code = EHttpStatusCode::kHttpInternalServerError;
   }

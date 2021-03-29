@@ -20,17 +20,16 @@ ServerConnection::ServerConnection(RequestListener& request_listener)
     : request_listener_(request_listener), request_decoder_(request_) {}
 
 void ServerConnection::OnConnect(EthernetClient& client) {
-  TAS_DCHECK_EQ(sock_num(), client.getSocketNumber());
+  TAS_CHECK_EQ(sock_num(), client.getSocketNumber());
   request_decoder_.Reset();
   between_requests_ = true;
   input_buffer_size_ = 0;
 }
 
 void ServerConnection::OnCanRead(EthernetClient& client) {
-  TAS_DCHECK_EQ(sock_num(), client.getSocketNumber());
-  TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
-                 request_decoder_.status() == RequestDecoderStatus::kDecoding,
-             "");
+  TAS_CHECK_EQ(sock_num(), client.getSocketNumber());
+  TAS_CHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
+            request_decoder_.status() == RequestDecoderStatus::kDecoding);
   // Load input_buffer_ with as much data as will fit.
   if (input_buffer_size_ < sizeof input_buffer_) {
     auto ret = client.read(
@@ -62,9 +61,9 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
       input_buffer_size_ = 0;
     } else {
       // Verify that any removed bytes constitute a prefix of input_buffer_.
-      TAS_DCHECK_LE(view.size(), input_buffer_size_);
-      TAS_DCHECK_EQ(view.data() + view.size(),
-                    input_buffer_ + input_buffer_size_, "");
+      TAS_CHECK_LE(view.size(), input_buffer_size_);
+      TAS_CHECK_EQ(view.data() + view.size(),
+                   input_buffer_ + input_buffer_size_);
 
       if (view.size() < input_buffer_size_) {
         // Move the undecoded bytes to the front of the buffer.
