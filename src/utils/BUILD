@@ -139,6 +139,46 @@ cc_library(
 )
 
 cc_library(
+    name = "log_experiment",
+    hdrs = ["log_experiment.h"],
+    deps = [
+        ":log_sink",
+        ":logging",
+    ],
+)
+
+cc_binary(
+    name = "log_experiment_disabled",
+    srcs = ["log_experiment_disabled.cc"],
+    deps = [
+        ":log_experiment",
+        "//base",
+    ],
+)
+
+cc_binary(
+    name = "log_experiment_enabled",
+    srcs = ["log_experiment_enabled.cc"],
+    deps = [
+        ":log_experiment",
+        "//base",
+    ],
+)
+
+cc_library(
+    name = "log_sink",
+    srcs = ["log_sink.cc"],
+    hdrs = ["log_sink.h"],
+    deps = [
+        ":o_print_stream",
+        ":platform",
+        "//base:logger",
+        "//base:logging_extensions",
+        "//core:logging",
+    ],
+)
+
+cc_library(
     name = "logging",
     srcs = ["logging.cc"],
     hdrs = ["logging.h"],
@@ -154,6 +194,7 @@ cc_library(
     hdrs = ["o_print_stream.h"],
     deps = [
         ":platform",
+        ":print_to_trait",
         ":type_traits",
     ],
 )
@@ -249,50 +290,5 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
-    ],
-)
-
-cc_library(
-    name = "type_traits",
-    hdrs = ["type_traits.h"],
-)
-
-cc_library(
-    name = "log_sink",
-    srcs = ["log_sink.cc"],
-    hdrs = ["log_sink.h"],
-    deps = [
-        ":o_print_stream",
-        ":platform",
-        "//base:logger",
-        "//base:logging_extensions",
-        "//core:logging",
-    ],
-)
-
-cc_library(
-    name = "log_experiment",
-    hdrs = ["log_experiment.h"],
-    deps = [
-        ":log_sink",
-        ":logging",
-    ],
-)
-
-cc_binary(
-    name = "log_experiment_disabled",
-    srcs = ["log_experiment_disabled.cc"],
-    deps = [
-        ":log_experiment",
-        "//base",
-    ],
-)
-
-cc_binary(
-    name = "log_experiment_enabled",
-    srcs = ["log_experiment_enabled.cc"],
-    deps = [
-        ":log_experiment",
-        "//base",
     ],
 )

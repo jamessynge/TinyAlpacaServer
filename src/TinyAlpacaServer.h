@@ -55,6 +55,7 @@
 #include "utils/string_compare.h"          // IWYU pragma: export
 #include "utils/string_view.h"             // IWYU pragma: export
 #include "utils/tiny_string.h"             // IWYU pragma: export
-#include "utils/type_traits.h"             // IWYU pragma: export
+#include "utils/traits/print_to_trait.h"   // IWYU pragma: export
+#include "utils/traits/type_traits.h"      // IWYU pragma: export
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_

@@ -1,4 +1,4 @@
-# TODO(jamessynge): describe this package.
+# Tests of Tiny Alpaca Server src/utils/...
 
 cc_test(
     name = "any_printable_test",
@@ -61,6 +61,16 @@ cc_test(
 )
 
 cc_test(
+    name = "is_integral_test",
+    srcs = ["is_integral_test.cc"],
+    deps = [
+        ":print_to_std_string",
+        ":type_traits",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "json_encoder_test",
     srcs = ["json_encoder_test.cc"],
     deps = [
@@ -106,6 +116,7 @@ cc_test(
     deps = [
         ":o_print_stream",
         ":print_to_std_string",
+        ":sample_printable",
         "//googletest:gunit_main",
     ],
 )

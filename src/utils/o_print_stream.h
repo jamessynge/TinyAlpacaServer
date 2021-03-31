@@ -4,62 +4,79 @@
 // Support for streaming into a Print instance, primarily for logging.
 
 #include "utils/platform.h"
-#include "utils/type_traits.h"
+#include "utils/traits/print_to_trait.h"
+#include "utils/traits/type_traits.h"
 
 namespace alpaca {
-namespace ops_internal {
 
-// Matches a T that has a printTo(Print&) member function.
-template <class T>
-static auto test_print_to(int)
-    -> sfinae_true<decltype(declval<T>().printTo(declval<::Print&>()))>;
+class OPrintStream;
 
-// SFINAE fallback for the case where T does not have a printTo(Print&) member
-// function. This depends on the fact that type of the literal '0' is int, so
-// the compiler will prefer a match to the prior function, but will fallback to
-// this one instead of emitting an error.
-template <typename T>
-static auto test_print_to(long) -> false_type;  // NOLINT
-
-}  // namespace ops_internal
-
-// has_print_to extends either true_type or false_type, depending on whether T
-// has a printTo(Print&) member function.
-template <typename T>
-struct has_print_to : decltype(ops_internal::test_print_to<T>(0)) {};
+using OPrintStreamManipulator = void (*)(OPrintStream&);
 
 class OPrintStream {
  public:
-  explicit OPrintStream(Print& out) : out_(out) {}
+  explicit OPrintStream(Print& out) : out_(out), base_(10) {}
 
   template <typename T>
-  friend OPrintStream& operator<<(OPrintStream& out, const T& value) {
-    // Selects the specialization of OPrintStream::print based on whether T
-    // has a printTo(Print&) member function.
-    OPrintStream::print(out.out_, value, has_print_to<T>{});
+  friend OPrintStream& operator<<(OPrintStream& out, const T value) {
+    out.do_print_a(value, has_print_to<T>{});
     return out;
   }
 
   template <typename T>
-  friend OPrintStream& operator<<(OPrintStream&& out, const T& value) {
-    // Selects the specialization of OPrintStream::print based on whether T
-    // has a printTo(Print&) member function.
-    OPrintStream::print(out.out_, value, has_print_to<T>{});
+  friend OPrintStream& operator<<(OPrintStream&& out, const T value) {
+    out.do_print_a(value, has_print_to<T>{});
     return out;
   }
+
+  void set_base(int base) { base_ = base; }
 
  protected:
+  Print& out_;
+  int base_;
+
+ private:
+  // T is a class with a printTo function.
   template <typename T>
-  static void print(Print& out, const T& value, true_type /*has_print_to*/) {
-    value.printTo(out);
-  }
-  template <typename T>
-  static void print(Print& out, const T& value, false_type /*!has_print_to*/) {
-    out.print(value);
+  void do_print_a(const T value, true_type /*has_print_to*/) {
+    value.printTo(out_);
   }
 
-  Print& out_;
+  // Type T does NOT have a printTo method.
+  template <typename T>
+  void do_print_a(const T value, false_type /*!has_print_to*/) {
+    do_print_b(value, is_integral<T>{});
+  }
+
+  // Type T is an integral type (includes bool and char).
+  template <typename T>
+  void do_print_b(const T value, true_type /*is_integral*/) {
+    out_.print(value, base_);
+  }
+
+  // Type T is NOT an integral type.
+  template <typename T>
+  void do_print_b(const T value, false_type /*!is_integral*/) {
+    do_print_c(value, is_pointer<T>{});
+  }
+
+  void do_print_c(const char* value, true_type /*is_pointer*/) {
+    out_.print(value);
+  }
+
+  void do_print_c(OPrintStreamManipulator manipulator,
+                  true_type /*is_pointer*/) {
+    (*manipulator)(*this);
+  }
+
+  template <typename T>
+  void do_print_c(const T value, false_type /*is_pointer*/) {
+    out_.print(value);
+  }
 };
+
+inline void BaseDec(OPrintStream& strm) { strm.set_base(10); }
+inline void BaseHex(OPrintStream& strm) { strm.set_base(16); }
 
 }  // namespace alpaca
 

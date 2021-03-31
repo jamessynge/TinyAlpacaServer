@@ -37,6 +37,7 @@ cc_library(
         ":observing_conditions_adapter",
         ":platform",
         ":platform_ethernet",
+        ":print_to_trait",
         ":printable_cat",
         ":request_decoder",
         ":request_decoder_listener",

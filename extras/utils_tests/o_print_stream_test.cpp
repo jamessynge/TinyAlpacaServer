@@ -1,6 +1,7 @@
 #include "utils/o_print_stream.h"
 
 #include "extras/test_tools/print_to_std_string.h"
+#include "extras/test_tools/sample_printable.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
@@ -45,6 +46,48 @@ TEST(OPrintStreamTest, BuiltInTypes) {
   VerifyOPrintStream<float>(-1, "-1.00");
   VerifyOPrintStream<float>(0, "0.00");
   VerifyOPrintStream<float>(0.99999, "1.00");
+}
+
+TEST(OPrintStreamTest, Printable) {
+  SamplePrintable value("abc");
+  {
+    PrintToStdString p2ss;
+    OPrintStream out(p2ss);
+    out << value;
+    EXPECT_EQ(p2ss.str(), "abc");
+  }
+  {
+    auto& value_ref = value;
+    PrintToStdString p2ss;
+    OPrintStream out(p2ss);
+    out << value_ref;
+    EXPECT_EQ(p2ss.str(), "abc");
+  }
+}
+
+TEST(OPrintStreamTest, ConstPrintable) {
+  const SamplePrintable value("abc");
+  {
+    PrintToStdString p2ss;
+    OPrintStream out(p2ss);
+    out << value;
+    EXPECT_EQ(p2ss.str(), "abc");
+  }
+  {
+    auto& value_ref = value;
+    PrintToStdString p2ss;
+    OPrintStream out(p2ss);
+    out << value_ref;
+    EXPECT_EQ(p2ss.str(), "abc");
+  }
+}
+
+TEST(OPrintStreamTest, ChangeBase) {
+  PrintToStdString p2ss;
+  OPrintStream out(p2ss);
+
+  out << 127 << " " << BaseHex << 127 << ' ' << BaseDec << -123;
+  EXPECT_EQ(p2ss.str(), "127 7F -123");
 }
 
 }  // namespace
