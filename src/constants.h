@@ -258,6 +258,19 @@ enum class EContentType : uint8_t {
   kTextPlain,
 };
 
+size_t PrintValueTo(RequestDecoderStatus v, Print& out);
+size_t PrintValueTo(EHttpStatusCode v, Print& out);
+size_t PrintValueTo(EHttpMethod v, Print& out);
+size_t PrintValueTo(EApiGroup v, Print& out);
+size_t PrintValueTo(EAlpacaApi v, Print& out);
+size_t PrintValueTo(EManagementMethod v, Print& out);
+size_t PrintValueTo(EDeviceType v, Print& out);
+size_t PrintValueTo(EDeviceMethod v, Print& out);
+size_t PrintValueTo(EParameter v, Print& out);
+size_t PrintValueTo(ESensorName v, Print& out);
+size_t PrintValueTo(EHttpHeader v, Print& out);
+size_t PrintValueTo(EContentType v, Print& out);
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONSTANTS_H_

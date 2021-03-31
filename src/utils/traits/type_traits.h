@@ -9,6 +9,18 @@
 
 namespace alpaca {
 
+// Based on https://en.cppreference.com/w/cpp/types/void_t
+
+namespace tt_internal {
+template <typename... Ts>
+struct make_void {
+  typedef void type;
+};
+}  // namespace tt_internal
+
+template <typename... Ts>
+using void_t = typename tt_internal::make_void<Ts...>::type;
+
 // Based on https://en.cppreference.com/w/cpp/types/integral_constant
 
 template <class T, T t_value>

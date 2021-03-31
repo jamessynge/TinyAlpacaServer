@@ -28,6 +28,18 @@ static auto test_print_to(long) -> false_type;  // NOLINT
 template <typename T>
 struct has_print_to : decltype(print_to_trait_internal::test_print_to<T>(0)) {};
 
+// has_print_to extends either true_type or false_type, depending on whether
+// there exists a PrintValueTo(T, Print&) function.
+
+template <class, class = void>
+struct has_print_value_to : false_type {};
+
+// Matches a T for which there is a PrintValueTo(T, Print&) function.
+template <class T>
+struct has_print_value_to<
+    T, void_t<decltype(PrintValueTo(declval<T>(), declval<::Print&>()))>>
+    : true_type {};
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_TRAITS_PRINT_TO_TRAIT_H_

@@ -3,6 +3,8 @@
 
 // Support for streaming into a Print instance, primarily for logging.
 
+#include <cstdint>
+
 #include "utils/platform.h"
 #include "utils/traits/print_to_trait.h"
 #include "utils/traits/type_traits.h"
@@ -16,6 +18,7 @@ using OPrintStreamManipulator = void (*)(OPrintStream&);
 class OPrintStream {
  public:
   explicit OPrintStream(Print& out) : out_(out), base_(10) {}
+  OPrintStream() : out_(::Serial), base_(10) {}
 
   template <typename T>
   friend OPrintStream& operator<<(OPrintStream& out, const T value) {
@@ -57,20 +60,35 @@ class OPrintStream {
   // Type T is NOT an integral type.
   template <typename T>
   void do_print_b(const T value, false_type /*!is_integral*/) {
-    do_print_c(value, is_pointer<T>{});
+    do_print_c(value, has_print_value_to<T>{});
   }
 
-  void do_print_c(const char* value, true_type /*is_pointer*/) {
+  template <typename T>
+  void do_print_c(const T value, true_type /*has_print_value_to*/) {
+    PrintValueTo(value, out_);
+  }
+
+  template <typename T>
+  void do_print_c(const T value, false_type /*has_print_value_to*/) {
+    do_print_d(value, is_pointer<T>{});
+  }
+
+  void do_print_d(const char* value, true_type /*is_pointer*/) {
     out_.print(value);
   }
 
-  void do_print_c(OPrintStreamManipulator manipulator,
+  void do_print_d(OPrintStreamManipulator manipulator,
                   true_type /*is_pointer*/) {
     (*manipulator)(*this);
   }
 
+  void do_print_d(const void* misc_pointer, true_type /*is_pointer*/) {
+    auto i = reinterpret_cast<const uintptr_t>(misc_pointer);
+    out_.print(i, HEX);
+  }
+
   template <typename T>
-  void do_print_c(const T value, false_type /*is_pointer*/) {
+  void do_print_d(const T value, false_type /*has_print_value_to*/) {
     out_.print(value);
   }
 };
