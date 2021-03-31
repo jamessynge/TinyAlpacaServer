@@ -103,7 +103,10 @@ cc_library(
     name = "serial",
     srcs = ["serial.cc"],
     hdrs = ["serial.h"],
-    deps = [":print"],
+    deps = [
+        ":print",
+        "//absl/strings",
+    ],
 )
 
 cc_library(

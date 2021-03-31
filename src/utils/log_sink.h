@@ -5,8 +5,22 @@
 // VoidSink is used in place of LogSink when logging is disabled at compile
 // time.
 
+#ifndef ARDUINO
 #include "logging.h"
+#endif  // !ARDUINO
+
 #include "utils/o_print_stream.h"
+#include "utils/platform.h"
+// #include
+// "experimental/users/jamessynge/tiny-alpaca-server/src/utils/utils_config.h"
+
+#ifndef ARDUINO
+#ifndef NDEBUG
+// Log the lifetime of VoidSink instances, as part of proving that only one is
+// created per disabled TAS_VLOG.
+#define NOISY_VOID_SINK
+#endif
+#endif
 
 namespace alpaca {
 
@@ -19,59 +33,63 @@ class LogSink : public OPrintStream {
 
 class CheckSink : public OPrintStream {
  public:
-  explicit CheckSink(Print& out);
-  CheckSink();
+  CheckSink(Print& out, const char* expression_message);
+  explicit CheckSink(const char* expression_message);
+  // TODO(jamessynge): Remove the zero arg ctor once logging.h is updated.
+  CheckSink() : CheckSink("") {}
   ~CheckSink();
+
+ private:
+  const char* const expression_message_;
 };
 
 class VoidSink {
  public:
   VoidSink() {
-#if TAS_HOST_TARGET
-
+#ifdef NOISY_VOID_SINK
     DVLOG(3) << "VoidSink() ctor @ " << std::hex << this << std::dec
              << ", count=" << count_;
-#endif
+#endif  // !ARDUINO
   }
   VoidSink(const VoidSink&) {
-#if TAS_HOST_TARGET
+#ifdef NOISY_VOID_SINK
     DVLOG(3) << "VoidSink(const VoidSink&) ctor @ " << std::hex << this
              << std::dec << ", count=" << count_;
-#endif
+#endif  // !ARDUINO
   }
   VoidSink(VoidSink&&) {
-#if TAS_HOST_TARGET
+#ifdef NOISY_VOID_SINK
     DVLOG(3) << "VoidSink(VoidSink&&) ctor @ " << std::hex << this << std::dec
              << ", count=" << count_;
-#endif
+#endif  // !ARDUINO
   }
   ~VoidSink() {
-#if TAS_HOST_TARGET
+#ifdef NOISY_VOID_SINK
     DVLOG(3) << "VoidSink() dtor, " << count_;
-#endif
+#endif  // !ARDUINO
   }
 
   template <typename T>
   friend VoidSink& operator<<(const VoidSink& sink, const T&) {
-#if TAS_HOST_TARGET
+#ifdef NOISY_VOID_SINK
     DVLOG(3) << "operator<< const&";
+#endif  // !ARDUINO
     return const_cast<VoidSink&>(sink);
-#endif
   }
 
   template <typename T>
   friend VoidSink& operator<<(VoidSink& sink, const T&) {
-#if TAS_HOST_TARGET
+#ifdef NOISY_VOID_SINK
     DVLOG(3) << "operator<< &";
+#endif  // !ARDUINO
     return sink;
-#endif
   }
 
  private:
-#if TAS_HOST_TARGET
+#ifdef NOISY_VOID_SINK
   int count_ = counter_++;
   static int counter_;
-#endif
+#endif  // !ARDUINO
 };
 
 }  // namespace alpaca

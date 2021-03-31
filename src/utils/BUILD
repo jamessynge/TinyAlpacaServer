@@ -172,7 +172,6 @@ cc_library(
     deps = [
         ":o_print_stream",
         ":platform",
-        "//base:logger",
         "//base:logging_extensions",
         "//core:logging",
     ],
