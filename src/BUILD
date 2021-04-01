@@ -19,7 +19,6 @@ cc_library(
         ":device_api_handler_base",
         ":device_info",
         ":eeprom_io",
-        ":escaping",
         ":extra_parameters",
         ":http_response_header",
         ":inline_literal",
@@ -60,7 +59,6 @@ cc_library(
     srcs = ["alpaca_discovery_server.cc"],
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
-        ":escaping",
         ":literal",
         ":o_print_stream",
         ":platform",
@@ -233,6 +231,7 @@ cc_library(
         ":alpaca_request",
         ":config",
         ":constants",
+        ":hex_escape",
         ":literals",
         ":logging",
         ":match_literals",
@@ -249,6 +248,7 @@ cc_library(
     hdrs = ["request_decoder_listener.h"],
     deps = [
         ":constants",
+        ":hex_escape",
         ":logging",
         ":platform",
         ":string_view",

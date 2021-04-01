@@ -9,6 +9,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include "utils/utils_config.h"
+
 #ifdef ARDUINO
 
 #define TAS_EMBEDDED_TARGET 1

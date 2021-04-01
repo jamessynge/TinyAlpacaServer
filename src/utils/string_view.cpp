@@ -4,6 +4,7 @@
 #include <string_view>
 #endif  // TAS_HOST_TARGET
 
+#include "utils/hex_escape.h"
 #include "utils/platform.h"
 
 #if TAS_HOST_TARGET
@@ -53,8 +54,7 @@ bool StringView::operator!=(const StringView& other) const {
 }
 
 bool StringView::to_uint32(uint32_t& out) const {
-  TAS_DVLOG(2,
-            "StringView::to_uint32 converting " << ToHexEscapedString(*this));
+  TAS_VLOG(2) << "StringView::to_uint32 converting " << HexEscaped(*this);
   if (empty()) {
     return false;
   }
@@ -77,7 +77,7 @@ bool StringView::to_uint32(uint32_t& out) const {
     value += digit;
   }
 
-  TAS_DVLOG(2, "StringView::to_uint32 produced " << value);
+  TAS_VLOG(2) << "StringView::to_uint32 produced " << value;
   out = value;
   return true;
 }

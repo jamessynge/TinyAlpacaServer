@@ -3,8 +3,8 @@
 // Author: james.synge@gmail.com
 
 #include "utils/counting_bitbucket.h"
-#include "utils/escaping.h"
 #include "utils/literal.h"
+#include "utils/o_print_stream.h"
 #include "utils/platform.h"
 
 namespace alpaca {
@@ -15,6 +15,81 @@ TAS_DEFINE_LITERAL(JsonFalse, "false")
 TAS_DEFINE_LITERAL(JsonNan, "NaN")
 TAS_DEFINE_LITERAL(JsonNegInf, "-Inf")
 TAS_DEFINE_LITERAL(JsonInf, "Inf")
+
+size_t PrintCharJsonEscaped(Print& out, const char c) {
+  size_t total = 0;
+  if (isPrintable(c)) {
+    if (c == '"') {
+      total += out.print('\\');
+      total += out.print('"');
+    } else if (c == '\\') {
+      total += out.print('\\');
+      total += out.print('\\');
+    } else {
+      total += out.print(c);
+    }
+  } else if (c == '\b') {
+    total += out.print('\\');
+    total += out.print('b');
+  } else if (c == '\f') {
+    total += out.print('\\');
+    total += out.print('f');
+  } else if (c == '\n') {
+    total += out.print('\\');
+    total += out.print('n');
+  } else if (c == '\r') {
+    total += out.print('\\');
+    total += out.print('r');
+  } else if (c == '\t') {
+    total += out.print('\\');
+    total += out.print('t');
+  } else {
+    // This used to be a DCHECK, but a DVLOG is better because the character
+    // could come from client input.
+    TAS_VLOG(4) << "Unsupported JSON character: " << BaseHex << (c + 0);
+  }
+  return total;
+}
+
+// Wraps a Print instance, forwards output to that instance with JSON escaping
+// applied. Note that this does NOT add double quotes before and after the
+// output.
+class PrintJsonEscaped : public Print {
+ public:
+  explicit PrintJsonEscaped(Print& wrapped) : wrapped_(wrapped) {}
+
+  // These are the two abstract virtual methods in Arduino's Print class. I'm
+  // treating the uint8_t 'b' as an ASCII char.
+  size_t write(uint8_t b) override {
+    return PrintCharJsonEscaped(wrapped_, static_cast<char>(b));
+  }
+
+  size_t write(const uint8_t* buffer, size_t size) override {
+    size_t count = 0;
+    for (size_t ndx = 0; ndx < size; ++ndx) {
+      count += PrintCharJsonEscaped(wrapped_, static_cast<char>(buffer[ndx]));
+    }
+    return count;
+  }
+
+  // Export the other write methods.
+  using Print::write;
+
+ private:
+  Print& wrapped_;
+};
+
+size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output) {
+  PrintJsonEscaped out(raw_output);
+  size_t count = raw_output.print('"');
+  count += value.printTo(out);
+  count += raw_output.print('"');
+  return count;
+}
+
+size_t PrintJsonEscapedStringTo(const Literal& value, Print& raw_output) {
+  return PrintJsonEscapedStringTo(AnyPrintable(value), raw_output);
+}
 
 void PrintBoolean(Print& out, const bool value) {
   if (value) {

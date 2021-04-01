@@ -38,12 +38,13 @@ cc_test(
 )
 
 cc_test(
-    name = "escaping_test",
-    srcs = ["escaping_test.cc"],
+    name = "hex_escape_test",
+    srcs = ["hex_escape_test.cc"],
     deps = [
-        ":escaping",
+        ":hex_escape",
         ":literal",
         ":print_to_std_string",
+        ":sample_printable",
         ":string_view",
         "//googletest:gunit_main",
         "//util/gtl:map_util",
@@ -89,6 +90,7 @@ cc_test(
     name = "literal_test",
     srcs = ["literal_test.cc"],
     deps = [
+        ":hex_escape",
         ":literal",
         ":print_to_std_string",
         ":string_compare",
@@ -103,6 +105,7 @@ cc_test(
     srcs = ["literal_token_test.cc"],
     deps = [
         ":array_view",
+        ":hex_escape",
         ":literal_token",
         ":platform",
         ":string_view",

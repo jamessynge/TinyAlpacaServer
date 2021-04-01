@@ -1,6 +1,5 @@
 #include "alpaca_discovery_server.h"
 
-#include "utils/escaping.h"
 #include "utils/literal.h"
 #include "utils/o_print_stream.h"
 #include "utils/platform.h"
@@ -27,19 +26,12 @@ void TinyAlpacaDiscoveryServer::loop() {
     return;
   }
 
-  OPrintStream strm(Serial);
-  strm << kReceivedMsg() << packet_size << " from " << udp_.remoteIP() << ':'
-       << udp_.remotePort() << '\n';
-
-  // // DEBUGGING STUFF, COMMENT OUT LATER, OR USE Literals.
-  // TAS_DVLOG(1, "Received UDP message of size " << packet_size << " from "
-  //                                              << udp_.remoteIP() << ":"
-  //                                              << udp_.remotePort());
+  TAS_VLOG(1) << kReceivedMsg() << packet_size << " from " << udp_.remoteIP()
+              << ':' << udp_.remotePort();
 
   if (packet_size != kDiscoveryMessage().size()) {
     // Ignoring unexpected message.
-    TAS_DLOG(INFO, "Ignoring UDP message of unexpected length.");
-    strm << "Ignoring UDP message of unexpected length.\n";
+    TAS_VLOG(1) << "Ignoring UDP message of unexpected length";
     return;
   }
 
@@ -50,16 +42,12 @@ void TinyAlpacaDiscoveryServer::loop() {
 
   // TODO(jamessynge): If keeping this, then add a HexEscapedPrintable class to
   // escaping.h... plus support for streaming to Serial, of course.
-  TAS_DVLOG(1, "UDP message contents: " << view);
-  strm << "UDP message contents: '" << view << "'\n";
+  TAS_VLOG(1) << "UDP message contents: " << view;
 
   if (copied != packet_size) {
     // Ignoring unexpected message.
-    TAS_LOG(WARNING, "Expected to read " << packet_size
-                                         << " bytes, but actually got "
-                                         << copied);
-    strm << "Expected to read " << packet_size << " bytes, but actually got "
-         << copied << '\n';
+    TAS_VLOG(1) << "Expected to read " << packet_size
+                << " bytes, but actually got " << copied;
     return;
   }
 
@@ -68,8 +56,7 @@ void TinyAlpacaDiscoveryServer::loop() {
   // Is the message the expected one?
   if (kDiscoveryMessage() != view) {
     // Ignoring unexpected message.
-    TAS_LOG(WARNING, "Received unexpected discovery message");
-    strm << "Received unexpected discovery message\n";
+    TAS_VLOG(1) << "Received unexpected discovery message";
     return;
   }
 

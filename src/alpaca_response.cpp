@@ -4,6 +4,7 @@
 #include "http_response_header.h"
 #include "json_response.h"
 #include "literals.h"
+#include "utils/any_printable.h"
 #include "utils/counting_bitbucket.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
@@ -142,9 +143,8 @@ bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
 // static
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        Status error_status, Print& out) {
-  // TODO(jamessynge): Come up with a way for Status to carry a message.
-  AnyPrintable error_message;
-  JsonMethodResponse source(request, error_status.code(), error_message);
+  JsonMethodResponse source(request, error_status.code(),
+                            AnyPrintable(error_status.message()));
   return OkResponse(source, request.http_method, out);
 }
 
@@ -158,8 +158,8 @@ bool WriteResponse::AscomNotImplementedErrorResponse(
 // static
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
-  TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest,
-                "Status code should be for an error.");
+  TAS_CHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
+      << "Status code should be for an error.";
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
     status_code = EHttpStatusCode::kHttpInternalServerError;
   }

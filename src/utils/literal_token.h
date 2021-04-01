@@ -7,6 +7,7 @@
 // the AVR chips used on Arduino Unos, Megas, and related boards.
 
 #include "utils/array_view.h"
+#include "utils/hex_escape.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
 #include "utils/string_compare.h"
@@ -32,16 +33,15 @@ bool FindFirstMatchingLiteralToken(
     LiteralMatchFunction func, T& matched_id) {
   for (const auto& token : tokens) {
     if (func(token.str, view)) {
-      TAS_DVLOG(3, "FindFirstMatchingLiteralToken matched "
-                       << ToHexEscapedString(token.str) << " to "
-                       << ToHexEscapedString(view) << ", with id "
-                       << (token.id + 0L));
+      TAS_VLOG(3) << "FindFirstMatchingLiteralToken matched "
+                  << HexEscaped(token.str) << " to " << HexEscaped(view)
+                  << ", with id " << (token.id + 0L);
       matched_id = token.id;
       return true;
     }
   }
-  TAS_DVLOG(3, "FindFirstMatchingLiteralToken unable to match "
-                   << ToHexEscapedString(view));
+  TAS_VLOG(3) << "FindFirstMatchingLiteralToken unable to match "
+              << HexEscaped(view);
   return false;
 }
 
@@ -51,8 +51,7 @@ template <typename T>
 bool MaybeMatchLiteralTokensExactly(
     const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
     T& matched_id) {
-  TAS_DVLOG(
-      3, "MaybeMatchLiteralTokensExactly view: " << ToHexEscapedString(view));
+  TAS_VLOG(3) << "MaybeMatchLiteralTokensExactly view: " << HexEscaped(view);
   return FindFirstMatchingLiteralToken(view, tokens, ExactlyEqual, matched_id);
 }
 
@@ -62,8 +61,8 @@ template <typename T>
 bool MaybeMatchLiteralTokensCaseInsensitively(
     const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
     T& matched_id) {
-  TAS_DVLOG(3, "MaybeMatchLiteralTokensCaseInsensitively view: "
-                   << ToHexEscapedString(view));
+  TAS_VLOG(3) << "MaybeMatchLiteralTokensCaseInsensitively view: "
+              << HexEscaped(view);
   return FindFirstMatchingLiteralToken(view, tokens, CaseEqual, matched_id);
 }
 

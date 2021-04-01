@@ -36,7 +36,6 @@
 #include "utils/connection.h"              // IWYU pragma: export
 #include "utils/counting_bitbucket.h"      // IWYU pragma: export
 #include "utils/eeprom_io.h"               // IWYU pragma: export
-#include "utils/escaping.h"                // IWYU pragma: export
 #include "utils/inline_literal.h"          // IWYU pragma: export
 #include "utils/ip_device.h"               // IWYU pragma: export
 #include "utils/json_encoder.h"            // IWYU pragma: export

@@ -1,4 +1,4 @@
-# Test of the TAS_DLOG and TAS_DCHECK macros when DISABLED.
+# Test of the TAS_DLOG and TAS_CHECK macros when DISABLED.
 
 cc_binary(
     name = "TestLogExperimentDisabled",

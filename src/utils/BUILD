@@ -8,7 +8,9 @@ cc_library(
     hdrs = ["addresses.h"],
     deps = [
         ":eeprom_io",
+        ":hex_escape",
         ":logging",
+        ":o_print_stream",
         ":platform",
         ":platform_ethernet",
     ],
@@ -64,17 +66,18 @@ cc_library(
     srcs = ["eeprom_io.cc"],
     hdrs = ["eeprom_io.h"],
     deps = [
+        ":hex_escape",
         ":logging",
+        ":o_print_stream",
         ":platform",
     ],
 )
 
 cc_library(
-    name = "escaping",
-    srcs = ["escaping.cc"],
-    hdrs = ["escaping.h"],
+    name = "hex_escape",
+    srcs = ["hex_escape.cc"],
+    hdrs = ["hex_escape.h"],
     deps = [
-        ":any_printable",
         ":logging",
         ":platform",
     ],
@@ -108,8 +111,8 @@ cc_library(
     deps = [
         ":any_printable",
         ":counting_bitbucket",
-        ":escaping",
         ":literal",
+        ":o_print_stream",
         ":platform",
     ],
 )
@@ -131,6 +134,7 @@ cc_library(
     hdrs = ["literal_token.h"],
     deps = [
         ":array_view",
+        ":hex_escape",
         ":literal",
         ":platform",
         ":string_compare",
@@ -142,26 +146,8 @@ cc_library(
     name = "log_experiment",
     hdrs = ["log_experiment.h"],
     deps = [
-        ":log_sink",
         ":logging",
-    ],
-)
-
-cc_binary(
-    name = "log_experiment_disabled",
-    srcs = ["log_experiment_disabled.cc"],
-    deps = [
-        ":log_experiment",
-        "//base",
-    ],
-)
-
-cc_binary(
-    name = "log_experiment_enabled",
-    srcs = ["log_experiment_enabled.cc"],
-    deps = [
-        ":log_experiment",
-        "//base",
+        ":platform",
     ],
 )
 
@@ -184,7 +170,7 @@ cc_library(
     deps = [
         ":log_sink",
         ":platform",
-        "//core:logging",
+        ":utils_config",
     ],
 )
 
@@ -210,6 +196,7 @@ cc_library(
         ":platform",
         ":print",
         ":stream",
+        ":utils_config",
     ],
 )
 
@@ -276,6 +263,7 @@ cc_library(
         "string_view.h",
     ],
     deps = [
+        ":hex_escape",
         ":logging",
         ":o_print_stream",
         ":platform",
@@ -290,4 +278,9 @@ cc_library(
         ":logging",
         ":platform",
     ],
+)
+
+cc_library(
+    name = "utils_config",
+    hdrs = ["utils_config.h"],
 )

@@ -101,6 +101,7 @@ class StringView {
 
   // Remove the first prefix_length characters from the StringView.
   void remove_prefix(size_type prefix_length) noexcept {
+    TAS_VLOG(1) << "remove_prefix(" << prefix_length << "), size_=" << size_;
     TAS_DCHECK_LE(prefix_length, size_);
     size_ -= prefix_length;
     ptr_ += prefix_length;
@@ -186,7 +187,7 @@ class StringView {
   // unless you otherwise know that it is properly terminated.
   constexpr const char* data() const { return ptr_; }
 
-  constexpr char at(size_type pos) const {
+  char at(size_type pos) const {
     TAS_DCHECK_LT(pos, size_);
     return ptr_[pos];
   }
@@ -198,7 +199,7 @@ class StringView {
   // as another StringView. Does NOT validate the parameters, so pos+n must not
   // be greater than size(). This is currently only used for non-embedded
   // code, hence the DCHECKs instead of ensuring that the result is valid.
-  TAS_CONSTEXPR_FUNC StringView substr(size_type pos, size_type n) const {
+  StringView substr(size_type pos, size_type n) const {
     TAS_DCHECK_LE(pos, size_);
     TAS_DCHECK_LE(pos + n, size_);
     return StringView(ptr_ + pos, n);
@@ -232,6 +233,7 @@ class StringView {
 };
 
 #if TAS_HOST_TARGET
+
 // Returns a std::string with the value of the view.
 std::string ToStdString(const StringView& view);
 
@@ -247,6 +249,7 @@ std::ostream& operator<<(std::ostream& out, const StringView& view);
 // used by the embedded portion of the decoder.
 bool operator==(const StringView& a, std::string_view b);
 bool operator==(std::string_view a, const StringView& b);
+
 #endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

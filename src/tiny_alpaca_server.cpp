@@ -57,7 +57,7 @@ void TinyAlpacaServer::loop() {
         // Not connected. Call PerformIO which will detect the missing
         // connection and take the appropriate action.
         conn->PerformIO();
-        TAS_DCHECK(!conn->has_socket(), conn->sock_num());
+        TAS_DCHECK(!conn->has_socket()) << conn->sock_num();
       }
     }
   }
@@ -106,7 +106,7 @@ bool TinyAlpacaServer::AssignServerConnectionToSocket(int sock_num) {
       return true;
     }
   }
-  TAS_LOG(WARNING, "There aren't enough ServerConnections");
+  TAS_VLOG(1) << "There aren't enough ServerConnections";
   return false;
 }
 

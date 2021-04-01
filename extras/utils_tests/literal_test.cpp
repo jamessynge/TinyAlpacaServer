@@ -2,11 +2,14 @@
 
 #include <cstring>
 
+#include "absl/strings/ascii.h"
+#include "absl/strings/case.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/hex_escape.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"
 
@@ -25,7 +28,9 @@ constexpr StringView kUpperView(kUpperStr);
 constexpr char kLowerJson[] PROGMEM =
     "\"some\\\\thing\\twith\\r\\n\\b\\f\\\"quotes\\\".\"";
 constexpr char kLowerHexEscaped[] PROGMEM =
-    "\"some\\\\thing\\twith\\r\\n\\x08\\x0c\\\"quotes\\\".\"";
+    "\"some\\\\thing\\twith\\r\\n\\x08\\x0C\\\"quotes\\\".\"";
+constexpr char kUpperHexEscaped[] PROGMEM =
+    "\"SOME\\\\THING\\tWITH\\r\\n\\x08\\x0C\\\"QUOTES\\\".\"";
 
 TEST(LiteralTest, LowerComparison) {
   Literal literal(kLowerStr);
@@ -160,16 +165,26 @@ TEST(LiteralTest, PrintTo) {
 }
 
 TEST(LiteralTest, StreamMixed) {
-  // This tests features used only on the host.
   Literal literal(kMixedStr);
+
+  PrintToStdString p2ss;
+  OPrintStream out(p2ss);
+  out << literal;
+  EXPECT_EQ(p2ss.str(), kMixedStr);
+
   std::ostringstream oss;
   oss << literal;
   EXPECT_EQ(oss.str(), kMixedStr);
 }
 
 TEST(LiteralTest, StreamUpper) {
-  // This tests features used only on the host.
   Literal literal(kUpperStr);
+
+  PrintToStdString p2ss;
+  OPrintStream out(p2ss);
+  out << literal;
+  EXPECT_EQ(p2ss.str(), kUpperStr);
+
   std::ostringstream oss;
   oss << literal;
   EXPECT_EQ(oss.str(), kUpperStr);
@@ -177,9 +192,15 @@ TEST(LiteralTest, StreamUpper) {
 
 TEST(LiteralTest, StreamHexEscaped) {
   Literal literal(kLowerStr);
+  PrintToStdString p2ss;
+  OPrintStream out(p2ss);
+  out << HexEscaped(literal);
+  EXPECT_EQ(p2ss.str(), kLowerHexEscaped);
+
   std::ostringstream oss;
   oss << ToHexEscapedString(literal);
-  EXPECT_EQ(oss.str(), kLowerHexEscaped);
+  EXPECT_EQ(absl::AsciiStrToLower(oss.str()),
+            absl::AsciiStrToLower(kLowerHexEscaped));
 }
 
 }  // namespace

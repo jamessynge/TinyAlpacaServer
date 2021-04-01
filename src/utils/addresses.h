@@ -36,11 +36,11 @@ struct MacAddress : Printable {
 
   // Saves to the specified address in the EEPROM; returns the address after
   // the saved MAC address.
-  int save(int toAddress, eeprom_io::Crc32* crc) const;
+  int save(int toAddress, Crc32* crc) const;
 
   // Reads from the specified address in the EEPROM; returns the address after
   // the restored MAC address.
-  int read(int fromAddress, eeprom_io::Crc32* crc);
+  int read(int fromAddress, Crc32* crc);
 
   // Returns true if the first 3 bytes match the specified prefix.
   bool hasOuiPrefix(const OuiPrefix& oui_prefix) const;
@@ -59,11 +59,11 @@ class SaveableIPAddress : public IPAddress {
 
   // Saves to the specified address in the EEPROM; returns the address after
   // the saved value.
-  int save(int toAddress, eeprom_io::Crc32* crc) const;
+  int save(int toAddress, Crc32* crc) const;
 
   // Reads from the specified address in the EEPROM; returns the address after
   // the restored value.
-  int read(int fromAddress, eeprom_io::Crc32* crc);
+  int read(int fromAddress, Crc32* crc);
 };
 
 // A pair of addresses (MAC and IP); the two are needed togther when working

@@ -117,11 +117,13 @@ struct LiteralArray {
 };
 
 #if TAS_HOST_TARGET
+
 // Returns a std::string with the value of the view.
 std::string ToStdString(const Literal& literal);
 
 // Returns a quoted and hex escaped string from the characters in the view.
 std::string ToHexEscapedString(const Literal& literal);
+
 #endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca

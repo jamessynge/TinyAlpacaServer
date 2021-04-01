@@ -164,7 +164,7 @@ struct HostSocketInfo {
         const auto error_number = errno;
         DVLOG(1) << "recv -> " << ret;
         if (ret > 0) {
-          TAS_DCHECK_EQ(ret, 1);
+          CHECK_EQ(ret, 1);
           // There is data available for reading.
           return true;
         } else if (ret < 0) {
@@ -325,7 +325,7 @@ uint8_t HostSockets::SocketStatus(int sock_num) {
         return SnSR::LISTEN;
       }
     } else {
-      TAS_DCHECK(false, "Why are we here?");
+      CHECK(false) << "Why are we here?";
     }
   }
   return SnSR::CLOSED;

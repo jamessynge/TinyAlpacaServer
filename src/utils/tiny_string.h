@@ -22,7 +22,7 @@ class TinyString {
   // Set the string by copying the 'size' characters from 'from'.
   // Returns false if size is too large.
   bool Set(const char* from, size_type size) {
-    TAS_DCHECK_LE(size, N, "What are you thinking!");
+    TAS_DCHECK_LE(size, N) << "Too big";
     Clear();
     if (size > N) {
       return false;
@@ -42,7 +42,7 @@ class TinyString {
   // PROGMEM by a caller, without having to add PROGMEM support here.
   // Returns false if size is too large.
   bool set_size(size_type size) {
-    TAS_DCHECK_LE(size, N, "What are you thinking!");
+    TAS_DCHECK_LE(size, N) << "Too big";
     if (size > N) {
       return false;
     }
