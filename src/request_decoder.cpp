@@ -809,10 +809,6 @@ void RequestDecoderState::Reset() {
   decoder_status = RequestDecoderStatus::kReset;
 }
 
-// TODO(jamessynge): This is an annoyingly complicated function. Consider how to
-// keep the functionality but make the implementation simpler. It is likely that
-// doing so will increase the code size, so a trade-off of size vs.
-// maintainability is likely required.
 EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
                                                   const bool buffer_is_full,
                                                   const bool at_end_of_input) {
@@ -1006,7 +1002,7 @@ EHttpStatusCode RequestDecoderState::SetDecodeFunctionAfterListenerCall(
   TAS_CHECK_NE(status, EHttpStatusCode::kNeedMoreInput);
   if (status == EHttpStatusCode::kContinueDecoding) {
     return SetDecodeFunction(func);
-  } else if (static_cast<int>(status) < 100) {
+  } else if (status < EHttpStatusCode::kHttpOk) {
     return EHttpStatusCode::kHttpInternalServerError;  // COV_NF_LINE
   } else {
     return status;

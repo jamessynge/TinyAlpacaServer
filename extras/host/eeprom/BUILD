@@ -1,4 +1,4 @@
-# TODO(jamessynge): describe this package.
+# A minimal/fake version of the EEPROM library in ArduinoCore-avr.
 
 cc_library(
     name = "eeprom",

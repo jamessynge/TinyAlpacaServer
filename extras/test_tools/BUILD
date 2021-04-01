@@ -1,4 +1,4 @@
-# TODO(jamessynge): describe this package.
+# Libraries intended to simplify the task of writing tests of Tiny Alpaca Server.
 
 cc_library(
     name = "json_test_utils",

@@ -59,6 +59,7 @@ cc_library(
     srcs = ["alpaca_discovery_server.cc"],
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
+        ":hex_escape",
         ":literal",
         ":o_print_stream",
         ":platform",

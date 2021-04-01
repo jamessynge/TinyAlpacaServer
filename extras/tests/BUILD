@@ -77,6 +77,7 @@ cc_test(
     srcs = ["match_literals_test.cc"],
     deps = [
         ":constants",
+        ":logging",
         ":match_literals",
         ":print_to_std_string",
         "//absl/strings",

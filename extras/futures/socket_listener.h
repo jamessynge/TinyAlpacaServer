@@ -1,7 +1,7 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_FUTURES_SOCKET_LISTENER_H_
 #define TINY_ALPACA_SERVER_EXTRAS_FUTURES_SOCKET_LISTENER_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// An exploration of how we might expose networking socket events to a listener.
 
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"

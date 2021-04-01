@@ -1,5 +1,3 @@
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "utils/connection.h"
 
 #include "utils/platform.h"

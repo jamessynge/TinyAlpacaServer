@@ -1,7 +1,7 @@
 #ifndef TINY_ALPACA_SERVER_SRC_REQUEST_DECODER_H_
 #define TINY_ALPACA_SERVER_SRC_REQUEST_DECODER_H_
 
-// RequestDecoder is an HTTP/1.1 Request Message decoder targetted at the
+// RequestDecoder is an HTTP/1.1 Request Message decoder targeted at the
 // requests defined for the ASCOM Alpaca REST API.
 //
 // Author: james.synge@gmail.com
@@ -34,39 +34,52 @@ struct RequestDecoderState {
   EHttpStatusCode DecodeBuffer(StringView& buffer, bool buffer_is_full,
                                bool at_end_of_input);
 
-  // Set the function to be used for decoding the leading edge of the input.
-  // Returns kParseInProgress.
+  // Set the next function to be used for decoding the input. Returns
+  // kContinueDecoding.
   EHttpStatusCode SetDecodeFunction(DecodeFunction func);
 
+  // Intended to be called with the "usual" next decoding function, and with the
+  // return status from a listener call. If the status is kContinueDecoding,
+  // then the function is recorded and status is returned. Otherwise a final
+  // HTTP status code (i.e. 200 or greater) is returned and the func value is
+  // ignored.
   EHttpStatusCode SetDecodeFunctionAfterListenerCall(DecodeFunction func,
                                                      EHttpStatusCode status);
 
+  // Returns the status of decoding the current request.
   RequestDecoderStatus status() const { return decoder_status; }
 
  private:
-  // Apply decode_function just once, compute new status.
-  // EHttpStatusCode DecodeBufferAtEnd(StringView& buffer);
-  // EHttpStatusCode ApplyDecodeFunction(StringView& buffer);
+  // Decode the portion of the current message's header that is in buffer.
   EHttpStatusCode DecodeMessageHeader(StringView& buffer, bool at_end_of_input);
+
+  // Decode the portion of the current message's body that is in buffer.
   EHttpStatusCode DecodeMessageBody(StringView& buffer, bool at_end_of_input);
 
+  // The status of decoding the current request.
   RequestDecoderStatus decoder_status;
 
  public:
+  // The function to use when next decoding.
   DecodeFunction decode_function;
 
+  // The enum of the current parameter or header being decoded, if one is being
+  // decoded.
   union {
     EParameter current_parameter;
     EHttpHeader current_header;
   };
+
+  // Set to the size of the request body when it has been decoded, and reduced
+  // request body bytes are decoded.
   // NOTE: We could change this to uint16_t if we need to support longer
   // payloads.
   StringView::size_type remaining_content_length;
-  static constexpr StringView::size_type kMaxPayloadSize = StringView::kMaxSize;
+  static constexpr auto kMaxPayloadSize = StringView::kMaxSize;
 
   // Using bit fields here for these boolean values, which represents a
-  // trade-off of program size for smaller RAM use. Will need to assess if this
-  // makes sense.
+  // trade-off of program size for smaller RAM use. Measurements will be needed
+  // to determine if this makes sense.
   unsigned int is_decoding_header : 1;
   unsigned int is_decoding_start_line : 1;
   unsigned int is_final_input : 1;
@@ -78,7 +91,10 @@ struct RequestDecoderState {
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 };
 
-// Supports decoding the request headers of HTTP messages (one at a time).
+// Supports decoding the request headers of HTTP messages (one at a time). This
+// class is used to hide the details of RequestDecoderState from clients of this
+// code, while making the internals available to the DecodeFunctions (free
+// functions).
 class RequestDecoder : RequestDecoderState {
  public:
   using RequestDecoderState::DecodeBuffer;

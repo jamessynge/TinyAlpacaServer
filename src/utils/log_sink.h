@@ -35,8 +35,6 @@ class CheckSink : public OPrintStream {
  public:
   CheckSink(Print& out, const char* expression_message);
   explicit CheckSink(const char* expression_message);
-  // TODO(jamessynge): Remove the zero arg ctor once logging.h is updated.
-  CheckSink() : CheckSink("") {}
   ~CheckSink();
 
  private:

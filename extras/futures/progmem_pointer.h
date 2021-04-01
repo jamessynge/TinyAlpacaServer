@@ -3,9 +3,9 @@
 
 // In support of iterating over strings, and possibly other structures, this
 // helps to encapsulate some of the challenges of dealing with data stored in
-// PROGMEM.
+// PROGMEM. This is a prototype at best, not known to work.
 //
-// NOTE: So far this only works "near" addresses, i.e. in the first 64KB.
+// NOTE: So far this only "works" for "near" addresses, i.e. in the first 64KB.
 //
 // Learn more about writing custom iterators here:
 //    https://internalpointers.com/post/writing-custom-iterators-modern-cpp

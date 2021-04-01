@@ -60,11 +60,11 @@ class EthernetUDP : public Stream {
   // byte
   int peek() override { return 0; }
 
-  // Finish reading the current packet
-  virtual void flush() {}
+  // Finish reading the current packet.
+  void flush() override {}
 
   // Return the IP address of the host who sent the current incoming packet
-  virtual IPAddress remoteIP() { return IPAddress(); };
+  virtual IPAddress remoteIP() { return IPAddress(); }
 
   virtual void remoteIP(uint8_t* ip) {}
 

@@ -1,5 +1,6 @@
 #include "alpaca_discovery_server.h"
 
+#include "utils/hex_escape.h"
 #include "utils/literal.h"
 #include "utils/o_print_stream.h"
 #include "utils/platform.h"
@@ -40,9 +41,7 @@ void TinyAlpacaDiscoveryServer::loop() {
   auto copied = udp_.read(buffer, packet_size);
   StringView view(buffer, copied);
 
-  // TODO(jamessynge): If keeping this, then add a HexEscapedPrintable class to
-  // escaping.h... plus support for streaming to Serial, of course.
-  TAS_VLOG(1) << "UDP message contents: " << view;
+  TAS_VLOG(1) << "UDP message contents: " << HexEscaped(view);
 
   if (copied != packet_size) {
     // Ignoring unexpected message.

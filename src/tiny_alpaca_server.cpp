@@ -1,5 +1,3 @@
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "tiny_alpaca_server.h"
 
 #include "alpaca_response.h"

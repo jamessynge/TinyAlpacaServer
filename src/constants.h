@@ -76,7 +76,7 @@ enum class EHttpStatusCode : uint16_t {
   kHttpVersionNotSupported = 505,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EHttpStatusCode value);
+// std::ostream& operator<<(std::ostream& out, EHttpStatusCode value);
 #endif  // TAS_HOST_TARGET
 
 using EHttpMethod_UnderlyingType = uint8_t;
@@ -89,7 +89,7 @@ enum class EHttpMethod : EHttpMethod_UnderlyingType {
   HEAD = 3,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EHttpMethod value);
+// std::ostream& operator<<(std::ostream& out, EHttpMethod value);
 #endif  // TAS_HOST_TARGET
 
 using EApiGroup_UnderlyingType = uint8_t;
@@ -100,7 +100,7 @@ enum class EApiGroup : uint8_t {
   kSetup,       // Path: /setup...
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EApiGroup value);
+// std::ostream& operator<<(std::ostream& out, EApiGroup value);
 #endif  // TAS_HOST_TARGET
 
 using EAlpacaApi_UnderlyingType = uint8_t;
@@ -114,7 +114,7 @@ enum class EAlpacaApi : uint8_t {
   kServerSetup,                  // Path: /setup
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EAlpacaApi value);
+// std::ostream& operator<<(std::ostream& out, EAlpacaApi value);
 #endif  // TAS_HOST_TARGET
 
 using EManagementMethod_UnderlyingType = uint8_t;
@@ -124,7 +124,7 @@ enum class EManagementMethod : EManagementMethod_UnderlyingType {
   kConfiguredDevices,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EManagementMethod value);
+// std::ostream& operator<<(std::ostream& out, EManagementMethod value);
 #endif  // TAS_HOST_TARGET
 
 using EDeviceType_UnderlyingType = uint8_t;
@@ -142,7 +142,7 @@ enum class EDeviceType : EDeviceType_UnderlyingType {
   kTelescope,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EDeviceType value);
+// std::ostream& operator<<(std::ostream& out, EDeviceType value);
 #endif  // TAS_HOST_TARGET
 
 // Note that for many PUT methods, the name of the method, which appears in the
@@ -191,7 +191,7 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
   kIsSafe,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EDeviceMethod value);
+// std::ostream& operator<<(std::ostream& out, EDeviceMethod value);
 #endif  // TAS_HOST_TARGET
 
 // These are parameter names used in *requests*, not responses. Names such as
@@ -206,7 +206,7 @@ enum class EParameter : EParameter_UnderlyingType {
   kSensorName,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EParameter value);
+// std::ostream& operator<<(std::ostream& out, EParameter value);
 #endif  // TAS_HOST_TARGET
 
 // These are sensor names used in an ObservingConditions SensorDescription
@@ -231,7 +231,7 @@ enum class ESensorName : ESensorName_UnderlyingType {
   kWindSpeed,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, ESensorName value);
+// std::ostream& operator<<(std::ostream& out, ESensorName value);
 #endif  // TAS_HOST_TARGET
 
 using EHttpHeader_UnderlyingType = uint8_t;
@@ -249,7 +249,7 @@ enum class EHttpHeader : EHttpHeader_UnderlyingType {
   kHttpContentEncoding,
 };
 #if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, EHttpHeader value);
+// std::ostream& operator<<(std::ostream& out, EHttpHeader value);
 #endif  // TAS_HOST_TARGET
 
 // This is used for generating responses, not for input.

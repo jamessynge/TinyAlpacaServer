@@ -1,7 +1,8 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_SERVER_H_
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_SERVER_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// Just enough of EthernetServer for Tiny Alpaca Server to compile on host,
+// maybe to be a TCP server.
 
 #include "extras/host/ethernet3/ethernet_client.h"
 #include "extras/host/ethernet3/ethernet_config.h"

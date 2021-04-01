@@ -1,5 +1,3 @@
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "device_type_adapters/observing_conditions_adapter.h"
 
 #include "alpaca_response.h"

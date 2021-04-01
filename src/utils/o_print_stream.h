@@ -3,6 +3,10 @@
 
 // Support for streaming into a Print instance, primarily for logging.
 
+#ifndef ARDUINO
+#include <string>
+#endif
+
 #include "utils/platform.h"
 #include "utils/traits/print_to_trait.h"
 #include "utils/traits/type_traits.h"
@@ -85,8 +89,14 @@ class OPrintStream {
     out_.print(i, HEX);
   }
 
+#ifndef ARDUINO
+  void do_print_d(const std::string& value, false_type /*!is_pointer*/) {
+    out_.write(value.data(), value.size());
+  }
+#endif
+
   template <typename T>
-  void do_print_d(const T value, false_type /*has_print_value_to*/) {
+  void do_print_d(const T value, false_type /*!is_pointer*/) {
     out_.print(value);
   }
 };

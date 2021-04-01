@@ -17,7 +17,7 @@
 class EthernetClass {
  public:
   // TODO(jamessynge): Modify EthernetClass upstream so that 'new' is not used
-  // to allocate a DhcpInstance.
+  // to allocate a DhcpInstance. See https://github.com/sstaub/Ethernet3/pull/40
   EthernetClass();
 
   // Initialize W5500 with fewer sockets but more RX/TX Buffer space per socket.
