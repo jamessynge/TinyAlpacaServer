@@ -35,8 +35,6 @@ TEST(StringViewTest, CreateFromConstExpr) {
   EXPECT_EQ(view1.data(), kConstStr1);
   EXPECT_EQ(view1.size(), 3);
   EXPECT_FALSE(view1 == nullptr);
-  EXPECT_EQ(ToStdString(view1), "123");
-  EXPECT_EQ(ToHexEscapedString(view1), "\"123\"");
 
   std::string str1(kConstStr1);
   EXPECT_EQ(str1, view1);
@@ -178,13 +176,9 @@ TEST(StringViewTest, Equals) {
 
   EXPECT_EQ(view1, view2);  // Tests operator==
   EXPECT_TRUE(view1 == nullptr);
-  EXPECT_THAT(ToStdString(view1), IsEmpty());
-  EXPECT_EQ(ToHexEscapedString(view1), "\"\"");
   EXPECT_NE(view1.data(), view2.data());
   EXPECT_EQ(view1.size(), 0);
   EXPECT_EQ(view2.size(), 0);
-  EXPECT_THAT(ToStdString(view2), IsEmpty());
-  EXPECT_EQ(ToHexEscapedString(view2), "\"\"");
 
   // Case: both strings have different pointers, but point to underlying strings
   // with the same value.

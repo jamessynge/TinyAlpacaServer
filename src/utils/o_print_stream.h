@@ -3,8 +3,6 @@
 
 // Support for streaming into a Print instance, primarily for logging.
 
-#include <cstdint>
-
 #include "utils/platform.h"
 #include "utils/traits/print_to_trait.h"
 #include "utils/traits/type_traits.h"

@@ -196,11 +196,31 @@ TEST(LiteralTest, StreamHexEscaped) {
   OPrintStream out(p2ss);
   out << HexEscaped(literal);
   EXPECT_EQ(p2ss.str(), kLowerHexEscaped);
+}
 
-  std::ostringstream oss;
-  oss << ToHexEscapedString(literal);
-  EXPECT_EQ(absl::AsciiStrToLower(oss.str()),
-            absl::AsciiStrToLower(kLowerHexEscaped));
+TEST(LiteralTest, Equality) {
+  Literal literal1("abc");
+  EXPECT_EQ(literal1, literal1);
+  EXPECT_TRUE(literal1.same(literal1));
+
+  std::string abc("abc");
+  Literal literal2(abc.data(), abc.size());
+  EXPECT_EQ(literal1, literal2);
+  EXPECT_FALSE(literal1.same(literal2));
+
+  Literal literal3(abc.data(), abc.size());
+  EXPECT_EQ(literal1, literal3);
+  EXPECT_EQ(literal2, literal3);
+  EXPECT_TRUE(literal2.same(literal3));
+}
+
+TEST(LiteralTest, Inequality) {
+  Literal literal1("aBC");
+  Literal literal2("abc");
+  EXPECT_NE(literal1, literal2);
+
+  Literal literal3("");
+  EXPECT_NE(literal1, literal3);
 }
 
 }  // namespace

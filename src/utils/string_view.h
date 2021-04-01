@@ -233,13 +233,6 @@ class StringView {
 };
 
 #if TAS_HOST_TARGET
-
-// Returns a std::string with the value of the view.
-std::string ToStdString(const StringView& view);
-
-// Returns a quoted and hex escaped string from the characters in the view.
-std::string ToHexEscapedString(const StringView& view);
-
 // Insertion streaming operator (i.e. operator<<) for values of type StringView,
 // used for tests, DCHECK_EQ, DVLOG, etc.
 std::ostream& operator<<(std::ostream& out, const StringView& view);

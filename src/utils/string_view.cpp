@@ -7,10 +7,6 @@
 #include "utils/hex_escape.h"
 #include "utils/platform.h"
 
-#if TAS_HOST_TARGET
-#include "absl/strings/escaping.h"
-#endif  // TAS_HOST_TARGET
-
 namespace alpaca {
 
 // Generally speaking, methods are implemented in the same order in which they
@@ -85,14 +81,6 @@ bool StringView::to_uint32(uint32_t& out) const {
 size_t StringView::printTo(Print& p) const { return p.write(ptr_, size_); }
 
 #if TAS_HOST_TARGET
-std::string ToStdString(const StringView& view) {
-  return std::string(view.data(), view.size());
-}
-
-std::string ToHexEscapedString(const StringView& view) {
-  auto std_view = std::string_view(view.data(), view.size());
-  return absl::StrCat("\"", absl::CHexEscape(std_view), "\"");
-}
 
 std::ostream& operator<<(std::ostream& out, const StringView& view) {
   return out.write(view.data(), view.size());
@@ -105,6 +93,7 @@ bool operator==(const StringView& a, std::string_view b) {
 bool operator==(std::string_view a, const StringView& b) {
   return b == StringView(a.data(), a.size());
 }
+
 #endif
 
 }  // namespace alpaca

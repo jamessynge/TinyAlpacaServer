@@ -65,65 +65,15 @@
 #include "utils/log_sink.h"
 #include "utils/utils_config.h"
 
-#define TAS_VLOG(level) TAS_VLOG_LEVEL_##level
-#define TAS_VLOG_LEVEL_1 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_2 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_3 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_4 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_5 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_6 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_7 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_8 ::alpaca::VoidSink()
-#define TAS_VLOG_LEVEL_9 ::alpaca::VoidSink()
+#ifndef TAS_ENABLED_VLOG_LEVEL
+#define TAS_ENABLED_VLOG_LEVEL false && -128
+#endif
 
-#ifdef TAS_ENABLED_VLOG_LEVEL
-
-#if TAS_ENABLED_VLOG_LEVEL >= 1
-#undef TAS_VLOG_LEVEL_1
-#define TAS_VLOG_LEVEL_1 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 1
-
-#if TAS_ENABLED_VLOG_LEVEL >= 2
-#undef TAS_VLOG_LEVEL_2
-#define TAS_VLOG_LEVEL_2 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 2
-
-#if TAS_ENABLED_VLOG_LEVEL >= 3
-#undef TAS_VLOG_LEVEL_3
-#define TAS_VLOG_LEVEL_3 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 3
-
-#if TAS_ENABLED_VLOG_LEVEL >= 4
-#undef TAS_VLOG_LEVEL_4
-#define TAS_VLOG_LEVEL_4 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 4
-
-#if TAS_ENABLED_VLOG_LEVEL >= 5
-#undef TAS_VLOG_LEVEL_5
-#define TAS_VLOG_LEVEL_5 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 5
-
-#if TAS_ENABLED_VLOG_LEVEL >= 6
-#undef TAS_VLOG_LEVEL_6
-#define TAS_VLOG_LEVEL_6 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 6
-
-#if TAS_ENABLED_VLOG_LEVEL >= 7
-#undef TAS_VLOG_LEVEL_7
-#define TAS_VLOG_LEVEL_7 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 7
-
-#if TAS_ENABLED_VLOG_LEVEL >= 8
-#undef TAS_VLOG_LEVEL_8
-#define TAS_VLOG_LEVEL_8 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 8
-
-#if TAS_ENABLED_VLOG_LEVEL >= 9
-#undef TAS_VLOG_LEVEL_9
-#define TAS_VLOG_LEVEL_9 ::alpaca::LogSink()
-#endif  // TAS_ENABLED_VLOG_LEVEL >= 9
-
-#endif  // TAS_ENABLED_VLOG_LEVEL
+#define TAS_VLOG(level)               \
+  if (TAS_ENABLED_VLOG_LEVEL < level) \
+    ;                                 \
+  else                                \
+    ::alpaca::LogSink()
 
 // TODO(jamessynge): Decide whether to use TASLIT (from inline_literal.h) here
 // for the message.

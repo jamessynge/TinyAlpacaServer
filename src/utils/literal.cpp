@@ -7,10 +7,6 @@
 #include "utils/logging.h"
 #include "utils/platform.h"
 
-#if TAS_HOST_TARGET
-#include "absl/strings/escaping.h"
-#endif
-
 namespace alpaca {
 namespace {
 // Returns the char at the specified location in PROGMEM.
@@ -87,19 +83,6 @@ size_t Literal::printTo(Print& out) const {
 }
 
 #if TAS_HOST_TARGET
-std::string_view ToStdStringView(const Literal& literal) {
-  return std::string_view(
-      reinterpret_cast<const char*>(literal.prog_data_for_tests()),
-      literal.size());
-}
-
-std::string ToStdString(const Literal& literal) {
-  return std::string(ToStdStringView(literal));
-}
-
-std::string ToHexEscapedString(const Literal& literal) {
-  return absl::StrCat("\"", absl::CHexEscape(ToStdStringView(literal)), "\"");
-}
 
 // Supports streaming literals, useful for logging and debugging.
 class PrintableLiteral : public Printable {
@@ -115,6 +98,7 @@ class PrintableLiteral : public Printable {
 std::ostream& operator<<(std::ostream& out, const Literal& literal) {
   return out << PrintableLiteral(literal);
 }
+
 #endif
 
 }  // namespace alpaca

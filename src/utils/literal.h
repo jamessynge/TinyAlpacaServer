@@ -59,6 +59,9 @@ class Literal {
   // Returns true if the other literal has the same value.
   bool operator==(const Literal& other) const;
 
+  // Returns true if the other literal has a different value.
+  bool operator!=(const Literal& other) const { return !(*this == other); }
+
   // Returns true if the other literal pointers to the same string literal.
   bool same(const Literal& other) const;
 
@@ -115,16 +118,6 @@ struct LiteralArray {
   const Literal* array;
   const size_t size;
 };
-
-#if TAS_HOST_TARGET
-
-// Returns a std::string with the value of the view.
-std::string ToStdString(const Literal& literal);
-
-// Returns a quoted and hex escaped string from the characters in the view.
-std::string ToHexEscapedString(const Literal& literal);
-
-#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca
 
