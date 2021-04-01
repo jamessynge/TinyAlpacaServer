@@ -2,54 +2,62 @@
 
 Author: James Synge (james.synge@gmail.com)
 
-An HTTP request decoder (parser) and response formatter for the
+Tiny Alpaca Server is an Arduino library implementing the
 [ASCOM Alpaca REST API](https://ascom-standards.org/api/)
 ([computer readable spec](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)),
-implemented in C++ and targetted at an Arduino with Ethernet (e.g. the
-[Robotdyn MegaETH with POE](https://tinyurl.com/mega-eth-poe)).
+and the
+[Alpaca Discovery Protocol](https://github.com/DanielVanNoord/AlpacaDiscoveryTests#specification).
+It is intended that the main Arduino sketch configures the server with device
+specific information, after which Tiny Alpaca Server takes care of responding to
+requests and delegating requests for information or action to device specific
+code provided by the sketch.
 
-This is growing into a full fledged server (e.g. when combined with
-[SimpleHttpServer](https://github.com/jamessynge/arduino_experiments/blob/master/utilities/simple_http_server.h)).
+This library has been developed using the Ethernet3 library, which supports the
+[WIZnet W5500](https://www.wiznet.io/product-item/w5500/) networking offload
+chip
+([datasheet](http://wizwiki.net/wiki/lib/exe/fetch.php/products:w5500:w5500_ds_v109e.pdf)),
+which is present on the
+[Robotdyn MEGA 2560 ETH with POE](https://robotdyn.com/catalogsearch/result/?q=GR-00000039),
+a board compatible with the Arduino Mega 2560, but with built in Ethernet,
+including Power-over-Ethernet.
 
 ## Approach
 
 This code is targetted at settings where dynamic allocation of memory (e.g.
-building std::maps) is not viable. Therefore the decoder is designed to need
-only a relatively small amount of statically allocated memory: on an AVR, under
-30 bytes for the RequestDecoder and Request instances, plus a caller provided
-RequestDecoderListener (minimum size 2 bytes) and a data buffer to hold
-fragments of the request as they arrive (32 bytes is a good size). In the
-Arduino environment, it isn't practical to allocate any of these dynamically, so
-pre-allocating all of them is the norm.
+filling a std::string) is not viable. Therefore the request decoder is designed
+to need only a relatively small amount of statically allocated memory: on an
+AVR, under 30 bytes of RAM for the RequestDecoder and Request instances, plus a
+caller provided RequestDecoderListener (minimum size 2 bytes) and a data buffer
+to hold fragments of the request as they arrive (32 bytes is a good size). In
+the Arduino environment, it isn't practical to allocate any of these
+dynamically, so pre-allocating all of them is the norm.
 
 The same approach applies to encoding the response. For both PUT and GET Alpaca
-requests, the response body is a JSON message with one top-level object with 4
-standard properties, and another optional property of a variety of types. The
-HTTP response headers need to contain a Content-Length header with the byte size
-of the response. To avoid buffering the entire body, the JSON encoder supports
-making two passes, the first counting the number of bytes (C++ chars) being
-emitted, but otherwise doing nothing with those bytes, and a second pass that
-actually emits the bytes.
+requests, the response body is usually a JSON message with one top-level object
+with 4 standard properties, and another optional property of a variety of types.
+The HTTP response headers need to contain a Content-Length header with the byte
+size of the response. To avoid buffering the entire body, the JSON encoder
+supports making two passes, the first counting the number of bytes (ASCII
+characters) being emitted, but otherwise doing nothing with those bytes, and a
+second pass that actually emits the bytes.
 
 ## ASCOM Alpaca Feature Support
 
 In order to limit the size of the program, the decoder can recognize a subset of
 ASCOM defined device types, methods, and parameters. However, it is very
-straightforward to add new ones. First edit decoder/constants.* and add the
-appropriate enum to EDeviceType, EAscomMethod and/or EParameter, as appropriate.
-Then edit decoder/tokens.h and the appropriate token(s) to the relevant array(s)
-of tokens.
+straightforward to add new ones:
 
-## Alpaca (Response) Encoder
-
-Produces an HTTP Response Message Header and JSON encoded body conforming to the
-ASCOM Alpaca REST API, with the goal of doing so without any memory allocation
-being performed (except modest stack space).
-
-The general idea is to have the ability to write the response payload twice,
-first to a stream that counts the number of bytes, and second to the actual
-output stream (e.g. TCP connection). This approach allows us to determine the
-value of the Content-Length header prior to sending the payload to the client.
+1.  Add the appropriate enumerators in src/constants.h to EDeviceType,
+    EAscomMethod and/or EParameter, as appropriate.
+1.  Add printing of the name of the constant in src/constants.cpp.
+1.  Add the string to be matched (e.g. "camera") to src/literals.inc.
+1.  Add matching of the string in the appropriate method in match_literals.cc.
+1.  If adding a new device type Xyz, add a new class XyzAdapter to
+    src/device_type_adapters, derived from DeviceApiHandlerBase, which maps
+    decoded ASCOM requests that are specific to Xyz devices to calls to virtual
+    methods of XyzAdapter which can be overridden by a subclass of XyzAdapter
+    (i.e. FooBarXyz, which interfaces with a FooBar device that is of general
+    type Xyz).
 
 ### JSON Representation
 
@@ -66,21 +74,29 @@ types, including bool, string, integer, double and array of strings.
 
 ## Arduino Support
 
-The aim is to support use from the Arduino IDE, though that is not yet complete.
-I'm using the
-[Library specification](https://arduino.github.io/arduino-cli/library-specification/)
-in the arduino-cli documentation as a guide.
+Tiny Alpaca Server is structured as an Arduino Library, following the Arduino
+[Arduino Library specification](https://arduino.github.io/arduino-cli/library-specification/).
+To make debugging easier (for me, at least), I've defined logging macros in
+`src/utils/logging.h` that are similar to those in the Google Logging Library.
+On the Arduino, these are disabled by default, in which case they should not
+contribute to the code or RAM size of the compiled Arduino sketch. They can be
+enabled by editing `src/utils/utils_config.h` (sorry, Arduino IDE doesn't offer
+a better approach).
 
 ## RAM Preservation
 
 The Arduino Mega has only 8KB of ram, so we need to preserve that space as much
-as possible. One way is to put literal (const) strings into flash (PROGMEM).
-This gets a bit complicated because we can't directly compare a string in RAM
-against a string in flash. Fortunately, [avr-libc includes `pgmspace` functions
-working with strings and arrays of bytes stored in
-PROGMEM](https://www.nongnu.org/avr-libc/user-manual/group__avr__pgmspace.html),
-such as memcpy_P, which copies a string from PROGMEM to RAM. Of special interest
-are:
+as possible. One way is to put literal (const) strings into flash (PROGMEM), and
+use them when matching strings in requests (e.g. the HTTP method name) against
+the set of expected values, and when producing responses that include fixed
+strings.
+
+Working with a string in PROGMEM gets a bit complicated because we can't
+directly compare a string in RAM against a string in flash. Fortunately,
+avr-libc includes
+[`pgmspace` functions](https://www.nongnu.org/avr-libc/user-manual/group__avr__pgmspace.html)
+for working with strings and arrays of bytes stored in PROGMEM, such as
+memcpy_P, which copies a string from PROGMEM to RAM. Of special interest are:
 
 *   strncasecmp_P, which performs a case insensitive comparison of a string in
     PROGMEM
@@ -90,29 +106,17 @@ are:
 Both of these functions have a parameter to indicate the length of the strings
 (arrays).
 
-To simplify working with strings in PROGMEM, it would probably be best to wrap
-them in a class that knows about `far pointers`, and provides operations for
-comparing these with StringViews, and for streaming them out to a JSON Encoder
-or a Print instance.
+To simplify working with strings in PROGMEM, I've defined a class `Literal` in
+`src/utils/literal.h` and macros to allow for easily defining string literals
+that we want stored in PROGMEM and not in RAM.
+
+Note: So far, class `Literal` only supports strings stored in the first 64KB of
+PROGMEM.
 
 ## Planning
 
-*   DONE: Support case insensitive comparison of mixed case literals and mixed
-    case allowed input (e.g. Content-Length or ClientTransactionId). That will
-    allow us to have only one copy of the string in PROGMEM, and to emit JSON
-    property with the correct case, and also to compare it it in a case
-    insensitive manner with query parameter names.
-
-*   DONE: Support the
-    [management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API).
-
 *   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
     paths (e.g. POST /setserverlocation?value=Mauna Kea).
-
-*   Support multiple connections at once (a bounded number, e.g. as supported by
-    the networking chip used by the RobotDyn MEGA 2560 ETH R3). This will
-    require storing decoder state outside of the decoder instances. For example,
-    using a union whereby all decoders can share the same memory.
 
 *   If useful, write a tool to generate / update literals.inc based on
     DEFINE_LITERAL occurrences in source files, maybe even flag string literals
@@ -140,6 +144,28 @@ or a Print instance.
 *   Consider splitting src/utils out into its own Arduino library, or at least
     those parts that are truly not related to Alpaca.
 
+*   DONE: Support case insensitive comparison of mixed case literals and mixed
+    case allowed input (e.g. Content-Length or ClientTransactionId). That will
+    allow us to have only one copy of the string in PROGMEM, and to emit JSON
+    property with the correct case, and also to compare it it in a case
+    insensitive manner with query parameter names.
+
+*   DONE: Support the
+    [management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API).
+
+*   DONE: Support multiple connections at once (a bounded number, e.g. as
+    supported by the networking chip used by the RobotDyn MEGA 2560 ETH R3).
+
+*   DONE: Implement a form of
+    [Duck Typing](http://p-nand-q.com/programming/cplusplus/duck_typing_and_templates.html),
+    where we can stream (print) any class or struct that has a printTo(Print&)
+    method, or any type T for which a PrintValueTo(const T, Print&) function
+    exists.
+
+*   DONE: Implement a tool (`make_enum_to_string.py`) for generating methods for
+    printing the names of enum values (e.g. EParameter::kClientId prints as
+    "kClientId").
+
 ## Misc. Notes
 
 *   I'm assuming that the networking chip has enough buffer space to handle the
@@ -150,7 +176,10 @@ or a Print instance.
 *   I'm inclined to think that the SafetyMonitor::IsSafe function should be
     implemented server side, not embedded, so that it can combine multiple
     signals and calibrated parameters to make the decision. The embedded system
-    should provide the raw data, but probably not policy.
+    should provide the raw data, but probably not policy. This implies writing
+    an Alpaca Server that runs on the server (host) and provides a SafetyMonitor
+    device which in turn makes Alpaca requests to a device with the actual
+    sensors.
 
 *   It can be helpful for the device to know the time (i.e. current UTC or local
     time), such as for implementing operations involving rates or periods. The
@@ -176,12 +205,6 @@ or a Print instance.
         losing data if writing is interrupted.
     *   We might need some temporary storage in RAM during writing, for which we
         could use an Arduino String class, which has a reserve method.
-
-*   Can a
-    [Duck Typing](http://p-nand-q.com/programming/cplusplus/duck_typing_and_templates.html)
-    approach make it easier to pass printable things into `JsonEncoder`, et al?
-    I.e. could we accept any `X` that has a `size_t X::printTo(Print&) const`
-    method, or for which there is a `size_t Print::print(X)`` method.
 
 ## Ultra Tiny HTTP Decoder?
 
