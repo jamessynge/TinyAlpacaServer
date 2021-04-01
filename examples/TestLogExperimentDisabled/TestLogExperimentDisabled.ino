@@ -1,6 +1,7 @@
 #ifdef TAS_ENABLE_CHECK
 #undef TAS_ENABLE_CHECK
 #endif
+#define TAS_UTILS_DISABLE_CHECK
 
 #ifdef TAS_ENABLE_DCHECK
 #undef TAS_ENABLE_DCHECK
@@ -11,5 +12,6 @@
 #endif
 
 #define TAS_ENABLE_LOG_EXPERIMENT
+#define TAS_LOG_EXPERIMENT_DISABLE_CALL_TO_TEST_FUNCTION
 
 #include <TinyAlpacaServer.h>

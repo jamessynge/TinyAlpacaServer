@@ -53,7 +53,10 @@ void setup() {  // NOLINT
   }
 
   Serial.println("calling test function");
+
+#ifndef TAS_LOG_EXPERIMENT_DISABLE_CALL_TO_TEST_FUNCTION
   LogExperimentTestFunction();
+#endif
 }
 
 void loop() {  // NOLINT
