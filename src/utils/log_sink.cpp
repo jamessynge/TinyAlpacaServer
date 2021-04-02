@@ -6,7 +6,7 @@
 // enabled TAS_VLOG, TAS_CHECK or TAS_DCHECK.
 
 #ifndef NDEBUG
-#define NOISY_LOG_SINK
+// #define NOISY_LOG_SINK
 // #define NOISY_CHECK_SINK
 #endif
 

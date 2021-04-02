@@ -34,10 +34,10 @@ local variables. Maximum is 8192 bytes.
 
 // Enable testing of specific features.
 
-#define TAS_LOG_EXPERIMENT_DO_INCLUDE_LOGGING_H
-#define TAS_LOG_EXPERIMENT_DO_LOG
-#define TAS_LOG_EXPERIMENT_DO_CHECK
-#define TAS_LOG_EXPERIMENT_DO_DCHECK
+//#define TAS_LOG_EXPERIMENT_DO_INCLUDE_LOGGING_H
+//#define TAS_LOG_EXPERIMENT_DO_LOG
+//#define TAS_LOG_EXPERIMENT_DO_CHECK
+//#define TAS_LOG_EXPERIMENT_DO_DCHECK
 
 // Disable all logging.
 

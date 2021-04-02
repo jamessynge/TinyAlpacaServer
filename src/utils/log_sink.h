@@ -21,7 +21,6 @@
 #define NOISY_VOID_SINK
 #endif
 #endif
-#define NOISY_VOID_SINK
 
 namespace alpaca {
 
