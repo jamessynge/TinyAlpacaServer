@@ -12,17 +12,13 @@
 
 #ifdef ARDUINO
 
-#ifndef TAS_ENABLED_VLOG_LEVEL
-#define TAS_ENABLED_VLOG_LEVEL 0
-#endif
+// #ifndef TAS_ENABLE_CHECK
+// #define TAS_ENABLE_CHECK
+// #endif  // !TAS_ENABLE_CHECK
 
-#ifndef TAS_ENABLE_CHECK
-#define TAS_ENABLE_CHECK
-#endif  // !TAS_ENABLE_CHECK
-
-#ifdef TAS_ENABLE_DCHECK
-#undef TAS_ENABLE_DCHECK
-#endif  // TAS_ENABLE_DCHECK
+// #ifdef TAS_ENABLE_DCHECK
+// #undef TAS_ENABLE_DCHECK
+// #endif  // TAS_ENABLE_DCHECK
 
 #else  // !ARDUINO
 

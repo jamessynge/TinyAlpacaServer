@@ -87,9 +87,9 @@ size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output) {
   return count;
 }
 
-size_t PrintJsonEscapedStringTo(const Literal& value, Print& raw_output) {
-  return PrintJsonEscapedStringTo(AnyPrintable(value), raw_output);
-}
+// size_t PrintJsonEscapedStringTo(const Literal& value, Print& raw_output) {
+//   return PrintJsonEscapedStringTo(AnyPrintable(value), raw_output);
+// }
 
 void PrintBoolean(Print& out, const bool value) {
   if (value) {

@@ -65,15 +65,23 @@
 #include "utils/log_sink.h"
 #include "utils/utils_config.h"
 
-#ifndef TAS_ENABLED_VLOG_LEVEL
-#define TAS_ENABLED_VLOG_LEVEL false && -128
-#endif
+#if defined(TAS_ENABLED_VLOG_LEVEL) && TAS_ENABLED_VLOG_LEVEL > 0
 
 #define TAS_VLOG(level)               \
   if (TAS_ENABLED_VLOG_LEVEL < level) \
     ;                                 \
   else                                \
     ::alpaca::LogSink()
+
+#else
+
+#define TAS_VLOG(level) \
+  if (true)             \
+    ;                   \
+  else                  \
+    ::alpaca::VoidSink()
+
+#endif
 
 // TODO(jamessynge): Decide whether to use TASLIT (from inline_literal.h) here
 // for the message.

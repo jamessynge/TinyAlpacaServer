@@ -70,8 +70,14 @@ CheckSink::CheckSink(Print& out, const char* expression_message)
 #endif  // NOISY_CHECK_SINK
 }
 
+#ifdef ARDUINO
+#define CheckSinkDestination ::Serial
+#else
+#define CheckSinkDestination ::ToStdErr
+#endif
+
 CheckSink::CheckSink(const char* expression_message)
-    : CheckSink(::ToStdErr, expression_message) {
+    : CheckSink(CheckSinkDestination, expression_message) {
 #ifdef NOISY_CHECK_SINK
 #ifdef ARDUINO
   Serial.print("CheckSink(const char*) ctor @");
@@ -96,8 +102,8 @@ CheckSink::~CheckSink() {
 
 #ifdef ARDUINO
   while (true) {
-    out.print("TAS_CHECK FAILED: ");
-    out.println(expression_message_);
+    out_.print("TAS_CHECK FAILED: ");
+    out_.println(expression_message_);
     out_.flush();
     delay(10000);
   }
