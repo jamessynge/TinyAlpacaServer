@@ -20,6 +20,7 @@ TEST(IsIntegralTest, IsIntegral) {
   EXPECT_EQ(is_integral<SomeEnumType>::value, false);
 }
 
+#if __cplusplus > 201103L
 TEST(IsIntegralTest, IsIntegralV) {
   EXPECT_EQ(is_integral_v<bool>, true);
   EXPECT_EQ(is_integral_v<const int>, true);
@@ -30,6 +31,7 @@ TEST(IsIntegralTest, IsIntegralV) {
   EXPECT_EQ(is_integral_v<SomeStructType>, false);
   EXPECT_EQ(is_integral_v<SomeEnumType>, false);
 }
+#endif
 
 }  // namespace
 }  // namespace alpaca

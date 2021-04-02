@@ -314,3 +314,12 @@ cc_library(
         ":server_description",
     ],
 )
+
+cc_library(
+    name = "log_experiment",
+    hdrs = ["LogExperiment.h"],
+    deps = [
+        ":logging",
+        ":platform",
+    ],
+)

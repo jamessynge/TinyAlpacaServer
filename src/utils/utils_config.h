@@ -10,11 +10,16 @@
 //
 // Author: james.synge@gmail.com
 
+// Allow the file that is including LogExperiment.h to control the setting of
+// the logging.h enable macros.
+#ifndef TAS_DO_LOG_EXPERIMENT
+
 #ifdef ARDUINO
+// On Arduino we leave TAS_CHECK enabled, but not TAS_VLOG or TAS_DCHECK.
 
 #ifndef TAS_ENABLED_VLOG_LEVEL
 #define TAS_ENABLED_VLOG_LEVEL 0
-#endif
+#endif  //! TAS_ENABLED_VLOG_LEVEL
 
 #ifndef TAS_ENABLE_CHECK
 #define TAS_ENABLE_CHECK
@@ -41,5 +46,7 @@
 #endif  // !TAS_ENABLE_DCHECK
 
 #endif  // ARDUINO
+
+#endif  // !TAS_DO_LOG_EXPERIMENT
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_UTILS_CONFIG_H_

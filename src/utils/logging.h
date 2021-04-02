@@ -65,15 +65,25 @@
 #include "utils/log_sink.h"
 #include "utils/utils_config.h"
 
-#ifndef TAS_ENABLED_VLOG_LEVEL
-#define TAS_ENABLED_VLOG_LEVEL false && -128
-#endif
+#define THE_VOID_SINK ::alpaca::VoidSink()
 
-#define TAS_VLOG(level)               \
-  if (TAS_ENABLED_VLOG_LEVEL < level) \
-    ;                                 \
-  else                                \
-    ::alpaca::LogSink()
+#if defined(TAS_ENABLED_VLOG_LEVEL) && TAS_ENABLED_VLOG_LEVEL > 0
+
+#define TAS_VLOG(level)              \
+  switch (0)                         \
+  default:                           \
+    (TAS_ENABLED_VLOG_LEVEL < level) \
+        ? (void)0                    \
+        : ::alpaca::LogSinkVoidify() && ::alpaca::LogSink()
+
+#else
+
+#define TAS_VLOG(level) \
+  switch (0)            \
+  default:              \
+    (true) ? (void)0 : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+
+#endif
 
 // TODO(jamessynge): Decide whether to use TASLIT (from inline_literal.h) here
 // for the message.
@@ -81,33 +91,28 @@
 #ifdef TAS_ENABLE_CHECK
 
 #define TAS_CHECK_INTERNAL_(expression, message) \
-  if ((expression))                              \
-    ;                                            \
-  else                                           \
-    ::alpaca::CheckSink(message)
+  switch (0)                                     \
+  default:                                       \
+    (expression) ? (void)0                       \
+                 : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(message)
 
 #else  // !TAS_ENABLE_CHECK
 
 #define TAS_CHECK_INTERNAL_(expression, message) \
-  if (true || (expression))                      \
-    ;                                            \
-  else                                           \
-    ::alpaca::VoidSink()
+  switch (0)                                     \
+  default:                                       \
+    (true || (expression)) ? (void)0             \
+                           : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
 
 #endif  // TAS_ENABLE_CHECK
 
 #define TAS_CHECK(expression) TAS_CHECK_INTERNAL_(expression, #expression)
 #define TAS_CHECK_EQ(a, b) TAS_CHECK_INTERNAL_((a) == (b), #a " == " #b)
+#define TAS_CHECK_NE(a, b) TAS_CHECK_INTERNAL_((a) != (b), #a " != " #b)
 #define TAS_CHECK_LE(a, b) TAS_CHECK_INTERNAL_((a) <= (b), #a " <= " #b)
 #define TAS_CHECK_LT(a, b) TAS_CHECK_INTERNAL_((a) < (b), #a " < " #b)
 #define TAS_CHECK_GE(a, b) TAS_CHECK_INTERNAL_((a) >= (b), #a " >= " #b)
 #define TAS_CHECK_GT(a, b) TAS_CHECK_INTERNAL_((a) > (b), #a " > " #b)
-
-// It is common that when operator== is defined for a pair of types,
-// operator!= is not defined for that same pair of types. On that
-// basis we implement TAS_CHECK_NE by negating ==.
-#define TAS_CHECK_NE(a, b) \
-  TAS_CHECK_INTERNAL_(!((a) == (b)), "!(" #a " == " #b ")")
 
 // If the TAS_CHECK* macros are enabled, then TAS_DCHECK* macros may also be
 // enabled, but if TAS_CHECK* macros are disabled, then the TAS_DCHECK* macros
@@ -116,26 +121,27 @@
 #if defined(TAS_ENABLE_CHECK) && defined(TAS_ENABLE_DCHECK)
 
 #define TAS_DCHECK_INTERNAL_(expression, message) \
-  TAS_CHECK_INTERNAL_(expression, message)
+  switch (0)                                      \
+  default:                                        \
+    (expression) ? (void)0                        \
+                 : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(message)
 
 #else
 
 #define TAS_DCHECK_INTERNAL_(expression, message) \
-  if (true || (expression))                       \
-    ;                                             \
-  else                                            \
-    ::alpaca::VoidSink()
+  switch (0)                                      \
+  default:                                        \
+    (true || (expression)) ? (void)0              \
+                           : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
 
 #endif
 
 #define TAS_DCHECK(expression) TAS_DCHECK_INTERNAL_(expression, #expression)
 #define TAS_DCHECK_EQ(a, b) TAS_DCHECK_INTERNAL_((a) == (b), #a " == " #b)
+#define TAS_DCHECK_NE(a, b) TAS_DCHECK_INTERNAL_((a) != (b), #a " != " #b)
 #define TAS_DCHECK_LE(a, b) TAS_DCHECK_INTERNAL_((a) <= (b), #a " <= " #b)
 #define TAS_DCHECK_LT(a, b) TAS_DCHECK_INTERNAL_((a) < (b), #a " < " #b)
 #define TAS_DCHECK_GE(a, b) TAS_DCHECK_INTERNAL_((a) >= (b), #a " >= " #b)
 #define TAS_DCHECK_GT(a, b) TAS_DCHECK_INTERNAL_((a) > (b), #a " > " #b)
-
-#define TAS_DCHECK_NE(a, b) \
-  TAS_DCHECK_INTERNAL_(!((a) == (b)), "!(" #a " == " #b ")")
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_LOGGING_H_

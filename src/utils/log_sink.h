@@ -21,6 +21,7 @@
 #define NOISY_VOID_SINK
 #endif
 #endif
+#define NOISY_VOID_SINK
 
 namespace alpaca {
 
@@ -45,32 +46,32 @@ class VoidSink {
  public:
   VoidSink() {
 #ifdef NOISY_VOID_SINK
-    DVLOG(3) << "VoidSink() ctor @ " << std::hex << this << std::dec
-             << ", count=" << count_;
+    VLOG(3) << "VoidSink() ctor @ " << std::hex << this << std::dec
+            << ", count=" << count_;
 #endif  // !ARDUINO
   }
   VoidSink(const VoidSink&) {
 #ifdef NOISY_VOID_SINK
-    DVLOG(3) << "VoidSink(const VoidSink&) ctor @ " << std::hex << this
-             << std::dec << ", count=" << count_;
+    VLOG(3) << "VoidSink(const VoidSink&) ctor @ " << std::hex << this
+            << std::dec << ", count=" << count_;
 #endif  // !ARDUINO
   }
   VoidSink(VoidSink&&) {
 #ifdef NOISY_VOID_SINK
-    DVLOG(3) << "VoidSink(VoidSink&&) ctor @ " << std::hex << this << std::dec
-             << ", count=" << count_;
+    VLOG(3) << "VoidSink(VoidSink&&) ctor @ " << std::hex << this << std::dec
+            << ", count=" << count_;
 #endif  // !ARDUINO
   }
   ~VoidSink() {
 #ifdef NOISY_VOID_SINK
-    DVLOG(3) << "VoidSink() dtor, " << count_;
+    VLOG(3) << "VoidSink() dtor, " << count_;
 #endif  // !ARDUINO
   }
 
   template <typename T>
   friend VoidSink& operator<<(const VoidSink& sink, const T&) {
 #ifdef NOISY_VOID_SINK
-    DVLOG(3) << "operator<< const&";
+    VLOG(3) << "operator<< const&";
 #endif  // !ARDUINO
     return const_cast<VoidSink&>(sink);
   }
@@ -78,7 +79,7 @@ class VoidSink {
   template <typename T>
   friend VoidSink& operator<<(VoidSink& sink, const T&) {
 #ifdef NOISY_VOID_SINK
-    DVLOG(3) << "operator<< &";
+    VLOG(3) << "operator<< &";
 #endif  // !ARDUINO
     return sink;
   }
@@ -88,6 +89,21 @@ class VoidSink {
   int count_ = counter_++;
   static int counter_;
 #endif  // !ARDUINO
+};
+
+// extern VoidSink TheVoidSink;
+
+// Based on https://github.com/google/asylo/blob/master/asylo/util/logging.h
+// This class is used just to take a type used as a log sink (i.e. the LHS of
+// insert operators in log statements) make it a void type to satisify the
+// ternary operator in TAS_VLOG, TAS_CHECK and TAS_DCHECK. `operand&&` is used
+// because it has precedence lower than `<<` but higher than the ternary
+// operator `:?`
+
+class LogSinkVoidify {
+ public:
+  void operator&&(const OPrintStream&) {}
+  void operator&&(const VoidSink&) {}
 };
 
 }  // namespace alpaca

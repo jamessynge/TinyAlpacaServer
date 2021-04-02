@@ -1,16 +1,49 @@
-#ifndef TAS_ENABLE_CHECK
+/*
+Tests of the flash and ram space required for Tiny Alpaca Server logging code
+when disabled.
+
+************************************************************************
+
+TAS_LOG_EXPERIMENT_DO_INCLUDE_LOGGING_H
+
+Include logging.h, but no logging statements (should be same as the sketch
+without anything included).
+
+
+************************************************************************
+
+TAS_LOG_EXPERIMENT_DO_LOG
+
+Include logging and have some TAS_VLOG statements.
+
+
+
+************************************************************************
+
+*/
+
+// Make setup and loop available.
+
+#define TAS_DO_LOG_EXPERIMENT
+
+// Enable testing of specific features.
+
+#define TAS_LOG_EXPERIMENT_DO_INCLUDE_LOGGING_H
+#define TAS_LOG_EXPERIMENT_DO_LOG
+#define TAS_LOG_EXPERIMENT_DO_CHECK
+#define TAS_LOG_EXPERIMENT_DO_DCHECK
+
+// Enable the requisite features of logging.h.
+#ifdef TAS_LOG_EXPERIMENT_DO_LOG
+#define TAS_ENABLED_VLOG_LEVEL 2
+#endif
+
+#ifdef TAS_LOG_EXPERIMENT_DO_CHECK
 #define TAS_ENABLE_CHECK
 #endif
 
-#ifndef TAS_ENABLE_DCHECK
+#ifdef TAS_LOG_EXPERIMENT_DO_DCHECK
 #define TAS_ENABLE_DCHECK
 #endif
 
-#ifdef TAS_ENABLED_VLOG_LEVEL
-#undef TAS_ENABLED_VLOG_LEVEL
-#endif
-#define TAS_ENABLED_VLOG_LEVEL 2
-
-#define TAS_ENABLE_LOG_EXPERIMENT
-
-#include <TinyAlpacaServer.h>
+#include "LogExperiment.h"

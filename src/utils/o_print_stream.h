@@ -13,10 +13,6 @@
 
 namespace alpaca {
 
-class OPrintStream;
-
-using OPrintStreamManipulator = void (*)(OPrintStream&);
-
 class OPrintStream {
  public:
   explicit OPrintStream(Print& out) : out_(out), base_(10) {}
@@ -41,6 +37,8 @@ class OPrintStream {
   int base_;
 
  private:
+  using OPrintStreamManipulator = void (*)(OPrintStream&);
+
   // T is a class with a printTo function.
   template <typename T>
   void do_print_a(const T value, true_type /*has_print_to*/) {

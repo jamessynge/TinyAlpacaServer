@@ -107,9 +107,11 @@ template <typename T>
 struct is_integral : decltype(tt_internal::test_is_integral<remove_cv_t<T>>()) {
 };
 
+#if __cplusplus > 201103L
 // C++ 17 feature
 template <typename T>
 inline constexpr bool is_integral_v = is_integral<T>::value;
+#endif
 
 // Based on https://en.cppreference.com/w/cpp/types/add_reference:
 

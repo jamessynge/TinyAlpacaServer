@@ -4,7 +4,7 @@ cc_binary(
     name = "TestLogExperimentDisabled",
     srcs = ["TestLogExperimentDisabled.ino.cc"],
     deps = [
-        ":TinyAlpacaServer",
         ":arduino_main",
+        ":log_experiment",
     ],
 )

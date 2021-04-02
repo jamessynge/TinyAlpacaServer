@@ -6,7 +6,7 @@
 // enabled TAS_VLOG, TAS_CHECK or TAS_DCHECK.
 
 #ifndef NDEBUG
-// #define NOISY_LOG_SINK
+#define NOISY_LOG_SINK
 // #define NOISY_CHECK_SINK
 #endif
 
@@ -70,8 +70,14 @@ CheckSink::CheckSink(Print& out, const char* expression_message)
 #endif  // NOISY_CHECK_SINK
 }
 
+#ifdef ARDUINO
+#define CheckSinkDestination ::Serial
+#else
+#define CheckSinkDestination ::ToStdErr
+#endif
+
 CheckSink::CheckSink(const char* expression_message)
-    : CheckSink(::ToStdErr, expression_message) {
+    : CheckSink(CheckSinkDestination, expression_message) {
 #ifdef NOISY_CHECK_SINK
 #ifdef ARDUINO
   Serial.print("CheckSink(const char*) ctor @");
@@ -96,19 +102,21 @@ CheckSink::~CheckSink() {
 
 #ifdef ARDUINO
   while (true) {
-    out.print("TAS_CHECK FAILED: ");
-    out.println(expression_message_);
+    out_.print("TAS_CHECK FAILED: ");
+    out_.println(expression_message_);
     out_.flush();
     delay(10000);
   }
 #else   // !ARDUINO
   FlushLogFiles(base_logging::INFO);
-  QCHECK(false) << "TAS_CHECK FAILED: " << expression_message_;
+  CHECK(false) << "TAS_CHECK FAILED: " << expression_message_;
 #endif  // ARDUINO
 }
 
 #ifdef NOISY_VOID_SINK
 int VoidSink::counter_;
 #endif  // NOISY_VOID_SINK
+
+// VoidSink TheVoidSink;
 
 }  // namespace alpaca

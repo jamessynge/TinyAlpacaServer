@@ -87,9 +87,9 @@ size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output) {
   return count;
 }
 
-size_t PrintJsonEscapedStringTo(const Literal& value, Print& raw_output) {
-  return PrintJsonEscapedStringTo(AnyPrintable(value), raw_output);
-}
+// size_t PrintJsonEscapedStringTo(const Literal& value, Print& raw_output) {
+//   return PrintJsonEscapedStringTo(AnyPrintable(value), raw_output);
+// }
 
 void PrintBoolean(Print& out, const bool value) {
   if (value) {
@@ -115,12 +115,12 @@ void PrintFloatingPoint(Print& out, const T value) {
   // Haven't got std::isnan or std::isfinite in the Arduino environment.
   // TODO(jamessynge): Consider using isnan and isfinite from avr-libc's math.h.
   if (std::isnan(value)) {
-    PrintJsonEscapedStringTo(JsonNan(), out);
+    PrintJsonEscapedStringTo(AnyPrintable(JsonNan()), out);
   } else if (!std::isfinite(value)) {
     if (value > 0) {
-      PrintJsonEscapedStringTo(JsonInf(), out);
+      PrintJsonEscapedStringTo(AnyPrintable(JsonInf()), out);
     } else {
-      PrintJsonEscapedStringTo(JsonNegInf(), out);
+      PrintJsonEscapedStringTo(AnyPrintable(JsonNegInf()), out);
     }
   } else {
 #endif
