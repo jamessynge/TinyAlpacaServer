@@ -3,7 +3,7 @@
 
 using alpaca::Literal;
 
-constexpr char buffer1[] PROGMEM = "abc";
+constexpr char buffer1[] AVR_PROGMEM = "abc";
 
 constexpr Literal literal(buffer1);
 

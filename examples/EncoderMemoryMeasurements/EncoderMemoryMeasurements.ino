@@ -44,7 +44,7 @@ void setup() {
 // Accessing from program storage takes more code, but saves on RAM.
 // Note that the size of the program goes up 2 bytes at a time (i.e.
 // there may be a byte of padding if the actual size is an odd number).
-constexpr char abc[] PROGMEM = "123";
+constexpr char abc[] AVR_PROGMEM = "123";
 
 uint32_t MeasureCommonJsonResponseSize();
 void PrintCommonHTTPResponse();

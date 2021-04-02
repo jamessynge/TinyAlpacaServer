@@ -24,7 +24,7 @@ namespace alpaca {
 // Define string literal constants in a nested namespace.
 namespace progmem_data {
 #define TAS_DEFINE_BUILTIN_LITERAL(name, literal) \
-  constexpr char k##name[] PROGMEM = literal;
+  constexpr char k##name[] AVR_PROGMEM = literal;
 #include "literals.inc"
 #undef TAS_DEFINE_BUILTIN_LITERAL
 }  // namespace progmem_data

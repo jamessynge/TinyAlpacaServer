@@ -126,10 +126,10 @@ struct LiteralArray {
 // variable.
 #ifndef TAS_DEFINE_LITERAL
 
-#define TAS_DEFINE_LITERAL(name, literal)             \
-  constexpr char kLiteral_##name[] PROGMEM = literal; \
-  inline constexpr ::alpaca::Literal name() {         \
-    return ::alpaca::Literal(kLiteral_##name);        \
+#define TAS_DEFINE_LITERAL(name, literal)                 \
+  constexpr char kLiteral_##name[] AVR_PROGMEM = literal; \
+  inline constexpr ::alpaca::Literal name() {             \
+    return ::alpaca::Literal(kLiteral_##name);            \
   }
 
 #endif  // !TAS_DEFINE_LITERAL

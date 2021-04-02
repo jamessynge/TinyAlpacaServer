@@ -5,7 +5,7 @@
 
 namespace alpaca {
 
-constexpr char kHexDigits[] PROGMEM = "0123456789ABCDEF";
+constexpr char kHexDigits[] AVR_PROGMEM = "0123456789ABCDEF";
 
 size_t PrintCharHexEscaped(Print& out, const char c) {
   size_t total = 0;

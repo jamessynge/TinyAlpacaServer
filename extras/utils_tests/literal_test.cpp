@@ -17,19 +17,19 @@ namespace alpaca {
 namespace {
 using ::testing::IsEmpty;
 
-constexpr char kLowerStr[] PROGMEM = "some\\thing\twith\r\n\b\f\"quotes\".";
-constexpr char kMixedStr[] PROGMEM = "Some\\thing\tWith\r\n\b\f\"Quotes\".";
-constexpr char kUpperStr[] PROGMEM = "SOME\\THING\tWITH\r\n\b\f\"QUOTES\".";
+constexpr char kLowerStr[] AVR_PROGMEM = "some\\thing\twith\r\n\b\f\"quotes\".";
+constexpr char kMixedStr[] AVR_PROGMEM = "Some\\thing\tWith\r\n\b\f\"Quotes\".";
+constexpr char kUpperStr[] AVR_PROGMEM = "SOME\\THING\tWITH\r\n\b\f\"QUOTES\".";
 
 constexpr StringView kLowerView(kLowerStr);
 constexpr StringView kMixedView(kMixedStr);
 constexpr StringView kUpperView(kUpperStr);
 
-constexpr char kLowerJson[] PROGMEM =
+constexpr char kLowerJson[] AVR_PROGMEM =
     "\"some\\\\thing\\twith\\r\\n\\b\\f\\\"quotes\\\".\"";
-constexpr char kLowerHexEscaped[] PROGMEM =
+constexpr char kLowerHexEscaped[] AVR_PROGMEM =
     "\"some\\\\thing\\twith\\r\\n\\x08\\x0C\\\"quotes\\\".\"";
-constexpr char kUpperHexEscaped[] PROGMEM =
+constexpr char kUpperHexEscaped[] AVR_PROGMEM =
     "\"SOME\\\\THING\\tWITH\\r\\n\\x08\\x0C\\\"QUOTES\\\".\"";
 
 TEST(LiteralTest, LowerComparison) {
