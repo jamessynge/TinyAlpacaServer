@@ -21,6 +21,16 @@ which is present on the
 a board compatible with the Arduino Mega 2560, but with built in Ethernet,
 including Power-over-Ethernet.
 
+## Status
+
+The basic code is mostly complete, though the full system isn't yet responding
+to requests (connections are closed as soon as the message is sent).
+I'm working to debug, hence the recent effort on src/utils/logging.h.
+
+The design goal of the TAS_VLOG and TAS_CHECK macros in logging.h is that they
+compile down to zero bytes when disabled. Early tests indicated the approach
+works, but currently that isn't clear.
+
 ## Approach
 
 This code is targetted at settings where dynamic allocation of memory (e.g.

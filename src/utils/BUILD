@@ -165,7 +165,6 @@ cc_library(
 
 cc_library(
     name = "logging",
-    srcs = ["logging.cc"],
     hdrs = ["logging.h"],
     deps = [
         ":log_sink",

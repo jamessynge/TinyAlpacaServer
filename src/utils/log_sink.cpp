@@ -15,8 +15,6 @@
 #include "logging.h"
 #endif  // !ARDUINO
 
-#include "utils/platform.h"
-
 namespace alpaca {
 
 LogSink::LogSink(Print& out) : OPrintStream(out) {
