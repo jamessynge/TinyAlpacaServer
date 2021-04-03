@@ -14,9 +14,6 @@ class EthernetClient : public Client {
   int connect(IPAddress ip, uint16_t port) override;
   int connect(const char *host, uint16_t port) override;
 
-  // Returns the status of the socket, from the Socket n Status Register.
-  uint8_t status();
-
   // Write a byte to the stream, returns the number written.
   size_t write(uint8_t) override;
 
@@ -45,7 +42,10 @@ class EthernetClient : public Client {
 
   explicit operator bool() override;
 
-  uint8_t getSocketNumber();
+  // Returns the status of the socket, from the Socket n Status Register.
+  virtual uint8_t status();
+
+  virtual uint8_t getSocketNumber() const { return sock_; }
 
  private:
   uint8_t sock_;

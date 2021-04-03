@@ -24,8 +24,8 @@ including Power-over-Ethernet.
 ## Status
 
 The basic code is mostly complete, though the full system isn't yet responding
-to requests (connections are closed as soon as the message is sent).
-I'm working to debug, hence the recent effort on src/utils/logging.h.
+to requests (connections are closed as soon as the message is sent). I'm working
+to debug, hence the recent effort on src/utils/logging.h.
 
 The design goal of the TAS_VLOG and TAS_CHECK macros in logging.h is that they
 compile down to zero bytes when disabled. Early tests indicated the approach
@@ -125,6 +125,27 @@ PROGMEM.
 
 ## Planning
 
+*   Split various parts of src/utils out into its their own Arduino libraries.
+    In particular, these features could be broken out into their own libraries,
+    or maybe into a smaller number of libraries with some of these features in
+    the same library. For example (and listed in order of least dependent to
+    most dependent):
+
+    *   C++ utils: `src/utils/traits` is based on the standard `<type_traits>`
+        header, which isn't available with avr-gcc. It is currently used
+        primarily for printing support.
+    *   Stream: `src/utils/o_print_stream.h` provides support for using
+        operator<< to produce output in a manner like using std::ostream.
+    *   Logging: `src/utils/logging.h` and `src/utils/log_sink.*` define
+        TAS_VLOG, TAS_CHECK and TAS_DCHECK macros, and related log sinks.
+    *   String: `src/utils/literal.*` and `src/utils/string_view.*` provide
+        wrappers for immutable strings (in Flash and RAM, respectively). These
+        are aided by `any_printable.*`, `printable_cat.*`, `hex_escape.*`,
+        `string_compare.*`, etc.
+    *   Status: `src/utils/status.h` and `src/utils/status_or.h` provide the
+        ability to return an error status code and error message, or a non-error
+        value.
+
 *   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
     paths (e.g. POST /setserverlocation?value=Mauna Kea).
 
@@ -150,9 +171,6 @@ PROGMEM.
     decoder; this might also emit code for response builders. The script would
     also generate or update literals.inc, the set of strings to be stored in
     PROGMEM.
-
-*   Consider splitting src/utils out into its own Arduino library, or at least
-    those parts that are truly not related to Alpaca.
 
 *   DONE: Support case insensitive comparison of mixed case literals and mixed
     case allowed input (e.g. Content-Length or ClientTransactionId). That will

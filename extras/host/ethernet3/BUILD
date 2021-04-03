@@ -73,7 +73,6 @@ cc_library(
         ":ethernet_client",
         ":ethernet_config",
         ":ip_address",
-        ":platform",
         ":stream",
     ],
 )

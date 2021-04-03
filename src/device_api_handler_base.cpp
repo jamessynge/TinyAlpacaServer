@@ -7,7 +7,6 @@
 #include "literals.h"
 #include "utils/counting_bitbucket.h"
 #include "utils/json_encoder.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

@@ -1,7 +1,6 @@
 #include "utils/platform_ethernet.h"
 
 #include "utils/logging.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

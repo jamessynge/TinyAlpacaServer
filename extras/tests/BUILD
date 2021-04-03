@@ -113,6 +113,16 @@ cc_test(
 )
 
 cc_test(
+    name = "server_connection_test",
+    srcs = ["server_connection_test.cc"],
+    deps = [
+        ":print_to_std_string",
+        ":server_connection",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "server_description_test",
     srcs = ["server_description_test.cc"],
     deps = [

@@ -11,7 +11,6 @@
 #include "utils/literal.h"
 #include "utils/literal_token.h"
 #include "utils/logging.h"
-#include "utils/platform.h"
 
 #define MAKE_ENUM_LITERAL_TOKEN(enum_type, literal_name, enum_value)   \
   LiteralToken<enum_type##_UnderlyingType> {                           \

@@ -3,7 +3,6 @@
 #include "utils/hex_escape.h"
 #include "utils/literal.h"
 #include "utils/o_print_stream.h"
-#include "utils/platform.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"
 

@@ -5,7 +5,6 @@
 #endif  // TAS_HOST_TARGET
 
 #include "utils/hex_escape.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

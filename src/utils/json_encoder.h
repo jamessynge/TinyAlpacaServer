@@ -56,6 +56,10 @@ class JsonPropertySourceAdapter : public JsonPropertySource {
   const T& wrapped_;
 };
 
+// IDEA: Add a JsonEncoderOptions struct, similar to the kwargs for Python's
+// json.dump function (i.e. to support the amount and kind of whitespace between
+// items, including support for indenting or omitting all whitespace).
+
 // Base class for the object and array encoders.
 class AbstractJsonEncoder {
  protected:

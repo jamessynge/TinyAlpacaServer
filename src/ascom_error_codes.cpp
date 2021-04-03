@@ -1,7 +1,6 @@
 #include "ascom_error_codes.h"
 
 #include "literals.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

@@ -22,7 +22,6 @@
 #include "match_literals.h"
 #include "utils/hex_escape.h"
 #include "utils/logging.h"
-#include "utils/platform.h"
 #include "utils/string_compare.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified

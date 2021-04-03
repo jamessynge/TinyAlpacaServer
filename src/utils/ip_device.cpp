@@ -1,7 +1,5 @@
 #include "utils/ip_device.h"
 
-#include "utils/platform.h"
-
 namespace alpaca {
 namespace {
 constexpr uint8_t kW5500ChipSelectPin = 10;

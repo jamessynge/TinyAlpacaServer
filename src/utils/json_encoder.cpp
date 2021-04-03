@@ -5,7 +5,6 @@
 #include "utils/counting_bitbucket.h"
 #include "utils/literal.h"
 #include "utils/o_print_stream.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 namespace {

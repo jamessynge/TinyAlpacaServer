@@ -17,11 +17,13 @@ TEST(AlpacaResponseTest, SimpleOk) {
   PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
   PrintToStdString out;
   EXPECT_TRUE(WriteResponse::OkResponse(source, EHttpMethod::PUT, out));
+  const std::string expected_body = absl::StrCat("{}", kEOL);
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
                    "Connection: close", kEOL, "Content-Type: application/json",
-                   kEOL, "Content-Length: 2", kEOL, kEOL, "{}"));
+                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
+                   expected_body));
 }
 
 TEST(AlpacaResponseTest, ArrayOfLiterals) {
@@ -34,8 +36,8 @@ TEST(AlpacaResponseTest, ArrayOfLiterals) {
   EXPECT_TRUE(WriteResponse::LiteralArrayResponse(request, value, out));
 
   const std::string expected_body =
-      R"({"Value": ["DeviceType", "ManufacturerVersion"],)"
-      R"( "ErrorNumber": 0, "ErrorMessage": ""})";
+      absl::StrCat(R"({"Value": ["DeviceType", "ManufacturerVersion"],)",
+                   R"( "ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
@@ -51,8 +53,8 @@ TEST(AlpacaResponseTest, BoolTrue) {
   EXPECT_TRUE(WriteResponse::BoolResponse(request, true, out));
 
   const std::string expected_body =
-      R"({"Value": true, "ServerTransactionId": 0,)"
-      R"( "ErrorNumber": 0, "ErrorMessage": ""})";
+      absl::StrCat(R"({"Value": true, "ServerTransactionId": 0,)",
+                   R"( "ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
@@ -77,7 +79,7 @@ TEST(AlpacaResponseTest, Double) {
 
   const std::string expected_body = absl::StrCat(
       R"({"Value": )", value_str, R"(, "ClientTransactionId": 99,)",
-      R"( "ErrorNumber": 0, "ErrorMessage": ""})");
+      R"( "ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
   EXPECT_EQ(
       out.str(),
       absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,

@@ -2,9 +2,10 @@
 
 #include "alpaca_response.h"
 #include "literals.h"
+#include "utils/any_printable.h"
 #include "utils/logging.h"
-#include "utils/platform.h"
 #include "utils/platform_ethernet.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace {
@@ -116,6 +117,7 @@ void TinyAlpacaServer::OnStartDecoding(AlpacaRequest& request) {
 // to write a response to the client. Return true to continue decoding more
 // requests from the client, false to disconnect.
 bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
+  TAS_VLOG(3) << "OnRequestDecoded: api=" << request.api;
   switch (request.api) {
     case EAlpacaApi::kUnknown:
       break;
@@ -123,12 +125,15 @@ bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
     case EAlpacaApi::kDeviceApi:
       // ABSL_FALLTHROUGH_INTENDED
     case EAlpacaApi::kDeviceSetup:
+      TAS_VLOG(3) << "OnRequestDecoded: device_type=" << request.device_type
+                  << ", device_number=" << request.device_number;
       for (DeviceApiHandlerBasePtr handler : device_handlers_) {
         if (request.device_type == handler->device_type() &&
             request.device_number == handler->device_number()) {
           return DispatchDeviceRequest(request, *handler, out);
         }
       }
+      TAS_VLOG(3) << "OnRequestDecoded: found no Device API Handler";
       // Should this be an ASCOM error, or is an HTTP status OK?
       return WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpNotFound,
                                               Literals::NoSuchDevice(), out);
@@ -155,12 +160,17 @@ bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
 // closed after the response is returned.
 void TinyAlpacaServer::OnRequestDecodingError(AlpacaRequest& request,
                                               EHttpStatusCode status,
-                                              Print& out) {}
+                                              Print& out) {
+  TAS_VLOG(3) << "OnRequestDecodingError: status=" << status;
+  WriteResponse::HttpErrorResponse(status, AnyPrintable(), out);
+}
 
 bool TinyAlpacaServer::DispatchDeviceRequest(AlpacaRequest& request,
                                              DeviceApiHandlerBase& handler,
                                              Print& out) {
   if (request.api == EAlpacaApi::kDeviceApi) {
+    TAS_VLOG(3) << "DispatchDeviceRequest: device_method="
+                << request.device_method;
     return handler.HandleDeviceApiRequest(request, out);
   } else if (request.api == EAlpacaApi::kDeviceSetup) {
     return handler.HandleDeviceApiRequest(request, out);
@@ -173,20 +183,24 @@ bool TinyAlpacaServer::DispatchDeviceRequest(AlpacaRequest& request,
 
 bool TinyAlpacaServer::HandleManagementApiVersions(AlpacaRequest& request,
                                                    Print& out) {
+  TAS_VLOG(3) << "HandleManagementApiVersions";
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 bool TinyAlpacaServer::HandleManagementDescription(AlpacaRequest& request,
                                                    Print& out) {
+  TAS_VLOG(3) << "HandleManagementDescription";
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 bool TinyAlpacaServer::HandleManagementConfiguredDevices(AlpacaRequest& request,
                                                          Print& out) {
+  TAS_VLOG(3) << "HandleManagementConfiguredDevices";
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 bool TinyAlpacaServer::HandleServerSetup(AlpacaRequest& request, Print& out) {
+  TAS_VLOG(3) << "HandleServerSetup";
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 

@@ -11,11 +11,19 @@ class ExtendedEthernetClient : public EthernetClient {
       : EthernetClient(sock), stopped_(false) {}
 
   void stop() override {
+    TAS_VLOG(2) << "ExtendedEthernetClient::stop, sock_num="
+                << getSocketNumber();
     stopped_ = true;
     EthernetClient::stop();
   }
 
-  bool stopped() const { return stopped_; }
+  bool stopped() const {
+    TAS_VLOG(2) << "ExtendedEthernetClient::stopped, sock_num="
+                << getSocketNumber() << ", returning "
+                << (stopped_ ? "true" : "false");
+
+    return stopped_;
+  }
 
  private:
   bool stopped_;

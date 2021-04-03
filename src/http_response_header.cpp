@@ -4,7 +4,6 @@
 
 #include "constants.h"
 #include "literals.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 namespace {

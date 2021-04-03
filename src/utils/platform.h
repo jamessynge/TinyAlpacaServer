@@ -38,6 +38,7 @@
 #define TAS_ENABLE_DEBUGGING 1
 #endif  // NDEBUG
 
+#include "absl/base/attributes.h"
 #include "extras/host/arduino/arduino.h"   // IWYU pragma: export
 #include "extras/host/arduino/pgmspace.h"  // IWYU pragma: export
 #include "extras/host/arduino/print.h"     // IWYU pragma: export
@@ -47,6 +48,17 @@
 #define AVR_PROGMEM
 
 #endif  // ARDUINO
+
+// See absl/base/attributes.h.
+#ifdef ABSL_FALLTHROUGH_INTENDED
+#define TAS_FALLTHROUGH_INTENDED ABSL_FALLTHROUGH_INTENDED
+#elif defined(__GNUC__) && __GNUC__ >= 7
+#define TAS_FALLTHROUGH_INTENDED [[gnu::fallthrough]]
+#else
+#define TAS_FALLTHROUGH_INTENDED \
+  do {                           \
+  } while (0)
+#endif
 
 // If a function contains a TAS_DLOG, et al (e.g. when compiled for debugging),
 // then the function can't be a constexpr. To allow for including these macros

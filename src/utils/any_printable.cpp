@@ -1,7 +1,5 @@
 #include "utils/any_printable.h"
 
-#include "utils/platform.h"
-
 namespace alpaca {
 
 AnyPrintable::AnyPrintable() : type_(AnyPrintable::kEmpty), signed_(0) {}

@@ -45,5 +45,3 @@ uint8_t EthernetClient::connected() {
 }
 
 EthernetClient::operator bool() { return connected() != 0; }
-
-uint8_t EthernetClient::getSocketNumber() { return sock_; }

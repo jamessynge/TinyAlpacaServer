@@ -6,7 +6,6 @@
 #include "constants.h"
 #include "literals.h"
 #include "request_listener.h"
-#include "utils/platform.h"
 #include "utils/platform_ethernet.h"
 #include "utils/string_view.h"
 

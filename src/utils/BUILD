@@ -47,10 +47,7 @@ cc_library(
     name = "connection",
     srcs = ["connection.cc"],
     hdrs = ["connection.h"],
-    deps = [
-        ":platform",
-        ":platform_ethernet",
-    ],
+    deps = [":platform_ethernet"],
 )
 
 cc_library(
@@ -125,7 +122,6 @@ cc_library(
         ":logging",
         ":o_print_stream",
         ":platform",
-        "//absl/strings",
     ],
 )
 
@@ -145,10 +141,6 @@ cc_library(
 cc_library(
     name = "log_experiment",
     hdrs = ["log_experiment.h"],
-    deps = [
-        ":logging",
-        ":platform",
-    ],
 )
 
 cc_library(
@@ -168,7 +160,6 @@ cc_library(
     hdrs = ["logging.h"],
     deps = [
         ":log_sink",
-        ":platform",
         ":utils_config",
     ],
 )
@@ -187,15 +178,24 @@ cc_library(
     name = "platform",
     hdrs = ["platform.h"],
     deps = [
+        ":core_headers",
+        ":pgmspace",
+        ":print",
+        ":stream",
+        ":utils_config",
+    ],
+)
+
+cc_library(
+    name = "platform_ethernet",
+    srcs = ["platform_ethernet.cc"],
+    hdrs = ["platform_ethernet.h"],
+    deps = [
         ":client",
         ":host_sockets",
         ":ip_address",
         ":logging",
-        ":pgmspace",
         ":platform",
-        ":print",
-        ":stream",
-        ":utils_config",
     ],
 )
 
@@ -266,7 +266,6 @@ cc_library(
         ":logging",
         ":o_print_stream",
         ":platform",
-        "//absl/strings",
     ],
 )
 

@@ -1,7 +1,5 @@
 #include "utils/connection.h"
 
-#include "utils/platform.h"
-
 namespace alpaca {
 namespace internal {
 ClientConnection::ClientConnection(Client &client) : client_(client) {}

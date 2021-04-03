@@ -8,6 +8,7 @@
 #include <string>
 
 #include "extras/host/arduino/print.h"
+#include "utils/o_print_stream.h"
 
 namespace alpaca {
 
@@ -38,7 +39,8 @@ class PrintToStdString : public Print {
 template <class T>
 std::string PrintValueToStdString(const T& t) {
   PrintToStdString out;
-  out.print(t);
+  OPrintStream strm(out);
+  strm << t;
   return out.str();
 }
 

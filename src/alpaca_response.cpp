@@ -7,7 +7,6 @@
 #include "utils/any_printable.h"
 #include "utils/counting_bitbucket.h"
 #include "utils/json_encoder.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 namespace {
@@ -31,14 +30,16 @@ class LiteralArraySource : public JsonElementSource {
 // static
 bool WriteResponse::OkResponse(const JsonPropertySource& source,
                                EHttpMethod http_method, Print& out) {
+  const auto eol = Literals::HttpEndOfLine();
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
   hrh.reason_phrase = Literals::OK();
   hrh.content_type = EContentType::kApplicationJson;
-  hrh.content_length = JsonObjectEncoder::EncodedSize(source);
+  hrh.content_length = JsonObjectEncoder::EncodedSize(source) + eol.size();
   hrh.printTo(out);
   if (http_method != EHttpMethod::HEAD) {
     JsonObjectEncoder::Encode(source, out);
+    eol.printTo(out);
   }
   return true;
 }
@@ -137,7 +138,8 @@ bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        const AnyPrintable& error_message,
                                        Print& out) {
   JsonMethodResponse source(request, error_number, error_message);
-  return OkResponse(source, request.http_method, out);
+  OkResponse(source, request.http_method, out);
+  return false;
 }
 
 // static
@@ -145,14 +147,16 @@ bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        Status error_status, Print& out) {
   JsonMethodResponse source(request, error_status.code(),
                             AnyPrintable(error_status.message()));
-  return OkResponse(source, request.http_method, out);
+  OkResponse(source, request.http_method, out);
+  return false;
 }
 
 // static
 bool WriteResponse::AscomNotImplementedErrorResponse(
     const AlpacaRequest& request, Print& out) {
-  return AscomErrorResponse(request, ErrorCodes::ActionNotImplemented().code(),
-                            Literals::HttpMethodNotImplemented(), out);
+  AscomErrorResponse(request, ErrorCodes::ActionNotImplemented().code(),
+                     Literals::HttpMethodNotImplemented(), out);
+  return false;
 }
 
 // static
@@ -198,10 +202,12 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
     case EHttpStatusCode::kHttpVersionNotSupported:
       hrh.reason_phrase = Literals::HttpVersionNotSupported();
       break;
-    case EHttpStatusCode::kHttpInternalServerError:
-    // ABSL_FALLTHROUGH_INTENDED
     default:
-      hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
+      if (status_code < EHttpStatusCode::kHttpBadRequest) {
+        hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
+      }
+      TAS_FALLTHROUGH_INTENDED;
+    case EHttpStatusCode::kHttpInternalServerError:
       hrh.reason_phrase = Literals::HttpInternalServerError();
       break;
   }

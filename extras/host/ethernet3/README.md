@@ -21,3 +21,12 @@ One register block per socket.
 Should introduce scoped enumerations with underlying type uint8_t, instead of
 using the approach in Ethernet3, where there are classes for each of these
 collections of values.
+
+## TODO
+
+The API of the Arduino Ethernet libraries leaves a lot to be desired. For
+example, EthernetClass and EthernetServer don't provide great control over the
+way the individual sockets are used. I'd like to either find an existing API
+that better suits the needs of writing a server that needs to handle both UDP
+and TCP requests, and may also need to initiate some connections (e.g. to fetch
+the current time).

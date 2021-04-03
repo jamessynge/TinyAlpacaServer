@@ -3,7 +3,6 @@
 #include "utils/hex_escape.h"
 #include "utils/logging.h"
 #include "utils/o_print_stream.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 namespace {

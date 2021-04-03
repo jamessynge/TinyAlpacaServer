@@ -5,7 +5,6 @@
 #endif  // TAS_HOST_TARGET
 
 #include "utils/logging.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 namespace {

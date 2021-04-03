@@ -12,9 +12,21 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_request_listener",
+    hdrs = ["mock_request_listener.h"],
+    deps = [
+        ":request_listener",
+        "//googletest:gunit_headers",
+    ],
+)
+
+cc_library(
     name = "print_to_std_string",
     hdrs = ["print_to_std_string.h"],
-    deps = [":print"],
+    deps = [
+        ":o_print_stream",
+        ":print",
+    ],
 )
 
 cc_library(

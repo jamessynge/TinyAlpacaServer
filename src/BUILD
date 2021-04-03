@@ -209,6 +209,15 @@ cc_library(
 )
 
 cc_library(
+    name = "log_experiment",
+    hdrs = ["LogExperiment.h"],
+    deps = [
+        ":logging",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "match_literals",
     srcs = ["match_literals.cc"],
     hdrs = ["match_literals.h"],
@@ -219,7 +228,6 @@ cc_library(
         ":literal_token",
         ":literals",
         ":logging",
-        ":platform",
         ":string_view",
     ],
 )
@@ -303,6 +311,7 @@ cc_library(
     hdrs = ["tiny_alpaca_server.h"],
     deps = [
         ":alpaca_response",
+        ":any_printable",
         ":array",
         ":device_api_handler_base",
         ":literals",
@@ -312,14 +321,6 @@ cc_library(
         ":request_listener",
         ":server_connection",
         ":server_description",
-    ],
-)
-
-cc_library(
-    name = "log_experiment",
-    hdrs = ["LogExperiment.h"],
-    deps = [
-        ":logging",
-        ":platform",
+        ":string_view",
     ],
 )

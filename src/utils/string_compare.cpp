@@ -1,7 +1,5 @@
 #include "utils/string_compare.h"
 
-#include "utils/platform.h"
-
 namespace alpaca {
 
 bool operator==(const Literal& a, const StringView& b) {
