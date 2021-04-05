@@ -39,9 +39,7 @@ struct ConfiguredDeviceInfo : public JsonPropertySource {
   const uint32_t config_id;
 };
 
-// There should be one instance of DeviceInfo per in a sketch.
-//
-//
+// There should be one instance of DeviceInfo per device in a sketch.
 struct DeviceInfo {
   // Write the ConfiguredDevices description of this server to the specified
   // JsonObjectEncoder. The encoder should be for the nested object that is the

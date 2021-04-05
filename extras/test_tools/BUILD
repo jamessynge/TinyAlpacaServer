@@ -12,6 +12,15 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_ethernet_client",
+    hdrs = ["mock_ethernet_client.h"],
+    deps = [
+        ":ethernet_client",
+        "//googletest:gunit_headers",
+    ],
+)
+
+cc_library(
     name = "mock_request_listener",
     hdrs = ["mock_request_listener.h"],
     deps = [
