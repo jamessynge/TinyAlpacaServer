@@ -16,10 +16,10 @@ const char kName[] = "addrs";
 // inclusive. Learn more: https://tools.ietf.org/html/rfc3927
 void pickIPAddress(IPAddress* output) {
   int c = random(254) + 1;
-  TAS_VLOG(5) << "pickIPAddress: c=" << c;
+  TAS_VLOG(5) << TASLIT("pickIPAddress: c=") << c;
 
   int d = random(256);
-  TAS_VLOG(5) << "pickIPAddress: d=" << d;
+  TAS_VLOG(5) << TASLIT("pickIPAddress: d=") << d;
 
   (*output)[0] = 169;
   (*output)[1] = 254;
@@ -99,7 +99,8 @@ void MacAddress::generateAddress(const OuiPrefix* oui_prefix) {
       r = toOuiUnicast(r);
     }
     mac[i] = r;
-    TAS_VLOG(4) << "mac[" << i << "] = 0x" << BaseHex << (mac[i] + 0);
+    TAS_VLOG(4) << TASLIT("mac[") << i << TASLIT("] = 0x") << BaseHex
+                << (mac[i] + 0);
   }
 }
 
@@ -166,7 +167,7 @@ int SaveableIPAddress::read(int fromAddress, Crc32* crc) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
-  TAS_VLOG(3) << "Entered loadOrGenAndSave";
+  TAS_VLOG(3) << TASLIT("Entered loadOrGenAndSave");
   if (load(oui_prefix)) {
     return;
   }
@@ -199,18 +200,18 @@ void Addresses::save() const {
 bool Addresses::load(const OuiPrefix* oui_prefix) {
   int ipAddress;
   if (!verifyName(0, kName, &ipAddress)) {
-    TAS_VLOG(2) << "Stored name mismatch";
+    TAS_VLOG(2) << TASLIT("Stored name mismatch");
     return false;
   }
   Crc32 crc;
   int macAddress = ip.read(ipAddress, &crc);
   int crcAddress = mac.read(macAddress, &crc);
   if (!crc.verify(crcAddress)) {
-    TAS_VLOG(2) << "Stored crc mismatch";
+    TAS_VLOG(2) << TASLIT("Stored crc mismatch");
     return false;
   }
   if (oui_prefix && !mac.hasOuiPrefix(*oui_prefix)) {
-    TAS_VLOG(2) << "Stored OUI prefix mismatch";
+    TAS_VLOG(2) << TASLIT("Stored OUI prefix mismatch");
     return false;
   }
   return true;

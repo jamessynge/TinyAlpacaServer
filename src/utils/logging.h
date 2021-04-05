@@ -41,12 +41,21 @@
 // mutating production code into a TAS_CHECK and rely on it being called; i.e.
 // don't do something like:
 //
-//    TAS_CHECK(InitializeHardware()) << "Failed to initialize hardware.";
+//    TAS_CHECK(InitializeHardware())
+//        << TASLIT("Failed to initialize hardware.");
 //
 // UNLESS you're planning to always leave TAS_CHECK_ENABLED defined for your
 // production (embedded) environment, which is OK if you've kept your use of
 // these macros (and hence the messages strings which may consume a lot of
-// memory).
+// memory). To be safe, it is preferable to do the following:
+//
+//    auto initialized = InitializeHardware();
+//    TAS_CHECK(initialized)
+//        << TASLIT("Failed to initialize hardware.");
+//
+// Note that we use the TASLIT macro here so that when compiling for AVR
+// microcontrollers the string is stored only in Flash (PROGMEM), and is not
+// copied to RAM.
 //
 // TAS_CHECK_NE, TAS_CHECK_EQ, etc. expand to a TAS_CHECK macro with the named
 // comparison.

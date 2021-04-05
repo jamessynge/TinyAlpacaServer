@@ -125,6 +125,7 @@ cc_library(
     srcs = ["constants.cc"],
     hdrs = ["constants.h"],
     deps = [
+        ":inline_literal",
         ":platform",
     ],
 )

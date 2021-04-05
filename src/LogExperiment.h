@@ -26,47 +26,47 @@ void setup() {  // NOLINT
   }
 
 #ifdef TAS_LOG_EXPERIMENT_DO_LOG
-  TAS_VLOG(1) << "Serial is ready";
+  TAS_VLOG(1) << TASLIT("Serial is ready");
 
   if (true)
-    TAS_VLOG(1) << "TAS_VLOG in if branch";
+    TAS_VLOG(1) << TASLIT("TAS_VLOG in if branch");
   else {  // NOLINT: Checking the if behavior.
-    TAS_VLOG(1) << "TAS_VLOG should NOT be reached";
+    TAS_VLOG(1) << TASLIT("TAS_VLOG should NOT be reached");
   }
 
   if (false) {
   } else  // NOLINT: Checking the else behavior.
-    TAS_VLOG(1) << "TAS_VLOG in else branch";
+    TAS_VLOG(1) << TASLIT("TAS_VLOG in else branch");
 
-  TAS_VLOG(99) << "TAS_VLOG(99) should be disabled";
+  TAS_VLOG(99) << TASLIT("TAS_VLOG(99) should be disabled");
 #endif
 
 #ifdef TAS_LOG_EXPERIMENT_DO_CHECK
-  TAS_CHECK(true) << "TAS_CHECK should NOT fail";
+  TAS_CHECK(true) << TASLIT("TAS_CHECK should NOT fail");
 
   if (true)
-    TAS_CHECK(true) << "TAS_CHECK should NOT fail";
+    TAS_CHECK(true) << TASLIT("TAS_CHECK should NOT fail");
   else if (false)
-    TAS_CHECK(false) << "TAS_CHECK should NOT be reached.";
+    TAS_CHECK(false) << TASLIT("TAS_CHECK should NOT be reached.");
 
   if (false) {
-    TAS_CHECK(false) << "TAS_CHECK should NOT be reached.";
+    TAS_CHECK(false) << TASLIT("TAS_CHECK should NOT be reached.");
   } else  // NOLINT: Checking the else behavior.
-    TAS_CHECK(true) << "TAS_CHECK should NOT fail";
+    TAS_CHECK(true) << TASLIT("TAS_CHECK should NOT fail");
 #endif
 
 #ifdef TAS_LOG_EXPERIMENT_DO_DCHECK
-  TAS_DCHECK(true) << "TAS_DCHECK should NOT fail";
+  TAS_DCHECK(true) << TASLIT("TAS_DCHECK should NOT fail");
 
   if (true)
-    TAS_DCHECK(true) << "TAS_DCHECK should NOT fail";
+    TAS_DCHECK(true) << TASLIT("TAS_DCHECK should NOT fail");
   else if (false)
-    TAS_DCHECK(false) << "TAS_DCHECK should NOT be reached.";
+    TAS_DCHECK(false) << TASLIT("TAS_DCHECK should NOT be reached.");
 
   if (false) {
-    TAS_DCHECK(false) << "TAS_DCHECK should NOT be reached.";
+    TAS_DCHECK(false) << TASLIT("TAS_DCHECK should NOT be reached.");
   } else  // NOLINT: Checking the else behavior.
-    TAS_DCHECK(true) << "TAS_DCHECK should NOT fail";
+    TAS_DCHECK(true) << TASLIT("TAS_DCHECK should NOT fail");
 #endif
 }
 

@@ -1,17 +1,19 @@
+#include "constants.h"
+
 // GENERATED FILE (mostly)
 
-#include "constants.h"
+#include "utils/inline_literal.h"
 
 namespace alpaca {
 
 namespace {
 
-size_t PrintUnknownEnumValueTo(const char* name, uint32_t v, Print& out) {
-  size_t result = out.print("Unknown ");
+size_t PrintUnknownEnumValueTo(const Printable& name, uint32_t v, Print& out) {
+  size_t result = out.print(TASLIT("Unknown "));
   result += out.print(name);
-  result += out.print(" (");
+  result += out.print(TASLIT(" ("));
   result += out.print(v);
-  result += out.print(")");
+  result += out.print(TASLIT(")"));
   return result;
 }
 }  // namespace
@@ -19,555 +21,283 @@ size_t PrintUnknownEnumValueTo(const char* name, uint32_t v, Print& out) {
 size_t PrintRequestDecoderStatusTo(RequestDecoderStatus v, Print& out) {
   switch (v) {
     case RequestDecoderStatus::kReset:
-      return out.print("kReset");
+      return out.print(TASLIT("kReset"));
     case RequestDecoderStatus::kDecoding:
-      return out.print("kDecoding");
+      return out.print(TASLIT("kDecoding"));
     case RequestDecoderStatus::kDecoded:
-      return out.print("kDecoded");
+      return out.print(TASLIT("kDecoded"));
   }
-  return PrintUnknownEnumValueTo("RequestDecoderStatus",
+  return PrintUnknownEnumValueTo(TASLIT("RequestDecoderStatus"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpStatusCode v, Print& out) {
   switch (v) {
     case EHttpStatusCode::kContinueDecoding:
-      return out.print("kContinueDecoding");
+      return out.print(TASLIT("kContinueDecoding"));
     case EHttpStatusCode::kNeedMoreInput:
-      return out.print("kNeedMoreInput");
+      return out.print(TASLIT("kNeedMoreInput"));
     case EHttpStatusCode::kHttpOk:
-      return out.print("kHttpOk");
+      return out.print(TASLIT("kHttpOk"));
     case EHttpStatusCode::kHttpBadRequest:
-      return out.print("kHttpBadRequest");
+      return out.print(TASLIT("kHttpBadRequest"));
     case EHttpStatusCode::kHttpNotFound:
-      return out.print("kHttpNotFound");
+      return out.print(TASLIT("kHttpNotFound"));
     case EHttpStatusCode::kHttpMethodNotAllowed:
-      return out.print("kHttpMethodNotAllowed");
+      return out.print(TASLIT("kHttpMethodNotAllowed"));
     case EHttpStatusCode::kHttpNotAcceptable:
-      return out.print("kHttpNotAcceptable");
+      return out.print(TASLIT("kHttpNotAcceptable"));
     case EHttpStatusCode::kHttpLengthRequired:
-      return out.print("kHttpLengthRequired");
+      return out.print(TASLIT("kHttpLengthRequired"));
     case EHttpStatusCode::kHttpPayloadTooLarge:
-      return out.print("kHttpPayloadTooLarge");
+      return out.print(TASLIT("kHttpPayloadTooLarge"));
     case EHttpStatusCode::kHttpUnsupportedMediaType:
-      return out.print("kHttpUnsupportedMediaType");
+      return out.print(TASLIT("kHttpUnsupportedMediaType"));
     case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-      return out.print("kHttpRequestHeaderFieldsTooLarge");
+      return out.print(TASLIT("kHttpRequestHeaderFieldsTooLarge"));
     case EHttpStatusCode::kHttpInternalServerError:
-      return out.print("kHttpInternalServerError");
+      return out.print(TASLIT("kHttpInternalServerError"));
     case EHttpStatusCode::kHttpMethodNotImplemented:
-      return out.print("kHttpMethodNotImplemented");
+      return out.print(TASLIT("kHttpMethodNotImplemented"));
     case EHttpStatusCode::kHttpVersionNotSupported:
-      return out.print("kHttpVersionNotSupported");
+      return out.print(TASLIT("kHttpVersionNotSupported"));
   }
-  return PrintUnknownEnumValueTo("EHttpStatusCode", static_cast<uint32_t>(v),
-                                 out);
+  return PrintUnknownEnumValueTo(TASLIT("EHttpStatusCode"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpMethod v, Print& out) {
   switch (v) {
     case EHttpMethod::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EHttpMethod::GET:
-      return out.print("GET");
+      return out.print(TASLIT("GET"));
     case EHttpMethod::PUT:
-      return out.print("PUT");
+      return out.print(TASLIT("PUT"));
     case EHttpMethod::HEAD:
-      return out.print("HEAD");
+      return out.print(TASLIT("HEAD"));
   }
-  return PrintUnknownEnumValueTo("EHttpMethod", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("EHttpMethod"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EApiGroup v, Print& out) {
   switch (v) {
     case EApiGroup::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EApiGroup::kDevice:
-      return out.print("kDevice");
+      return out.print(TASLIT("kDevice"));
     case EApiGroup::kManagement:
-      return out.print("kManagement");
+      return out.print(TASLIT("kManagement"));
     case EApiGroup::kSetup:
-      return out.print("kSetup");
+      return out.print(TASLIT("kSetup"));
   }
-  return PrintUnknownEnumValueTo("EApiGroup", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("EApiGroup"), static_cast<uint32_t>(v),
+                                 out);
 }
 
 size_t PrintValueTo(EAlpacaApi v, Print& out) {
   switch (v) {
     case EAlpacaApi::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EAlpacaApi::kDeviceApi:
-      return out.print("kDeviceApi");
+      return out.print(TASLIT("kDeviceApi"));
     case EAlpacaApi::kDeviceSetup:
-      return out.print("kDeviceSetup");
+      return out.print(TASLIT("kDeviceSetup"));
     case EAlpacaApi::kManagementApiVersions:
-      return out.print("kManagementApiVersions");
+      return out.print(TASLIT("kManagementApiVersions"));
     case EAlpacaApi::kManagementDescription:
-      return out.print("kManagementDescription");
+      return out.print(TASLIT("kManagementDescription"));
     case EAlpacaApi::kManagementConfiguredDevices:
-      return out.print("kManagementConfiguredDevices");
+      return out.print(TASLIT("kManagementConfiguredDevices"));
     case EAlpacaApi::kServerSetup:
-      return out.print("kServerSetup");
+      return out.print(TASLIT("kServerSetup"));
   }
-  return PrintUnknownEnumValueTo("EAlpacaApi", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("EAlpacaApi"), static_cast<uint32_t>(v),
+                                 out);
 }
 
 size_t PrintValueTo(EManagementMethod v, Print& out) {
   switch (v) {
     case EManagementMethod::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EManagementMethod::kDescription:
-      return out.print("kDescription");
+      return out.print(TASLIT("kDescription"));
     case EManagementMethod::kConfiguredDevices:
-      return out.print("kConfiguredDevices");
+      return out.print(TASLIT("kConfiguredDevices"));
   }
-  return PrintUnknownEnumValueTo("EManagementMethod", static_cast<uint32_t>(v),
-                                 out);
+  return PrintUnknownEnumValueTo(TASLIT("EManagementMethod"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceType v, Print& out) {
   switch (v) {
     case EDeviceType::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EDeviceType::kCamera:
-      return out.print("kCamera");
+      return out.print(TASLIT("kCamera"));
     case EDeviceType::kCoverCalibrator:
-      return out.print("kCoverCalibrator");
+      return out.print(TASLIT("kCoverCalibrator"));
     case EDeviceType::kDome:
-      return out.print("kDome");
+      return out.print(TASLIT("kDome"));
     case EDeviceType::kFilterWheel:
-      return out.print("kFilterWheel");
+      return out.print(TASLIT("kFilterWheel"));
     case EDeviceType::kFocuser:
-      return out.print("kFocuser");
+      return out.print(TASLIT("kFocuser"));
     case EDeviceType::kObservingConditions:
-      return out.print("kObservingConditions");
+      return out.print(TASLIT("kObservingConditions"));
     case EDeviceType::kRotator:
-      return out.print("kRotator");
+      return out.print(TASLIT("kRotator"));
     case EDeviceType::kSafetyMonitor:
-      return out.print("kSafetyMonitor");
+      return out.print(TASLIT("kSafetyMonitor"));
     case EDeviceType::kSwitch:
-      return out.print("kSwitch");
+      return out.print(TASLIT("kSwitch"));
     case EDeviceType::kTelescope:
-      return out.print("kTelescope");
+      return out.print(TASLIT("kTelescope"));
   }
-  return PrintUnknownEnumValueTo("EDeviceType", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("EDeviceType"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceMethod v, Print& out) {
   switch (v) {
     case EDeviceMethod::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EDeviceMethod::kSetup:
-      return out.print("kSetup");
+      return out.print(TASLIT("kSetup"));
     case EDeviceMethod::kConnected:
-      return out.print("kConnected");
+      return out.print(TASLIT("kConnected"));
     case EDeviceMethod::kDescription:
-      return out.print("kDescription");
+      return out.print(TASLIT("kDescription"));
     case EDeviceMethod::kDriverInfo:
-      return out.print("kDriverInfo");
+      return out.print(TASLIT("kDriverInfo"));
     case EDeviceMethod::kDriverVersion:
-      return out.print("kDriverVersion");
+      return out.print(TASLIT("kDriverVersion"));
     case EDeviceMethod::kInterfaceVersion:
-      return out.print("kInterfaceVersion");
+      return out.print(TASLIT("kInterfaceVersion"));
     case EDeviceMethod::kName:
-      return out.print("kName");
+      return out.print(TASLIT("kName"));
     case EDeviceMethod::kSupportedActions:
-      return out.print("kSupportedActions");
+      return out.print(TASLIT("kSupportedActions"));
     case EDeviceMethod::kAveragePeriod:
-      return out.print("kAveragePeriod");
+      return out.print(TASLIT("kAveragePeriod"));
     case EDeviceMethod::kCloudCover:
-      return out.print("kCloudCover");
+      return out.print(TASLIT("kCloudCover"));
     case EDeviceMethod::kDewPoint:
-      return out.print("kDewPoint");
+      return out.print(TASLIT("kDewPoint"));
     case EDeviceMethod::kHumidity:
-      return out.print("kHumidity");
+      return out.print(TASLIT("kHumidity"));
     case EDeviceMethod::kPressure:
-      return out.print("kPressure");
+      return out.print(TASLIT("kPressure"));
     case EDeviceMethod::kRainRate:
-      return out.print("kRainRate");
+      return out.print(TASLIT("kRainRate"));
     case EDeviceMethod::kRefresh:
-      return out.print("kRefresh");
+      return out.print(TASLIT("kRefresh"));
     case EDeviceMethod::kSensorDescription:
-      return out.print("kSensorDescription");
+      return out.print(TASLIT("kSensorDescription"));
     case EDeviceMethod::kSkyBrightness:
-      return out.print("kSkyBrightness");
+      return out.print(TASLIT("kSkyBrightness"));
     case EDeviceMethod::kSkyQuality:
-      return out.print("kSkyQuality");
+      return out.print(TASLIT("kSkyQuality"));
     case EDeviceMethod::kSkyTemperature:
-      return out.print("kSkyTemperature");
+      return out.print(TASLIT("kSkyTemperature"));
     case EDeviceMethod::kStarFullWidthHalfMax:
-      return out.print("kStarFullWidthHalfMax");
+      return out.print(TASLIT("kStarFullWidthHalfMax"));
     case EDeviceMethod::kTemperature:
-      return out.print("kTemperature");
+      return out.print(TASLIT("kTemperature"));
     case EDeviceMethod::kTimeSinceLastUpdate:
-      return out.print("kTimeSinceLastUpdate");
+      return out.print(TASLIT("kTimeSinceLastUpdate"));
     case EDeviceMethod::kWindDirection:
-      return out.print("kWindDirection");
+      return out.print(TASLIT("kWindDirection"));
     case EDeviceMethod::kWindGust:
-      return out.print("kWindGust");
+      return out.print(TASLIT("kWindGust"));
     case EDeviceMethod::kWindSpeed:
-      return out.print("kWindSpeed");
+      return out.print(TASLIT("kWindSpeed"));
     case EDeviceMethod::kIsSafe:
-      return out.print("kIsSafe");
+      return out.print(TASLIT("kIsSafe"));
   }
-  return PrintUnknownEnumValueTo("EDeviceMethod", static_cast<uint32_t>(v),
-                                 out);
+  return PrintUnknownEnumValueTo(TASLIT("EDeviceMethod"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EParameter v, Print& out) {
   switch (v) {
     case EParameter::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EParameter::kClientId:
-      return out.print("kClientId");
+      return out.print(TASLIT("kClientId"));
     case EParameter::kClientTransactionId:
-      return out.print("kClientTransactionId");
+      return out.print(TASLIT("kClientTransactionId"));
     case EParameter::kConnected:
-      return out.print("kConnected");
+      return out.print(TASLIT("kConnected"));
     case EParameter::kSensorName:
-      return out.print("kSensorName");
+      return out.print(TASLIT("kSensorName"));
   }
-  return PrintUnknownEnumValueTo("EParameter", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("EParameter"), static_cast<uint32_t>(v),
+                                 out);
 }
 
 size_t PrintValueTo(ESensorName v, Print& out) {
   switch (v) {
     case ESensorName::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case ESensorName::kCloudCover:
-      return out.print("kCloudCover");
+      return out.print(TASLIT("kCloudCover"));
     case ESensorName::kDewPoint:
-      return out.print("kDewPoint");
+      return out.print(TASLIT("kDewPoint"));
     case ESensorName::kHumidity:
-      return out.print("kHumidity");
+      return out.print(TASLIT("kHumidity"));
     case ESensorName::kPressure:
-      return out.print("kPressure");
+      return out.print(TASLIT("kPressure"));
     case ESensorName::kRainRate:
-      return out.print("kRainRate");
+      return out.print(TASLIT("kRainRate"));
     case ESensorName::kSkyBrightness:
-      return out.print("kSkyBrightness");
+      return out.print(TASLIT("kSkyBrightness"));
     case ESensorName::kSkyQuality:
-      return out.print("kSkyQuality");
+      return out.print(TASLIT("kSkyQuality"));
     case ESensorName::kSkyTemperature:
-      return out.print("kSkyTemperature");
+      return out.print(TASLIT("kSkyTemperature"));
     case ESensorName::kStarFullWidthHalfMax:
-      return out.print("kStarFullWidthHalfMax");
+      return out.print(TASLIT("kStarFullWidthHalfMax"));
     case ESensorName::kTemperature:
-      return out.print("kTemperature");
+      return out.print(TASLIT("kTemperature"));
     case ESensorName::kWindDirection:
-      return out.print("kWindDirection");
+      return out.print(TASLIT("kWindDirection"));
     case ESensorName::kWindGust:
-      return out.print("kWindGust");
+      return out.print(TASLIT("kWindGust"));
     case ESensorName::kWindSpeed:
-      return out.print("kWindSpeed");
+      return out.print(TASLIT("kWindSpeed"));
   }
-  return PrintUnknownEnumValueTo("ESensorName", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("ESensorName"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpHeader v, Print& out) {
   switch (v) {
     case EHttpHeader::kUnknown:
-      return out.print("kUnknown");
+      return out.print(TASLIT("kUnknown"));
     case EHttpHeader::kHttpAccept:
-      return out.print("kHttpAccept");
+      return out.print(TASLIT("kHttpAccept"));
     case EHttpHeader::kHttpContentLength:
-      return out.print("kHttpContentLength");
+      return out.print(TASLIT("kHttpContentLength"));
     case EHttpHeader::kHttpContentType:
-      return out.print("kHttpContentType");
+      return out.print(TASLIT("kHttpContentType"));
     case EHttpHeader::kHttpContentEncoding:
-      return out.print("kHttpContentEncoding");
+      return out.print(TASLIT("kHttpContentEncoding"));
   }
-  return PrintUnknownEnumValueTo("EHttpHeader", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("EHttpHeader"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EContentType v, Print& out) {
   switch (v) {
     case EContentType::kApplicationJson:
-      return out.print("kApplicationJson");
+      return out.print(TASLIT("kApplicationJson"));
     case EContentType::kTextPlain:
-      return out.print("kTextPlain");
+      return out.print(TASLIT("kTextPlain"));
   }
-  return PrintUnknownEnumValueTo("EContentType", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(TASLIT("EContentType"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 }  // namespace alpaca
-
-#if TAS_HOST_TARGET
-#include <type_traits>
-
-namespace alpaca {
-
-std::ostream& operator<<(std::ostream& out, RequestDecoderStatus v) {
-  switch (v) {
-    case RequestDecoderStatus::kReset:
-      return out << "kReset";
-    case RequestDecoderStatus::kDecoding:
-      return out << "kDecoding";
-    case RequestDecoderStatus::kDecoded:
-      return out << "kDecoded";
-  }
-  auto invalid =
-      static_cast<std::underlying_type<RequestDecoderStatus>::type>(v);
-  return out << invalid << " (invalid RequestDecoderStatus)";
-}
-
-std::ostream& operator<<(std::ostream& out, EHttpStatusCode v) {
-  switch (v) {
-    case EHttpStatusCode::kContinueDecoding:
-      return out << "kContinueDecoding";
-    case EHttpStatusCode::kNeedMoreInput:
-      return out << "kNeedMoreInput";
-    case EHttpStatusCode::kHttpOk:
-      return out << "kHttpOk";
-    case EHttpStatusCode::kHttpBadRequest:
-      return out << "kHttpBadRequest";
-    case EHttpStatusCode::kHttpNotFound:
-      return out << "kHttpNotFound";
-    case EHttpStatusCode::kHttpMethodNotAllowed:
-      return out << "kHttpMethodNotAllowed";
-    case EHttpStatusCode::kHttpNotAcceptable:
-      return out << "kHttpNotAcceptable";
-    case EHttpStatusCode::kHttpLengthRequired:
-      return out << "kHttpLengthRequired";
-    case EHttpStatusCode::kHttpPayloadTooLarge:
-      return out << "kHttpPayloadTooLarge";
-    case EHttpStatusCode::kHttpUnsupportedMediaType:
-      return out << "kHttpUnsupportedMediaType";
-    case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-      return out << "kHttpRequestHeaderFieldsTooLarge";
-    case EHttpStatusCode::kHttpInternalServerError:
-      return out << "kHttpInternalServerError";
-    case EHttpStatusCode::kHttpMethodNotImplemented:
-      return out << "kHttpMethodNotImplemented";
-    case EHttpStatusCode::kHttpVersionNotSupported:
-      return out << "kHttpVersionNotSupported";
-  }
-  auto invalid = static_cast<std::underlying_type<EHttpStatusCode>::type>(v);
-  return out << invalid << " (invalid EHttpStatusCode)";
-}
-
-std::ostream& operator<<(std::ostream& out, EHttpMethod v) {
-  switch (v) {
-    case EHttpMethod::kUnknown:
-      return out << "kUnknown";
-    case EHttpMethod::GET:
-      return out << "GET";
-    case EHttpMethod::PUT:
-      return out << "PUT";
-    case EHttpMethod::HEAD:
-      return out << "HEAD";
-  }
-  auto invalid = static_cast<std::underlying_type<EHttpMethod>::type>(v);
-  return out << invalid << " (invalid EHttpMethod)";
-}
-
-std::ostream& operator<<(std::ostream& out, EApiGroup v) {
-  switch (v) {
-    case EApiGroup::kUnknown:
-      return out << "kUnknown";
-    case EApiGroup::kDevice:
-      return out << "kDevice";
-    case EApiGroup::kManagement:
-      return out << "kManagement";
-    case EApiGroup::kSetup:
-      return out << "kSetup";
-  }
-  auto invalid = static_cast<std::underlying_type<EApiGroup>::type>(v);
-  return out << invalid << " (invalid EApiGroup)";
-}
-
-std::ostream& operator<<(std::ostream& out, EAlpacaApi v) {
-  switch (v) {
-    case EAlpacaApi::kUnknown:
-      return out << "kUnknown";
-    case EAlpacaApi::kDeviceApi:
-      return out << "kDeviceApi";
-    case EAlpacaApi::kDeviceSetup:
-      return out << "kDeviceSetup";
-    case EAlpacaApi::kManagementApiVersions:
-      return out << "kManagementApiVersions";
-    case EAlpacaApi::kManagementDescription:
-      return out << "kManagementDescription";
-    case EAlpacaApi::kManagementConfiguredDevices:
-      return out << "kManagementConfiguredDevices";
-    case EAlpacaApi::kServerSetup:
-      return out << "kServerSetup";
-  }
-  auto invalid = static_cast<std::underlying_type<EAlpacaApi>::type>(v);
-  return out << invalid << " (invalid EAlpacaApi)";
-}
-
-std::ostream& operator<<(std::ostream& out, EManagementMethod v) {
-  switch (v) {
-    case EManagementMethod::kUnknown:
-      return out << "kUnknown";
-    case EManagementMethod::kDescription:
-      return out << "kDescription";
-    case EManagementMethod::kConfiguredDevices:
-      return out << "kConfiguredDevices";
-  }
-  auto invalid = static_cast<std::underlying_type<EManagementMethod>::type>(v);
-  return out << invalid << " (invalid EManagementMethod)";
-}
-
-std::ostream& operator<<(std::ostream& out, EDeviceType v) {
-  switch (v) {
-    case EDeviceType::kUnknown:
-      return out << "kUnknown";
-    case EDeviceType::kCamera:
-      return out << "kCamera";
-    case EDeviceType::kCoverCalibrator:
-      return out << "kCoverCalibrator";
-    case EDeviceType::kDome:
-      return out << "kDome";
-    case EDeviceType::kFilterWheel:
-      return out << "kFilterWheel";
-    case EDeviceType::kFocuser:
-      return out << "kFocuser";
-    case EDeviceType::kObservingConditions:
-      return out << "kObservingConditions";
-    case EDeviceType::kRotator:
-      return out << "kRotator";
-    case EDeviceType::kSafetyMonitor:
-      return out << "kSafetyMonitor";
-    case EDeviceType::kSwitch:
-      return out << "kSwitch";
-    case EDeviceType::kTelescope:
-      return out << "kTelescope";
-  }
-  auto invalid = static_cast<std::underlying_type<EDeviceType>::type>(v);
-  return out << invalid << " (invalid EDeviceType)";
-}
-
-std::ostream& operator<<(std::ostream& out, EDeviceMethod v) {
-  switch (v) {
-    case EDeviceMethod::kUnknown:
-      return out << "kUnknown";
-    case EDeviceMethod::kSetup:
-      return out << "kSetup";
-    case EDeviceMethod::kConnected:
-      return out << "kConnected";
-    case EDeviceMethod::kDescription:
-      return out << "kDescription";
-    case EDeviceMethod::kDriverInfo:
-      return out << "kDriverInfo";
-    case EDeviceMethod::kDriverVersion:
-      return out << "kDriverVersion";
-    case EDeviceMethod::kInterfaceVersion:
-      return out << "kInterfaceVersion";
-    case EDeviceMethod::kName:
-      return out << "kName";
-    case EDeviceMethod::kSupportedActions:
-      return out << "kSupportedActions";
-    case EDeviceMethod::kAveragePeriod:
-      return out << "kAveragePeriod";
-    case EDeviceMethod::kCloudCover:
-      return out << "kCloudCover";
-    case EDeviceMethod::kDewPoint:
-      return out << "kDewPoint";
-    case EDeviceMethod::kHumidity:
-      return out << "kHumidity";
-    case EDeviceMethod::kPressure:
-      return out << "kPressure";
-    case EDeviceMethod::kRainRate:
-      return out << "kRainRate";
-    case EDeviceMethod::kRefresh:
-      return out << "kRefresh";
-    case EDeviceMethod::kSensorDescription:
-      return out << "kSensorDescription";
-    case EDeviceMethod::kSkyBrightness:
-      return out << "kSkyBrightness";
-    case EDeviceMethod::kSkyQuality:
-      return out << "kSkyQuality";
-    case EDeviceMethod::kSkyTemperature:
-      return out << "kSkyTemperature";
-    case EDeviceMethod::kStarFullWidthHalfMax:
-      return out << "kStarFullWidthHalfMax";
-    case EDeviceMethod::kTemperature:
-      return out << "kTemperature";
-    case EDeviceMethod::kTimeSinceLastUpdate:
-      return out << "kTimeSinceLastUpdate";
-    case EDeviceMethod::kWindDirection:
-      return out << "kWindDirection";
-    case EDeviceMethod::kWindGust:
-      return out << "kWindGust";
-    case EDeviceMethod::kWindSpeed:
-      return out << "kWindSpeed";
-    case EDeviceMethod::kIsSafe:
-      return out << "kIsSafe";
-  }
-  auto invalid = static_cast<std::underlying_type<EDeviceMethod>::type>(v);
-  return out << invalid << " (invalid EDeviceMethod)";
-}
-
-std::ostream& operator<<(std::ostream& out, EParameter v) {
-  switch (v) {
-    case EParameter::kUnknown:
-      return out << "kUnknown";
-    case EParameter::kClientId:
-      return out << "kClientId";
-    case EParameter::kClientTransactionId:
-      return out << "kClientTransactionId";
-    case EParameter::kConnected:
-      return out << "kConnected";
-    case EParameter::kSensorName:
-      return out << "kSensorName";
-  }
-  auto invalid = static_cast<std::underlying_type<EParameter>::type>(v);
-  return out << invalid << " (invalid EParameter)";
-}
-
-std::ostream& operator<<(std::ostream& out, ESensorName v) {
-  switch (v) {
-    case ESensorName::kUnknown:
-      return out << "kUnknown";
-    case ESensorName::kCloudCover:
-      return out << "kCloudCover";
-    case ESensorName::kDewPoint:
-      return out << "kDewPoint";
-    case ESensorName::kHumidity:
-      return out << "kHumidity";
-    case ESensorName::kPressure:
-      return out << "kPressure";
-    case ESensorName::kRainRate:
-      return out << "kRainRate";
-    case ESensorName::kSkyBrightness:
-      return out << "kSkyBrightness";
-    case ESensorName::kSkyQuality:
-      return out << "kSkyQuality";
-    case ESensorName::kSkyTemperature:
-      return out << "kSkyTemperature";
-    case ESensorName::kStarFullWidthHalfMax:
-      return out << "kStarFullWidthHalfMax";
-    case ESensorName::kTemperature:
-      return out << "kTemperature";
-    case ESensorName::kWindDirection:
-      return out << "kWindDirection";
-    case ESensorName::kWindGust:
-      return out << "kWindGust";
-    case ESensorName::kWindSpeed:
-      return out << "kWindSpeed";
-  }
-  auto invalid = static_cast<std::underlying_type<ESensorName>::type>(v);
-  return out << invalid << " (invalid ESensorName)";
-}
-
-std::ostream& operator<<(std::ostream& out, EHttpHeader v) {
-  switch (v) {
-    case EHttpHeader::kUnknown:
-      return out << "kUnknown";
-    case EHttpHeader::kHttpAccept:
-      return out << "kHttpAccept";
-    case EHttpHeader::kHttpContentLength:
-      return out << "kHttpContentLength";
-    case EHttpHeader::kHttpContentType:
-      return out << "kHttpContentType";
-    case EHttpHeader::kHttpContentEncoding:
-      return out << "kHttpContentEncoding";
-  }
-  auto invalid = static_cast<std::underlying_type<EHttpHeader>::type>(v);
-  return out << invalid << " (invalid EHttpHeader)";
-}
-
-}  // namespace alpaca
-#endif  // TAS_HOST_TARGET

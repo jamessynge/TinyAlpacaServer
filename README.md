@@ -23,9 +23,9 @@ including Power-over-Ethernet.
 
 ## Status
 
-The basic code is mostly complete, though the full system isn't yet responding
-to requests (connections are closed as soon as the message is sent). I'm working
-to debug, hence the recent effort on src/utils/logging.h.
+The basic code is mostly complete, though the management and setup methods
+aren't implemented yet. Automated tests of the entire system aren't yet
+implemented.
 
 The design goal of the TAS_VLOG and TAS_CHECK macros in logging.h is that they
 compile down to zero bytes when disabled. Early tests indicated the approach

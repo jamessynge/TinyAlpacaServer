@@ -122,8 +122,9 @@ void TrimTrailingOptionalWhitespace(StringView& view) {
 bool ExtractMatchingPrefix(StringView& view, StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
-  TAS_VLOG(3) << "ExtractMatchingPrefix of " << HexEscaped(view) << " found "
-              << (beyond + 0) << " matching characters";
+  TAS_VLOG(3) << TASLIT("ExtractMatchingPrefix of ") << HexEscaped(view)
+              << TASLIT(" found ") << (beyond + 0)
+              << TASLIT(" matching characters");
   if (beyond == StringView::kMaxSize) {
     return false;
   }
@@ -213,10 +214,11 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
       !ExtractMatchingPrefix(view, value, IsFieldContent)) {
     return EHttpStatusCode::kNeedMoreInput;
   }
-  TAS_VLOG(1) << "DecodeHeaderValue raw value: " << HexEscaped(value);
+  TAS_VLOG(1) << TASLIT("DecodeHeaderValue raw value: ") << HexEscaped(value);
   // Trim OWS from the end of the header value.
   TrimTrailingOptionalWhitespace(value);
-  TAS_VLOG(1) << "DecodeHeaderValue trimmed value: " << HexEscaped(value);
+  TAS_VLOG(1) << TASLIT("DecodeHeaderValue trimmed value: ")
+              << HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_header == EHttpHeader::kHttpAccept) {
     // Not tracking whether there are multiple accept headers.
@@ -372,7 +374,7 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   // If there are multiple separators, treat them as one.
   const auto beyond = FindFirstNotOf(view, IsParamSeparator);
   if (beyond == StringView::kMaxSize) {
-    TAS_VLOG(3) << "DecodeParamSeparator found no non-separators in "
+    TAS_VLOG(3) << TASLIT("DecodeParamSeparator found no non-separators in ")
                 << HexEscaped(view);
     // All the available characters are separators, or the view is empty.
     if (!state.is_decoding_header && state.is_final_input) {
@@ -392,8 +394,8 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   // There are zero or more separators, followed by a non-separator. This means
   // that this isn't the body of a request with one of these separators as the
   // last char in the body, so we don't need to worry about that case.
-  TAS_VLOG(3) << "DecodeParamSeparator found " << (beyond + 0)
-              << " separators, followed by a non-separator";
+  TAS_VLOG(3) << TASLIT("DecodeParamSeparator found ") << (beyond + 0)
+              << TASLIT(" separators, followed by a non-separator");
   TAS_DCHECK(!view.empty());
 
   view.remove_prefix(beyond);
@@ -402,7 +404,7 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
       view.remove_prefix(1);
       return state.SetDecodeFunction(MatchHttpVersion);
     }
-    TAS_VLOG(3) << "Found an unexpected space in body";
+    TAS_VLOG(3) << TASLIT("Found an unexpected space in body");
     return EHttpStatusCode::kHttpBadRequest;
   } else {
     return state.SetDecodeFunction(DecodeParamName);
@@ -439,7 +441,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     value = view;
     view.remove_prefix(value.size());
   }
-  TAS_VLOG(1) << "DecodeParamValue value: " << HexEscaped(value);
+  TAS_VLOG(1) << TASLIT("DecodeParamValue value: ") << HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_parameter == EParameter::kClientId) {
     uint32_t id;
@@ -527,7 +529,7 @@ EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state, StringView& view) {
 EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
                                     const StringView& matched_text,
                                     StringView& view) {
-  TAS_VLOG(3) << "ProcessDeviceMethod matched_text: "
+  TAS_VLOG(3) << TASLIT("ProcessDeviceMethod matched_text: ")
               << HexEscaped(matched_text);
 
   // A separator/terminating character should be present after the method.
@@ -538,10 +540,12 @@ EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
                         matched_text, method)) {
     TAS_DCHECK(method == EDeviceMethod::kSetup ||
                state.request.api == EAlpacaApi::kDeviceApi)
-        << "Wrong combo: method=" << method << ", api=" << state.request.api;
+        << TASLIT("Wrong combo: method=") << method << TASLIT(", api=")
+        << state.request.api;
     TAS_DCHECK(method != EDeviceMethod::kSetup ||
                state.request.api == EAlpacaApi::kDeviceSetup)
-        << "Wrong combo: method=" << method << ", api=" << state.request.api;
+        << TASLIT("Wrong combo: method=") << method << TASLIT(", api=")
+        << state.request.api;
     state.request.device_method = method;
     return state.SetDecodeFunction(DecodeEndOfPath);
   }
@@ -578,7 +582,7 @@ EHttpStatusCode ProcessDeviceType(RequestDecoderState& state,
                                   StringView& view) {
   EDeviceType device_type;
   if (MatchDeviceType(matched_text, device_type)) {
-    TAS_VLOG(3) << "device_type: " << device_type;
+    TAS_VLOG(3) << TASLIT("device_type: ") << device_type;
     state.request.device_type = device_type;
     return state.SetDecodeFunction(DecodeDeviceNumber);
   }
@@ -617,14 +621,15 @@ EHttpStatusCode ProcessManagementMethod(RequestDecoderState& state,
   TAS_DCHECK(!view.empty());
   EManagementMethod method;
   if (MatchManagementMethod(matched_text, method)) {
-    TAS_VLOG(3) << "method: " << method;
+    TAS_VLOG(3) << TASLIT("method: ") << method;
     if (method == EManagementMethod::kDescription) {
       state.request.api = EAlpacaApi::kManagementDescription;
     } else if (method == EManagementMethod::kConfiguredDevices) {
       state.request.api = EAlpacaApi::kManagementConfiguredDevices;
     } else {
       // COV_NF_START
-      TAS_DCHECK(false) << "method (" << method << ") unexpected";
+      TAS_DCHECK(false) << TASLIT("method (") << method
+                        << TASLIT(") unexpected");
       return EHttpStatusCode::kHttpInternalServerError;
       // COV_NF_END
     }
@@ -690,7 +695,7 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
       state.request.api = EAlpacaApi::kDeviceApi;
     }
     TAS_DCHECK(group == EApiGroup::kDevice || group == EApiGroup::kSetup)
-        << "group: " << group;
+        << TASLIT("group: ") << group;
     return state.SetDecodeFunction(DecodeApiVersion);
   }
   if (group != EApiGroup::kSetup) {
@@ -730,7 +735,7 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
                                   StringView& view) {
   EHttpMethod method;
   if (MatchHttpMethod(matched_text, method)) {
-    TAS_VLOG(3) << "method: " << method;
+    TAS_VLOG(3) << TASLIT("method: ") << method;
     state.request.http_method = method;
     return state.SetDecodeFunction(MatchStartOfPath);
 
@@ -780,7 +785,7 @@ size_t PrintValueTo(DecodeFunction decode_function, Print& out) {
 #undef OUTPUT_METHOD_NAME
 
   // COV_NF_START
-  TAS_CHECK(false) << "Haven't implemented a case for decode_function";
+  TAS_CHECK(false) << TASLIT("Haven't implemented a case for decode_function");
   return 0;
   // COV_NF_END
 }
@@ -797,8 +802,8 @@ RequestDecoderState::RequestDecoderState(AlpacaRequest& request,
 }
 
 void RequestDecoderState::Reset() {
-  TAS_VLOG(1)
-      << "Reset ##########################################################";
+  TAS_VLOG(1) << TASLIT(
+      "Reset ##########################################################");
   decode_function = DecodeHttpMethod;
   request.Reset();
   is_decoding_header = true;
@@ -811,7 +816,7 @@ void RequestDecoderState::Reset() {
 EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
                                                   const bool buffer_is_full,
                                                   const bool at_end_of_input) {
-  TAS_VLOG(1) << "DecodeBuffer " << HexEscaped(buffer);
+  TAS_VLOG(1) << TASLIT("DecodeBuffer ") << HexEscaped(buffer);
   if (decode_function == nullptr) {
     // Need to call Reset first.
     //
@@ -839,16 +844,16 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
 
   if (buffer_is_full && status == EHttpStatusCode::kNeedMoreInput &&
       start_size == buffer.size()) {
-    TAS_VLOG(1)
-        << "Need more input, but buffer is already full (has no room for "
-           "additional input).";
+    TAS_VLOG(1) << TASLIT(
+        "Need more input, but buffer is already full "
+        "(has no room for additional input).");
     status = EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge;
   }
   if (status >= EHttpStatusCode::kHttpOk) {
     decode_function = nullptr;
     decoder_status = RequestDecoderStatus::kDecoded;
   }
-  TAS_VLOG(1) << "DecodeBuffer --> " << status;
+  TAS_VLOG(1) << TASLIT("DecodeBuffer --> ") << status;
   return status;
 }
 
@@ -857,15 +862,16 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
 // DecodeHeaderLines to find the end.
 EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     StringView& buffer, const bool at_end_of_input) {
-  TAS_VLOG(1) << "DecodeMessageHeader " << HexEscaped(buffer);
+  TAS_VLOG(1) << TASLIT("DecodeMessageHeader ") << HexEscaped(buffer);
 
   EHttpStatusCode status;
   do {
 #if TAS_ENABLE_DEBUGGING
     const auto buffer_size_before_decode = buffer.size();
     auto old_decode_function = decode_function;
-    TAS_VLOG(2) << decode_function << "(" << HexEscaped(buffer) << " ("
-                << static_cast<size_t>(buffer.size()) << " chars))";
+    TAS_VLOG(2) << decode_function << TASLIT("(") << HexEscaped(buffer)
+                << TASLIT(" (") << static_cast<size_t>(buffer.size())
+                << TASLIT(" chars))");
 #endif
 
     status = decode_function(*this, buffer);
@@ -874,8 +880,9 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     TAS_CHECK_LE(buffer.size(), buffer_size_before_decode);
     auto consumed_chars = buffer_size_before_decode - buffer.size();
 
-    TAS_VLOG(3) << "decode_function returned " << status << ", consumed "
-                << consumed_chars << " characters, decode function "
+    TAS_VLOG(3) << TASLIT("decode_function returned ") << status
+                << TASLIT(", consumed ") << consumed_chars
+                << TASLIT(" characters, decode function ")
                 << (old_decode_function == decode_function ? "unchanged"
                                                            : "changed");
 
@@ -886,7 +893,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
       // return kContinueDecoding without also calling SetDecodeFunction to
       // specify the next (different) function to handle the decoding.
       TAS_CHECK_NE(old_decode_function, decode_function)
-          << "Should have changed the decode function";  // COV_NF_LINE
+          << TASLIT("Should have changed the decode function");  // COV_NF_LINE
     }
 #endif
   } while (status == EHttpStatusCode::kContinueDecoding);
@@ -906,14 +913,14 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 // (i.e. remaining_content_length tells us how many ASCII characters remain).
 EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
                                                        bool at_end_of_input) {
-  TAS_VLOG(1) << "DecodeMessageBody " << HexEscaped(buffer);
+  TAS_VLOG(1) << TASLIT("DecodeMessageBody ") << HexEscaped(buffer);
   TAS_CHECK(found_content_length);
   TAS_CHECK_EQ(request.http_method, EHttpMethod::PUT);
 
   if (buffer.size() > remaining_content_length) {
     // We assume that the HTTP client has not sent pipelined requests.
-    TAS_VLOG(2) << "There is more input than Content-Length indicated: "
-                << buffer.size() << " > " << remaining_content_length;
+    TAS_VLOG(2) << TASLIT("There is more input than Content-Length indicated: ")
+                << buffer.size() << TASLIT(" > ") << remaining_content_length;
     return EHttpStatusCode::kHttpPayloadTooLarge;
   } else if (buffer.size() == remaining_content_length) {
     at_end_of_input = true;
@@ -936,16 +943,17 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
     const auto buffer_size_before_decode = buffer.size();
 #if TAS_ENABLE_DEBUGGING
     const auto old_decode_function = decode_function;
-    TAS_VLOG(2) << decode_function << "(" << HexEscaped(buffer) << " ("
-                << (buffer.size() + 0) << " chars))";
+    TAS_VLOG(2) << decode_function << TASLIT("(") << HexEscaped(buffer)
+                << TASLIT(" (") << (buffer.size() + 0) << TASLIT(" chars))");
 #endif
 
     status = decode_function(*this, buffer);
     const auto consumed_chars = buffer_size_before_decode - buffer.size();
 
 #if TAS_ENABLE_DEBUGGING
-    TAS_VLOG(3) << "decode_function returned " << status << ", consumed "
-                << consumed_chars << " characters, decode function "
+    TAS_VLOG(3) << TASLIT("decode_function returned ") << status
+                << TASLIT(", consumed ") << consumed_chars
+                << TASLIT(" characters, decode function ")
                 << (old_decode_function == decode_function ? "unchanged"
                                                            : "changed");
     TAS_CHECK_LE(buffer.size(), buffer_size_before_decode);
@@ -989,7 +997,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
 
 EHttpStatusCode RequestDecoderState::SetDecodeFunction(
     const DecodeFunction func) {
-  TAS_VLOG(3) << "SetDecodeFunction(" << func << ")";
+  TAS_VLOG(3) << TASLIT("SetDecodeFunction(") << func << TASLIT(")");
   TAS_CHECK_NE(decode_function, nullptr);
   TAS_CHECK_NE(decode_function, func);
   decode_function = func;

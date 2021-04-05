@@ -11,15 +11,15 @@ class ExtendedEthernetClient : public EthernetClient {
       : EthernetClient(sock), stopped_(false) {}
 
   void stop() override {
-    TAS_VLOG(2) << "ExtendedEthernetClient::stop, sock_num="
+    TAS_VLOG(2) << TASLIT("ExtendedEthernetClient::stop, sock_num=")
                 << getSocketNumber();
     stopped_ = true;
     EthernetClient::stop();
   }
 
   bool stopped() const {
-    TAS_VLOG(2) << "ExtendedEthernetClient::stopped, sock_num="
-                << getSocketNumber() << ", returning "
+    TAS_VLOG(2) << TASLIT("ExtendedEthernetClient::stopped, sock_num=")
+                << getSocketNumber() << TASLIT(", returning ")
                 << (stopped_ ? "true" : "false");
 
     return stopped_;
@@ -33,7 +33,7 @@ class ExtendedEthernetClient : public EthernetClient {
 ServerConnectionBase::~ServerConnectionBase() {}
 
 bool ServerConnectionBase::set_sock_num(uint8_t sock_num) {
-  TAS_DCHECK(!has_socket()) << "sock_num_: " << sock_num_;
+  TAS_DCHECK(!has_socket()) << TASLIT("sock_num_: ") << sock_num_;
   if (has_socket()) {
     return false;
   }

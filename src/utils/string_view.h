@@ -101,7 +101,8 @@ class StringView {
 
   // Remove the first prefix_length characters from the StringView.
   void remove_prefix(size_type prefix_length) noexcept {
-    TAS_VLOG(1) << "remove_prefix(" << prefix_length << "), size_=" << size_;
+    TAS_VLOG(1) << TASLIT("remove_prefix(") << prefix_length
+                << TASLIT("), size_=") << size_;
     TAS_DCHECK_LE(prefix_length, size_);
     size_ -= prefix_length;
     ptr_ += prefix_length;

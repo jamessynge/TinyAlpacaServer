@@ -33,14 +33,14 @@ bool FindFirstMatchingLiteralToken(
     LiteralMatchFunction func, T& matched_id) {
   for (const auto& token : tokens) {
     if (func(token.str, view)) {
-      TAS_VLOG(3) << "FindFirstMatchingLiteralToken matched "
-                  << HexEscaped(token.str) << " to " << HexEscaped(view)
-                  << ", with id " << (token.id + 0L);
+      TAS_VLOG(3) << TASLIT("FindFirstMatchingLiteralToken matched ")
+                  << HexEscaped(token.str) << TASLIT(" to ") << HexEscaped(view)
+                  << TASLIT(", with id ") << (token.id + 0L);
       matched_id = token.id;
       return true;
     }
   }
-  TAS_VLOG(3) << "FindFirstMatchingLiteralToken unable to match "
+  TAS_VLOG(3) << TASLIT("FindFirstMatchingLiteralToken unable to match ")
               << HexEscaped(view);
   return false;
 }
@@ -51,7 +51,8 @@ template <typename T>
 bool MaybeMatchLiteralTokensExactly(
     const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
     T& matched_id) {
-  TAS_VLOG(3) << "MaybeMatchLiteralTokensExactly view: " << HexEscaped(view);
+  TAS_VLOG(3) << TASLIT("MaybeMatchLiteralTokensExactly view: ")
+              << HexEscaped(view);
   return FindFirstMatchingLiteralToken(view, tokens, ExactlyEqual, matched_id);
 }
 
@@ -61,7 +62,7 @@ template <typename T>
 bool MaybeMatchLiteralTokensCaseInsensitively(
     const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
     T& matched_id) {
-  TAS_VLOG(3) << "MaybeMatchLiteralTokensCaseInsensitively view: "
+  TAS_VLOG(3) << TASLIT("MaybeMatchLiteralTokensCaseInsensitively view: ")
               << HexEscaped(view);
   return FindFirstMatchingLiteralToken(view, tokens, CaseEqual, matched_id);
 }
