@@ -53,17 +53,17 @@ LogSink::~LogSink() {
 #endif  // NOISY_LOG_SINK
 }
 
-CheckSink::CheckSink(Print& out, const char* expression_message)
+CheckSink::CheckSink(Print& out, PrintableProgmemString expression_message)
     : OPrintStream(out), expression_message_(expression_message) {
-  out.print("TAS_CHECK FAILED: ");
+  out.print(TASLIT("TAS_CHECK FAILED: "));
   out.println(expression_message_);
 #ifdef NOISY_CHECK_SINK
 #ifdef ARDUINO
-  Serial.print("CheckSink(Print&, const char*) ctor @");
+  Serial.print("CheckSink(Print&, PrintableProgmemString) ctor @");
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
-  LOG(INFO) << "CheckSink(Print& out, const char* expression_message) ctor @"
-            << std::hex << this;
+  LOG(INFO) << "CheckSink(Print&, PrintableProgmemString) ctor @" << std::hex
+            << this;
 #endif  // ARDUINO
 #endif  // NOISY_CHECK_SINK
 }
@@ -74,14 +74,14 @@ CheckSink::CheckSink(Print& out, const char* expression_message)
 #define CheckSinkDestination ::ToStdErr
 #endif
 
-CheckSink::CheckSink(const char* expression_message)
+CheckSink::CheckSink(PrintableProgmemString expression_message)
     : CheckSink(CheckSinkDestination, expression_message) {
 #ifdef NOISY_CHECK_SINK
 #ifdef ARDUINO
-  Serial.print("CheckSink(const char*) ctor @");
+  Serial.print("CheckSink(PrintableProgmemString) ctor @");
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
-  LOG(INFO) << "CheckSink(const char*) ctor @" << std::hex << this;
+  LOG(INFO) << "CheckSink(PrintableProgmemString) ctor @" << std::hex << this;
 #endif  // ARDUINO
 #endif  // NOISY_CHECK_SINK
 }
@@ -100,7 +100,7 @@ CheckSink::~CheckSink() {
 
 #ifdef ARDUINO
   while (true) {
-    out_.print("TAS_CHECK FAILED: ");
+    out_.print(TASLIT("TAS_CHECK FAILED: "));
     out_.println(expression_message_);
     out_.flush();
     delay(10000);
@@ -110,11 +110,5 @@ CheckSink::~CheckSink() {
   CHECK(false) << "TAS_CHECK FAILED: " << expression_message_;
 #endif  // ARDUINO
 }
-
-#ifdef NOISY_VOID_SINK
-int VoidSink::counter_;
-#endif  // NOISY_VOID_SINK
-
-// VoidSink TheVoidSink;
 
 }  // namespace alpaca

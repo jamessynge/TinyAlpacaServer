@@ -93,8 +93,9 @@
 #define TAS_CHECK_INTERNAL_(expression, message) \
   switch (0)                                     \
   default:                                       \
-    (expression) ? (void)0                       \
-                 : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(message)
+    (expression)                                 \
+        ? (void)0                                \
+        : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(TASLIT(message))
 
 #else  // !TAS_ENABLE_CHECK
 
@@ -123,8 +124,9 @@
 #define TAS_DCHECK_INTERNAL_(expression, message) \
   switch (0)                                      \
   default:                                        \
-    (expression) ? (void)0                        \
-                 : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(message)
+    (expression)                                  \
+        ? (void)0                                 \
+        : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(TASLIT(message))
 
 #else
 

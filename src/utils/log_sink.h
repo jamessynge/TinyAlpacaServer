@@ -9,10 +9,9 @@
 #include "logging.h"
 #endif  // !ARDUINO
 
+#include "utils/inline_literal.h"
 #include "utils/o_print_stream.h"
 #include "utils/platform.h"
-// #include
-// "experimental/users/jamessynge/tiny-alpaca-server/src/utils/utils_config.h"
 
 #ifndef ARDUINO
 #ifndef NDEBUG
@@ -33,68 +32,39 @@ class LogSink : public OPrintStream {
 
 class CheckSink : public OPrintStream {
  public:
-  CheckSink(Print& out, const char* expression_message);
-  explicit CheckSink(const char* expression_message);
+  CheckSink(Print& out, PrintableProgmemString expression_message);
+  explicit CheckSink(PrintableProgmemString expression_message);
   ~CheckSink();
 
  private:
-  const char* const expression_message_;
+  PrintableProgmemString expression_message_;
 };
 
 class VoidSink {
  public:
-  VoidSink() {
-#ifdef NOISY_VOID_SINK
-    VLOG(3) << "VoidSink() ctor @ " << std::hex << this << std::dec
-            << ", count=" << count_;
-#endif  // !ARDUINO
-  }
-  VoidSink(const VoidSink&) {
-#ifdef NOISY_VOID_SINK
-    VLOG(3) << "VoidSink(const VoidSink&) ctor @ " << std::hex << this
-            << std::dec << ", count=" << count_;
-#endif  // !ARDUINO
-  }
-  VoidSink(VoidSink&&) {
-#ifdef NOISY_VOID_SINK
-    VLOG(3) << "VoidSink(VoidSink&&) ctor @ " << std::hex << this << std::dec
-            << ", count=" << count_;
-#endif  // !ARDUINO
-  }
-  ~VoidSink() {
-#ifdef NOISY_VOID_SINK
-    VLOG(3) << "VoidSink() dtor, " << count_;
-#endif  // !ARDUINO
-  }
+  VoidSink() {}
+  VoidSink(const VoidSink&) {}
+  VoidSink(VoidSink&&) {}
+  ~VoidSink() {}
 
   template <typename T>
   friend VoidSink& operator<<(const VoidSink& sink, const T&) {
-#ifdef NOISY_VOID_SINK
-    VLOG(3) << "operator<< const&";
-#endif  // !ARDUINO
     return const_cast<VoidSink&>(sink);
   }
 
   template <typename T>
   friend VoidSink& operator<<(VoidSink& sink, const T&) {
-#ifdef NOISY_VOID_SINK
-    VLOG(3) << "operator<< &";
-#endif  // !ARDUINO
     return sink;
   }
 
  private:
-#ifdef NOISY_VOID_SINK
-  int count_ = counter_++;
-  static int counter_;
-#endif  // !ARDUINO
 };
 
 // extern VoidSink TheVoidSink;
 
 // Based on https://github.com/google/asylo/blob/master/asylo/util/logging.h
 // This class is used just to take a type used as a log sink (i.e. the LHS of
-// insert operators in log statements) make it a void type to satisify the
+// insert operators in log statements) and make it a void type to satisify the
 // ternary operator in TAS_VLOG, TAS_CHECK and TAS_DCHECK. `operand&&` is used
 // because it has precedence lower than `<<` but higher than the ternary
 // operator `:?`

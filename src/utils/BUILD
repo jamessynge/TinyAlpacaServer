@@ -82,10 +82,10 @@ cc_library(
 
 cc_library(
     name = "inline_literal",
+    srcs = ["inline_literal.cc"],
     hdrs = ["inline_literal.h"],
     copts = ["-std=c++11"],
     deps = [
-        ":literal",
         ":platform",
     ],
 )
@@ -148,6 +148,7 @@ cc_library(
     srcs = ["log_sink.cc"],
     hdrs = ["log_sink.h"],
     deps = [
+        ":inline_literal",
         ":o_print_stream",
         ":platform",
         "//base:logging_extensions",
