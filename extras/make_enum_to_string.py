@@ -404,13 +404,17 @@ size_t PrintUnknownEnumValueTo(const char* name, uint32_t v, Print& out) {
   for enum_def in enum_definitions:
     name = enum_def["name"]
     enumerators = enum_def["enumerators"]
-    print(f"""
+    print(
+        f"""
 size_t PrintValueTo({name} v, Print& out) {{
-  switch (v) {{""", end="")
+  switch (v) {{""",
+        end="")
     for enumerator in enumerators:
-      print(f"""
+      print(
+          f"""
     case {name}::{enumerator}:
-      return out.print("{enumerator}");""", end="")
+      return out.print("{enumerator}");""",
+          end="")
     print(fr"""
   }}
   return PrintUnknownEnumValueTo("{name}", static_cast<uint32_t>(v), out);

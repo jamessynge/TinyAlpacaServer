@@ -25,3 +25,10 @@ cc_library(
         ":platform_ethernet",
     ],
 )
+
+cc_library(
+    name = "time",
+    srcs = ["time.cc"],
+    hdrs = ["time.h"],
+    deps = [":platform"],
+)

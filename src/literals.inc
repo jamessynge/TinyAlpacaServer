@@ -1,8 +1,9 @@
 // This file is included in literals.h, where the TAS_DEFINE_BUILTIN_LITERAL
-// macro has multiple definitions, depending on the action being performed (e.g. declaring an accessor method).
+// macro has multiple definitions, depending on the action being performed (e.g.
+// declaring an accessor method).
 //
-// TAS_DEFINE_BUILTIN_LITERAL1 is used for Literals where the id (name) of the literal is
-// the same as the string literal itself.
+// TAS_DEFINE_BUILTIN_LITERAL1 is used for Literals where the id (name) of the
+// literal is the same as the string literal itself.
 
 #ifdef TAS_DEFINE_BUILTIN_LITERAL1
 #undef TAS_DEFINE_BUILTIN_LITERAL1
@@ -112,10 +113,11 @@ TAS_DEFINE_BUILTIN_LITERAL(HttpOkStatus, "HTTP/1.1 200 OK")
 
 // Common fixed HTTP Response Headers. For now, assuming that we're NOT
 // keeping the connection open from request to request. That could change.
-TAS_DEFINE_BUILTIN_LITERAL(CommonResponseHeaders,
-  "\r\n"  // We assume the response start line comes first, then ...
-  "Server: TinyAlpacaServer\r\n"
-  "Connection: close")
+TAS_DEFINE_BUILTIN_LITERAL(
+    CommonResponseHeaders,
+    "\r\n"  // We assume the response start line comes first, then ...
+    "Server: TinyAlpacaServer\r\n"
+    "Connection: close")
 
 // HTTP Response Reason Phrases:
 TAS_DEFINE_BUILTIN_LITERAL(HttpBadRequest, "Bad Request")
