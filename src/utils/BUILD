@@ -165,6 +165,17 @@ cc_library(
 )
 
 cc_library(
+    name = "moving_average",
+    srcs = ["moving_average.cc"],
+    hdrs = ["moving_average.h"],
+    deps = [
+        ":inline_literal",
+        ":logging",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "o_print_stream",
     hdrs = ["o_print_stream.h"],
     deps = [

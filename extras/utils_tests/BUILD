@@ -114,6 +114,19 @@ cc_test(
 )
 
 cc_test(
+    name = "moving_average_test",
+    srcs = ["moving_average_test.cc"],
+    deps = [
+        ":moving_average",
+        ":print_to_std_string",
+        "//absl/random",
+        "//absl/random:distributions",
+        "//absl/time",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "o_print_stream_test",
     srcs = ["o_print_stream_test.cc"],
     deps = [
