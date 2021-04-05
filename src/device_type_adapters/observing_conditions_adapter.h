@@ -30,49 +30,86 @@ class ObservingConditionsAdapter : public DeviceApiHandlerBase {
   // client will be closed.
   bool HandlePutRequest(const AlpacaRequest& request, Print& out) override;
 
+  //////////////////////////////////////////////////////////////////////////////
   // Accessors for various sensor values. The default implementations return an
   // unimplemented error.
-  virtual StatusOr<float> GetAveragePeriod();
-  virtual StatusOr<float> GetCloudCover();
-  virtual StatusOr<float> GetDewPoint();
-  virtual StatusOr<float> GetHumidity();
-  virtual StatusOr<float> GetPressure();
-  virtual StatusOr<float> GetRainRate();
-  virtual StatusOr<float> GetSkyBrightness();
-  virtual StatusOr<float> GetSkyQuality();
-  virtual StatusOr<float> GetSkyTemperature();
-  virtual StatusOr<float> GetStarFullWidthHalfMax();
-  virtual StatusOr<float> GetTemperature();
-  virtual StatusOr<float> GetWindDirection();
-  virtual StatusOr<float> GetWindGust();
-  virtual StatusOr<float> GetWindSpeed();
-  virtual StatusOr<float> GetTimeSinceLastUpdate();
 
-  // Records the period over which the caller wants sensor data to be averaged.
-  // Returns OK if the implementation can perform averaging, else an error.
-  virtual Status SetAveragePeriod(float value);
+  // Returns the number of hours over which all sensor values will be averaged.
+  virtual StatusOr<float> GetAveragePeriod();
+
+  // Returns the percentage of the sky obscured by cloud.
+  virtual StatusOr<float> GetCloudCover();
+
+  // Returns the atmospheric dew point at the observatory reported in °C.
+  virtual StatusOr<float> GetDewPoint();
+
+  // Returns the atmospheric humidity (%) at the observatory.
+  virtual StatusOr<float> GetHumidity();
+
+  // Returns the atmospheric pressure in hectoPascals at the observatory's
+  // altitude
+  // - NOT reduced to sea level.
+  virtual StatusOr<float> GetPressure();
+
+  // Returns the rain rate (mm/hour) at the observatory.
+  virtual StatusOr<float> GetRainRate();
+
+  // Returns the description of the named sensor, or an error if not known.
+  // The default implementation returns an unimplemented error.
+  virtual StatusOr<Literal> GetSensorDescription(ESensorName sensor_name);
+
+  // Returns the sky brightness at the observatory (Lux).
+  virtual StatusOr<float> GetSkyBrightness();
+
+  // Returns the sky quality at the observatory (magnitudes per square arc
+  // second).
+  virtual StatusOr<float> GetSkyQuality();
+
+  // Returns the sky temperature(°C) at the observatory.
+  virtual StatusOr<float> GetSkyTemperature();
+
+  // Returns the seeing at the observatory measured as star full width half
+  // maximum (FWHM) in arc secs.
+  virtual StatusOr<float> GetStarFullWidthHalfMax();
+
+  // Returns the temperature(°C) at the observatory.
+  virtual StatusOr<float> GetTemperature();
+
+  // Returns the time (hours) since the sensor specified in the SensorName
+  // parameter was last updated.
+  virtual StatusOr<float> GetTimeSinceLastUpdate(ESensorName sensor_name);
+
+  // Returns the wind direction. The returned value must be between 0.0 and
+  // 360.0, interpreted according to the metereological standard, where a
+  // special value of 0.0 is returned when the wind speed is 0.0. Wind direction
+  // is measured clockwise from north, through east, where East=90.0,
+  // South=180.0, West=270.0 and North=360.0.
+  virtual StatusOr<float> GetWindDirection();
+
+  // Returns the peak 3 second wind gust(m/s) at the observatory over the last 2
+  // minutes. Note that this doesn't follow the averaging of other sensors.
+  virtual StatusOr<float> GetWindGust();
+
+  // Returns the wind speed(m/s) at the observatory.
+  virtual StatusOr<float> GetWindSpeed();
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  // Records the period (hours) over which the caller wants sensor data to be
+  // averaged. Returns OK if the implementation can perform averaging over the
+  // period, else an error.
+  virtual Status SetAveragePeriod(float hours);
 
   // Refreshes sensor values from hardware.
   virtual Status Refresh();
 
-  // Handles a GET sensordescription 'request', writes the HTTP response message
-  // to out. Generates an error if there is no sensor name, else delegates to
-  // HandleGetNamedSensorDescription.
-  virtual bool HandleGetSensorDescription(const AlpacaRequest& request,
-                                          Print& out);
+ protected:
+  double average_period() const { return average_period_; }
 
-  // Writes a response with the description of 'sensor_name' to 'out', or an
-  // error if it is not a known or supported device. The default implementation
-  // calls GetSensorDescription to get the description, though subclasses can
-  // override if they want to construct a description that can't be represented
-  // as an Literal instance.
-  virtual bool HandleGetNamedSensorDescription(const AlpacaRequest& request,
-                                               StringView sensor_name,
-                                               Print& out);
-
-  // Returns the description of the named sensor, or an error if not known.
-  // The default implementation returns an unimplemented error.
-  virtual StatusOr<Literal> GetSensorDescription(StringView sensor_name);
+ private:
+  // The period (hours) over which to average some of the sensor data (i.e.
+  // temperature but not wind gust).
+  double average_period_;
 };
 
 }  // namespace alpaca

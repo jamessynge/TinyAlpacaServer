@@ -9,6 +9,7 @@ cc_library(
     deps = [
         ":alpaca_response",
         ":ascom_error_codes",
+        ":constants",
         ":device_api_handler_base",
         ":literals",
         ":platform",

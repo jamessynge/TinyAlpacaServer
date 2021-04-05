@@ -5,7 +5,6 @@
 using ::alpaca::Literal;
 using ::alpaca::ObservingConditionsAdapter;
 using ::alpaca::StatusOr;
-using ::alpaca::StringView;
 
 // Just one simple device, used to report Observing Conditions.
 static Dht22Device dht22;
@@ -52,9 +51,10 @@ bool Dht22Handler::GetConnected() {
   return true;  // XXX: Return true if able to talk to the device.
 }
 
-StatusOr<Literal> Dht22Handler::GetSensorDescription(StringView sensor_name) {
-  if (alpaca::CaseEqual(sensor_name, alpaca::Literals::humidity()) ||
-      alpaca::CaseEqual(sensor_name, alpaca::Literals::temperature())) {
+StatusOr<Literal> Dht22Handler::GetSensorDescription(
+    alpaca::ESensorName sensor_name) {
+  if (sensor_name == alpaca::ESensorName::kHumidity ||
+      sensor_name == alpaca::ESensorName::kTemperature) {
     return DHT22Description();
   }
   return alpaca::ErrorCodes::InvalidValue();

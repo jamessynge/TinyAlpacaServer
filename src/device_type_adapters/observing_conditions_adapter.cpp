@@ -2,6 +2,7 @@
 
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
+#include "constants.h"
 #include "literals.h"
 
 namespace alpaca {
@@ -15,8 +16,8 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
                                                   Print& out) {
   switch (request.device_method) {
     case EDeviceMethod::kAveragePeriod:
-      return WriteResponse::BoolResponse(request, GetConnected(), out);
-
+      return WriteResponse::StatusOrFloatResponse(request, GetAveragePeriod(),
+                                                  out);
     case EDeviceMethod::kCloudCover:
       return WriteResponse::StatusOrFloatResponse(request, GetCloudCover(),
                                                   out);
@@ -29,7 +30,14 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
     case EDeviceMethod::kRainRate:
       return WriteResponse::StatusOrFloatResponse(request, GetRainRate(), out);
     case EDeviceMethod::kSensorDescription:
-      return HandleGetSensorDescription(request, out);
+      // Requires a sensor name.
+      if (request.sensor_name == ESensorName::kUnknown) {
+        return WriteResponse::AscomErrorResponse(
+            request, ErrorCodes::InvalidValue().code(),
+            Literals::SensorNameMissing(), out);
+      }
+      return WriteResponse::StatusOrStringResponse(
+          request, GetSensorDescription(request.sensor_name), out);
     case EDeviceMethod::kSkyBrightness:
       return WriteResponse::StatusOrFloatResponse(request, GetSkyBrightness(),
                                                   out);
@@ -45,6 +53,15 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
     case EDeviceMethod::kTemperature:
       return WriteResponse::StatusOrFloatResponse(request, GetTemperature(),
                                                   out);
+    case EDeviceMethod::kTimeSinceLastUpdate:
+      // Requires a sensor name.
+      if (request.sensor_name == ESensorName::kUnknown) {
+        return WriteResponse::AscomErrorResponse(
+            request, ErrorCodes::InvalidValue().code(),
+            Literals::SensorNameMissing(), out);
+      }
+      return WriteResponse::StatusOrFloatResponse(
+          request, GetTimeSinceLastUpdate(request.sensor_name), out);
     case EDeviceMethod::kWindDirection:
       return WriteResponse::StatusOrFloatResponse(request, GetWindDirection(),
                                                   out);
@@ -52,9 +69,6 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
       return WriteResponse::StatusOrFloatResponse(request, GetWindGust(), out);
     case EDeviceMethod::kWindSpeed:
       return WriteResponse::StatusOrFloatResponse(request, GetWindSpeed(), out);
-    case EDeviceMethod::kTimeSinceLastUpdate:
-      return WriteResponse::StatusOrFloatResponse(
-          request, GetTimeSinceLastUpdate(), out);
     default:
       return DeviceApiHandlerBase::HandleGetRequest(request, out);
   }
@@ -67,7 +81,7 @@ bool ObservingConditionsAdapter::HandlePutRequest(const AlpacaRequest& request,
 }
 
 StatusOr<float> ObservingConditionsAdapter::GetAveragePeriod() {
-  return ErrorCodes::ActionNotImplemented();
+  return average_period_;
 }
 StatusOr<float> ObservingConditionsAdapter::GetCloudCover() {
   return ErrorCodes::ActionNotImplemented();
@@ -82,6 +96,10 @@ StatusOr<float> ObservingConditionsAdapter::GetPressure() {
   return ErrorCodes::ActionNotImplemented();
 }
 StatusOr<float> ObservingConditionsAdapter::GetRainRate() {
+  return ErrorCodes::ActionNotImplemented();
+}
+StatusOr<Literal> ObservingConditionsAdapter::GetSensorDescription(
+    ESensorName sensor_name) {
   return ErrorCodes::ActionNotImplemented();
 }
 StatusOr<float> ObservingConditionsAdapter::GetSkyBrightness() {
@@ -99,6 +117,10 @@ StatusOr<float> ObservingConditionsAdapter::GetStarFullWidthHalfMax() {
 StatusOr<float> ObservingConditionsAdapter::GetTemperature() {
   return ErrorCodes::ActionNotImplemented();
 }
+StatusOr<float> ObservingConditionsAdapter::GetTimeSinceLastUpdate(
+    ESensorName sensor_name) {
+  return ErrorCodes::ActionNotImplemented();
+}
 StatusOr<float> ObservingConditionsAdapter::GetWindDirection() {
   return ErrorCodes::ActionNotImplemented();
 }
@@ -108,45 +130,12 @@ StatusOr<float> ObservingConditionsAdapter::GetWindGust() {
 StatusOr<float> ObservingConditionsAdapter::GetWindSpeed() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<float> ObservingConditionsAdapter::GetTimeSinceLastUpdate() {
+
+Status ObservingConditionsAdapter::SetAveragePeriod(float hours) {
   return ErrorCodes::ActionNotImplemented();
 }
 
-Status ObservingConditionsAdapter::SetAveragePeriod(float value) {
-  return ErrorCodes::ActionNotImplemented();
-}
 Status ObservingConditionsAdapter::Refresh() {
-  return ErrorCodes::ActionNotImplemented();
-}
-
-bool ObservingConditionsAdapter::HandleGetSensorDescription(
-    const AlpacaRequest& request, Print& out) {
-#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-  if (request.extra_parameters.contains(EParameter::kSensorName)) {
-    StringView sensor_name =
-        request.extra_parameters.find(EParameter::kSensorName);
-    if (!sensor_name.empty()) {
-      return HandleGetNamedSensorDescription(request, sensor_name, out);
-    }
-  }
-  return WriteResponse::AscomErrorResponse(request,
-                                           ErrorCodes::InvalidValue().code(),
-                                           Literals::SensorNameMissing(), out);
-#else   // !TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-  return WriteResponse::AscomErrorResponse(
-      request, ErrorCodes::ActionNotImplemented().code(),
-      Literals::HttpMethodNotImplemented(), out);
-#endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-}
-
-bool ObservingConditionsAdapter::HandleGetNamedSensorDescription(
-    const AlpacaRequest& request, StringView sensor_name, Print& out) {
-  return WriteResponse::StatusOrStringResponse(
-      request, GetSensorDescription(sensor_name), out);
-}
-
-StatusOr<Literal> ObservingConditionsAdapter::GetSensorDescription(
-    StringView sensor_name) {
   return ErrorCodes::ActionNotImplemented();
 }
 
