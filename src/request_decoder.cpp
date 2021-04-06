@@ -45,13 +45,14 @@ namespace {
 using DecodeFunction = RequestDecoderState::DecodeFunction;
 using CharMatchFunction = bool (*)(char c);
 
+// TODO(jamessynge): Decide whether to move more of these strings into literals
+// or inline them somehow.
 TAS_CONSTEXPR_VAR StringView kHttpMethodTerminators(" ");
 TAS_CONSTEXPR_VAR StringView kEndOfHeaderLine("\r\n");
 TAS_CONSTEXPR_VAR StringView kPathSeparator("/");
 TAS_CONSTEXPR_VAR StringView kPathTerminators("? ");
 TAS_CONSTEXPR_VAR StringView kParamNameValueSeparator("=");
 TAS_CONSTEXPR_VAR StringView kHeaderNameValueSeparator(":");
-TAS_CONSTEXPR_VAR StringView kSupportedVersion("v1");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
@@ -225,6 +226,8 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
     //
     // This is not a very complete comparison (i.e. would also match
     // "xxapplication/json+xyz"), but probably sufficient for our purpose.
+    // TODO(jamessynge): Deal with the fact that the literal string permanently
+    // occupies RAM.
     if (!value.contains(StringView("application/json"))) {
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
       if (state.listener) {
@@ -267,8 +270,11 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
       state.found_content_length = true;
     }
   } else if (state.current_header == EHttpHeader::kHttpContentType) {
+    // Note that the syntax for the Content-Type header is more complex than
+    // allowed for here; after the media-type there may be a semi-colon and some
+    // additional details (charset and boundary).
     if (state.request.http_method == EHttpMethod::PUT &&
-        value != StringView("application/x-www-form-urlencoded")) {
+        value != Literals::MimeTypeWwwFormUrlEncoded()) {
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
       if (state.listener) {
         status =
@@ -601,7 +607,7 @@ EHttpStatusCode DecodeDeviceType(RequestDecoderState& state, StringView& view) {
 EHttpStatusCode ProcessApiVersion(RequestDecoderState& state,
                                   const StringView& matched_text,
                                   StringView& view) {
-  if (matched_text == kSupportedVersion) {
+  if (matched_text == Literals::v1()) {
     return state.SetDecodeFunction(DecodeDeviceType);
   } else {
     return EHttpStatusCode::kHttpNotFound;
@@ -648,13 +654,13 @@ EHttpStatusCode ProcessManagementType(RequestDecoderState& state,
                                       const StringView& matched_text,
                                       StringView& view) {
   TAS_DCHECK(!view.empty());
-  if (matched_text == kSupportedVersion) {
+  if (matched_text == Literals::v1()) {
     if (view.match_and_consume('/')) {
       return state.SetDecodeFunction(DecodeManagementMethod);
     } else {
       return EHttpStatusCode::kHttpNotFound;
     }
-  } else if (matched_text == "apiversions") {
+  } else if (matched_text == Literals::apiversions()) {
     state.request.api = EAlpacaApi::kManagementApiVersions;
     return state.SetDecodeFunction(DecodeEndOfPath);
   } else {
@@ -803,7 +809,7 @@ RequestDecoderState::RequestDecoderState(AlpacaRequest& request,
 
 void RequestDecoderState::Reset() {
   TAS_VLOG(1) << TASLIT(
-      "Reset ##########################################################");
+      "Reset ################################################################");
   decode_function = DecodeHttpMethod;
   request.Reset();
   is_decoding_header = true;
@@ -883,8 +889,8 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     TAS_VLOG(3) << TASLIT("decode_function returned ") << status
                 << TASLIT(", consumed ") << consumed_chars
                 << TASLIT(" characters, decode function ")
-                << (old_decode_function == decode_function ? "unchanged"
-                                                           : "changed");
+                << (old_decode_function == decode_function ? TASLIT("unchanged")
+                                                           : TASLIT("changed"));
 
     if (status == EHttpStatusCode::kContinueDecoding) {
       // This is a check on the currently expected behavior; none of the current
@@ -954,8 +960,8 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
     TAS_VLOG(3) << TASLIT("decode_function returned ") << status
                 << TASLIT(", consumed ") << consumed_chars
                 << TASLIT(" characters, decode function ")
-                << (old_decode_function == decode_function ? "unchanged"
-                                                           : "changed");
+                << (old_decode_function == decode_function ? TASLIT("unchanged")
+                                                           : TASLIT("changed"));
     TAS_CHECK_LE(buffer.size(), buffer_size_before_decode);
     TAS_CHECK_LE(consumed_chars, remaining_content_length);
     if (decode_function == old_decode_function) {

@@ -15,7 +15,7 @@ struct Mega2560Eth {
   // 2560 ETH board. max_sock_num can be 8, 4, 2, or 1. An Alpaca server needs
   // at least two UDP ports (DHCP and Alpaca Discovery), plus at least 1 TCP
   // port for HTTP.
-  static void setup_w5500(uint8_t max_sock_num = MAX_SOCK_NUM);
+  static void SetupW5500(uint8_t max_sock_num = MAX_SOCK_NUM);
 };
 
 class IpDevice {
@@ -29,12 +29,14 @@ class IpDevice {
   // first 3 bytes of the MAC address). Therefore, setup() takes an optional
   // OuiPrefix allowing the caller to provide such a prefix.
   //
-  // Call Mega2560Eth::setup_w5500 prior to calling this method.
-  bool setup(const OuiPrefix* oui_prefix = nullptr);
+  // Call Mega2560Eth::SetupW5500 prior to calling this method.
+  bool InitializeNetworking(const OuiPrefix* oui_prefix = nullptr);
 
   // Ensures that the DHCP lease (if there is one) is maintained. Returns a
   // DHCP_CHECK_* value; definitions in Ethernet3's Dhcp.h.
-  int maintain_dhcp_lease();
+  int MaintainDhcpLease();
+
+  static void PrintNetworkAddresses();
 
  private:
   bool using_dhcp_{false};

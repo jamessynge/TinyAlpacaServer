@@ -20,6 +20,7 @@ cc_library(
         ":device_info",
         ":eeprom_io",
         ":extra_parameters",
+        ":hex_escape",
         ":http_response_header",
         ":inline_literal",
         ":ip_device",
@@ -28,10 +29,10 @@ cc_library(
         ":literal",
         ":literal_token",
         ":literals",
-        ":log_experiment",
         ":log_sink",
         ":logging",
         ":match_literals",
+        ":moving_average",
         ":o_print_stream",
         ":observing_conditions_adapter",
         ":platform",
@@ -51,6 +52,7 @@ cc_library(
         ":tiny_alpaca_server",
         ":tiny_string",
         ":type_traits",
+        ":utils_config",
     ],
 )
 
@@ -213,6 +215,7 @@ cc_library(
     name = "log_experiment",
     hdrs = ["LogExperiment.h"],
     deps = [
+        ":inline_literal",
         ":logging",
         ":platform",
     ],

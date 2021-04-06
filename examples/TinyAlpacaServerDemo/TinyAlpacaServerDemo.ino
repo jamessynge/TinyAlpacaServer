@@ -84,18 +84,7 @@ static alpaca::TinyAlpacaServer tiny_alpaca_server(                    // NOLINT
 
 void announceAddresses() {
   Serial.println();
-  alpaca::MacAddress mac;
-  Ethernet.macAddress(mac.mac);
-  Serial.print("MAC: ");
-  Serial.println(mac);
-  Serial.print("IP: ");
-  Serial.println(Ethernet.localIP());
-  Serial.print("Subnet: ");
-  Serial.println(Ethernet.subnetMask());
-  Serial.print("Gateway: ");
-  Serial.println(Ethernet.gatewayIP());
-  Serial.print("DNS: ");
-  Serial.println(Ethernet.dnsServerIP());
+  alpaca::IpDevice::PrintNetworkAddresses();
   Serial.println();
 }
 
@@ -118,14 +107,14 @@ void setup() {
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
   Ethernet.setDhcp(&dhcp);
-  alpaca::Mega2560Eth::setup_w5500();
+  alpaca::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
   alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
-  if (!ip_device.setup(&oui_prefix)) {
+  if (!ip_device.InitializeNetworking(&oui_prefix)) {
     announceFailure("Unable to initialize networking!");
   }
   announceAddresses();
@@ -142,7 +131,7 @@ void setup() {
 // static AlpacaRequest request;
 
 void loop() {
-  auto dhcp_check = ip_device.maintain_dhcp_lease();
+  auto dhcp_check = ip_device.MaintainDhcpLease();
   switch (dhcp_check) {
     case DHCP_CHECK_NONE:
     case DHCP_CHECK_RENEW_OK:
@@ -159,7 +148,7 @@ void loop() {
       announceAddresses();
       break;
     default:
-      Serial.print("Unexpected result from maintain_dhcp_lease: ");
+      Serial.print("Unexpected result from MaintainDhcpLease: ");
       Serial.println(dhcp_check);
   }
 

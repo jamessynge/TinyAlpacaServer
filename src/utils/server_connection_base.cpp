@@ -20,7 +20,7 @@ class ExtendedEthernetClient : public EthernetClient {
   bool stopped() const {
     TAS_VLOG(2) << TASLIT("ExtendedEthernetClient::stopped, sock_num=")
                 << getSocketNumber() << TASLIT(", returning ")
-                << (stopped_ ? "true" : "false");
+                << (stopped_ ? TASLIT("true") : TASLIT("false"));
 
     return stopped_;
   }

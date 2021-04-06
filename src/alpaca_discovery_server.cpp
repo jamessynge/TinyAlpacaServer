@@ -12,8 +12,6 @@ TAS_DEFINE_LITERAL(kAlpacaPortStart, R"({"alpacaport": )");
 TAS_DEFINE_LITERAL(kDiscoveryMessage, "alpacadiscovery1");
 constexpr uint16_t kAlpacaDiscoveryPort = 32227;
 
-TAS_DEFINE_LITERAL(kReceivedMsg, "Received UDP message of size ");
-
 }  // namespace
 
 bool TinyAlpacaDiscoveryServer::begin() {
@@ -26,8 +24,9 @@ void TinyAlpacaDiscoveryServer::loop() {
     return;
   }
 
-  TAS_VLOG(1) << kReceivedMsg() << packet_size << TASLIT(" from ")
-              << udp_.remoteIP() << ':' << udp_.remotePort();
+  TAS_VLOG(1) << TASLIT("Received UDP message of size ") << packet_size
+              << TASLIT(" from ") << udp_.remoteIP() << ':'
+              << udp_.remotePort();
 
   if (packet_size != kDiscoveryMessage().size()) {
     // Ignoring unexpected message.

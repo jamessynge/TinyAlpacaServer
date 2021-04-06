@@ -14,6 +14,7 @@
 #include "utils/logging.h"
 #endif
 
+#include "utils/inline_literal.h"
 #include "utils/platform.h"
 
 void setup() {  // NOLINT
@@ -71,7 +72,7 @@ void setup() {  // NOLINT
 }
 
 void loop() {  // NOLINT
-  Serial.println("loop entry");
+  Serial.println(TASLIT("loop entry"));
   delay(1000);
 }
 

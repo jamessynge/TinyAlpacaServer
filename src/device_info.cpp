@@ -9,6 +9,8 @@
 namespace alpaca {
 
 // TODO(jamessynge): Check on the case requirements of the device type.
+// TODO(jamessynge): Figure out how to use the PrintValueTo support here so that
+// we don't require a RAM string table.
 StringView DeviceTypeToLiteral(EDeviceType) { return StringView("TBD"); }
 
 void ConfiguredDeviceInfo::AddTo(JsonObjectEncoder& object_encoder) const {

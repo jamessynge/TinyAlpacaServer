@@ -8,9 +8,9 @@
 
 namespace alpaca {
 MovingAverage::MovingAverage()
-    : average_value_(nan("0")), last_update_time_(0) {}
+    : average_value_(INFINITY), last_update_time_(0) {}
 
-bool MovingAverage::has_average_value() const { return !isnan(average_value_); }
+bool MovingAverage::has_average_value() const { return !isinf(average_value_); }
 
 void MovingAverage::RecordNewValue(double new_value, uint32_t current_time,
                                    uint32_t average_period) {

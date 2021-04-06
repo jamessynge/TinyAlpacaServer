@@ -63,7 +63,6 @@ TEST(MovingAverageTest, Initial) {
   MovingAverage moving_average;
   EXPECT_FALSE(moving_average.has_average_value());
   EXPECT_EQ(moving_average.last_update_time(), 0);
-  EXPECT_TRUE(isnan(moving_average.average_value()));
 }
 
 TEST(MovingAverageTest, One) {

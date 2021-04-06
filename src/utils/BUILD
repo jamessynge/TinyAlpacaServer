@@ -9,6 +9,7 @@ cc_library(
     deps = [
         ":eeprom_io",
         ":hex_escape",
+        ":inline_literal",
         ":logging",
         ":o_print_stream",
         ":platform",
@@ -96,6 +97,7 @@ cc_library(
     hdrs = ["ip_device.h"],
     deps = [
         ":addresses",
+        ":inline_literal",
         ":platform",
         ":platform_ethernet",
     ],
@@ -136,11 +138,6 @@ cc_library(
         ":string_compare",
         ":string_view",
     ],
-)
-
-cc_library(
-    name = "log_experiment",
-    hdrs = ["log_experiment.h"],
 )
 
 cc_library(

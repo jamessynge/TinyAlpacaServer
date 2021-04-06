@@ -1,5 +1,7 @@
 #include "utils/ip_device.h"
 
+#include "utils/inline_literal.h"
+
 namespace alpaca {
 namespace {
 constexpr uint8_t kW5500ChipSelectPin = 10;
@@ -8,7 +10,7 @@ constexpr uint8_t kSDcardSelectPin = 4;
 }  // namespace
 
 // static
-void Mega2560Eth::setup_w5500(uint8_t max_sock_num) {
+void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
   // Make sure that the SD Card interface is not the selected SPI device.
   pinMode(kSDcardSelectPin, OUTPUT);
   digitalWrite(kSDcardSelectPin, HIGH);
@@ -25,16 +27,16 @@ void Mega2560Eth::setup_w5500(uint8_t max_sock_num) {
   Ethernet.init(max_sock_num);
 }
 
-bool IpDevice::setup(const OuiPrefix* oui_prefix) {
+bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
   // Load the addresses saved to EEPROM, if they were previously saved. If
   // they were not successfully loaded, then generate them and save them into
   // the EEPROM.
   Addresses addresses;
   addresses.loadOrGenAndSave(oui_prefix);
 
-  Serial.print("MAC: ");
+  Serial.print(TASLIT("MAC: "));
   Serial.println(addresses.mac);
-  Serial.print("Default IP: ");
+  Serial.print(TASLIT("Default IP: "));
   Serial.println(addresses.ip);
 
   if (Ethernet.begin(addresses.mac.mac)) {
@@ -47,10 +49,10 @@ bool IpDevice::setup(const OuiPrefix* oui_prefix) {
     Ethernet.macAddress(mac.mac);
     if (!(mac == addresses.mac)) {
       // Oops, this isn't the right board to run this sketch.
-      Serial.println("Found no hardware");
+      Serial.println(TASLIT("Found no hardware"));
       return false;
     }
-    Serial.println("No DHCP");
+    Serial.println(TASLIT("No DHCP"));
 
     // No DHCP server responded with a lease on an IP address, so we'll
     // fallback to using our randomly generated IP.
@@ -75,7 +77,7 @@ bool IpDevice::setup(const OuiPrefix* oui_prefix) {
   return true;
 }
 
-int IpDevice::maintain_dhcp_lease() {
+int IpDevice::MaintainDhcpLease() {
   // If we're using an IP address assigned via DHCP, renew the lease
   // periodically. The Ethernet library will do so at the appropriate interval
   // if we call it often enough.
@@ -84,6 +86,21 @@ int IpDevice::maintain_dhcp_lease() {
   } else {
     return DHCP_CHECK_NONE;
   }
+}
+
+void IpDevice::PrintNetworkAddresses() {
+  alpaca::MacAddress mac;
+  Ethernet.macAddress(mac.mac);
+  Serial.print(TASLIT("MAC: "));
+  Serial.println(mac);
+  Serial.print(TASLIT("IP: "));
+  Serial.println(Ethernet.localIP());
+  Serial.print(TASLIT("Subnet: "));
+  Serial.println(Ethernet.subnetMask());
+  Serial.print(TASLIT("Gateway: "));
+  Serial.println(Ethernet.gatewayIP());
+  Serial.print(TASLIT("DNS: "));
+  Serial.println(Ethernet.dnsServerIP());
 }
 
 }  // namespace alpaca

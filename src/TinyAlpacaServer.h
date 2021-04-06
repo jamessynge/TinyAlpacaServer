@@ -36,14 +36,15 @@
 #include "utils/connection.h"              // IWYU pragma: export
 #include "utils/counting_bitbucket.h"      // IWYU pragma: export
 #include "utils/eeprom_io.h"               // IWYU pragma: export
+#include "utils/hex_escape.h"              // IWYU pragma: export
 #include "utils/inline_literal.h"          // IWYU pragma: export
 #include "utils/ip_device.h"               // IWYU pragma: export
 #include "utils/json_encoder.h"            // IWYU pragma: export
 #include "utils/literal.h"                 // IWYU pragma: export
 #include "utils/literal_token.h"           // IWYU pragma: export
-#include "utils/log_experiment.h"          // IWYU pragma: export
 #include "utils/log_sink.h"                // IWYU pragma: export
 #include "utils/logging.h"                 // IWYU pragma: export
+#include "utils/moving_average.h"          // IWYU pragma: export
 #include "utils/o_print_stream.h"          // IWYU pragma: export
 #include "utils/platform.h"                // IWYU pragma: export
 #include "utils/platform_ethernet.h"       // IWYU pragma: export
@@ -56,5 +57,6 @@
 #include "utils/tiny_string.h"             // IWYU pragma: export
 #include "utils/traits/print_to_trait.h"   // IWYU pragma: export
 #include "utils/traits/type_traits.h"      // IWYU pragma: export
+#include "utils/utils_config.h"            // IWYU pragma: export
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_

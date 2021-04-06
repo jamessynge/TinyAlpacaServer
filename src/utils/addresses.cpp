@@ -1,6 +1,7 @@
 #include "utils/addresses.h"
 
 #include "utils/hex_escape.h"
+#include "utils/inline_literal.h"
 #include "utils/logging.h"
 #include "utils/o_print_stream.h"
 
@@ -10,6 +11,7 @@ namespace {
 // value (e.g. between "addrs" and "Addrs") has the effect of invalidating the
 // currently stored values, which can be useful if you want to change the
 // OuiPrefix, or to debug this code.
+// TODO(jamessynge): Stop wasting RAM on this string.
 const char kName[] = "addrs";
 
 // A link-local address is in the range 169.254.1.0 to 169.254.254.255,
@@ -75,7 +77,7 @@ OuiPrefix::OuiPrefix(uint8_t a, uint8_t b, uint8_t c) {
 size_t OuiPrefix::printTo(Print& p) const {
   size_t result = p.print(bytes[0], HEX);
   for (int i = 1; i < 3; ++i) {
-    result += p.print("-");
+    result += p.print('-');
     result += p.print(bytes[i], HEX);
   }
   return result;
@@ -107,7 +109,7 @@ void MacAddress::generateAddress(const OuiPrefix* oui_prefix) {
 size_t MacAddress::printTo(Print& p) const {
   size_t result = p.print(mac[0], HEX);
   for (int i = 1; i < 6; ++i) {
-    result += p.print("-");
+    result += p.print('-');
     result += p.print(mac[i], HEX);
   }
   return result;
@@ -183,7 +185,7 @@ void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
 }
 
 void Addresses::save() const {
-  Serial.print("Saving ");
+  Serial.print(TASLIT("Saving "));
   Serial.println(kName);
 
   int ipAddress = saveName(0, kName);
@@ -231,9 +233,9 @@ void Addresses::println(const char* prefix) const {
 
 size_t Addresses::printTo(Print& p) const {
   size_t result = p.print(kName);
-  result += p.print(": MAC=");
+  result += p.print(TASLIT(": MAC="));
   result += p.print(mac);
-  result += p.print(", IP=");
+  result += p.print(TASLIT(", IP="));
   result += p.print(ip);
   return result;
 }

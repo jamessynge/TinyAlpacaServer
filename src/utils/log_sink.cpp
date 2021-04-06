@@ -15,12 +15,14 @@
 #include "logging.h"
 #endif  // !ARDUINO
 
+#include "utils/inline_literal.h"
+
 namespace alpaca {
 
 LogSink::LogSink(Print& out) : OPrintStream(out) {
 #ifdef NOISY_LOG_SINK
 #ifdef ARDUINO
-  Serial.print("LogSink(Print&) ctor @");
+  Serial.print(TASLIT("LogSink(Print&) ctor @"));
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
   LOG(INFO) << "LogSink(Print&) ctor @" << std::hex << this;
@@ -31,7 +33,7 @@ LogSink::LogSink(Print& out) : OPrintStream(out) {
 LogSink::LogSink() : LogSink(::Serial) {
 #ifdef NOISY_LOG_SINK
 #ifdef ARDUINO
-  Serial.print("LogSink() ctor @");
+  Serial.print(TASLIT("LogSink() ctor @"));
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
   LOG(INFO) << "LogSink() ctor @" << std::hex << this;
@@ -45,7 +47,7 @@ LogSink::~LogSink() {
 
 #ifdef NOISY_LOG_SINK
 #ifdef ARDUINO
-  Serial.print("LogSink() dtor @");
+  Serial.print(TASLIT("LogSink() dtor @"));
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
   LOG(INFO) << "LogSink dtor @" << std::hex << this;
@@ -59,7 +61,7 @@ CheckSink::CheckSink(Print& out, PrintableProgmemString expression_message)
   out.println(expression_message_);
 #ifdef NOISY_CHECK_SINK
 #ifdef ARDUINO
-  Serial.print("CheckSink(Print&, PrintableProgmemString) ctor @");
+  Serial.print(TASLIT("CheckSink(Print&, PrintableProgmemString) ctor @"));
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
   LOG(INFO) << "CheckSink(Print&, PrintableProgmemString) ctor @" << std::hex
@@ -78,7 +80,7 @@ CheckSink::CheckSink(PrintableProgmemString expression_message)
     : CheckSink(CheckSinkDestination, expression_message) {
 #ifdef NOISY_CHECK_SINK
 #ifdef ARDUINO
-  Serial.print("CheckSink(PrintableProgmemString) ctor @");
+  Serial.print(TASLIT("CheckSink(PrintableProgmemString) ctor @"));
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
   LOG(INFO) << "CheckSink(PrintableProgmemString) ctor @" << std::hex << this;
@@ -91,7 +93,7 @@ CheckSink::~CheckSink() {
   out_.flush();
 #ifdef NOISY_CHECK_SINK
 #ifdef ARDUINO
-  Serial.print("CheckSink dtor @");
+  Serial.print(TASLIT("CheckSink dtor @"));
   Serial.println((unsigned int)this, HEX);
 #else   // !ARDUINO
   LOG(INFO) << "CheckSink dtor @" << std::hex << this;
