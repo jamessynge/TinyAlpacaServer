@@ -6,295 +6,394 @@
 
 namespace alpaca {
 
-namespace {
+PrintableProgmemString ToPrintableProgmemString(RequestDecoderStatus v) {
+  switch (v) {
+    case RequestDecoderStatus::kReset:
+      return TASLIT("Reset");
+    case RequestDecoderStatus::kDecoding:
+      return TASLIT("Decoding");
+    case RequestDecoderStatus::kDecoded:
+      return TASLIT("Decoded");
+  }
+  return PrintableProgmemString();
+}
 
-size_t PrintUnknownEnumValueTo(const Printable& name, uint32_t v, Print& out) {
-  size_t result = out.print(TASLIT("Unknown "));
-  result += out.print(name);
-  result += out.print(TASLIT(" ("));
+PrintableProgmemString ToPrintableProgmemString(EHttpStatusCode v) {
+  switch (v) {
+    case EHttpStatusCode::kContinueDecoding:
+      return TASLIT("ContinueDecoding");
+    case EHttpStatusCode::kNeedMoreInput:
+      return TASLIT("NeedMoreInput");
+    case EHttpStatusCode::kHttpOk:
+      return TASLIT("HttpOk");
+    case EHttpStatusCode::kHttpBadRequest:
+      return TASLIT("HttpBadRequest");
+    case EHttpStatusCode::kHttpNotFound:
+      return TASLIT("HttpNotFound");
+    case EHttpStatusCode::kHttpMethodNotAllowed:
+      return TASLIT("HttpMethodNotAllowed");
+    case EHttpStatusCode::kHttpNotAcceptable:
+      return TASLIT("HttpNotAcceptable");
+    case EHttpStatusCode::kHttpLengthRequired:
+      return TASLIT("HttpLengthRequired");
+    case EHttpStatusCode::kHttpPayloadTooLarge:
+      return TASLIT("HttpPayloadTooLarge");
+    case EHttpStatusCode::kHttpUnsupportedMediaType:
+      return TASLIT("HttpUnsupportedMediaType");
+    case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
+      return TASLIT("HttpRequestHeaderFieldsTooLarge");
+    case EHttpStatusCode::kHttpInternalServerError:
+      return TASLIT("HttpInternalServerError");
+    case EHttpStatusCode::kHttpMethodNotImplemented:
+      return TASLIT("HttpMethodNotImplemented");
+    case EHttpStatusCode::kHttpVersionNotSupported:
+      return TASLIT("HttpVersionNotSupported");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EHttpMethod v) {
+  switch (v) {
+    case EHttpMethod::kUnknown:
+      return TASLIT("Unknown");
+    case EHttpMethod::GET:
+      return TASLIT("GET");
+    case EHttpMethod::PUT:
+      return TASLIT("PUT");
+    case EHttpMethod::HEAD:
+      return TASLIT("HEAD");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EApiGroup v) {
+  switch (v) {
+    case EApiGroup::kUnknown:
+      return TASLIT("Unknown");
+    case EApiGroup::kDevice:
+      return TASLIT("Device");
+    case EApiGroup::kManagement:
+      return TASLIT("Management");
+    case EApiGroup::kSetup:
+      return TASLIT("Setup");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EAlpacaApi v) {
+  switch (v) {
+    case EAlpacaApi::kUnknown:
+      return TASLIT("Unknown");
+    case EAlpacaApi::kDeviceApi:
+      return TASLIT("DeviceApi");
+    case EAlpacaApi::kDeviceSetup:
+      return TASLIT("DeviceSetup");
+    case EAlpacaApi::kManagementApiVersions:
+      return TASLIT("ManagementApiVersions");
+    case EAlpacaApi::kManagementDescription:
+      return TASLIT("ManagementDescription");
+    case EAlpacaApi::kManagementConfiguredDevices:
+      return TASLIT("ManagementConfiguredDevices");
+    case EAlpacaApi::kServerSetup:
+      return TASLIT("ServerSetup");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EManagementMethod v) {
+  switch (v) {
+    case EManagementMethod::kUnknown:
+      return TASLIT("Unknown");
+    case EManagementMethod::kDescription:
+      return TASLIT("Description");
+    case EManagementMethod::kConfiguredDevices:
+      return TASLIT("ConfiguredDevices");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EDeviceType v) {
+  switch (v) {
+    case EDeviceType::kUnknown:
+      return TASLIT("Unknown");
+    case EDeviceType::kCamera:
+      return TASLIT("Camera");
+    case EDeviceType::kCoverCalibrator:
+      return TASLIT("CoverCalibrator");
+    case EDeviceType::kDome:
+      return TASLIT("Dome");
+    case EDeviceType::kFilterWheel:
+      return TASLIT("FilterWheel");
+    case EDeviceType::kFocuser:
+      return TASLIT("Focuser");
+    case EDeviceType::kObservingConditions:
+      return TASLIT("ObservingConditions");
+    case EDeviceType::kRotator:
+      return TASLIT("Rotator");
+    case EDeviceType::kSafetyMonitor:
+      return TASLIT("SafetyMonitor");
+    case EDeviceType::kSwitch:
+      return TASLIT("Switch");
+    case EDeviceType::kTelescope:
+      return TASLIT("Telescope");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EDeviceMethod v) {
+  switch (v) {
+    case EDeviceMethod::kUnknown:
+      return TASLIT("Unknown");
+    case EDeviceMethod::kSetup:
+      return TASLIT("Setup");
+    case EDeviceMethod::kConnected:
+      return TASLIT("Connected");
+    case EDeviceMethod::kDescription:
+      return TASLIT("Description");
+    case EDeviceMethod::kDriverInfo:
+      return TASLIT("DriverInfo");
+    case EDeviceMethod::kDriverVersion:
+      return TASLIT("DriverVersion");
+    case EDeviceMethod::kInterfaceVersion:
+      return TASLIT("InterfaceVersion");
+    case EDeviceMethod::kName:
+      return TASLIT("Name");
+    case EDeviceMethod::kSupportedActions:
+      return TASLIT("SupportedActions");
+    case EDeviceMethod::kAveragePeriod:
+      return TASLIT("AveragePeriod");
+    case EDeviceMethod::kCloudCover:
+      return TASLIT("CloudCover");
+    case EDeviceMethod::kDewPoint:
+      return TASLIT("DewPoint");
+    case EDeviceMethod::kHumidity:
+      return TASLIT("Humidity");
+    case EDeviceMethod::kPressure:
+      return TASLIT("Pressure");
+    case EDeviceMethod::kRainRate:
+      return TASLIT("RainRate");
+    case EDeviceMethod::kRefresh:
+      return TASLIT("Refresh");
+    case EDeviceMethod::kSensorDescription:
+      return TASLIT("SensorDescription");
+    case EDeviceMethod::kSkyBrightness:
+      return TASLIT("SkyBrightness");
+    case EDeviceMethod::kSkyQuality:
+      return TASLIT("SkyQuality");
+    case EDeviceMethod::kSkyTemperature:
+      return TASLIT("SkyTemperature");
+    case EDeviceMethod::kStarFullWidthHalfMax:
+      return TASLIT("StarFullWidthHalfMax");
+    case EDeviceMethod::kTemperature:
+      return TASLIT("Temperature");
+    case EDeviceMethod::kTimeSinceLastUpdate:
+      return TASLIT("TimeSinceLastUpdate");
+    case EDeviceMethod::kWindDirection:
+      return TASLIT("WindDirection");
+    case EDeviceMethod::kWindGust:
+      return TASLIT("WindGust");
+    case EDeviceMethod::kWindSpeed:
+      return TASLIT("WindSpeed");
+    case EDeviceMethod::kIsSafe:
+      return TASLIT("IsSafe");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EParameter v) {
+  switch (v) {
+    case EParameter::kUnknown:
+      return TASLIT("Unknown");
+    case EParameter::kClientId:
+      return TASLIT("ClientId");
+    case EParameter::kClientTransactionId:
+      return TASLIT("ClientTransactionId");
+    case EParameter::kConnected:
+      return TASLIT("Connected");
+    case EParameter::kSensorName:
+      return TASLIT("SensorName");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(ESensorName v) {
+  switch (v) {
+    case ESensorName::kUnknown:
+      return TASLIT("Unknown");
+    case ESensorName::kCloudCover:
+      return TASLIT("CloudCover");
+    case ESensorName::kDewPoint:
+      return TASLIT("DewPoint");
+    case ESensorName::kHumidity:
+      return TASLIT("Humidity");
+    case ESensorName::kPressure:
+      return TASLIT("Pressure");
+    case ESensorName::kRainRate:
+      return TASLIT("RainRate");
+    case ESensorName::kSkyBrightness:
+      return TASLIT("SkyBrightness");
+    case ESensorName::kSkyQuality:
+      return TASLIT("SkyQuality");
+    case ESensorName::kSkyTemperature:
+      return TASLIT("SkyTemperature");
+    case ESensorName::kStarFullWidthHalfMax:
+      return TASLIT("StarFullWidthHalfMax");
+    case ESensorName::kTemperature:
+      return TASLIT("Temperature");
+    case ESensorName::kWindDirection:
+      return TASLIT("WindDirection");
+    case ESensorName::kWindGust:
+      return TASLIT("WindGust");
+    case ESensorName::kWindSpeed:
+      return TASLIT("WindSpeed");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EHttpHeader v) {
+  switch (v) {
+    case EHttpHeader::kUnknown:
+      return TASLIT("Unknown");
+    case EHttpHeader::kHttpAccept:
+      return TASLIT("HttpAccept");
+    case EHttpHeader::kHttpContentLength:
+      return TASLIT("HttpContentLength");
+    case EHttpHeader::kHttpContentType:
+      return TASLIT("HttpContentType");
+    case EHttpHeader::kHttpContentEncoding:
+      return TASLIT("HttpContentEncoding");
+  }
+  return PrintableProgmemString();
+}
+
+PrintableProgmemString ToPrintableProgmemString(EContentType v) {
+  switch (v) {
+    case EContentType::kApplicationJson:
+      return TASLIT("application/json");
+    case EContentType::kTextPlain:
+      return TASLIT("text/plain");
+    case EContentType::kTextHtml:
+      return TASLIT("text/html");
+  }
+  return PrintableProgmemString();
+}
+
+namespace {
+size_t PrintUnknownEnumValueTo(PrintableProgmemString name, uint32_t v,
+                               Print& out) {
+  size_t result = out.print(TASLIT("Undefined "));
+  result += name.printTo(out);
+  result += out.print(' ');
+  result += out.print('(');
   result += out.print(v);
-  result += out.print(TASLIT(")"));
+  result += out.print(')');
   return result;
 }
 }  // namespace
 
-size_t PrintRequestDecoderStatusTo(RequestDecoderStatus v, Print& out) {
-  switch (v) {
-    case RequestDecoderStatus::kReset:
-      return out.print(TASLIT("kReset"));
-    case RequestDecoderStatus::kDecoding:
-      return out.print(TASLIT("kDecoding"));
-    case RequestDecoderStatus::kDecoded:
-      return out.print(TASLIT("kDecoded"));
+size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("RequestDecoderStatus"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpStatusCode v, Print& out) {
-  switch (v) {
-    case EHttpStatusCode::kContinueDecoding:
-      return out.print(TASLIT("kContinueDecoding"));
-    case EHttpStatusCode::kNeedMoreInput:
-      return out.print(TASLIT("kNeedMoreInput"));
-    case EHttpStatusCode::kHttpOk:
-      return out.print(TASLIT("kHttpOk"));
-    case EHttpStatusCode::kHttpBadRequest:
-      return out.print(TASLIT("kHttpBadRequest"));
-    case EHttpStatusCode::kHttpNotFound:
-      return out.print(TASLIT("kHttpNotFound"));
-    case EHttpStatusCode::kHttpMethodNotAllowed:
-      return out.print(TASLIT("kHttpMethodNotAllowed"));
-    case EHttpStatusCode::kHttpNotAcceptable:
-      return out.print(TASLIT("kHttpNotAcceptable"));
-    case EHttpStatusCode::kHttpLengthRequired:
-      return out.print(TASLIT("kHttpLengthRequired"));
-    case EHttpStatusCode::kHttpPayloadTooLarge:
-      return out.print(TASLIT("kHttpPayloadTooLarge"));
-    case EHttpStatusCode::kHttpUnsupportedMediaType:
-      return out.print(TASLIT("kHttpUnsupportedMediaType"));
-    case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-      return out.print(TASLIT("kHttpRequestHeaderFieldsTooLarge"));
-    case EHttpStatusCode::kHttpInternalServerError:
-      return out.print(TASLIT("kHttpInternalServerError"));
-    case EHttpStatusCode::kHttpMethodNotImplemented:
-      return out.print(TASLIT("kHttpMethodNotImplemented"));
-    case EHttpStatusCode::kHttpVersionNotSupported:
-      return out.print(TASLIT("kHttpVersionNotSupported"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EHttpStatusCode"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpMethod v, Print& out) {
-  switch (v) {
-    case EHttpMethod::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EHttpMethod::GET:
-      return out.print(TASLIT("GET"));
-    case EHttpMethod::PUT:
-      return out.print(TASLIT("PUT"));
-    case EHttpMethod::HEAD:
-      return out.print(TASLIT("HEAD"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EHttpMethod"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EApiGroup v, Print& out) {
-  switch (v) {
-    case EApiGroup::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EApiGroup::kDevice:
-      return out.print(TASLIT("kDevice"));
-    case EApiGroup::kManagement:
-      return out.print(TASLIT("kManagement"));
-    case EApiGroup::kSetup:
-      return out.print(TASLIT("kSetup"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EApiGroup"), static_cast<uint32_t>(v),
                                  out);
 }
 
 size_t PrintValueTo(EAlpacaApi v, Print& out) {
-  switch (v) {
-    case EAlpacaApi::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EAlpacaApi::kDeviceApi:
-      return out.print(TASLIT("kDeviceApi"));
-    case EAlpacaApi::kDeviceSetup:
-      return out.print(TASLIT("kDeviceSetup"));
-    case EAlpacaApi::kManagementApiVersions:
-      return out.print(TASLIT("kManagementApiVersions"));
-    case EAlpacaApi::kManagementDescription:
-      return out.print(TASLIT("kManagementDescription"));
-    case EAlpacaApi::kManagementConfiguredDevices:
-      return out.print(TASLIT("kManagementConfiguredDevices"));
-    case EAlpacaApi::kServerSetup:
-      return out.print(TASLIT("kServerSetup"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EAlpacaApi"), static_cast<uint32_t>(v),
                                  out);
 }
 
 size_t PrintValueTo(EManagementMethod v, Print& out) {
-  switch (v) {
-    case EManagementMethod::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EManagementMethod::kDescription:
-      return out.print(TASLIT("kDescription"));
-    case EManagementMethod::kConfiguredDevices:
-      return out.print(TASLIT("kConfiguredDevices"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EManagementMethod"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceType v, Print& out) {
-  switch (v) {
-    case EDeviceType::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EDeviceType::kCamera:
-      return out.print(TASLIT("kCamera"));
-    case EDeviceType::kCoverCalibrator:
-      return out.print(TASLIT("kCoverCalibrator"));
-    case EDeviceType::kDome:
-      return out.print(TASLIT("kDome"));
-    case EDeviceType::kFilterWheel:
-      return out.print(TASLIT("kFilterWheel"));
-    case EDeviceType::kFocuser:
-      return out.print(TASLIT("kFocuser"));
-    case EDeviceType::kObservingConditions:
-      return out.print(TASLIT("kObservingConditions"));
-    case EDeviceType::kRotator:
-      return out.print(TASLIT("kRotator"));
-    case EDeviceType::kSafetyMonitor:
-      return out.print(TASLIT("kSafetyMonitor"));
-    case EDeviceType::kSwitch:
-      return out.print(TASLIT("kSwitch"));
-    case EDeviceType::kTelescope:
-      return out.print(TASLIT("kTelescope"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EDeviceType"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceMethod v, Print& out) {
-  switch (v) {
-    case EDeviceMethod::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EDeviceMethod::kSetup:
-      return out.print(TASLIT("kSetup"));
-    case EDeviceMethod::kConnected:
-      return out.print(TASLIT("kConnected"));
-    case EDeviceMethod::kDescription:
-      return out.print(TASLIT("kDescription"));
-    case EDeviceMethod::kDriverInfo:
-      return out.print(TASLIT("kDriverInfo"));
-    case EDeviceMethod::kDriverVersion:
-      return out.print(TASLIT("kDriverVersion"));
-    case EDeviceMethod::kInterfaceVersion:
-      return out.print(TASLIT("kInterfaceVersion"));
-    case EDeviceMethod::kName:
-      return out.print(TASLIT("kName"));
-    case EDeviceMethod::kSupportedActions:
-      return out.print(TASLIT("kSupportedActions"));
-    case EDeviceMethod::kAveragePeriod:
-      return out.print(TASLIT("kAveragePeriod"));
-    case EDeviceMethod::kCloudCover:
-      return out.print(TASLIT("kCloudCover"));
-    case EDeviceMethod::kDewPoint:
-      return out.print(TASLIT("kDewPoint"));
-    case EDeviceMethod::kHumidity:
-      return out.print(TASLIT("kHumidity"));
-    case EDeviceMethod::kPressure:
-      return out.print(TASLIT("kPressure"));
-    case EDeviceMethod::kRainRate:
-      return out.print(TASLIT("kRainRate"));
-    case EDeviceMethod::kRefresh:
-      return out.print(TASLIT("kRefresh"));
-    case EDeviceMethod::kSensorDescription:
-      return out.print(TASLIT("kSensorDescription"));
-    case EDeviceMethod::kSkyBrightness:
-      return out.print(TASLIT("kSkyBrightness"));
-    case EDeviceMethod::kSkyQuality:
-      return out.print(TASLIT("kSkyQuality"));
-    case EDeviceMethod::kSkyTemperature:
-      return out.print(TASLIT("kSkyTemperature"));
-    case EDeviceMethod::kStarFullWidthHalfMax:
-      return out.print(TASLIT("kStarFullWidthHalfMax"));
-    case EDeviceMethod::kTemperature:
-      return out.print(TASLIT("kTemperature"));
-    case EDeviceMethod::kTimeSinceLastUpdate:
-      return out.print(TASLIT("kTimeSinceLastUpdate"));
-    case EDeviceMethod::kWindDirection:
-      return out.print(TASLIT("kWindDirection"));
-    case EDeviceMethod::kWindGust:
-      return out.print(TASLIT("kWindGust"));
-    case EDeviceMethod::kWindSpeed:
-      return out.print(TASLIT("kWindSpeed"));
-    case EDeviceMethod::kIsSafe:
-      return out.print(TASLIT("kIsSafe"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EDeviceMethod"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EParameter v, Print& out) {
-  switch (v) {
-    case EParameter::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EParameter::kClientId:
-      return out.print(TASLIT("kClientId"));
-    case EParameter::kClientTransactionId:
-      return out.print(TASLIT("kClientTransactionId"));
-    case EParameter::kConnected:
-      return out.print(TASLIT("kConnected"));
-    case EParameter::kSensorName:
-      return out.print(TASLIT("kSensorName"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EParameter"), static_cast<uint32_t>(v),
                                  out);
 }
 
 size_t PrintValueTo(ESensorName v, Print& out) {
-  switch (v) {
-    case ESensorName::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case ESensorName::kCloudCover:
-      return out.print(TASLIT("kCloudCover"));
-    case ESensorName::kDewPoint:
-      return out.print(TASLIT("kDewPoint"));
-    case ESensorName::kHumidity:
-      return out.print(TASLIT("kHumidity"));
-    case ESensorName::kPressure:
-      return out.print(TASLIT("kPressure"));
-    case ESensorName::kRainRate:
-      return out.print(TASLIT("kRainRate"));
-    case ESensorName::kSkyBrightness:
-      return out.print(TASLIT("kSkyBrightness"));
-    case ESensorName::kSkyQuality:
-      return out.print(TASLIT("kSkyQuality"));
-    case ESensorName::kSkyTemperature:
-      return out.print(TASLIT("kSkyTemperature"));
-    case ESensorName::kStarFullWidthHalfMax:
-      return out.print(TASLIT("kStarFullWidthHalfMax"));
-    case ESensorName::kTemperature:
-      return out.print(TASLIT("kTemperature"));
-    case ESensorName::kWindDirection:
-      return out.print(TASLIT("kWindDirection"));
-    case ESensorName::kWindGust:
-      return out.print(TASLIT("kWindGust"));
-    case ESensorName::kWindSpeed:
-      return out.print(TASLIT("kWindSpeed"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("ESensorName"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpHeader v, Print& out) {
-  switch (v) {
-    case EHttpHeader::kUnknown:
-      return out.print(TASLIT("kUnknown"));
-    case EHttpHeader::kHttpAccept:
-      return out.print(TASLIT("kHttpAccept"));
-    case EHttpHeader::kHttpContentLength:
-      return out.print(TASLIT("kHttpContentLength"));
-    case EHttpHeader::kHttpContentType:
-      return out.print(TASLIT("kHttpContentType"));
-    case EHttpHeader::kHttpContentEncoding:
-      return out.print(TASLIT("kHttpContentEncoding"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EHttpHeader"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EContentType v, Print& out) {
-  switch (v) {
-    case EContentType::kApplicationJson:
-      return out.print(TASLIT("kApplicationJson"));
-    case EContentType::kTextPlain:
-      return out.print(TASLIT("kTextPlain"));
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
   }
   return PrintUnknownEnumValueTo(TASLIT("EContentType"),
                                  static_cast<uint32_t>(v), out);

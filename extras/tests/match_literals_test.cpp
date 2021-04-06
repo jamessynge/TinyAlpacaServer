@@ -275,7 +275,7 @@ TEST(MatchLiteralsDeathTest, MatchDeviceMethodWrongApiGroup) {
                                        StringView("name"), matched));
         EXPECT_EQ(matched, kBogusEnum);
       },
-      "api group \\(kManagement\\) is not device or setup");
+      "api group \\(Management\\) is not device or setup");
 }
 
 TEST(MatchLiteralsTest, MatchParameter) {

@@ -18,39 +18,13 @@
 // to this context.
 
 #include "utils/platform.h"
+#include "utils/printable_progmem_string.h"
 
 namespace alpaca {
 
-class PrintableProgmemString : public Printable {
- public:
-  // These two definitions must be changed together.
-  using size_type = uint8_t;
-  static constexpr size_type kMaxSize = 255;
-
-  // Construct empty.
-  PrintableProgmemString() noexcept : ptr_(nullptr), size_(0) {}
-
-  PrintableProgmemString(PGM_P ptr, size_type length)
-      : ptr_(ptr), size_(length) {}
-
-  // Print the string to the provided Print instance.
-  size_t printTo(Print& out) const override;
-
-  // Returns the number of characters in the string.
-  constexpr size_type size() const { return size_; }
-
-  // In support of tests, returns the address in PROGMEM of the string.
-  // On a typical (Von Neumann) host, this is in the same address space as data.
-  PGM_VOID_P prog_data_for_tests() const { return ptr_; }
-
- private:
-  PGM_P ptr_;
-  size_type size_;
-};
-
 namespace progmem_data {
 template <char... C>
-class ProgmemString final {
+class ProgmemStringStorage final {
  public:
   static PrintableProgmemString MakePrintable() {
     return PrintableProgmemString(data_, sizeof...(C));
@@ -65,7 +39,8 @@ class ProgmemString final {
 };
 
 template <char... C>
-constexpr char const ProgmemString<C...>::data_[sizeof...(C)] AVR_PROGMEM;
+constexpr char const
+    ProgmemStringStorage<C...>::data_[sizeof...(C)] AVR_PROGMEM;
 
 // Get the Nth char from a string of length M.
 template <int N, int M>
@@ -79,19 +54,22 @@ constexpr char GetNthCharOfM(char const (&c)[M]) {
 // that has an embedded NUL in it.
 
 template <char... X>
-auto typoke(ProgmemString<X...>)  // as is...
-    -> ProgmemString<X...>;
+auto typoke(ProgmemStringStorage<X...>)  // as is...
+    -> ProgmemStringStorage<X...>;
 
 template <char... X, char... Y>
-auto typoke(ProgmemString<X...>, ProgmemString<'\0'>, ProgmemString<Y>...)
-    -> ProgmemString<X...>;
+auto typoke(ProgmemStringStorage<X...>, ProgmemStringStorage<'\0'>,
+            ProgmemStringStorage<Y>...) -> ProgmemStringStorage<X...>;
 
 template <char A, char... X, char... Y>
-auto typoke(ProgmemString<X...>, ProgmemString<A>, ProgmemString<Y>...)
-    -> decltype(typoke(ProgmemString<X..., A>(), ProgmemString<Y>()...));
+auto typoke(ProgmemStringStorage<X...>, ProgmemStringStorage<A>,
+            ProgmemStringStorage<Y>...)
+    -> decltype(typoke(ProgmemStringStorage<X..., A>(),
+                       ProgmemStringStorage<Y>()...));
 
 template <char... C>
-auto typeek(ProgmemString<C...>) -> decltype(typoke(ProgmemString<C>()...));
+auto typeek(ProgmemStringStorage<C...>)
+    -> decltype(typoke(ProgmemStringStorage<C>()...));
 
 }  // namespace progmem_data
 }  // namespace alpaca
@@ -117,9 +95,9 @@ auto typeek(ProgmemString<C...>) -> decltype(typoke(ProgmemString<C>()...));
       TASLIT16(n##4, x), TASLIT16(n##5, x), TASLIT16(n##6, x),                \
       TASLIT16(n##7, x)
 
-#define TASLIT(x)                                      \
-  (decltype(::alpaca::progmem_data::typeek(            \
-      ::alpaca::progmem_data::ProgmemString<TASLIT128( \
+#define TASLIT(x)                                             \
+  (decltype(::alpaca::progmem_data::typeek(                   \
+      ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128( \
           , x)>()))::MakePrintable())
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_INLINE_LITERAL_H_

@@ -28,41 +28,42 @@ class LiteralArraySource : public JsonElementSource {
 }  // namespace
 
 // static
-bool WriteResponse::OkResponse(const JsonPropertySource& source,
-                               EHttpMethod http_method, Print& out) {
+bool WriteResponse::OkResponse(const AlpacaRequest& request,
+                               const JsonPropertySource& source, Print& out) {
   const auto eol = Literals::HttpEndOfLine();
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
   hrh.reason_phrase = Literals::OK();
   hrh.content_type = EContentType::kApplicationJson;
   hrh.content_length = JsonObjectEncoder::EncodedSize(source) + eol.size();
+  hrh.do_close = request.do_close;
   hrh.printTo(out);
-  if (http_method != EHttpMethod::HEAD) {
+  if (request.http_method != EHttpMethod::HEAD) {
     JsonObjectEncoder::Encode(source, out);
     eol.printTo(out);
   }
-  return true;
+  return !request.do_close;
 }
 
 // static
 bool WriteResponse::ArrayResponse(const AlpacaRequest& request,
                                   const JsonElementSource& value, Print& out) {
   JsonArrayResponse source(request, value);
-  return OkResponse(source, request.http_method, out);
+  return OkResponse(request, source, out);
 }
 
 // static
 bool WriteResponse::BoolResponse(const AlpacaRequest& request, bool value,
                                  Print& out) {
   JsonBoolResponse source(request, value);
-  return OkResponse(source, request.http_method, out);
+  return OkResponse(request, source, out);
 }
 
 // static
 bool WriteResponse::DoubleResponse(const AlpacaRequest& request, double value,
                                    Print& out) {
   JsonDoubleResponse source(request, value);
-  return OkResponse(source, request.http_method, out);
+  return OkResponse(request, source, out);
 }
 // static
 bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
@@ -79,7 +80,7 @@ bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
 bool WriteResponse::FloatResponse(const AlpacaRequest& request, float value,
                                   Print& out) {
   JsonFloatResponse source(request, value);
-  return OkResponse(source, request.http_method, out);
+  return OkResponse(request, source, out);
 }
 
 // static
@@ -97,14 +98,14 @@ bool WriteResponse::StatusOrFloatResponse(const AlpacaRequest& request,
 bool WriteResponse::UIntResponse(const AlpacaRequest& request, uint32_t value,
                                  Print& out) {
   JsonUnsignedIntegerResponse source(request, value);
-  return OkResponse(source, request.http_method, out);
+  return OkResponse(request, source, out);
 }
 
 // static
 bool WriteResponse::IntResponse(const AlpacaRequest& request, int32_t value,
                                 Print& out) {
   JsonIntegerResponse source(request, value);
-  return OkResponse(source, request.http_method, out);
+  return OkResponse(request, source, out);
 }
 
 // static
@@ -118,7 +119,7 @@ bool WriteResponse::LiteralArrayResponse(const AlpacaRequest& request,
 bool WriteResponse::StringResponse(const AlpacaRequest& request,
                                    const AnyPrintable& value, Print& out) {
   JsonStringResponse source(request, value);
-  return OkResponse(source, request.http_method, out);
+  return OkResponse(request, source, out);
 }
 
 // static
@@ -138,17 +139,15 @@ bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        const AnyPrintable& error_message,
                                        Print& out) {
   JsonMethodResponse source(request, error_number, error_message);
-  OkResponse(source, request.http_method, out);
+  OkResponse(request, source, out);
   return false;
 }
 
 // static
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        Status error_status, Print& out) {
-  JsonMethodResponse source(request, error_status.code(),
-                            AnyPrintable(error_status.message()));
-  OkResponse(source, request.http_method, out);
-  return false;
+  return AscomErrorResponse(request, error_status.code(),
+                            AnyPrintable(error_status.message()), out);
 }
 
 // static
@@ -214,6 +213,7 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
 
   hrh.content_type = EContentType::kTextPlain;
   hrh.content_length = CountingBitbucket::SizeOfPrintable(body);
+  hrh.do_close = true;
   hrh.printTo(out);
   body.printTo(out);
   return false;

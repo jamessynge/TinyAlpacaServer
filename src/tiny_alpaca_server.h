@@ -1,14 +1,17 @@
 #ifndef TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 #define TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 
-// TinyAlpacaServer is a wrapper around sstaub's Ethernet3 library, replacing
-// Ethernet3's EthernetServer library.
+// TinyAlpacaServer is a wrapper around sstaub's Ethernet3 library. It
+// initializes the device handlers, delegates relevant HTTP requests to them;
+// the class also handles the device independent setup and management API.
 //
 // We make the following assumptions:
 //
-// * TinyAlpacaServer (TAS) owns all of the sockets provided by the Ethernet
-//   instance (e.g. up to 8 in the case of a WIZ5500), and no other TCP server
-//   is attempting to share that pool.
+// * TinyAlpacaServer (TAS) can use kNumServerConnections of the hardware
+//   sockets provided by the Ethernet instance.
+//
+// * TAS.begin() is called by the Arduino defined setup method, after IpDevice
+//   has been used to initialize the hardware.
 //
 // * TAS.loop() is called by the Arduino defined loop method ~every time.
 //
@@ -23,6 +26,12 @@
 //
 // * TAS handles the UDP packets of the Alpaca discovery protocol using data
 //   provided at startup (e.g. the set of attached devices).
+//
+// TODO(jamessynge): Refactor to make testing much easier. For example, pull the
+// ServerConnections out of this class, just leaving the device handlers and the
+// public RequestListener implementation. That will enable testing by passing
+// AlpacaRequest and Print instances into the listener methods, thus avoiding
+// the need for actual network IO during testing.
 
 #include "device_api_handler_base.h"
 #include "request_listener.h"

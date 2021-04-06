@@ -21,20 +21,11 @@
 #endif  // TAS_DEFINE_BUILTIN_LITERAL
 
 namespace alpaca {
-// Define string literal constants in a nested namespace.
-namespace progmem_data {
-#define TAS_DEFINE_BUILTIN_LITERAL(name, literal) \
-  constexpr char k##name[] AVR_PROGMEM = literal;
-#include "literals.inc"
-#undef TAS_DEFINE_BUILTIN_LITERAL
-}  // namespace progmem_data
 
 // Define static Literal factory methods in a struct, acting as a nested
-// namespace.
-#define TAS_DEFINE_BUILTIN_LITERAL(name, literal)   \
-  inline static TAS_CONSTEXPR_FUNC Literal name() { \
-    return Literal(progmem_data::k##name);          \
-  }
+// namespace, but ensuring that each method defined in the source file matches
+// a declaration in the header file.
+#define TAS_DEFINE_BUILTIN_LITERAL(name, literal) static Literal name();
 
 struct Literals {
 #include "literals.inc"

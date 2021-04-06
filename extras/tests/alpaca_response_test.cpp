@@ -14,16 +14,37 @@ namespace {
 constexpr char kEOL[] = "\r\n";
 
 TEST(AlpacaResponseTest, SimpleOk) {
+  AlpacaRequest request;
+  request.http_method = EHttpMethod::PUT;
   PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
   PrintToStdString out;
-  EXPECT_TRUE(WriteResponse::OkResponse(source, EHttpMethod::PUT, out));
+  EXPECT_TRUE(WriteResponse::OkResponse(request, source, out));
+  const auto expected_body = absl::StrCat("{}", kEOL);
+  const auto expected =                                             // Force
+      absl::StrCat("HTTP/1.1 200 OK", kEOL,                         // line
+                   "Server: TinyAlpacaServer", kEOL,                // wrapping
+                   "Content-Type: application/json", kEOL,          // right
+                   "Content-Length: ", expected_body.size(), kEOL,  // here.
+                   kEOL, expected_body);
+  EXPECT_EQ(out.str(), expected);
+}
+
+TEST(AlpacaResponseTest, SimpleOkWithClose) {
+  AlpacaRequest request;
+  request.http_method = EHttpMethod::PUT;
+  request.do_close = true;
+  PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
+  PrintToStdString out;
+  EXPECT_FALSE(WriteResponse::OkResponse(request, source, out));
   const std::string expected_body = absl::StrCat("{}", kEOL);
-  EXPECT_EQ(
-      out.str(),
-      absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
-                   "Connection: close", kEOL, "Content-Type: application/json",
-                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
-                   expected_body));
+  const auto expected =                                             // Force
+      absl::StrCat("HTTP/1.1 200 OK", kEOL,                         // line
+                   "Server: TinyAlpacaServer", kEOL,                // wrapping
+                   "Connection: close", kEOL,                       // here
+                   "Content-Type: application/json", kEOL,          // and
+                   "Content-Length: ", expected_body.size(), kEOL,  // here.
+                   kEOL, expected_body);
+  EXPECT_EQ(out.str(), expected);
 }
 
 TEST(AlpacaResponseTest, ArrayOfLiterals) {
@@ -38,12 +59,11 @@ TEST(AlpacaResponseTest, ArrayOfLiterals) {
   const std::string expected_body =
       absl::StrCat(R"({"Value": ["DeviceType", "ManufacturerVersion"],)",
                    R"( "ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
-  EXPECT_EQ(
-      out.str(),
-      absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
-                   "Connection: close", kEOL, "Content-Type: application/json",
-                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
-                   expected_body));
+  EXPECT_EQ(out.str(),
+            absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer",
+                         kEOL, "Content-Type: application/json", kEOL,
+                         "Content-Length: ", expected_body.size(), kEOL, kEOL,
+                         expected_body));
 }
 
 TEST(AlpacaResponseTest, BoolTrue) {
@@ -55,15 +75,16 @@ TEST(AlpacaResponseTest, BoolTrue) {
   const std::string expected_body =
       absl::StrCat(R"({"Value": true, "ServerTransactionId": 0,)",
                    R"( "ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
-  EXPECT_EQ(
-      out.str(),
-      absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
-                   "Connection: close", kEOL, "Content-Type: application/json",
-                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
-                   expected_body));
+  const auto expected =                                             // Force
+      absl::StrCat("HTTP/1.1 200 OK", kEOL,                         // line
+                   "Server: TinyAlpacaServer", kEOL,                // wrapping
+                   "Content-Type: application/json", kEOL,          // right
+                   "Content-Length: ", expected_body.size(), kEOL,  // here.
+                   kEOL, expected_body);
+  EXPECT_EQ(out.str(), expected);
 }
 
-TEST(AlpacaResponseTest, Double) {
+TEST(AlpacaResponseTest, DoubleWithClose) {
   const double value = 3.1415926;
   std::string value_str;
   {
@@ -74,18 +95,21 @@ TEST(AlpacaResponseTest, Double) {
 
   AlpacaRequest request;
   request.set_client_transaction_id(99);
+  request.do_close = true;
   PrintToStdString out;
-  EXPECT_TRUE(WriteResponse::DoubleResponse(request, value, out));
+  EXPECT_FALSE(WriteResponse::DoubleResponse(request, value, out));
 
   const std::string expected_body = absl::StrCat(
       R"({"Value": )", value_str, R"(, "ClientTransactionId": 99,)",
       R"( "ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
-  EXPECT_EQ(
-      out.str(),
-      absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer", kEOL,
-                   "Connection: close", kEOL, "Content-Type: application/json",
-                   kEOL, "Content-Length: ", expected_body.size(), kEOL, kEOL,
-                   expected_body));
+  const auto expected =                                             // Force
+      absl::StrCat("HTTP/1.1 200 OK", kEOL,                         // line
+                   "Server: TinyAlpacaServer", kEOL,                // wrapping
+                   "Connection: close", kEOL,                       // here
+                   "Content-Type: application/json", kEOL,          // and
+                   "Content-Length: ", expected_body.size(), kEOL,  // here.
+                   kEOL, expected_body);
+  EXPECT_EQ(out.str(), expected);
 }
 
 }  // namespace

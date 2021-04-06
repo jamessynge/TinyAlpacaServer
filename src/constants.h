@@ -15,10 +15,13 @@
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"
+#include "utils/printable_progmem_string.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>
 #endif  // TAS_HOST_TARGET
+
+#define TASENUMERATOR(id, text) id
 
 namespace alpaca {
 
@@ -28,9 +31,6 @@ enum class RequestDecoderStatus : uint8_t {
   kDecoding,
   kDecoded,
 };
-#if TAS_HOST_TARGET
-std::ostream& operator<<(std::ostream& out, RequestDecoderStatus value);
-#endif  // TAS_HOST_TARGET
 
 // Most of these are based on HTTP Response Status Codes, the others are below
 // 100 (HTTP's continue status).
@@ -97,12 +97,24 @@ enum class EApiGroup : uint8_t {
 using EAlpacaApi_UnderlyingType = uint8_t;
 enum class EAlpacaApi : uint8_t {
   kUnknown = 0,
-  kDeviceApi,    // Path: /api/v1/{device_type}/{device_number}/{method}
-  kDeviceSetup,  // Path: /setup/v1/{device_type}/{device_number}/setup
-  kManagementApiVersions,        // Path: /management/apiversions
-  kManagementDescription,        // Path: /management/v1/description
-  kManagementConfiguredDevices,  // Path: /management/v1/configureddevices
-  kServerSetup,                  // Path: /setup
+
+  // Path: /api/v1/{device_type}/{device_number}/{method}
+  kDeviceApi,
+
+  // Path: /setup/v1/{device_type}/{device_number}/setup
+  kDeviceSetup,
+
+  // Path: /management/apiversions
+  kManagementApiVersions,
+
+  // Path: /management/v1/description
+  kManagementDescription,
+
+  // Path: /management/v1/configureddevices
+  kManagementConfiguredDevices,
+
+  // Path: /setup
+  kServerSetup,
 };
 
 using EManagementMethod_UnderlyingType = uint8_t;
@@ -224,9 +236,23 @@ enum class EHttpHeader : EHttpHeader_UnderlyingType {
 
 // This is used for generating responses, not for input.
 enum class EContentType : uint8_t {
-  kApplicationJson = 0,
-  kTextPlain,
+  TASENUMERATOR(kApplicationJson, "application/json"),
+  TASENUMERATOR(kTextPlain, "text/plain"),
+  TASENUMERATOR(kTextHtml, "text/html"),
 };
+
+PrintableProgmemString ToPrintableProgmemString(RequestDecoderStatus v);
+PrintableProgmemString ToPrintableProgmemString(EHttpStatusCode v);
+PrintableProgmemString ToPrintableProgmemString(EHttpMethod v);
+PrintableProgmemString ToPrintableProgmemString(EApiGroup v);
+PrintableProgmemString ToPrintableProgmemString(EAlpacaApi v);
+PrintableProgmemString ToPrintableProgmemString(EManagementMethod v);
+PrintableProgmemString ToPrintableProgmemString(EDeviceType v);
+PrintableProgmemString ToPrintableProgmemString(EDeviceMethod v);
+PrintableProgmemString ToPrintableProgmemString(EParameter v);
+PrintableProgmemString ToPrintableProgmemString(ESensorName v);
+PrintableProgmemString ToPrintableProgmemString(EHttpHeader v);
+PrintableProgmemString ToPrintableProgmemString(EContentType v);
 
 size_t PrintValueTo(RequestDecoderStatus v, Print& out);
 size_t PrintValueTo(EHttpStatusCode v, Print& out);
@@ -242,5 +268,7 @@ size_t PrintValueTo(EHttpHeader v, Print& out);
 size_t PrintValueTo(EContentType v, Print& out);
 
 }  // namespace alpaca
+
+#undef TASENUMERATOR
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONSTANTS_H_

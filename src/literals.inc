@@ -23,6 +23,8 @@ TAS_DEFINE_BUILTIN_LITERAL1(calibratorstate)
 TAS_DEFINE_BUILTIN_LITERAL1(camera)
 TAS_DEFINE_BUILTIN_LITERAL1(ClientId)
 TAS_DEFINE_BUILTIN_LITERAL1(ClientTransactionId)
+TAS_DEFINE_BUILTIN_LITERAL1(close)
+TAS_DEFINE_BUILTIN_LITERAL1(Connection)
 TAS_DEFINE_BUILTIN_LITERAL1(closecover)
 TAS_DEFINE_BUILTIN_LITERAL1(cloudcover)
 TAS_DEFINE_BUILTIN_LITERAL1(commandblind)
@@ -70,6 +72,7 @@ TAS_DEFINE_BUILTIN_LITERAL1(rotator)
 TAS_DEFINE_BUILTIN_LITERAL1(safetymonitor)
 TAS_DEFINE_BUILTIN_LITERAL1(sensordescription)
 TAS_DEFINE_BUILTIN_LITERAL1(SensorName)
+TAS_DEFINE_BUILTIN_LITERAL1(Server)
 TAS_DEFINE_BUILTIN_LITERAL1(ServerName)
 TAS_DEFINE_BUILTIN_LITERAL1(ServerTransactionId)
 TAS_DEFINE_BUILTIN_LITERAL1(setup)
@@ -82,6 +85,7 @@ TAS_DEFINE_BUILTIN_LITERAL1(telescope)
 TAS_DEFINE_BUILTIN_LITERAL1(temperature)
 TAS_DEFINE_BUILTIN_LITERAL1(starfullwidthhalfmax)
 TAS_DEFINE_BUILTIN_LITERAL1(timesincelastupdate)
+TAS_DEFINE_BUILTIN_LITERAL1(TinyAlpacaServer)
 TAS_DEFINE_BUILTIN_LITERAL1(UniqueID)
 TAS_DEFINE_BUILTIN_LITERAL1(Value)
 TAS_DEFINE_BUILTIN_LITERAL1(v1)
@@ -101,6 +105,7 @@ TAS_DEFINE_BUILTIN_LITERAL(HttpAccept, "Accept")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentEncoding, "Content-Encoding")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentLength, "Content-Length")
 TAS_DEFINE_BUILTIN_LITERAL(HttpContentType, "Content-Type")
+TAS_DEFINE_BUILTIN_LITERAL(HttpKeepAlive, "Keep-Alive")
 
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded,
                            "application/x-www-form-urlencoded")
@@ -108,18 +113,13 @@ TAS_DEFINE_BUILTIN_LITERAL(MimeTypeWwwFormUrlEncoded,
 // Output Content-Types.
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeJson, "application/json")
 TAS_DEFINE_BUILTIN_LITERAL(MimeTypeTextPlain, "text/plain")
+TAS_DEFINE_BUILTIN_LITERAL(MimeTypeTextHtml, "text/html")
 
 // Literals used during output.
 TAS_DEFINE_BUILTIN_LITERAL(HttpVersion, "HTTP/1.1")
 TAS_DEFINE_BUILTIN_LITERAL(HttpOkStatus, "HTTP/1.1 200 OK")
-
-// Common fixed HTTP Response Headers. For now, assuming that we're NOT
-// keeping the connection open from request to request. That could change.
-TAS_DEFINE_BUILTIN_LITERAL(
-    CommonResponseHeaders,
-    "\r\n"  // We assume the response start line comes first, then ...
-    "Server: TinyAlpacaServer\r\n"
-    "Connection: close")
+TAS_DEFINE_BUILTIN_LITERAL(HttpConnectionClose, "Connection: close\r\n")
+TAS_DEFINE_BUILTIN_LITERAL(HttpServerHeader, "Server: TinyAlpacaServer\r\n")
 
 // HTTP Response Reason Phrases:
 TAS_DEFINE_BUILTIN_LITERAL(HttpBadRequest, "Bad Request")

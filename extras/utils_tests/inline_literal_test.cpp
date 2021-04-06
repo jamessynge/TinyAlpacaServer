@@ -8,10 +8,11 @@
 
 namespace alpaca {
 namespace {
+using progmem_data::ProgmemStringStorage;
 
 TEST(InlineLiteralTest, RawProgmemString) {
   auto printable =
-      progmem_data::ProgmemString<'h', 'e', 'l', 'l', 'o'>::MakePrintable();
+      ProgmemStringStorage<'h', 'e', 'l', 'l', 'o'>::MakePrintable();
   EXPECT_EQ(printable.size(), 5);
 
   PrintToStdString out;
@@ -20,8 +21,7 @@ TEST(InlineLiteralTest, RawProgmemString) {
 }
 
 TEST(InlineLiteralTest, TASLIT16_String) {
-  auto printable =
-      progmem_data::ProgmemString<TASLIT16(, "Hello!")>::MakePrintable();
+  auto printable = ProgmemStringStorage<TASLIT16(, "Hello!")>::MakePrintable();
   EXPECT_EQ(printable.size(), 16);
 
   PrintToStdString out;

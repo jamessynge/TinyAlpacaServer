@@ -1,4 +1,6 @@
-#include "utils/inline_literal.h"
+#include "utils/printable_progmem_string.h"
+
+// TODO(jamessynge): Describe why this file exists/what it provides.
 
 #include "utils/platform.h"
 

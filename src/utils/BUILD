@@ -83,11 +83,11 @@ cc_library(
 
 cc_library(
     name = "inline_literal",
-    srcs = ["inline_literal.cc"],
     hdrs = ["inline_literal.h"],
     copts = ["-std=c++11"],
     deps = [
         ":platform",
+        ":printable_progmem_string",
     ],
 )
 
@@ -218,6 +218,13 @@ cc_library(
         ":array_view",
         ":platform",
     ],
+)
+
+cc_library(
+    name = "printable_progmem_string",
+    srcs = ["printable_progmem_string.cc"],
+    hdrs = ["printable_progmem_string.h"],
+    deps = [":platform"],
 )
 
 cc_library(

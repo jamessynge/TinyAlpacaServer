@@ -13,23 +13,23 @@ Note that there is not yet support for R strings.
 import enum
 import re
 import sys
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
 
 
 def find_char_end(file_src: str, start_pos: int) -> int:
   """Returns the pos just beyond the end of the char literal at start_pos."""
-  # print("find_char_end start_pos:", start_pos)
+  # print('find_char_end start_pos:', start_pos)
   pos = start_pos + 1
   regexp = re.compile(r"'|\\")
   while pos < len(file_src):
     m = regexp.search(file_src, pos=pos)
     if not m:
       break
-    if file_src[m.start()] != "\\":
+    if file_src[m.start()] != '\\':
       return m.end()
     # Found a backslash in the char. Skip the character after the backslash.
     pos = m.end() + 1
-  raise AssertionError(f"Unterminated character starting at {start_pos}")
+  raise AssertionError(f'Unterminated character starting at {start_pos}')
 
 
 def find_string_end(file_src: str, start_pos: int) -> int:
@@ -40,11 +40,11 @@ def find_string_end(file_src: str, start_pos: int) -> int:
     m = regexp.search(file_src, pos=pos)
     if not m:
       break
-    if file_src[m.start()] != "\\":
+    if file_src[m.start()] != '\\':
       return m.end()
     # Found a backslash in the string. Skip the character after the backslash.
     pos = m.end() + 1
-  raise AssertionError(f"Unterminated string starting at {start_pos}")
+  raise AssertionError(f'Unterminated string starting at {start_pos}')
 
 
 class EToken(enum.Enum):
@@ -107,54 +107,54 @@ Token = Tuple[EToken, str]
 
 OPS_AND_PUNC = sorted(
     [
-        (">>=", EToken.OP_SHIFT_RIGHT_ASSIGN),
-        ("<<=", EToken.OP_SHIFT_LEFT_ASSIGN),
-        ("->*", EToken.OP_POINTER_TO_MEMBER),
-        ("...", EToken.OP_VARIADIC),
-        ("::", EToken.OP_SCOPE_RESOLUTION),
-        ("==", EToken.OP_EQUAL),
-        ("!=", EToken.OP_NOT_EQUAL),
-        (">=", EToken.OP_GREATER_THAN_EQUAL),
-        ("<=", EToken.OP_LESS_THAN_EQUAL),
-        (">>", EToken.OP_SHIFT_RIGHT),
-        ("<<", EToken.OP_SHIFT_LEFT),
-        ("+=", EToken.OP_PLUS_ASSIGN),
-        ("-=", EToken.OP_MINUS_ASSIGN),
-        ("/=", EToken.OP_DIVIDE_ASSIGN),
-        ("*=", EToken.OP_TIMES_ASSIGN),
-        ("%=", EToken.OP_MODULO_ASSIGN),
-        ("|=", EToken.OP_BITOR_ASSIGN),
-        ("&=", EToken.OP_BITAND_ASSIGN),
-        ("~=", EToken.OP_BITNOT_ASSIGN),
-        ("^=", EToken.OP_BITXOR_ASSIGN),
-        ("++", EToken.OP_INCREMENT),
-        ("--", EToken.OP_DECREMENT),
-        ("&&", EToken.OP_AND),
-        ("||", EToken.OP_OR),
-        ("+", EToken.OP_PLUS),
-        ("-", EToken.OP_MINUS),
-        ("/", EToken.OP_DIVIDE),
-        ("*", EToken.OP_TIMES),
-        ("%", EToken.OP_MODULO),
-        ("|", EToken.OP_BITOR),
-        ("&", EToken.OP_BITAND),
-        ("~", EToken.OP_BITNOT),
-        ("^", EToken.OP_BITXOR),
-        ("!", EToken.OP_NOT),
-        (">", EToken.OP_GREATER_THAN),
-        ("<", EToken.OP_LESS_THAN),
-        ("=", EToken.OP_ASSIGN),
-        (".", EToken.OP_PERIOD),
-        (",", EToken.OP_COMMA),
-        ("?", EToken.OP_TERNARY),
-        (":", EToken.COLON),  # Maybe an operator, maybe not.
-        (";", EToken.SEMICOLON),
-        ("[", EToken.LEFT_BRACKET),
-        ("]", EToken.RIGHT_BRACKET),
-        ("(", EToken.LEFT_PARENTHESIS),
-        (")", EToken.RIGHT_PARENTHESIS),
-        ("{", EToken.LEFT_BRACE),
-        ("}", EToken.RIGHT_BRACE),
+        ('>>=', EToken.OP_SHIFT_RIGHT_ASSIGN),
+        ('<<=', EToken.OP_SHIFT_LEFT_ASSIGN),
+        ('->*', EToken.OP_POINTER_TO_MEMBER),
+        ('...', EToken.OP_VARIADIC),
+        ('::', EToken.OP_SCOPE_RESOLUTION),
+        ('==', EToken.OP_EQUAL),
+        ('!=', EToken.OP_NOT_EQUAL),
+        ('>=', EToken.OP_GREATER_THAN_EQUAL),
+        ('<=', EToken.OP_LESS_THAN_EQUAL),
+        ('>>', EToken.OP_SHIFT_RIGHT),
+        ('<<', EToken.OP_SHIFT_LEFT),
+        ('+=', EToken.OP_PLUS_ASSIGN),
+        ('-=', EToken.OP_MINUS_ASSIGN),
+        ('/=', EToken.OP_DIVIDE_ASSIGN),
+        ('*=', EToken.OP_TIMES_ASSIGN),
+        ('%=', EToken.OP_MODULO_ASSIGN),
+        ('|=', EToken.OP_BITOR_ASSIGN),
+        ('&=', EToken.OP_BITAND_ASSIGN),
+        ('~=', EToken.OP_BITNOT_ASSIGN),
+        ('^=', EToken.OP_BITXOR_ASSIGN),
+        ('++', EToken.OP_INCREMENT),
+        ('--', EToken.OP_DECREMENT),
+        ('&&', EToken.OP_AND),
+        ('||', EToken.OP_OR),
+        ('+', EToken.OP_PLUS),
+        ('-', EToken.OP_MINUS),
+        ('/', EToken.OP_DIVIDE),
+        ('*', EToken.OP_TIMES),
+        ('%', EToken.OP_MODULO),
+        ('|', EToken.OP_BITOR),
+        ('&', EToken.OP_BITAND),
+        ('~', EToken.OP_BITNOT),
+        ('^', EToken.OP_BITXOR),
+        ('!', EToken.OP_NOT),
+        ('>', EToken.OP_GREATER_THAN),
+        ('<', EToken.OP_LESS_THAN),
+        ('=', EToken.OP_ASSIGN),
+        ('.', EToken.OP_PERIOD),
+        (',', EToken.OP_COMMA),
+        ('?', EToken.OP_TERNARY),
+        (':', EToken.COLON),  # Maybe an operator, maybe not.
+        (';', EToken.SEMICOLON),
+        ('[', EToken.LEFT_BRACKET),
+        (']', EToken.RIGHT_BRACKET),
+        ('(', EToken.LEFT_PARENTHESIS),
+        (')', EToken.RIGHT_PARENTHESIS),
+        ('{', EToken.LEFT_BRACE),
+        ('}', EToken.RIGHT_BRACE),
     ],
     key=lambda x: len(x[0]),
     reverse=True)
@@ -172,67 +172,67 @@ def match_operator_or_punctuation(file_src: str, pos: int) -> Optional[Token]:
 
 def generate_cpp_tokens(file_path: str) -> Generator[Token, None, None]:
   """Yields relevant C++ tokens, not every valid/required C++ token."""
-  with open(file_path, mode="r") as f:
+  with open(file_path, mode='r') as f:
     file_src: str = f.read()
 
-  # print("len(file_src):", len(file_src))
+  # print('len(file_src):', len(file_src))
 
   # Phase 2 of C++ translation: combine lines separated by a backslash newline.
-  file_src = file_src.replace("\\\n", "")
+  file_src = file_src.replace('\\\n', '')
 
-  # print("len(file_src) after removing backslash lines:", len(file_src))
+  # print('len(file_src) after removing backslash lines:', len(file_src))
 
-  whitespace_re = re.compile(r"\s+", flags=re.MULTILINE)
+  whitespace_re = re.compile(r'\s+', flags=re.MULTILINE)
   # Simplistic attribute matcher.
-  attribute_re = re.compile(r"\[\[.*\]\]", flags=re.MULTILINE)
+  attribute_re = re.compile(r'\[\[.*\]\]', flags=re.MULTILINE)
 
-  preprocessor_re = re.compile(r"^#.*", flags=re.MULTILINE)
+  preprocessor_re = re.compile(r'^#.*', flags=re.MULTILINE)
 
-  fp_re = re.compile(r"[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?")
+  fp_re = re.compile(r'[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?')
 
-  identifier_re = re.compile(r"[a-zA-Z_][a-zA-Z_0-9]*")
+  identifier_re = re.compile(r'[a-zA-Z_][a-zA-Z_0-9]*')
 
-  line_comment_re = re.compile(r"//.*$", flags=re.MULTILINE)
+  line_comment_re = re.compile(r'//.*$', flags=re.MULTILINE)
 
-  other_comment_re = re.compile(r"/\*.*?\*/", flags=re.DOTALL)
+  other_comment_re = re.compile(r'/\*.*?\*/', flags=re.DOTALL)
 
   # Maybe useful.
-  # integer_re = re.compile(r"[-+]?(0[xX][\dA-Fa-f]+|0[0-7]*|\d+)")
-  # rest_of_line_re = re.compile(r".*$", flags=re.MULTILINE)
+  # integer_re = re.compile(r'[-+]?(0[xX][\dA-Fa-f]+|0[0-7]*|\d+)')
+  # rest_of_line_re = re.compile(r'.*$', flags=re.MULTILINE)
 
   pos = 0
   while pos < len(file_src):
-    # print("pos=", pos)
+    # print('pos=', pos)
     # Skip whitespace.
     m = whitespace_re.match(file_src, pos=pos)
     if m:
-      # print(f"whitespace_re matched [{pos}:{m.end()}]")
+      # print(f'whitespace_re matched [{pos}:{m.end()}]')
       pos = m.end()
       continue
 
     # Skip attribute (e.g. [[noreturn]]).
     m = attribute_re.match(file_src, pos=pos)
     if m:
-      # print(f"attribute_re matched [{pos}:{m.end()}]")
+      # print(f'attribute_re matched [{pos}:{m.end()}]')
       pos = m.end()
       continue
 
     # Skip preprocessor lines.
     m = preprocessor_re.match(file_src, pos=pos)
     if m:
-      # print(f"preprocessor_re matched [{pos}:{m.end()}]")
+      # print(f'preprocessor_re matched [{pos}:{m.end()}]')
       pos = m.end()
       continue
 
     # Skip comments.
     m = line_comment_re.match(file_src, pos=pos)
     if m:
-      # print(f"line_comment_re matched [{pos}:{m.end()}]")
+      # print(f'line_comment_re matched [{pos}:{m.end()}]')
       pos = m.end()
       continue
     m = other_comment_re.match(file_src, pos=pos)
     if m:
-      # print(f"other_comment_re matched [{pos}:{m.end()}]")
+      # print(f'other_comment_re matched [{pos}:{m.end()}]')
       pos = m.end()
       continue
 
@@ -254,68 +254,72 @@ def generate_cpp_tokens(file_path: str) -> Generator[Token, None, None]:
     # Match numbers.
     m = fp_re.match(file_src, pos=pos)
     if m:
-      # print(f"fp_re matched [{pos}:{m.end()}]")
+      # print(f'fp_re matched [{pos}:{m.end()}]')
       token = file_src[pos:m.end()]
       yield (EToken.NUMBER, token)
       pos = m.end()
       continue
 
     # Match operators and other punctuation. Not attempting to make them
-    # complete tokens (i.e. "->" will be yielded as "-" and ">").
+    # complete tokens (i.e. '->' will be yielded as '-' and '>').
 
     if file_src[pos] in OPS_AND_PUNC_CHAR_SET:
-      # print(f"Found operator or punctuation at {pos}")
+      # print(f'Found operator or punctuation at {pos}')
       v = match_operator_or_punctuation(file_src, pos)
       if v:
         yield v
         pos += len(v[1])
         continue
       # This is surprising!
-      raise ValueError(f"Unable to match {file_src[pos:pos+20]!r}")
+      raise ValueError(f'Unable to match {file_src[pos:pos+20]!r}')
 
     # Match identifiers.
     m = identifier_re.match(file_src, pos=pos)
     if m:
-      # print(f"identifier_re matched [{pos}:{m.end()}]")
+      # print(f'identifier_re matched [{pos}:{m.end()}]')
       token = file_src[pos:m.end()]
       yield (EToken.IDENTIFIER, token)
       pos = m.end()
       continue
 
-    raise ValueError(f"Unable to match {file_src[pos:pos+20]!r}")
+    raise ValueError(f'Unable to match {file_src[pos:pos+20]!r}')
 
 
 def generate_enum_definitions(
     file_path: str) -> Generator[Dict[str, Any], None, None]:
   """Yields the definitions of enums found in the file."""
 
-  TokenHandler = Callable[[str, EToken], Optional["TokenHandler"]]
+  TokenHandler = Callable[[str, EToken], Optional['TokenHandler']]
 
   current_enum_info: Optional[Dict[str, Any]] = None
 
-  def find_enum_start(s: str, token: EToken) -> Optional["TokenHandler"]:
+  current_enumerator: str = ''
+
+  def find_enum_start(s: str, token: EToken) -> Optional['TokenHandler']:
     nonlocal current_enum_info
     current_enum_info = None
-    if token == EToken.IDENTIFIER and s == "enum":
+    nonlocal current_enumerator
+    current_enumerator = ''
+    if token == EToken.IDENTIFIER and s == 'enum':
       return find_name
 
     return None
 
-  def find_name(s: str, token: EToken) -> Optional["TokenHandler"]:
+  def find_name(s: str, token: EToken) -> Optional['TokenHandler']:
     nonlocal current_enum_info
     assert current_enum_info is None
     if token == EToken.IDENTIFIER:
-      if s == "class":
+      if s == 'class':
         return find_name
       # print('Found start of definition of enum', s)
       current_enum_info = dict(name=s, enumerators=[])
       return find_enumerator_list_start
 
-    print("Expected the name of the enum type, not {s!r} ({token})")
+    print('Expected the name of the enum type, not {s!r} ({token})')
     return None
 
   def find_enumerator_list_start(s: str,
-                                 token: EToken) -> Optional["TokenHandler"]:
+                                 token: EToken) -> Optional['TokenHandler']:
     nonlocal current_enum_info
     assert current_enum_info is not None
     if token == EToken.LEFT_BRACE:
@@ -324,26 +328,80 @@ def generate_enum_definitions(
     if token in [EToken.COLON, EToken.IDENTIFIER, EToken.OP_SCOPE_RESOLUTION]:
       return find_enumerator_list_start
 
-    print(f"Expected start of enumeration list, not {s!r} ({token})")
+    print(f'Expected start of enumeration list, not {s!r} ({token})')
     return find_enum_start
 
-  def find_enumerator_name(s: str, token: EToken) -> Optional["TokenHandler"]:
+  def find_enumerator_name(s: str, token: EToken) -> Optional['TokenHandler']:
+    # print(f'find_enumerator_name({s!r}, {token})')
     nonlocal current_enum_info
     assert isinstance(current_enum_info, dict)
     if token == EToken.IDENTIFIER:
+      if s == 'TASENUMERATOR':
+        return match_tasenum_lparen
+
       # print('Found enumerator', s)
-      current_enum_info["enumerators"].append(s)
+      current_enum_info['enumerators'].append(s)
       return find_enumerator_separator
 
     if token == EToken.RIGHT_BRACE:
       # Woot, reached the end of the list of names.
       return None
 
-    print("Expected enumerator name, not", token)
+    print(f'Expected enumerator name, not a {token}: {s!r}')
+    return find_enum_start
+
+  def match_tasenum_lparen(_: str, token: EToken) -> Optional['TokenHandler']:
+    nonlocal current_enum_info
+    assert isinstance(current_enum_info, dict)
+    if token == EToken.LEFT_PARENTHESIS:
+      return match_tasenum_id
+    print('Expected left paren, not', token)
+    return find_enum_start
+
+  def match_tasenum_id(s: str, token: EToken) -> Optional['TokenHandler']:
+    nonlocal current_enum_info
+    assert isinstance(current_enum_info, dict)
+    nonlocal current_enumerator
+    assert not current_enumerator
+    if token == EToken.IDENTIFIER:
+      # print('Found enumerator id', s)
+      current_enumerator = s
+      return match_tasenum_comma
+    print('Expected identifier in TASENUMERATOR, not', token)
+    return find_enum_start
+
+  def match_tasenum_comma(_: str, token: EToken) -> Optional['TokenHandler']:
+    nonlocal current_enum_info
+    assert isinstance(current_enum_info, dict)
+    nonlocal current_enumerator
+    assert current_enumerator
+    if token == EToken.OP_COMMA:
+      return match_tasenum_string
+    print('Expected comma in TASENUMERATOR, not', token)
+    return find_enum_start
+
+  def match_tasenum_string(s: str, token: EToken) -> Optional['TokenHandler']:
+    nonlocal current_enum_info
+    assert isinstance(current_enum_info, dict)
+    nonlocal current_enumerator
+    assert current_enumerator
+    if token == EToken.STRING:
+      current_enum_info['enumerators'].append((current_enumerator, s))
+      current_enumerator = ''
+      return match_tasenum_rparen
+    print('Expected identifier in TASENUMERATOR, not', token)
+    return find_enum_start
+
+  def match_tasenum_rparen(_: str, token: EToken) -> Optional['TokenHandler']:
+    nonlocal current_enum_info
+    assert isinstance(current_enum_info, dict)
+    if token == EToken.RIGHT_PARENTHESIS:
+      return find_enumerator_separator
+    print('Expected right paren, not', token)
     return find_enum_start
 
   def find_enumerator_separator(_: str,
-                                token: EToken) -> Optional["TokenHandler"]:
+                                token: EToken) -> Optional['TokenHandler']:
     nonlocal current_enum_info
     assert current_enum_info is not None
     if token == EToken.OP_COMMA:
@@ -359,11 +417,11 @@ def generate_enum_definitions(
   handler: TokenHandler = find_enum_start
 
   for token, s in generate_cpp_tokens(file_path):
-    # print(token, f"\t{s!r}\t", handler.__name__)
+    # print(token, f'\t{s!r}\t', handler.__name__)
     handler = handler(s, token)
     if handler:
       continue
-    if current_enum_info and current_enum_info["enumerators"]:
+    if current_enum_info and current_enum_info['enumerators']:
       yield current_enum_info
       current_enum_info = None
     handler = find_enum_start
@@ -376,49 +434,91 @@ def process_file(file_path: str):
     return
 
   print(
-      "Generating functions for enum definitions in file",
+      'Generating functions for enum definitions in file',
       file_path,
       file=sys.stderr)
 
+  # For enumerator identifiers that start with lower-case k followed by a
+  # capital letter (e.g. kName or kFooBar), we strip the leading k from the
+  # string that we print.
+  def make_id_and_str(v: Union[str, Tuple[str, str]]) -> Tuple[str, str]:
+    if isinstance(v, tuple):
+      return v
+    identifier: str = v
+    if re.match('k[A-Z]', identifier):
+      return (identifier, f'"{identifier[1:]}"')
+    return (identifier, f'"{identifier}"')
+  def fix_enumerators(enum_def: Dict[str, Any]) -> None:
+    enum_def['enumerators'] = [
+        make_id_and_str(v) for v in enum_def['enumerators']
+    ]
   for enum_def in enum_definitions:
-    name = enum_def["name"]
-    print(f"size_t PrintValueTo({name} v, Print& out);")
+    fix_enumerators(enum_def)
 
+  ##############################################################################
+
+  for enum_def in enum_definitions:
+    name = enum_def['name']
+    print(f'PrintableProgmemString ToPrintableProgmemString({name} v);')
   print()
 
-  # TODO(jamessynge): Add support for generating literals.
+  for enum_def in enum_definitions:
+    name = enum_def['name']
+    print(f'size_t PrintValueTo({name} v, Print& out);')
+  print()
+  print()
+
+  for enum_def in enum_definitions:
+    name = enum_def['name']
+    enumerators = enum_def['enumerators']
+    print(
+        f"""
+PrintableProgmemString ToPrintableProgmemString({name} v) {{
+  switch (v) {{""",
+        end='')
+    for enumerator, dq_string in enumerators:
+      print(
+          f"""
+    case {name}::{enumerator}:
+      return TASLIT({dq_string});""",
+          end='')
+    print(r"""
+  }
+  return PrintableProgmemString();
+}""")
+  print()
+  print()
 
   print(r"""
 namespace {
 size_t PrintUnknownEnumValueTo(const char* name, uint32_t v, Print& out) {
-  size_t result = out.print("Unknown ");
+  size_t result = out.print(TASLIT("Undefined "));
   result += out.print(name);
-  result += out.print(" (");
+  result += out.print(' ');
+  result += out.print('(');
   result += out.print(v);
-  result += out.print(")");
+  result += out.print(')');
   return result;
 }
 }  // namespace
 """)
+  print()
+  print()
 
   for enum_def in enum_definitions:
-    name = enum_def["name"]
-    enumerators = enum_def["enumerators"]
+    name = enum_def['name']
     print(
         f"""
 size_t PrintValueTo({name} v, Print& out) {{
-  switch (v) {{""",
-        end="")
-    for enumerator in enumerators:
-      print(
-          f"""
-    case {name}::{enumerator}:
-      return out.print("{enumerator}");""",
-          end="")
-    print(fr"""
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {{
+    return printable.printTo(out);
   }}
-  return PrintUnknownEnumValueTo("{name}", static_cast<uint32_t>(v), out);
+  return PrintUnknownEnumValueTo(
+        TASLIT("{name}"), static_cast<uint32_t>(v), out);
 }}""")
+  print()
+  print()
 
 
 def main(argv: List[str]):
@@ -426,5 +526,5 @@ def main(argv: List[str]):
     process_file(arg)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   main(sys.argv[:])

@@ -129,6 +129,7 @@ cc_library(
     deps = [
         ":inline_literal",
         ":platform",
+        ":printable_progmem_string",
     ],
 )
 
@@ -203,6 +204,7 @@ cc_library(
 
 cc_library(
     name = "literals",
+    srcs = ["literals.cc"],
     hdrs = ["literals.h"],
     textual_hdrs = ["literals.inc"],
     deps = [

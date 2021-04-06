@@ -22,6 +22,7 @@ struct HttpResponseHeader : public Printable {
   Literal reason_phrase;
   EContentType content_type;
   uint16_t content_length;
+  bool do_close;
 };
 
 // Declare stuff

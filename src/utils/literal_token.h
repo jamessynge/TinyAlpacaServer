@@ -17,9 +17,8 @@ namespace alpaca {
 
 template <typename T>
 struct LiteralToken {
-  // constexpr LiteralToken(const Literal& str, T id) : str(str), id(id) {}
-
-  const Literal str;
+  using LiteralFunc = Literal (*)();
+  const LiteralFunc func;
   const T id;
 };
 
@@ -32,9 +31,10 @@ bool FindFirstMatchingLiteralToken(
     const StringView& view, const ArrayView<const LiteralToken<T>> tokens,
     LiteralMatchFunction func, T& matched_id) {
   for (const auto& token : tokens) {
-    if (func(token.str, view)) {
+    const auto token_str = token.func();
+    if (func(token_str, view)) {
       TAS_VLOG(3) << TASLIT("FindFirstMatchingLiteralToken matched ")
-                  << HexEscaped(token.str) << TASLIT(" to ") << HexEscaped(view)
+                  << HexEscaped(token_str) << TASLIT(" to ") << HexEscaped(view)
                   << TASLIT(", with id ") << (token.id + 0L);
       matched_id = token.id;
       return true;

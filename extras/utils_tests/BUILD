@@ -106,6 +106,7 @@ cc_test(
     deps = [
         ":array_view",
         ":hex_escape",
+        ":literal",
         ":literal_token",
         ":platform",
         ":string_view",

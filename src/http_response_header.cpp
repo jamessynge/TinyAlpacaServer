@@ -24,6 +24,7 @@ void HttpResponseHeader::Reset() {
   reason_phrase = Literal();
   content_type = {};
   content_length = 0;
+  do_close = true;
 }
 
 size_t HttpResponseHeader::printTo(Print& out) const {
@@ -31,11 +32,17 @@ size_t HttpResponseHeader::printTo(Print& out) const {
   count += Literals::HttpVersion().printTo(out);
   count += out.print(' ');
   count += out.print(static_cast<unsigned int>(status_code));
-  count += out.print(' ');
+  count += out.print(' ');  // Required, even if there is no reason phrase.
   if (reason_phrase.size() > 0) {
     count += reason_phrase.printTo(out);
   }
-  count += Literals::CommonResponseHeaders().printTo(out);
+  count += WriteEolHeaderName(Literals::Server(), out);
+  count += Literals::TinyAlpacaServer().printTo(out);
+
+  if (do_close) {
+    count += WriteEolHeaderName(Literals::Connection(), out);
+    count += Literals::close().printTo(out);
+  }
 
   count += WriteEolHeaderName(Literals::HttpContentType(), out);
   switch (content_type) {
@@ -45,6 +52,10 @@ size_t HttpResponseHeader::printTo(Print& out) const {
 
     case EContentType::kTextPlain:
       count += Literals::MimeTypeTextPlain().printTo(out);
+      break;
+
+    case EContentType::kTextHtml:
+      count += Literals::MimeTypeTextHtml().printTo(out);
       break;
   }
   count += WriteEolHeaderName(Literals::HttpContentLength(), out);

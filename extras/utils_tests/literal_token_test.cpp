@@ -6,6 +6,7 @@
 #include "googletest/gtest.h"
 #include "utils/array_view.h"
 #include "utils/hex_escape.h"
+#include "utils/literal.h"
 #include "utils/platform.h"
 #include "utils/string_view.h"
 
@@ -13,27 +14,28 @@ namespace alpaca {
 namespace {
 
 constexpr char kAllLowerStr[] = "some text and 123 (numbers)";
-constexpr char kMixedCaseStr[] = "Some Text And 123 (Numbers)";
-constexpr char kAllUpperStr[] = "SOME TEXT AND 123 (NUMBERS)";
+TAS_DEFINE_LITERAL(AllLowerLiteral, "some text and 123 (numbers)");
 
-TAS_CONSTEXPR_VAR Literal kAllLowerLiteral(kAllLowerStr);
-TAS_CONSTEXPR_VAR Literal kMixedCaseLiteral(kMixedCaseStr);
-TAS_CONSTEXPR_VAR Literal kAllUpperLiteral(kAllUpperStr);
+constexpr char kMixedCaseStr[] = "Some Text And 123 (Numbers)";
+TAS_DEFINE_LITERAL(MixedCaseLiteral, "Some Text And 123 (Numbers)");
+
+constexpr char kAllUpperStr[] = "SOME TEXT AND 123 (NUMBERS)";
+TAS_DEFINE_LITERAL(AllUpperLiteral, "SOME TEXT AND 123 (NUMBERS)");
 
 constexpr uint8_t kAllLowerId = 123;
 constexpr uint8_t kMixedCaseId = 99;
 constexpr uint8_t kAllUpperId = 231;
 
 TAS_CONSTEXPR_VAR LiteralToken<uint8_t> kLMUTokens[] = {
-    {kAllLowerLiteral, kAllLowerId},
-    {kMixedCaseLiteral, kMixedCaseId},
-    {kAllUpperLiteral, kAllUpperId},
+    {AllLowerLiteral, kAllLowerId},
+    {MixedCaseLiteral, kMixedCaseId},
+    {AllUpperLiteral, kAllUpperId},
 };
 
 TAS_CONSTEXPR_VAR LiteralToken<uint8_t> kUMLTokens[] = {
-    {kAllUpperLiteral, kAllUpperId},
-    {kMixedCaseLiteral, kMixedCaseId},
-    {kAllLowerLiteral, kAllLowerId},
+    {AllUpperLiteral, kAllUpperId},
+    {MixedCaseLiteral, kMixedCaseId},
+    {AllLowerLiteral, kAllLowerId},
 };
 
 struct LitCase {
@@ -61,9 +63,9 @@ TEST(LiteralTokenTest, Mismatch) {
   }
   // Doesn't match a string of the same length, but different content.
   {
-    const std::string same_length(kAllLowerLiteral.size(), 'x');
+    const std::string same_length(AllLowerLiteral().size(), 'x');
     StringView view(same_length);
-    EXPECT_EQ(view.size(), kAllLowerLiteral.size());
+    EXPECT_EQ(view.size(), AllLowerLiteral().size());
 
     uint8_t matched_id = 0;
     EXPECT_FALSE(MaybeMatchLiteralTokensExactly(view, MakeArrayView(kLMUTokens),
