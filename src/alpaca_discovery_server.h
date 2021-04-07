@@ -13,10 +13,10 @@ class TinyAlpacaDiscoveryServer {
   explicit TinyAlpacaDiscoveryServer(uint16_t tcp_port) : tcp_port_(tcp_port) {}
 
   // Prepares a UDP socket to listen for Alpaca Discovery Protocol messages.
-  bool begin();
+  bool Initialize();
 
   // Handles UDP requests.
-  void loop();
+  void PerformIO();
 
  private:
   EthernetUDP udp_;

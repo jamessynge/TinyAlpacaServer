@@ -119,10 +119,10 @@ void setup() {
   }
   announceAddresses();
 
-  if (!discovery_server.begin()) {
+  if (!discovery_server.Initialize()) {
     announceFailure("Unable to start listening for Alpaca Discovery messages!");
   }
-  tiny_alpaca_server.begin();
+  tiny_alpaca_server.Initialize();
 }
 
 // For now only supporting one request at a time. Unless there are multiple
@@ -152,6 +152,6 @@ void loop() {
       Serial.println(dhcp_check);
   }
 
-  discovery_server.loop();
-  tiny_alpaca_server.loop();
+  discovery_server.PerformIO();
+  tiny_alpaca_server.PerformIO();
 }

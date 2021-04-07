@@ -37,12 +37,13 @@
 #include "request_listener.h"
 #include "server_connection.h"
 #include "server_description.h"
+#include "tiny_alpaca_request_handler.h"
 #include "utils/array.h"
 #include "utils/platform.h"
 
 namespace alpaca {
 
-class TinyAlpacaServer : RequestListener {
+class TinyAlpacaServer : public TinyAlpacaRequestHandler {
  public:
   using DeviceApiHandlerBasePtr = DeviceApiHandlerBase* const;
 
@@ -61,24 +62,11 @@ class TinyAlpacaServer : RequestListener {
   // Prepares ServerConnections to receive TCP connections and a UDP listener to
   // receive Alpaca Discovery Protocol packets. Returns true if able to do so,
   // false otherwise.
-  bool begin();
+  bool Initialize() override;
 
-  // Performs network IO as appropriate.
-  void loop();
-
- protected:
-  void OnStartDecoding(AlpacaRequest& request) override;
-
-  // Called when a request has been successfully decoded. 'out' should be used
-  // to write a response to the client. Return true to continue decoding more
-  // requests from the client, false to disconnect.
-  bool OnRequestDecoded(AlpacaRequest& request, Print& out) override;
-
-  // Called when decoding of a request has failed. 'out' should be used to write
-  // an error response to the client. The connection to the client will be
-  // closed after the response is returned.
-  void OnRequestDecodingError(AlpacaRequest& request, EHttpStatusCode status,
-                              Print& out) override;
+  // Performs network IO as appropriate, and gives handlers a chance
+  // to perform periodic work.
+  void PerformIO();
 
  private:
   // Not using all of the ports, need to reserve one for UDP and maybe one for
@@ -99,20 +87,7 @@ class TinyAlpacaServer : RequestListener {
   // socket.
   bool AssignServerConnectionToSocket(int sock_num);
 
-  bool DispatchDeviceRequest(AlpacaRequest& request,
-                             DeviceApiHandlerBase& handler, Print& out);
-
-  bool HandleManagementApiVersions(AlpacaRequest& request, Print& out);
-  bool HandleManagementDescription(AlpacaRequest& request, Print& out);
-  bool HandleManagementConfiguredDevices(AlpacaRequest& request, Print& out);
-  bool HandleServerSetup(AlpacaRequest& request, Print& out);
-
-  uint32_t server_transaction_id_;
   uint16_t tcp_port_;
-
-  const ServerDescription& server_description_;
-  ArrayView<DeviceApiHandlerBasePtr> device_handlers_;
-
   alignas(ServerConnection) uint8_t
       connections_storage_[kServerConnectionsStorage];
 };

@@ -19,35 +19,30 @@ bool SocketIsConnected(int sock_num) {
 TinyAlpacaServer::TinyAlpacaServer(
     uint16_t tcp_port, const ServerDescription& server_description,
     ArrayView<DeviceApiHandlerBasePtr> device_handlers)
-    : server_transaction_id_(0),
-      tcp_port_(tcp_port),
-      server_description_(server_description),
-      device_handlers_(device_handlers) {
+    : TinyAlpacaRequestHandler(server_description, device_handlers),
+      tcp_port_(tcp_port) {
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     new (GetServerConnection(ndx)) ServerConnection(*this);
   }
 }
 
-bool TinyAlpacaServer::begin() {
+bool TinyAlpacaServer::Initialize() {
+  if (!TinyAlpacaRequestHandler::Initialize()) {
+    return false;
+  }
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     // EthernetServer::begin() finds a closed hardware socket and puts it to use
     // listening for connections to a TCP port.
     EthernetServer listener(tcp_port_);
     listener.begin();
   }
-  // TODO(jamessynge): Add UDP listener too.
-  for (DeviceApiHandlerBasePtr handler : device_handlers_) {
-    handler->Initialize();
-  }
   return true;
 }
 
 // Performs network IO.
-void TinyAlpacaServer::loop() {
-  // Give devices a chance to perform work.
-  for (DeviceApiHandlerBasePtr handler : device_handlers_) {
-    handler->Loop();
-  }
+void TinyAlpacaServer::PerformIO() {
+  TinyAlpacaRequestHandler::MaintainDevices();
+
   // Find ServerConnections which have been disconnected.
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     auto* conn = GetServerConnection(ndx);
@@ -98,6 +93,7 @@ ServerConnection* TinyAlpacaServer::GetServerConnectionForSocket(int sock_num) {
   }
   return nullptr;
 }
+
 bool TinyAlpacaServer::AssignServerConnectionToSocket(int sock_num) {
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     auto* conn = GetServerConnection(ndx);
@@ -107,102 +103,6 @@ bool TinyAlpacaServer::AssignServerConnectionToSocket(int sock_num) {
   }
   TAS_VLOG(1) << TASLIT("There aren't enough ServerConnections");
   return false;
-}
-
-void TinyAlpacaServer::OnStartDecoding(AlpacaRequest& request) {
-  request.set_server_transaction_id(++server_transaction_id_);
-}
-
-// Called when a request has been successfully decoded. 'out' should be used
-// to write a response to the client. Return true to continue decoding more
-// requests from the client, false to disconnect.
-bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
-  TAS_VLOG(3) << TASLIT("OnRequestDecoded: api=") << request.api;
-  switch (request.api) {
-    case EAlpacaApi::kUnknown:
-      break;
-
-    case EAlpacaApi::kDeviceApi:
-      // ABSL_FALLTHROUGH_INTENDED
-    case EAlpacaApi::kDeviceSetup:
-      TAS_VLOG(3) << TASLIT("OnRequestDecoded: device_type=")
-                  << request.device_type << TASLIT(", device_number=")
-                  << request.device_number;
-      for (DeviceApiHandlerBasePtr handler : device_handlers_) {
-        if (request.device_type == handler->device_type() &&
-            request.device_number == handler->device_number()) {
-          return DispatchDeviceRequest(request, *handler, out);
-        }
-      }
-      TAS_VLOG(3) << TASLIT("OnRequestDecoded: found no Device API Handler");
-      // Should this be an ASCOM error, or is an HTTP status OK?
-      return WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpNotFound,
-                                              Literals::NoSuchDevice(), out);
-
-    case EAlpacaApi::kManagementApiVersions:
-      return HandleManagementApiVersions(request, out);
-
-    case EAlpacaApi::kManagementDescription:
-      return HandleManagementDescription(request, out);
-
-    case EAlpacaApi::kManagementConfiguredDevices:
-      return HandleManagementConfiguredDevices(request, out);
-
-    case EAlpacaApi::kServerSetup:
-      return HandleServerSetup(request, out);
-  }
-
-  return WriteResponse::HttpErrorResponse(
-      EHttpStatusCode::kHttpInternalServerError, Literals::ApiUnknown(), out);
-}
-
-// Called when decoding of a request has failed. 'out' should be used to write
-// an error response to the client. The connection to the client will be
-// closed after the response is returned.
-void TinyAlpacaServer::OnRequestDecodingError(AlpacaRequest& request,
-                                              EHttpStatusCode status,
-                                              Print& out) {
-  TAS_VLOG(3) << TASLIT("OnRequestDecodingError: status=") << status;
-  WriteResponse::HttpErrorResponse(status, AnyPrintable(), out);
-}
-
-bool TinyAlpacaServer::DispatchDeviceRequest(AlpacaRequest& request,
-                                             DeviceApiHandlerBase& handler,
-                                             Print& out) {
-  if (request.api == EAlpacaApi::kDeviceApi) {
-    TAS_VLOG(3) << TASLIT("DispatchDeviceRequest: device_method=")
-                << request.device_method;
-    return handler.HandleDeviceApiRequest(request, out);
-  } else if (request.api == EAlpacaApi::kDeviceSetup) {
-    return handler.HandleDeviceApiRequest(request, out);
-  } else {
-    return WriteResponse::HttpErrorResponse(
-        EHttpStatusCode::kHttpInternalServerError,
-        Literals::HttpMethodNotImplemented(), out);
-  }
-}
-
-bool TinyAlpacaServer::HandleManagementApiVersions(AlpacaRequest& request,
-                                                   Print& out) {
-  TAS_VLOG(3) << TASLIT("HandleManagementApiVersions");
-  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
-}
-
-bool TinyAlpacaServer::HandleManagementDescription(AlpacaRequest& request,
-                                                   Print& out) {
-  TAS_VLOG(3) << TASLIT("HandleManagementDescription");
-  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
-}
-
-bool TinyAlpacaServer::HandleManagementConfiguredDevices(AlpacaRequest& request,
-                                                         Print& out) {
-  TAS_VLOG(3) << TASLIT("HandleManagementConfiguredDevices");
-  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
-}
-
-bool TinyAlpacaServer::HandleServerSetup(AlpacaRequest& request, Print& out) {
-  TAS_VLOG(3) << TASLIT("HandleServerSetup");
-  return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
 }  // namespace alpaca

@@ -14,11 +14,11 @@ constexpr uint16_t kAlpacaDiscoveryPort = 32227;
 
 }  // namespace
 
-bool TinyAlpacaDiscoveryServer::begin() {
+bool TinyAlpacaDiscoveryServer::Initialize() {
   return udp_.begin(kAlpacaDiscoveryPort);
 }
 
-void TinyAlpacaDiscoveryServer::loop() {
+void TinyAlpacaDiscoveryServer::PerformIO() {
   int packet_size = udp_.parsePacket();
   if (packet_size == 0) {
     return;

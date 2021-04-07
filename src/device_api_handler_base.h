@@ -30,7 +30,7 @@ class DeviceApiHandlerBase {
   // Called periodically to enable the device to perform long running
   // operations (e.g. to measure the temperature and accumulate an
   // average value).
-  virtual void Loop() {}
+  virtual void Update() {}
 
   // Fill buffer with up to buffer_size unique bytes from the hardware, return
   // the number of unique bytes available. Return 0 (or don't override) if the
