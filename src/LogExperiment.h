@@ -12,10 +12,10 @@
     defined(TAS_LOG_EXPERIMENT_DO_CHECK) ||             \
     defined(TAS_LOG_EXPERIMENT_DO_DCHECK)
 #include "utils/logging.h"
-#endif
-
 #include "utils/inline_literal.h"
 #include "utils/platform.h"
+#endif
+
 
 void setup() {  // NOLINT
   // Setup serial, wait for it to be ready so that our logging messages can be
@@ -25,6 +25,11 @@ void setup() {  // NOLINT
   // (TBD), else the initial output gets lost.
   while (!Serial) {
   }
+  Serial.print('s');
+  Serial.print('e');
+  Serial.print('t');
+  Serial.print('u');
+  Serial.println('p');
 
 #ifdef TAS_LOG_EXPERIMENT_DO_LOG
   TAS_VLOG(1) << TASLIT("Serial is ready");
@@ -69,11 +74,14 @@ void setup() {  // NOLINT
   } else  // NOLINT: Checking the else behavior.
     TAS_DCHECK(true) << TASLIT("TAS_DCHECK should NOT fail");
 #endif
+
+  Serial.print('d');
+  Serial.print('o');
+  Serial.print('n');
+  Serial.println('e');
 }
 
 void loop() {  // NOLINT
-  Serial.println(TASLIT("loop entry"));
-  delay(1000);
 }
 
 #endif  // TAS_DO_LOG_EXPERIMENT

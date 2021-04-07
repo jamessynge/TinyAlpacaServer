@@ -12,7 +12,14 @@
 
 // Allow the file that is including LogExperiment.h to control the setting of
 // the logging.h enable macros.
-#ifndef TAS_DO_LOG_EXPERIMENT
+#ifdef TAS_DO_LOG_EXPERIMENT
+
+namespace UTILS_CONFIG {
+extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
+}
+
+#else
+
 
 #ifdef ARDUINO
 // On Arduino we leave TAS_CHECK enabled, but not TAS_VLOG or TAS_DCHECK.

@@ -85,12 +85,20 @@
         ? (void)0                    \
         : ::alpaca::LogSinkVoidify() && ::alpaca::LogSink()
 
+#ifdef TAS_DO_LOG_EXPERIMENT
+extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
+#endif  // TAS_DO_LOG_EXPERIMENT
+
 #else
 
 #define TAS_VLOG(level) \
   switch (0)            \
   default:              \
     (true) ? (void)0 : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+
+#ifdef TAS_DO_LOG_EXPERIMENT
+extern void [[TAS_VLOG_uses_THE_VOID_SINK]] SomeFuncA();
+#endif  // TAS_DO_LOG_EXPERIMENT
 
 #endif
 
@@ -106,6 +114,10 @@
         ? (void)0                                \
         : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(TASLIT(message))
 
+#ifdef TAS_DO_LOG_EXPERIMENT
+extern void [[TAS_ENABLE_CHECK_is_defined]] SomeFuncB();
+#endif  // TAS_DO_LOG_EXPERIMENT
+
 #else  // !TAS_ENABLE_CHECK
 
 #define TAS_CHECK_INTERNAL_(expression, message) \
@@ -113,6 +125,10 @@
   default:                                       \
     (true || (expression)) ? (void)0             \
                            : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+
+#ifdef TAS_DO_LOG_EXPERIMENT
+extern void [[TAS_ENABLE_CHECK_is_NOT_defined]] SomeFuncB();
+#endif  // TAS_DO_LOG_EXPERIMENT
 
 #endif  // TAS_ENABLE_CHECK
 
@@ -137,6 +153,10 @@
         ? (void)0                                 \
         : ::alpaca::LogSinkVoidify() && ::alpaca::CheckSink(TASLIT(message))
 
+#ifdef TAS_DO_LOG_EXPERIMENT
+extern void [[TAS_ENABLE_DCHECK_is_defined]] SomeFuncC();
+#endif  // TAS_DO_LOG_EXPERIMENT
+
 #else
 
 #define TAS_DCHECK_INTERNAL_(expression, message) \
@@ -144,6 +164,10 @@
   default:                                        \
     (true || (expression)) ? (void)0              \
                            : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+
+#ifdef TAS_DO_LOG_EXPERIMENT
+extern void [[TAS_ENABLE_DCHECK_is_NOT_defined]] SomeFuncC();
+#endif  // TAS_DO_LOG_EXPERIMENT
 
 #endif
 
