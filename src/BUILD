@@ -39,6 +39,7 @@ cc_library(
         ":platform_ethernet",
         ":print_to_trait",
         ":printable_cat",
+        ":printable_progmem_string",
         ":request_decoder",
         ":request_decoder_listener",
         ":request_listener",
@@ -49,6 +50,7 @@ cc_library(
         ":status_or",
         ":string_compare",
         ":string_view",
+        ":tiny_alpaca_request_handler",
         ":tiny_alpaca_server",
         ":tiny_string",
         ":type_traits",
@@ -312,6 +314,25 @@ cc_library(
 )
 
 cc_library(
+    name = "tiny_alpaca_request_handler",
+    srcs = ["tiny_alpaca_request_handler.cc"],
+    hdrs = ["tiny_alpaca_request_handler.h"],
+    deps = [
+        ":alpaca_response",
+        ":any_printable",
+        ":array",
+        ":device_api_handler_base",
+        ":literals",
+        ":logging",
+        ":platform",
+        ":platform_ethernet",
+        ":request_listener",
+        ":server_description",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "tiny_alpaca_server",
     srcs = ["tiny_alpaca_server.cc"],
     hdrs = ["tiny_alpaca_server.h"],
@@ -328,5 +349,6 @@ cc_library(
         ":server_connection",
         ":server_description",
         ":string_view",
+        ":tiny_alpaca_request_handler",
     ],
 )

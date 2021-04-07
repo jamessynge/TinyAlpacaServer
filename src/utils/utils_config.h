@@ -10,16 +10,17 @@
 //
 // Author: james.synge@gmail.com
 
+#ifdef TAS_DO_LOG_EXPERIMENT
 // Allow the file that is including LogExperiment.h to control the setting of
 // the logging.h enable macros.
-#ifdef TAS_DO_LOG_EXPERIMENT
 
+#ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 namespace UTILS_CONFIG {
 extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
 }
+#endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 
-#else
-
+#else  // !TAS_DO_LOG_EXPERIMENT
 
 #ifdef ARDUINO
 // On Arduino we leave TAS_CHECK enabled, but not TAS_VLOG or TAS_DCHECK.
@@ -54,6 +55,6 @@ extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
 
 #endif  // ARDUINO
 
-#endif  // !TAS_DO_LOG_EXPERIMENT
+#endif  // TAS_DO_LOG_EXPERIMENT
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_UTILS_CONFIG_H_

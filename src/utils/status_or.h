@@ -51,20 +51,21 @@ class StatusOr {
 
 }  // namespace alpaca
 
-#define ASSIGN_OR_RETURN(lhs, status_or_expression)                \
-  ASSIGN_OR_RETURN_IMPL_(                                          \
-      STATUS_MACROS_CONCAT_NAME(_status_or_value_, __LINE__), lhs, \
+#define TAS_ASSIGN_OR_RETURN(lhs, status_or_expression)                \
+  TAS_ASSIGN_OR_RETURN_IMPL_(                                          \
+      TAS_STATUS_MACROS_CONCAT_NAME(_status_or_value_, __LINE__), lhs, \
       status_or_expression)
 
-#define ASSIGN_OR_RETURN_IMPL_(statusor, lhs, status_or_expression) \
-  auto statusor = status_or_expression;                             \
-  if (!statusor.ok()) {                                             \
-    return statusor.status();                                       \
-  }                                                                 \
+#define TAS_ASSIGN_OR_RETURN_IMPL_(statusor, lhs, status_or_expression) \
+  auto statusor = status_or_expression;                                 \
+  if (!statusor.ok()) {                                                 \
+    return statusor.status();                                           \
+  }                                                                     \
   lhs = statusor.value();
 
 // Internal helper for concatenating macro values.
-#define STATUS_MACROS_CONCAT_NAME_INNER_(x, y) x##y
-#define STATUS_MACROS_CONCAT_NAME(x, y) STATUS_MACROS_CONCAT_NAME_INNER_(x, y)
+#define TAS_STATUS_MACROS_CONCAT_NAME_INNER_(x, y) x##y
+#define TAS_STATUS_MACROS_CONCAT_NAME(x, y) \
+  TAS_STATUS_MACROS_CONCAT_NAME_INNER_(x, y)
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_STATUS_OR_H_

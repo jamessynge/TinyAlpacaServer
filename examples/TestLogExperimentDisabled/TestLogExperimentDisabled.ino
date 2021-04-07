@@ -36,7 +36,8 @@ TAS_LOG_EXPERIMENT_DO_LOG
 Several TAS_VLOG statements, but TAS_ENABLED_VLOG_LEVEL is undefined.
 
 Sketch uses 2594 bytes (1%) of program storage space. Maximum is 253952 bytes.
-Global variables use 327 bytes (3%) of dynamic memory, leaving 7865 bytes for local variables. Maximum is 8192 bytes.
+Global variables use 327 bytes (3%) of dynamic memory, leaving 7865 bytes for
+local variables. Maximum is 8192 bytes.
 
 At least we didn't pickup any additional stuff.
 
@@ -47,7 +48,8 @@ TAS_LOG_EXPERIMENT_DO_CHECK
 Several TAS_CHECK statements, but TAS_ENABLE_CHECK is undefined.
 
 Sketch uses 2594 bytes (1%) of program storage space. Maximum is 253952 bytes.
-Global variables use 327 bytes (3%) of dynamic memory, leaving 7865 bytes for local variables. Maximum is 8192 bytes.
+Global variables use 327 bytes (3%) of dynamic memory, leaving 7865 bytes for
+local variables. Maximum is 8192 bytes.
 
 At least we didn't pickup any additional stuff.
 
@@ -58,7 +60,8 @@ TAS_LOG_EXPERIMENT_DO_DCHECK
 Several TAS_DCHECK statements, but TAS_ENABLE_DCHECK is undefined.
 
 Sketch uses 2594 bytes (1%) of program storage space. Maximum is 253952 bytes.
-Global variables use 327 bytes (3%) of dynamic memory, leaving 7865 bytes for local variables. Maximum is 8192 bytes.
+Global variables use 327 bytes (3%) of dynamic memory, leaving 7865 bytes for
+local variables. Maximum is 8192 bytes.
 
 At least we didn't pickup any additional stuff. The same applies if
 TAS_ENABLE_CHECK is defined while TAS_ENABLE_DCHECK is undefined.

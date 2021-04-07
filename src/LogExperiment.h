@@ -11,11 +11,10 @@
     defined(TAS_LOG_EXPERIMENT_DO_LOG) ||               \
     defined(TAS_LOG_EXPERIMENT_DO_CHECK) ||             \
     defined(TAS_LOG_EXPERIMENT_DO_DCHECK)
-#include "utils/logging.h"
 #include "utils/inline_literal.h"
+#include "utils/logging.h"
 #include "utils/platform.h"
 #endif
-
 
 void setup() {  // NOLINT
   // Setup serial, wait for it to be ready so that our logging messages can be
@@ -25,6 +24,7 @@ void setup() {  // NOLINT
   // (TBD), else the initial output gets lost.
   while (!Serial) {
   }
+  // Using char's to avoid having a string copied from PROGMEM to RAM.
   Serial.print('s');
   Serial.print('e');
   Serial.print('t');
@@ -75,6 +75,7 @@ void setup() {  // NOLINT
     TAS_DCHECK(true) << TASLIT("TAS_DCHECK should NOT fail");
 #endif
 
+  // Using char's to avoid having a string copied from PROGMEM to RAM.
   Serial.print('d');
   Serial.print('o');
   Serial.print('n');

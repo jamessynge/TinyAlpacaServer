@@ -14,8 +14,7 @@ TinyAlpacaRequestHandler::TinyAlpacaRequestHandler(
     ArrayView<DeviceApiHandlerBasePtr> device_handlers)
     : server_transaction_id_(0),
       server_description_(server_description),
-      device_handlers_(device_handlers) {
-}
+      device_handlers_(device_handlers) {}
 
 bool TinyAlpacaRequestHandler::Initialize() {
   for (DeviceApiHandlerBasePtr handler : device_handlers_) {
@@ -35,7 +34,8 @@ void TinyAlpacaRequestHandler::OnStartDecoding(AlpacaRequest& request) {
   request.set_server_transaction_id(++server_transaction_id_);
 }
 
-bool TinyAlpacaRequestHandler::OnRequestDecoded(AlpacaRequest& request, Print& out) {
+bool TinyAlpacaRequestHandler::OnRequestDecoded(AlpacaRequest& request,
+                                                Print& out) {
   TAS_VLOG(3) << TASLIT("OnRequestDecoded: api=") << request.api;
   switch (request.api) {
     case EAlpacaApi::kUnknown:
@@ -79,15 +79,14 @@ bool TinyAlpacaRequestHandler::OnRequestDecoded(AlpacaRequest& request, Print& o
 // an error response to the client. The connection to the client will be
 // closed after the response is returned.
 void TinyAlpacaRequestHandler::OnRequestDecodingError(AlpacaRequest& request,
-                                              EHttpStatusCode status,
-                                              Print& out) {
+                                                      EHttpStatusCode status,
+                                                      Print& out) {
   TAS_VLOG(3) << TASLIT("OnRequestDecodingError: status=") << status;
   WriteResponse::HttpErrorResponse(status, AnyPrintable(), out);
 }
 
-bool TinyAlpacaRequestHandler::DispatchDeviceRequest(AlpacaRequest& request,
-                                             DeviceApiHandlerBase& handler,
-                                             Print& out) {
+bool TinyAlpacaRequestHandler::DispatchDeviceRequest(
+    AlpacaRequest& request, DeviceApiHandlerBase& handler, Print& out) {
   if (request.api == EAlpacaApi::kDeviceApi) {
     TAS_VLOG(3) << TASLIT("DispatchDeviceRequest: device_method=")
                 << request.device_method;
@@ -101,25 +100,26 @@ bool TinyAlpacaRequestHandler::DispatchDeviceRequest(AlpacaRequest& request,
   }
 }
 
-bool TinyAlpacaRequestHandler::HandleManagementApiVersions(AlpacaRequest& request,
-                                                   Print& out) {
+bool TinyAlpacaRequestHandler::HandleManagementApiVersions(
+    AlpacaRequest& request, Print& out) {
   TAS_VLOG(3) << TASLIT("HandleManagementApiVersions");
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
-bool TinyAlpacaRequestHandler::HandleManagementDescription(AlpacaRequest& request,
-                                                   Print& out) {
+bool TinyAlpacaRequestHandler::HandleManagementDescription(
+    AlpacaRequest& request, Print& out) {
   TAS_VLOG(3) << TASLIT("HandleManagementDescription");
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
-bool TinyAlpacaRequestHandler::HandleManagementConfiguredDevices(AlpacaRequest& request,
-                                                         Print& out) {
+bool TinyAlpacaRequestHandler::HandleManagementConfiguredDevices(
+    AlpacaRequest& request, Print& out) {
   TAS_VLOG(3) << TASLIT("HandleManagementConfiguredDevices");
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
 
-bool TinyAlpacaRequestHandler::HandleServerSetup(AlpacaRequest& request, Print& out) {
+bool TinyAlpacaRequestHandler::HandleServerSetup(AlpacaRequest& request,
+                                                 Print& out) {
   TAS_VLOG(3) << TASLIT("HandleServerSetup");
   return WriteResponse::AscomNotImplementedErrorResponse(request, out);
 }
