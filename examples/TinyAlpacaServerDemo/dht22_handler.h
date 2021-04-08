@@ -12,7 +12,7 @@ class Dht22Handler : public alpaca::ObservingConditionsAdapter {
 
   alpaca::StatusOr<float> GetHumidity() override;
   alpaca::StatusOr<float> GetTemperature() override;
-  bool GetConnected() override;
+  alpaca::StatusOr<bool> GetConnected() override;
   alpaca::StatusOr<alpaca::Literal> GetSensorDescription(
       alpaca::ESensorName sensor_name) override;
 };

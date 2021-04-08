@@ -6,13 +6,13 @@
 //
 // Author: james.synge@gmail.com
 
-#include "device_api_handler_base.h"
+#include "device_impl_base.h"
 #include "utils/platform.h"
 #include "utils/status_or.h"
 
 namespace alpaca {
 
-class ObservingConditionsAdapter : public DeviceApiHandlerBase {
+class ObservingConditionsAdapter : public DeviceImplBase {
  public:
   explicit ObservingConditionsAdapter(const DeviceInfo& device_info);
 
@@ -25,7 +25,7 @@ class ObservingConditionsAdapter : public DeviceApiHandlerBase {
   // Handles PUT 'request', writes the HTTP response message to 'out'. Delegates
   // a PUT averageperiod request to SetAveragePeriod and a PUT referesh request
   // to Refresh; any other ASCOM method is delegated to the base class,
-  // DeviceApiHandlerBase. Returns true to indicate that the response was
+  // DeviceImplBase. Returns true to indicate that the response was
   // written without error, otherwise false, in which case the connection to the
   // client will be closed.
   bool HandlePutRequest(const AlpacaRequest& request, Print& out) override;

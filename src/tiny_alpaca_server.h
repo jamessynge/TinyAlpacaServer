@@ -33,63 +33,44 @@
 // AlpacaRequest and Print instances into the listener methods, thus avoiding
 // the need for actual network IO during testing.
 
-#include "device_api_handler_base.h"
-#include "request_listener.h"
-#include "server_connection.h"
+#include "alpaca_devices.h"
+#include "alpaca_discovery_server.h"
+#include "device_impl_base.h"
+#include "server_connections.h"
 #include "server_description.h"
-#include "tiny_alpaca_request_handler.h"
-#include "utils/array.h"
+#include "utils/array_view.h"
 #include "utils/platform.h"
 
 namespace alpaca {
 
-class TinyAlpacaServer : public TinyAlpacaRequestHandler {
+class TinyAlpacaServer {
  public:
-  using DeviceApiHandlerBasePtr = DeviceApiHandlerBase* const;
+  using DeviceInterfacePtr = DeviceInterface* const;
 
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   ArrayView<DeviceApiHandlerBasePtr> device_handlers);
+                   ArrayView<DeviceInterfacePtr> devices);
 
   template <size_t N>
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   DeviceApiHandlerBasePtr (&device_handlers)[N])
-      : TinyAlpacaServer(
-            tcp_port, server_description,
-            ArrayView<DeviceApiHandlerBasePtr>(device_handlers, N)) {}
+                   DeviceInterfacePtr (&devices)[N])
+      : TinyAlpacaServer(tcp_port, server_description,
+                         ArrayView<DeviceInterfacePtr>(devices, N)) {}
 
   // Prepares ServerConnections to receive TCP connections and a UDP listener to
   // receive Alpaca Discovery Protocol packets. Returns true if able to do so,
   // false otherwise.
-  bool Initialize() override;
+  bool Initialize();
 
   // Performs network IO as appropriate, and gives handlers a chance
   // to perform periodic work.
   void PerformIO();
 
  private:
-  // Not using all of the ports, need to reserve one for UDP and maybe one for
-  // outbound connections to a time server.
-  static constexpr size_t kNumServerConnections = 4;
-  using ServerConnectionsArray = ServerConnection[kNumServerConnections];
-  static constexpr size_t kServerConnectionsStorage =
-      sizeof(ServerConnectionsArray);
-
-  // Returns a pointer to the ServerConnection with index 'ndx', where 'ndx' is
-  // in the range [0, kNumServerConnections-1].
-  ServerConnection* GetServerConnection(size_t ndx);
-
-  // Returns a pointer to the ServerConnection assigned to socket 'sock_num'.
-  ServerConnection* GetServerConnectionForSocket(int sock_num);
-
-  // Finds a ServerConnection that isn't in use and assigns it to the specified
-  // socket.
-  bool AssignServerConnectionToSocket(int sock_num);
-
-  uint16_t tcp_port_;
-  alignas(ServerConnection) uint8_t
-      connections_storage_[kServerConnectionsStorage];
+  AlpacaDevices alpaca_devices_;
+  ServerConnections server_connections_;
+  TinyAlpacaDiscoveryServer discovery_server_;
 };
 
 }  // namespace alpaca

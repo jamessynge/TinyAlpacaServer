@@ -4,6 +4,7 @@
 // DeviceInfo provides data used used to respond to "Common ASCOM Methods", i.e.
 // requests for common info about a device, and it also provides the list of
 // support custom actions (also accessed via the common ASCOM methods).
+
 #include "constants.h"
 #include "utils/json_encoder.h"
 #include "utils/literal.h"

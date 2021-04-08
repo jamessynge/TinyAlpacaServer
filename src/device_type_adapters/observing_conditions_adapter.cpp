@@ -9,7 +9,7 @@ namespace alpaca {
 
 ObservingConditionsAdapter::ObservingConditionsAdapter(
     const DeviceInfo& device_info)
-    : DeviceApiHandlerBase(device_info) {}
+    : DeviceImplBase(device_info) {}
 
 // Handle a GET 'request', write the HTTP response message to out.
 bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
@@ -70,14 +70,14 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
     case EDeviceMethod::kWindSpeed:
       return WriteResponse::StatusOrFloatResponse(request, GetWindSpeed(), out);
     default:
-      return DeviceApiHandlerBase::HandleGetRequest(request, out);
+      return DeviceImplBase::HandleGetRequest(request, out);
   }
 }
 
 // Handle a PUT 'request', write the HTTP response message to out.
 bool ObservingConditionsAdapter::HandlePutRequest(const AlpacaRequest& request,
                                                   Print& out) {
-  return DeviceApiHandlerBase::HandlePutRequest(request, out);
+  return DeviceImplBase::HandlePutRequest(request, out);
 }
 
 StatusOr<float> ObservingConditionsAdapter::GetAveragePeriod() {

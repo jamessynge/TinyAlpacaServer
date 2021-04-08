@@ -15,8 +15,9 @@
 #include "ascom_error_codes.h"        // IWYU pragma: export
 #include "config.h"                   // IWYU pragma: export
 #include "constants.h"                // IWYU pragma: export
-#include "device_api_handler_base.h"  // IWYU pragma: export
+#include "device_impl_base.h"         // IWYU pragma: export
 #include "device_info.h"              // IWYU pragma: export
+#include "device_interface.h"         // IWYU pragma: export
 #include "device_type_adapters/observing_conditions_adapter.h"  // IWYU pragma: export
 #include "extra_parameters.h"                // IWYU pragma: export
 #include "http_response_header.h"            // IWYU pragma: export
@@ -28,7 +29,6 @@
 #include "request_listener.h"                // IWYU pragma: export
 #include "server_connection.h"               // IWYU pragma: export
 #include "server_description.h"              // IWYU pragma: export
-#include "tiny_alpaca_request_handler.h"     // IWYU pragma: export
 #include "tiny_alpaca_server.h"              // IWYU pragma: export
 #include "utils/addresses.h"                 // IWYU pragma: export
 #include "utils/any_printable.h"             // IWYU pragma: export

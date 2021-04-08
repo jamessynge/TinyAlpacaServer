@@ -1,4 +1,4 @@
-#include "device_api_handler_base.h"
+#include "device_impl_base.h"
 
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
@@ -10,24 +10,15 @@
 
 namespace alpaca {
 
-DeviceApiHandlerBase::DeviceApiHandlerBase(const DeviceInfo& device_info)
-    : device_info_(device_info) {}
-DeviceApiHandlerBase::~DeviceApiHandlerBase() {}
-
-size_t DeviceApiHandlerBase::GetUniqueBytes(uint8_t* buffer,
-                                            size_t buffer_size) {
-  return 0;
-}
-
-bool DeviceApiHandlerBase::HandleDeviceSetupRequest(
-    const AlpacaRequest& request, Print& out) {
+bool DeviceImplBase::HandleDeviceSetupRequest(const AlpacaRequest& request,
+                                              Print& out) {
   return WriteResponse::AscomErrorResponse(
       request, ErrorCodes::ActionNotImplemented().code(),
       Literals::HttpMethodNotImplemented(), out);
 }
 
-bool DeviceApiHandlerBase::HandleDeviceApiRequest(const AlpacaRequest& request,
-                                                  Print& out) {
+bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
+                                            Print& out) {
   switch (request.http_method) {
     case EHttpMethod::GET:
     case EHttpMethod::HEAD:
@@ -49,11 +40,11 @@ bool DeviceApiHandlerBase::HandleDeviceApiRequest(const AlpacaRequest& request,
       Literals::HttpMethodNotImplemented(), out);
 }
 
-bool DeviceApiHandlerBase::HandleGetRequest(const AlpacaRequest& request,
-                                            Print& out) {
+bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
+                                      Print& out) {
   switch (request.device_method) {
     case EDeviceMethod::kConnected:
-      return WriteResponse::BoolResponse(request, GetConnected(), out);
+      return WriteResponse::StatusOrBoolResponse(request, GetConnected(), out);
 
     case EDeviceMethod::kDescription:
       return WriteResponse::StringResponse(request, device_info_.description,
@@ -79,15 +70,13 @@ bool DeviceApiHandlerBase::HandleGetRequest(const AlpacaRequest& request,
           request, device_info_.supported_actions, out);
 
     default:
-      // TODO(jamessynge): Write a NOT IMPLEMENTED error response.
       return WriteResponse::AscomErrorResponse(
-          request, ErrorCodes::ActionNotImplemented().code(),
-          Literals::HttpMethodNotImplemented(), out);
+          request, ErrorCodes::ActionNotImplemented(), out);
   }
 }
 
-bool DeviceApiHandlerBase::HandlePutRequest(const AlpacaRequest& request,
-                                            Print& out) {
+bool DeviceImplBase::HandlePutRequest(const AlpacaRequest& request,
+                                      Print& out) {
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,
       Literals::HttpMethodNotImplemented(), out);

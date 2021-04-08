@@ -1,10 +1,12 @@
-#ifndef TINY_ALPACA_SERVER_SRC_TINY_ALPACA_REQUEST_HANDLER_H_
-#define TINY_ALPACA_SERVER_SRC_TINY_ALPACA_REQUEST_HANDLER_H_
+#ifndef TINY_ALPACA_SERVER_SRC_ALPACA_DEVICES_H_
+#define TINY_ALPACA_SERVER_SRC_ALPACA_DEVICES_H_
 
-// TinyAlpacaRequestHandler owns the Device Handlers and dispatches requests
-// to the appropriate handler or method.
+// AlpacaDevices is responsible for dispatching the appropriate HTTP requests to
+// DeviceInterface implementations (e.g. an instance that implements an ASCOM
+// Alpaca ObservingConditions device), and for providing them periodic Update
+// calls.
 
-#include "device_api_handler_base.h"
+#include "device_impl_base.h"
 #include "request_listener.h"
 #include "server_description.h"
 #include "utils/array.h"
@@ -12,19 +14,12 @@
 
 namespace alpaca {
 
-class TinyAlpacaRequestHandler : public RequestListener {
+class AlpacaDevices : public RequestListener {
  public:
-  using DeviceApiHandlerBasePtr = DeviceApiHandlerBase* const;
+  using DeviceInterfacePtr = DeviceInterface* const;
 
-  TinyAlpacaRequestHandler(const ServerDescription& server_description,
-                           ArrayView<DeviceApiHandlerBasePtr> device_handlers);
-
-  template <size_t N>
-  TinyAlpacaRequestHandler(const ServerDescription& server_description,
-                           DeviceApiHandlerBasePtr (&device_handlers)[N])
-      : TinyAlpacaRequestHandler(
-            server_description,
-            ArrayView<DeviceApiHandlerBasePtr>(device_handlers, N)) {}
+  AlpacaDevices(const ServerDescription& server_description,
+                ArrayView<DeviceInterfacePtr> devices);
 
   // Prepares the server and device handlers to receive requests. Returns true
   // if able to do so, false otherwise.
@@ -41,8 +36,8 @@ class TinyAlpacaRequestHandler : public RequestListener {
                               Print& out) override;
 
  private:
-  bool DispatchDeviceRequest(AlpacaRequest& request,
-                             DeviceApiHandlerBase& handler, Print& out);
+  bool DispatchDeviceRequest(AlpacaRequest& request, DeviceInterface& handler,
+                             Print& out);
   bool HandleManagementApiVersions(AlpacaRequest& request, Print& out);
   bool HandleManagementDescription(AlpacaRequest& request, Print& out);
   bool HandleManagementConfiguredDevices(AlpacaRequest& request, Print& out);
@@ -50,9 +45,9 @@ class TinyAlpacaRequestHandler : public RequestListener {
 
   uint32_t server_transaction_id_;
   const ServerDescription& server_description_;
-  ArrayView<DeviceApiHandlerBasePtr> device_handlers_;
+  ArrayView<DeviceInterfacePtr> devices_;
 };
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_TINY_ALPACA_REQUEST_HANDLER_H_
+#endif  // TINY_ALPACA_SERVER_SRC_ALPACA_DEVICES_H_

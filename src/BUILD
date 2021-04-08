@@ -1,4 +1,4 @@
-# Bazel BUILD file for this package.
+# Bazel BUILD file for Tiny Alpaca Server. Needs work support building on an arbitrary machine.
 
 cc_library(
     name = "TinyAlpacaServer",
@@ -16,8 +16,9 @@ cc_library(
         ":connection",
         ":constants",
         ":counting_bitbucket",
-        ":device_api_handler_base",
+        ":device_impl_base",
         ":device_info",
+        ":device_interface",
         ":eeprom_io",
         ":extra_parameters",
         ":hex_escape",
@@ -50,11 +51,29 @@ cc_library(
         ":status_or",
         ":string_compare",
         ":string_view",
-        ":tiny_alpaca_request_handler",
         ":tiny_alpaca_server",
         ":tiny_string",
         ":type_traits",
         ":utils_config",
+    ],
+)
+
+cc_library(
+    name = "alpaca_devices",
+    srcs = ["alpaca_devices.cc"],
+    hdrs = ["alpaca_devices.h"],
+    deps = [
+        ":alpaca_response",
+        ":any_printable",
+        ":array",
+        ":device_impl_base",
+        ":literals",
+        ":logging",
+        ":platform",
+        ":platform_ethernet",
+        ":request_listener",
+        ":server_description",
+        ":string_view",
     ],
 )
 
@@ -117,8 +136,8 @@ cc_library(
     ],
 )
 
-# config.h specifies the set of features available (e.g. std::string) on
-# the target platform of the Tiny Alpaca Server.
+# config.h specifies the set of features available in the server (e.g. storing extra
+# parameters beyond those with hardcoded support in AlpacaRequest and RequestDecoder).
 cc_library(
     name = "config",
     hdrs = ["config.h"],
@@ -136,9 +155,9 @@ cc_library(
 )
 
 cc_library(
-    name = "device_api_handler_base",
-    srcs = ["device_api_handler_base.cc"],
-    hdrs = ["device_api_handler_base.h"],
+    name = "device_impl_base",
+    srcs = ["device_impl_base.cc"],
+    hdrs = ["device_impl_base.h"],
     deps = [
         ":alpaca_request",
         ":alpaca_response",
@@ -146,10 +165,13 @@ cc_library(
         ":constants",
         ":counting_bitbucket",
         ":device_info",
+        ":device_interface",
         ":http_response_header",
         ":json_encoder",
         ":literals",
         ":platform",
+        ":status",
+        ":status_or",
     ],
 )
 
@@ -164,6 +186,16 @@ cc_library(
         ":literals",
         ":platform",
         ":string_view",
+    ],
+)
+
+cc_library(
+    name = "device_interface",
+    hdrs = ["device_interface.h"],
+    deps = [
+        ":alpaca_request",
+        ":device_info",
+        ":platform",
     ],
 )
 
@@ -301,6 +333,17 @@ cc_library(
 )
 
 cc_library(
+    name = "server_connections",
+    srcs = ["server_connections.cc"],
+    hdrs = ["server_connections.h"],
+    deps = [
+        ":platform",
+        ":request_listener",
+        ":server_connection",
+    ],
+)
+
+cc_library(
     name = "server_description",
     srcs = ["server_description.cc"],
     hdrs = ["server_description.h"],
@@ -314,41 +357,16 @@ cc_library(
 )
 
 cc_library(
-    name = "tiny_alpaca_request_handler",
-    srcs = ["tiny_alpaca_request_handler.cc"],
-    hdrs = ["tiny_alpaca_request_handler.h"],
-    deps = [
-        ":alpaca_response",
-        ":any_printable",
-        ":array",
-        ":device_api_handler_base",
-        ":literals",
-        ":logging",
-        ":platform",
-        ":platform_ethernet",
-        ":request_listener",
-        ":server_description",
-        ":string_view",
-    ],
-)
-
-cc_library(
     name = "tiny_alpaca_server",
     srcs = ["tiny_alpaca_server.cc"],
     hdrs = ["tiny_alpaca_server.h"],
     deps = [
-        ":alpaca_response",
-        ":any_printable",
-        ":array",
-        ":device_api_handler_base",
-        ":literals",
-        ":logging",
+        ":alpaca_devices",
+        ":alpaca_discovery_server",
+        ":array_view",
+        ":device_impl_base",
         ":platform",
-        ":platform_ethernet",
-        ":request_listener",
-        ":server_connection",
+        ":server_connections",
         ":server_description",
-        ":string_view",
-        ":tiny_alpaca_request_handler",
     ],
 )

@@ -55,7 +55,7 @@
 
 #include "dht22_handler.h"
 
-using ::alpaca::DeviceApiHandlerBase;
+using ::alpaca::DeviceInterface;
 
 // Define some literals, which get stored in PROGMEM (in the case of AVR chips).
 TAS_DEFINE_LITERAL(ServerName, "Our Spiffy Weather Box");
@@ -73,14 +73,13 @@ const alpaca::ServerDescription kServerDescription(ServerName(), Manufacturer(),
 
 static Dht22Handler dht_handler;  // NOLINT
 
-constexpr DeviceApiHandlerBase* kDeviceHandlers[] = {&dht_handler};
+constexpr DeviceInterface* kDevices[] = {&dht_handler};
 
 static constexpr uint16_t kHttpPort = 80;
 static DhcpClass dhcp;
 static alpaca::IpDevice ip_device;
-static alpaca::TinyAlpacaDiscoveryServer discovery_server(kHttpPort);  // NOLINT
-static alpaca::TinyAlpacaServer tiny_alpaca_server(                    // NOLINT
-    kHttpPort, kServerDescription, kDeviceHandlers);
+static alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
+    kHttpPort, kServerDescription, kDevices);
 
 void announceAddresses() {
   Serial.println();
@@ -118,10 +117,6 @@ void setup() {
     announceFailure("Unable to initialize networking!");
   }
   announceAddresses();
-
-  if (!discovery_server.Initialize()) {
-    announceFailure("Unable to start listening for Alpaca Discovery messages!");
-  }
   tiny_alpaca_server.Initialize();
 }
 
@@ -151,7 +146,5 @@ void loop() {
       Serial.print("Unexpected result from MaintainDhcpLease: ");
       Serial.println(dhcp_check);
   }
-
-  discovery_server.PerformIO();
   tiny_alpaca_server.PerformIO();
 }

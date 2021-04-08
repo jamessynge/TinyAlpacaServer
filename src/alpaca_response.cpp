@@ -27,7 +27,6 @@ class LiteralArraySource : public JsonElementSource {
 
 }  // namespace
 
-// static
 bool WriteResponse::OkResponse(const AlpacaRequest& request,
                                const JsonPropertySource& source, Print& out) {
   const auto eol = Literals::HttpEndOfLine();
@@ -45,27 +44,34 @@ bool WriteResponse::OkResponse(const AlpacaRequest& request,
   return !request.do_close;
 }
 
-// static
 bool WriteResponse::ArrayResponse(const AlpacaRequest& request,
                                   const JsonElementSource& value, Print& out) {
   JsonArrayResponse source(request, value);
   return OkResponse(request, source, out);
 }
 
-// static
 bool WriteResponse::BoolResponse(const AlpacaRequest& request, bool value,
                                  Print& out) {
   JsonBoolResponse source(request, value);
   return OkResponse(request, source, out);
 }
 
-// static
+bool WriteResponse::StatusOrBoolResponse(const AlpacaRequest& request,
+                                         StatusOr<bool> status_or_value,
+                                         Print& out) {
+  if (status_or_value.ok()) {
+    return BoolResponse(request, status_or_value.value(), out);
+  } else {
+    return AscomErrorResponse(request, status_or_value.status(), out);
+  }
+}
+
 bool WriteResponse::DoubleResponse(const AlpacaRequest& request, double value,
                                    Print& out) {
   JsonDoubleResponse source(request, value);
   return OkResponse(request, source, out);
 }
-// static
+
 bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
                                            StatusOr<double> status_or_value,
                                            Print& out) {
@@ -76,14 +82,12 @@ bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
   }
 }
 
-// static
 bool WriteResponse::FloatResponse(const AlpacaRequest& request, float value,
                                   Print& out) {
   JsonFloatResponse source(request, value);
   return OkResponse(request, source, out);
 }
 
-// static
 bool WriteResponse::StatusOrFloatResponse(const AlpacaRequest& request,
                                           StatusOr<float> status_or_value,
                                           Print& out) {
@@ -94,35 +98,50 @@ bool WriteResponse::StatusOrFloatResponse(const AlpacaRequest& request,
   }
 }
 
-// static
 bool WriteResponse::UIntResponse(const AlpacaRequest& request, uint32_t value,
                                  Print& out) {
   JsonUnsignedIntegerResponse source(request, value);
   return OkResponse(request, source, out);
 }
 
-// static
+bool WriteResponse::StatusOrUIntResponse(const AlpacaRequest& request,
+                                         StatusOr<uint32_t> status_or_value,
+                                         Print& out) {
+  if (status_or_value.ok()) {
+    return UIntResponse(request, status_or_value.value(), out);
+  } else {
+    return AscomErrorResponse(request, status_or_value.status(), out);
+  }
+}
+
 bool WriteResponse::IntResponse(const AlpacaRequest& request, int32_t value,
                                 Print& out) {
   JsonIntegerResponse source(request, value);
   return OkResponse(request, source, out);
 }
 
-// static
+bool WriteResponse::StatusOrIntResponse(const AlpacaRequest& request,
+                                        StatusOr<int32_t> status_or_value,
+                                        Print& out) {
+  if (status_or_value.ok()) {
+    return IntResponse(request, status_or_value.value(), out);
+  } else {
+    return AscomErrorResponse(request, status_or_value.status(), out);
+  }
+}
+
 bool WriteResponse::LiteralArrayResponse(const AlpacaRequest& request,
                                          const LiteralArray& value,
                                          Print& out) {
   return ArrayResponse(request, LiteralArraySource(value), out);
 }
 
-// static
 bool WriteResponse::StringResponse(const AlpacaRequest& request,
                                    const AnyPrintable& value, Print& out) {
   JsonStringResponse source(request, value);
   return OkResponse(request, source, out);
 }
 
-// static
 bool WriteResponse::StatusOrStringResponse(const AlpacaRequest& request,
                                            StatusOr<Literal> status_or_value,
                                            Print& out) {
@@ -133,7 +152,6 @@ bool WriteResponse::StatusOrStringResponse(const AlpacaRequest& request,
   }
 }
 
-// static
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        uint32_t error_number,
                                        const AnyPrintable& error_message,
@@ -143,22 +161,18 @@ bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
   return false;
 }
 
-// static
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        Status error_status, Print& out) {
   return AscomErrorResponse(request, error_status.code(),
                             AnyPrintable(error_status.message()), out);
 }
 
-// static
 bool WriteResponse::AscomNotImplementedErrorResponse(
     const AlpacaRequest& request, Print& out) {
-  AscomErrorResponse(request, ErrorCodes::ActionNotImplemented().code(),
-                     Literals::HttpMethodNotImplemented(), out);
+  AscomErrorResponse(request, ErrorCodes::ActionNotImplemented(), out);
   return false;
 }
 
-// static
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
   TAS_CHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)

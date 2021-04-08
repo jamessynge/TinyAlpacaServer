@@ -47,7 +47,7 @@ StatusOr<float> Dht22Handler::GetTemperature() {
   return dht22.get_temperature();
 }
 
-bool Dht22Handler::GetConnected() {
+StatusOr<bool> Dht22Handler::GetConnected() {
   return true;  // XXX: Return true if able to talk to the device.
 }
 
