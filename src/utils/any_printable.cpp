@@ -10,6 +10,10 @@ AnyPrintable::AnyPrintable(Literal value)
 AnyPrintable::AnyPrintable(StringView value)
     : type_(AnyPrintable::kStringView), view_(value) {}
 
+AnyPrintable::AnyPrintable(PrintableProgmemString value)
+    : type_(AnyPrintable::kLiteral),
+      literal_(value.progmem_data(), value.size()) {}
+
 AnyPrintable::AnyPrintable(Printable& value)
     : type_(AnyPrintable::kPrintable), printable_(&value) {}
 

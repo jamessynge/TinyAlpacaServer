@@ -27,7 +27,7 @@ class PrintableProgmemString : public Printable {
   constexpr size_type size() const { return size_; }
 
   // On a typical (Von Neumann) host, this is in the same address space as data.
-  PGM_VOID_P progmem_data() const { return ptr_; }
+  PGM_P progmem_data() const { return ptr_; }
 
  private:
   PGM_P ptr_;

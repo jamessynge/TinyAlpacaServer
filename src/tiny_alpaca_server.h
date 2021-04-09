@@ -43,7 +43,7 @@
 
 namespace alpaca {
 
-class TinyAlpacaServer {
+class TinyAlpacaServer : public RequestListener {
  public:
   using DeviceInterfacePtr = DeviceInterface* const;
 
@@ -67,10 +67,22 @@ class TinyAlpacaServer {
   // to perform periodic work.
   void PerformIO();
 
+  // RequestListener method overrides...
+  void OnStartDecoding(AlpacaRequest& request) override;
+  bool OnRequestDecoded(AlpacaRequest& request, Print& out) override;
+  void OnRequestDecodingError(AlpacaRequest& request, EHttpStatusCode status,
+                              Print& out) override;
+
  private:
+  bool HandleManagementApiVersions(AlpacaRequest& request, Print& out);
+  bool HandleManagementDescription(AlpacaRequest& request, Print& out);
+  bool HandleManagementConfiguredDevices(AlpacaRequest& request, Print& out);
+  bool HandleServerSetup(AlpacaRequest& request, Print& out);
+
   AlpacaDevices alpaca_devices_;
   ServerConnections server_connections_;
   TinyAlpacaDiscoveryServer discovery_server_;
+  uint32_t server_transaction_id_;
 };
 
 }  // namespace alpaca

@@ -33,8 +33,9 @@ class AnyPrintable : public Printable {
   AnyPrintable();
   // For values that are clearly strings, we allow implicit conversion to
   // AnyPrintable.
-  AnyPrintable(Literal value);     // NOLINT
-  AnyPrintable(StringView value);  // NOLINT
+  AnyPrintable(Literal value);                 // NOLINT
+  AnyPrintable(StringView value);              // NOLINT
+  AnyPrintable(PrintableProgmemString value);  // NOLINT
   // To avoid implicit conversions of values that aren't (weren't) necessarily
   // strings, we require the conversion to be explicit.
   explicit AnyPrintable(Printable& value);

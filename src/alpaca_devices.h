@@ -10,11 +10,12 @@
 #include "request_listener.h"
 #include "server_description.h"
 #include "utils/array.h"
+#include "utils/json_encoder.h"
 #include "utils/platform.h"
 
 namespace alpaca {
 
-class AlpacaDevices : public RequestListener {
+class AlpacaDevices {
  public:
   using DeviceInterfacePtr = DeviceInterface* const;
 
@@ -23,27 +24,26 @@ class AlpacaDevices : public RequestListener {
 
   // Prepares the server and device handlers to receive requests. Returns true
   // if able to do so, false otherwise.
-  virtual bool Initialize();
+  bool Initialize();
 
   // Delegates to device handlers so that they can perform actions other than
   // responding to a request (e.g. periodically reading sensor values).
-  virtual void MaintainDevices();
+  void MaintainDevices();
 
-  // RequestListener method overrides...
-  void OnStartDecoding(AlpacaRequest& request) override;
-  bool OnRequestDecoded(AlpacaRequest& request, Print& out) override;
-  void OnRequestDecodingError(AlpacaRequest& request, EHttpStatusCode status,
-                              Print& out) override;
+  // Given an HTTP Device API or Device Setup request, dispatches to the
+  // appropriate DeviceInterface implementation. Returns true if the request is
+  // handled without error, or false if there is a problem (in which case the
+  // caller is expected to close the connection).
+  bool DispatchDeviceRequest(AlpacaRequest& request, Print& out);
+
+  // Writes entries into the Value array of the JSON response being produced in
+  // response to a request for "/management/v1/configureddevices".
+  void AddConfiguredDevices(JsonArrayEncoder& encoder) const;
 
  private:
   bool DispatchDeviceRequest(AlpacaRequest& request, DeviceInterface& handler,
                              Print& out);
-  bool HandleManagementApiVersions(AlpacaRequest& request, Print& out);
-  bool HandleManagementDescription(AlpacaRequest& request, Print& out);
-  bool HandleManagementConfiguredDevices(AlpacaRequest& request, Print& out);
-  bool HandleServerSetup(AlpacaRequest& request, Print& out);
 
-  uint32_t server_transaction_id_;
   const ServerDescription& server_description_;
   ArrayView<DeviceInterfacePtr> devices_;
 };
