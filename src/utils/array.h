@@ -1,10 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_ARRAY_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_ARRAY_H_
 
-// Array is similar to std::array; it contains a C-style array of T (or const T)
-// of known (fixed) size, and provides support for iterating through the array.
-// It exists to make it easier to iterate through static arrays provided to
-// TinyAlpacaServer as its configuration data.
+// Array is similar to std::array; it contains (owns) a C-style array of T of
+// known (fixed) size, and provides support for iterating through the array. A
+// key application is supporting PrintableCat / AnyPrintableArray.
 
 #include "utils/array_view.h"
 #include "utils/logging.h"

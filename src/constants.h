@@ -9,8 +9,13 @@
 // macro invocations).
 //
 // The <EnumName>_UnderlyingType declarations are present to help with reducing
-// the number of unique template instantiations of the literal_token.h
-// functions, with the aim of reducing the amount of PROGMEM (flash) required.
+// the number of unique template instantiations of functions operating on arrays
+// of enums, with the aim of reducing the amount of PROGMEM (flash) required.
+// The reason for explicitly declaring the underlying type is that the Arduino
+// compiler doesn't include the <type_traits> library, and hence the definition
+// of std::underlying_type<E>. (Note that the function motivating the addition
+// of those underlying type declarations has since been removed, which calls
+// into question the continued explicit declaration.)
 //
 // Author: james.synge@gmail.com
 
@@ -51,6 +56,19 @@ enum class EHttpStatusCode : uint16_t {
 
   // The request has been successfully decoded.
   kHttpOk = 200,
+
+  // NOTE: Each values in the 4xx and 5xx range should have a corresponding
+  // Literal in literals.inc, and a case in the switch statement in
+  // WriteResponse::HttpErrorResponse.
+  //
+  // TODO(jamessynge): Consider adding an 'error code space' to Status so that
+  // we can support two or three spaces: ASCOM error codes, HTTP status codes,
+  // and possibly Unix errno values. That could help avoid the need for the
+  // switch statement in WriteResponse::HttpErrorResponse, which has the effect
+  // of causing all of the error literals to be linked in to the binary if
+  // HttpErrorResponse is also linked in. Instead we could have a separate
+  // function for each HTTP status code, like those in ascom_error_codes.* for
+  // ASCOM error codes.
 
   // Invalid syntax in the request.
   kHttpBadRequest = 400,

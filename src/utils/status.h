@@ -8,6 +8,16 @@
 //     ActionNotImplementedException:
 //         Reserved error code (0x8004040C) to indicate that the
 //         requested action is not implemented in this driver.
+//
+// TODO(jamessynge): Consider adding an 'error code space' to Status so that we
+// can support two or three spaces: ASCOM error codes, HTTP status codes, and
+// possibly Unix errno values.
+//
+// Doing so could help avoid the need for the switch statement in
+// WriteResponse::HttpErrorResponse, which has the effect of causing all of the
+// error literals to be linked in to the binary if HttpErrorResponse is also
+// linked in. Instead we could have a separate function for each HTTP status
+// code, like those in ascom_error_codes.* for ASCOM error codes.
 
 #include "utils/literal.h"
 #include "utils/platform.h"

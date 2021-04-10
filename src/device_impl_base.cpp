@@ -47,23 +47,24 @@ bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
       return WriteResponse::StatusOrBoolResponse(request, GetConnected(), out);
 
     case EDeviceMethod::kDescription:
-      return WriteResponse::StringResponse(request, device_info_.description,
-                                           out);
+      return WriteResponse::AnyPrintableStringResponse(
+          request, device_info_.description, out);
 
     case EDeviceMethod::kDriverInfo:
-      return WriteResponse::StringResponse(request, device_info_.driver_info,
-                                           out);
+      return WriteResponse::AnyPrintableStringResponse(
+          request, device_info_.driver_info, out);
 
     case EDeviceMethod::kDriverVersion:
-      return WriteResponse::StringResponse(request, device_info_.driver_version,
-                                           out);
+      return WriteResponse::AnyPrintableStringResponse(
+          request, device_info_.driver_version, out);
 
     case EDeviceMethod::kInterfaceVersion:
       return WriteResponse::IntResponse(request, device_info_.interface_version,
                                         out);
 
     case EDeviceMethod::kName:
-      return WriteResponse::StringResponse(request, device_info_.name, out);
+      return WriteResponse::AnyPrintableStringResponse(request,
+                                                       device_info_.name, out);
 
     case EDeviceMethod::kSupportedActions:
       return WriteResponse::LiteralArrayResponse(

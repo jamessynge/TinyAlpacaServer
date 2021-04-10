@@ -21,12 +21,16 @@
 
 #include "alpaca_request.h"
 #include "device_info.h"
+#include "json_response.h"
+#include "utils/array_view.h"
 #include "utils/platform.h"
 
 namespace alpaca {
 
 class DeviceInterface {
  public:
+  using ConstPtr = DeviceInterface* const;
+
   DeviceInterface() {}
   virtual ~DeviceInterface() {}
 
@@ -70,6 +74,18 @@ class DeviceInterface {
   // writes an error response to out and returns false.
   virtual bool HandleDeviceApiRequest(const AlpacaRequest& request,
                                       Print& out) = 0;
+};
+
+class ConfiguredDevicesResponse : public JsonMethodResponse {
+ public:
+  ConfiguredDevicesResponse(const AlpacaRequest& request,
+                            ArrayView<DeviceInterface::ConstPtr> devices)
+      : JsonMethodResponse(request), devices_(devices) {}
+
+  void AddTo(JsonObjectEncoder& object_encoder) const override;
+
+ private:
+  ArrayView<DeviceInterface::ConstPtr> devices_;
 };
 
 }  // namespace alpaca

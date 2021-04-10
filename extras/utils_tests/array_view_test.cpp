@@ -36,25 +36,20 @@ TEST(ArrayViewTest, Size3ArrayView) {
   EXPECT_THAT(array, testing::ElementsAre(10, 20, 30));
 }
 
-TEST(ArrayViewTest, ArrayViewWithMutableElements) {
-  int underlying_array[] = {1, 2, 3};
-  ArrayView<int> array(underlying_array);
-  EXPECT_EQ(array.data(), underlying_array);
-  EXPECT_EQ(array.size(), 3);
-
-  EXPECT_THAT(array, testing::ElementsAre(1, 2, 3));
-  for (auto& i : array) {
-    ++i;
-  }
-  EXPECT_THAT(array, testing::ElementsAre(2, 3, 4));
-}
-
 TEST(ArrayViewTest, MakeArrayView) {
   double underlying_array[] = {3.1416, 1.1414, 2.7183};
   auto array = MakeArrayView(underlying_array);
   EXPECT_EQ(array.data(), underlying_array);
   EXPECT_EQ(array.size(), 3);
   EXPECT_THAT(array, testing::UnorderedElementsAre(1.1414, 2.7183, 3.1416));
+}
+
+TEST(ArrayViewTest, MakeArrayViewFromConst) {
+  const uint32_t underlying_array[] = {0, 1, 2};
+  auto array = MakeArrayView(underlying_array);
+  EXPECT_EQ(array.data(), underlying_array);
+  EXPECT_EQ(array.size(), 3);
+  EXPECT_THAT(array, testing::UnorderedElementsAre(0, 1, 2));
 }
 
 }  // namespace

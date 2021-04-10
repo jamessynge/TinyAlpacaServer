@@ -101,20 +101,6 @@ cc_test(
 )
 
 cc_test(
-    name = "literal_token_test",
-    srcs = ["literal_token_test.cc"],
-    deps = [
-        ":array_view",
-        ":hex_escape",
-        ":literal",
-        ":literal_token",
-        ":platform",
-        ":string_view",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
     name = "moving_average_test",
     srcs = ["moving_average_test.cc"],
     deps = [

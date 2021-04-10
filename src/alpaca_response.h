@@ -6,6 +6,7 @@
 #include "alpaca_request.h"
 #include "constants.h"
 #include "utils/any_printable.h"
+#include "utils/array_view.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
 #include "utils/status_or.h"
@@ -22,10 +23,18 @@ struct WriteResponse {
   static bool OkResponse(const AlpacaRequest& request,
                          const JsonPropertySource& source, Print& out);
 
-  // The following WriteXyzResponse write to 'out' an OK response with JSON body
-  // whose 'Value' property is from the 'value' parameter, which is of the
+  // The following XyzResponse methods write to 'out' an OK response with JSON
+  // body whose 'Value' property is from the 'value' parameter, which is of the
   // specified type. Returns true if there is no problem with writing the
   // response.
+  //
+  // And the StatusOrXyzResponse methods write an OK response whose body depends
+  // on the status_or_value argument:
+  //
+  // 1) If the status is OK, they delegate writing to XyzResponse;
+  //
+  // 2) If the status is not OK, then they delegate writing to
+  //    AscomErrorResponse.
 
   static bool ArrayResponse(const AlpacaRequest& request,
                             const JsonElementSource& value, Print& out);
@@ -41,6 +50,9 @@ struct WriteResponse {
                                      StatusOr<double> status_or_value,
                                      Print& out);
 
+  // TODO(jamessynge): Decide whether to keep the versions with float values.
+  // Arduino's Print class only handles doubles, not floats, so this may be
+  // pointless.
   static bool FloatResponse(const AlpacaRequest& request, float value,
                             Print& out);
   static bool StatusOrFloatResponse(const AlpacaRequest& request,
@@ -59,31 +71,39 @@ struct WriteResponse {
                                   StatusOr<int32_t> status_or_value,
                                   Print& out);
 
+  static bool PrintableStringResponse(const AlpacaRequest& request,
+                                      const Printable& value, Print& out);
+  static bool AnyPrintableStringResponse(const AlpacaRequest& request,
+                                         const AnyPrintable& value,
+                                         Print& out) {
+    return PrintableStringResponse(request, value, out);
+  }
+  // These methods aren't all called "StatusOrStringResponse" to make sure that
+  // we don't make the mistake of returning a StatusOr<StringView>, or similar,
+  // where the value to be captured is a reference (or contains a reference to)
+  // a temporary that will disappear during the return (i.e. an example of a
+  // memory ownership problem that Rust aims to address).
+  static bool StatusOrLiteralResponse(const AlpacaRequest& request,
+                                      StatusOr<Literal> status_or_value,
+                                      Print& out);
+
+  // Array responses.
+  static bool UIntArrayResponse(const AlpacaRequest& request,
+                                ArrayView<uint32_t> values, Print& out);
   static bool LiteralArrayResponse(const AlpacaRequest& request,
                                    const LiteralArray& value, Print& out);
-  // static bool LiteralArrayResponse(
-  //     const AlpacaRequest& request,
-  //     StatusOr<LiteralArray> status_or_value, Print& out);
 
-  static bool StringResponse(const AlpacaRequest& request,
-                             const AnyPrintable& value, Print& out);
-  static bool StatusOrStringResponse(const AlpacaRequest& request,
-                                     StatusOr<Literal> status_or_value,
-                                     Print& out);
-
-  // Writes an ASCOM error response JSON body in an HTTP OK response message.
-  // Returns true if there is no problem with writing the response.
-  static bool AscomErrorResponse(const AlpacaRequest& request,
-                                 uint32_t error_number,
+  // Writes an ASCOM error response JSON body in an HTTP OK response message;
+  // the header tells the client that the connection will be closed. Returns
+  // false.
+  static bool AscomErrorResponse(AlpacaRequest request, uint32_t error_number,
                                  const AnyPrintable& error_message, Print& out);
-
-  // Write the ASCOM error contained in the Status instance.
   static bool AscomErrorResponse(const AlpacaRequest& request,
                                  Status error_status, Print& out);
 
-  // Write an ASCOM Not Implemented error response.
-  static bool AscomNotImplementedErrorResponse(const AlpacaRequest& request,
-                                               Print& out);
+  // Write an ASCOM Action Not Implemented error response.
+  static bool AscomActionNotImplementedResponse(const AlpacaRequest& request,
+                                                Print& out);
 
   // Writes an HTTP error response with a text body to out. Returns false.
   static bool HttpErrorResponse(EHttpStatusCode status_code,

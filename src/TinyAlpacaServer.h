@@ -9,6 +9,7 @@
 // ones (e.g. much of src/utils could be moved to a generic Arduino helpers
 // library).
 
+#include "alpaca_devices.h"           // IWYU pragma: export
 #include "alpaca_discovery_server.h"  // IWYU pragma: export
 #include "alpaca_request.h"           // IWYU pragma: export
 #include "alpaca_response.h"          // IWYU pragma: export
@@ -28,6 +29,7 @@
 #include "request_decoder_listener.h"        // IWYU pragma: export
 #include "request_listener.h"                // IWYU pragma: export
 #include "server_connection.h"               // IWYU pragma: export
+#include "server_connections.h"              // IWYU pragma: export
 #include "server_description.h"              // IWYU pragma: export
 #include "tiny_alpaca_server.h"              // IWYU pragma: export
 #include "utils/addresses.h"                 // IWYU pragma: export
@@ -41,8 +43,8 @@
 #include "utils/inline_literal.h"            // IWYU pragma: export
 #include "utils/ip_device.h"                 // IWYU pragma: export
 #include "utils/json_encoder.h"              // IWYU pragma: export
+#include "utils/json_encoder_helpers.h"      // IWYU pragma: export
 #include "utils/literal.h"                   // IWYU pragma: export
-#include "utils/literal_token.h"             // IWYU pragma: export
 #include "utils/log_sink.h"                  // IWYU pragma: export
 #include "utils/logging.h"                   // IWYU pragma: export
 #include "utils/moving_average.h"            // IWYU pragma: export

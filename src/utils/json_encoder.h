@@ -2,11 +2,12 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_JSON_ENCODER_H_
 
 // Supports writing a JSON object, with values that are numbers, bools, strings,
-// and arrays of the same. Usage examples can be // found in the test file.
+// and arrays of the same. Usage examples can be found in the test file.
 //
 // Author: james.synge@gmail.com
 
 #include "utils/any_printable.h"
+#include "utils/array_view.h"
 #include "utils/platform.h"
 
 namespace alpaca {
@@ -24,36 +25,6 @@ class JsonPropertySource {
  public:
   virtual ~JsonPropertySource();
   virtual void AddTo(JsonObjectEncoder& encoder) const = 0;
-};
-
-// JsonElementSourceAdapter allows an object that can't have a virtual function
-// table (e.g. it is constexpr and maybe stored in PROGMEM) to act as a
-// JsonElementSource.
-template <class T>
-class JsonElementSourceAdapter : public JsonElementSource {
- public:
-  explicit JsonElementSourceAdapter(const T& wrapped) : wrapped_(wrapped) {}
-  void AddTo(JsonArrayEncoder& encoder) const override {
-    wrapped_.AddTo(encoder);
-  }
-
- private:
-  const T& wrapped_;
-};
-
-// JsonPropertySourceAdapter allows an object that can't have a virtual function
-// table (e.g. it is constexpr and maybe stored in PROGMEM) to act as a
-// JsonPropertySource.
-template <class T>
-class JsonPropertySourceAdapter : public JsonPropertySource {
- public:
-  explicit JsonPropertySourceAdapter(const T& wrapped) : wrapped_(wrapped) {}
-  void AddTo(JsonObjectEncoder& encoder) const override {
-    wrapped_.AddTo(encoder);
-  }
-
- private:
-  const T& wrapped_;
 };
 
 // IDEA: Add a JsonEncoderOptions struct, similar to the kwargs for Python's
@@ -87,10 +58,10 @@ class AbstractJsonEncoder {
 // JSON encoder for arrays.
 class JsonArrayEncoder : public AbstractJsonEncoder {
  public:
-  void AddIntegerElement(const int32_t value);
-  void AddIntegerElement(const uint32_t value);
-  void AddFloatingPointElement(float value);
-  void AddFloatingPointElement(double value);
+  void AddIntElement(const int32_t value);
+  void AddUIntElement(const uint32_t value);
+  void AddFloatElement(float value);
+  void AddDoubleElement(double value);
   void AddBooleanElement(const bool value);
   void AddStringElement(const AnyPrintable& value);
   void AddStringElement(const Printable& value);
@@ -115,10 +86,10 @@ class JsonArrayEncoder : public AbstractJsonEncoder {
 // JSON encoder for objects.
 class JsonObjectEncoder : public AbstractJsonEncoder {
  public:
-  void AddIntegerProperty(const AnyPrintable& name, int32_t value);
-  void AddIntegerProperty(const AnyPrintable& name, uint32_t value);
-  void AddFloatingPointProperty(const AnyPrintable& name, float value);
-  void AddFloatingPointProperty(const AnyPrintable& name, double value);
+  void AddIntProperty(const AnyPrintable& name, int32_t value);
+  void AddUIntProperty(const AnyPrintable& name, uint32_t value);
+  void AddFloatProperty(const AnyPrintable& name, float value);
+  void AddDoubleProperty(const AnyPrintable& name, double value);
   void AddBooleanProperty(const AnyPrintable& name, const bool value);
   void AddStringProperty(const AnyPrintable& name, const AnyPrintable& value);
   void AddStringProperty(const AnyPrintable& name, const Printable& value);

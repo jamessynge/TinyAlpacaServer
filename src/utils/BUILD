@@ -41,7 +41,10 @@ cc_library(
 cc_library(
     name = "array_view",
     hdrs = ["array_view.h"],
-    deps = [":platform"],
+    deps = [
+        ":platform",
+        ":type_traits",
+    ],
 )
 
 cc_library(
@@ -109,9 +112,19 @@ cc_library(
     hdrs = ["json_encoder.h"],
     deps = [
         ":any_printable",
+        ":array_view",
         ":counting_bitbucket",
         ":literal",
         ":o_print_stream",
+        ":platform",
+    ],
+)
+
+cc_library(
+    name = "json_encoder_helpers",
+    hdrs = ["json_encoder_helpers.h"],
+    deps = [
+        ":json_encoder",
         ":platform",
     ],
 )
@@ -124,19 +137,6 @@ cc_library(
         ":logging",
         ":o_print_stream",
         ":platform",
-    ],
-)
-
-cc_library(
-    name = "literal_token",
-    hdrs = ["literal_token.h"],
-    deps = [
-        ":array_view",
-        ":hex_escape",
-        ":literal",
-        ":platform",
-        ":string_compare",
-        ":string_view",
     ],
 )
 

@@ -32,14 +32,14 @@ class JsonMethodResponse : public JsonPropertySource {
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
     if (request_.have_client_transaction_id) {
-      object_encoder.AddIntegerProperty(Literals::ClientTransactionId(),
-                                        request_.client_transaction_id);
+      object_encoder.AddUIntProperty(Literals::ClientTransactionId(),
+                                     request_.client_transaction_id);
     }
     if (request_.have_server_transaction_id) {
-      object_encoder.AddIntegerProperty(Literals::ServerTransactionId(),
-                                        request_.server_transaction_id);
+      object_encoder.AddUIntProperty(Literals::ServerTransactionId(),
+                                     request_.server_transaction_id);
     }
-    object_encoder.AddIntegerProperty(Literals::ErrorNumber(), error_number_);
+    object_encoder.AddUIntProperty(Literals::ErrorNumber(), error_number_);
     if (error_message_ == nullptr) {
       object_encoder.AddStringProperty(Literals::ErrorMessage(),
                                        AnyPrintable());
@@ -90,7 +90,7 @@ class JsonDoubleResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddFloatingPointProperty(Literals::Value(), value_);
+    object_encoder.AddDoubleProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -104,7 +104,7 @@ class JsonFloatResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddFloatingPointProperty(Literals::Value(), value_);
+    object_encoder.AddFloatProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -118,7 +118,7 @@ class JsonUnsignedIntegerResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddIntegerProperty(Literals::Value(), value_);
+    object_encoder.AddUIntProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -132,7 +132,7 @@ class JsonIntegerResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddIntegerProperty(Literals::Value(), value_);
+    object_encoder.AddIntProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -142,8 +142,12 @@ class JsonIntegerResponse : public JsonMethodResponse {
 
 class JsonStringResponse : public JsonMethodResponse {
  public:
-  JsonStringResponse(const AlpacaRequest& request, const AnyPrintable& value)
+  JsonStringResponse(const AlpacaRequest& request, AnyPrintable value)
       : JsonMethodResponse(request), value_(value) {}
+  JsonStringResponse(const AlpacaRequest& request, Literal value)
+      : JsonMethodResponse(request), value_(AnyPrintable(value)) {}
+  JsonStringResponse(const AlpacaRequest& request, const Printable& value)
+      : JsonMethodResponse(request), value_(AnyPrintable(value)) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddStringProperty(Literals::Value(), value_);
@@ -151,7 +155,7 @@ class JsonStringResponse : public JsonMethodResponse {
   }
 
  private:
-  const AnyPrintable& value_;
+  AnyPrintable value_;
 };
 
 }  // namespace alpaca

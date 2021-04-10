@@ -45,18 +45,16 @@ namespace alpaca {
 
 class TinyAlpacaServer : public RequestListener {
  public:
-  using DeviceInterfacePtr = DeviceInterface* const;
-
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   ArrayView<DeviceInterfacePtr> devices);
+                   ArrayView<DeviceInterface::ConstPtr> devices);
 
   template <size_t N>
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   DeviceInterfacePtr (&devices)[N])
+                   DeviceInterface::ConstPtr (&devices)[N])
       : TinyAlpacaServer(tcp_port, server_description,
-                         ArrayView<DeviceInterfacePtr>(devices, N)) {}
+                         ArrayView<DeviceInterface::ConstPtr>(devices, N)) {}
 
   // Prepares ServerConnections to receive TCP connections and a UDP listener to
   // receive Alpaca Discovery Protocol packets. Returns true if able to do so,
@@ -76,12 +74,12 @@ class TinyAlpacaServer : public RequestListener {
  private:
   bool HandleManagementApiVersions(AlpacaRequest& request, Print& out);
   bool HandleManagementDescription(AlpacaRequest& request, Print& out);
-  bool HandleManagementConfiguredDevices(AlpacaRequest& request, Print& out);
   bool HandleServerSetup(AlpacaRequest& request, Print& out);
 
   AlpacaDevices alpaca_devices_;
   ServerConnections server_connections_;
   TinyAlpacaDiscoveryServer discovery_server_;
+  const ServerDescription& server_description_;
   uint32_t server_transaction_id_;
 };
 

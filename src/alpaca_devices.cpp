@@ -2,20 +2,22 @@
 
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
+#include "json_response.h"
 #include "literals.h"
 #include "utils/any_printable.h"
+#include "utils/array_view.h"
+#include "utils/json_encoder.h"
 #include "utils/logging.h"
 #include "utils/platform_ethernet.h"
 #include "utils/string_view.h"
 
 namespace alpaca {
 
-AlpacaDevices::AlpacaDevices(const ServerDescription& server_description,
-                             ArrayView<DeviceInterfacePtr> devices)
-    : server_description_(server_description), devices_(devices) {}
+AlpacaDevices::AlpacaDevices(ArrayView<DeviceInterface::ConstPtr> devices)
+    : devices_(devices) {}
 
 bool AlpacaDevices::Initialize() {
-  for (DeviceInterfacePtr handler : devices_) {
+  for (DeviceInterface::ConstPtr handler : devices_) {
     handler->Initialize();
   }
   return true;
@@ -23,9 +25,16 @@ bool AlpacaDevices::Initialize() {
 
 void AlpacaDevices::MaintainDevices() {
   // Give devices a chance to perform work.
-  for (DeviceInterfacePtr handler : devices_) {
+  for (DeviceInterface::ConstPtr handler : devices_) {
     handler->Update();
   }
+}
+
+bool AlpacaDevices::HandleManagementConfiguredDevices(AlpacaRequest& request,
+                                                      Print& out) {
+  TAS_VLOG(3) << TASLIT("HandleManagementConfiguredDevices");
+  ConfiguredDevicesResponse response(request, devices_);
+  return WriteResponse::OkResponse(request, response, out);
 }
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
@@ -35,7 +44,7 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
   TAS_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
              request.api == EAlpacaApi::kDeviceSetup);
 
-  for (DeviceInterfacePtr handler : devices_) {
+  for (DeviceInterface::ConstPtr handler : devices_) {
     if (request.device_type == handler->device_type() &&
         request.device_number == handler->device_number()) {
       return DispatchDeviceRequest(request, *handler, out);

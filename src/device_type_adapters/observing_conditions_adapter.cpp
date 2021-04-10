@@ -36,7 +36,7 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
             request, ErrorCodes::InvalidValue().code(),
             Literals::SensorNameMissing(), out);
       }
-      return WriteResponse::StatusOrStringResponse(
+      return WriteResponse::StatusOrLiteralResponse(
           request, GetSensorDescription(request.sensor_name), out);
     case EDeviceMethod::kSkyBrightness:
       return WriteResponse::StatusOrFloatResponse(request, GetSkyBrightness(),

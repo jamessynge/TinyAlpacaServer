@@ -171,22 +171,22 @@ JsonArrayEncoder::JsonArrayEncoder(Print& out) : AbstractJsonEncoder(out) {
 
 JsonArrayEncoder::~JsonArrayEncoder() { out_.print(']'); }
 
-void JsonArrayEncoder::AddIntegerElement(const int32_t value) {
+void JsonArrayEncoder::AddIntElement(const int32_t value) {
   StartItem();
   PrintInteger(out_, value);
 }
 
-void JsonArrayEncoder::AddIntegerElement(const uint32_t value) {
+void JsonArrayEncoder::AddUIntElement(const uint32_t value) {
   StartItem();
   PrintInteger(out_, value);
 }
 
-void JsonArrayEncoder::AddFloatingPointElement(float value) {
+void JsonArrayEncoder::AddFloatElement(float value) {
   StartItem();
   PrintFloatingPoint(out_, value);
 }
 
-void JsonArrayEncoder::AddFloatingPointElement(double value) {
+void JsonArrayEncoder::AddDoubleElement(double value) {
   StartItem();
   PrintFloatingPoint(out_, value);
 }
@@ -244,26 +244,26 @@ void JsonObjectEncoder::StartProperty(const AnyPrintable& name) {
   out_.print(' ');
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const AnyPrintable& name,
-                                           int32_t value) {
+void JsonObjectEncoder::AddIntProperty(const AnyPrintable& name,
+                                       int32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddIntegerProperty(const AnyPrintable& name,
-                                           uint32_t value) {
+void JsonObjectEncoder::AddUIntProperty(const AnyPrintable& name,
+                                        uint32_t value) {
   StartProperty(name);
   PrintInteger(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const AnyPrintable& name,
-                                                 float value) {
+void JsonObjectEncoder::AddFloatProperty(const AnyPrintable& name,
+                                         float value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }
 
-void JsonObjectEncoder::AddFloatingPointProperty(const AnyPrintable& name,
-                                                 double value) {
+void JsonObjectEncoder::AddDoubleProperty(const AnyPrintable& name,
+                                          double value) {
   StartProperty(name);
   PrintFloatingPoint(out_, value);
 }

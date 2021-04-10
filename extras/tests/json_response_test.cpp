@@ -47,7 +47,7 @@ TEST(JsonArrayResponseTest, Empty) {
 TEST(JsonArrayResponseTest, Mixed) {
   ElementSourceFunctionAdapter elements([](JsonArrayEncoder& encoder) {
     encoder.AddBooleanElement(false);
-    encoder.AddIntegerElement(-1);
+    encoder.AddIntElement(-1);
     encoder.AddStringElement(StringView("\r\n"));
   });
   AlpacaRequest request;

@@ -7,10 +7,15 @@ cc_test(
     srcs = ["alpaca_response_test.cc"],
     deps = [
         ":alpaca_response",
+        ":any_printable",
+        ":array_view",
+        ":ascom_error_codes",
+        ":constants",
         ":json_test_utils",
         ":literal",
         ":literals",
         ":print_to_std_string",
+        ":sample_printable",
         "//absl/strings",
         "//googletest:gunit_main",
     ],
@@ -126,6 +131,7 @@ cc_test(
     name = "server_description_test",
     srcs = ["server_description_test.cc"],
     deps = [
+        ":json_encoder_helpers",
         ":print_to_std_string",
         ":server_description",
         "//googletest:gunit_main",
