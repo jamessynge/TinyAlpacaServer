@@ -26,6 +26,11 @@ Include logging and have some TAS_VLOG statements.
 
 #define TAS_DO_LOG_EXPERIMENT
 
+// Ask compiler to emit warnings indicating which branch of various
+// #if/#else/#endif blocks have been taken.
+
+#define TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
+
 // Enable testing of specific features.
 
 #define TAS_LOG_EXPERIMENT_DO_INCLUDE_LOGGING_H
