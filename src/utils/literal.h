@@ -36,7 +36,7 @@ class Literal {
   static constexpr size_type kMaxSize = 255;
 
   // Construct empty.
-  TAS_CONSTEXPR_FUNC Literal() noexcept : ptr_(nullptr), size_(0) {}
+  constexpr Literal() noexcept : ptr_(nullptr), size_(0) {}
 
   // Constructs from a string literal stored in AVR PROGMEM (or regular memory
   // on other CPU types).
@@ -50,11 +50,10 @@ class Literal {
   // Construct with a specified length. This supports storing multiple Literals
   // in a single string literal (e.g. 3 strings concatenated together, such as
   // "Token1MessageAToken2").
-  TAS_CONSTEXPR_FUNC Literal(PGM_P ptr, size_type length)
-      : ptr_(ptr), size_(length) {}
+  constexpr Literal(PGM_P ptr, size_type length) : ptr_(ptr), size_(length) {}
 
   // Construct with a TASLIT string.
-  TAS_CONSTEXPR_FUNC Literal(const PrintableProgmemString& s)  // NOLINT
+  constexpr Literal(const PrintableProgmemString& s)  // NOLINT
       : ptr_(s.progmem_data()), size_(s.size()) {}
 
   // Copy constructor and assignment operator.

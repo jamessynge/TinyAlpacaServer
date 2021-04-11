@@ -15,9 +15,9 @@ class PrintableProgmemString : public Printable {
   static constexpr size_type kMaxSize = 255;
 
   // Construct empty.
-  PrintableProgmemString() noexcept : ptr_(nullptr), size_(0) {}
+  constexpr PrintableProgmemString() noexcept : ptr_(nullptr), size_(0) {}
 
-  PrintableProgmemString(PGM_P ptr, size_type length)
+  constexpr PrintableProgmemString(PGM_P ptr, size_type length)
       : ptr_(ptr), size_(length) {}
 
   // Print the string to the provided Print instance.
@@ -27,7 +27,7 @@ class PrintableProgmemString : public Printable {
   constexpr size_type size() const { return size_; }
 
   // On a typical (Von Neumann) host, this is in the same address space as data.
-  PGM_P progmem_data() const { return ptr_; }
+  constexpr PGM_P progmem_data() const { return ptr_; }
 
  private:
   PGM_P ptr_;
