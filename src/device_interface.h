@@ -2,10 +2,12 @@
 #define TINY_ALPACA_SERVER_SRC_DEVICE_INTERFACE_H_
 
 // DeviceInterface defines the API that a device must present to the Tiny Alpaca
-// Server. The Update method will be called periodically (typically hundreds of
-// times per second), and the HandleDeviceSetupRequest and
-// HandleDeviceApiRequest will be called when valid HTTP requests are decoded
-// for this device, i.e. those with a path like:
+// Server. W.r.t. the server, this is the device driver.
+//
+// The Update method will be called periodically (typically hundreds of times
+// per second), and the HandleDeviceSetupRequest and HandleDeviceApiRequest will
+// be called when valid HTTP requests are decoded for this device, i.e. those
+// with a path like:
 //
 //      /api/v1/{device_type}/{device_number}/{method_name}
 //      /setup/v1/{device_type}/{device_number}/setup
@@ -29,8 +31,6 @@ namespace alpaca {
 
 class DeviceInterface {
  public:
-  using ConstPtr = DeviceInterface* const;
-
   DeviceInterface() {}
   virtual ~DeviceInterface() {}
 
@@ -79,13 +79,13 @@ class DeviceInterface {
 class ConfiguredDevicesResponse : public JsonMethodResponse {
  public:
   ConfiguredDevicesResponse(const AlpacaRequest& request,
-                            ArrayView<DeviceInterface::ConstPtr> devices)
+                            ArrayView<DeviceInterface*> devices)
       : JsonMethodResponse(request), devices_(devices) {}
 
   void AddTo(JsonObjectEncoder& object_encoder) const override;
 
  private:
-  ArrayView<DeviceInterface::ConstPtr> devices_;
+  ArrayView<DeviceInterface*> devices_;
 };
 
 }  // namespace alpaca

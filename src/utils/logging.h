@@ -102,8 +102,10 @@ extern void [[TAS_VLOG_uses_THE_VOID_SINK]] SomeFuncA();
 
 #endif
 
-// TODO(jamessynge): Decide whether to use TASLIT (from inline_literal.h) here
-// for the message.
+// TODO(jamessynge): Consider adding TAS_ENABLE_NO_LOG_CHECK, which would log
+// just the line number of a failed CHECK, rather than the full message, thus
+// saving (a lot of?) PROGMEM used for storing message strings. This will make
+// it harder to track down a failure, but not impossible.
 
 #ifdef TAS_ENABLE_CHECK
 

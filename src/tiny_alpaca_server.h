@@ -47,14 +47,14 @@ class TinyAlpacaServer : public RequestListener {
  public:
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   ArrayView<DeviceInterface::ConstPtr> devices);
+                   ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   DeviceInterface::ConstPtr (&devices)[N])
+                   DeviceInterface* (&devices)[N])
       : TinyAlpacaServer(tcp_port, server_description,
-                         ArrayView<DeviceInterface::ConstPtr>(devices, N)) {}
+                         ArrayView<DeviceInterface*>(devices, N)) {}
 
   // Prepares ServerConnections to receive TCP connections and a UDP listener to
   // receive Alpaca Discovery Protocol packets. Returns true if able to do so,

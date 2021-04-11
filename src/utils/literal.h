@@ -12,6 +12,7 @@
 // placement of variables marked PROGMEM, in particular whether there is an
 // attempt to place them early in the address space.
 
+#include "utils/printable_progmem_string.h"
 #if TAS_HOST_TARGET
 #include <ostream>
 #include <string>
@@ -51,6 +52,10 @@ class Literal {
   // "Token1MessageAToken2").
   TAS_CONSTEXPR_FUNC Literal(PGM_P ptr, size_type length)
       : ptr_(ptr), size_(length) {}
+
+  // Construct with a TASLIT string.
+  TAS_CONSTEXPR_FUNC Literal(const PrintableProgmemString& s)  // NOLINT
+      : ptr_(s.progmem_data()), size_(s.size()) {}
 
   // Copy constructor and assignment operator.
   TAS_CONSTEXPR_FUNC Literal(const Literal&) = default;

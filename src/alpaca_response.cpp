@@ -200,9 +200,6 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
       case EHttpStatusCode::kHttpBadRequest:
         hrh.reason_phrase = Literals::HttpBadRequest();
         break;
-      case EHttpStatusCode::kHttpNotFound:
-        hrh.reason_phrase = Literals::HttpNotFound();
-        break;
       case EHttpStatusCode::kHttpMethodNotAllowed:
         hrh.reason_phrase = Literals::HttpMethodNotAllowed();
         break;

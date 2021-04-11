@@ -3,7 +3,7 @@
 
 // This file contains the optional support for recording the parameter enum and
 // short string value of parameters for which support isn't built into the
-// decoder (i.e. not ClientId and ClientTransactionId).
+// decoder (i.e. not ClientID and ClientTransactionID).
 //
 // To add a new such parameter, add an entry for it in the EParameter enum in
 // decoder_constants.h, and a token for it in kRecognizedParameters in tokens.h.

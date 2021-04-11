@@ -18,13 +18,13 @@ namespace alpaca {
 
 class AlpacaDevices {
  public:
-  explicit AlpacaDevices(ArrayView<DeviceInterface::ConstPtr> devices);
+  explicit AlpacaDevices(ArrayView<DeviceInterface*> devices);
 
-  // Prepares the server and device handlers to receive requests. Returns true
+  // Prepares the server and device drivers to receive requests. Returns true
   // if able to do so, false otherwise.
   bool Initialize();
 
-  // Delegates to device handlers so that they can perform actions other than
+  // Delegates to device drivers so that they can perform actions other than
   // responding to a request (e.g. periodically reading sensor values).
   void MaintainDevices();
 
@@ -39,10 +39,10 @@ class AlpacaDevices {
   bool DispatchDeviceRequest(AlpacaRequest& request, Print& out);
 
  private:
-  bool DispatchDeviceRequest(AlpacaRequest& request, DeviceInterface& handler,
+  bool DispatchDeviceRequest(AlpacaRequest& request, DeviceInterface& device,
                              Print& out);
 
-  ArrayView<DeviceInterface::ConstPtr> devices_;
+  ArrayView<DeviceInterface*> devices_;
 };
 
 }  // namespace alpaca

@@ -32,7 +32,7 @@
 // 2) A value is any non-control character value, excluding space.
 // 3) A name is followed by '=' and then by a value.
 // 4) A name may not be empty, but some values may be empty; for example,
-//    ClientId must be specified in order for this decoder to translate from
+//    ClientID must be specified in order for this decoder to translate from
 //    string to int, but some other parameters have their semantics provided by
 //    the calling program, so we defer validation to that calling program
 // 5) The HTTP client will not send percent encoded characters; these are are
@@ -449,7 +449,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
   }
   TAS_VLOG(1) << TASLIT("DecodeParamValue value: ") << HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
-  if (state.current_parameter == EParameter::kClientId) {
+  if (state.current_parameter == EParameter::kClientID) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_id || !converted_ok) {
@@ -457,7 +457,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     } else {
       state.request.set_client_id(id);
     }
-  } else if (state.current_parameter == EParameter::kClientTransactionId) {
+  } else if (state.current_parameter == EParameter::kClientTransactionID) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (state.request.have_client_transaction_id || !converted_ok) {
@@ -527,7 +527,7 @@ EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state, StringView& view) {
   } else {
     // We expected the path to end, but maybe the client send more path
     // segments?
-    return EHttpStatusCode::kHttpNotFound;
+    return EHttpStatusCode::kHttpBadRequest;
   }
   return state.SetDecodeFunction(next_decode_function);
 }
@@ -555,7 +555,7 @@ EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
     state.request.device_method = method;
     return state.SetDecodeFunction(DecodeEndOfPath);
   }
-  return EHttpStatusCode::kHttpNotFound;
+  return EHttpStatusCode::kHttpBadRequest;
 }
 
 EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
@@ -563,14 +563,14 @@ EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
   return ExtractAndProcessName(
       state, view, kPathTerminators, ProcessDeviceMethod,
       /*consume_terminator_char=*/false,
-      /*bad_terminator_error=*/EHttpStatusCode::kHttpNotFound);
+      /*bad_terminator_error=*/EHttpStatusCode::kHttpBadRequest);
 }
 
 EHttpStatusCode ProcessDeviceNumber(RequestDecoderState& state,
                                     const StringView& matched_text,
                                     StringView& view) {
   if (!matched_text.to_uint32(state.request.device_number)) {
-    return EHttpStatusCode::kHttpNotFound;
+    return EHttpStatusCode::kHttpBadRequest;
   }
   return state.SetDecodeFunction(DecodeDeviceMethod);
 }
@@ -580,7 +580,7 @@ EHttpStatusCode DecodeDeviceNumber(RequestDecoderState& state,
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessDeviceNumber,
       /*consume_terminator_char=*/true,
-      /*bad_terminator_error=*/EHttpStatusCode::kHttpNotFound);
+      /*bad_terminator_error=*/EHttpStatusCode::kHttpBadRequest);
 }
 
 EHttpStatusCode ProcessDeviceType(RequestDecoderState& state,
@@ -592,7 +592,7 @@ EHttpStatusCode ProcessDeviceType(RequestDecoderState& state,
     state.request.device_type = device_type;
     return state.SetDecodeFunction(DecodeDeviceNumber);
   }
-  return EHttpStatusCode::kHttpNotFound;
+  return EHttpStatusCode::kHttpBadRequest;
 }
 
 // After the path prefix, we expect the name of a supported device type.
@@ -600,7 +600,7 @@ EHttpStatusCode DecodeDeviceType(RequestDecoderState& state, StringView& view) {
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessDeviceType,
       /*consume_terminator_char=*/true,
-      /*bad_terminator_error=*/EHttpStatusCode::kHttpNotFound);
+      /*bad_terminator_error=*/EHttpStatusCode::kHttpBadRequest);
 }
 
 // Process the word that starts the path (i.e. right after the leading /).
@@ -610,7 +610,7 @@ EHttpStatusCode ProcessApiVersion(RequestDecoderState& state,
   if (matched_text == Literals::v1()) {
     return state.SetDecodeFunction(DecodeDeviceType);
   } else {
-    return EHttpStatusCode::kHttpNotFound;
+    return EHttpStatusCode::kHttpBadRequest;
   }
 }
 
@@ -618,7 +618,7 @@ EHttpStatusCode DecodeApiVersion(RequestDecoderState& state, StringView& view) {
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessApiVersion,
       /*consume_terminator_char=*/true,
-      /*bad_terminator_error=*/EHttpStatusCode::kHttpNotFound);
+      /*bad_terminator_error=*/EHttpStatusCode::kHttpBadRequest);
 }
 
 EHttpStatusCode ProcessManagementMethod(RequestDecoderState& state,
@@ -641,7 +641,7 @@ EHttpStatusCode ProcessManagementMethod(RequestDecoderState& state,
     }
     return state.SetDecodeFunction(DecodeEndOfPath);
   }
-  return EHttpStatusCode::kHttpNotFound;
+  return EHttpStatusCode::kHttpBadRequest;
 }
 
 EHttpStatusCode DecodeManagementMethod(RequestDecoderState& state,
@@ -658,13 +658,13 @@ EHttpStatusCode ProcessManagementType(RequestDecoderState& state,
     if (view.match_and_consume('/')) {
       return state.SetDecodeFunction(DecodeManagementMethod);
     } else {
-      return EHttpStatusCode::kHttpNotFound;
+      return EHttpStatusCode::kHttpBadRequest;
     }
   } else if (matched_text == Literals::apiversions()) {
     state.request.api = EAlpacaApi::kManagementApiVersions;
     return state.SetDecodeFunction(DecodeEndOfPath);
   } else {
-    return EHttpStatusCode::kHttpNotFound;
+    return EHttpStatusCode::kHttpBadRequest;
   }
 }
 
@@ -681,7 +681,7 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
   TAS_DCHECK(!view.empty());
   EApiGroup group;
   if (!MatchApiGroup(matched_text, group)) {
-    return EHttpStatusCode::kHttpNotFound;
+    return EHttpStatusCode::kHttpBadRequest;
   }
   state.request.api_group = group;
   if (view.match_and_consume('/')) {
@@ -705,7 +705,7 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
     return state.SetDecodeFunction(DecodeApiVersion);
   }
   if (group != EApiGroup::kSetup) {
-    return EHttpStatusCode::kHttpNotFound;
+    return EHttpStatusCode::kHttpBadRequest;
   }
   state.request.api = EAlpacaApi::kServerSetup;
   if (!HttpMethodIsRead(state.request.http_method)) {

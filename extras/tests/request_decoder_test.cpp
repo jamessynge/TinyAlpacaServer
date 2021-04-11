@@ -439,7 +439,7 @@ TEST(RequestDecoderTest, SmallestPutRequest) {
 
   const std::string full_request(
       "PUT /api/v1/observingconditions/0/refresh"
-      "?ClientId=123&ClientTransactionId=432 "
+      "?ClientID=123&clienttransactionid=432 "
       "HTTP/1.1\r\n"
       "Content-Length: 0\r\n"
       "\r\n");
@@ -476,7 +476,7 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
 
   const std::string body = "a=1&connected=abc&&ClienttransACTIONid=9";
   const std::string full_request = absl::StrCat(
-      "PUT /api/v1/safetymonitor/9999/connected?ClientId=321&AbC=xYz "
+      "PUT /api/v1/safetymonitor/9999/connected?ClientID=321&AbC=xYz "
       "HTTP/1.1\r\n",
       "Host:example.com    \r\n",      // Optional whitespace after value.
       "Connection:   keep-alive\r\n",  // Optional whitespace before value.
@@ -552,7 +552,7 @@ TEST(RequestDecoderTest, RequestsWithClientId) {
            "/setup/v1/observingconditions/987654/setup",
            "/api/v1/observingconditions/987654/connected",
        }) {
-    for (const auto& param_name : {"ClientId", "clientid", "CLIENTID"}) {
+    for (const auto& param_name : {"clientid", "ClientID", "CLIENTID"}) {
       const auto full_request =
           absl::StrCat("GET ", path, "?", param_name, "=3456 HTTP/1.1\r\n\r\n");
       auto request = full_request;
@@ -582,7 +582,7 @@ TEST(RequestDecoderTest, RequestsWithClientTransactionId) {
            "/setup/v1/safetymonitor/7777/setup",
            "/api/v1/safetymonitor/7777/connected",
        }) {
-    for (const auto& param_name : {"ClientTransactionId", "clienttransactionid",
+    for (const auto& param_name : {"clienttransactionid", "ClientTransactionID",
                                    "CLIENTTRANSACTIONID"}) {
       const auto full_request =
           absl::StrCat("GET ", path, "?", param_name, "=0 HTTP/1.1\r\n\r\n");
@@ -642,7 +642,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeDeviceNumber) {
 
   alpaca_request.client_id = kResetClientId;
   EXPECT_EQ(DecodeBuffer(decoder, full_request, true, kDecodeBufferSize),
-            EHttpStatusCode::kHttpNotFound);
+            EHttpStatusCode::kHttpBadRequest);
   EXPECT_EQ(alpaca_request.client_id,
             kResetClientId);  // Hasn't been overwritten.
   // It isn't important how much of the request has been processed, however we
@@ -663,7 +663,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeClientId) {
 
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   EXPECT_CALL(listener,
-              OnExtraParameter(EParameter::kClientId, Eq("4294967296")));
+              OnExtraParameter(EParameter::kClientID, Eq("4294967296")));
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   alpaca_request.client_id = kResetClientId;
   EXPECT_EQ(DecodeBuffer(decoder, full_request, true, kDecodeBufferSize),
@@ -965,7 +965,7 @@ TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
                                      request_after_ascom_method;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EHttpStatusCode::kHttpNotFound);
+              EHttpStatusCode::kHttpBadRequest);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_ascom_method));
   }
@@ -1007,7 +1007,7 @@ TEST(RequestDecoderTest, NotFoundPaths) {
     const auto full_request = absl::StrCat("GET ", path, " HTTP/1.1\r\n\r\n");
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EHttpStatusCode::kHttpNotFound)
+              EHttpStatusCode::kHttpBadRequest)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
   }
@@ -1071,7 +1071,7 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
         "GET" + bogus_path_start + request_after_path_start;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EHttpStatusCode::kHttpNotFound)
+              EHttpStatusCode::kHttpBadRequest)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_path_start));
@@ -1103,7 +1103,7 @@ TEST(RequestDecoderTest, RejectsUnknownOrMalformedDeviceType) {
                                      request_after_device_number;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EHttpStatusCode::kHttpNotFound);
+              EHttpStatusCode::kHttpBadRequest);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_device_number));
   }
@@ -1248,10 +1248,10 @@ TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedContentType) {
   // But will return an error status provided by the listener.
   EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpContentType,
                                       Eq("application/json")))
-      .WillOnce(Return(EHttpStatusCode::kHttpNotFound));
+      .WillOnce(Return(EHttpStatusCode::kHttpBadRequest));
   request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpNotFound);
+            EHttpStatusCode::kHttpBadRequest);
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 }
 

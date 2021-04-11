@@ -74,8 +74,8 @@ straightforward to add new ones:
 Alpaca responses are JSON encoded, with top-level object (aka dictionary), with
 4 or 5 properties. There are 4 properties common to all responses:
 
-*   ClientTransactionId (uint32)
-*   ServerTransactionId (uint32)
+*   ClientTransactionID (uint32)
+*   ServerTransactionID (uint32)
 *   ErrorNumber (int32)
 *   ErrorMessage (string)
 

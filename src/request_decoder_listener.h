@@ -17,7 +17,7 @@ class RequestDecoderListener {
   virtual ~RequestDecoderListener();
 
   // Called to handle recognized parameters for which there isn't built in
-  // decoding; i.e. ClientId is decoded and stored by the decoder, but
+  // decoding; i.e. ClientID is decoded and stored by the decoder, but
   // AveragePeriod, for example, doesn't have built in support; however if we
   // add AveragePeriod to kRecognizedParameters in tokens.h, then this method
   // will be called if the client includes that parameter in the request.

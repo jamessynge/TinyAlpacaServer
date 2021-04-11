@@ -13,10 +13,10 @@ TEST(LiteralsTest, Basics) {
   EXPECT_NE(Literals::PUT().prog_data_for_tests(), kPUT);
   EXPECT_NE(Literals::PUT().prog_data_for_tests(), "PUT");
 
-  auto literal1 = Literals::ClientId();
-  EXPECT_EQ(literal1, StringView("ClientId"));
-  auto literal2 = Literals::ClientId();
-  EXPECT_EQ(literal2, StringView("ClientId"));
+  auto literal1 = Literals::ClientID();
+  EXPECT_EQ(literal1, StringView("ClientID"));
+  auto literal2 = Literals::ClientID();
+  EXPECT_EQ(literal2, StringView("ClientID"));
   EXPECT_EQ(literal1.prog_data_for_tests(), literal2.prog_data_for_tests());
 }
 

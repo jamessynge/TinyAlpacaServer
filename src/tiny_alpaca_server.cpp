@@ -14,7 +14,7 @@ namespace alpaca {
 
 TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
                                    const ServerDescription& server_description,
-                                   ArrayView<DeviceInterface::ConstPtr> devices)
+                                   ArrayView<DeviceInterface*> devices)
     : alpaca_devices_(devices),
       server_connections_(*this, tcp_port),
       discovery_server_(tcp_port),

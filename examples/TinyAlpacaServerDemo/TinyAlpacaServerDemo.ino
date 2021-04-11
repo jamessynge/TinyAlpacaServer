@@ -73,7 +73,7 @@ const alpaca::ServerDescription kServerDescription(ServerName(), Manufacturer(),
 
 static Dht22Handler dht_handler;  // NOLINT
 
-constexpr DeviceInterface* kDevices[] = {&dht_handler};
+static DeviceInterface* kDevices[] = {&dht_handler};
 
 static constexpr uint16_t kHttpPort = 80;
 static DhcpClass dhcp;

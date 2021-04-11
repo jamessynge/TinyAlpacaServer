@@ -21,8 +21,8 @@ TAS_DEFINE_BUILTIN_LITERAL1(calibratoroff)
 TAS_DEFINE_BUILTIN_LITERAL1(calibratoron)
 TAS_DEFINE_BUILTIN_LITERAL1(calibratorstate)
 TAS_DEFINE_BUILTIN_LITERAL1(camera)
-TAS_DEFINE_BUILTIN_LITERAL1(ClientId)
-TAS_DEFINE_BUILTIN_LITERAL1(ClientTransactionId)
+TAS_DEFINE_BUILTIN_LITERAL1(ClientID)
+TAS_DEFINE_BUILTIN_LITERAL1(ClientTransactionID)
 TAS_DEFINE_BUILTIN_LITERAL1(close)
 TAS_DEFINE_BUILTIN_LITERAL1(Connection)
 TAS_DEFINE_BUILTIN_LITERAL1(closecover)
@@ -74,7 +74,7 @@ TAS_DEFINE_BUILTIN_LITERAL1(sensordescription)
 TAS_DEFINE_BUILTIN_LITERAL1(SensorName)
 TAS_DEFINE_BUILTIN_LITERAL1(Server)
 TAS_DEFINE_BUILTIN_LITERAL1(ServerName)
-TAS_DEFINE_BUILTIN_LITERAL1(ServerTransactionId)
+TAS_DEFINE_BUILTIN_LITERAL1(ServerTransactionID)
 TAS_DEFINE_BUILTIN_LITERAL1(setup)
 TAS_DEFINE_BUILTIN_LITERAL1(skybrightness)
 TAS_DEFINE_BUILTIN_LITERAL1(skyquality)
@@ -147,9 +147,9 @@ TAS_DEFINE_BUILTIN_LITERAL(SensorNameMissing, "SensorName parameter not found.")
 TAS_DEFINE_BUILTIN_LITERAL(ErrorActionNotImplemented,
                            "The requested action is not implemented")
 TAS_DEFINE_BUILTIN_LITERAL(
-    ErrorInvalidOperationException,
+    InvalidOperation,
     "The requested operation can not be undertaken at this time")
-TAS_DEFINE_BUILTIN_LITERAL(ErrorInvalidValue, "InvalidValue")
+TAS_DEFINE_BUILTIN_LITERAL(ErrorInvalidValue, "Invalid value")
 TAS_DEFINE_BUILTIN_LITERAL(
     ErrorInvalidWhileParked,
     "The operation is invalid because the mount is parked.")

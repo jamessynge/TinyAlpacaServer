@@ -280,10 +280,10 @@ TEST(MatchLiteralsDeathTest, MatchDeviceMethodWrongApiGroup) {
 
 TEST(MatchLiteralsTest, MatchParameter) {
   const std::vector<std::pair<std::string, EParameter>> test_cases = {
-      {"clientid", EParameter::kClientId},
-      {"ClientId", EParameter::kClientId},
-      {"clientTRANSACTIONid", EParameter::kClientTransactionId},
-      {"CLIENTtransactionID", EParameter::kClientTransactionId},
+      {"clientid", EParameter::kClientID},
+      {"ClientId", EParameter::kClientID},
+      {"clientTRANSACTIONid", EParameter::kClientTransactionID},
+      {"CLIENTtransactionID", EParameter::kClientTransactionID},
       {"Connected", EParameter::kConnected},
       {"connECTED", EParameter::kConnected},
       {"", EParameter::kUnknown},

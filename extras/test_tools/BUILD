@@ -43,3 +43,12 @@ cc_library(
     hdrs = ["sample_printable.h"],
     deps = [":print"],
 )
+
+cc_library(
+    name = "mock_device_interface",
+    hdrs = ["mock_device_interface.h"],
+    deps = [
+        ":device_interface",
+        "//googletest:gunit_headers",
+    ],
+)

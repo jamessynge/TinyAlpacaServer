@@ -9,8 +9,7 @@ namespace alpaca {
 
 class ConfiguredDevicesResponseValue : public JsonElementSource {
  public:
-  explicit ConfiguredDevicesResponseValue(
-      ArrayView<DeviceInterface::ConstPtr> devices)
+  explicit ConfiguredDevicesResponseValue(ArrayView<DeviceInterface*> devices)
       : devices_(devices) {}
 
   void AddTo(JsonArrayEncoder& array_encoder) const override {
@@ -22,7 +21,7 @@ class ConfiguredDevicesResponseValue : public JsonElementSource {
   }
 
  private:
-  ArrayView<DeviceInterface::ConstPtr> devices_;
+  ArrayView<DeviceInterface*> devices_;
 };
 
 void ConfiguredDevicesResponse::AddTo(JsonObjectEncoder& object_encoder) const {

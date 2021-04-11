@@ -32,11 +32,11 @@ class JsonMethodResponse : public JsonPropertySource {
 
   void AddTo(JsonObjectEncoder& object_encoder) const override {
     if (request_.have_client_transaction_id) {
-      object_encoder.AddUIntProperty(Literals::ClientTransactionId(),
+      object_encoder.AddUIntProperty(Literals::ClientTransactionID(),
                                      request_.client_transaction_id);
     }
     if (request_.have_server_transaction_id) {
-      object_encoder.AddUIntProperty(Literals::ServerTransactionId(),
+      object_encoder.AddUIntProperty(Literals::ServerTransactionID(),
                                      request_.server_transaction_id);
     }
     object_encoder.AddUIntProperty(Literals::ErrorNumber(), error_number_);

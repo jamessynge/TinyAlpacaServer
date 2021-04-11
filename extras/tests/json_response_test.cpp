@@ -23,8 +23,8 @@ TEST(JsonMethodResponseTest, AllFields) {
   PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(),
-            R"({"ClientTransactionId": 789, )"
-            R"("ServerTransactionId": 123, )"
+            R"({"ClientTransactionID": 789, )"
+            R"("ServerTransactionID": 123, )"
             R"("ErrorNumber": 98765, )"
             R"("ErrorMessage": "Are you saying \"Hey, look at that!\"?"})");
 }
@@ -39,7 +39,7 @@ TEST(JsonArrayResponseTest, Empty) {
   PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [], )"
-                       R"("ServerTransactionId": 0, )"
+                       R"("ServerTransactionID": 0, )"
                        R"("ErrorNumber": 0, )"
                        R"("ErrorMessage": ""})");
 }
@@ -82,8 +82,8 @@ TEST(JsonBoolResponseTest, False) {
   PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": false, )"
-                       R"("ClientTransactionId": 2, )"
-                       R"("ServerTransactionId": 3, )"
+                       R"("ClientTransactionID": 2, )"
+                       R"("ServerTransactionID": 3, )"
                        R"("ErrorNumber": 0, )"
                        R"("ErrorMessage": ""})");
 }

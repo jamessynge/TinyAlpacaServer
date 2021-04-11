@@ -73,10 +73,6 @@ enum class EHttpStatusCode : uint16_t {
   // Invalid syntax in the request.
   kHttpBadRequest = 400,
 
-  // Can't find the requested resource (e.g. unknown device type or device
-  // number).
-  kHttpNotFound = 404,
-
   // Unknown/unsupported HTTP method.
   kHttpMethodNotAllowed = 405,
   // If Accept header from client doesn't include application/json.
@@ -204,13 +200,13 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
 };
 
 // These are parameter names used in *requests*, not responses. Names such as
-// ServerTransactionId and ErrorNumber should not be in this list.
+// ServerTransactionID and ErrorNumber should not be in this list.
 using EParameter_UnderlyingType = uint8_t;
 enum class EParameter : EParameter_UnderlyingType {
   kUnknown,
 
-  kClientId,
-  kClientTransactionId,
+  kClientID,
+  kClientTransactionID,
   kConnected,
   kSensorName,
 };

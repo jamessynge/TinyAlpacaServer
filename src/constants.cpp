@@ -28,8 +28,6 @@ PrintableProgmemString ToPrintableProgmemString(EHttpStatusCode v) {
       return TASLIT("HttpOk");
     case EHttpStatusCode::kHttpBadRequest:
       return TASLIT("HttpBadRequest");
-    case EHttpStatusCode::kHttpNotFound:
-      return TASLIT("HttpNotFound");
     case EHttpStatusCode::kHttpMethodNotAllowed:
       return TASLIT("HttpMethodNotAllowed");
     case EHttpStatusCode::kHttpNotAcceptable:
@@ -204,10 +202,10 @@ PrintableProgmemString ToPrintableProgmemString(EParameter v) {
   switch (v) {
     case EParameter::kUnknown:
       return TASLIT("Unknown");
-    case EParameter::kClientId:
-      return TASLIT("ClientId");
-    case EParameter::kClientTransactionId:
-      return TASLIT("ClientTransactionId");
+    case EParameter::kClientID:
+      return TASLIT("ClientID");
+    case EParameter::kClientTransactionID:
+      return TASLIT("ClientTransactionID");
     case EParameter::kConnected:
       return TASLIT("Connected");
     case EParameter::kSensorName:

@@ -42,6 +42,7 @@ cc_library(
     name = "array_view",
     hdrs = ["array_view.h"],
     deps = [
+        ":logging",
         ":platform",
         ":type_traits",
     ],
@@ -137,6 +138,7 @@ cc_library(
         ":logging",
         ":o_print_stream",
         ":platform",
+        ":printable_progmem_string",
     ],
 )
 

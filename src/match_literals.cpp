@@ -122,12 +122,12 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
         //  ... cases for other device types ...
 
       default:
-        // We don't automatically return an error right here because our goal
-        // is to return kHttpOk from the decoder if the request is well
-        // formed, i.e. we don't want to decide too early that a kHttpNotFound
-        // error should be returned.
-        TAS_VLOG(2) << TASLIT("device type (") << device_type
-                    << TASLIT(") is not supported");
+        // We don't automatically return an error right here because our goal is
+        // is to return kHttpOk from the decoder if the request is well formed,
+        // i.e. we don't want to decide too early that a kHttpBadRequest error
+        // should be returned.
+        TAS_VLOG(2) << device_type
+                    << TASLIT(" is not supported by MatchDeviceMethod");
         break;
     }
     return internal::MatchCommonDeviceMethod(view, match);
@@ -143,9 +143,9 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
 }
 
 bool MatchParameter(const StringView& view, EParameter& match) {
-  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(ClientId, EParameter::kClientId);
-  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(ClientTransactionId,
-                                       EParameter::kClientTransactionId);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(ClientID, EParameter::kClientID);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(ClientTransactionID,
+                                       EParameter::kClientTransactionID);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Connected, EParameter::kConnected);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(SensorName, EParameter::kSensorName);
   return false;

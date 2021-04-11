@@ -44,7 +44,7 @@ std::string MakeExpectedResponse(std::string_view raw_json_for_value,
     expected_body += absl::StrCat(R"("Value": )", raw_json_for_value, ", ");
   }
   if (txn_id >= 0) {
-    expected_body += absl::StrCat(R"("ServerTransactionId": )", txn_id, ", ");
+    expected_body += absl::StrCat(R"("ServerTransactionID": )", txn_id, ", ");
   }
   expected_body +=
       absl::StrCat(R"("ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
@@ -135,16 +135,18 @@ TEST(AlpacaResponseTest, StatusOrBoolResponse) {
   }
   {
     AlpacaRequest request;
+    request.set_client_transaction_id(432);
     request.set_server_transaction_id(321);
     request.do_close = true;
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrBoolResponse(
         request, ErrorCodes::InvalidWhileSlaved(), out));
-    const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionId": 321,)", R"( "ErrorNumber": )",
-                     ErrorCodes::kInvalidWhileSlaved, R"(, "ErrorMessage": ")",
-                     PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
-                     R"("})", kEOL);
+    const std::string expected_body = absl::StrCat(
+        R"({"ClientTransactionID": 432, "ServerTransactionID": 321, )",
+        R"("ErrorNumber": )", ErrorCodes::kInvalidWhileSlaved,
+        R"(, "ErrorMessage": ")",
+        PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()), R"("})",
+        kEOL);
     const std::string expected_response =
         MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
     EXPECT_EQ(out.str(), expected_response);
@@ -170,7 +172,7 @@ TEST(AlpacaResponseTest, StatusOrDoubleResponse) {
     EXPECT_FALSE(WriteResponse::StatusOrDoubleResponse(
         request, ErrorCodes::InvalidWhileSlaved(), out));
     const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionId": 3,)", R"( "ErrorNumber": )",
+        absl::StrCat(R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
                      ErrorCodes::kInvalidWhileSlaved, R"(, "ErrorMessage": ")",
                      PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
                      R"("})", kEOL);
@@ -198,7 +200,7 @@ TEST(AlpacaResponseTest, StatusOrFloatResponse) {
     EXPECT_FALSE(WriteResponse::StatusOrFloatResponse(
         request, ErrorCodes::InvalidWhileSlaved(), out));
     const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionId": 3,)", R"( "ErrorNumber": )",
+        absl::StrCat(R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
                      ErrorCodes::kInvalidWhileSlaved, R"(, "ErrorMessage": ")",
                      PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
                      R"("})", kEOL);
@@ -226,7 +228,7 @@ TEST(AlpacaResponseTest, StatusOrUIntResponse) {
     EXPECT_FALSE(WriteResponse::StatusOrUIntResponse(
         request, ErrorCodes::InvalidWhileParked(), out));
     const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionId": 3,)", R"( "ErrorNumber": )",
+        absl::StrCat(R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
                      ErrorCodes::kInvalidWhileParked, R"(, "ErrorMessage": ")",
                      PrintValueToStdString(Literals::ErrorInvalidWhileParked()),
                      R"("})", kEOL);
@@ -248,13 +250,13 @@ TEST(AlpacaResponseTest, StatusOrIntResponse) {
   }
   {
     AlpacaRequest request;
-    request.set_server_transaction_id(4);
+    request.set_client_transaction_id(5);
     request.do_close = false;
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrIntResponse(
         request, ErrorCodes::InvalidWhileParked(), out));
     const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionId": 4,)", R"( "ErrorNumber": )",
+        absl::StrCat(R"({"ClientTransactionID": 5,)", R"( "ErrorNumber": )",
                      ErrorCodes::kInvalidWhileParked, R"(, "ErrorMessage": ")",
                      PrintValueToStdString(Literals::ErrorInvalidWhileParked()),
                      R"("})", kEOL);
@@ -286,15 +288,17 @@ TEST(AlpacaResponseTest, StatusOrLiteralResponse) {
   }
   {
     AlpacaRequest request;
+    request.set_client_transaction_id(100);
     request.set_server_transaction_id(4);
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrLiteralResponse(
         request, ErrorCodes::InvalidWhileParked(), out));
-    const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionId": 4,)", R"( "ErrorNumber": )",
-                     ErrorCodes::kInvalidWhileParked, R"(, "ErrorMessage": ")",
-                     PrintValueToStdString(Literals::ErrorInvalidWhileParked()),
-                     R"("})", kEOL);
+    const auto error_message =
+        PrintValueToStdString(Literals::ErrorInvalidWhileParked());
+    const std::string expected_body = absl::StrCat(
+        R"({"ClientTransactionID": 100, "ServerTransactionID": 4,)",
+        R"( "ErrorNumber": )", ErrorCodes::kInvalidWhileParked,
+        R"(, "ErrorMessage": ")", error_message, R"("})", kEOL);
     const std::string expected_response =
         MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
     EXPECT_EQ(out.str(), expected_response);
@@ -337,7 +341,7 @@ TEST(AlpacaResponseTest, AscomActionNotImplementedResponse) {
   PrintToStdString out;
   EXPECT_FALSE(WriteResponse::AscomActionNotImplementedResponse(request, out));
   const std::string expected_body =
-      absl::StrCat(R"({"ServerTransactionId": 1,)", R"( "ErrorNumber": )",
+      absl::StrCat(R"({"ServerTransactionID": 1,)", R"( "ErrorNumber": )",
                    ErrorCodes::kActionNotImplemented, R"(, "ErrorMessage": ")",
                    PrintValueToStdString(Literals::ErrorActionNotImplemented()),
                    R"("})", kEOL);
@@ -350,7 +354,6 @@ TEST(AlpacaResponseTest, HttpErrorResponse) {
   std::vector<std::pair<int, std::string_view>> test_cases = {
       // Problems with the request:
       {400, "Bad Request"},
-      {404, "Not Found"},
       {405, "Method Not Allowed"},
       {406, "Not Acceptable"},
       {411, "Length Required"},
