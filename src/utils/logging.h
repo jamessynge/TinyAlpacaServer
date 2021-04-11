@@ -7,6 +7,13 @@
 // by the value of TAS_ENABLED_VLOG_LEVEL (undefined or defined to an integer in
 // the range 1 through 9).
 //
+//
+// TODO(jamessynge): Change the contract for TAS_CHECK such that the expression
+// is always evaluated, but without TAS_ENABLE_CHECK there will be no logging.
+// This allows natural code such as this:
+//
+//    TAS_CHECK(object.ResetDevice()) << "Failed to initialize";
+//
 // Author: james.synge@gmail.com
 //
 ///////////////////////////////////////////////////////////////////////////////

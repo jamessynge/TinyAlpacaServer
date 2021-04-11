@@ -21,21 +21,38 @@ ServerConnections::ServerConnections(RequestListener& request_listener,
 }
 
 bool ServerConnections::Initialize() {
+  TAS_VLOG(2) << TASLIT(
+      "ServerConnections::Initialize, _server_ports at start:");
+  for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
+    TAS_VLOG(2) << '[' << sock_num << TASLIT("] = ")
+                << EthernetClass::_server_port[sock_num];
+  }
+
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     // EthernetServer::begin() finds a closed hardware socket and puts it to use
     // listening for connections to a TCP port.
     EthernetServer listener(tcp_port_);
     listener.begin();
   }
+
+  TAS_VLOG(2) << TASLIT("ServerConnections::Initialize, _server_ports:");
+  for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
+    TAS_VLOG(2) << '[' << sock_num << TASLIT("] = ")
+                << EthernetClass::_server_port[sock_num];
+  }
   return true;
 }
 
 void ServerConnections::PerformIO() {
+  TAS_VLOG(4) << TASLIT("ServerConnections::PerformIO entry");
   // Find ServerConnections which have been disconnected.
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     auto* conn = GetServerConnection(ndx);
     if (conn && conn->has_socket()) {
       if (!SocketIsConnected(conn->sock_num())) {
+        TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO ServerConnection[")
+                    << ndx << TASLIT("] no longer connected; sock_num was ")
+                    << conn->sock_num();
         // Not connected. Call PerformIO which will detect the missing
         // connection and take the appropriate action.
         conn->PerformIO();
@@ -53,12 +70,24 @@ void ServerConnections::PerformIO() {
     if (SocketIsConnected(sock_num)) {
       if (GetServerConnectionForSocket(sock_num) == nullptr) {
         // New connection.
-        AssignServerConnectionToSocket(sock_num);
+        if (!AssignServerConnectionToSocket(sock_num)) {
+          TAS_DCHECK(false)
+              << TASLIT(
+                     "Unable to assign a ServerConnection to hardware socket ")
+              << sock_num
+              << TASLIT(
+                     ", we have more connected sockets than available "
+                     "ServerConnections!");
+        }
       }
     } else if (EthernetClass::_server_port[sock_num] == tcp_port_ &&
                PlatformEthernet::SocketIsClosed(sock_num)) {
       // Resume listening.
-      PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_);
+      if (!PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_)) {
+        TAS_DCHECK(false)
+            << TASLIT("InitializeTcpListenerSocket for hardware socket ")
+            << sock_num;
+      }
     }
   }
 
@@ -69,6 +98,8 @@ void ServerConnections::PerformIO() {
       conn->PerformIO();
     }
   }
+
+  TAS_VLOG(4) << TASLIT("ServerConnections::PerformIO exit");
 }
 
 ServerConnection* ServerConnections::GetServerConnection(size_t ndx) {

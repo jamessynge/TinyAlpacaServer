@@ -6,10 +6,15 @@ namespace alpaca {
 
 bool PlatformEthernet::InitializeTcpListenerSocket(int sock_num,
                                                    uint16_t tcp_port) {
+  TAS_VLOG(2) << TASLIT("PlatformEthernet::InitializeTcpListenerSocket(")
+              << sock_num << TASLIT(", ") << tcp_port
+              << TASLIT(") _server_port is ")
+              << EthernetClass::_server_port[sock_num];
   TAS_DCHECK_LE(0, sock_num);
   TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
 #if TAS_EMBEDDED_TARGET
   EthernetClient client(sock_num);
+  TAS_VLOG(2) << TASLIT("Socket status: ") << client.status();
   if (client.status() == SnSR::CLOSED) {
     if (EthernetClass::_server_port[sock_num] == tcp_port ||
         EthernetClass::_server_port[sock_num] == 0) {

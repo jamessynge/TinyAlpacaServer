@@ -8,7 +8,16 @@ namespace {
 class ExtendedEthernetClient : public EthernetClient {
  public:
   explicit ExtendedEthernetClient(uint8_t sock)
-      : EthernetClient(sock), stopped_(false) {}
+      : EthernetClient(sock), stopped_(false) {
+    TAS_VLOG(2) << TASLIT("ExtendedEthernetClient@0x") << this
+                << TASLIT(" ctor");
+  }
+#if TAS_ENABLED_VLOG_LEVEL >= 2
+  ~ExtendedEthernetClient() {
+    TAS_VLOG(2) << TASLIT("ExtendedEthernetClient@0x") << this
+                << TASLIT(" dtor");
+  }
+#endif
 
   void stop() override {
     TAS_VLOG(2) << TASLIT("ExtendedEthernetClient::stop, sock_num=")

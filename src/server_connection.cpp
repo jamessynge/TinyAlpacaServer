@@ -16,9 +16,13 @@
 namespace alpaca {
 
 ServerConnection::ServerConnection(RequestListener& request_listener)
-    : request_listener_(request_listener), request_decoder_(request_) {}
+    : request_listener_(request_listener), request_decoder_(request_) {
+  TAS_VLOG(2) << TASLIT("ServerConnection@0x") << this << TASLIT(" ctor");
+}
 
 void ServerConnection::OnConnect(EthernetClient& client) {
+  TAS_VLOG(2) << TASLIT("ServerConnection@0x") << this
+              << TASLIT(" ->::OnConnect socket ") << client.getSocketNumber();
   TAS_DCHECK_EQ(sock_num(), client.getSocketNumber());
   request_decoder_.Reset();
   between_requests_ = true;
@@ -26,6 +30,8 @@ void ServerConnection::OnConnect(EthernetClient& client) {
 }
 
 void ServerConnection::OnCanRead(EthernetClient& client) {
+  TAS_VLOG(2) << TASLIT("ServerConnection@0x") << this
+              << " ->::OnCanRead socket " << client.getSocketNumber();
   TAS_DCHECK_EQ(sock_num(), client.getSocketNumber());
   TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
              request_decoder_.status() == RequestDecoderStatus::kDecoding);
@@ -76,6 +82,10 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
       // No.
       return;
     }
+
+    TAS_VLOG(2) << TASLIT("ServerConnection@0x") << this
+                << TASLIT(" ->::OnCanRead status_code: ") << status_code;
+
     bool close_connection = false;
     if (status_code == EHttpStatusCode::kHttpOk) {
       if (input_buffer_size_ == 0) {
@@ -101,6 +111,10 @@ void ServerConnection::OnCanRead(EthernetClient& client) {
 }
 
 void ServerConnection::OnClientDone(EthernetClient& client) {
+  TAS_VLOG(2) << TASLIT("ServerConnection@0x") << this
+              << TASLIT(" ->::OnClientDone socket ")
+              << client.getSocketNumber();
+
   if (!between_requests_) {
     // We've read some data but haven't been able to decode a complete request.
     request_listener_.OnRequestDecodingError(
