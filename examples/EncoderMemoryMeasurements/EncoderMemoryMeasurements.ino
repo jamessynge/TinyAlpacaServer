@@ -16,7 +16,7 @@ using ::alpaca::JsonPropertySource;
 
 void setup() {
   // Adding initialization of Serial device: 1784/184 program/ram bytes
-  Serial.begin(9600);  // start serial port at 9600 bps:
+  Serial.begin(57600);  // start serial port at 9600 bps:
   while (!Serial) {
   }  // wait for serial port to connect. Needed for native USB port only
 

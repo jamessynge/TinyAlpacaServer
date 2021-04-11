@@ -22,7 +22,7 @@ using ::alpaca::StringView;
 
 void setup() {
   // Adding initialization of Serial device: 1784/184 program/ram bytes
-  Serial.begin(9600);  // start serial port at 9600 bps:
+  Serial.begin(57600);  // start serial port at 9600 bps:
 
   // Wait for serial port to connect: 1784/184 program/ram bytes
   // (needed for native USB port only)
