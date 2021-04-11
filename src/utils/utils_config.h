@@ -55,6 +55,31 @@ extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
 
 #endif  // ARDUINO
 
+// Last, we apply explicit disablement of the features. This allows a single .cc
+// file to disable logging. For example, request_decoder has lots of logging,
+// but it is now well tested, so doesn't need much logging. Note that this
+// wouldn't be necessary if logging.h supported per-module conditional logging;
+// for embedded, this would be best done at compile time, which is a tad tricky.
+
+#ifdef TAS_DISABLE_VLOG
+#ifdef TAS_ENABLED_VLOG_LEVEL
+#undef TAS_ENABLED_VLOG_LEVEL
+#endif  // TAS_ENABLED_VLOG_LEVEL
+#define TAS_ENABLED_VLOG_LEVEL 0
+#endif  // TAS_DISABLE_VLOG
+
+#ifdef TAS_DISABLE_CHECK
+#ifdef TAS_ENABLE_CHECK
+#undef TAS_ENABLE_CHECK
+#endif  // TAS_ENABLE_CHECK
+#endif  // TAS_DISABLE_CHECK
+
+#ifdef TAS_DISABLE_DCHECK
+#ifdef TAS_ENABLE_DCHECK
+#undef TAS_ENABLE_DCHECK
+#endif  // TAS_ENABLE_DCHECK
+#endif  // TAS_DISABLE_DCHECK
+
 #endif  // TAS_DO_LOG_EXPERIMENT
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_UTILS_CONFIG_H_

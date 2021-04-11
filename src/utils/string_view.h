@@ -101,7 +101,7 @@ class StringView {
 
   // Remove the first prefix_length characters from the StringView.
   void remove_prefix(size_type prefix_length) noexcept {
-    TAS_VLOG(1) << TASLIT("remove_prefix(") << prefix_length
+    TAS_VLOG(5) << TASLIT("remove_prefix(") << prefix_length
                 << TASLIT("), size_=") << size_;
     TAS_DCHECK_LE(prefix_length, size_);
     size_ -= prefix_length;
@@ -235,7 +235,7 @@ class StringView {
 
 #if TAS_HOST_TARGET
 // Insertion streaming operator (i.e. operator<<) for values of type StringView,
-// used for tests, DCHECK_EQ, DVLOG, etc.
+// used on host for tests, DCHECK_EQ, DVLOG, etc.
 std::ostream& operator<<(std::ostream& out, const StringView& view);
 
 // The equals operators below are used for tests, CHECK_EQ, etc., where we want

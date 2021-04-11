@@ -14,6 +14,10 @@
 //
 // Author: james.synge@gmail.com
 
+#ifndef REQUEST_DECODER_ENABLE_TAS_VLOG
+#define TAS_DISABLE_VLOG
+#endif
+
 #include "request_decoder.h"
 
 #include "config.h"
