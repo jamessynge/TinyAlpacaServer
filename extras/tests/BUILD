@@ -3,6 +3,22 @@
 # them as code to be compiled for the target microcontroller.
 
 cc_test(
+    name = "alpaca_devices_test",
+    srcs = ["alpaca_devices_test.cc"],
+    deps = [
+        ":alpaca_devices",
+        ":ascom_error_codes",
+        ":constants",
+        ":device_interface",
+        ":json_encoder_helpers",
+        ":mock_device_interface",
+        ":print_to_std_string",
+        "//absl/strings",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "alpaca_response_test",
     srcs = ["alpaca_response_test.cc"],
     deps = [
@@ -134,22 +150,6 @@ cc_test(
         ":json_encoder_helpers",
         ":print_to_std_string",
         ":server_description",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_test(
-    name = "alpaca_devices_test",
-    srcs = ["alpaca_devices_test.cc"],
-    deps = [
-        ":alpaca_devices",
-        ":ascom_error_codes",
-        ":constants",
-        ":device_interface",
-        ":json_encoder_helpers",
-        ":mock_device_interface",
-        ":print_to_std_string",
-        "//absl/strings",
         "//googletest:gunit_main",
     ],
 )

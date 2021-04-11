@@ -12,6 +12,15 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_device_interface",
+    hdrs = ["mock_device_interface.h"],
+    deps = [
+        ":device_interface",
+        "//googletest:gunit_headers",
+    ],
+)
+
+cc_library(
     name = "mock_ethernet_client",
     hdrs = ["mock_ethernet_client.h"],
     deps = [
@@ -42,13 +51,4 @@ cc_library(
     name = "sample_printable",
     hdrs = ["sample_printable.h"],
     deps = [":print"],
-)
-
-cc_library(
-    name = "mock_device_interface",
-    hdrs = ["mock_device_interface.h"],
-    deps = [
-        ":device_interface",
-        "//googletest:gunit_headers",
-    ],
 )
