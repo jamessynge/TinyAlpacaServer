@@ -1,5 +1,6 @@
 #include "server_connections.h"
 
+#include "utils/o_print_stream.h"
 #include "utils/platform.h"
 
 namespace alpaca {
@@ -31,8 +32,8 @@ bool ServerConnections::Initialize() {
       "ServerConnections::Initialize, _server_ports at start:");
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
     TAS_VLOG(2) << '[' << sock_num << TASLIT("] port ")
-                << EthernetClass::_server_port[sock_num] << ", status "
-                << SocketStatus(sock_num);
+                << EthernetClass::_server_port[sock_num] << ", status 0x"
+                << BaseHex << SocketStatus(sock_num);
   }
 
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
@@ -45,8 +46,8 @@ bool ServerConnections::Initialize() {
   TAS_VLOG(2) << TASLIT("ServerConnections::Initialize, _server_ports:");
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
     TAS_VLOG(2) << '[' << sock_num << TASLIT("] port ")
-                << EthernetClass::_server_port[sock_num] << ", status "
-                << SocketStatus(sock_num);
+                << EthernetClass::_server_port[sock_num] << ", status 0x"
+                << BaseHex << SocketStatus(sock_num);
   }
   return true;
 }
@@ -57,8 +58,9 @@ void ServerConnections::PerformIO() {
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
     auto status = SocketStatus(sock_num);
     if (last_socket_status_[sock_num] != status) {
-      TAS_VLOG(2) << '[' << sock_num << TASLIT("] status changed from ")
-                  << last_socket_status_[sock_num] << " to " << status;
+      TAS_VLOG(2) << '[' << sock_num << TASLIT("] status changed from 0x")
+                  << BaseHex << last_socket_status_[sock_num] << " to 0x"
+                  << status;
       last_socket_status_[sock_num] = status;
     }
   }
@@ -118,8 +120,8 @@ void ServerConnections::PerformIO() {
           break;
         default:
           TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO socket ")
-                      << sock_num << TASLIT(" status is unexpected: ")
-                      << status;
+                      << sock_num << TASLIT(" status is unexpected: 0x")
+                      << BaseHex << status;
       }
     }
   }
@@ -135,8 +137,9 @@ void ServerConnections::PerformIO() {
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
     auto status = SocketStatus(sock_num);
     if (last_socket_status_[sock_num] != status) {
-      TAS_VLOG(2) << '[' << sock_num << TASLIT("] status changed from ")
-                  << last_socket_status_[sock_num] << " to " << status;
+      TAS_VLOG(2) << '[' << sock_num << TASLIT("] status changed from 0x")
+                  << BaseHex << last_socket_status_[sock_num] << " to 0x"
+                  << status;
       last_socket_status_[sock_num] = status;
     }
   }

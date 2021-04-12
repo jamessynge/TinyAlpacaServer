@@ -17,7 +17,7 @@ namespace alpaca {
 
 ServerConnection::ServerConnection(RequestListener& request_listener)
     : request_listener_(request_listener), request_decoder_(request_) {
-  TAS_VLOG(2) << TASLIT("ServerConnection@0x") << this << TASLIT(" ctor");
+  TAS_VLOG(4) << TASLIT("ServerConnection@0x") << this << TASLIT(" ctor");
 }
 
 void ServerConnection::OnConnect(EthernetClient& client) {
@@ -30,7 +30,7 @@ void ServerConnection::OnConnect(EthernetClient& client) {
 }
 
 void ServerConnection::OnCanRead(EthernetClient& client) {
-  TAS_VLOG(2) << TASLIT("ServerConnection@0x") << this
+  TAS_VLOG(5) << TASLIT("ServerConnection@0x") << this
               << " ->::OnCanRead socket " << client.getSocketNumber();
   TAS_DCHECK_EQ(sock_num(), client.getSocketNumber());
   TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||

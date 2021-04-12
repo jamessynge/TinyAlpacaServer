@@ -112,11 +112,8 @@ struct WriteResponse {
                                 Print& out) {
     return HttpErrorResponse(status_code, AnyPrintable(body), out);
   }
-
-  // Writes a 500 Internal Server Error response with a text body to out.
-  // Returns false.
-  static bool HttpInternalServerErrorResponse(Printable& body, Print& out);
 };
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_ALPACA_RESPONSE_H_

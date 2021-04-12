@@ -191,9 +191,8 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
   HttpResponseHeader hrh;
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
     hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
-
-    auto taslit = TASLIT("Internal Server Error: Invalid HTTP Status Code");
-    hrh.reason_phrase = Literal(taslit.progmem_data(), taslit.size());
+    hrh.reason_phrase =
+        TASLIT("Internal Server Error: Invalid HTTP Status Code");
   } else {
     hrh.status_code = status_code;
     switch (status_code) {
@@ -242,4 +241,5 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
   body.printTo(out);
   return false;
 }
+
 }  // namespace alpaca
