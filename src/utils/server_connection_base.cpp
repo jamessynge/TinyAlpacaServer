@@ -9,12 +9,12 @@ class ExtendedEthernetClient : public EthernetClient {
  public:
   explicit ExtendedEthernetClient(uint8_t sock)
       : EthernetClient(sock), stopped_(false) {
-    TAS_VLOG(2) << TASLIT("ExtendedEthernetClient@0x") << this
+    TAS_VLOG(5) << TASLIT("ExtendedEthernetClient@0x") << this
                 << TASLIT(" ctor");
   }
 #if TAS_ENABLED_VLOG_LEVEL >= 2
   ~ExtendedEthernetClient() {
-    TAS_VLOG(2) << TASLIT("ExtendedEthernetClient@0x") << this
+    TAS_VLOG(5) << TASLIT("ExtendedEthernetClient@0x") << this
                 << TASLIT(" dtor");
   }
 #endif
@@ -27,10 +27,13 @@ class ExtendedEthernetClient : public EthernetClient {
   }
 
   bool stopped() const {
-    TAS_VLOG(2) << TASLIT("ExtendedEthernetClient::stopped, sock_num=")
-                << getSocketNumber() << TASLIT(", returning ")
-                << (stopped_ ? TASLIT("true") : TASLIT("false"));
-
+#if TAS_ENABLED_VLOG_LEVEL >= 2
+    if (stopped_) {
+      TAS_VLOG(2) << TASLIT("ExtendedEthernetClient::stopped, sock_num=")
+                  << getSocketNumber() << TASLIT(", returning ")
+                  << (stopped_ ? TASLIT("true") : TASLIT("false"));
+    }
+#endif
     return stopped_;
   }
 
@@ -50,6 +53,8 @@ bool ServerConnectionBase::set_sock_num(uint8_t sock_num) {
   ExtendedEthernetClient client(sock_num_);
   OnConnect(client);
   if (client.stopped()) {
+    TAS_VLOG(2) << TASLIT("ServerConnectionBase::set_sock_num, sock_num=")
+                << sock_num << ", OnConnect stopped the connection.";
     sock_num_ = -1;
   }
   return true;
@@ -63,6 +68,8 @@ void ServerConnectionBase::PerformIO() {
   // Are we still connected?
   if (!PlatformEthernet::IsOpenForWriting(sock_num_)) {
     // Not anymore.
+    TAS_VLOG(2) << TASLIT("ServerConnectionBase::PerformIO, sock_num_=")
+                << sock_num_ << ", calling OnDisconnect.";
     OnDisconnect();
     sock_num_ = -1;
     return;
@@ -73,9 +80,13 @@ void ServerConnectionBase::PerformIO() {
   } else if (PlatformEthernet::IsClientDone(sock_num_)) {
     // We've read all we can from the client, but the connection is still
     // open so we can still write.
+    TAS_VLOG(2) << TASLIT("ServerConnectionBase::PerformIO, sock_num_=")
+                << sock_num_ << ", calling OnClientDone.";
     OnClientDone(client);
   }
   if (client.stopped()) {
+    TAS_VLOG(2) << TASLIT("ServerConnectionBase::PerformIO, sock_num_=")
+                << sock_num_ << ", client.stop() was called.";
     sock_num_ = -1;
   }
 }

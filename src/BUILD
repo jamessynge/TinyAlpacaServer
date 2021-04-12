@@ -351,6 +351,7 @@ cc_library(
     srcs = ["server_connections.cc"],
     hdrs = ["server_connections.h"],
     deps = [
+        ":ethernet_config",
         ":platform",
         ":request_listener",
         ":server_connection",

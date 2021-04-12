@@ -44,6 +44,7 @@ class ServerConnections {
   bool AssignServerConnectionToSocket(int sock_num);
 
   uint16_t tcp_port_;
+  uint8_t last_socket_status_[MAX_SOCK_NUM];
   alignas(ServerConnection) uint8_t
       connections_storage_[kServerConnectionsStorage];
 };

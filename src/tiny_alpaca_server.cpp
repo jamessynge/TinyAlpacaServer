@@ -22,8 +22,17 @@ TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
       server_transaction_id_(0) {}
 
 bool TinyAlpacaServer::Initialize() {
-  return alpaca_devices_.Initialize() && server_connections_.Initialize() &&
-         discovery_server_.Initialize();
+  // Give everything a chance to initialize so that logs will contain relevant
+  // info about any failures. Choosing to initialize the discovery server first
+  // so that it occupies socket 0.
+  bool result = discovery_server_.Initialize();
+  if (!alpaca_devices_.Initialize()) {
+    result = false;
+  }
+  if (!server_connections_.Initialize()) {
+    result = false;
+  }
+  return result;
 }
 
 void TinyAlpacaServer::PerformIO() {
