@@ -22,19 +22,25 @@ class TcpServerConnection : public WrappedClientConnection {
 #endif
 
   void close() override {
-    auto sock_num = client_.getSocketNumber();
-    auto status = PlatformEthernet::SocketStatus(sock_num);
-    TAS_VLOG(2) << TASLIT("TcpServerConnection::close, sock_num=") << sock_num
-                << TASLIT(", status=") << status;
+    // The Ethernet3 library's EthernetClient::stop method bakes in a limit of 1
+    // second for closing a connection, and spins in a loop waiting until the
+    // connection closed, with a delay of 1 millisecond per loop. We avoid this
+    // here by NOT delegating to the stop method. Instead we start the close
+    // with a DISCONNECT operation (i.e. sending a FIN packet to the peer).
+    // PerformIO below will complete the close at some time in the future.
+    auto socket_number = sock_num();
+    auto status = PlatformEthernet::SocketStatus(socket_number);
+    TAS_VLOG(2) << TASLIT("TcpServerConnection::close, sock_num=")
+                << socket_number << TASLIT(", status=") << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
       disconnect_data_.RecordDisconnect();
-      PlatformEthernet::DisconnectSocket(sock_num);
+      PlatformEthernet::DisconnectSocket(socket_number);
     }
   }
 
   bool connected() const override { return client_.connected(); }
 
-  uint8_t getSocketNumber() const override { return client_.getSocketNumber(); }
+  uint8_t sock_num() const override { return client_.getSocketNumber(); }
 
  protected:
   Client &client() const override { return client_; }
@@ -106,6 +112,9 @@ bool ServerSocket::BeginListening(uint8_t sock_num) {
 // On<Event> calls per call to PerformIO. This method is expected to be called
 // from the loop() function of an Arduino sketch (i.e. typically hundreds or
 // thousands of times a second).
+// TODO(jamessynge): IFF this doesn't perform well enough, investigate using the
+// interrupt features of the W5500 to learn which sockets have state changes
+// more rapidly.
 void ServerSocket::PerformIO() {
   // Detect transitions.
   auto status = PlatformEthernet::SocketStatus(sock_num_);

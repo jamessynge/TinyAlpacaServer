@@ -22,9 +22,9 @@ ServerConnection2::ServerConnection2(RequestListener& request_listener)
 
 void ServerConnection2::OnConnect(Connection& connection) {
   TAS_VLOG(2) << TASLIT("ServerConnection2@0x") << this
-              << TASLIT(" ->::OnConnect ") << connection.getSocketNumber();
+              << TASLIT(" ->::OnConnect ") << connection.sock_num();
   TAS_DCHECK(!has_socket());
-  sock_num_ = connection.getSocketNumber();
+  sock_num_ = connection.sock_num();
   request_decoder_.Reset();
   between_requests_ = true;
   input_buffer_size_ = 0;
@@ -32,8 +32,8 @@ void ServerConnection2::OnConnect(Connection& connection) {
 
 void ServerConnection2::OnCanRead(Connection& connection) {
   TAS_VLOG(5) << TASLIT("ServerConnection2@0x") << this
-              << " ->::OnCanRead socket " << connection.getSocketNumber();
-  TAS_DCHECK_EQ(sock_num(), connection.getSocketNumber());
+              << " ->::OnCanRead socket " << connection.sock_num();
+  TAS_DCHECK_EQ(sock_num(), connection.sock_num());
   TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
              request_decoder_.status() == RequestDecoderStatus::kDecoding);
   // Load input_buffer_ with as much data as will fit.
@@ -55,8 +55,7 @@ void ServerConnection2::OnCanRead(Connection& connection) {
 
     StringView view(input_buffer_, input_buffer_size_);
     const bool buffer_is_full = input_buffer_size_ == sizeof input_buffer_;
-    const bool at_end =
-        PlatformEthernet::IsClientDone(connection.getSocketNumber());
+    const bool at_end = PlatformEthernet::IsClientDone(connection.sock_num());
 
     EHttpStatusCode status_code =
         request_decoder_.DecodeBuffer(view, buffer_is_full, at_end);
@@ -105,6 +104,7 @@ void ServerConnection2::OnCanRead(Connection& connection) {
     // we don't require finding the end of a corrupt input request.
     if (close_connection) {
       connection.close();
+      sock_num_ = MAX_SOCK_NUM;
     } else {
       // Prepare the decoder for the next request.
       request_decoder_.Reset();
@@ -114,8 +114,8 @@ void ServerConnection2::OnCanRead(Connection& connection) {
 
 void ServerConnection2::OnHalfClosed(Connection& connection) {
   TAS_VLOG(2) << TASLIT("ServerConnection2@0x") << this
-              << TASLIT(" ->::OnHalfClosed socket ")
-              << connection.getSocketNumber();
+              << TASLIT(" ->::OnHalfClosed socket ") << connection.sock_num();
+  TAS_DCHECK_EQ(sock_num(), connection.sock_num());
 
   if (!between_requests_) {
     // We've read some data but haven't been able to decode a complete request.
@@ -123,8 +123,14 @@ void ServerConnection2::OnHalfClosed(Connection& connection) {
         request_, EHttpStatusCode::kHttpBadRequest, connection);
   }
   connection.close();
+  sock_num_ = MAX_SOCK_NUM;
 }
 
-void ServerConnection2::OnDisconnect() {}
+void ServerConnection2::OnDisconnect() {
+  TAS_VLOG(2) << TASLIT("ServerConnection2@0x") << this
+              << TASLIT(" ->::OnDisconnect, sock_num_=") << sock_num_;
+  TAS_DCHECK(has_socket());
+  sock_num_ = MAX_SOCK_NUM;
+}
 
 }  // namespace alpaca

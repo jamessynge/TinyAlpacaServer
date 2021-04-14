@@ -28,7 +28,9 @@ class Connection : public Stream {
 
   using Stream::read;
 
-  virtual uint8_t getSocketNumber() const = 0;
+  // Returns the hardware socket number of this connection. This is exposed
+  // primarily to support debugging.
+  virtual uint8_t sock_num() const = 0;
 };
 
 // An abstract implementation of Connection that delegates to a Client instance
