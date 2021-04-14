@@ -46,9 +46,14 @@ cc_library(
         ":request_decoder_listener",
         ":request_listener",
         ":server_connection",
+        ":server_connection2",
         ":server_connection_base",
         ":server_connections",
         ":server_description",
+        ":server_socket",
+        ":server_socket_and_connection",
+        ":server_sockets_and_connections",
+        ":socket_listener",
         ":status",
         ":status_or",
         ":string_compare",
@@ -347,6 +352,24 @@ cc_library(
 )
 
 cc_library(
+    name = "server_connection2",
+    srcs = ["server_connection2.cc"],
+    hdrs = ["server_connection2.h"],
+    deps = [
+        ":alpaca_request",
+        ":alpaca_response",
+        ":constants",
+        ":literals",
+        ":platform",
+        ":platform_ethernet",
+        ":request_decoder",
+        ":request_listener",
+        ":socket_listener",
+        ":string_view",
+    ],
+)
+
+cc_library(
     name = "server_connections",
     srcs = ["server_connections.cc"],
     hdrs = ["server_connections.h"],
@@ -372,6 +395,28 @@ cc_library(
 )
 
 cc_library(
+    name = "server_socket_and_connection",
+    srcs = ["server_socket_and_connection.cc"],
+    hdrs = ["server_socket_and_connection.h"],
+    deps = [
+        ":platform",
+        ":server_connection2",
+        ":server_socket",
+    ],
+)
+
+cc_library(
+    name = "server_sockets_and_connections",
+    srcs = ["server_sockets_and_connections.cc"],
+    hdrs = ["server_sockets_and_connections.h"],
+    deps = [
+        ":platform",
+        ":request_listener",
+        ":server_socket_and_connection",
+    ],
+)
+
+cc_library(
     name = "tiny_alpaca_server",
     srcs = ["tiny_alpaca_server.cc"],
     hdrs = ["tiny_alpaca_server.h"],
@@ -389,7 +434,7 @@ cc_library(
         ":literals",
         ":platform",
         ":printable_cat",
-        ":server_connections",
         ":server_description",
+        ":server_sockets_and_connections",
     ],
 )

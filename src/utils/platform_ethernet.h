@@ -26,24 +26,37 @@ namespace alpaca {
 
 // Helper for testing with the same API on host and embedded.
 struct PlatformEthernet {
+  // Returns the implementation defined status value for the specified socket.
+  static uint8_t SocketStatus(uint8_t sock_num);
+
+  // Finds a hardware socket that is closed, and returns its socket number.
+  // Returns -1 if there is no such socket.
+  static int FindUnusedSocket();
+
   // Set socket 'sock_num' to listen for new TCP connections on port 'tcp_port',
   // regardless of what that socket is doing now. Returns true if able to do so;
   // false if not (e.g. if sock_num or tcp_port is invalid).
-  static bool InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port);
+  static bool InitializeTcpListenerSocket(uint8_t sock_num, uint16_t tcp_port);
 
   // Returns true if the socket is connected to a peer.
-  static bool SocketIsConnected(int sock_num);
+  static bool SocketIsConnected(uint8_t sock_num);
+
+  // Initiates a DISCONNECT of a TCP socket.
+  static bool DisconnectSocket(uint8_t sock_num);
+
+  // Forces a socket to be closed, with no packets sent out.
+  static bool CloseSocket(uint8_t sock_num);
 
   // SnSR::CLOSE_WAIT && no data available to read.
-  static bool IsClientDone(int sock_num);
+  static bool IsClientDone(uint8_t sock_num);
 
   // Is the connection open for writing (i.e. this end hasn't closed or
   // half-closed it)?
-  static bool IsOpenForWriting(int sock_num);
+  static bool IsOpenForWriting(uint8_t sock_num);
 
   // Returns true if the socket is completely closed (not in use for any
   // purpose).
-  static bool SocketIsClosed(int sock_num);
+  static bool SocketIsClosed(uint8_t sock_num);
 };
 
 }  // namespace alpaca

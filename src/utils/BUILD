@@ -52,7 +52,10 @@ cc_library(
     name = "connection",
     srcs = ["connection.cc"],
     hdrs = ["connection.h"],
-    deps = [":platform_ethernet"],
+    deps = [
+        ":logging",
+        ":platform_ethernet",
+    ],
 )
 
 cc_library(
@@ -238,6 +241,28 @@ cc_library(
         ":logging",
         ":platform",
         ":platform_ethernet",
+    ],
+)
+
+cc_library(
+    name = "server_socket",
+    srcs = ["server_socket.cc"],
+    hdrs = ["server_socket.h"],
+    deps = [
+        ":connection",
+        ":logging",
+        ":platform",
+        ":platform_ethernet",
+        ":socket_listener",
+    ],
+)
+
+cc_library(
+    name = "socket_listener",
+    hdrs = ["socket_listener.h"],
+    deps = [
+        ":connection",
+        ":platform",
     ],
 )
 

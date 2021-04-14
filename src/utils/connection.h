@@ -3,52 +3,50 @@
 
 // Connection is like Arduino's Client class, but doesn't include the connect
 // method; i.e. a Connection is used to represent an existing (TCP) connection,
-// not to create one.
+// not to create one. This is useful for implementing a server where we want to
+// work with connections initiated by a remote client.
 
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
-namespace internal {
 
-class ClientConnection;
-
-}  // namespace internal
-
+// Extends Arduino's Stream with methods for closing a connection and checking
+// whether it has been closed.
 class Connection : public Stream {
  public:
-  // Create an instance of Connection which forwards method calls to an instance
-  // of Client. 'client' must outlive the returned Connection (specifically, it
-  // must exist as long as calls are being made to the methods).
-  static internal::ClientConnection Wrap(Client &client);
+  // Close the connection (fully, not half-closed).
+  virtual void close() = 0;
 
-  // Write a byte.
-  int read() override = 0;
-  virtual int read(uint8_t *buf, size_t size) = 0;
-  virtual void flush() = 0;
-  virtual void stop() = 0;
-  virtual uint8_t connected() = 0;
+  // Returns true if the connection is either readable or writeable.
+  virtual bool connected() const = 0;
+
+  // Reads up to 'size' bytes into buf, stopping early if there are no more
+  // bytes available to read from the connection. Returns the number of bytes
+  // read. The default implementation uses `int Stream::read()` to read one byte
+  // at a time.
+  virtual size_t read(uint8_t *buf, size_t size);
+
+  using Stream::read;
+
+  virtual uint8_t getSocketNumber() const = 0;
 };
 
-namespace internal {
-
-class ClientConnection : public Connection {
+// An abstract implementation of Connection that delegates to a Client instance
+// provided by a subclass. The subclass is also responsible for implementing
+// close() and connected().
+class WrappedClientConnection : public Connection {
  public:
-  explicit ClientConnection(Client &client);
   size_t write(uint8_t b) override;
   size_t write(const uint8_t *buf, size_t size) override;
   int available() override;
   int read() override;
-  int read(uint8_t *buf, size_t size) override;
+  size_t read(uint8_t *buf, size_t size) override;
   int peek() override;
   void flush() override;
-  void stop() override;
-  uint8_t connected() override;
 
- private:
-  Client &client_;
+ protected:
+  virtual Client &client() const = 0;
 };
-
-}  // namespace internal
 
 }  // namespace alpaca
 

@@ -27,6 +27,9 @@
 #define AVR_PROGMEM
 #endif  // ARDUINO_ARCH_AVR
 
+using MillisT = unsigned long;  // NOLINT
+using MicrosT = unsigned long;  // NOLINT
+
 #else  // !ARDUINO
 
 #define TAS_EMBEDDED_TARGET 0
@@ -46,6 +49,9 @@
 #include "extras/host/eeprom/eeprom.h"     // IWYU pragma: export
 
 #define AVR_PROGMEM
+
+using MillisT = uint32_t;
+using MicrosT = uint32_t;
 
 #endif  // ARDUINO
 

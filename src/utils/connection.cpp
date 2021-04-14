@@ -1,23 +1,39 @@
 #include "utils/connection.h"
 
+#include "utils/logging.h"
+
 namespace alpaca {
-namespace internal {
-ClientConnection::ClientConnection(Client &client) : client_(client) {}
 
-size_t ClientConnection::write(uint8_t b) { return client_.write(b); }
-size_t ClientConnection::write(const uint8_t *buf, size_t size) {
-  return client_.write(buf, size);
+size_t Connection::read(uint8_t *buf, size_t size) {
+  size_t result = 0;
+  while (size > 0) {
+    int c = read();
+    if (c < 0) {
+      break;
+    }
+    TAS_DCHECK_LT(c, 256) << "c (" << c << ") should be in the range [0, 255]";
+    *buf++ = c & 0xff;
+    ++result;
+    --size;
+  }
+  return result;
 }
-int ClientConnection::available() { return client_.available(); }
-int ClientConnection::read() { return client_.read(); }
-int ClientConnection::read(uint8_t *buf, size_t size) {
-  return client_.read(buf, size);
-}
-int ClientConnection::peek() { return client_.peek(); }
-void ClientConnection::flush() { return client_.flush(); }
-void ClientConnection::stop() { return client_.stop(); }
-uint8_t ClientConnection::connected() { return client_.connected(); }
 
-}  // namespace internal
+size_t WrappedClientConnection::write(uint8_t b) { return client().write(b); }
+size_t WrappedClientConnection::write(const uint8_t *buf, size_t size) {
+  return client().write(buf, size);
+}
+int WrappedClientConnection::available() { return client().available(); }
+int WrappedClientConnection::read() { return client().read(); }
+size_t WrappedClientConnection::read(uint8_t *buf, size_t size) {
+  int result = client().read(buf, size);
+  if (result >= 0) {
+    return result;
+  } else {
+    return 0;
+  }
+}
+int WrappedClientConnection::peek() { return client().peek(); }
+void WrappedClientConnection::flush() { return client().flush(); }
 
 }  // namespace alpaca

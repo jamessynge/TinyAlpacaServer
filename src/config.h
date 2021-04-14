@@ -10,6 +10,10 @@
 //
 // Author: james.synge@gmail.com
 
+// The number of hardware sockets we'll dedicate to listening for TCP
+// connections to the Tiny Alpaca Server.
+#define TAS_NUM_SERVER_CONNECTIONS 6
+
 #define TAS_ENABLE_REQUEST_DECODER_LISTENER 0
 
 // This isn't fully fleshed out, but the basics are there for storing the

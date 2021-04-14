@@ -5,20 +5,17 @@
 
 namespace alpaca {
 
-namespace {
-uint8_t SocketStatus(int sock_num) {
-  EthernetClient client(sock_num);
-  return client.status();
-}
-bool SocketIsConnected(int sock_num) {
-  auto status = SocketStatus(sock_num);
-  return status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT;
-}
-}  // namespace
-
 ServerConnections::ServerConnections(RequestListener& request_listener,
                                      uint16_t tcp_port)
     : tcp_port_(tcp_port) {
+  static_assert(0 < kNumServerConnections, "Too few server connections");
+  static_assert(kNumServerConnections < MAX_SOCK_NUM,
+                "Too many server connections");
+
+  for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
+    new (GetServerConnection(ndx)) ServerConnection(request_listener);
+  }
+
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     new (GetServerConnection(ndx)) ServerConnection(request_listener);
   }
@@ -33,7 +30,7 @@ bool ServerConnections::Initialize() {
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
     TAS_VLOG(2) << '[' << sock_num << TASLIT("] port ")
                 << EthernetClass::_server_port[sock_num] << ", status 0x"
-                << BaseHex << SocketStatus(sock_num);
+                << BaseHex << PlatformEthernet::SocketStatus(sock_num);
   }
 
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
@@ -47,7 +44,7 @@ bool ServerConnections::Initialize() {
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
     TAS_VLOG(2) << '[' << sock_num << TASLIT("] port ")
                 << EthernetClass::_server_port[sock_num] << ", status 0x"
-                << BaseHex << SocketStatus(sock_num);
+                << BaseHex << PlatformEthernet::SocketStatus(sock_num);
   }
   return true;
 }
@@ -56,7 +53,7 @@ void ServerConnections::PerformIO() {
   TAS_VLOG(4) << TASLIT("ServerConnections::PerformIO entry");
 
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
-    auto status = SocketStatus(sock_num);
+    auto status = PlatformEthernet::SocketStatus(sock_num);
     if (last_socket_status_[sock_num] != status) {
       TAS_VLOG(2) << '[' << sock_num << TASLIT("] status changed from 0x")
                   << BaseHex << last_socket_status_[sock_num] << " to 0x"
@@ -69,14 +66,15 @@ void ServerConnections::PerformIO() {
   for (size_t ndx = 0; ndx < kNumServerConnections; ++ndx) {
     auto* conn = GetServerConnection(ndx);
     if (conn && conn->has_socket()) {
-      if (!SocketIsConnected(conn->sock_num())) {
+      if (!PlatformEthernet::SocketIsConnected(conn->sock_num())) {
         // Not connected. Call PerformIO which will detect the missing
         // connection and take the appropriate action.
 
         TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO ServerConnection[")
                     << ndx << TASLIT("] no longer connected; sock_num was ")
                     << conn->sock_num();
-        last_socket_status_[conn->sock_num()] = SocketStatus(conn->sock_num());
+        last_socket_status_[conn->sock_num()] =
+            PlatformEthernet::SocketStatus(conn->sock_num());
 
         conn->PerformIO();
 
@@ -94,7 +92,7 @@ void ServerConnections::PerformIO() {
     if (EthernetClass::_server_port[sock_num] != tcp_port_) {
       // Not related to this server.
       continue;
-    } else if (SocketIsConnected(sock_num)) {
+    } else if (PlatformEthernet::SocketIsConnected(sock_num)) {
       if (GetServerConnectionForSocket(sock_num) == nullptr) {
         // New connection.
         TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO socket ")
@@ -109,15 +107,19 @@ void ServerConnections::PerformIO() {
             << sock_num;
       }
     } else {
-      uint8_t status = SocketStatus(sock_num);
+      uint8_t status = PlatformEthernet::SocketStatus(sock_num);
       switch (status) {
         case SnSR::CLOSING:
-        case SnSR::FIN_WAIT:
-        case SnSR::LAST_ACK:
         case SnSR::LISTEN:
-        case SnSR::SYNRECV:
         case SnSR::TIME_WAIT:
+        case SnSR::FIN_WAIT:
           break;
+        // case SnSR::LAST_ACK:
+        // case SnSR::SYNRECV:
+        // case SnSR::UDP:
+        // case SnSR::IPRAW:
+        // case SnSR::MACRAW:
+        // case SnSR::PPPOE:
         default:
           TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO socket ")
                       << sock_num << TASLIT(" status is unexpected: 0x")
@@ -135,7 +137,7 @@ void ServerConnections::PerformIO() {
   }
 
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
-    auto status = SocketStatus(sock_num);
+    auto status = PlatformEthernet::SocketStatus(sock_num);
     if (last_socket_status_[sock_num] != status) {
       TAS_VLOG(2) << '[' << sock_num << TASLIT("] status changed from 0x")
                   << BaseHex << last_socket_status_[sock_num] << " to 0x"

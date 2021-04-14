@@ -448,10 +448,12 @@ def process_file(file_path: str):
     if re.match('k[A-Z]', identifier):
       return (identifier, f'"{identifier[1:]}"')
     return (identifier, f'"{identifier}"')
+
   def fix_enumerators(enum_def: Dict[str, Any]) -> None:
     enum_def['enumerators'] = [
         make_id_and_str(v) for v in enum_def['enumerators']
     ]
+
   for enum_def in enum_definitions:
     fix_enumerators(enum_def)
 
@@ -507,8 +509,7 @@ size_t PrintUnknownEnumValueTo(const char* name, uint32_t v, Print& out) {
 
   for enum_def in enum_definitions:
     name = enum_def['name']
-    print(
-        f"""
+    print(f"""
 size_t PrintValueTo({name} v, Print& out) {{
   auto printable = ToPrintableProgmemString(v);
   if (printable.size() > 0) {{

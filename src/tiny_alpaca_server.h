@@ -36,8 +36,8 @@
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
 #include "device_impl_base.h"
-#include "server_connections.h"
 #include "server_description.h"
+#include "server_sockets_and_connections.h"
 #include "utils/array_view.h"
 #include "utils/platform.h"
 
@@ -77,7 +77,7 @@ class TinyAlpacaServer : public RequestListener {
   bool HandleServerSetup(AlpacaRequest& request, Print& out);
 
   AlpacaDevices alpaca_devices_;
-  ServerConnections server_connections_;
+  ServerSocketsAndConnections sockets_;
   TinyAlpacaDiscoveryServer discovery_server_;
   const ServerDescription& server_description_;
   uint32_t server_transaction_id_;

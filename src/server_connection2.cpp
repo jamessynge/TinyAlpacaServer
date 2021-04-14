@@ -1,0 +1,133 @@
+#include "server_connection2.h"
+
+#include "alpaca_response.h"
+#include "constants.h"
+#include "literals.h"
+#include "request_listener.h"
+#include "utils/platform_ethernet.h"
+#include "utils/string_view.h"
+
+#if TAS_HOST_TARGET
+#include <string.h>
+#endif
+
+namespace alpaca {
+
+ServerConnection2::ServerConnection2(RequestListener& request_listener)
+    : request_listener_(request_listener),
+      request_decoder_(request_),
+      // state_(State::kClosed),
+      sock_num_(MAX_SOCK_NUM) {
+  TAS_VLOG(4) << TASLIT("ServerConnection2 @ 0x") << this << TASLIT(" ctor");
+}
+
+void ServerConnection2::OnConnect(Connection& connection) {
+  TAS_VLOG(2) << TASLIT("ServerConnection2@0x") << this
+              << TASLIT(" ->::OnConnect ") << connection.getSocketNumber();
+  TAS_DCHECK(!has_socket());
+  // TAS_DCHECK_EQ(state_, State::kClosed);
+  sock_num_ = connection.getSocketNumber();
+  request_decoder_.Reset();
+  // state_ = State::kBetweenRequests;
+  between_requests_ = true;
+  input_buffer_size_ = 0;
+}
+
+void ServerConnection2::OnCanRead(Connection& connection) {
+  TAS_VLOG(5) << TASLIT("ServerConnection2@0x") << this
+              << " ->::OnCanRead socket " << connection.getSocketNumber();
+  TAS_DCHECK_EQ(sock_num(), connection.getSocketNumber());
+  TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
+             request_decoder_.status() == RequestDecoderStatus::kDecoding);
+  // Load input_buffer_ with as much data as will fit.
+  if (input_buffer_size_ < sizeof input_buffer_) {
+    auto ret = connection.read(
+        reinterpret_cast<uint8_t*>(&input_buffer_[input_buffer_size_]),
+        (sizeof input_buffer_) - input_buffer_size_);
+    if (ret > 0) {
+      input_buffer_size_ += ret;
+      between_requests_ = false;
+    }
+  }
+
+  // If there is data to be decoded, do so.
+  if (input_buffer_size_ > 0) {
+    if (request_decoder_.status() == RequestDecoderStatus::kReset) {
+      request_listener_.OnStartDecoding(request_);
+    }
+
+    StringView view(input_buffer_, input_buffer_size_);
+    const bool buffer_is_full = input_buffer_size_ == sizeof input_buffer_;
+    const bool at_end =
+        PlatformEthernet::IsClientDone(connection.getSocketNumber());
+
+    EHttpStatusCode status_code =
+        request_decoder_.DecodeBuffer(view, buffer_is_full, at_end);
+
+    // Update the input buffer to reflect that some input has (hopefully) been
+    // decoded.
+    if (view.empty()) {
+      input_buffer_size_ = 0;
+    } else {
+      // Verify that any removed bytes constitute a prefix of input_buffer_.
+      TAS_DCHECK_LE(view.size(), input_buffer_size_);
+      TAS_DCHECK_EQ(view.data() + view.size(),
+                    input_buffer_ + input_buffer_size_);
+
+      if (view.size() < input_buffer_size_) {
+        // Move the undecoded bytes to the front of the buffer.
+        input_buffer_size_ = view.size();
+        memcpy(input_buffer_, view.data(), view.size());
+      }
+    }
+
+    // Are we done decoding?
+    if (status_code < EHttpStatusCode::kHttpOk) {
+      // No.
+      return;
+    }
+
+    TAS_VLOG(2) << TASLIT("ServerConnection2@0x") << this
+                << TASLIT(" ->::OnCanRead status_code: ") << status_code;
+
+    bool close_connection = false;
+    if (status_code == EHttpStatusCode::kHttpOk) {
+      if (input_buffer_size_ == 0) {
+        between_requests_ = true;
+      }
+      if (!request_listener_.OnRequestDecoded(request_, connection)) {
+        close_connection = true;
+      }
+    } else {
+      request_listener_.OnRequestDecodingError(request_, status_code,
+                                               connection);
+      close_connection = true;
+    }
+
+    // If we've returned an error, then we also close the connection so that
+    // we don't require finding the end of a corrupt input request.
+    if (close_connection) {
+      connection.close();
+    } else {
+      // Prepare the decoder for the next request.
+      request_decoder_.Reset();
+    }
+  }
+}
+
+void ServerConnection2::OnHalfClosed(Connection& connection) {
+  TAS_VLOG(2) << TASLIT("ServerConnection2@0x") << this
+              << TASLIT(" ->::OnHalfClosed socket ")
+              << connection.getSocketNumber();
+
+  if (!between_requests_) {
+    // We've read some data but haven't been able to decode a complete request.
+    request_listener_.OnRequestDecodingError(
+        request_, EHttpStatusCode::kHttpBadRequest, connection);
+  }
+  connection.close();
+}
+
+void ServerConnection2::OnDisconnect() {}
+
+}  // namespace alpaca

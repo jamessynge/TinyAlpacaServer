@@ -28,7 +28,7 @@ class ExtendedEthernetClient : public EthernetClient {
 
   bool stopped() const {
 #if TAS_ENABLED_VLOG_LEVEL >= 2
-    if (stopped_) {
+    if (stopped_ || TAS_ENABLED_VLOG_LEVEL >= 4) {
       TAS_VLOG(2) << TASLIT("ExtendedEthernetClient::stopped, sock_num=")
                   << getSocketNumber() << TASLIT(", returning ")
                   << (stopped_ ? TASLIT("true") : TASLIT("false"));

@@ -16,7 +16,7 @@ TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
                                    const ServerDescription& server_description,
                                    ArrayView<DeviceInterface*> devices)
     : alpaca_devices_(devices),
-      server_connections_(*this, tcp_port),
+      sockets_(tcp_port, *this),
       discovery_server_(tcp_port),
       server_description_(server_description),
       server_transaction_id_(0) {}
@@ -29,7 +29,7 @@ bool TinyAlpacaServer::Initialize() {
   if (!alpaca_devices_.Initialize()) {
     result = false;
   }
-  if (!server_connections_.Initialize()) {
+  if (!sockets_.Initialize()) {
     result = false;
   }
   return result;
@@ -37,7 +37,7 @@ bool TinyAlpacaServer::Initialize() {
 
 void TinyAlpacaServer::PerformIO() {
   alpaca_devices_.MaintainDevices();
-  server_connections_.PerformIO();
+  sockets_.PerformIO();
   discovery_server_.PerformIO();
 }
 

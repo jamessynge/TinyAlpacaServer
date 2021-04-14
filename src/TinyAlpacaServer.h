@@ -29,8 +29,11 @@
 #include "request_decoder_listener.h"        // IWYU pragma: export
 #include "request_listener.h"                // IWYU pragma: export
 #include "server_connection.h"               // IWYU pragma: export
+#include "server_connection2.h"              // IWYU pragma: export
 #include "server_connections.h"              // IWYU pragma: export
 #include "server_description.h"              // IWYU pragma: export
+#include "server_socket_and_connection.h"    // IWYU pragma: export
+#include "server_sockets_and_connections.h"  // IWYU pragma: export
 #include "tiny_alpaca_server.h"              // IWYU pragma: export
 #include "utils/addresses.h"                 // IWYU pragma: export
 #include "utils/any_printable.h"             // IWYU pragma: export
@@ -54,6 +57,8 @@
 #include "utils/printable_cat.h"             // IWYU pragma: export
 #include "utils/printable_progmem_string.h"  // IWYU pragma: export
 #include "utils/server_connection_base.h"    // IWYU pragma: export
+#include "utils/server_socket.h"             // IWYU pragma: export
+#include "utils/socket_listener.h"           // IWYU pragma: export
 #include "utils/status.h"                    // IWYU pragma: export
 #include "utils/status_or.h"                 // IWYU pragma: export
 #include "utils/string_compare.h"            // IWYU pragma: export
