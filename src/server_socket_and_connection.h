@@ -15,7 +15,9 @@ class ServerSocketAndConnection {
   ServerSocketAndConnection(uint16_t tcp_port,
                             RequestListener& request_listener);
 
-  // Placement new operator.
+  // Placement new operator. Used to allow us to have a compile time
+  // configuration of the number of simultaneous connections that we want to
+  // support, i.e. the number of hardware sockets dedicated to serving tcp_port.
   void* operator new(size_t size, void* ptr) { return ptr; }
 
   // Prepares the instance to receive TCP connections. Returns true if able to

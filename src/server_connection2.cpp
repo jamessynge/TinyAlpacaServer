@@ -16,7 +16,6 @@ namespace alpaca {
 ServerConnection2::ServerConnection2(RequestListener& request_listener)
     : request_listener_(request_listener),
       request_decoder_(request_),
-      // state_(State::kClosed),
       sock_num_(MAX_SOCK_NUM) {
   TAS_VLOG(4) << TASLIT("ServerConnection2 @ 0x") << this << TASLIT(" ctor");
 }
@@ -25,10 +24,8 @@ void ServerConnection2::OnConnect(Connection& connection) {
   TAS_VLOG(2) << TASLIT("ServerConnection2@0x") << this
               << TASLIT(" ->::OnConnect ") << connection.getSocketNumber();
   TAS_DCHECK(!has_socket());
-  // TAS_DCHECK_EQ(state_, State::kClosed);
   sock_num_ = connection.getSocketNumber();
   request_decoder_.Reset();
-  // state_ = State::kBetweenRequests;
   between_requests_ = true;
   input_buffer_size_ = 0;
 }

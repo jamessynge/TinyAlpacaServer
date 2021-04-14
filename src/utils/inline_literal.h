@@ -18,7 +18,7 @@
 // to this context.
 
 #include "utils/platform.h"
-#include "utils/printable_progmem_string.h"
+#include "utils/printable_progmem_string.h"  // IWYU pragma: export
 
 namespace alpaca {
 

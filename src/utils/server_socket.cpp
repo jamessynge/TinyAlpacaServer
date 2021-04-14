@@ -1,8 +1,5 @@
 #include "utils/server_socket.h"
 
-#include <climits>
-#include <cstdint>
-
 #include "utils/logging.h"
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"

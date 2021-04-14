@@ -16,20 +16,10 @@ namespace alpaca {
 
 class ServerConnection2 : public ServerSocketListener {
  public:
-  // enum class State : uint8_t {
-  //   kClosed,
-  //   kBetweenRequests,
-  //   kDecodingRequest,
-  //   kDecodedRequest,
-  //   kDecodeFailed
-  // };
   explicit ServerConnection2(RequestListener& request_listener);
 
-  // Placement new operator. Used to allow us to have a compile time
-  // configuration of the number of simultaneous connections that we want to
-  // support.
-  void* operator new(size_t size, void* ptr) { return ptr; }
-
+  // The sock_num is set when OnConnect is called, and cleared when either the
+  // instance calls close on a connection, or when OnDisconnect is called.
   int sock_num() const { return sock_num_; }
   bool has_socket() const { return sock_num_ < MAX_SOCK_NUM; }
 
@@ -45,7 +35,6 @@ class ServerConnection2 : public ServerSocketListener {
   RequestDecoder request_decoder_;
   uint8_t sock_num_;
   bool between_requests_;
-  // State state_;
   uint8_t input_buffer_size_;
   char input_buffer_[32];
 };

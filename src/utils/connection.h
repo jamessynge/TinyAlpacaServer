@@ -32,8 +32,8 @@ class Connection : public Stream {
 };
 
 // An abstract implementation of Connection that delegates to a Client instance
-// provided by a subclass. The subclass is also responsible for implementing
-// close() and connected().
+// provided by a subclass. To produce a concrete instance, some subclass will
+// also need to implement close() and connected().
 class WrappedClientConnection : public Connection {
  public:
   size_t write(uint8_t b) override;

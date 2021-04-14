@@ -22,10 +22,6 @@
 #include "utils/platform.h"
 #include "utils/printable_progmem_string.h"
 
-#if TAS_HOST_TARGET
-#include <ostream>
-#endif  // TAS_HOST_TARGET
-
 #define TASENUMERATOR(id, text) id
 
 namespace alpaca {
