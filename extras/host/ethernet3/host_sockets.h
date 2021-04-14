@@ -31,8 +31,8 @@ struct HostSockets {
   // Returns true if socket 'sock_num' is connected to a peer.
   static bool IsConnected(int sock_num);
 
-  // TODO
-  static bool Disconnect(int sock_num) { return false; }
+  // Tell the peer that we're done writing to the connection.
+  static bool Disconnect(int sock_num);
 
   // SnSR::CLOSE_WAIT && no data available to read.
   static bool IsClientDone(int sock_num);

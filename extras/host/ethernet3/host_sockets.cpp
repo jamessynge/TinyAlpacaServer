@@ -51,6 +51,17 @@ struct HostSocketInfo {
     VLOG(1) << "Create HostSocketInfo for socket " << sock_num;
   }
 
+  bool DisconnectConnectionSocket() {
+    if (connection_socket >= 0) {
+      VLOG(1) << "Disconnecting connection (" << connection_socket
+              << ") for socket " << sock_num;
+      if (::shutdown(connection_socket, SHUT_WR) == 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void CloseConnectionSocket() {
     if (connection_socket >= 0) {
       VLOG(1) << "Closing connection (" << connection_socket << ") for socket "
@@ -204,6 +215,8 @@ struct HostSocketInfo {
     }
   }
 
+  bool IsConnected() { return connection_socket >= 0; }
+
   bool IsClosed() { return listener_socket < 0 && connection_socket < 0; }
 
   bool IsUnused() {
@@ -279,6 +292,22 @@ bool HostSockets::AcceptConnection(int sock_num) {
     if (info->connection_socket < 0) {
       return info->AcceptConnection();
     }
+  }
+  return false;
+}
+
+bool HostSockets::IsConnected(int sock_num) {
+  auto* info = GetHostSocketInfo(sock_num);
+  if (info != nullptr) {
+    return info->IsConnected();
+  }
+  return false;
+}
+
+bool HostSockets::Disconnect(int sock_num) {
+  auto* info = GetHostSocketInfo(sock_num);
+  if (info != nullptr) {
+    return info->DisconnectConnectionSocket();
   }
   return false;
 }
