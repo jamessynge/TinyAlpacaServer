@@ -27,7 +27,7 @@ class ServerConnections {
   // Not using all of the ports, need to reserve one for the Alpaca Discovery
   // protocols, one for DHCP renewal, and maybe one for outbound connections to
   // a time server.
-  static constexpr size_t kNumServerConnections = 4;
+  static constexpr size_t kNumServerConnections = 6;
   using ServerConnectionsArray = ServerConnection[kNumServerConnections];
   static constexpr size_t kServerConnectionsStorage =
       sizeof(ServerConnectionsArray);

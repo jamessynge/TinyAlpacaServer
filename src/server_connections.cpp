@@ -41,6 +41,12 @@ bool ServerConnections::Initialize() {
     // listening for connections to a TCP port.
     EthernetServer listener(tcp_port_);
     listener.begin();
+    // if (!PlatformEthernet::InitializeTcpListenerSocket(ndx + 1, tcp_port_)) {
+    //   TAS_DCHECK(false)
+    //       << TASLIT("InitializeTcpListenerSocket failed for hardware socket
+    //       ")
+    //       << ndx + 1;
+    // }
   }
 
   TAS_VLOG(2) << TASLIT("ServerConnections::Initialize, _server_ports:");
@@ -90,11 +96,14 @@ void ServerConnections::PerformIO() {
   // Find new TCP connections and assign ServerConnections to them, and find
   // recently closed sockets that should resume listening.
   TAS_VLOG(7) << TASLIT("Finding sockets whose connection state has changed");
+  int num_sockets_configured = 0;
   for (int sock_num = 0; sock_num < MAX_SOCK_NUM; ++sock_num) {
     if (EthernetClass::_server_port[sock_num] != tcp_port_) {
       // Not related to this server.
       continue;
-    } else if (SocketIsConnected(sock_num)) {
+    }
+    ++num_sockets_configured;
+    if (SocketIsConnected(sock_num)) {
       if (GetServerConnectionForSocket(sock_num) == nullptr) {
         // New connection.
         TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO socket ")
@@ -103,6 +112,10 @@ void ServerConnections::PerformIO() {
       }
     } else if (PlatformEthernet::SocketIsClosed(sock_num)) {
       // Resume listening.
+
+      // THIS ISN'T REACHED BECAUSE EthernetClient::stop resets
+      // _server_port[sock_num] to zero when closing the connection.
+
       if (!PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_)) {
         TAS_DCHECK(false)
             << TASLIT("InitializeTcpListenerSocket failed for hardware socket ")
@@ -111,12 +124,16 @@ void ServerConnections::PerformIO() {
     } else {
       uint8_t status = SocketStatus(sock_num);
       switch (status) {
+        case SnSR::LISTEN:
+          break;
+        case SnSR::SYNRECV:
         case SnSR::CLOSING:
         case SnSR::FIN_WAIT:
         case SnSR::LAST_ACK:
-        case SnSR::LISTEN:
-        case SnSR::SYNRECV:
         case SnSR::TIME_WAIT:
+          TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO socket ")
+                      << sock_num << TASLIT(" status is transient: 0x")
+                      << BaseHex << status;
           break;
         default:
           TAS_VLOG(2) << TASLIT("ServerConnections::PerformIO socket ")
@@ -124,6 +141,14 @@ void ServerConnections::PerformIO() {
                       << BaseHex << status;
       }
     }
+  }
+
+  while (num_sockets_configured++ < kNumServerConnections) {
+    // EthernetServer::begin() finds a closed hardware socket and puts it to use
+    // listening for connections to a TCP port.
+    EthernetServer listener(tcp_port_);
+    listener.begin();
+    TAS_VLOG(2) << TASLIT("Started another listener.");
   }
 
   // For all the ServerConnections with TCP connections to clients, perform IO.

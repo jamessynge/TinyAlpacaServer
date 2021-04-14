@@ -33,7 +33,7 @@ class ServerConnection : public ServerConnectionBase {
   RequestDecoder request_decoder_;
   bool between_requests_;
   uint8_t input_buffer_size_;
-  char input_buffer_[32];
+  char input_buffer_[64];
 };
 
 }  // namespace alpaca
