@@ -25,8 +25,8 @@ namespace alpaca {
 
 class LogSink : public OPrintStream {
  public:
-  explicit LogSink(Print& out);
-  LogSink();
+  explicit LogSink(Print& out) : OPrintStream(out) {}
+  LogSink() : LogSink(::Serial) {}
   ~LogSink();
 };
 
@@ -48,19 +48,10 @@ class VoidSink {
   ~VoidSink() {}
 
   template <typename T>
-  friend VoidSink& operator<<(const VoidSink& sink, const T&) {
-    return const_cast<VoidSink&>(sink);
+  VoidSink& operator<<(const T&) {
+    return *this;
   }
-
-  template <typename T>
-  friend VoidSink& operator<<(VoidSink& sink, const T&) {
-    return sink;
-  }
-
- private:
 };
-
-// extern VoidSink TheVoidSink;
 
 // Based on https://github.com/google/asylo/blob/master/asylo/util/logging.h
 // This class is used just to take a type used as a log sink (i.e. the LHS of
