@@ -48,6 +48,13 @@ TEST(OPrintStreamTest, BuiltInTypes) {
   VerifyOPrintStream<float>(0.99999, "1.00");
 }
 
+TEST(OPrintStreamTest, StringLiteral) {
+  PrintToStdString p2ss;
+  OPrintStream out(p2ss);
+  out << "abc";
+  EXPECT_EQ(p2ss.str(), "abc");
+}
+
 TEST(OPrintStreamTest, Printable) {
   SamplePrintable value("abc");
   {

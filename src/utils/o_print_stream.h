@@ -19,20 +19,20 @@ class OPrintStream {
   OPrintStream() : out_(::Serial), base_(10) {}
 
   template <typename T>
-  friend OPrintStream& operator<<(OPrintStream& out, const T value) {
-    out.do_print_a(value, has_print_to<T>{});
-    return out;
-  }
-
-  template <typename T>
-  friend OPrintStream& operator<<(OPrintStream&& out, const T value) {
-    out.do_print_a(value, has_print_to<T>{});
-    return out;
+  OPrintStream& operator<<(const T value) {
+    do_print_a(value, has_print_to<T>{});
+    return *this;
   }
 
   void set_base(int base) { base_ = base; }
 
  protected:
+  // Exposed so that subclasses can call this.
+  template <typename T>
+  void printValue(const T value) {
+    do_print_a(value, has_print_to<T>{});
+  }
+
   Print& out_;
   int base_;
 

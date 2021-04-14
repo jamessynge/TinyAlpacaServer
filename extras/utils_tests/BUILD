@@ -101,6 +101,16 @@ cc_test(
 )
 
 cc_test(
+    name = "log_sink_test",
+    srcs = ["log_sink_test.cc"],
+    deps = [
+        ":log_sink",
+        ":print_to_std_string",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "moving_average_test",
     srcs = ["moving_average_test.cc"],
     deps = [
