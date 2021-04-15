@@ -262,7 +262,7 @@ HostSocketInfo* GetHostSocketInfo(int sock_num) {
 }  // namespace
 
 bool HostSockets::InitializeTcpListenerSocket(int sock_num, uint16_t tcp_port) {
-  if (!(0 < tcp_port && tcp_port < 65536)) {
+  if (0 == tcp_port) {
     LOG(ERROR) << "tcp_port must not be zero";
     return false;
   }
