@@ -2,15 +2,21 @@
 
 Author: James Synge (james.synge@gmail.com)
 
-Tiny Alpaca Server is an Arduino library implementing the
-[ASCOM Alpaca REST API](https://ascom-standards.org/api/)
-([computer readable spec](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)),
-and the
-[Alpaca Discovery Protocol](https://github.com/DanielVanNoord/AlpacaDiscoveryTests#specification).
-It is intended that the main Arduino sketch configures the server with device
-specific information, after which Tiny Alpaca Server takes care of responding to
-requests and delegating requests for information or action to device specific
-code provided by the sketch.
+Tiny Alpaca Server is an Arduino library supporting the creation of ASCOM Alpaca
+compatible devices. In particular, the library implements Alpaca's
+[Discovery Protocol](https://github.com/DanielVanNoord/AlpacaDiscoveryTests#specification),
+[Management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API)
+([computer readable spec](https://www.ascom-standards.org/api/AlpacaManagementAPI_v1.yaml)),
+and
+[Device API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Device%20API)
+([computer readable spec](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)).
+
+The Arduino sketch using alpaca::TinyAlpacaServer configures the server instance
+with device specific information, after which the server takes care of
+responding to requests and delegating requests for information or action to
+device specific code provided by the sketch. See
+[TinyAlpacaServerDemo](examples/TinyAlpacaServerDemo.ino) for an example of how
+to use the server.
 
 This library has been developed using the Ethernet3 library, which supports the
 [WIZnet W5500](https://www.wiznet.io/product-item/w5500/) networking offload
@@ -23,24 +29,21 @@ including Power-over-Ethernet.
 
 ## Status
 
-The basic code is mostly complete, though the management and setup methods
-aren't implemented yet. Automated tests of the entire system aren't yet
-implemented.
+The basic server is complete, though the server setup methods is just a stub and
+each device implementation will need to provide its own setup methods. Automated
+tests of the entire system aren't yet implemented.
 
-The design goal of the TAS_VLOG and TAS_CHECK macros in logging.h is that they
-compile down to zero bytes when disabled. Early tests indicated the approach
-works, but currently that isn't clear.
+There are TODOs throughout the code representing various improvements I'd like
+to make, including modifying the guarantees provided by the TAS_CHECK macro: I
+think it should be changed so that the expression is always evaluated,
+regardless of whether a message is logged upon failure. The same doesn't apply
+to the TAS_DCHECK macro.
 
 ## Approach
 
-This code is targetted at settings where dynamic allocation of memory (e.g.
-filling a std::string) is not viable. Therefore the request decoder is designed
-to need only a relatively small amount of statically allocated memory: on an
-AVR, under 30 bytes of RAM for the RequestDecoder and Request instances, plus a
-caller provided RequestDecoderListener (minimum size 2 bytes) and a data buffer
-to hold fragments of the request as they arrive (32 bytes is a good size). In
-the Arduino environment, it isn't practical to allocate any of these
-dynamically, so pre-allocating all of them is the norm.
+This code is targetted at settings (e.g. an Arduino) where dynamic allocation of
+memory (e.g. filling a std::string) is not viable. Therefore RequestDecoder is
+designed to need only a relatively small amount of statically allocated memory.
 
 The same approach applies to encoding the response. For both PUT and GET Alpaca
 requests, the response body is usually a JSON message with one top-level object
@@ -59,15 +62,16 @@ straightforward to add new ones:
 
 1.  Add the appropriate enumerators in src/constants.h to EDeviceType,
     EAscomMethod and/or EParameter, as appropriate.
-1.  Add printing of the name of the constant in src/constants.cpp.
+1.  Add printing of the name of the constant in src/constants.cpp (see
+    make_enum_to_string.py).
 1.  Add the string to be matched (e.g. "camera") to src/literals.inc.
 1.  Add matching of the string in the appropriate method in match_literals.cc.
 1.  If adding a new device type Xyz, add a new class XyzAdapter to
-    src/device_type_adapters, derived from DeviceApiHandlerBase, which maps
-    decoded ASCOM requests that are specific to Xyz devices to calls to virtual
-    methods of XyzAdapter which can be overridden by a subclass of XyzAdapter
-    (i.e. FooBarXyz, which interfaces with a FooBar device that is of general
-    type Xyz).
+    src/device_type_adapters, derived from DeviceImplBase, which maps decoded
+    ASCOM requests that are specific to Xyz devices to calls to virtual methods
+    of XyzAdapter which can be overridden by a subclass of XyzAdapter (i.e.
+    FooBarXyz, which interfaces with a FooBar device that is of general type
+    Xyz).
 
 ### JSON Representation
 
@@ -88,7 +92,7 @@ Tiny Alpaca Server is structured as an Arduino Library, following the Arduino
 [Arduino Library specification](https://arduino.github.io/arduino-cli/library-specification/).
 To make debugging easier (for me, at least), I've defined logging macros in
 `src/utils/logging.h` that are similar to those in the Google Logging Library.
-On the Arduino, these are disabled by default, in which case they should not
+On the Arduino, these are disabled by default, in which case they do not
 contribute to the code or RAM size of the compiled Arduino sketch. They can be
 enabled by editing `src/utils/utils_config.h` (sorry, Arduino IDE doesn't offer
 a better approach).
@@ -147,7 +151,10 @@ PROGMEM.
         value.
 
 *   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
-    paths (e.g. POST /setserverlocation?value=Mauna Kea).
+    paths (e.g. POST /setserverlocation?value=Mauna+Kea). This could include
+    support for requests such as GET /static/path-to/file-on/sd-card, where all
+    /static/ requests result in reading from the SD Card on the Arduino, if
+    available.
 
 *   If useful, write a tool to generate / update literals.inc based on
     DEFINE_LITERAL occurrences in source files, maybe even flag string literals
@@ -172,34 +179,16 @@ PROGMEM.
     also generate or update literals.inc, the set of strings to be stored in
     PROGMEM.
 
-*   DONE: Support case insensitive comparison of mixed case literals and mixed
-    case allowed input (e.g. Content-Length or ClientTransactionId). That will
-    allow us to have only one copy of the string in PROGMEM, and to emit JSON
-    property with the correct case, and also to compare it it in a case
-    insensitive manner with query parameter names.
-
-*   DONE: Support the
-    [management API](https://ascom-standards.org/api/?urls.primaryName=ASCOM%20Alpaca%20Management%20API).
-
-*   DONE: Support multiple connections at once (a bounded number, e.g. as
-    supported by the networking chip used by the RobotDyn MEGA 2560 ETH R3).
-
-*   DONE: Implement a form of
-    [Duck Typing](http://p-nand-q.com/programming/cplusplus/duck_typing_and_templates.html),
-    where we can stream (print) any class or struct that has a printTo(Print&)
-    method, or any type T for which a PrintValueTo(const T, Print&) function
-    exists.
-
-*   DONE: Implement a tool (`make_enum_to_string.py`) for generating methods for
-    printing the names of enum values (e.g. EParameter::kClientId prints as
-    "kClientId").
-
 ## Misc. Notes
 
-*   I'm assuming that the networking chip has enough buffer space to handle the
-    entire response (probably a few hundred bytes, assuming no image arrays),
-    and therefore we don't need to design a system for incrementally returning
-    responses.
+*   I'm assuming that the responses are not large, in particular there are no
+    image arrays; if you need to do that, you'll need a more capable computer
+    than an Arduino Mega.
+
+*   Given these small responses, I'm assuming that the networking chip has
+    enough buffer space to handle the entire response (e.g. around 2KB in the
+    case of the W5500), and therefore we don't need to design a system for
+    incrementally returning responses.
 
 *   I'm inclined to think that the SafetyMonitor::IsSafe function should be
     implemented server side, not embedded, so that it can combine multiple

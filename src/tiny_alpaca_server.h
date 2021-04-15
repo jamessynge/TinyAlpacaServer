@@ -26,6 +26,9 @@
 //
 // * TAS handles the UDP packets of the Alpaca discovery protocol using data
 //   provided at startup (e.g. the set of attached devices).
+//
+// TODO(jamessynge): Allow the caller to provide either Literal for the /setup
+// HTML response, or to provide a function for that purpose.
 
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"

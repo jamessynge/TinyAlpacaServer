@@ -69,8 +69,6 @@ bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
                                                        Print& out) {
   TAS_VLOG(3) << TASLIT("HandleManagementApiVersions");
   uint32_t versions[] = {1};
-  // auto view = MakeArrayView(versions);
-  // ArrayViewSource source(view, &JsonArrayEncoder::AddUIntElement);
   return WriteResponse::ArrayResponse(
       request, MakeArrayViewSource(versions, &JsonArrayEncoder::AddUIntElement),
       out);
@@ -79,7 +77,8 @@ bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
 bool TinyAlpacaServerBase::HandleManagementDescription(AlpacaRequest& request,
                                                        Print& out) {
   TAS_VLOG(3) << TASLIT("TinyAlpacaServerBase::HandleManagementDescription");
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+  JsonPropertySourceAdapter<ServerDescription> description(server_description_);
+  return WriteResponse::ObjectResponse(request, description, out);
 }
 
 bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,

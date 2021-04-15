@@ -39,6 +39,9 @@ struct WriteResponse {
   static bool ArrayResponse(const AlpacaRequest& request,
                             const JsonElementSource& value, Print& out);
 
+  static bool ObjectResponse(const AlpacaRequest& request,
+                             const JsonPropertySource& value, Print& out);
+
   static bool BoolResponse(const AlpacaRequest& request, bool value,
                            Print& out);
   static bool StatusOrBoolResponse(const AlpacaRequest& request,
@@ -51,8 +54,8 @@ struct WriteResponse {
                                      Print& out);
 
   // TODO(jamessynge): Decide whether to keep the versions with float values.
-  // Arduino's Print class only handles doubles, not floats, so this may be
-  // pointless.
+  // Arduino's Print class only handles doubles, not floats, and the Alpaca API
+  // specifies double as the floating point type, so this may be pointless.
   static bool FloatResponse(const AlpacaRequest& request, float value,
                             Print& out);
   static bool StatusOrFloatResponse(const AlpacaRequest& request,
@@ -71,6 +74,11 @@ struct WriteResponse {
                                   StatusOr<int32_t> status_or_value,
                                   Print& out);
 
+  // These methods aren't all called [StatusOr]StringResponse to make sure that
+  // we don't make the mistake of returning a StatusOr<StringView>, or similar,
+  // where the value to be captured is a reference (or contains a reference to)
+  // a temporary that will disappear during the return (i.e. an example of a
+  // memory ownership problem that Rust aims to address).
   static bool PrintableStringResponse(const AlpacaRequest& request,
                                       const Printable& value, Print& out);
   static bool AnyPrintableStringResponse(const AlpacaRequest& request,
@@ -78,11 +86,6 @@ struct WriteResponse {
                                          Print& out) {
     return PrintableStringResponse(request, value, out);
   }
-  // These methods aren't all called "StatusOrStringResponse" to make sure that
-  // we don't make the mistake of returning a StatusOr<StringView>, or similar,
-  // where the value to be captured is a reference (or contains a reference to)
-  // a temporary that will disappear during the return (i.e. an example of a
-  // memory ownership problem that Rust aims to address).
   static bool StatusOrLiteralResponse(const AlpacaRequest& request,
                                       StatusOr<Literal> status_or_value,
                                       Print& out);

@@ -158,6 +158,21 @@ class JsonStringResponse : public JsonMethodResponse {
   AnyPrintable value_;
 };
 
+class JsonObjectResponse : public JsonMethodResponse {
+ public:
+  JsonObjectResponse(const AlpacaRequest& request,
+                     const JsonPropertySource& property_source)
+      : JsonMethodResponse(request), property_source_(property_source) {}
+
+  void AddTo(JsonObjectEncoder& object_encoder) const override {
+    object_encoder.AddObjectProperty(Literals::Value(), property_source_);
+    JsonMethodResponse::AddTo(object_encoder);
+  }
+
+ private:
+  const JsonPropertySource& property_source_;
+};
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_JSON_RESPONSE_H_

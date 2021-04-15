@@ -53,6 +53,13 @@ bool WriteResponse::ArrayResponse(const AlpacaRequest& request,
   return OkResponse(request, source, out);
 }
 
+bool WriteResponse::ObjectResponse(const AlpacaRequest& request,
+                                   const JsonPropertySource& value,
+                                   Print& out) {
+  JsonObjectResponse source(request, value);
+  return OkResponse(request, source, out);
+}
+
 bool WriteResponse::BoolResponse(const AlpacaRequest& request, bool value,
                                  Print& out) {
   JsonBoolResponse source(request, value);
