@@ -1,6 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_SRC_SERVER_DESCRIPTION_H_
 #define TINY_ALPACA_SERVER_SRC_SERVER_DESCRIPTION_H_
 
+// ServerDescription provides the info used to respond to GET requests with path
+// /management/v1/description.
+
 #include "utils/json_encoder.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
@@ -8,7 +11,8 @@
 
 namespace alpaca {
 
-// There should be exactly one instance of ServerDescription in a sketch.
+// TODO(jamessynge): Allow the caller to provide either Literal for the /setup
+// HTML response, or to provide a function for that purpose.
 struct ServerDescription {
   // I would prefer that caller use C++ 20's designated initializers because it
   // is easier to understand than a constructor arg list that has no names for

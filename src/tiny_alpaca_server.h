@@ -1,34 +1,17 @@
 #ifndef TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 #define TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 
-// TinyAlpacaServer is a wrapper around sstaub's Ethernet3 library. It
-// initializes the device handlers, delegates relevant HTTP requests to them;
-// the class also handles the device independent setup and management API.
+// TinyAlpacaServerBase handles AlpacaRequests, dispatching to the appropriate
+// device instance.
 //
-// We make the following assumptions:
+// TinyAlpacaServer adds in the networking support, using all but one of the
+// hardware sockets provided by the Ethernet chip (i.e. reserving one for DHCP
+// renewal), with one socket used for the Alpaca (UDP) Discovery Protocol, and
+// the remaining sockets used for the Alpaca (HTTP) Management and Device APIs.
 //
-// * TinyAlpacaServer (TAS) can use kNumServerConnections of the hardware
-//   sockets provided by the Ethernet instance.
-//
-// * TAS.begin() is called by the Arduino defined setup method, after IpDevice
-//   has been used to initialize the hardware.
-//
-// * TAS.loop() is called by the Arduino defined loop method ~every time.
-//
-// * TAS takes care of calling the DHCP code to maintain the DHCP lease.
-//
-// * TAS dispatches TCP connection creation, input data, output space and
-//   connection deletion events to the appropriate handler (e.g. the request
-//   decoder).
-//
-// * When a complete request has been decoded, TAS dispatches the request to
-//   the appropriate handler.
-//
-// * TAS handles the UDP packets of the Alpaca discovery protocol using data
-//   provided at startup (e.g. the set of attached devices).
-//
-// TODO(jamessynge): Allow the caller to provide either Literal for the /setup
-// HTML response, or to provide a function for that purpose.
+// TinyAlpacaServer::Initialize should be called from the setup function of the
+// Arduino sketch, and then TinyAlpacaServer::PerformIO should be called from
+// the loop function of the sketch.
 
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
