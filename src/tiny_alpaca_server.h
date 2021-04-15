@@ -26,12 +26,6 @@
 //
 // * TAS handles the UDP packets of the Alpaca discovery protocol using data
 //   provided at startup (e.g. the set of attached devices).
-//
-// TODO(jamessynge): Refactor to make testing much easier. For example, pull the
-// ServerConnections out of this class, just leaving the device handlers and the
-// public RequestListener implementation. That will enable testing by passing
-// AlpacaRequest and Print instances into the listener methods, thus avoiding
-// the need for actual network IO during testing.
 
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
@@ -43,27 +37,25 @@
 
 namespace alpaca {
 
-class TinyAlpacaServer : public RequestListener {
+// The non-networking portion of TinyAlpacaServer, separated from
+// TinyAlpacaServer for testability.
+class TinyAlpacaServerBase : public RequestListener {
  public:
-  TinyAlpacaServer(uint16_t tcp_port,
-                   const ServerDescription& server_description,
-                   ArrayView<DeviceInterface*> devices);
+  TinyAlpacaServerBase(const ServerDescription& server_description,
+                       ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
-  TinyAlpacaServer(uint16_t tcp_port,
-                   const ServerDescription& server_description,
-                   DeviceInterface* (&devices)[N])
-      : TinyAlpacaServer(tcp_port, server_description,
-                         ArrayView<DeviceInterface*>(devices, N)) {}
+  TinyAlpacaServerBase(const ServerDescription& server_description,
+                       DeviceInterface* (&devices)[N])
+      : TinyAlpacaServerBase(server_description,
+                             ArrayView<DeviceInterface*>(devices, N)) {}
 
-  // Prepares ServerConnections to receive TCP connections and a UDP listener to
-  // receive Alpaca Discovery Protocol packets. Returns true if able to do so,
-  // false otherwise.
+  // Calls Initialize on the nested objects. Returns true if all of the objects
+  // are successfully initialized.
   bool Initialize();
 
-  // Performs network IO as appropriate, and gives handlers a chance
-  // to perform periodic work.
-  void PerformIO();
+  // Gives devices a chance to perform periodic work.
+  void MaintainDevices();
 
   // RequestListener method overrides...
   void OnStartDecoding(AlpacaRequest& request) override;
@@ -77,10 +69,35 @@ class TinyAlpacaServer : public RequestListener {
   bool HandleServerSetup(AlpacaRequest& request, Print& out);
 
   AlpacaDevices alpaca_devices_;
-  ServerSocketsAndConnections sockets_;
-  TinyAlpacaDiscoveryServer discovery_server_;
   const ServerDescription& server_description_;
   uint32_t server_transaction_id_;
+};
+
+class TinyAlpacaServer : TinyAlpacaServerBase {
+ public:
+  TinyAlpacaServer(uint16_t tcp_port,
+                   const ServerDescription& server_description,
+                   ArrayView<DeviceInterface*> devices);
+
+  template <size_t N>
+  TinyAlpacaServer(uint16_t tcp_port,
+                   const ServerDescription& server_description,
+                   DeviceInterface* (&devices)[N])
+      : TinyAlpacaServer(tcp_port, server_description,
+                         ArrayView<DeviceInterface*>(devices, N)) {}
+
+  // Calls Initialize on the nested objects, e.g. initializes sockets so they
+  // listen for connections to tcp_port. Returns true if all of the objects are
+  // successfully initialized.
+  bool Initialize();
+
+  // Performs network IO as appropriate, and gives handlers a chance
+  // to perform periodic work.
+  void PerformIO();
+
+ private:
+  ServerSocketsAndConnections sockets_;
+  TinyAlpacaDiscoveryServer discovery_server_;
 };
 
 }  // namespace alpaca

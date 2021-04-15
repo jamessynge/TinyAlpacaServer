@@ -12,40 +12,25 @@
 
 namespace alpaca {
 
-TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
-                                   const ServerDescription& server_description,
-                                   ArrayView<DeviceInterface*> devices)
+TinyAlpacaServerBase::TinyAlpacaServerBase(
+    const ServerDescription& server_description,
+    ArrayView<DeviceInterface*> devices)
     : alpaca_devices_(devices),
-      sockets_(tcp_port, *this),
-      discovery_server_(tcp_port),
       server_description_(server_description),
       server_transaction_id_(0) {}
 
-bool TinyAlpacaServer::Initialize() {
-  // Give everything a chance to initialize so that logs will contain relevant
-  // info about any failures. Choosing to initialize the discovery server first
-  // so that it occupies socket 0.
-  bool result = discovery_server_.Initialize();
-  if (!alpaca_devices_.Initialize()) {
-    result = false;
-  }
-  if (!sockets_.Initialize()) {
-    result = false;
-  }
-  return result;
-}
+bool TinyAlpacaServerBase::Initialize() { return alpaca_devices_.Initialize(); }
 
-void TinyAlpacaServer::PerformIO() {
+void TinyAlpacaServerBase::MaintainDevices() {
   alpaca_devices_.MaintainDevices();
-  sockets_.PerformIO();
-  discovery_server_.PerformIO();
 }
 
-void TinyAlpacaServer::OnStartDecoding(AlpacaRequest& request) {
+void TinyAlpacaServerBase::OnStartDecoding(AlpacaRequest& request) {
   request.set_server_transaction_id(++server_transaction_id_);
 }
 
-bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
+bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
+                                            Print& out) {
   TAS_VLOG(3) << TASLIT("OnRequestDecoded: api=") << request.api;
   switch (request.api) {
     case EAlpacaApi::kUnknown:
@@ -73,15 +58,15 @@ bool TinyAlpacaServer::OnRequestDecoded(AlpacaRequest& request, Print& out) {
       EHttpStatusCode::kHttpInternalServerError, Literals::ApiUnknown(), out);
 }
 
-void TinyAlpacaServer::OnRequestDecodingError(AlpacaRequest& request,
-                                              EHttpStatusCode status,
-                                              Print& out) {
+void TinyAlpacaServerBase::OnRequestDecodingError(AlpacaRequest& request,
+                                                  EHttpStatusCode status,
+                                                  Print& out) {
   TAS_VLOG(3) << TASLIT("OnRequestDecodingError: status=") << status;
   WriteResponse::HttpErrorResponse(status, AnyPrintable(), out);
 }
 
-bool TinyAlpacaServer::HandleManagementApiVersions(AlpacaRequest& request,
-                                                   Print& out) {
+bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
+                                                       Print& out) {
   TAS_VLOG(3) << TASLIT("HandleManagementApiVersions");
   uint32_t versions[] = {1};
   // auto view = MakeArrayView(versions);
@@ -91,13 +76,14 @@ bool TinyAlpacaServer::HandleManagementApiVersions(AlpacaRequest& request,
       out);
 }
 
-bool TinyAlpacaServer::HandleManagementDescription(AlpacaRequest& request,
-                                                   Print& out) {
-  TAS_VLOG(3) << TASLIT("TinyAlpacaServer::HandleManagementDescription");
+bool TinyAlpacaServerBase::HandleManagementDescription(AlpacaRequest& request,
+                                                       Print& out) {
+  TAS_VLOG(3) << TASLIT("TinyAlpacaServerBase::HandleManagementDescription");
   return WriteResponse::AscomActionNotImplementedResponse(request, out);
 }
 
-bool TinyAlpacaServer::HandleServerSetup(AlpacaRequest& request, Print& out) {
+bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
+                                             Print& out) {
   TAS_VLOG(3) << TASLIT("HandleServerSetup");
 
   auto body = TASLIT(
@@ -116,6 +102,33 @@ bool TinyAlpacaServer::HandleServerSetup(AlpacaRequest& request, Print& out) {
   out.print(body);
 
   return true;
+}
+
+TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
+                                   const ServerDescription& server_description,
+                                   ArrayView<DeviceInterface*> devices)
+    : TinyAlpacaServerBase(server_description, devices),
+      sockets_(tcp_port, *this),
+      discovery_server_(tcp_port) {}
+
+bool TinyAlpacaServer::Initialize() {
+  // Give everything a chance to initialize so that logs will contain relevant
+  // info about any failures. Choosing to initialize the discovery server before
+  // the sockets so that it occupies socket 0.
+  bool result = TinyAlpacaServerBase::Initialize();
+  if (!discovery_server_.Initialize()) {
+    result = false;
+  }
+  if (!sockets_.Initialize()) {
+    result = false;
+  }
+  return result;
+}
+
+void TinyAlpacaServer::PerformIO() {
+  TinyAlpacaServerBase::MaintainDevices();
+  discovery_server_.PerformIO();
+  sockets_.PerformIO();
 }
 
 }  // namespace alpaca
