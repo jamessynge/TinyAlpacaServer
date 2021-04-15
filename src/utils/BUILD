@@ -233,18 +233,6 @@ cc_library(
 )
 
 cc_library(
-    name = "server_connection_base",
-    srcs = ["server_connection_base.cc"],
-    hdrs = ["server_connection_base.h"],
-    deps = [
-        ":connection",
-        ":logging",
-        ":platform",
-        ":platform_ethernet",
-    ],
-)
-
-cc_library(
     name = "server_socket",
     srcs = ["server_socket.cc"],
     hdrs = ["server_socket.h"],

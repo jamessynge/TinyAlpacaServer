@@ -45,10 +45,7 @@ cc_library(
         ":request_decoder",
         ":request_decoder_listener",
         ":request_listener",
-        ":server_connection",
         ":server_connection2",
-        ":server_connection_base",
-        ":server_connections",
         ":server_description",
         ":server_socket",
         ":server_socket_and_connection",
@@ -334,24 +331,6 @@ cc_library(
 )
 
 cc_library(
-    name = "server_connection",
-    srcs = ["server_connection.cc"],
-    hdrs = ["server_connection.h"],
-    deps = [
-        ":alpaca_request",
-        ":alpaca_response",
-        ":constants",
-        ":literals",
-        ":platform",
-        ":platform_ethernet",
-        ":request_decoder",
-        ":request_listener",
-        ":server_connection_base",
-        ":string_view",
-    ],
-)
-
-cc_library(
     name = "server_connection2",
     srcs = ["server_connection2.cc"],
     hdrs = ["server_connection2.h"],
@@ -366,18 +345,6 @@ cc_library(
         ":request_listener",
         ":socket_listener",
         ":string_view",
-    ],
-)
-
-cc_library(
-    name = "server_connections",
-    srcs = ["server_connections.cc"],
-    hdrs = ["server_connections.h"],
-    deps = [
-        ":o_print_stream",
-        ":platform",
-        ":request_listener",
-        ":server_connection",
     ],
 )
 
