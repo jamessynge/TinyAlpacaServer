@@ -1,5 +1,3 @@
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "server_description.h"
 
 #include "literals.h"

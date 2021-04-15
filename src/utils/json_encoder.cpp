@@ -2,6 +2,8 @@
 
 // Author: james.synge@gmail.com
 
+#include <math.h>
+
 #include "utils/counting_bitbucket.h"
 #include "utils/literal.h"
 #include "utils/o_print_stream.h"
@@ -110,25 +112,21 @@ void PrintInteger(Print& out, const T value) {
 // Alpaca setting.
 template <typename T>
 void PrintFloatingPoint(Print& out, const T value) {
-#if TAS_HOST_TARGET
-  // Haven't got std::isnan or std::isfinite in the Arduino environment.
-  // TODO(jamessynge): Consider using isnan and isfinite from avr-libc's math.h.
-  if (std::isnan(value)) {
+  // Haven't got std::isnan or std::isfinite in the Arduino environment, so
+  // using the C versions in <math.h>.
+  if (isnan(value)) {
     PrintJsonEscapedStringTo(AnyPrintable(JsonNan()), out);
-  } else if (!std::isfinite(value)) {
+  } else if (!isfinite(value)) {
     if (value > 0) {
       PrintJsonEscapedStringTo(AnyPrintable(JsonInf()), out);
     } else {
       PrintJsonEscapedStringTo(AnyPrintable(JsonNegInf()), out);
     }
   } else {
-#endif
     // We're assuming that the Print object is configured to match JSON
     // requirements for the formatting of numbers.
     out.print(value);
-#if TAS_HOST_TARGET
   }
-#endif
 }
 
 }  // namespace

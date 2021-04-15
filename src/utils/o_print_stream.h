@@ -3,13 +3,13 @@
 
 // Support for streaming into a Print instance, primarily for logging.
 
-#ifndef ARDUINO
-#include <string>
-#endif
-
 #include "utils/platform.h"
 #include "utils/traits/print_to_trait.h"
 #include "utils/traits/type_traits.h"
+
+#if TAS_HOST_TARGET
+#include <string>
+#endif
 
 namespace alpaca {
 
@@ -87,7 +87,7 @@ class OPrintStream {
     out_.print(i, HEX);
   }
 
-#ifndef ARDUINO
+#if TAS_HOST_TARGET
   void do_print_d(const std::string& value, false_type /*!is_pointer*/) {
     out_.write(value.data(), value.size());
   }

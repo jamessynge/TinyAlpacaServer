@@ -5,21 +5,9 @@
 // VoidSink is used in place of LogSink when logging is disabled at compile
 // time.
 
-#ifndef ARDUINO
-#include "logging.h"
-#endif  // !ARDUINO
-
 #include "utils/inline_literal.h"
 #include "utils/o_print_stream.h"
 #include "utils/platform.h"
-
-#ifndef ARDUINO
-#ifndef NDEBUG
-// Log the lifetime of VoidSink instances, as part of proving that only one is
-// created per disabled TAS_VLOG.
-#define NOISY_VOID_SINK
-#endif
-#endif
 
 namespace alpaca {
 

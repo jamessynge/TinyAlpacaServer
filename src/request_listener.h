@@ -1,7 +1,7 @@
 #ifndef TINY_ALPACA_SERVER_SRC_REQUEST_LISTENER_H_
 #define TINY_ALPACA_SERVER_SRC_REQUEST_LISTENER_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// API used by ServerConnection to deliver decoded requests to the server.
 
 #include "alpaca_request.h"
 #include "constants.h"

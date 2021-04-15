@@ -1,5 +1,3 @@
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "server_connection.h"
 
 #include "alpaca_response.h"
