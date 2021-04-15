@@ -14,9 +14,9 @@
 
 namespace alpaca {
 
-class ServerConnection2 : public ServerSocketListener {
+class ServerConnection : public ServerSocketListener {
  public:
-  explicit ServerConnection2(RequestListener& request_listener);
+  explicit ServerConnection(RequestListener& request_listener);
 
   // The sock_num is set when OnConnect is called, and cleared when either the
   // instance calls close on a connection, or when OnDisconnect is called.

@@ -2,9 +2,9 @@
 #define TINY_ALPACA_SERVER_SRC_SERVER_SOCKET_AND_CONNECTION_H_
 
 // Combines a ServerSocket that binds a hardware socket to a TCP port and a
-// ServerConnection2 that listens to events from the socket.
+// ServerConnection that listens to events from the socket.
 
-#include "server_connection2.h"
+#include "server_connection.h"
 #include "utils/platform.h"
 #include "utils/server_socket.h"
 
@@ -28,7 +28,7 @@ class ServerSocketAndConnection {
   void PerformIO();
 
  private:
-  ServerConnection2 server_connection_;
+  ServerConnection server_connection_;
   ServerSocket server_socket_;
 };
 

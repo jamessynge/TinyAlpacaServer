@@ -28,7 +28,7 @@
 #include "request_decoder.h"                 // IWYU pragma: export
 #include "request_decoder_listener.h"        // IWYU pragma: export
 #include "request_listener.h"                // IWYU pragma: export
-#include "server_connection2.h"              // IWYU pragma: export
+#include "server_connection.h"               // IWYU pragma: export
 #include "server_description.h"              // IWYU pragma: export
 #include "server_socket_and_connection.h"    // IWYU pragma: export
 #include "server_sockets_and_connections.h"  // IWYU pragma: export
