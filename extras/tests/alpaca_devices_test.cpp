@@ -282,5 +282,21 @@ TEST_F(AlpacaDevicesDeathTest, SameUniqueId) {
   EXPECT_DEBUG_DEATH({ EXPECT_FALSE(devices.Initialize()); }, "same unique_id");
 }
 
+TEST_F(AlpacaDevicesDeathTest, SameDeviceTypeAndNumber) {
+  MockDeviceInterface second_mock_camera0;
+  DeviceInfo alt_info = mock_camera0_info_;
+  alt_info.unique_id = TASLIT("alt id");
+  AddDefaultBehavior(alt_info, &second_mock_camera0);
+
+  DeviceInterface* device_ptrs[] = {&mock_camera0_, &second_mock_camera0};
+  AlpacaDevices devices(MakeArrayView(device_ptrs));
+
+  EXPECT_CALL(mock_camera0_, Initialize).Times(0);
+  EXPECT_CALL(second_mock_camera0, Initialize).Times(0);
+
+  EXPECT_DEBUG_DEATH({ EXPECT_FALSE(devices.Initialize()); },
+                     "same type and number");
+}
+
 }  // namespace
 }  // namespace alpaca

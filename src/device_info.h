@@ -22,40 +22,40 @@ struct DeviceInfo {
 
   // One of the supported ASCOM Devices types such as Telescope, Camera,
   // Focuser, etc.
-  const EDeviceType device_type;
+  EDeviceType device_type;
 
   // The device number that must be used to access this device through the
   // Alpaca Device API. It must be locally unique among the devices of the same
   // type served by this server.
-  const uint32_t device_number;
+  uint32_t device_number;
 
   // A short name for this device that a user would expect to see in a list of
   // available devices. Returned in the ConfiguredDevicesResponse and in the
   // response to the /name method of the device API.
-  const Literal name;
+  Literal name;
 
   // A string representation of a random value that uniquely identifies this
   // ASCOM device; the random value should have a minimum of 48bits of
   // randomness. Where possible a UUID / GUID should be used, but this is not
   // mandatory. Returned in the ConfiguredDevicesResponse.
-  const Literal unique_id;
+  Literal unique_id;
 
   // The description of the device. Returned in response to the /description
   // method of the device API.
-  const Literal description;
+  Literal description;
 
   // The description of the device driver. Returned in response to the
   // /driverinfo method of the device API.
-  const Literal driver_info;
+  Literal driver_info;
 
   // The driver version (a string containing only the major and minor version of
   // the driver). Returned in response to the /driverversion method of the
   // device API.
-  const Literal driver_version;
+  Literal driver_version;
 
   // The list of device-specific action names that the device supports. This is
   // returned in the response to the /supportedactions method of the device API.
-  const LiteralArray supported_actions;
+  LiteralArray supported_actions;
 
   // The ASCOM Device interface version number that this device supports.
   // Returned in response to the /interfaceversion method of the device API;
@@ -68,14 +68,14 @@ struct DeviceInfo {
   //
   // That can be summarized as saying that we should return 1, the current (and
   // only) version of the ASCOM Alpaca API as of April 2021.
-  const uint8_t interface_version{1};
+  uint8_t interface_version{1};
 
 #if 0
   // MAY want to use this to allow the generation of a UUID based on MAC, device
   // type and config_id. That has the advantage an over including a UUID in the
   // code: it will be different for each instance using the same code, assuming
   // that the instance has a separate MAC addresses.
-  const uint32_t config_id;
+  uint32_t config_id;
 #endif
 };
 
