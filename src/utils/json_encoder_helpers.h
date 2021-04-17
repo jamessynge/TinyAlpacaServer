@@ -76,6 +76,20 @@ class JsonPropertySourceAdapter : public JsonPropertySource {
   const T& wrapped_;
 };
 
+class PrintableJsonObject : public Printable {
+ public:
+  // 'source' must outlive this object.
+  explicit PrintableJsonObject(const JsonPropertySource& source)
+      : source_(source) {}
+
+  // Print a JSON object with properties from source_ to the provided Print
+  // instance.
+  size_t printTo(Print& out) const override;
+
+ private:
+  const JsonPropertySource& source_;
+};
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_JSON_ENCODER_HELPERS_H_

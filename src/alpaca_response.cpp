@@ -7,7 +7,7 @@
 #include "literals.h"
 #include "utils/any_printable.h"
 #include "utils/array_view.h"
-#include "utils/counting_bitbucket.h"
+#include "utils/counting_print.h"
 #include "utils/json_encoder.h"
 #include "utils/json_encoder_helpers.h"
 
@@ -31,39 +31,54 @@ class LiteralArraySource : public JsonElementSource {
 }  // namespace
 
 bool WriteResponse::OkResponse(const AlpacaRequest& request,
-                               const JsonPropertySource& source, Print& out) {
+                               EContentType content_type,
+                               const Printable& content_source, Print& out,
+                               bool append_http_newline) {
   const auto eol = Literals::HttpEndOfLine();
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
   hrh.reason_phrase = Literals::OK();
-  hrh.content_type = EContentType::kApplicationJson;
-  hrh.content_length = JsonObjectEncoder::EncodedSize(source) + eol.size();
+  hrh.content_type = content_type;
+  hrh.content_length = SizeOfPrintable(content_source);
+  if (append_http_newline) {
+    hrh.content_length += 2;
+  }
   hrh.do_close = request.do_close;
   hrh.printTo(out);
   if (request.http_method != EHttpMethod::HEAD) {
-    JsonObjectEncoder::Encode(source, out);
-    eol.printTo(out);
+    content_source.printTo(out);
+    if (append_http_newline) {
+      eol.printTo(out);
+    }
   }
   return !request.do_close;
+}
+
+bool WriteResponse::OkJsonResponse(const AlpacaRequest& request,
+                                   const JsonPropertySource& source,
+                                   Print& out) {
+  PrintableJsonObject content_source(source);
+  return OkResponse(request, EContentType::kApplicationJson, content_source,
+                    out, /*append_http_newline=*/true);
 }
 
 bool WriteResponse::ArrayResponse(const AlpacaRequest& request,
                                   const JsonElementSource& value, Print& out) {
   JsonArrayResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::ObjectResponse(const AlpacaRequest& request,
                                    const JsonPropertySource& value,
                                    Print& out) {
   JsonObjectResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::BoolResponse(const AlpacaRequest& request, bool value,
                                  Print& out) {
   JsonBoolResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::StatusOrBoolResponse(const AlpacaRequest& request,
@@ -79,7 +94,7 @@ bool WriteResponse::StatusOrBoolResponse(const AlpacaRequest& request,
 bool WriteResponse::DoubleResponse(const AlpacaRequest& request, double value,
                                    Print& out) {
   JsonDoubleResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
@@ -95,7 +110,7 @@ bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
 bool WriteResponse::FloatResponse(const AlpacaRequest& request, float value,
                                   Print& out) {
   JsonFloatResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::StatusOrFloatResponse(const AlpacaRequest& request,
@@ -111,7 +126,7 @@ bool WriteResponse::StatusOrFloatResponse(const AlpacaRequest& request,
 bool WriteResponse::UIntResponse(const AlpacaRequest& request, uint32_t value,
                                  Print& out) {
   JsonUnsignedIntegerResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::StatusOrUIntResponse(const AlpacaRequest& request,
@@ -127,7 +142,7 @@ bool WriteResponse::StatusOrUIntResponse(const AlpacaRequest& request,
 bool WriteResponse::IntResponse(const AlpacaRequest& request, int32_t value,
                                 Print& out) {
   JsonIntegerResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::StatusOrIntResponse(const AlpacaRequest& request,
@@ -144,7 +159,7 @@ bool WriteResponse::PrintableStringResponse(const AlpacaRequest& request,
                                             const Printable& value,
                                             Print& out) {
   JsonStringResponse source(request, value);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::StatusOrLiteralResponse(const AlpacaRequest& request,
@@ -176,7 +191,7 @@ bool WriteResponse::AscomErrorResponse(AlpacaRequest request,
                                        Print& out) {
   request.do_close = true;
   JsonMethodResponse source(request, error_number, error_message);
-  return OkResponse(request, source, out);
+  return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
@@ -242,7 +257,7 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
   }
 
   hrh.content_type = EContentType::kTextPlain;
-  hrh.content_length = CountingBitbucket::SizeOfPrintable(body);
+  hrh.content_length = SizeOfPrintable(body);
   hrh.do_close = true;
   hrh.printTo(out);
   body.printTo(out);

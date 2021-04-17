@@ -82,14 +82,14 @@ std::string MakeExpectedIntResponse(int value, bool do_close = kDoNotClose,
   return MakeExpectedResponse(value_str, do_close, txn_id);
 }
 
-// Direct test of WriteResponse::OkResponse, where we're producing an empty
+// Direct test of WriteResponse::OkJsonResponse, where we're producing an empty
 // JSON object as the body.
 TEST(AlpacaResponseTest, OkWithEmptyJsonObject) {
   AlpacaRequest request;
   request.http_method = EHttpMethod::PUT;
   PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
   PrintToStdString out;
-  EXPECT_TRUE(WriteResponse::OkResponse(request, source, out));
+  EXPECT_TRUE(WriteResponse::OkJsonResponse(request, source, out));
   const auto expected_body = absl::StrCat("{}", kEOL);
   const auto expected =                                             // Force
       absl::StrCat("HTTP/1.1 200 OK", kEOL,                         // line

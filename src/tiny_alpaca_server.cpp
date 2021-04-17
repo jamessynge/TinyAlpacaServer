@@ -5,7 +5,7 @@
 #include "http_response_header.h"
 #include "literals.h"
 #include "utils/array_view.h"
-#include "utils/counting_bitbucket.h"
+#include "utils/counting_print.h"
 #include "utils/json_encoder.h"
 #include "utils/json_encoder_helpers.h"
 #include "utils/printable_cat.h"
@@ -89,18 +89,10 @@ bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
       "<html><body>"
       "<h1>Tiny Alpaca Server</h1>\n"
       "No setup\n"
-      "</body></html>\n");
+      "</body></html>");
 
-  HttpResponseHeader hrh;
-  hrh.status_code = EHttpStatusCode::kHttpOk;
-  hrh.reason_phrase = Literals::OK();
-  hrh.content_type = EContentType::kTextHtml;
-  hrh.content_length = CountingBitbucket::SizeOfPrintable(body);
-  hrh.do_close = request.do_close;
-  hrh.printTo(out);
-  out.print(body);
-
-  return true;
+  return WriteResponse::OkResponse(request, EContentType::kTextHtml, body, out,
+                                   /*append_http_newline=*/true);
 }
 
 TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,

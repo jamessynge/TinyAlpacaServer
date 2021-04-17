@@ -6,7 +6,6 @@
 #include <TinyAlpacaServer.h>
 
 using ::alpaca::AlpacaRequest;
-using ::alpaca::CountingBitbucket;
 using ::alpaca::JsonMethodResponse;
 using ::alpaca::JsonObjectEncoder;
 using ::alpaca::JsonPropertySource;
@@ -63,17 +62,10 @@ AlpacaRequest request;
 // Add unreferenced uint32_t: no change (1870/186)
 uint32_t server_transaction_id = 0;
 
-// Define method for measuring the size of a JSON object: No change in memory.
-uint32_t MeasureJsonSize(JsonPropertySource &source) {
-  CountingBitbucket out;
-  JsonObjectEncoder::Encode(source, out);
-  return out.count();
-}
-
 // Calling this from loop: 3648/298
 uint32_t MeasureCommonJsonResponseSize() {
   JsonMethodResponse source(request);
-  return MeasureJsonSize(source);
+  return JsonObjectEncoder::EncodedSize(source);
 }
 
 // Calling this from loop: 3860/380

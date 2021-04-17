@@ -59,11 +59,10 @@ cc_library(
 )
 
 cc_library(
-    name = "counting_bitbucket",
-    hdrs = ["counting_bitbucket.h"],
-    deps = [
-        ":platform",
-    ],
+    name = "counting_print",
+    srcs = ["counting_print.cc"],
+    hdrs = ["counting_print.h"],
+    deps = [":platform"],
 )
 
 cc_library(
@@ -117,7 +116,7 @@ cc_library(
     deps = [
         ":any_printable",
         ":array_view",
-        ":counting_bitbucket",
+        ":counting_print",
         ":literal",
         ":o_print_stream",
         ":platform",
@@ -126,9 +125,12 @@ cc_library(
 
 cc_library(
     name = "json_encoder_helpers",
+    srcs = ["json_encoder_helpers.cc"],
     hdrs = ["json_encoder_helpers.h"],
     deps = [
+        ":counting_print",
         ":json_encoder",
+        ":logging",
         ":platform",
     ],
 )

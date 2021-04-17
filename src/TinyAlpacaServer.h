@@ -42,7 +42,6 @@
 #include "utils/array.h"                     // IWYU pragma: export
 #include "utils/array_view.h"                // IWYU pragma: export
 #include "utils/connection.h"                // IWYU pragma: export
-#include "utils/counting_bitbucket.h"        // IWYU pragma: export
 #include "utils/eeprom_io.h"                 // IWYU pragma: export
 #include "utils/hex_escape.h"                // IWYU pragma: export
 #include "utils/inline_literal.h"            // IWYU pragma: export

@@ -23,7 +23,7 @@ struct HttpResponseHeader : public Printable {
   EHttpStatusCode status_code;
   Literal reason_phrase;
   EContentType content_type;
-  uint16_t content_length;
+  uint32_t content_length;
   bool do_close;
 };
 

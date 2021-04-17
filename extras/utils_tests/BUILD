@@ -29,10 +29,10 @@ cc_test(
 )
 
 cc_test(
-    name = "counting_bitbucket_test",
-    srcs = ["counting_bitbucket_test.cc"],
+    name = "counting_print_test",
+    srcs = ["counting_print_test.cc"],
     deps = [
-        ":counting_bitbucket",
+        ":counting_print",
         "//googletest:gunit_main",
     ],
 )
@@ -75,7 +75,7 @@ cc_test(
     name = "json_encoder_test",
     srcs = ["json_encoder_test.cc"],
     deps = [
-        ":counting_bitbucket",
+        ":counting_print",
         ":json_encoder",
         ":json_test_utils",
         ":print_to_std_string",

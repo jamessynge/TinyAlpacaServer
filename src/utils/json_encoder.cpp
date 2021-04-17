@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-#include "utils/counting_bitbucket.h"
+#include "utils/counting_print.h"
 #include "utils/literal.h"
 #include "utils/o_print_stream.h"
 
@@ -222,7 +222,8 @@ void JsonArrayEncoder::Encode(const JsonElementSource& source, Print& out) {
 
 // static
 size_t JsonArrayEncoder::EncodedSize(const JsonElementSource& source) {
-  CountingBitbucket counter;
+  PrintNoOp no_op;
+  CountingPrint counter(no_op);
   Encode(source, counter);
   return counter.count();
 }
@@ -304,7 +305,8 @@ void JsonObjectEncoder::Encode(const JsonPropertySource& source, Print& out) {
 
 // static
 size_t JsonObjectEncoder::EncodedSize(const JsonPropertySource& source) {
-  CountingBitbucket counter;
+  PrintNoOp no_op;
+  CountingPrint counter(no_op);
   Encode(source, counter);
   return counter.count();
 }

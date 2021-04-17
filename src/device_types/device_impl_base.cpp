@@ -3,18 +3,52 @@
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
+#include "device_info.h"
 #include "http_response_header.h"
 #include "literals.h"
-#include "utils/counting_bitbucket.h"
+#include "utils/counting_print.h"
 #include "utils/json_encoder.h"
+#include "utils/o_print_stream.h"
 
 namespace alpaca {
+namespace {
+
+class DeviceInfoHtml : public Printable {
+ public:
+  explicit DeviceInfoHtml(const DeviceInfo& info) : info_(info) {}
+
+  size_t printTo(Print& out) const override {
+    CountingPrint counter(out);
+    OPrintStream strm(counter);
+    strm << TASLIT(
+                "<html><body>"
+                "<h1>Tiny Alpaca Server Device Setup</h1>\n"
+                "Type: ")
+         << info_.device_type << TASLIT("<br>")  //
+         << TASLIT("Number: ") << info_.device_number << TASLIT("<br>")
+         << TASLIT("Name: ") << info_.name << TASLIT("<br>")
+         << TASLIT("Description: ") << info_.description << TASLIT("<br>")
+         << TASLIT("Unique ID: ") << info_.unique_id << TASLIT("<br>")
+         << TASLIT("Driver Info: ") << info_.driver_info << TASLIT("<br>")
+         << TASLIT("Driver Version: ") << info_.driver_version << TASLIT("<br>")
+         << TASLIT("Interface Version: ") << info_.interface_version
+         << TASLIT("<br>") << TASLIT("</body></html>");
+    return counter.count();
+  }
+
+ private:
+  const DeviceInfo& info_;
+};
+
+}  // namespace
 
 bool DeviceImplBase::HandleDeviceSetupRequest(const AlpacaRequest& request,
                                               Print& out) {
-  return WriteResponse::AscomErrorResponse(
-      request, ErrorCodes::ActionNotImplemented().code(),
-      Literals::HttpMethodNotImplemented(), out);
+  // Produce a default response indicating that there is no custom setup for
+  // this device.
+  DeviceInfoHtml html(device_info_);
+  return WriteResponse::OkResponse(request, EContentType::kTextHtml, html, out,
+                                   /*append_http_newline=*/true);
 }
 
 bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,

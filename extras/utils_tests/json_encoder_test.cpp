@@ -16,7 +16,7 @@
 #include "extras/test_tools/sample_printable.h"
 #include "googletest/gtest.h"
 #include "logging.h"
-#include "utils/counting_bitbucket.h"
+#include "utils/counting_print.h"
 
 namespace alpaca {
 namespace {

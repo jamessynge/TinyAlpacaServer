@@ -16,14 +16,26 @@
 namespace alpaca {
 
 struct WriteResponse {
+  // Writes to 'out' an OK response with the specified Content-Type, and with a
+  // body whose content is provided 'content_source'. If
+  // request.http_method==HEAD, then the body is not written, but the header
+  // contains the content-length that would be sent for a GET request. If
+  // request.do_close is true, then a "Connection: close" header is added.
+  // Returns true if there is no problem with writing the response AND
+  // request.do_close == false.
+  static bool OkResponse(const AlpacaRequest& request,
+                         EContentType content_type,
+                         const Printable& content_source, Print& out,
+                         bool append_http_newline = false);
+
   // Writes to 'out' an OK response with a JSON body whose content is provided
   // by 'source'. If request.http_method==HEAD, then the body is not written,
   // but the header contains the content-length that would be send for a GET
   // request. If request.do_close is true, then a "Connection: close" header is
   // added. Returns true if there is no problem with writing the response AND
   // request.do_close == false.
-  static bool OkResponse(const AlpacaRequest& request,
-                         const JsonPropertySource& source, Print& out);
+  static bool OkJsonResponse(const AlpacaRequest& request,
+                             const JsonPropertySource& source, Print& out);
 
   // The following XyzResponse methods write to 'out' an OK response with JSON
   // body whose 'Value' property is from the 'value' parameter, which is of the

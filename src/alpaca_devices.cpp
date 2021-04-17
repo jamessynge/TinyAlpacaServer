@@ -96,7 +96,7 @@ bool AlpacaDevices::HandleManagementConfiguredDevices(AlpacaRequest& request,
   TAS_DCHECK_EQ(request.api_group, EApiGroup::kManagement);
   TAS_DCHECK_EQ(request.api, EAlpacaApi::kManagementConfiguredDevices);
   ConfiguredDevicesResponse response(request, devices_);
-  return WriteResponse::OkResponse(request, response, out);
+  return WriteResponse::OkJsonResponse(request, response, out);
 }
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {

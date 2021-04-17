@@ -6,7 +6,6 @@
 #include <TinyAlpacaServer.h>
 
 using ::alpaca::AlpacaRequest;
-using ::alpaca::CountingBitbucket;
 using ::alpaca::JsonArrayEncoder;
 using ::alpaca::JsonElementSource;
 using ::alpaca::JsonObjectEncoder;
