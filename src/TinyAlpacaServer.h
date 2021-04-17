@@ -16,10 +16,12 @@
 #include "ascom_error_codes.h"        // IWYU pragma: export
 #include "config.h"                   // IWYU pragma: export
 #include "constants.h"                // IWYU pragma: export
-#include "device_impl_base.h"         // IWYU pragma: export
 #include "device_info.h"              // IWYU pragma: export
 #include "device_interface.h"         // IWYU pragma: export
-#include "device_type_adapters/observing_conditions_adapter.h"  // IWYU pragma: export
+#include "device_types/cover_calibrator/cover_calibrator_adapter.h"  // IWYU pragma: export
+#include "device_types/cover_calibrator/cover_calibrator_constants.h"  // IWYU pragma: export
+#include "device_types/device_impl_base.h"  // IWYU pragma: export
+#include "device_types/observing_conditions/observing_conditions_adapter.h"  // IWYU pragma: export
 #include "extra_parameters.h"                // IWYU pragma: export
 #include "http_response_header.h"            // IWYU pragma: export
 #include "json_response.h"                   // IWYU pragma: export
@@ -52,6 +54,7 @@
 #include "utils/o_print_stream.h"            // IWYU pragma: export
 #include "utils/platform.h"                  // IWYU pragma: export
 #include "utils/platform_ethernet.h"         // IWYU pragma: export
+#include "utils/print_misc.h"                // IWYU pragma: export
 #include "utils/printable_cat.h"             // IWYU pragma: export
 #include "utils/printable_progmem_string.h"  // IWYU pragma: export
 #include "utils/server_socket.h"             // IWYU pragma: export

@@ -1,0 +1,115 @@
+#include "device_types/cover_calibrator/cover_calibrator_adapter.h"
+
+#include "alpaca_response.h"
+#include "ascom_error_codes.h"
+#include "constants.h"
+#include "literals.h"
+
+namespace alpaca {
+
+CoverCalibratorAdapter::CoverCalibratorAdapter(const DeviceInfo& device_info)
+    : DeviceImplBase(device_info) {}
+
+bool CoverCalibratorAdapter::HandleGetRequest(const AlpacaRequest& request,
+                                              Print& out) {
+  TAS_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
+  TAS_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
+  TAS_DCHECK_EQ(request.device_number, device_number());
+
+  switch (request.device_method) {
+    case EDeviceMethod::kBrightness:
+      return WriteResponse::StatusOrIntResponse(request, GetBrightness(), out);
+
+    case EDeviceMethod::kCalibratorState:
+      return WriteResponse::StatusOrIntEnumResponse<ECalibratorStatus>(
+          request, GetCalibratorState(), out);
+
+    case EDeviceMethod::kCoverState:
+      return WriteResponse::StatusOrIntEnumResponse<ECoverStatus>(
+          request, GetCoverState(), out);
+
+    case EDeviceMethod::kMaxBrightness:
+      return WriteResponse::StatusOrIntResponse(request, GetMaxBrightness(),
+                                                out);
+
+    default:
+      break;
+  }
+  return DeviceImplBase::HandleGetRequest(request, out);
+}
+
+StatusOr<int32_t> CoverCalibratorAdapter::GetBrightness() {
+  return ErrorCodes::ActionNotImplemented();
+}
+
+StatusOr<ECalibratorStatus> CoverCalibratorAdapter::GetCalibratorState() {
+  return ECalibratorStatus::kUnknown;
+}
+
+StatusOr<ECoverStatus> CoverCalibratorAdapter::GetCoverState() {
+  return ECoverStatus::kUnknown;
+}
+
+StatusOr<int32_t> CoverCalibratorAdapter::GetMaxBrightness() {
+  // NOTE: This type of fixed value could be a good candidate for recording in a
+  // Device-Type specific subclass of DeviceInfo.
+  return ErrorCodes::ActionNotImplemented();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Handle a PUT 'request', write the HTTP response message to out.
+bool CoverCalibratorAdapter::HandlePutRequest(const AlpacaRequest& request,
+                                              Print& out) {
+  TAS_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
+  TAS_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
+  TAS_DCHECK_EQ(request.device_number, device_number());
+
+  switch (request.device_method) {
+    case EDeviceMethod::kCalibratorOff:
+      return HandlePutCalibratorOff(request, out);
+
+    case EDeviceMethod::kCalibratorOn:
+      return HandlePutCalibratorOn(request, out);
+
+    case EDeviceMethod::kCloseCover:
+      return HandlePutCloseCover(request, out);
+
+    case EDeviceMethod::kHaltCover:
+      return HandlePutHaltCover(request, out);
+
+    case EDeviceMethod::kOpenCover:
+      return HandlePutOpenCover(request, out);
+
+    default:
+      return DeviceImplBase::HandlePutRequest(request, out);
+  }
+}
+
+bool CoverCalibratorAdapter::HandlePutCalibratorOff(
+    const AlpacaRequest& request, Print& out) {
+  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+}
+
+bool CoverCalibratorAdapter::HandlePutCalibratorOn(const AlpacaRequest& request,
+                                                   Print& out) {
+  // TODO(jamessynge): Get Value parameter from request.
+  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+}
+
+bool CoverCalibratorAdapter::HandlePutCloseCover(const AlpacaRequest& request,
+                                                 Print& out) {
+  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+}
+
+bool CoverCalibratorAdapter::HandlePutHaltCover(const AlpacaRequest& request,
+                                                Print& out) {
+  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+}
+
+bool CoverCalibratorAdapter::HandlePutOpenCover(const AlpacaRequest& request,
+                                                Print& out) {
+  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+}
+
+}  // namespace alpaca

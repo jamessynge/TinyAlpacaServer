@@ -18,7 +18,6 @@
 #include <string>
 #endif  // TAS_HOST_TARGET
 
-#include "utils/o_print_stream.h"
 #include "utils/platform.h"
 
 namespace alpaca {

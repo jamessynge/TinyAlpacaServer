@@ -60,6 +60,9 @@ class DeviceInterface {
   // that the response was written without error and the connection can remain
   // open (which should depend in part on request.do_close); otherwise returns
   // false, in which case the connection to the client will be closed.
+  // TODO(jamessynge): Support returning a webpage stored on the sdcard.
+  // TODO(jamessynge): Design a file system layout to support that, or require
+  // that the DeviceInfo provide the path to the file, or more likely both.
   virtual bool HandleDeviceSetupRequest(const AlpacaRequest& request,
                                         Print& out) = 0;
 

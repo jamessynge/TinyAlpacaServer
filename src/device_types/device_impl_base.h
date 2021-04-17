@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_SRC_DEVICE_IMPL_BASE_H_
-#define TINY_ALPACA_SERVER_SRC_DEVICE_IMPL_BASE_H_
+#ifndef TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_DEVICE_IMPL_BASE_H_
+#define TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_DEVICE_IMPL_BASE_H_
 
 // This is the base class for device specific HTTP request handlers. Handles
 // some common Alpaca API methods, and delegates the remainder to the subclass.
@@ -39,16 +39,20 @@ class DeviceImplBase : public DeviceInterface {
   }
 
   // Writes an error response to out and returns false.
-  // TODO(jamessynge): Return a webpage stored on the sdcard.
-  // TODO(jamessynge): Design a file system layout to support that, or require
-  // that the DeviceInfo provide the path to the file, or more likely both.
   bool HandleDeviceSetupRequest(const AlpacaRequest& request,
                                 Print& out) override;
 
-  // Dispatches GET and HEAD requests for the device API methods (i.e.
-  // /api/v1/...) to HandleGetRequest, and PUT requests for the same to
-  // HandlePutRequest. For any other method, writes an error response to out and
-  // returns false.
+  // Handles ASCOM Alpaca Device API requests, i.e. requests of this form:
+  //
+  //     /api/v1/{device_type}/{device_number}/{method}
+  //
+  // Returns true to indicate that a response has been successfully written to
+  // 'out' and that additional requests from the client may be decoded; returns
+  // false to indicate that the client connection should be closed.
+  //
+  // GET and HEAD requests are delegated to HandleGetRequest, and PUT requests
+  // are delegated to HandlePutRequest. For any other method, writes an error
+  // response to out and returns false.
   bool HandleDeviceApiRequest(const AlpacaRequest& request,
                               Print& out) override;
 
@@ -95,4 +99,4 @@ class DeviceImplBase : public DeviceInterface {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_DEVICE_IMPL_BASE_H_
+#endif  // TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_DEVICE_IMPL_BASE_H_

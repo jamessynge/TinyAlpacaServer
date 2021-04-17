@@ -1,4 +1,4 @@
-#include "device_impl_base.h"
+#include "device_types/device_impl_base.h"
 
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"

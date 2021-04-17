@@ -172,6 +172,18 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
   kName,
   kSupportedActions,
 
+  // CoverCalibrator methods:
+  kBrightness,
+  kCalibratorState,
+  kCoverState,
+  kMaxBrightness,
+
+  kCalibratorOff,
+  kCalibratorOn,
+  kCloseCover,
+  kHaltCover,
+  kOpenCover,
+
   // ObservingConditions methods:
   kAveragePeriod,
   kCloudCover,

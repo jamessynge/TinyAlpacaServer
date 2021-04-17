@@ -1,6 +1,4 @@
-# Provides adapters for specific device types that convert generic
-# HandleGetRequest or HandlePutRequest calls into a specific virtual function
-# calls (e.g. double GetAveragePeriod()).
+# Defines a base type for Observing Conditions devices.
 
 cc_library(
     name = "observing_conditions_adapter",

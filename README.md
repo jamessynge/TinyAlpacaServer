@@ -120,12 +120,79 @@ memcpy_P, which copies a string from PROGMEM to RAM. Of special interest are:
 Both of these functions have a parameter to indicate the length of the strings
 (arrays).
 
-To simplify working with strings in PROGMEM, I've defined a class `Literal` in
-`src/utils/literal.h` and macros to allow for easily defining string literals
-that we want stored in PROGMEM and not in RAM.
+### Literals in Tiny Alpaca Server
 
-Note: So far, class `Literal` only supports strings stored in the first 64KB of
-PROGMEM.
+To simplify working with strings in PROGMEM, I've developed classes and macros
+to allow for easily defining PROGMEM strings, for comparing and printing them
+(where printing includes generating HTTP and JSON responses to Alpaca requests).
+I'm currently manually defining these by:
+
+1.  Adding appropriate entries to src/literals.inc, such as these:
+
+    ```
+    TAS_DEFINE_BUILTIN_LITERAL1(ClientTransactionID)
+    TAS_DEFINE_BUILTIN_LITERAL(HttpRequestHeaderFieldsTooLarge,
+                               "Request Header Fields Too Large")
+    ```
+
+    These macros define a PROGMEM char array holding the NUL terminated string,
+    and a function (e.g. `ClientTransactionID()`) which returns an instance of
+    the Literal class pointing to that string, and also holding a member
+    variable with the length of the string. The macros are actually expanded in
+    multiple contexts: in the file `literals.h` where the function is declared,
+    and in `literals.cc` where the char array and function are defined.
+
+    Defining a literal in this file is appropriate if the string will be used in
+    multiple files.
+
+1.  Defining them at file scope in .cc files using TAS_DEFINE_LITERAL, such as
+    these:
+
+    ```
+    TAS_DEFINE_LITERAL(JsonFalse, "false")
+    TAS_DEFINE_LITERAL(JsonNan, "NaN")
+    ```
+
+    This macro defines a char array and function, just like the behaves much
+    like those in literals.inc, as they are expanded in `literals.cc`.
+
+    TAS_DEFINE_LITERAL is an appropriate choice when the string will be used
+    multiple times in a single file (which these examples won't be).
+
+1.  Using the `TASLIT(value)` macro inline in expressions, such as:
+
+    ```
+    TAS_CHECK(false) << TASLIT("api group (") << group
+                     << TASLIT(") is not device or setup");
+    ```
+
+    Unlike the above macros, this defines a full specialization of the variadic
+    class template `ProgmemStringStorage`. The template declares a static
+    function MakePrintable that returnes a PrintableProgmemString string. The
+    storage class has a static array holding the characters of the string,
+    without a terminating NUL. One advantage of TASLIT over TAS_DEFINE_LITERAL
+    is that the compiler and linker should collapse multiple occurrences of
+    TASLIT(x) with the same value of x. A downside of using TASLIT is that it
+    uses some fancy compile time type deduction to determine the length of the
+    string, and this slows compilation.
+
+After building up the facilities described above, I learned that the macro
+`PSTR(value)` (from AVR libc's pgmspace.h) will (supposedly) have the effect of
+storing a string in PROGMEM only.
+
+TODO: Test this claim.
+
+Further, it appears that the Arduino developers built on this by defining the
+macro `F(value)` in WString.h which performs a typecast on a `PSTR(value)`:
+
+```
+class __FlashStringHelper;
+#define F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
+```
+
+This is good for printing a string, but not for comparing it with a
+`StringView`. Further, it doesn't capture the string length at compile time, so
+it must be rediscovered each time.
 
 ## Planning
 
@@ -150,34 +217,109 @@ PROGMEM.
         ability to return an error status code and error message, or a non-error
         value.
 
+*   Collapse `Literal` and `PrintableProgmemString` into a single class, or at
+    least into layered classes, i.e. `ProgmemString` for just the core feature
+    of holding a pointer to a PROGMEM string and its length, and `LiteralView`
+    with facilities like those in `Literal` and `StringView`, including the
+    printTo function, but probably without inheritance from `Printable`.
+
 *   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
     paths (e.g. POST /setserverlocation?value=Mauna+Kea). This could include
     support for requests such as GET /static/path-to/file-on/sd-card, where all
     /static/ requests result in reading from the SD Card on the Arduino, if
     available.
 
-*   If useful, write a tool to generate / update literals.inc based on
-    DEFINE_LITERAL occurrences in source files, maybe even flag string literals
-    that are in source files and not expressed as calls to Literals::FooBar().
+*   MAYBE: Write a tool for gathering the literal definitions across the code
+    base, and updating literals.inc accordingly.
+
     Consider using the
     [Shortest Superstring Greedy Approximate Algorithm](https://www.geeksforgeeks.org/shortest-superstring-problem/)
     to produce a single long literal string without extra NUL characters, and a
-    table of pairs <offset, length>, with the offset being the start of a
+    table of pairs `<offset, length>`, with the offset being the start of a
     substring (i.e. a literal defined with DEFINE_LITERAL) within the
     superstring, and length being the number of characters in the substring. If
     we generate a dense enum starting at zero for the keywords, then we can use
     those enums to build PROGMEM tables of allowed tokens for use when decoding
     the path.
 
-*   Look into writing a program (Python script?) that reads the
-    [Alpaca Device API specification](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)
-    the
-    [Alpaca Management API specification](https://www.ascom-standards.org/api/AlpacaManagementAPI_v1.yaml),
-    a set of device types to support, and a set of device methods to exclude,
-    and then emits a bunch of tables to drive a "generic" Alpaca HTTP request
-    decoder; this might also emit code for response builders. The script would
-    also generate or update literals.inc, the set of strings to be stored in
-    PROGMEM.
+*   MAYBE: Write a tool for converting uses of bare literal strings into TASLIT
+    or similar macro invocations.
+
+### Generate Device-Type Specific Code
+
+The syntax of the ASCOM Alpaca Device API is specified in large part via a
+[YAML](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml) file, and
+hence is machine readable. This makes it reasonable to consider generating the
+device-type specific code. Ideas:
+
+
+*   Instead of having a single EDeviceMethod enum shared by all device types, we
+    could manually or automatically define an ECommonDeviceApiMethod with the
+    methods common to all device types, and then generate a EXyzDeviceApiMethod
+    enum for each Xyz type of device, where the initial enumerator values are
+    identical to the ECommonDeviceApiMethod enumerators.
+
+*   Generate literal definitions in literals.inc (or in a
+    device_types/{device_type}/ subdirectory)
+
+*   Generate a XyzDeviceApiRequestParameters struct which provides storage for
+    storing non-common parameters (e.g. the Axis and Rate parameters of a
+    telescope/moveaxis request). These structs can be stored in a union within
+    AlpacaRequest so as not to bloat memory requirements. Further, the
+    DeviceApiBase could declare the methods for decoding and validating these
+    fields, ala the existing RequestDecoderListener. Subclasses could then
+    provide the implementation of those methods.
+
+*   Maybe generate a DeviceInfo subtype for each device type, with the aim of
+    automatically handling a number of requests with fixed responses (e.g.
+    telescope/canpulseguide or camera/maxadu). The yaml file doesn't necessarily
+    indicate which of these have fixed responses, so we might need to add an
+    additional file with the list of such requests.
+
+*   Generate a DeviceImplBase subclass, XyzAdapter, in the style of the manually
+    written ObservingConditionsAdapter and CoverCalibratorAdapter.
+
+    *   For each GET request whose JSON response has a Value field with a
+        numeric or boolean value, we would generate a method returning the
+        value, with a signature like:
+
+        `StatusOr<T> GetMethodName(const AlpacaRequest& request)`
+
+    *   For each GET request returning another kind of value (e.g. Array of
+        Integers or String), the generator would produce a method responsible
+        for generating the value and producing the entire response, with a
+        signature like:
+
+        `bool HandleGetMethodName(const AlpacaRequest& request, Print& out)`
+
+    *   For each PUT request, the generator would produce a method responsible
+        for handling the action and producing the entire response, with a
+        signature like:
+
+        `bool HandlePutMethodName(const AlpacaRequest& request, Print& out)`
+
+*   We might apply some of this thinking to all handling of the request after
+    decoding the device type: i.e. the DeviceInterface could expose methods for
+    receiving the device method name, parameter names and parameter values. If
+    we don't have a handler for the device type or device type and device
+    number, then we immediately return an HTTP error and close the connection.
+
+*   The Alpaca specification uses double for floating point fields, which seems
+    like overkill for quite a few fields (e.g humidity). Consider whether to
+    just use double for all floating point fields, or whether to use some
+    external data source to decide whether to represent some values (e.g.
+    humidity and temperature) with a 32-bit float. The real question is what is
+    the impact of just using double? Does it make the code much slower (since it
+    is all implemented in software)?
+
+    NOTE: According to
+    [Arduino Reference](https://www.arduino.cc/reference/en/language/variables/data-types/double/),
+    type double is mapped to the 4-byte float type on ATMEGA boards, so maybe it
+    doesn't matter.
+
+    NOTE: The Print class seems to only support printing of doubles, so even if
+    we pass around floats, we still might not save much by using float instead
+    of double on Arduino systems where float and double are different.
 
 ## Misc. Notes
 
@@ -190,6 +332,10 @@ PROGMEM.
     case of the W5500), and therefore we don't need to design a system for
     incrementally returning responses.
 
+*   IFF some DeviceInterface implementation needs to return large responses, it
+    will need to generate the response incrementally (i.e. without any ability
+    to store the whole thing in RAM) and provide custom response writing.
+
 *   I'm inclined to think that the SafetyMonitor::IsSafe function should be
     implemented server side, not embedded, so that it can combine multiple
     signals and calibrated parameters to make the decision. The embedded system
@@ -197,14 +343,6 @@ PROGMEM.
     an Alpaca Server that runs on the server (host) and provides a SafetyMonitor
     device which in turn makes Alpaca requests to a device with the actual
     sensors.
-
-*   It can be helpful for the device to know the time (i.e. current UTC or local
-    time), such as for implementing operations involving rates or periods. The
-    local clock on the device is unlikely to be very accurate, nor is it likely
-    to keep running when the power is off. Look into learning the time at boot,
-    and possibly times thereafter. Look at:
-    https://tools.ietf.org/id/draft-ogud-dhc-udp-time-option-00.html and at
-    related docs.
 
 *   For reading and writing from EEPROM, it may be useful to use an approach
     such as:
@@ -222,6 +360,15 @@ PROGMEM.
         losing data if writing is interrupted.
     *   We might need some temporary storage in RAM during writing, for which we
         could use an Arduino String class, which has a reserve method.
+
+*   The local clock on the device is fine for timing relatively short intervals
+    (e.g. 10 minutes), so can be used for most rate and averaging computations.
+
+*   It can be helpful for the device to know the wall clock time (i.e. current
+    UTC or local time) for debug logs. If possible, it would be nice to get the
+    time from the DHCP server. Look at:
+    https://tools.ietf.org/id/draft-ogud-dhc-udp-time-option-00.html and related
+    docs.
 
 ## Ultra Tiny HTTP Decoder?
 

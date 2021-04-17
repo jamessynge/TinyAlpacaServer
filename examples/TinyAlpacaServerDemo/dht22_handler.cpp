@@ -39,11 +39,11 @@ const alpaca::DeviceInfo kDht22DeviceInfo{
 
 Dht22Handler::Dht22Handler() : ObservingConditionsAdapter(kDht22DeviceInfo) {}
 
-StatusOr<float> Dht22Handler::GetHumidity() {
+StatusOr<double> Dht22Handler::GetHumidity() {
   return dht22.get_relative_humidity();
 }
 
-StatusOr<float> Dht22Handler::GetTemperature() {
+StatusOr<double> Dht22Handler::GetTemperature() {
   return dht22.get_temperature();
 }
 

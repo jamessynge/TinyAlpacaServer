@@ -55,7 +55,7 @@ uint8_t toOuiUnicast(uint8_t macByte1) {
 //     https://serverfault.com/a/40720
 //     https://en.wikipedia.org/wiki/MAC_address#Universal_vs._local
 //
-// Quoting:
+// Quoting from the wikipedia article:
 //
 //     Universally administered and locally administered addresses are
 //     distinguished by setting the second least significant bit of the
@@ -64,7 +64,7 @@ uint8_t toOuiUnicast(uint8_t macByte1) {
 //     administered. In the example address 02-00-00-00-00-01 the most
 //     significant byte is 02h. The binary is 00000010 and the second
 //     least significant bit is 1. Therefore, it is a locally
-//     administered address. The bit is 0 in all OUIs.
+//     administered address.
 
 OuiPrefix::OuiPrefix() : OuiPrefix(0, 0, 0) {}
 

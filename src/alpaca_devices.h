@@ -6,7 +6,7 @@
 // Alpaca ObservingConditions device), and for providing them periodic Update
 // calls.
 
-#include "device_impl_base.h"
+#include "device_types/device_impl_base.h"
 #include "json_response.h"
 #include "request_listener.h"
 #include "server_description.h"

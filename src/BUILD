@@ -1,4 +1,5 @@
-# Bazel BUILD file for Tiny Alpaca Server. Needs work support building on an arbitrary machine.
+# Bazel BUILD file for Tiny Alpaca Server.
+# NOTE: Needs much work to support building on an arbitrary machine.
 
 cc_library(
     name = "TinyAlpacaServer",
@@ -17,6 +18,8 @@ cc_library(
         ":connection",
         ":constants",
         ":counting_bitbucket",
+        ":cover_calibrator_adapter",
+        ":cover_calibrator_constants",
         ":device_impl_base",
         ":device_info",
         ":device_interface",
@@ -39,6 +42,7 @@ cc_library(
         ":observing_conditions_adapter",
         ":platform",
         ":platform_ethernet",
+        ":print_misc",
         ":print_to_trait",
         ":printable_cat",
         ":printable_progmem_string",
@@ -161,28 +165,8 @@ cc_library(
     deps = [
         ":inline_literal",
         ":platform",
+        ":print_misc",
         ":printable_progmem_string",
-    ],
-)
-
-cc_library(
-    name = "device_impl_base",
-    srcs = ["device_impl_base.cc"],
-    hdrs = ["device_impl_base.h"],
-    deps = [
-        ":alpaca_request",
-        ":alpaca_response",
-        ":ascom_error_codes",
-        ":constants",
-        ":counting_bitbucket",
-        ":device_info",
-        ":device_interface",
-        ":http_response_header",
-        ":json_encoder",
-        ":literals",
-        ":platform",
-        ":status",
-        ":status_or",
     ],
 )
 

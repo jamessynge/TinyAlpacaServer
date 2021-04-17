@@ -3,6 +3,7 @@
 // GENERATED FILE (mostly)
 
 #include "utils/inline_literal.h"
+#include "utils/print_misc.h"
 
 namespace alpaca {
 
@@ -158,6 +159,24 @@ PrintableProgmemString ToPrintableProgmemString(EDeviceMethod v) {
       return TASLIT("Name");
     case EDeviceMethod::kSupportedActions:
       return TASLIT("SupportedActions");
+    case EDeviceMethod::kBrightness:
+      return TASLIT("Brightness");
+    case EDeviceMethod::kCalibratorState:
+      return TASLIT("CalibratorState");
+    case EDeviceMethod::kCoverState:
+      return TASLIT("CoverState");
+    case EDeviceMethod::kMaxBrightness:
+      return TASLIT("MaxBrightness");
+    case EDeviceMethod::kCalibratorOff:
+      return TASLIT("CalibratorOff");
+    case EDeviceMethod::kCalibratorOn:
+      return TASLIT("CalibratorOn");
+    case EDeviceMethod::kCloseCover:
+      return TASLIT("CloseCover");
+    case EDeviceMethod::kHaltCover:
+      return TASLIT("HaltCover");
+    case EDeviceMethod::kOpenCover:
+      return TASLIT("OpenCover");
     case EDeviceMethod::kAveragePeriod:
       return TASLIT("AveragePeriod");
     case EDeviceMethod::kCloudCover:
@@ -275,19 +294,6 @@ PrintableProgmemString ToPrintableProgmemString(EContentType v) {
   }
   return PrintableProgmemString();
 }
-
-namespace {
-size_t PrintUnknownEnumValueTo(PrintableProgmemString name, uint32_t v,
-                               Print& out) {
-  size_t result = out.print(TASLIT("Undefined "));
-  result += name.printTo(out);
-  result += out.print(' ');
-  result += out.print('(');
-  result += out.print(v);
-  result += out.print(')');
-  return result;
-}
-}  // namespace
 
 size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
   auto printable = ToPrintableProgmemString(v);

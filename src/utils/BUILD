@@ -139,7 +139,6 @@ cc_library(
     hdrs = ["literal.h"],
     deps = [
         ":logging",
-        ":o_print_stream",
         ":platform",
         ":printable_progmem_string",
     ],
@@ -214,6 +213,17 @@ cc_library(
 )
 
 cc_library(
+    name = "print_misc",
+    srcs = ["print_misc.cc"],
+    hdrs = ["print_misc.h"],
+    deps = [
+        ":literal",
+        ":platform",
+        ":printable_progmem_string",
+    ],
+)
+
+cc_library(
     name = "printable_cat",
     srcs = ["printable_cat.cc"],
     hdrs = ["printable_cat.h"],
@@ -229,7 +239,9 @@ cc_library(
     name = "printable_progmem_string",
     srcs = ["printable_progmem_string.cc"],
     hdrs = ["printable_progmem_string.h"],
-    deps = [":platform"],
+    deps = [
+        ":platform",
+    ],
 )
 
 cc_library(

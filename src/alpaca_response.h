@@ -74,6 +74,17 @@ struct WriteResponse {
                                   StatusOr<int32_t> status_or_value,
                                   Print& out);
 
+  template <typename E>
+  static bool StatusOrIntEnumResponse(const AlpacaRequest& request,
+                                      StatusOr<E> status_or_value, Print& out) {
+    if (status_or_value.ok()) {
+      return IntResponse(request, static_cast<int32_t>(status_or_value.value()),
+                         out);
+    } else {
+      return AscomErrorResponse(request, status_or_value.status(), out);
+    }
+  }
+
   // These methods aren't all called [StatusOr]StringResponse to make sure that
   // we don't make the mistake of returning a StatusOr<StringView>, or similar,
   // where the value to be captured is a reference (or contains a reference to)
