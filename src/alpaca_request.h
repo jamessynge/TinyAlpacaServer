@@ -29,9 +29,6 @@ struct AlpacaRequest {
   // This resets the fields that won't always be explicity set when a request is
   // successfully decoded (i.e. http_method will be set always, but client_id
   // might not be).
-  // TODO(jamessynge): Add a StartDecoding method that takes care of setting
-  // server_transaction_id after calling AlpacaRequest::Reset, perhaps somewhere
-  // like TinyAlpacaServer.
   void Reset();
 
   void set_client_id(uint32_t id) {

@@ -65,6 +65,10 @@ bool HttpMethodIsRead(EHttpMethod method) {
   return method == EHttpMethod::GET || method == EHttpMethod::HEAD;
 }
 
+bool HttpMethodHasBody(EHttpMethod method) {
+  return method == EHttpMethod::PUT;
+}
+
 bool IsOptionalWhitespace(const char c) { return c == ' ' || c == '\t'; }
 
 bool IsParamSeparator(const char c) { return c == '&'; }
@@ -243,13 +247,10 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     }
   } else if (state.current_header == EHttpHeader::kHttpContentLength) {
-    // Note, we "ignore" the content-length for GET; it doesn't matter if it
-    // is bogus.
     uint32_t content_length = 0;
     const bool converted_ok = value.to_uint32(content_length);
-    const bool needed = state.request.http_method == EHttpMethod::PUT;
     if (state.found_content_length || !converted_ok ||
-        (content_length > RequestDecoderState::kMaxPayloadSize && needed)) {
+        content_length > RequestDecoderState::kMaxPayloadSize) {
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
       if (state.listener) {
         status = state.listener->OnExtraHeader(EHttpHeader::kHttpContentLength,
@@ -266,10 +267,14 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
       }
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-    } else if (needed) {
-      // We only keep the length if we're going to use it.
-      // TODO(jamessynge): Reconsider this in order to support multiple requests
-      // per connection.
+    } else if (content_length > 0 &&
+               !HttpMethodHasBody(state.request.http_method)) {
+      // We could choose to skip over the payload of the request, but we don't
+      // know if the client intended the payload to have meaning. Thus, we
+      // reject a request with an unexpected payload. For more info, see:
+      // https://tools.ietf.org/html/rfc7231#section-4.3.1
+      status = EHttpStatusCode::kHttpBadRequest;
+    } else {
       state.remaining_content_length = content_length;
       state.found_content_length = true;
     }

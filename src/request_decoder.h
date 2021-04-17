@@ -6,6 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include <cstdint>
+
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
@@ -74,8 +76,8 @@ struct RequestDecoderState {
   // request body bytes are decoded.
   // NOTE: We could change this to uint16_t if we need to support longer
   // payloads.
-  StringView::size_type remaining_content_length;
-  static constexpr auto kMaxPayloadSize = StringView::kMaxSize;
+  uint16_t remaining_content_length;
+  static constexpr auto kMaxPayloadSize = UINT16_MAX;
 
   // Using bit fields here for these boolean values, which represents a
   // trade-off of program size for smaller RAM use. Measurements will be needed

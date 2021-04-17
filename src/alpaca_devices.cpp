@@ -20,9 +20,10 @@ AlpacaDevices::AlpacaDevices(ArrayView<DeviceInterface*> devices)
 
 bool AlpacaDevices::Initialize() {
   bool result = true;
-  // TODO(jamessynge): Before initializing the devices, make sure they're valid
-  // (i.e. no two devices of the same type have the same device_number or the
-  // same config_id).
+  // Before initializing the devices, we make sure they're valid:
+  // * None of the pointers are nullptr.
+  // * No two devices of the same type have the same device_number or the
+  //   same config_id).
   for (int i = 0; i < devices_.size(); ++i) {
     DeviceInterface* const device = devices_[i];
     if (device == nullptr) {
@@ -45,16 +46,32 @@ bool AlpacaDevices::Initialize() {
             << ", number=" << device1->device_number()
             << ", name=" << HexEscaped(device1->device_info().name);
         result = false;  // TAS_DCHECK may be disabled.
+        break;
+      }
+      if (device1->device_info().unique_id ==
+          device2->device_info().unique_id) {
+        TAS_DCHECK(false) << "Devices [" << i << "] and [" << j
+                          << "] have the same unique_id";
+        result = false;  // TAS_DCHECK may be disabled.
       }
       if (device1->device_type() != device2->device_type()) {
         break;
       }
-      if (device1->device_number() != device2->device_number()) {
-        break;
+      if (device1->device_number() == device2->device_number()) {
+        TAS_DCHECK(false) << "Devices [" << i << "] and [" << j
+                          << "] have the same type and number";
+        result = false;  // TAS_DCHECK may be disabled.
       }
-      TAS_DCHECK(false) << "Devices [" << i << "] and [" << j
-                        << "] have the same type and number";
-      result = false;  // TAS_DCHECK may be disabled.
+#if 0
+      if (device1->device_info().config_id ==
+          device2->device_info().config_id) {
+        // Someday we'll generate a UUID from the device type and config_id,
+        // so they need to be distinct.
+        TAS_DCHECK(false) << "Devices [" << i << "] and [" << j
+                          << "] have the same type and config_id";
+        result = false;  // TAS_DCHECK may be disabled.
+      }
+#endif
     }
   }
   if (!result) {

@@ -1,9 +1,8 @@
 #ifndef TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_
 #define TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_
 
-// DeviceInfo provides data used used to respond to "Common ASCOM Methods", i.e.
-// requests for common info about a device, and it also provides the list of
-// support custom actions (also accessed via the common ASCOM methods).
+// DeviceInfo provides fixed data used to respond to many of Alpaca's "Common
+// ASCOM Methods", and to /management/v1/configureddevices requests.
 
 #include "constants.h"
 #include "utils/json_encoder.h"
@@ -13,7 +12,7 @@
 
 namespace alpaca {
 
-// There should be one instance of DeviceInfo per device in a sketch.
+// There must be one instance of DeviceInfo per device in a sketch.
 struct DeviceInfo {
   // Write the ConfiguredDevices description of this server to the specified
   // JsonObjectEncoder. The encoder should be for the nested object that is the
@@ -21,21 +20,63 @@ struct DeviceInfo {
   // object that is the body of the response to /man
   void AddTo(JsonObjectEncoder& object_encoder) const;
 
+  // One of the supported ASCOM Devices types such as Telescope, Camera,
+  // Focuser, etc.
   const EDeviceType device_type;
+
+  // The device number that must be used to access this device through the
+  // Alpaca Device API. It must be locally unique among the devices of the same
+  // type served by this server.
   const uint32_t device_number;
+
+  // A short name for this device that a user would expect to see in a list of
+  // available devices. Returned in the ConfiguredDevicesResponse and in the
+  // response to the /name method of the device API.
   const Literal name;
+
+  // A string representation of a random value that uniquely identifies this
+  // ASCOM device; the random value should have a minimum of 48bits of
+  // randomness. Where possible a UUID / GUID should be used, but this is not
+  // mandatory. Returned in the ConfiguredDevicesResponse.
+  const Literal unique_id;
+
+  // The description of the device. Returned in response to the /description
+  // method of the device API.
   const Literal description;
+
+  // The description of the device driver. Returned in response to the
+  // /driverinfo method of the device API.
   const Literal driver_info;
+
+  // The driver version (a string containing only the major and minor version of
+  // the driver). Returned in response to the /driverversion method of the
+  // device API.
   const Literal driver_version;
-  const int16_t interface_version;
+
+  // The list of device-specific action names that the device supports. This is
+  // returned in the response to the /supportedactions method of the device API.
   const LiteralArray supported_actions;
 
-  // The config_id is a random number generated when a device is added, when the
-  // *type(s)* of device(s) used changes, or perhaps when calibration parameters
-  // have been changed such that the values shouldn't be compared with prior
-  // values from this device. The config_id can be used, along with other info,
-  // to generate a UUID for the device, for use as its UniqueId.
+  // The ASCOM Device interface version number that this device supports.
+  // Returned in response to the /interfaceversion method of the device API;
+  // that method gets the version of the ASCOM device interface contract to
+  // which the device complies. Only one interface version is current at a
+  // moment in time and all new devices should be built to the latest interface
+  // version. Applications can choose which device interface versions they
+  // support and it is in their interest to support previous versions as well as
+  // the current version to ensure thay can use the largest number of devices.
+  //
+  // That can be summarized as saying that we should return 1, the current (and
+  // only) version of the ASCOM Alpaca API as of April 2021.
+  const uint8_t interface_version{1};
+
+#if 0
+  // MAY want to use this to allow the generation of a UUID based on MAC, device
+  // type and config_id. That has the advantage an over including a UUID in the
+  // code: it will be different for each instance using the same code, assuming
+  // that the instance has a separate MAC addresses.
   const uint32_t config_id;
+#endif
 };
 
 }  // namespace alpaca

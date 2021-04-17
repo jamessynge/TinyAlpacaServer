@@ -719,6 +719,10 @@ TEST(RequestDecoderTest, DetectsOutOfRangeClientTransactionId) {
 // have a bigger var for tracking how far through twe are OR we'd have to ignore
 // the length and simply decode until there was no more input.
 TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
+  const auto kTooLong =  // Too long for the decoder to keep track of.
+      absl::StrCat(RequestDecoderState::kMaxPayloadSize + 1LL);
+  const auto kWayTooLong = "4294967296";  // Can't be decoded.
+
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, &listener);
@@ -732,7 +736,7 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
   EXPECT_EQ(alpaca_request.device_number, 1);
   EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
 
-  // Now a non-integer Content-Length.
+  // Provide a non-integer Content-Length.
   request =
       "PUT /api/v1/safetymonitor/2/issafe HTTP/1.1\r\n"
       "Content-Length: .0\r\n"
@@ -746,15 +750,29 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
   EXPECT_EQ(alpaca_request.device_number, 2);
   EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
 
-  // Now provide a size that is too large.
-  request =
-      "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
-      "CONTENT-LENGTH: 256\r\n"
-      "\r\n";
+  // Provide a size that is too large to be decoded.
+  request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
+                         "CONTENT-LENGTH: ", kWayTooLong, "\r\n",  //
+                         "\r\n");
 
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentLength, Eq("256")));
+              OnExtraHeader(EHttpHeader::kHttpContentLength, Eq(kWayTooLong)));
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpBadRequest);
+  Mock::VerifyAndClearExpectations(&listener);
+  EXPECT_EQ(alpaca_request.device_number, 1);
+
+  // Provide a size that is too large to keep track of.
+  request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",  //
+                         "content-LENGTH: ", kTooLong, "\r\n",               //
+                         "\r\n");
+
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+  EXPECT_CALL(listener,
+              OnExtraHeader(EHttpHeader::kHttpContentLength, Eq(kTooLong)));
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
@@ -762,20 +780,11 @@ TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
   Mock::VerifyAndClearExpectations(&listener);
   EXPECT_EQ(alpaca_request.device_number, 1);
 
-  // But that size will not be a problem for a GET request because we don't need
-  // to decode a payload.
-  request =
-      "GET /api/v1/safetymonitor/3/issafe HTTP/1.1\r\n"
-      "CONTENT-LENGTH: 256\r\n"
-      "\r\n";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpOk);
-  EXPECT_EQ(alpaca_request.device_number, 3);
-
   // A 255 char length can be decoded. Need to make a body of that size which is
   // valid.
-  std::string frag39 = "nineteen_characters=nineteen_characters";
-  std::string frag239 =
+  ASSERT_LE(255, RequestDecoderState::kMaxPayloadSize);
+  const std::string frag39 = "nineteen_characters=nineteen_characters";
+  const std::string frag239 =
       absl::StrJoin({frag39, frag39, frag39, frag39, frag39, frag39}, "&");
   EXPECT_EQ(frag239.size(), 239);
   std::string body = frag239 + "&a=0124567890123";

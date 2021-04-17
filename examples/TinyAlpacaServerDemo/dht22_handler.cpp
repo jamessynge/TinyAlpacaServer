@@ -13,7 +13,8 @@ static Dht22Device dht22;
 TAS_DEFINE_LITERAL(DHT22Name, "DHT22");
 TAS_DEFINE_LITERAL(DHT22Description, "DHT22 Humidity and Temperature Sensor");
 TAS_DEFINE_LITERAL(DHT22DriverInfo, "https://github/aavso/...");
-TAS_DEFINE_LITERAL(DHT22DriverVersion, "https://github/aavso/...");
+TAS_DEFINE_LITERAL(DHT22DriverVersion, "0.1");
+TAS_DEFINE_LITERAL(DHT22UniqueId, "1c702f50-8987-4baa-926b-a2f13f389d2d");
 
 // No extra actions.
 const auto kSupportedActions = alpaca::LiteralArray({});
@@ -22,19 +23,12 @@ const alpaca::DeviceInfo kDht22DeviceInfo{
     .device_type = alpaca::EDeviceType::kObservingConditions,
     .device_number = 1,
     .name = DHT22Name(),
+    .unique_id = DHT22UniqueId(),
     .description = DHT22Description(),
     .driver_info = DHT22DriverInfo(),
     .driver_version = DHT22DriverVersion(),
-    .interface_version = 1,
     .supported_actions = kSupportedActions,
-
-    // The config_id is a random number generated when a device is added,
-    // when the *type(s)* of device(s) used changes, or perhaps when
-    // calibration parameters have been changed such that the values shouldn't
-    // be compared with prior values from this device.
-    // The config_id can be used, along with other info, to generate a UUID
-    // for the device, for use as its UniqueId.
-    .config_id = 179122466,
+    .interface_version = 1,
 };
 
 Dht22Handler::Dht22Handler() : ObservingConditionsAdapter(kDht22DeviceInfo) {}

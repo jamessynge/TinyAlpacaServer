@@ -85,46 +85,46 @@ class AlpacaDevicesTest : public testing::Test {
       .device_type = alpaca::EDeviceType::kCamera,
       .device_number = 0,
       .name = TASLIT("Camera Name"),
+      .unique_id = TASLIT("Camera Unique Id"),
       .description = TASLIT("Camera Description"),
       .driver_info = TASLIT("Camera Driver Info"),
       .driver_version = TASLIT("Camera Driver Version"),
-      .interface_version = 1,
       .supported_actions = {},
-      .config_id = 9999,
+      .interface_version = 1,
   };
   const std::string kConfiguredDeviceCamera0 =
       R"({"Name": "Camera Name", "DeviceType": "Camera", )"
-      R"("DeviceNumber": 0, "UniqueID": "9999"})";
+      R"("DeviceNumber": 0, "UniqueID": "Camera Unique Id"})";
 
   const alpaca::DeviceInfo mock_camera22_info_{
       .device_type = alpaca::EDeviceType::kCamera,
       .device_number = 22,
       .name = TASLIT("Camera22 Name"),
+      .unique_id = TASLIT("Camera22 Unique Id"),
       .description = TASLIT("Camera22 Description"),
       .driver_info = TASLIT("Camera22 Driver Info"),
       .driver_version = TASLIT("Camera22 Driver Version"),
-      .interface_version = 1,
       .supported_actions = {},
-      .config_id = 7,
+      .interface_version = 1,
   };
   const std::string kConfiguredDeviceCamera22 =
       R"({"Name": "Camera22 Name", "DeviceType": "Camera", )"
-      R"("DeviceNumber": 22, "UniqueID": "7"})";
+      R"("DeviceNumber": 22, "UniqueID": "Camera22 Unique Id"})";
 
   const alpaca::DeviceInfo mock_observing_conditions1_info_{
       .device_type = alpaca::EDeviceType::kObservingConditions,
       .device_number = 1,
       .name = TASLIT("Weather"),
+      .unique_id = TASLIT("Weather UUID"),
       .description = TASLIT("Environment"),
       .driver_info = TASLIT("WeatherStation"),
       .driver_version = TASLIT("Ver."),
-      .interface_version = 1,
       .supported_actions = {},
-      .config_id = 1,
+      .interface_version = 1,
   };
   const std::string kConfiguredDeviceObservingConditions1 =
       R"({"Name": "Weather", "DeviceType": "ObservingConditions", )"
-      R"("DeviceNumber": 1, "UniqueID": "1"})";
+      R"("DeviceNumber": 1, "UniqueID": "Weather UUID"})";
 
   NiceMock<MockDeviceInterface> mock_camera0_;
   NiceMock<MockDeviceInterface> mock_camera22_;
@@ -269,7 +269,7 @@ TEST_F(AlpacaDevicesDeathTest, SameDeviceTwice) {
                      "Device appears twice");
 }
 
-TEST_F(AlpacaDevicesDeathTest, InitializeConflictingDevices) {
+TEST_F(AlpacaDevicesDeathTest, SameUniqueId) {
   MockDeviceInterface second_mock_camera0;
   AddDefaultBehavior(mock_camera0_info_, &second_mock_camera0);
 
@@ -279,8 +279,7 @@ TEST_F(AlpacaDevicesDeathTest, InitializeConflictingDevices) {
   EXPECT_CALL(mock_camera0_, Initialize).Times(0);
   EXPECT_CALL(second_mock_camera0, Initialize).Times(0);
 
-  EXPECT_DEBUG_DEATH({ EXPECT_FALSE(devices.Initialize()); },
-                     "same type and number");
+  EXPECT_DEBUG_DEATH({ EXPECT_FALSE(devices.Initialize()); }, "same unique_id");
 }
 
 }  // namespace

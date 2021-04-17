@@ -223,6 +223,15 @@ it must be rediscovered each time.
     with facilities like those in `Literal` and `StringView`, including the
     printTo function, but probably without inheritance from `Printable`.
 
+*   Support copying literal strings into stack variables for temporary needs.
+    For example, use a template class with a field of type char[N], where N is
+    the length of the literal (without a terminating NUL), copy the literal into
+    the field at construction time, and provide the ability to construct a
+    StringView from it.
+
+*   Normalize string comparison support so that we can have fewer types of
+    strings or more templated comparison functions.
+
 *   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
     paths (e.g. POST /setserverlocation?value=Mauna+Kea). This could include
     support for requests such as GET /static/path-to/file-on/sd-card, where all
@@ -244,6 +253,14 @@ it must be rediscovered each time.
 
 *   MAYBE: Write a tool for converting uses of bare literal strings into TASLIT
     or similar macro invocations.
+
+*   Add the ability to produce a UniqueID for a device instance based on
+    multiple factors, including at least DeviceInterface::GetUniqueBytes,
+    device_type and config_id and MAC address. Alternatively, we might use the
+    device setup UI to allow the user to provide the UUID or randomness source
+    for the UUID. If based on additional, perhaps non-constant factors such as
+    the time when the UUID is first generated, then we might choose to store the
+    UUID in EEPROM.
 
 ### Generate Device-Type Specific Code
 

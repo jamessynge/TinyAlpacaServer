@@ -15,14 +15,7 @@ void DeviceInfo::AddTo(JsonObjectEncoder& object_encoder) const {
 
   object_encoder.AddUIntProperty(Literals::DeviceNumber(), device_number);
 
-  // TODO(jamessynge): Add ability to produce a UUID based on multiple factors,
-  // including at least DeviceInterface::GetUniqueBytes, device_type and
-  // config_id and. Alternatively, we might use the device setup UI to allow the
-  // user to provide the UUID or randomness source for the UUID. If based on
-  // additional, perhaps non-constant factors such as the time when the UUID is
-  // first generated, then we might choose to store the UUID in EEPROM.
-  object_encoder.AddStringProperty(Literals::UniqueID(),
-                                   AnyPrintable(config_id));
+  object_encoder.AddStringProperty(Literals::UniqueID(), unique_id);
 }
 
 }  // namespace alpaca
