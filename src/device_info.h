@@ -67,8 +67,11 @@ struct DeviceInfo {
   // the current version to ensure thay can use the largest number of devices.
   //
   // That can be summarized as saying that we should return 1, the current (and
-  // only) version of the ASCOM Alpaca API as of April 2021.
-  uint8_t interface_version{1};
+  // only) version of the ASCOM Alpaca API as of April 2021. I'd like to provide
+  // a default value here for the field, but the Arduino IDE's compiler (g++ for
+  // approximately C++ 11) doesn't tolerate that when I use designated
+  // initializers (a C++ 20 feature that g++ is supporting).
+  uint8_t interface_version;
 
 #if 0
   // MAY want to use this to allow the generation of a UUID based on MAC, device
