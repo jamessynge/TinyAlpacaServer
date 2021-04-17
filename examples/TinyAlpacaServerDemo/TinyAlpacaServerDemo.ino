@@ -66,10 +66,15 @@ TAS_DEFINE_LITERAL(ManufacturerVersion,
 // TODO(jamessynge): Add support for storing in EEPROM.
 TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory, Westford, MA");
 
-// For responding to /management/v1/description
-const alpaca::ServerDescription kServerDescription(ServerName(), Manufacturer(),
-                                                   Manufacturer(),
-                                                   DeviceLocation());
+// For responding to /management/v1/description.
+// Note that this is using C++ 20's designated initializers, which shouldn't be
+// available for Arduino, which claims to use C++ 11, but it works.
+constexpr alpaca::ServerDescription kServerDescription{
+    .server_name = ServerName(),
+    .manufacturer = Manufacturer(),
+    .manufacturer_version = ManufacturerVersion(),
+    .location = DeviceLocation(),
+};
 
 static Dht22Handler dht_handler;  // NOLINT
 

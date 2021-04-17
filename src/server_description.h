@@ -11,28 +11,36 @@
 
 namespace alpaca {
 
-// TODO(jamessynge): Allow the caller to provide either Literal for the /setup
-// HTML response, or to provide a function for that purpose.
+// TODO(jamessynge): Allow the caller to provide either a Literal for the /setup
+// HTML response, or to provide a function for that purpose, maybe as a
+// Printable instance.
 struct ServerDescription {
-  // I would prefer that caller use C++ 20's designated initializers because it
-  // is easier to understand than a constructor arg list that has no names for
-  // the args (i.e. much like using keyword args in python is clearer than a
-  // list of positional args). For now though, we need to use C++ 11 features to
-  // be compatible with Arduino IDE.
-  constexpr ServerDescription(const Literal& server_name,
-                              const Literal& manufacturer,
-                              const Literal& manufacturer_version,
-                              const Literal& location)
-      : server_name(server_name),
-        manufacturer(manufacturer),
-        manufacturer_version(manufacturer_version),
-        location(location) {}
+  // constexpr ServerDescription(const Literal& server_name,
+  //                             const Literal& manufacturer,
+  //                             const Literal& manufacturer_version,
+  //                             const Literal& location)
+  //     : server_name(server_name),
+  //       manufacturer(manufacturer),
+  //       manufacturer_version(manufacturer_version),
+  //       location(location) {}
 
   // Write the description of this server to the specified JsonObjectEncoder.
   // The encoder should be for the nested object that is the value of the
   // "Value" property of the response object, NOT the outermost object that is
   // the body of the response to /man
   void AddTo(JsonObjectEncoder& object_encoder) const;
+
+  // The device or server's overall name.
+  const Literal server_name;
+
+  // The manufacturer's name.
+  const Literal manufacturer;
+
+  // The device or server's version number.
+  const Literal manufacturer_version;
+
+  // The device or server's location.
+  const Literal location;
 
 #if 0
   // TODO(jamessynge): Implement support for recording the server's physical
@@ -55,11 +63,6 @@ struct ServerDescription {
   // Printable object (already a part of the Arduino API).
   size_t SaveLocation(const StringView& location) const;
 #endif
-
-  const Literal server_name;
-  const Literal manufacturer;
-  const Literal manufacturer_version;
-  const Literal location;
 };
 
 }  // namespace alpaca

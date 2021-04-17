@@ -262,6 +262,13 @@ it must be rediscovered each time.
     the time when the UUID is first generated, then we might choose to store the
     UUID in EEPROM.
 
+*   To support arbitrary sources for strings to be printed in responses, maybe
+    introduce a concrete Printable subclass, IndirectPrintable, which uses the
+    pointer-to-implementation (Pimpl) pattern to keep the size down and to allow
+    the IndirectPrintable to be passed by value. The pointer would be of type
+    Printable*, thus allowing any source to be used for printing, i.e. RAM,
+    PROGMEM, EEPROM or SD Card.
+
 ### Generate Device-Type Specific Code
 
 The syntax of the ASCOM Alpaca Device API is specified in large part via a
