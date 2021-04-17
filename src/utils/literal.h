@@ -11,6 +11,8 @@
 // to the first 64KB of flash. I don't know what guarantees there are about the
 // placement of variables marked PROGMEM, in particular whether there is an
 // attempt to place them early in the address space.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/printable_progmem_string.h"
 #if TAS_HOST_TARGET

@@ -3,6 +3,8 @@
 
 // ServerDescription provides the info used to respond to GET requests with path
 // /management/v1/description.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/json_encoder.h"
 #include "utils/literal.h"

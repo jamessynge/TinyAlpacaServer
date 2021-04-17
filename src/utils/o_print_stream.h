@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_O_PRINT_STREAM_H_
 
 // Support for streaming into a Print instance, primarily for logging.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 #include "utils/traits/print_to_trait.h"
@@ -15,6 +17,11 @@ namespace alpaca {
 
 class OPrintStream {
  public:
+  // An OPrintStreamManipulator is a function which can modify the OPrintStream
+  // instance. So far the only two are BaseDec and BaseHex, allowing a logging
+  // statement to choose the base for printing numbers.
+  using OPrintStreamManipulator = void (*)(OPrintStream&);
+
   explicit OPrintStream(Print& out) : out_(out), base_(10) {}
   OPrintStream() : out_(::Serial), base_(10) {}
 
@@ -24,6 +31,7 @@ class OPrintStream {
     return *this;
   }
 
+  // Set the base in which numbers are printed.
   void set_base(int base) { base_ = base; }
 
  protected:
@@ -37,7 +45,8 @@ class OPrintStream {
   int base_;
 
  private:
-  using OPrintStreamManipulator = void (*)(OPrintStream&);
+  // I'm using type traits to steer the call to the appropriate method or
+  // function for printing a value of type T.
 
   // T is a class with a printTo function.
   template <typename T>
@@ -99,8 +108,19 @@ class OPrintStream {
   }
 };
 
-inline void BaseDec(OPrintStream& strm) { strm.set_base(10); }
+// Set the base for printing numbers to 16. For example:
+//
+//   strm << "In hex: " << BaseHex << 123;
+//
+// Will insert "In hex: 7B" into strm.
 inline void BaseHex(OPrintStream& strm) { strm.set_base(16); }
+
+// Set the base for printing numbers to 10 (the default). For example:
+//
+//   strm << BaseHex << "Value: " << 123 << BaseDec << ", " << 123;
+//
+// Will insert "Value: 7B, 123" into strm.
+inline void BaseDec(OPrintStream& strm) { strm.set_base(10); }
 
 }  // namespace alpaca
 

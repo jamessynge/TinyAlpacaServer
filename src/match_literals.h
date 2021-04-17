@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_MATCH_LITERALS_H_
 
 // Functions to match (lookup) the enum value corresponding to a given string.
+//
+// Author: james.synge@gmail.com
 
 #include "constants.h"
 #include "utils/string_view.h"

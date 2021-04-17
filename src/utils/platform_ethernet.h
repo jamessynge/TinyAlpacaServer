@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_ETHERNET_H_
 
 // Exports the Ethernet support needed by some parts of Tiny Alpaca Server.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"  // IWYU pragma: export
 

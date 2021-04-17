@@ -1,52 +1,38 @@
-// This Arduino Sketch (which does not yet compile or work) demonstrates the API
-// that I aim to provide to folks creating Alpaca compliant devices.
+// This Arduino Sketch demonstrates how to use Tiny Alpaca Server to respond to
+// ASCOM Alpaca requests.
 //
-// The goal is for the alpaca::Server to support these one-time (or rare)
-// operations:
+// TODO(jamessynge): Add more details about how this demo works.
 //
-// * On first execution, will generate a random MAC address, and store in
-//   EEPROM. This is based on my earlier SimpleWebServer.
-//
-// * Similarly, will generate a UniqueID for each device that does not have
-//   one, and store in EEPROM. Some devices, such as a DS18B20, can return a
-//   unique identifier, which might be able to use as is, or use as the seed to
-//   a pseudo-random-number-generator. Note that from run to run, the set of
-//   devices statically configured might change, which we should attempt to deal
-//   with in some way.
-//
-// * If DHCP isn't able to provide an IP address, generate one from a
-//   non-routable range, and store in EEPROM so that it can be re-used in the
-//   future.
+// * On first execution alpaca::IpDevice will generate a random MAC address and
+//   a default link-local IP address, and store those in EEPROM for later use.
 //
 // And on each run:
 //
-// * Use DHCP to get an IP address, falling back to the address stored in EEPROM
-//   if necessary.
+// * Uses DHCP to get an IP address, and falls back to using the IP address
+//   stored in EEPROM if necessary.
 //
-// * If assigned an address via DHCP, keep the DHCP lease alive.
+// * If assigned an address via DHCP, keeps the DHCP lease alive over time.
 //
-// * Handle Alpaca Discovery Protocol messages.
+// * Handles Alpaca Discovery Protocol messages.
 //
-// * Accept new HTTP connections, decode the requests, including decoding all
-//   Alpaca requests (/setup*, /management/*, /api/v1/*), responding with an
-//   error automatically for other paths, and for many kinds of malformed
-//   requests (e.g. POST instead of PUT, unknown device type, device number
-//   or ASCOM method, etc.).
+// * Provides an HTTP server at the specified port (80 in this demo) that
+//   decodes ASCOM Alpaca (HTTP) management and device API requests; the server
+//   detects malformed and unsupported requests, for which it returns errors.
 //
-// * Automatically handle /management/* requests using statically provided
-//   information about the server and the devices.
+// * Handles /management/* requests using statically provided information about
+//   the server and the devices.
 //
-// * Delegate to registered handlers for valid /api/v1/* requests.
+// * Handles /setup requests with a simple fixed HTML response.
+//   TODO(jamessynge): Improve on this.
 //
-// * Provide methods for handlers for sending OK and error responses, including
+// * Delegates to registered handlers for valid requests of the form:
+//
+//       /api/v1/{device_type}/{device_number}/{method}
+//       /setup/v1/{device_type}
+//
+// * Provides methods for handlers for sending OK and error responses, including
 //   measuring the size of the JSON body without having to allocate memory for
 //   it.
-//
-// The code below doesn't include any indication of how the /setup paths will be
-// handled.
-//
-// Note that there isn't a need for the static configuration data to be valid
-// constexprs as we're not storing them in PROGMEM.
 //
 // Author: james.synge@gmail.com
 
@@ -58,12 +44,13 @@
 using ::alpaca::DeviceInterface;
 
 // Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-TAS_DEFINE_LITERAL(ServerName, "Our Spiffy Weather Box");
+// TODO(jamessynge): Add support for storing much of this in EEPROM or on an
+// SD Card.
+TAS_DEFINE_LITERAL(ServerName,
+                   "Our Spiffy Weather Box, based on Tiny Alpaca Server");
 TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
 TAS_DEFINE_LITERAL(ManufacturerVersion,
                    "9099c8af5796a80137ce334713a67a718fd0cd3f");
-
-// TODO(jamessynge): Add support for storing in EEPROM.
 TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory, Westford, MA");
 
 // For responding to /management/v1/description.

@@ -5,6 +5,8 @@
 // DeviceInterface implementations (e.g. an instance that implements an ASCOM
 // Alpaca ObservingConditions device), and for providing them periodic Update
 // calls.
+//
+// Author: james.synge@gmail.com
 
 #include "device_types/device_impl_base.h"
 #include "json_response.h"

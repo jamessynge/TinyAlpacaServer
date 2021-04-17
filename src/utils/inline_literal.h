@@ -10,7 +10,8 @@
 // string literal passed to a macro function into a list of char values, thus
 // enabling a string literal to be (indirectly) used as a template parameter,
 // i.e. by turning it into a list of chars used as the arguments of a variadic
-// template.
+// template, and then using type deduction to determine the length of the
+// string.
 //
 // Since the goal here is to add this capability to this library where Literal
 // already supports reading from PROGMEM, this isn't just a copy of

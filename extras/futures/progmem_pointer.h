@@ -9,6 +9,8 @@
 //
 // Learn more about writing custom iterators here:
 //    https://internalpointers.com/post/writing-custom-iterators-modern-cpp
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 

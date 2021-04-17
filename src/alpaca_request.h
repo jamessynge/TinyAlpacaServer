@@ -1,6 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_SRC_ALPACA_REQUEST_H_
 #define TINY_ALPACA_SERVER_SRC_ALPACA_REQUEST_H_
 
+// AlpacaRequest holds the information about an HTTP request being (or already
+// completely) decoded by RequestDecoder.
+//
 // Author: james.synge@gmail.com
 
 #include "config.h"

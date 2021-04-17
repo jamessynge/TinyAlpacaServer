@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_ADDRESSES_H_
 
 // Support for generation and EEPROM persistence of MAC and IP addresses.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/eeprom_io.h"
 #include "utils/platform.h"

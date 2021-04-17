@@ -2,8 +2,14 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_LOG_SINK_H_
 
 // LogSink is used for printing a message (*line* of text) to a Print instance.
+//
+// CheckSink is used for printing a fatal failure error message to a Print
+// instance.
+//
 // VoidSink is used in place of LogSink when logging is disabled at compile
 // time.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/inline_literal.h"
 #include "utils/o_print_stream.h"
@@ -31,8 +37,6 @@ class CheckSink : public OPrintStream {
 class VoidSink {
  public:
   VoidSink() {}
-  VoidSink(const VoidSink&) {}
-  VoidSink(VoidSink&&) {}
   ~VoidSink() {}
 
   template <typename T>

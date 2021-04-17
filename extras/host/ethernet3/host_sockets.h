@@ -3,6 +3,8 @@
 
 // Methods to hide the differences between the Berkley Socket API (on Linux) and
 // the API exposed by the various Ethernet libraries for Arduino.
+//
+// Author: james.synge@gmail.com
 
 // TODO(jamessynge): Consider implementing Ethernet3/src/utility/socket.* using
 // the *nix Socket API, along with relevant portions of utility/w5500.* needed

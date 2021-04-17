@@ -12,14 +12,17 @@
 //      /api/v1/{device_type}/{device_number}/{method_name}
 //      /setup/v1/{device_type}/{device_number}/setup
 //
-// There is no support for incrementally returning responses, so the Handle
-// method responses generally need to be small enough that it can fit in the
+// There is no support for incrementally returning responses (i.e. over the
+// course of multiple Arduino loop() executions), so the responses produced by
+// the Handle*Request methods generally need to be small enough to fit in the
 // buffers available via 'out' (e.g. at most a few Ethernet frames as provided
 // by a WIZ5500), else they'll stall the system while we wait for ACKs from the
 // client.
 //
 // This is separated out in part to make it easier to test the request
 // dispatching logic.
+//
+// Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
 #include "device_info.h"
@@ -28,6 +31,10 @@
 #include "utils/platform.h"
 
 namespace alpaca {
+
+// TODO(jamessynge): Augment the API with support for decoding device-type
+// specific info, such as the ASCOM method name and custom parameter names and
+// values.
 
 class DeviceInterface {
  public:

@@ -4,6 +4,8 @@
 // This is really a test of how well the compiler and linker can handle NOT
 // emitting reachable code into the final binary. This file is included from
 // sketches TestLogExperimentDisabled and TestLogExperimentEnabled.
+//
+// Author: james.synge@gmail.com
 
 #ifdef TAS_DO_LOG_EXPERIMENT
 

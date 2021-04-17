@@ -14,6 +14,8 @@
 // connections to the Tiny Alpaca Server.
 #define TAS_NUM_SERVER_CONNECTIONS 6
 
+// If non-zero, RequestDecoder will make calls to the provided listener for
+// query parameters and headers that it doesn't natively handle.
 #define TAS_ENABLE_REQUEST_DECODER_LISTENER 0
 
 // This isn't fully fleshed out, but the basics are there for storing the
@@ -22,9 +24,5 @@
 #define TAS_ENABLE_EXTRA_REQUEST_PARAMETERS 1
 #define TAS_MAX_EXTRA_REQUEST_PARAMETERS 1
 #define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 32
-
-#define TAS_DEBUG_HTTP
-
-// Ethernet interface configuration... if needed
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONFIG_H_

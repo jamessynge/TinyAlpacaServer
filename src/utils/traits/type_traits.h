@@ -4,6 +4,9 @@
 // The minimal parts of STL's <type_traits>, etc., needed for Tiny Alpaca
 // Server. This is compiled with avr-gcc, which is mostly C++ 11 compatible, but
 // without the Standard Template Library.
+//
+// Author: james.synge@gmail.com (with plenty of material copied from elsewhere,
+// see below for details)
 
 #include "utils/platform.h"
 

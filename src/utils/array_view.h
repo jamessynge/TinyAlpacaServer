@@ -4,6 +4,8 @@
 // ArrayView references a C-style array of T of known (fixed) size. It provides
 // STL style support for iterating over the C-style array, in support of dealing
 // with static configuration data provided to TinyAlpacaServer.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/logging.h"
 #include "utils/platform.h"

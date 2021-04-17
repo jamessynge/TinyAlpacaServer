@@ -3,6 +3,8 @@
 
 // Adds support for encoding various arrays and objects as JSON, building on the
 // basic JsonElementSource and JsonPropertySource.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/json_encoder.h"
 #include "utils/platform.h"

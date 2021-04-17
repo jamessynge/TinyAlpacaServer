@@ -7,6 +7,8 @@
 // called and lasts from then on (i.e. there is no teardown support, as that
 // isn't needed in the embedded setting). After a connection is closed, the
 // socket will resume listening for new connections.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/connection.h"
 #include "utils/platform.h"

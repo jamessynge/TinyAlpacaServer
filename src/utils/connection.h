@@ -5,6 +5,8 @@
 // method; i.e. a Connection is used to represent an existing (TCP) connection,
 // not to create one. This is useful for implementing a server where we want to
 // work with connections initiated by a remote client.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform_ethernet.h"
 

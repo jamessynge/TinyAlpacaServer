@@ -3,6 +3,8 @@
 
 // Combines a ServerSocket that binds a hardware socket to a TCP port and a
 // ServerConnection that listens to events from the socket.
+//
+// Author: james.synge@gmail.com
 
 #include "server_connection.h"
 #include "utils/platform.h"

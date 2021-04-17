@@ -1,7 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_TRAITS_PRINT_TO_TRAIT_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_TRAITS_PRINT_TO_TRAIT_H_
 
-// Support for determining if a class type has a printTo method.
+// Support for determining at compile time if a class type has a printTo method.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 #include "utils/traits/type_traits.h"

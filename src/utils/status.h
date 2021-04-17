@@ -9,6 +9,13 @@
 //         Reserved error code (0x8004040C) to indicate that the
 //         requested action is not implemented in this driver.
 //
+// Author: james.synge@gmail.com
+
+#include "utils/literal.h"
+#include "utils/platform.h"
+
+namespace alpaca {
+
 // TODO(jamessynge): Consider adding an 'error code space' to Status so that we
 // can support two or three spaces: ASCOM error codes, HTTP status codes, and
 // possibly Unix errno values.
@@ -18,11 +25,10 @@
 // error literals to be linked in to the binary if HttpErrorResponse is also
 // linked in. Instead we could have a separate function for each HTTP status
 // code, like those in ascom_error_codes.* for ASCOM error codes.
-
-#include "utils/literal.h"
-#include "utils/platform.h"
-
-namespace alpaca {
+//
+// Alternately, I could introduce HttpStatus, encapsulating an EHttpStatusCode
+// and a message, which could in turn be used for producing a Status instance
+// where appropriate.
 
 class Status {
  public:

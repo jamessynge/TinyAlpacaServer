@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_SOCKET_LISTENER_H_
 
 // The APIs for notifying listeners of key socket events.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/connection.h"
 #include "utils/platform.h"

@@ -1,7 +1,10 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_PRINT_MISC_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_PRINT_MISC_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
+// Miscellaneous print functions, in a separate compilation unit to avoid
+// dependency cycles.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 #include "utils/printable_progmem_string.h"

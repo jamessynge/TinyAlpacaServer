@@ -3,6 +3,8 @@
 
 // DeviceInfo provides fixed data used to respond to many of Alpaca's "Common
 // ASCOM Methods", and to /management/v1/configureddevices requests.
+//
+// Author: james.synge@gmail.com
 
 #include "constants.h"
 #include "utils/json_encoder.h"

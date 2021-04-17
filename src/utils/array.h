@@ -4,6 +4,8 @@
 // Array is similar to std::array; it contains (owns) a C-style array of T of
 // known (fixed) size, and provides support for iterating through the array. A
 // key application is supporting PrintableCat / AnyPrintableArray.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/array_view.h"
 #include "utils/logging.h"

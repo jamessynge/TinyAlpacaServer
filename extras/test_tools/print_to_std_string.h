@@ -3,6 +3,8 @@
 
 // Helps with testing methods that accept a Print& instance and print/write to
 // it.
+//
+// Author: james.synge@gmail.com
 
 #include <sstream>
 #include <string>

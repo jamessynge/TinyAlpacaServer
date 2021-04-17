@@ -5,6 +5,8 @@
 // time from a sequence of discrete readings. Note that there is no implied unit
 // for the time and duration variables, though the duration between time 0 and
 // time 1 must be 1 (i.e. they have the same step size).
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 

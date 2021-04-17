@@ -3,6 +3,8 @@
 
 // Time and Duration classes to bring time computations together into one
 // location.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 

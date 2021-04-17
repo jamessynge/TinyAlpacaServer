@@ -6,6 +6,8 @@
 // literals.inc, and then include that file here to define arrays in PROGMEM for
 // those strings, and to define factory functions for corresponding Literal
 // instances.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/literal.h"
 #include "utils/platform.h"

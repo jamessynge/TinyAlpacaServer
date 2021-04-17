@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_SAMPLE_PRINTABLE_H_
 
 // SamplePrintable supports testing APIs that accept a Printable.
+//
+// Author: james.synge@gmail.com
 
 #include <string>
 

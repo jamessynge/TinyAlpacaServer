@@ -3,6 +3,8 @@
 
 // To make it easier for tests to drive the JSON encoders, we provide these
 // helpers.
+//
+// Author: james.synge@gmail.com
 
 #include <functional>
 

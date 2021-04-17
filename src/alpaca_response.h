@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_ALPACA_RESPONSE_H_
 
 // Functions for generating an HTTP response message to a Print instance.
+//
+// Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
 #include "constants.h"

@@ -3,6 +3,8 @@
 
 // IpDevice takes care of setting up the Internet Offload device of the embedded
 // device; currently supporting the WIZnet W5500 of a RobotDyn Mega ETH board.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/addresses.h"
 #include "utils/platform.h"

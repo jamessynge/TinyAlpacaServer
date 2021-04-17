@@ -4,6 +4,8 @@
 // Support for printing strings (Printable's or similar) with non-printable
 // ASCII characters hex escaped. Intended to produce output that is valid as a
 // C/C++ string literal.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 

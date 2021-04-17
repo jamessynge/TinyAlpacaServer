@@ -5,6 +5,8 @@
 // It can be used where we know the maximum size needed for a small, variable
 // length string; for example, storing the values of some parameters that might
 // come in requests.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/logging.h"
 #include "utils/platform.h"

@@ -3,6 +3,8 @@
 
 // PrintableProgmemString wraps a pointer to a string literal of known size
 // stored in PROGMEM, and makes it printable.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 

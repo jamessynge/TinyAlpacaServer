@@ -5,6 +5,8 @@
 // Should be entirely filled out before emitting (printing/streaming) the
 // response, after which it should be const so that we can emit it multiple
 // times if needed (unlikely).
+//
+// Author: james.synge@gmail.com
 
 #include "constants.h"
 #include "utils/literal.h"

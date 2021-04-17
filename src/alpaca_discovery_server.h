@@ -1,7 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_SRC_ALPACA_DISCOVERY_SERVER_H_
 #define TINY_ALPACA_SERVER_SRC_ALPACA_DISCOVERY_SERVER_H_
 
-// TinyAlpacaDiscoveryServer
+// TinyAlpacaDiscoveryServer responds to Alpaca discovery messages, enabling an
+// ASCOM Alpaca client to learn about a Tiny Alpaca Server device on the
+// network.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"

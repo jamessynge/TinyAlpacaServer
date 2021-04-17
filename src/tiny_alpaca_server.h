@@ -1,8 +1,8 @@
 #ifndef TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 #define TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 
-// TinyAlpacaServerBase handles AlpacaRequests, dispatching to the appropriate
-// device instance.
+// TinyAlpacaServerBase handles AlpacaRequests, dispatching successfully decoded
+// requests to the appropriate device instance.
 //
 // TinyAlpacaServer adds in the networking support, using all but one of the
 // hardware sockets provided by the Ethernet chip (i.e. reserving one for DHCP
@@ -12,6 +12,11 @@
 // TinyAlpacaServer::Initialize should be called from the setup function of the
 // Arduino sketch, and then TinyAlpacaServer::PerformIO should be called from
 // the loop function of the sketch.
+//
+// Separating the two classes this way improves testability of the
+// non-networking portion, i.e. of TinyAlpacaServerBase.
+//
+// Author: james.synge@gmail.com
 
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
@@ -23,8 +28,6 @@
 
 namespace alpaca {
 
-// The non-networking portion of TinyAlpacaServer, separated from
-// TinyAlpacaServer for testability.
 class TinyAlpacaServerBase : public RequestListener {
  public:
   TinyAlpacaServerBase(const ServerDescription& server_description,

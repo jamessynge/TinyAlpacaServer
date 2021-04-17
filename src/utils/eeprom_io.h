@@ -3,6 +3,8 @@
 
 // Support for writing names and values to EEPROM, and later reading them back.
 // Requires the Arduino EEPROM library.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 

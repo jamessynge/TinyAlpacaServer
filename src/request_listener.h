@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_REQUEST_LISTENER_H_
 
 // API used by ServerConnection to deliver decoded requests to the server.
+//
+// Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
 #include "constants.h"

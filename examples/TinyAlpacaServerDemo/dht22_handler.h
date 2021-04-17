@@ -3,6 +3,8 @@
 
 // Dht22Handler represents a DHT22 humidity and sensor as an ASCOM Alpaca
 // Observing Conditions device.
+//
+// Author: james.synge@gmail.com
 
 #include <TinyAlpacaServer.h>
 

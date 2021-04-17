@@ -3,6 +3,8 @@
 
 // This is a simplistic version of absl::StatusOr, supporting methods that
 // need to return a value, or an error status.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/logging.h"
 #include "utils/platform.h"

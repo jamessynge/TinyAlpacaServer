@@ -11,6 +11,8 @@
 //  There is no support for incrementally returning responses, so those need to
 //  be small enough that it can fit in the buffers available via 'out' (e.g. at
 //  most a few Ethernet frames as provided by a WIZ5500).
+//
+// Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
 #include "ascom_error_codes.h"

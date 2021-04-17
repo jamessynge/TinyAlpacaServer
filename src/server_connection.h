@@ -2,9 +2,12 @@
 #define TINY_ALPACA_SERVER_SRC_SERVER_CONNECTION2_H_
 
 // ServerConnection gathers everything we need to deal with a single TCP
-// connection from a client. On Arduino, where we have no dynamic memory
-// allocation and a fixed maximum number of TCP connections, we pre-allocate
-// everything needed to handle one TCP connection.
+// connection from a client, without actually including any of the networking
+// classes that need to deal with the platform's networking API. On Arduino,
+// where we have no dynamic memory allocation and a fixed maximum number of TCP
+// connections, we pre-allocate everything needed to handle one TCP connection.
+//
+// Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
 #include "request_decoder.h"

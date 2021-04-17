@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_EXAMPLES_TINYALPACASERVERDEMO_PRETEND_DEVICES_H_
 
 // Pretend devices for use in this demo.
+//
+// Author: james.synge@gmail.com
 
 struct Dht22Device {
   float get_relative_humidity() const { return 50; }

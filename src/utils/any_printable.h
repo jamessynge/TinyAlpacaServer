@@ -9,6 +9,8 @@
 // For those captured items that reference values to be printed but not
 // contained by the captured item, the referenced value needs to outlive the
 // AnyPrintable.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/literal.h"
 #include "utils/platform.h"
