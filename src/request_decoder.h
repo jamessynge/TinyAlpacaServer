@@ -6,8 +6,6 @@
 //
 // Author: james.synge@gmail.com
 
-#include <cstdint>
-
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
