@@ -38,9 +38,8 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
     case EDeviceMethod::kSensorDescription:
       // Requires a sensor name.
       if (request.sensor_name == ESensorName::kUnknown) {
-        return WriteResponse::AscomErrorResponse(
-            request, ErrorCodes::InvalidValue().code(),
-            Literals::SensorNameMissing(), out);
+        return WriteResponse::AscomParameterMissingErrorResponse(
+            request, Literals::SensorName(), out);
       }
       return WriteResponse::StatusOrLiteralResponse(
           request, GetSensorDescription(request.sensor_name), out);
@@ -68,9 +67,8 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
     case EDeviceMethod::kTimeSinceLastUpdate:
       // Requires a sensor name.
       if (request.sensor_name == ESensorName::kUnknown) {
-        return WriteResponse::AscomErrorResponse(
-            request, ErrorCodes::InvalidValue().code(),
-            Literals::SensorNameMissing(), out);
+        return WriteResponse::AscomParameterMissingErrorResponse(
+            request, Literals::SensorName(), out);
       }
       return WriteResponse::StatusOrDoubleResponse(
           request, GetTimeSinceLastUpdate(request.sensor_name), out);
@@ -161,22 +159,25 @@ bool ObservingConditionsAdapter::HandlePutRequest(const AlpacaRequest& request,
 
 bool ObservingConditionsAdapter::HandlePutAveragePeriod(
     const AlpacaRequest& request, Print& out) {
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
-
-  // // TODO(jamessynge): Get Value parameter from request somehow.
-  // double hours = 1.0;  // TOTALLY BOGUS.
+  // TODO(jamessynge): Get Value parameter from request. This method
+  // should look like the following:
+  //
+  // ASSIGN_OR_RETURN(double hours,
+  //                  GetParameter(request, EParameter::kAveragePeriod));
   // return WriteResponse::AscomErrorResponse(request, SetAveragePeriod(hours),
   //                                          out);
+
+  return WriteResponse::AscomActionNotImplementedResponse(request, out);
 }
 
 bool ObservingConditionsAdapter::HandlePutRefresh(const AlpacaRequest& request,
                                                   Print& out) {
-  return WriteResponse::AscomErrorResponse(request, Refresh(), out);
+  return WriteResponse::StatusResponse(request, Refresh(), out);
 }
 
 Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
   average_period_ = hours;
-  return ErrorCodes::ActionNotImplemented();
+  return OkStatus();
 }
 
 Status ObservingConditionsAdapter::Refresh() {

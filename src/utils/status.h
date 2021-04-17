@@ -45,6 +45,8 @@ class Status {
   Literal message_;
 };
 
+inline Status OkStatus() { return Status(); }
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_STATUS_H_

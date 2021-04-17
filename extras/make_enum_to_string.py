@@ -459,14 +459,29 @@ def process_file(file_path: str):
 
   ##############################################################################
 
-  for enum_def in enum_definitions:
-    name = enum_def['name']
-    print(f'PrintableProgmemString ToPrintableProgmemString({name} v);')
+  print('namespace alpaca {')
   print()
-
   for enum_def in enum_definitions:
     name = enum_def['name']
     print(f'size_t PrintValueTo({name} v, Print& out);')
+    print(f'PrintableProgmemString ToPrintableProgmemString({name} v);')
+    print()
+  print('}  // namespace alpaca')
+  print()
+  print()
+
+  print('namespace alpaca {')
+  for enum_def in enum_definitions:
+    name = enum_def['name']
+    print(f"""
+size_t PrintValueTo({name} v, Print& out) {{
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {{
+    return printable.printTo(out);
+  }}
+  return PrintUnknownEnumValueTo(
+        TASLIT("{name}"), static_cast<uint32_t>(v), out);
+}}""")
   print()
   print()
 
@@ -489,37 +504,7 @@ PrintableProgmemString ToPrintableProgmemString({name} v) {{
   return PrintableProgmemString();
 }""")
   print()
-  print()
-
-  print(r"""
-namespace {
-size_t PrintUnknownEnumValueTo(const char* name, uint32_t v, Print& out) {
-  size_t result = out.print(TASLIT("Undefined "));
-  result += out.print(name);
-  result += out.print(' ');
-  result += out.print('(');
-  result += out.print(v);
-  result += out.print(')');
-  return result;
-}
-}  // namespace
-""")
-  print()
-  print()
-
-  for enum_def in enum_definitions:
-    name = enum_def['name']
-    print(f"""
-size_t PrintValueTo({name} v, Print& out) {{
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {{
-    return printable.printTo(out);
-  }}
-  return PrintUnknownEnumValueTo(
-        TASLIT("{name}"), static_cast<uint32_t>(v), out);
-}}""")
-  print()
-  print()
+  print('}  // namespace alpaca')
 
 
 def main(argv: List[str]):

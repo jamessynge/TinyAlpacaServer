@@ -37,6 +37,16 @@ struct WriteResponse {
   static bool OkJsonResponse(const AlpacaRequest& request,
                              const JsonPropertySource& source, Print& out);
 
+  // Writes to 'out' an OK response with an JSON body whose content is just the
+  // minimal MethodResponse (i.e. ClientTransactionId, etc, and has no value).
+  // If request.http_method==HEAD, then the body is not written, but the header
+  // contains the content-length that would be send for a GET request. If
+  // request.do_close is true, then a "Connection: close" header is added.
+  // Returns true if there is no problem with writing the response AND
+  // request.do_close == false.
+  static bool StatusResponse(const AlpacaRequest& request, Status status,
+                             Print& out);
+
   // The following XyzResponse methods write to 'out' an OK response with JSON
   // body whose 'Value' property is from the 'value' parameter, which is of the
   // specified type. Returns true if there is no problem with writing the
@@ -125,9 +135,24 @@ struct WriteResponse {
   // the header tells the client that the connection will be closed. Returns
   // false.
   static bool AscomErrorResponse(AlpacaRequest request, uint32_t error_number,
-                                 const AnyPrintable& error_message, Print& out);
+                                 const Printable& error_message, Print& out);
+  static bool AscomErrorResponse(AlpacaRequest request, uint32_t error_number,
+                                 const AnyPrintable& error_message,
+                                 Print& out) {
+    return AscomErrorResponse(request, error_number,
+                              static_cast<const Printable&>(error_message),
+                              out);
+  }
   static bool AscomErrorResponse(const AlpacaRequest& request,
                                  Status error_status, Print& out);
+
+  static bool AscomParameterMissingErrorResponse(const AlpacaRequest& request,
+                                                 Literal parameter_name,
+                                                 Print& out);
+
+  static bool AscomParameterInvalidErrorResponse(const AlpacaRequest& request,
+                                                 Literal parameter_name,
+                                                 Print& out);
 
   // Write an ASCOM Action Not Implemented error response.
   static bool AscomActionNotImplementedResponse(const AlpacaRequest& request,

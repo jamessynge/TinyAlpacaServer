@@ -44,6 +44,7 @@ TAS_DEFINE_BUILTIN_LITERAL1(driverinfo)
 TAS_DEFINE_BUILTIN_LITERAL1(driverversion)
 TAS_DEFINE_BUILTIN_LITERAL1(ErrorMessage)
 TAS_DEFINE_BUILTIN_LITERAL1(ErrorNumber)
+TAS_DEFINE_BUILTIN_LITERAL1(False)
 TAS_DEFINE_BUILTIN_LITERAL1(filterwheel)
 TAS_DEFINE_BUILTIN_LITERAL1(focuser)
 TAS_DEFINE_BUILTIN_LITERAL1(GET)
@@ -83,6 +84,7 @@ TAS_DEFINE_BUILTIN_LITERAL1(starfwhm)
 TAS_DEFINE_BUILTIN_LITERAL1(supportedactions)
 TAS_DEFINE_BUILTIN_LITERAL1(telescope)
 TAS_DEFINE_BUILTIN_LITERAL1(temperature)
+TAS_DEFINE_BUILTIN_LITERAL1(True)
 TAS_DEFINE_BUILTIN_LITERAL1(starfullwidthhalfmax)
 TAS_DEFINE_BUILTIN_LITERAL1(timesincelastupdate)
 TAS_DEFINE_BUILTIN_LITERAL1(TinyAlpacaServer)
@@ -140,8 +142,6 @@ TAS_DEFINE_BUILTIN_LITERAL(HttpInternalServerError, "Internal Server Error")
 TAS_DEFINE_BUILTIN_LITERAL(ApiUnknown,
                            "request.api value is unknown/unexpected (bug).")
 TAS_DEFINE_BUILTIN_LITERAL(NoSuchDevice, "Device type and number not found.")
-
-TAS_DEFINE_BUILTIN_LITERAL(SensorNameMissing, "SensorName parameter not found.")
 
 // ASCOM Error Messages (to be refined).
 TAS_DEFINE_BUILTIN_LITERAL(ErrorActionNotImplemented,

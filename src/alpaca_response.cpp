@@ -10,6 +10,7 @@
 #include "utils/counting_print.h"
 #include "utils/json_encoder.h"
 #include "utils/json_encoder_helpers.h"
+#include "utils/printable_cat.h"
 
 namespace alpaca {
 namespace {
@@ -60,6 +61,16 @@ bool WriteResponse::OkJsonResponse(const AlpacaRequest& request,
   PrintableJsonObject content_source(source);
   return OkResponse(request, EContentType::kApplicationJson, content_source,
                     out, /*append_http_newline=*/true);
+}
+
+bool WriteResponse::StatusResponse(const AlpacaRequest& request, Status status,
+                                   Print& out) {
+  if (status.ok()) {
+    JsonMethodResponse body(request);
+    return OkJsonResponse(request, body, out);
+  } else {
+    return AscomErrorResponse(request, status, out);
+  }
 }
 
 bool WriteResponse::ArrayResponse(const AlpacaRequest& request,
@@ -187,7 +198,7 @@ bool WriteResponse::UIntArrayResponse(const AlpacaRequest& request,
 
 bool WriteResponse::AscomErrorResponse(AlpacaRequest request,
                                        uint32_t error_number,
-                                       const AnyPrintable& error_message,
+                                       const Printable& error_message,
                                        Print& out) {
   request.do_close = true;
   JsonMethodResponse source(request, error_number, error_message);
@@ -203,6 +214,22 @@ bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
 bool WriteResponse::AscomActionNotImplementedResponse(
     const AlpacaRequest& request, Print& out) {
   return AscomErrorResponse(request, ErrorCodes::ActionNotImplemented(), out);
+}
+
+bool WriteResponse::AscomParameterMissingErrorResponse(
+    const AlpacaRequest& request, Literal parameter_name, Print& out) {
+  auto error_message =
+      PrintableCat(TASLIT("Missing parameter: "), parameter_name);
+  return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
+                            out);
+}
+
+bool WriteResponse::AscomParameterInvalidErrorResponse(
+    const AlpacaRequest& request, Literal parameter_name, Print& out) {
+  auto error_message = PrintableCat(TASLIT("Value of parameter "),
+                                    parameter_name, TASLIT(" is invalid."));
+  return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
+                            out);
 }
 
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,

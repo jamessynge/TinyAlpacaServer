@@ -112,9 +112,63 @@ bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
 
 bool DeviceImplBase::HandlePutRequest(const AlpacaRequest& request,
                                       Print& out) {
-  return WriteResponse::HttpErrorResponse(
-      EHttpStatusCode::kHttpInternalServerError,
-      Literals::HttpMethodNotImplemented(), out);
+  switch (request.device_method) {
+    case EDeviceMethod::kAction:
+      return HandlePutAction(request, out);
+
+    case EDeviceMethod::kCommandBlind:
+      return HandlePutCommandBlind(request, out);
+
+    case EDeviceMethod::kCommandBool:
+      return HandlePutCommandBool(request, out);
+
+    case EDeviceMethod::kCommandString:
+      return HandlePutCommandString(request, out);
+
+    case EDeviceMethod::kConnected:
+      return HandlePutConnected(request, out);
+
+    default:
+      return WriteResponse::AscomErrorResponse(
+          request, ErrorCodes::ActionNotImplemented(), out);
+  }
+}
+
+bool DeviceImplBase::HandlePutAction(const AlpacaRequest& request, Print& out) {
+  return WriteResponse::AscomErrorResponse(
+      request, ErrorCodes::ActionNotImplemented(), out);
+}
+
+bool DeviceImplBase::HandlePutCommandBlind(const AlpacaRequest& request,
+                                           Print& out) {
+  return WriteResponse::AscomErrorResponse(
+      request, ErrorCodes::ActionNotImplemented(), out);
+}
+
+bool DeviceImplBase::HandlePutCommandBool(const AlpacaRequest& request,
+                                          Print& out) {
+  return WriteResponse::AscomErrorResponse(
+      request, ErrorCodes::ActionNotImplemented(), out);
+}
+
+bool DeviceImplBase::HandlePutCommandString(const AlpacaRequest& request,
+                                            Print& out) {
+  return WriteResponse::AscomErrorResponse(
+      request, ErrorCodes::ActionNotImplemented(), out);
+}
+
+bool DeviceImplBase::HandlePutConnected(const AlpacaRequest& request,
+                                        Print& out) {
+  if (!request.have_connected) {
+    return WriteResponse::AscomParameterMissingErrorResponse(
+        request, Literals::Connected(), out);
+  }
+  return WriteResponse::StatusResponse(request, SetConnected(request.connected),
+                                       out);
+}
+
+Status DeviceImplBase::SetConnected(bool value) {
+  return ErrorCodes::ActionNotImplemented();
 }
 
 }  // namespace alpaca

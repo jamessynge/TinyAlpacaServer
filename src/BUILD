@@ -135,6 +135,8 @@ cc_library(
         ":json_response",
         ":literals",
         ":platform",
+        ":print",
+        ":printable_cat",
         ":status_or",
     ],
 )

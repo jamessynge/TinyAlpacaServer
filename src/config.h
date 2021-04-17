@@ -22,7 +22,7 @@
 // parameter enum and short string value of parameter types that are defined
 // and have token entries in kRecognizedParameters passed
 #define TAS_ENABLE_EXTRA_REQUEST_PARAMETERS 1
-#define TAS_MAX_EXTRA_REQUEST_PARAMETERS 1
+#define TAS_MAX_EXTRA_REQUEST_PARAMETERS 2
 #define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 32
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONFIG_H_

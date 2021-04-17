@@ -1,16 +1,15 @@
 #ifndef TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_DEVICE_IMPL_BASE_H_
 #define TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_DEVICE_IMPL_BASE_H_
 
-// This is the base class for device specific HTTP request handlers. Handles
-// some common Alpaca API methods, and delegates the remainder to the subclass.
-// In particular, supports requests with paths matching
+// This is a base class for device-type specific HTTP request handlers. In
+// particular, supports requests with paths matching:
 //
 //      /api/v1/{device_type}/{device_number}/{method_name}
 //      /setup/v1/{device_type}/{device_number}/setup
 //
-//  There is no support for incrementally returning responses, so those need to
-//  be small enough that it can fit in the buffers available via 'out' (e.g. at
-//  most a few Ethernet frames as provided by a WIZ5500).
+// Completely handles common Alpaca API information methods (e.g. /name), and
+// takes care of extracting parameters for PUT methods, then delegates to the
+// subclass.
 //
 // Author: james.synge@gmail.com
 
@@ -62,9 +61,9 @@ class DeviceImplBase : public DeviceInterface {
   // Additional methods provided by this class, can be overridden by subclass.
 
   // Handles a subset of the "ASCOM Alpaca Methods Common To All Devices": the
-  // device metadata inquiry methods, such as
-  // /interfaceversion and /supportedactions, which can be answered using the
-  // DeviceInfo instance passed to the constructor.
+  // device metadata inquiry methods, such as /interfaceversion and
+  // /supportedactions, which can be answered using the DeviceInfo instance
+  // passed to the constructor.
 
   // Handles a GET 'request', writing the HTTP response message to out. Returns
   // true to indicate that the response was written without error and the
@@ -90,10 +89,31 @@ class DeviceImplBase : public DeviceInterface {
     return ErrorCodes::ActionNotImplemented();
   }
 
+  // Invokes the named device-specific action.
+  virtual bool HandlePutAction(const AlpacaRequest& request, Print& out);
+
+  // Transmits an arbitrary string to the device, with no response expected.
+  // Default implementation writes an error response to out and returns false.
+  virtual bool HandlePutCommandBlind(const AlpacaRequest& request, Print& out);
+
+  // Transmits an arbitrary string to the device and returns a boolean value
+  // from the device. Default implementation writes an error response to out and
+  // returns false.
+  virtual bool HandlePutCommandBool(const AlpacaRequest& request, Print& out);
+
+  // Transmits an arbitrary string to the device and returns a string value from
+  // the device. Default implementation writes an error response to out and
+  // returns false.
+  virtual bool HandlePutCommandString(const AlpacaRequest& request, Print& out);
+
+  // Sets the connected state of the device. Default implementation passes the
+  // decoded boolean value of the Connected parameter to SetConnected, and
+  // writes a response based on the returned Status value.
+  virtual bool HandlePutConnected(const AlpacaRequest& request, Print& out);
+
   // Connect to the device if value is true, disconnect if value is false.
-  virtual Status SetConnected(bool value) {
-    return ErrorCodes::ActionNotImplemented();
-  }
+  // Default implementation returns an error.
+  virtual Status SetConnected(bool value);
 
  private:
   const DeviceInfo& device_info_;

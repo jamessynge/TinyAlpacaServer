@@ -30,8 +30,11 @@ including Power-over-Ethernet.
 ## Status
 
 The basic server is complete, though the server setup methods is just a stub and
-each device implementation will need to provide its own setup methods. Automated
-tests of the entire system aren't yet implemented.
+each device implementation will need to provide its own setup methods.
+Furthermore, support for query parameters is limited (i.e. only ClientID,
+ClientTransactionID, Connected and SensorName are supported).
+
+Automated tests of the entire system aren't yet implemented.
 
 There are TODOs throughout the code representing various improvements I'd like
 to make, including modifying the guarantees provided by the TAS_CHECK macro: I
@@ -216,6 +219,16 @@ it must be rediscovered each time.
     *   Status: `src/utils/status.h` and `src/utils/status_or.h` provide the
         ability to return an error status code and error message, or a non-error
         value.
+
+*   Complete the ExtraParameters feature OR plumb unsupported parameters into
+    the DeviceInterface impl of the device type. Without this methods such as
+    /action or /commandstring will not work.
+
+    NOTE: An alternate approach might be to define a DeviceApiActionInfo class,
+    with instances generated from the YAML file, with info that tells us the set
+    of expected and required parameters for each action, and the types of those
+    parameters. To save RAM, these might be instantiated dynamically when a
+    request of the approriate type arrives.
 
 *   Collapse `Literal` and `PrintableProgmemString` into a single class, or at
     least into layered classes, i.e. `ProgmemString` for just the core feature

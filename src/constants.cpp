@@ -1,11 +1,119 @@
 #include "constants.h"
 
-// GENERATED FILE (mostly)
+// GENERATED FILE. See make_enum_to_string.py
 
 #include "utils/inline_literal.h"
 #include "utils/print_misc.h"
 
 namespace alpaca {
+
+size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("RequestDecoderStatus"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EHttpStatusCode v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EHttpStatusCode"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EHttpMethod v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EHttpMethod"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EApiGroup v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EApiGroup"), static_cast<uint32_t>(v),
+                                 out);
+}
+
+size_t PrintValueTo(EAlpacaApi v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EAlpacaApi"), static_cast<uint32_t>(v),
+                                 out);
+}
+
+size_t PrintValueTo(EManagementMethod v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EManagementMethod"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EDeviceType v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EDeviceType"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EDeviceMethod v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EDeviceMethod"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EParameter v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EParameter"), static_cast<uint32_t>(v),
+                                 out);
+}
+
+size_t PrintValueTo(ESensorName v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("ESensorName"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EHttpHeader v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EHttpHeader"),
+                                 static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EContentType v, Print& out) {
+  auto printable = ToPrintableProgmemString(v);
+  if (printable.size() > 0) {
+    return printable.printTo(out);
+  }
+  return PrintUnknownEnumValueTo(TASLIT("EContentType"),
+                                 static_cast<uint32_t>(v), out);
+}
 
 PrintableProgmemString ToPrintableProgmemString(RequestDecoderStatus v) {
   switch (v) {
@@ -145,6 +253,14 @@ PrintableProgmemString ToPrintableProgmemString(EDeviceMethod v) {
       return TASLIT("Unknown");
     case EDeviceMethod::kSetup:
       return TASLIT("Setup");
+    case EDeviceMethod::kAction:
+      return TASLIT("Action");
+    case EDeviceMethod::kCommandBlind:
+      return TASLIT("CommandBlind");
+    case EDeviceMethod::kCommandBool:
+      return TASLIT("CommandBool");
+    case EDeviceMethod::kCommandString:
+      return TASLIT("CommandString");
     case EDeviceMethod::kConnected:
       return TASLIT("Connected");
     case EDeviceMethod::kDescription:
@@ -221,12 +337,20 @@ PrintableProgmemString ToPrintableProgmemString(EParameter v) {
   switch (v) {
     case EParameter::kUnknown:
       return TASLIT("Unknown");
+    case EParameter::kAction:
+      return TASLIT("Action");
     case EParameter::kClientID:
       return TASLIT("ClientID");
     case EParameter::kClientTransactionID:
       return TASLIT("ClientTransactionID");
+    case EParameter::kCommand:
+      return TASLIT("Command");
     case EParameter::kConnected:
       return TASLIT("Connected");
+    case EParameter::kParameters:
+      return TASLIT("Parameters");
+    case EParameter::kRaw:
+      return TASLIT("Raw");
     case EParameter::kSensorName:
       return TASLIT("SensorName");
   }
@@ -293,114 +417,6 @@ PrintableProgmemString ToPrintableProgmemString(EContentType v) {
       return TASLIT("text/html");
   }
   return PrintableProgmemString();
-}
-
-size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("RequestDecoderStatus"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EHttpStatusCode v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EHttpStatusCode"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EHttpMethod v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EHttpMethod"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EApiGroup v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EApiGroup"), static_cast<uint32_t>(v),
-                                 out);
-}
-
-size_t PrintValueTo(EAlpacaApi v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EAlpacaApi"), static_cast<uint32_t>(v),
-                                 out);
-}
-
-size_t PrintValueTo(EManagementMethod v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EManagementMethod"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EDeviceType v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EDeviceType"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EDeviceMethod v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EDeviceMethod"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EParameter v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EParameter"), static_cast<uint32_t>(v),
-                                 out);
-}
-
-size_t PrintValueTo(ESensorName v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("ESensorName"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EHttpHeader v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EHttpHeader"),
-                                 static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EContentType v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
-  }
-  return PrintUnknownEnumValueTo(TASLIT("EContentType"),
-                                 static_cast<uint32_t>(v), out);
 }
 
 }  // namespace alpaca

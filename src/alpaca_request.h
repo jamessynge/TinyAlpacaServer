@@ -69,6 +69,7 @@ struct AlpacaRequest {
   uint32_t client_id;
   uint32_t client_transaction_id;
   ESensorName sensor_name;
+  bool connected;
 
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know
@@ -81,6 +82,7 @@ struct AlpacaRequest {
   unsigned int have_client_id : 1;
   unsigned int have_client_transaction_id : 1;
   unsigned int have_server_transaction_id : 1;
+  unsigned int have_connected : 1;
   unsigned int do_close : 1;  // Set to true if client requests it.
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS

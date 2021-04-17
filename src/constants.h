@@ -164,6 +164,10 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
   kSetup,
 
   // Supported common methods:
+  kAction,
+  kCommandBlind,
+  kCommandBool,
+  kCommandString,
   kConnected,
   kDescription,
   kDriverInfo,
@@ -213,9 +217,13 @@ using EParameter_UnderlyingType = uint8_t;
 enum class EParameter : EParameter_UnderlyingType {
   kUnknown,
 
+  kAction,
   kClientID,
   kClientTransactionID,
+  kCommand,
   kConnected,
+  kParameters,
+  kRaw,
   kSensorName,
 };
 

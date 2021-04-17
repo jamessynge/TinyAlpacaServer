@@ -129,7 +129,7 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
                 << request.device_method;
     return device.HandleDeviceApiRequest(request, out);
   } else if (request.api == EAlpacaApi::kDeviceSetup) {
-    return device.HandleDeviceApiRequest(request, out);
+    return device.HandleDeviceSetupRequest(request, out);
   }
   // COV_NF_START
   return WriteResponse::HttpErrorResponse(

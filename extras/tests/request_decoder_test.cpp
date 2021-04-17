@@ -474,7 +474,7 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, &listener);
 
-  const std::string body = "a=1&connected=abc&&ClienttransACTIONid=9";
+  const std::string body = "a=1&raw=true&&ClienttransACTIONid=9";
   const std::string full_request = absl::StrCat(
       "PUT /api/v1/safetymonitor/9999/connected?ClientID=321&AbC=xYz "
       "HTTP/1.1\r\n",
@@ -503,7 +503,7 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
                 OnUnknownHeaderValue(Eq("Some Text, e.g. foo@example.com!")));
     EXPECT_CALL(listener, OnUnknownParameterName(Eq("a")));
     EXPECT_CALL(listener, OnUnknownParameterValue(Eq("1")));
-    EXPECT_CALL(listener, OnExtraParameter(EParameter::kConnected, Eq("abc")));
+    EXPECT_CALL(listener, OnExtraParameter(EParameter::kRaw, Eq("true")));
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 
     auto result = DecodePartitionedRequest(decoder, partition);

@@ -474,6 +474,17 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     } else {
       state.request.set_client_transaction_id(id);
     }
+  } else if (state.current_parameter == EParameter::kConnected) {
+    if (CaseEqual(value, Literals::False()) && !state.request.have_connected) {
+      state.request.connected = false;
+      state.request.have_connected = true;
+    } else if (CaseEqual(value, Literals::True()) &&
+               !state.request.have_connected) {
+      state.request.connected = true;
+      state.request.have_connected = true;
+    } else {
+      status = ReportExtraParameter(state, value);
+    }
   } else if (state.current_parameter == EParameter::kSensorName) {
     ESensorName matched;
     if (state.request.sensor_name != ESensorName::kUnknown ||
