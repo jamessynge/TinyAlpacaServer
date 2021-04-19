@@ -43,11 +43,11 @@ StatusOr<int32_t> CoverCalibratorAdapter::GetBrightness() {
 }
 
 StatusOr<ECalibratorStatus> CoverCalibratorAdapter::GetCalibratorState() {
-  return ECalibratorStatus::kUnknown;
+  return ECalibratorStatus::kNotPresent;
 }
 
 StatusOr<ECoverStatus> CoverCalibratorAdapter::GetCoverState() {
-  return ECoverStatus::kUnknown;
+  return ECoverStatus::kNotPresent;
 }
 
 StatusOr<int32_t> CoverCalibratorAdapter::GetMaxBrightness() {
@@ -88,13 +88,27 @@ bool CoverCalibratorAdapter::HandlePutRequest(const AlpacaRequest& request,
 
 bool CoverCalibratorAdapter::HandlePutCalibratorOff(
     const AlpacaRequest& request, Print& out) {
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+  // We treat 0 as turning off the calibrator. Not sure if that is right.
+  return WriteResponse::StatusResponse(request, SetBrightness(0), out);
 }
 
 bool CoverCalibratorAdapter::HandlePutCalibratorOn(const AlpacaRequest& request,
                                                    Print& out) {
-  // TODO(jamessynge): Get Value parameter from request.
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+  if (!request.have_brightness) {
+    return WriteResponse::AscomParameterMissingErrorResponse(
+        request, Literals::brightness(), out);
+  }
+  auto status_or_max = GetMaxBrightness();
+  if (!status_or_max.ok()) {
+    return WriteResponse::AscomErrorResponse(request, status_or_max.status(),
+                                             out);
+  }
+  if (request.brightness > status_or_max.value()) {
+    return WriteResponse::AscomParameterInvalidErrorResponse(
+        request, Literals::brightness(), out);
+  }
+  return WriteResponse::StatusResponse(request,
+                                       SetBrightness(request.brightness), out);
 }
 
 bool CoverCalibratorAdapter::HandlePutCloseCover(const AlpacaRequest& request,
@@ -110,6 +124,10 @@ bool CoverCalibratorAdapter::HandlePutHaltCover(const AlpacaRequest& request,
 bool CoverCalibratorAdapter::HandlePutOpenCover(const AlpacaRequest& request,
                                                 Print& out) {
   return WriteResponse::AscomActionNotImplementedResponse(request, out);
+}
+
+Status CoverCalibratorAdapter::SetBrightness(uint32_t brightness) {
+  return ErrorCodes::ActionNotImplemented();
 }
 
 }  // namespace alpaca

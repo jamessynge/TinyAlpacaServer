@@ -2,6 +2,10 @@
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_
 
 // This provides just (?) enough of Arduino.h for my needs when testing on host.
+//
+// As of mid-April 2021, I'm starting to write code that needs to read and write
+// pins, so may need to add some more support for fake hardware (e.g. a
+// mock-able class).
 
 // These standard libraries are included directly or indirectly by Arduino.h.
 
@@ -47,11 +51,17 @@ uint32_t micros();
 void delay(uint32_t ms);
 void delayMicroseconds(uint32_t us);
 
+#define INPUT 97
+#define INPUT_PULLUP 98
 #define OUTPUT 99
 #define pinMode(pin_number, pin_mode)
 
 #define LOW 0
 #define HIGH 1
 #define digitalWrite(pin_number, value)
+
+#define analogWrite(pin_number, value)
+
+#define digitalRead(pin_number) HIGH
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_

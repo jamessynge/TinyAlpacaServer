@@ -143,10 +143,15 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
 }
 
 bool MatchParameter(const StringView& view, EParameter& match) {
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(action, EParameter::kAction);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(brightness, EParameter::kBrightness);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(ClientID, EParameter::kClientID);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(ClientTransactionID,
                                        EParameter::kClientTransactionID);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Command, EParameter::kCommand);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Connected, EParameter::kConnected);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Parameters, EParameter::kParameters);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Raw, EParameter::kRaw);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(SensorName, EParameter::kSensorName);
   return false;
 }

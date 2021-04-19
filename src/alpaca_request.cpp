@@ -19,6 +19,8 @@ void AlpacaRequest::Reset() {
   have_client_id = false;
   have_client_transaction_id = false;
   have_server_transaction_id = false;
+  have_connected = false;
+  have_brightness = false;
   do_close = false;
 
   // Theoretically we don't need to clear the following fields because they

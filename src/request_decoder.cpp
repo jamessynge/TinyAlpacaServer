@@ -441,7 +441,7 @@ EHttpStatusCode ReportExtraParameter(RequestDecoderState& state,
 }
 
 // Note that a parameter value may be empty, which makes detecting the end of it
-// tricky if also at the end of the body of a a request.
+// tricky if also at the end of the body of a request.
 EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
   StringView value;
   if (!ExtractMatchingPrefix(view, value, IsParamValueChar)) {
@@ -473,6 +473,14 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
       status = ReportExtraParameter(state, value);
     } else {
       state.request.set_client_transaction_id(id);
+    }
+  } else if (state.current_parameter == EParameter::kBrightness) {
+    uint32_t brightness;
+    bool converted_ok = value.to_uint32(brightness);
+    if (state.request.have_brightness || !converted_ok) {
+      status = ReportExtraParameter(state, value);
+    } else {
+      state.request.set_brightness(brightness);
     }
   } else if (state.current_parameter == EParameter::kConnected) {
     if (CaseEqual(value, Literals::False()) && !state.request.have_connected) {

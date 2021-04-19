@@ -218,6 +218,7 @@ enum class EParameter : EParameter_UnderlyingType {
   kUnknown,
 
   kAction,
+  kBrightness,
   kClientID,
   kClientTransactionID,
   kCommand,

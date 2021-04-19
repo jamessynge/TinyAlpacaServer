@@ -52,6 +52,18 @@ struct AlpacaRequest {
     have_server_transaction_id = true;
   }
 
+  void set_connected(bool value) {
+    TAS_DCHECK(!have_connected);
+    connected = value;
+    have_connected = true;
+  }
+
+  void set_brightness(uint32_t value) {
+    TAS_DCHECK(!have_brightness);
+    brightness = value;
+    have_brightness = true;
+  }
+
   // From the HTTP method and path:
   EHttpMethod http_method;
   EApiGroup api_group;
@@ -65,11 +77,13 @@ struct AlpacaRequest {
   // The device_method is only field in when api is EAlpacaApi::kDeviceApi.
   EDeviceMethod device_method;
 
-  // Parameters, either from the path (GET) or the body (PUT).
+  // Parameters, either from the path (GET & HEAD) or the body (PUT), or both
+  // (PUT).
   uint32_t client_id;
   uint32_t client_transaction_id;
   ESensorName sensor_name;
   bool connected;
+  uint32_t brightness;
 
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know
@@ -83,6 +97,7 @@ struct AlpacaRequest {
   unsigned int have_client_transaction_id : 1;
   unsigned int have_server_transaction_id : 1;
   unsigned int have_connected : 1;
+  unsigned int have_brightness : 1;
   unsigned int do_close : 1;  // Set to true if client requests it.
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS

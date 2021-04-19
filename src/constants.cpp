@@ -339,6 +339,8 @@ PrintableProgmemString ToPrintableProgmemString(EParameter v) {
       return TASLIT("Unknown");
     case EParameter::kAction:
       return TASLIT("Action");
+    case EParameter::kBrightness:
+      return TASLIT("Brightness");
     case EParameter::kClientID:
       return TASLIT("ClientID");
     case EParameter::kClientTransactionID:
