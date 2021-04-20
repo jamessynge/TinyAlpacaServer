@@ -88,8 +88,7 @@ bool CoverCalibratorAdapter::HandlePutRequest(const AlpacaRequest& request,
 
 bool CoverCalibratorAdapter::HandlePutCalibratorOff(
     const AlpacaRequest& request, Print& out) {
-  // We treat 0 as turning off the calibrator. Not sure if that is right.
-  return WriteResponse::StatusResponse(request, SetBrightness(0), out);
+  return WriteResponse::StatusResponse(request, SetCalibratorOff(), out);
 }
 
 bool CoverCalibratorAdapter::HandlePutCalibratorOn(const AlpacaRequest& request,
@@ -107,27 +106,38 @@ bool CoverCalibratorAdapter::HandlePutCalibratorOn(const AlpacaRequest& request,
     return WriteResponse::AscomParameterInvalidErrorResponse(
         request, Literals::brightness(), out);
   }
-  return WriteResponse::StatusResponse(request,
-                                       SetBrightness(request.brightness), out);
+  return WriteResponse::StatusResponse(
+      request, SetCalibratorBrightness(request.brightness), out);
 }
 
 bool CoverCalibratorAdapter::HandlePutCloseCover(const AlpacaRequest& request,
                                                  Print& out) {
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+  return WriteResponse::StatusResponse(request, MoveCover(/*open=*/false), out);
 }
 
 bool CoverCalibratorAdapter::HandlePutHaltCover(const AlpacaRequest& request,
                                                 Print& out) {
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+  return WriteResponse::StatusResponse(request, HaltCoverMotion(), out);
 }
 
 bool CoverCalibratorAdapter::HandlePutOpenCover(const AlpacaRequest& request,
                                                 Print& out) {
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+  return WriteResponse::StatusResponse(request, MoveCover(/*open=*/true), out);
 }
 
-Status CoverCalibratorAdapter::SetBrightness(uint32_t brightness) {
-  return ErrorCodes::ActionNotImplemented();
+Status CoverCalibratorAdapter::SetCalibratorBrightness(uint32_t brightness) {
+  return ErrorCodes::NotImplemented();
 }
 
+Status CoverCalibratorAdapter::SetCalibratorOff() {
+  return ErrorCodes::NotImplemented();
+}
+
+Status CoverCalibratorAdapter::MoveCover(bool open) {
+  return ErrorCodes::NotImplemented();
+}
+
+Status CoverCalibratorAdapter::HaltCoverMotion() {
+  return ErrorCodes::NotImplemented();
+}
 }  // namespace alpaca

@@ -4,10 +4,10 @@
 // DeviceInterface defines the API that a device must present to the Tiny Alpaca
 // Server. W.r.t. the server, this is the device driver.
 //
-// The Update method will be called periodically (typically hundreds of times
-// per second), and the HandleDeviceSetupRequest and HandleDeviceApiRequest will
-// be called when valid HTTP requests are decoded for this device, i.e. those
-// with a path like:
+// The MaintainDevice method will be called periodically (typically hundreds of
+// times per second), and the HandleDeviceSetupRequest and
+// HandleDeviceApiRequest will be called when valid HTTP requests are decoded
+// for this device, i.e. those with a path like:
 //
 //      /api/v1/{device_type}/{device_number}/{method_name}
 //      /setup/v1/{device_type}/{device_number}/setup
@@ -51,7 +51,7 @@ class DeviceInterface {
   // Called periodically to enable the device to perform long running
   // operations (e.g. to measure the temperature on some schedule and
   // accumulate the readings to produce an average value).
-  virtual void Update() = 0;
+  virtual void MaintainDevice() = 0;
 
   // Fill buffer with up to buffer_size unique bytes from the hardware, return
   // the number of unique bytes available. Return 0 if the

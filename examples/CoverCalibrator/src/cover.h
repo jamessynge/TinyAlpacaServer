@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_COVER_H_
 
 // Support for opening and closing the cover.
+//
+// Author: james.synge@gmail.com
 
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
@@ -49,22 +51,38 @@ class Cover {
 
   alpaca::ECoverStatus GetStatus() const;
 
+  // Returns true IFF the cover present pin indicates that the cover motor
+  // feature is installed/usable.
   bool IsPresent() const;
+
+  // Returns true IFF the cover has been successfully commanded to move, and has
+  // not completed the movement.
   bool IsMoving() const { return moving_; }
+
+  // Returns true IFF the open limit switch is closed and "is present".
   bool IsOpen() const;
+
+  // Returns true IFF the closed limit switch is closed and "is present".
   bool IsClosed() const;
 
-  void Open();
-  void Close();
+  // Move the motor until it the cover is open. Returns true IFF the cover was
+  // not open and the cover "is present".
+  bool Open();
+
+  // Move the motor until it the cover is closed. Returns true IFF the cover was
+  // not closed and the cover "is present".
+  bool Close();
+
+  // Stop any movement.
   void Halt();
 
-  void PerformIO();
+  // Checks if the stepper needs to move at the current time. If yes, then it
+  // moves it and returns true. If not, returns false. This is isolated into a
+  // separate routine so that we can call it from an ISR, or (indirectly) from
+  // loop().
+  bool MoveStepper();
 
  private:
-  // This is isolated into a separate routine so that we can call it from an
-  // ISR.
-  void MoveStepper();
-
   AccelStepper stepper_;
 
   // If LOW, the Open Limit switch has been closed (grounded).

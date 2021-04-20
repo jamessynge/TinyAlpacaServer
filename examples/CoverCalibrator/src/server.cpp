@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
+#include "src/cover_calibrator.h"
+
 // Define some literals, which get stored in PROGMEM (in the case of AVR chips).
 TAS_DEFINE_LITERAL(
     ServerName,
@@ -21,9 +23,9 @@ constexpr alpaca::ServerDescription kServerDescription{
     .location = DeviceLocation(),
 };
 
-constexpr CoverCalibrator cover_calibrator;  // NOLINT
+CoverCalibrator cover_calibrator;  // NOLINT
 
-constexpr alpaca::DeviceInterface* kDevices[] = {&cover_calibrator};
+alpaca::DeviceInterface* kDevices[] = {&cover_calibrator};
 
 alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
     /*tcp_port=*/80, kServerDescription, kDevices);

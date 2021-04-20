@@ -7,10 +7,12 @@ cc_library(
     deps = [
         ":TinyAlpacaServer",
         ":alpaca_request",
+        ":ascom_error_codes",
         ":cover",
         ":cover_calibrator_adapter",
         ":cover_calibrator_constants",
-        ":pwm_led",
+        ":ramp_pwm_led",
+        ":status",
     ],
 )
 
@@ -24,11 +26,23 @@ cc_library(
     ],
 )
 
-# cc_library(
-#     name = "server",
-#     srcs = ["server.cc"],
-#     hdrs = ["server.h"],
-#     deps = [
-#         ":TinyAlpacaServer",
-#     ],
-# )
+cc_library(
+    name = "ramp_pwm_led",
+    srcs = ["ramp_pwm_led.cc"],
+    hdrs = ["ramp_pwm_led.h"],
+    deps = [
+        ":TinyAlpacaServer",
+        ":platform",
+        ":pwm_led",
+    ],
+)
+
+cc_library(
+    name = "server",
+    srcs = ["server.cc"],
+    hdrs = ["server.h"],
+    deps = [
+        ":TinyAlpacaServer",
+        ":cover_calibrator",
+    ],
+)

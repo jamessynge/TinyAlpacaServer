@@ -86,7 +86,7 @@ bool AlpacaDevices::Initialize() {
 void AlpacaDevices::MaintainDevices() {
   // Give devices a chance to perform work.
   for (DeviceInterface* device : devices_) {
-    device->Update();
+    device->MaintainDevice();
   }
 }
 

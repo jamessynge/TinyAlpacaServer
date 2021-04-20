@@ -68,7 +68,14 @@ class CoverCalibratorAdapter : public DeviceImplBase {
   virtual bool HandlePutHaltCover(const AlpacaRequest& request, Print& out);
   virtual bool HandlePutOpenCover(const AlpacaRequest& request, Print& out);
 
-  virtual Status SetBrightness(uint32_t brightness);
+  // The above HandlePut* methods delegate to the following methods after
+  // validating arguments, and generate responses based on the returned Status
+  // values.
+  virtual Status SetCalibratorOff();
+  virtual Status SetCalibratorBrightness(uint32_t brightness);
+
+  virtual Status MoveCover(bool open);
+  virtual Status HaltCoverMotion();
 };
 
 }  // namespace alpaca

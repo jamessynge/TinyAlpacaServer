@@ -17,7 +17,7 @@ class MockDeviceInterface : public alpaca::DeviceInterface {
 
   MOCK_METHOD(void, Initialize, (), (override));
 
-  MOCK_METHOD(void, Update, (), (override));
+  MOCK_METHOD(void, MaintainDevice, (), (override));
 
   MOCK_METHOD(size_t, GetUniqueBytes, (uint8_t *, size_t), (override));
 

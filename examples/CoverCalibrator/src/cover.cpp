@@ -58,50 +58,50 @@ bool Cover::IsPresent() const {
 }
 
 bool Cover::IsOpen() const {
-  return digitalRead(open_limit_pin_) == kLimitSwitchClosed;
+  return digitalRead(open_limit_pin_) == kLimitSwitchClosed && IsPresent();
 }
 
 bool Cover::IsClosed() const {
-  return digitalRead(closed_limit_pin_) == kLimitSwitchClosed;
+  return digitalRead(closed_limit_pin_) == kLimitSwitchClosed && IsPresent();
 }
 
-void Cover::Open() {
+bool Cover::Open() {
   if (!IsPresent() || IsOpen()) {
-    return;
+    return false;
+  } else if (!moving_ || closing_) {
+    closing_ = false;
+    moving_ = true;
+    stepper_.setMaxSpeed(kMaxStepperSpeed);
+    stepper_.setSpeed(kStepperSpeed);
+    MoveStepper();
   }
-  closing_ = false;
-  moving_ = true;
-  stepper_.setMaxSpeed(kMaxStepperSpeed);
-  stepper_.setSpeed(kStepperSpeed);
-  MoveStepper();
+  return true;
 }
 
-void Cover::Close() {
+bool Cover::Close() {
   if (!IsPresent() || IsClosed()) {
-    return;
+    return false;
+  } else if (!moving_ || !closing_) {
+    closing_ = true;
+    moving_ = true;
+    stepper_.setMaxSpeed(kMaxStepperSpeed);
+    stepper_.setSpeed(-kStepperSpeed);
+    MoveStepper();
   }
-  closing_ = true;
-  moving_ = true;
-  stepper_.setMaxSpeed(kMaxStepperSpeed);
-  stepper_.setSpeed(kStepperSpeed);
-  MoveStepper();
+  return true;
 }
 
 void Cover::Halt() { moving_ = false; }
 
-void Cover::PerformIO() { MoveStepper(); }
-
-void Cover::MoveStepper() {
-  while (moving_) {
+bool Cover::MoveStepper() {
+  if (moving_) {
     if ((closing_ && IsClosed()) || (!closing_ && IsOpen())) {
       moving_ = false;
-      return;
+      return false;
     }
-    if (stepper_.runSpeed()) {
-      // It isn't time to move the stepper again.
-      return;
-    }
+    return stepper_.runSpeed();
   }
+  return false;
 }
 
 }  // namespace astro_makers

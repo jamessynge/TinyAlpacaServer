@@ -34,7 +34,7 @@ class DeviceImplBase : public DeviceInterface {
   EDeviceType device_type() const override { return device_info_.device_type; }
   uint32_t device_number() const override { return device_info_.device_number; }
   void Initialize() override {}
-  void Update() override {}
+  void MaintainDevice() override {}
   size_t GetUniqueBytes(uint8_t* buffer, size_t buffer_size) override {
     return 0;
   }

@@ -1,23 +1,29 @@
 #include "src/cover_calibrator.h"
 
 #include "alpaca_request.h"
+#include "ascom_error_codes.h"
 #include "device_types/cover_calibrator/cover_calibrator_adapter.h"
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
+#include "utils/status.h"
 
 // Based on AM_CoverCalibrator_schematic_rev_5_pcb.pdf (which has more detail
 // than rev 6).
 
 #define kLedChannel1PwmPin 5
 #define kLedChannel1EnabledPin 9
+#define kLedChannel1RampStepMicros 1500
 
 #define kLedChannel2PwmPin 6
 #define kLedChannel2EnabledPin 10
+#define kLedChannel2RampStepMicros 1500
 
 #define kLedChannel3PwmPin 7
 #define kLedChannel3EnabledPin 11
+#define kLedChannel3RampStepMicros 1500
 
 #define kLedChannel4PwmPin 8
 #define kLedChannel4EnabledPin 12
+#define kLedChannel4RampStepMicros 1500
 
 #define kCoverMotorStepPin 3
 #define kCoverMotorDirectionPin 4
@@ -27,11 +33,11 @@
 
 namespace astro_makers {
 namespace {
-using alpaca::AlpacaRequest;
-using alpaca::ECalibratorStatus;
-using alpaca::ECoverStatus;
-using alpaca::Status;
-using alpaca::StatusOr;
+using ::alpaca::ECalibratorStatus;
+using ::alpaca::ECoverStatus;
+using ::alpaca::ErrorCodes;
+using ::alpaca::Status;
+using ::alpaca::StatusOr;
 
 constexpr MillisT kLedRampStepTime = 2;
 
@@ -62,43 +68,44 @@ const alpaca::DeviceInfo kDeviceInfo{
 
 CoverCalibrator::CoverCalibrator()
     : alpaca::CoverCalibratorAdapter(kDeviceInfo),
-      led1_(kLedChannel1PwmPin, kLedChannel1EnabledPin),
+      white_led_(kLedChannel1PwmPin, kLedChannel1EnabledPin,
+                 kLedChannel1RampStepMicros),
       cover_(kCoverMotorStepPin, kCoverMotorDirectionPin, kCoverOpenLimitPin,
              kCoverCloseLimitPin, kCoverEnabledPin) {}
 
 void CoverCalibrator::Initialize() {
   alpaca::CoverCalibratorAdapter::Initialize();
-  // TODO(jamessynge): Figure out what that initial position of the cover is,
-  // OR always close it. It's best if we have a position sensor and limit
-  // switches.
+  // TODO(jamessynge): Figure out what the initial position of the cover is,
+  // OR always close it (maybe based on a choice by the end-user stored in
+  // EEPROM).
 }
 
-void CoverCalibrator::Update() {
-  alpaca::CoverCalibratorAdapter::Update();
-  while (current_brightness_ != brightness_target_) {
-    const MillisT now = millis();
-    const auto elapsed = now - last_change_ms_;
-    if (elapsed < kLedRampStepTime) {
-      break;
-    }
-    AdjustCurrentBrightness();
-    last_change_ms_ += kLedRampStepTime;
+void CoverCalibrator::MaintainDevice() {
+  alpaca::CoverCalibratorAdapter::MaintainDevice();
+  white_led_.MaintainDevice();
+
+  // Just in case we've fallen behind with updates, we give the stepper a chance
+  // to take multiple steps.
+  while (cover_.MoveStepper()) {
   }
-  // TODO(jamessynge): Handle the stepper motor updates.
 }
 
 // Returns the current calibrator brightness. Not sure if this should be the
 // target or the brightness we've most recently told the LEDs to be.
 StatusOr<int32_t> CoverCalibrator::GetBrightness() {
-  return current_brightness_;
+  if (white_led_.is_enabled()) {
+    return white_led_.current_brightness();
+  } else {
+    return alpaca::ErrorCodes::ActionNotImplemented();
+  }
 }
 
 // Returns the state of the calibration device, or kUnknown if not overridden
 // by a subclass.
 StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
-  if (current_brightness_ == brightness_target_) {
+  if (white_led_.has_reached_target()) {
     // We treat 0 as turning off the calibrator. Not sure if that is right.
-    if (current_brightness_ == 0) {
+    if (white_led_.current_brightness() == 0) {
       return ECalibratorStatus::kOff;
     } else {
       return ECalibratorStatus::kReady;
@@ -108,32 +115,51 @@ StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
   }
 }
 
-StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() { return 255; }
+StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() {
+  return white_led_.max_brightness();
+}
 
-Status CoverCalibrator::SetBrightness(uint32_t brightness) {
-  TAS_DCHECK_LT(brightness, 256);
-  if (brightness_target_ != brightness) {
-    if (current_brightness_ == brightness_target_) {
-      last_change_ms_ = millis();
-    }
-    brightness_target_ = brightness;
+Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
+  if (!white_led_.is_enabled()) {
+    return alpaca::ErrorCodes::NotImplemented();
+  }
+  if (brightness > white_led_.max_brightness()) {
+    return alpaca::ErrorCodes::InvalidValue();
+  }
+  white_led_.set_brightness_target(brightness);
+  return alpaca::OkStatus();
+}
+
+Status CoverCalibrator::SetCalibratorOff() {
+  if (!white_led_.is_enabled()) {
+    return alpaca::ErrorCodes::NotImplemented();
+  }
+  white_led_.set_brightness_immediately(0);
+  return alpaca::OkStatus();
+}
+
+StatusOr<alpaca::ECoverStatus> CoverCalibrator::GetCoverState() {
+  return cover_.GetStatus();
+}
+
+Status CoverCalibrator::MoveCover(bool open) {
+  if (!cover_.IsPresent()) {
+    return alpaca::ErrorCodes::NotImplemented();
+  } else if (open) {
+    cover_.Open();
+  } else {
+    cover_.Close();
   }
   return alpaca::OkStatus();
 }
 
-void CoverCalibrator::AdjustCurrentBrightness() {
-  current_brightness_ += (current_brightness_ < brightness_target_) ? 1 : -1;
-  analogWrite(led5Pin, current_brightness_);
-  analogWrite(led6Pin, current_brightness_);
-  analogWrite(led7Pin, current_brightness_);
-  analogWrite(led8Pin, current_brightness_);
+Status CoverCalibrator::HaltCoverMotion() {
+  if (!cover_.IsPresent()) {
+    return alpaca::ErrorCodes::NotImplemented();
+  } else {
+    cover_.Halt();
+  }
+  return alpaca::OkStatus();
 }
-
-// bool CoverCalibrator::HandlePutCloseCover(const AlpacaRequest& request,
-//                                           Print& out) {}
-// bool CoverCalibrator::HandlePutHaltCover(const AlpacaRequest& request,
-//                                          Print& out) {}
-// bool CoverCalibrator::HandlePutOpenCover(const AlpacaRequest& request,
-//                                          Print& out) {}
 
 }  // namespace astro_makers

@@ -3,6 +3,8 @@
 
 // Controls the brightness of one LED, currently using analogWrite with 8-bit
 // brightness values.
+//
+// Author: james.synge@gmail.com
 
 #include <Arduino.h>
 
@@ -12,9 +14,9 @@ class PwmLed {
  public:
   PwmLed(uint8_t output_pin, uint8_t enabled_pin);
 
-  bool IsEnabled();
-
-  void setBrightness(uint8_t brightness);
+  bool is_enabled() const;
+  void set_brightness(uint16_t brightness);
+  constexpr uint16_t max_brightness() const { return 255; }
 
  private:
   const uint8_t output_pin_;

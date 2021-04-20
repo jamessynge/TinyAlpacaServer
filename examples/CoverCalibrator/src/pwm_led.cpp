@@ -8,9 +8,9 @@ PwmLed::PwmLed(uint8_t output_pin, uint8_t enabled_pin)
   pinMode(output_pin, OUTPUT);
 }
 
-bool PwmLed::IsEnabled() { return digitalRead(enabled_pin_) != LOW; }
+bool PwmLed::is_enabled() const { return digitalRead(enabled_pin_) != LOW; }
 
-void PwmLed::setBrightness(uint8_t brightness) {
+void PwmLed::set_brightness(uint16_t brightness) {
   if (brightness == 0) {
     digitalWrite(output_pin_, LOW);
   } else {

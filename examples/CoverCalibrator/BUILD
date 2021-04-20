@@ -1,10 +1,10 @@
-# TODO(jamessynge): describe this package.
+# Apply Tiny Alpaca Server to the serve the AstroMakers Cover Calibrator device.
 
-# cc_library(
-#     name = "cover_calibrator_ino",
-#     srcs = ["CoverCalibrator.ino.cc"],
-#     deps = [
-#         ":server",
-#         "//experimental/users/jamessynge/tiny-alpaca-server/extras/host/arduino",
-#     ],
-# )
+cc_binary(
+    name = "CoverCalibrator",
+    srcs = ["CoverCalibrator.ino.cc"],
+    deps = [
+        ":arduino_main",
+        ":server",
+    ],
+)

@@ -69,7 +69,7 @@ void AddDefaultBehavior(const alpaca::DeviceInfo& device_info,
       .WillByDefault(Return(device_info.device_number));
 
   ON_CALL(*device_mock, Initialize).WillByDefault(Return());
-  ON_CALL(*device_mock, Update).WillByDefault(Return());
+  ON_CALL(*device_mock, MaintainDevice).WillByDefault(Return());
 }
 
 class AlpacaDevicesTest : public testing::Test {
@@ -142,10 +142,10 @@ TEST_F(AlpacaDevicesTest, Initialize) {
   EXPECT_TRUE(alpaca_devices_.Initialize());
 }
 
-TEST_F(AlpacaDevicesTest, Update) {
-  EXPECT_CALL(mock_camera0_, Update);
-  EXPECT_CALL(mock_camera22_, Update);
-  EXPECT_CALL(mock_observing_conditions1_, Update);
+TEST_F(AlpacaDevicesTest, MaintainDevices) {
+  EXPECT_CALL(mock_camera0_, MaintainDevice);
+  EXPECT_CALL(mock_camera22_, MaintainDevice);
+  EXPECT_CALL(mock_observing_conditions1_, MaintainDevice);
 
   alpaca_devices_.MaintainDevices();
 }
