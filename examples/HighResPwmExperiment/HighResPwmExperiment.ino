@@ -1,6 +1,16 @@
 #include <Arduino.h>
 
-static constexpr bool kDoHighRes = false;
+// Using D13 as a PWM output because it already has an LED on it.
+
+enum class TestMode {
+  LedOff,
+  LedOn,
+  LedBlink,
+  LoResRamp,
+  HiResRamp
+};
+
+static constexpr TestMode kTestMode = TestMode::HiResRamp;
 
 // Experiments with High Resolution (16-bit) PWM.
 //
@@ -40,10 +50,10 @@ static constexpr bool kDoHighRes = false;
 
 void timer1_enable_hi_res_pwm() {
   // Put Timer/Counter #1 into mode 14: Fast PWM, uses value of ICRn (0xFFFF) as
-  // TOP, with system clock used without prescaling. Both output pins are set to
-  // be inverting: the output for channel A will be set high the counter reaches
-  // the value of OCR1A, and cleared when it wraps around from TOP to BOTTOM
-  // (0). OCR1B is the corresponding match register for channel B, and OCR1C is
+  // TOP, with system clock used without prescaling. All 3 output pins are set to
+  // be non-inverting: the output for channel A will be set when the counter
+  // starts at BOTTOM, then will be clearned when the counter reaches the value of
+  // OCR1A. OCR1B is the corresponding match register for channel B, and OCR1C is
   // for channel C.
   //
   // With these settings and a 16MHz clock, the T/C has a 244.14 cycles per
@@ -54,7 +64,7 @@ void timer1_enable_hi_res_pwm() {
   // of a second.
 
   noInterrupts();
-  TCCR1A = 1 << WGM11 | 1 << COM1A1 | 1 << COM1B1;
+  TCCR1A = 1 << WGM11 | 1 << COM1A1 | 1 << COM1B1 | 1 << COM1C1;
   TCCR1B = 1 << CS10 | 1 << WGM12 | 1 << WGM13;
   ICR1 = UINT16_MAX;
   interrupts();
@@ -74,27 +84,79 @@ void setup() {
   while (!Serial) {
   }
 
+  Serial.print("TCCR1A: ");
+  Serial.println(TCCR1A, 2);
+  Serial.print("TCCR1B: ");
+  Serial.println(TCCR1B, 2);
+  Serial.print("TCCR1C: ");
+  Serial.println(TCCR1C, 2);
+
   pinMode(13, OUTPUT);
 
-  if (kDoHighRes) {
-    timer1_enable_hi_res_pwm();
+  for (int i = 0; i <= 20; ++i) {
+    digitalWrite(13, (i & 1) ? HIGH : LOW);
+    delay(50);
   }
+  digitalWrite(13, HIGH);
+  delay(500);
+  digitalWrite(13, LOW);
+  delay(500);
+
+
+  switch (kTestMode) {
+    case TestMode::LedOff:
+      break;
+    case TestMode::LedOn:
+      break;
+    case TestMode::LedBlink:
+      break;
+    case TestMode::LoResRamp:
+      break;
+    case TestMode::HiResRamp:
+      timer1_enable_hi_res_pwm();
+      break;
+  }
+
+  Serial.println();
+  Serial.println("After initialization:");
+
+  Serial.println();
+  Serial.print("TCCR1A: ");
+  Serial.println(TCCR1A, 2);
+  Serial.print("TCCR1B: ");
+  Serial.println(TCCR1B, 2);
+  Serial.print("TCCR1C: ");
+  Serial.println(TCCR1C, 2);
 }
 
 void loop() {
   static uint16_t pwm = 0;
-  // Using D13 as a PWM output because it already has an LED on it.
 
-  if (kDoHighRes) {
-    // Only the low 8 bits will be used.
-    analogWrite(13, pwm++);
-    // Delay for 50ms, yielding ~20 loops per second, so a cycle time of 12.8
-    // seconds.
-    delay(50);
-  } else {
-    OCR1C = pwm;
-    pwm += 5;
-    // 65536 / 5 steps, 1 step per millisecond, so a cycle time of 13.1 seconds.
-    delay(1);
+  switch (kTestMode) {
+    case TestMode::LedOff:
+      digitalWrite(13, LOW);
+      delay(1000);
+      break;
+    case TestMode::LedOn:
+      digitalWrite(13, HIGH);
+      delay(1000);
+      break;
+    case TestMode::LedBlink:
+      digitalWrite(13, (pwm++ & 1) ? HIGH : LOW);
+      delay(500);
+      break;
+    case TestMode::LoResRamp:
+      analogWrite(13, (pwm++) & 0xff);
+      // Delay for 50ms, yielding ~20 loops per second, so a cycle time of 12.8
+      // seconds to go from 0 to 255 and back to zero.
+      delay(50);
+      break;
+    case TestMode::HiResRamp:
+      OCR1C = pwm;
+      pwm += 5;
+      // 65536 / 5 steps, 1 step per millisecond, so a cycle time of 13.1 seconds
+      // to count from 0 to 65535 and back to zero.
+      delay(1);
+      break;
   }
 }
