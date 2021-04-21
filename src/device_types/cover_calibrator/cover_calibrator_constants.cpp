@@ -1,8 +1,6 @@
 
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "utils/inline_literal.h"
 #include "utils/platform.h"
 #include "utils/print_misc.h"

@@ -1,4 +1,7 @@
-# TODO(jamessynge): describe this package.
+# Root package of generic and device-type specific DeviceInterface implementations,
+# none of which are for a specific device; i.e. ObservingConditionsAdapter does not
+# interface with any particular hardware, but instead makes it easier to write
+# hardware specific DeviceInterface implementations.
 
 cc_library(
     name = "device_impl_base",

@@ -1,4 +1,6 @@
-# TODO(jamessynge): describe this package.
+# Implementation of the AstroMakers Cover Calibrator device driver, i.e. an
+# Arduino sketch which offers an ASCOM Alpaca server with a CoverCalibrator
+# device.
 
 cc_library(
     name = "cover_calibrator",

@@ -1,7 +1,5 @@
 #include "utils/print_misc.h"
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "utils/literal.h"
 #include "utils/platform.h"
 

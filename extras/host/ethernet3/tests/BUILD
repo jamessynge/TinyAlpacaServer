@@ -1,4 +1,4 @@
-# TODO(jamessynge): describe this package.
+# Tests of the faux/limited host-only Ethernet3 library.
 
 cc_test(
     name = "ethernet_client_test",

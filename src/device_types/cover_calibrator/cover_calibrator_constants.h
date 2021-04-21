@@ -1,6 +1,8 @@
 #ifndef TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_COVER_CALIBRATOR_COVER_CALIBRATOR_CONSTANTS_H_
 #define TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_COVER_CALIBRATOR_COVER_CALIBRATOR_CONSTANTS_H_
 
+// ASCOM constants specified in the Cover Calibrator device API.
+
 #include "utils/platform.h"
 #include "utils/printable_progmem_string.h"
 
