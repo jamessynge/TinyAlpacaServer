@@ -10,7 +10,7 @@ enum class TestMode {
   HiResRamp
 };
 
-static constexpr TestMode kTestMode = TestMode::HiResRamp;
+static constexpr TestMode kTestMode = TestMode::LoResRamp;
 
 // Experiments with High Resolution (16-bit) PWM.
 //
@@ -70,6 +70,11 @@ void timer1_enable_hi_res_pwm() {
   interrupts();
 }
 
+static int32_t brightness = 0;
+static int32_t brightness_delta = 0;
+static int32_t max_brightness;
+static unsigned long loop_delay;
+
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
   // read. Note that the baud rate is meaningful on boards that do true serial,
@@ -84,12 +89,15 @@ void setup() {
   while (!Serial) {
   }
 
-  Serial.print("TCCR1A: ");
+  Serial.print("TCCR1A: 0b");
   Serial.println(TCCR1A, 2);
-  Serial.print("TCCR1B: ");
+  Serial.print("TCCR1B: 0b");
   Serial.println(TCCR1B, 2);
-  Serial.print("TCCR1C: ");
+  Serial.print("TCCR1C: 0b");
   Serial.println(TCCR1C, 2);
+
+  Serial.println();
+  Serial.print("Blinking LEDs to signal that we're running...");
 
   pinMode(13, OUTPUT);
 
@@ -97,66 +105,137 @@ void setup() {
     digitalWrite(13, (i & 1) ? HIGH : LOW);
     delay(50);
   }
+
   digitalWrite(13, HIGH);
   delay(500);
   digitalWrite(13, LOW);
   delay(500);
 
+  Serial.println(" done.");
 
   switch (kTestMode) {
     case TestMode::LedOff:
+      loop_delay = 1000;
       break;
+
     case TestMode::LedOn:
+      loop_delay = 1000;
       break;
+
     case TestMode::LedBlink:
+      loop_delay = 500;
+      brightness_delta = 1;
+      max_brightness = 1;
       break;
+
     case TestMode::LoResRamp:
+      // Delay for 250ms, yielding ~4 loops per second, so a cycle time of 64
+      // seconds to go from 0 to 255, and the same time to go back down to zero.
+      loop_delay = 250;
+      brightness_delta = 1;
+      max_brightness = 0xffL;
+
+      loop_delay = 50;  
       break;
+
     case TestMode::HiResRamp:
+      OCR1C = brightness;
       timer1_enable_hi_res_pwm();
+
+      // Delay for 1, yielding ~1000 loops per second, so a cycle time of 65.536
+      // seconds to go from 0 to 255, and the same time to go back down to zero.
+      loop_delay = 1;
+      brightness_delta = 1;
+      max_brightness = 0xffffL;
       break;
   }
 
   Serial.println();
-  Serial.println("After initialization:");
+  Serial.println("After TestMode based initialization:");
 
   Serial.println();
-  Serial.print("TCCR1A: ");
+  Serial.print("max_brightness: ");
+  Serial.println(max_brightness);
+  Serial.print("brightness: ");
+  Serial.println(brightness);
+  Serial.print("brightness_delta: ");
+  Serial.println(brightness_delta);
+  Serial.print("loop_delay: ");
+  Serial.println(loop_delay);
+  Serial.print("ramp duration: ");
+  Serial.print((max_brightness + 1.0) / (1000.0 / loop_delay));
+  Serial.println(" seconds");
+
+  Serial.println();
+  Serial.print("TCCR1A: 0b");
   Serial.println(TCCR1A, 2);
-  Serial.print("TCCR1B: ");
+  Serial.print("TCCR1B: 0b");
   Serial.println(TCCR1B, 2);
-  Serial.print("TCCR1C: ");
+  Serial.print("TCCR1C: 0b");
   Serial.println(TCCR1C, 2);
+
+  Serial.println();
+  Serial.println("End of setup");
+
+  
 }
 
 void loop() {
-  static uint16_t pwm = 0;
+
+  if (brightness_delta != 0 && (brightness <= 0 || brightness >= max_brightness)) {
+      Serial.println();
+      Serial.println("loop start");
+      Serial.print("brightness: ");
+      Serial.println(brightness);
+      Serial.print("brightness_delta: ");
+      Serial.println(brightness_delta);
+  }
 
   switch (kTestMode) {
     case TestMode::LedOff:
       digitalWrite(13, LOW);
-      delay(1000);
       break;
+
     case TestMode::LedOn:
       digitalWrite(13, HIGH);
-      delay(1000);
       break;
+
     case TestMode::LedBlink:
-      digitalWrite(13, (pwm++ & 1) ? HIGH : LOW);
-      delay(500);
+      digitalWrite(13, (brightness > 0) ? HIGH : LOW);
       break;
+
     case TestMode::LoResRamp:
-      analogWrite(13, (pwm++) & 0xff);
-      // Delay for 50ms, yielding ~20 loops per second, so a cycle time of 12.8
-      // seconds to go from 0 to 255 and back to zero.
-      delay(50);
+      analogWrite(13, brightness & 0xff);
       break;
+
     case TestMode::HiResRamp:
-      OCR1C = pwm;
-      pwm += 5;
-      // 65536 / 5 steps, 1 step per millisecond, so a cycle time of 13.1 seconds
-      // to count from 0 to 65535 and back to zero.
-      delay(1);
+      OCR1C = brightness & 0xffff;
       break;
   }
+
+  if (brightness_delta != 0) {
+    brightness += brightness_delta;
+    bool flipped = false;
+    if (brightness < 0) {
+      brightness = -brightness;
+      brightness_delta = -brightness_delta;
+      flipped = true;
+    } else if (brightness > max_brightness) {
+      brightness = max_brightness - (brightness - max_brightness);
+      brightness_delta = -brightness_delta;
+      flipped = true;
+    }
+    if (flipped) {
+      Serial.println();
+      Serial.println("flipped direction");
+      Serial.print("brightness: ");
+      Serial.println(brightness);
+      Serial.print("brightness_delta: ");
+      Serial.println(brightness_delta);
+    }
+  }
+
+  delay(loop_delay);
+
+
 }
