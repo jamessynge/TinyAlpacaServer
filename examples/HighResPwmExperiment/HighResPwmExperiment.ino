@@ -2,13 +2,7 @@
 
 // Using D13 as a PWM output because it already has an LED on it.
 
-enum class TestMode {
-  LedOff,
-  LedOn,
-  LedBlink,
-  LoResRamp,
-  HiResRamp
-};
+enum class TestMode { LedOff, LedOn, LedBlink, LoResRamp, HiResRamp };
 
 static constexpr TestMode kTestMode = TestMode::HiResRamp;
 
@@ -50,11 +44,11 @@ static constexpr TestMode kTestMode = TestMode::HiResRamp;
 
 void timer1_enable_hi_res_pwm() {
   // Put Timer/Counter #1 into mode 14: Fast PWM, uses value of ICRn (0xFFFF) as
-  // TOP, with system clock used without prescaling. All 3 output pins are set to
-  // be non-inverting: the output for channel A will be set when the counter
-  // starts at BOTTOM, then will be clearned when the counter reaches the value of
-  // OCR1A. OCR1B is the corresponding match register for channel B, and OCR1C is
-  // for channel C.
+  // TOP, with system clock used without prescaling. All 3 output pins are set
+  // to be non-inverting: the output for channel A will be set when the counter
+  // starts at BOTTOM, then will be clearned when the counter reaches the value
+  // of OCR1A. OCR1B is the corresponding match register for channel B, and
+  // OCR1C is for channel C.
   //
   // With these settings and a 16MHz clock, the T/C has a 244.14 cycles per
   // second, so will be invisible to humans, but a very short exposure (e.g.
@@ -101,7 +95,6 @@ void setup() {
   delay(500);
   digitalWrite(13, LOW);
   delay(500);
-
 
   switch (kTestMode) {
     case TestMode::LedOff:
@@ -154,8 +147,8 @@ void loop() {
     case TestMode::HiResRamp:
       OCR1C = pwm;
       pwm += 5;
-      // 65536 / 5 steps, 1 step per millisecond, so a cycle time of 13.1 seconds
-      // to count from 0 to 65535 and back to zero.
+      // 65536 / 5 steps, 1 step per millisecond, so a cycle time of 13.1
+      // seconds to count from 0 to 65535 and back to zero.
       delay(1);
       break;
   }

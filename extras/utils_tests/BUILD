@@ -168,6 +168,17 @@ cc_test(
 )
 
 cc_test(
+    name = "stream_to_print_test",
+    srcs = ["stream_to_print_test.cc"],
+    deps = [
+        ":print_to_std_string",
+        ":sample_printable",
+        ":stream_to_print",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "string_view_test",
     srcs = ["string_view_test.cc"],
     deps = [

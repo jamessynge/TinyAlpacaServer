@@ -288,6 +288,15 @@ cc_library(
 )
 
 cc_library(
+    name = "stream_to_print",
+    hdrs = ["stream_to_print.h"],
+    deps = [
+        ":o_print_stream",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "string_compare",
     srcs = ["string_compare.cc"],
     hdrs = ["string_compare.h"],

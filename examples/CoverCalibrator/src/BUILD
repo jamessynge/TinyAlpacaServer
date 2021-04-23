@@ -3,6 +3,16 @@
 # device.
 
 cc_library(
+    name = "cover",
+    srcs = ["cover.cc"],
+    hdrs = ["cover.h"],
+    deps = [
+        ":TinyAlpacaServer",
+        ":cover_calibrator_constants",
+    ],
+)
+
+cc_library(
     name = "cover_calibrator",
     srcs = ["cover_calibrator.cc"],
     hdrs = ["cover_calibrator.h"],
@@ -22,16 +32,6 @@ cc_library(
     name = "pwm_led",
     srcs = ["pwm_led.cc"],
     hdrs = ["pwm_led.h"],
-    deps = [
-        ":TinyAlpacaServer",
-        ":cover_calibrator_constants",
-    ],
-)
-
-cc_library(
-    name = "ramp_pwm_led",
-    srcs = ["ramp_pwm_led.cc"],
-    hdrs = ["ramp_pwm_led.h"],
     deps = [
         ":TinyAlpacaServer",
         ":platform",
