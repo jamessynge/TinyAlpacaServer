@@ -1,6 +1,3 @@
-#include <AccelStepper.h>
-#include <MultiStepper.h>
-
 #include <Arduino.h>
 
 #include "server.h"
