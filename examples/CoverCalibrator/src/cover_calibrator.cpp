@@ -6,6 +6,7 @@
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
 #include "utils/status.h"
 
+#if 0
 // Based on AM_CoverCalibrator_schematic_rev_5_pcb.pdf (which has more detail
 // than rev 6).
 
@@ -30,6 +31,38 @@
 #define kCoverOpenLimitPin 20
 #define kCoverCloseLimitPin 21
 #define kCoverEnabledPin 13
+
+#else
+// Modified pin selection to avoid pins used for other purposes.
+// Pins to avoid:
+// D00 - RX (Serial over USB)
+// D01 - TX (Serial over USB)
+// D04 - SDcard Chip Select
+// D10 - W5500 Chip Select
+// D13 - Built-in LED
+// D50 - MISO (SPI)
+// D51 - MOSI (SPI)
+// D52 - SCK (SPI)
+
+#define kLedChannel1PwmPin 46      // OC5A
+#define kLedChannel1EnabledPin 43  // PL6
+
+#define kLedChannel2PwmPin 45      // OC5B
+#define kLedChannel2EnabledPin 41  // PG0
+
+#define kLedChannel3PwmPin 44      // OC5C
+#define kLedChannel3EnabledPin 39  // PG2
+
+#define kLedChannel4PwmPin 12      // OC1B
+#define kLedChannel4EnabledPin 37  // A8
+
+#define kCoverMotorStepPin 3
+#define kCoverMotorDirectionPin 5
+#define kCoverOpenLimitPin 6    // PCINT8
+#define kCoverCloseLimitPin 11  // PCINT5
+#define kCoverEnabledPin 12
+
+#endif
 
 namespace astro_makers {
 namespace {

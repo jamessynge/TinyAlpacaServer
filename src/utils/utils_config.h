@@ -26,7 +26,7 @@ extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
 // On Arduino we leave TAS_CHECK enabled, but not TAS_VLOG or TAS_DCHECK.
 
 #ifndef TAS_ENABLED_VLOG_LEVEL
-#define TAS_ENABLED_VLOG_LEVEL 1
+#define TAS_ENABLED_VLOG_LEVEL 3
 #endif  //! TAS_ENABLED_VLOG_LEVEL
 
 #ifndef TAS_ENABLE_CHECK
