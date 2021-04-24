@@ -9,7 +9,7 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
-#include "src/pwm_led.h"
+#include "pwm_led.h"
 #include "utils/platform.h"
 
 namespace astro_makers {

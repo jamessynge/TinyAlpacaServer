@@ -1,4 +1,4 @@
-#include "src/cover.h"
+#include "cover.h"
 
 // TODO(jamessynge): Decide whether to use an ISR for updating the position.
 // We certainly don't want to block the CPU for the duration of opening or
