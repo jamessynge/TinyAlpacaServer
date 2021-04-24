@@ -9,8 +9,8 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
-#include "src/cover.h"
-#include "src/ramp_pwm_led.h"
+#include "cover.h"
+#include "ramp_pwm_led.h"
 
 // Include the AccelStepper library:
 // #include <AccelStepper.h>

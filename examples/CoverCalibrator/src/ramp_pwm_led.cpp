@@ -1,8 +1,6 @@
-#include "src/ramp_pwm_led.h"
+#include "ramp_pwm_led.h"
 
 #include <Arduino.h>
-
-#include <cmath>
 
 namespace astro_makers {
 

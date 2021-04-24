@@ -197,6 +197,22 @@ This is good for printing a string, but not for comparing it with a
 `StringView`. Further, it doesn't capture the string length at compile time, so
 it must be rediscovered each time.
 
+## Improvement Priorities
+
+1.  High-Resolution PWM for CoverCalibrator.
+1.  Write Python Alpaca Client Library for the UDP and HTTP Protocols.
+1.  Write a minimal "Conformance Test" in Python, that checks for valid and
+    sensible responses to:
+
+    *   Alpaca Discovery Protocol.
+    *   Setup API
+    *   Management API
+    *   Common ASCOM methods applied to configured devices.
+    *   Device specific GET requests
+
+    Some thought will be needed to decide how to check the conformance of a
+    server w.r.t. PUT requests (i.e. we don't want to damage anything).
+
 ## Planning
 
 *   Split various parts of src/utils out into its their own Arduino libraries.

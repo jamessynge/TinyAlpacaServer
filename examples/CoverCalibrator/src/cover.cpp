@@ -1,4 +1,4 @@
-#include "src/cover.h"
+#include "cover.h"
 
 // TODO(jamessynge): Decide whether to use an ISR for updating the position.
 // We certainly don't want to block the CPU for the duration of opening or
@@ -34,7 +34,7 @@ Cover::Cover(uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
       closed_limit_pin_(closed_limit_pin),
       cover_present_pin_(cover_present_pin) {
   pinMode(open_limit_pin, kLimitSwitchPinMode);
-  pinMode(close_limit_pin, kLimitSwitchPinMode);
+  pinMode(closed_limit_pin, kLimitSwitchPinMode);
   pinMode(cover_present_pin, kCoverPresentPinMode);
 }
 

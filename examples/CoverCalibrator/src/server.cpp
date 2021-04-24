@@ -1,9 +1,9 @@
-#include "src/server.h"
+#include "server.h"
 
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
-#include "src/cover_calibrator.h"
+#include "cover_calibrator.h"
 
 // Define some literals, which get stored in PROGMEM (in the case of AVR chips).
 TAS_DEFINE_LITERAL(

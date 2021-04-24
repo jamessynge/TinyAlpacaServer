@@ -1,4 +1,4 @@
-#include "src/cover_calibrator.h"
+#include "cover_calibrator.h"
 
 #include "alpaca_request.h"
 #include "ascom_error_codes.h"
