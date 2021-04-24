@@ -1,5 +1,6 @@
 #include "literals.h"
 
+#include "extras/test_tools/string_view_utils.h"
 #include "googletest/gtest.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"
@@ -29,7 +30,7 @@ TEST(LiteralsTest, Basics) {
 #define TAS_DEFINE_BUILTIN_LITERAL(name, literal)   \
   TEST(GeneratedLiteralsTest, name##_IsAvailable) { \
     std::string expected(literal);                  \
-    StringView view(expected);                      \
+    StringView view = MakeStringView(expected);     \
     EXPECT_EQ(Literals::name(), view);              \
   }
 #include "literals.inc"

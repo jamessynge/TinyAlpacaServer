@@ -92,9 +92,11 @@ cc_test(
     deps = [
         ":hex_escape",
         ":literal",
+        ":literal_utils",
         ":print_to_std_string",
         ":string_compare",
         ":string_view",
+        ":string_view_utils",
         "//absl/strings",
         "//googletest:gunit_main",
     ],
@@ -184,6 +186,7 @@ cc_test(
     deps = [
         ":config",
         ":string_view",
+        ":string_view_utils",
         "//core:logging",
         "//googletest:gunit_main",
     ],

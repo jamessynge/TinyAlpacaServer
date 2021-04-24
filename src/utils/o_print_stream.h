@@ -10,7 +10,7 @@
 #include "utils/traits/type_traits.h"
 
 #if TAS_HOST_TARGET
-#include <string>
+#include <string>  // pragma: keep standard include
 #endif
 
 namespace alpaca {

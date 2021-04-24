@@ -14,13 +14,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include "utils/printable_progmem_string.h"
-#if TAS_HOST_TARGET
-#include <ostream>
-#include <string>
-#endif  // TAS_HOST_TARGET
-
 #include "utils/platform.h"
+#include "utils/printable_progmem_string.h"
 
 namespace alpaca {
 
@@ -67,6 +62,10 @@ class Literal {
   // Returns true if the other literal has a different value.
   bool operator!=(const Literal& other) const { return !(*this == other); }
 
+  // Support for iterating.
+  PGM_P begin() const { return ptr_; }
+  PGM_P end() const { return ptr_ + size_; }
+
   // Returns true if the other literal pointers to the same string literal.
   bool same(const Literal& other) const;
 
@@ -100,10 +99,6 @@ class Literal {
   // In support of tests, returns the address in PROGMEM of the string.
   // On a typical (Von Neumann) host, this is in the same address space as data.
   PGM_VOID_P prog_data_for_tests() const { return ptr_; }
-
-#if TAS_HOST_TARGET
-  friend std::ostream& operator<<(std::ostream& out, const Literal& literal);
-#endif
 
  private:
   PGM_P ptr_;
