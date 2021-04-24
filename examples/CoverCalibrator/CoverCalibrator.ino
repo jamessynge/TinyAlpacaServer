@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "server.h"
+#include "src/server.h"
 
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
