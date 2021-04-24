@@ -67,7 +67,7 @@ void timer1_enable_hi_res_pwm() {
 static int32_t brightness = 0;
 static int32_t brightness_delta = 0;
 static int32_t max_brightness;
-static unsigned long loop_delay;
+static uint32_t loop_delay;
 
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
