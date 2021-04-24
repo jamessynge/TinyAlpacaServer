@@ -52,3 +52,15 @@ cc_library(
     hdrs = ["sample_printable.h"],
     deps = [":print"],
 )
+
+cc_library(
+    name = "literal_utils",
+    hdrs = ["literal_utils.h"],
+    deps = [":literal"],
+)
+
+cc_library(
+    name = "string_view_utils",
+    hdrs = ["string_view_utils.h"],
+    deps = [":string_view"],
+)

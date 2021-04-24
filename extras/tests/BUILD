@@ -89,6 +89,7 @@ cc_test(
         ":literals",
         ":string_compare",
         ":string_view",
+        ":string_view_utils",
         "//googletest:gunit_main",
     ],
 )
@@ -101,6 +102,7 @@ cc_test(
         ":logging",
         ":match_literals",
         ":print_to_std_string",
+        ":string_view_utils",
         "//absl/strings",
         "//googletest:gunit_main",
     ],

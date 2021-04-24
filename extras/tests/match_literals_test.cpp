@@ -3,6 +3,7 @@
 #include "absl/strings/escaping.h"
 #include "constants.h"
 #include "extras/test_tools/print_to_std_string.h"
+#include "extras/test_tools/string_view_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/logging.h"
@@ -22,10 +23,10 @@ TEST(MatchLiteralsTest, EHttpMethod) {
                 << expected_enum;
     EHttpMethod matched = kBogusEnum;
     if (expected_enum == EHttpMethod::kUnknown) {
-      EXPECT_FALSE(MatchHttpMethod(StringView(text), matched));
+      EXPECT_FALSE(MatchHttpMethod(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
     } else {
-      EXPECT_TRUE(MatchHttpMethod(StringView(text), matched));
+      EXPECT_TRUE(MatchHttpMethod(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -46,10 +47,10 @@ TEST(MatchLiteralsTest, EApiGroup) {
                 << expected_enum;
     EApiGroup matched = kBogusEnum;
     if (expected_enum == EApiGroup::kUnknown) {
-      EXPECT_FALSE(MatchApiGroup(StringView(text), matched));
+      EXPECT_FALSE(MatchApiGroup(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
     } else {
-      EXPECT_TRUE(MatchApiGroup(StringView(text), matched));
+      EXPECT_TRUE(MatchApiGroup(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -71,10 +72,10 @@ TEST(MatchLiteralsTest, MatchManagementMethod) {
                 << expected_enum;
     EManagementMethod matched = kBogusEnum;
     if (expected_enum == EManagementMethod::kUnknown) {
-      EXPECT_FALSE(MatchManagementMethod(StringView(text), matched));
+      EXPECT_FALSE(MatchManagementMethod(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
     } else {
-      EXPECT_TRUE(MatchManagementMethod(StringView(text), matched));
+      EXPECT_TRUE(MatchManagementMethod(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -101,10 +102,10 @@ TEST(MatchLiteralsTest, MatchDeviceType) {
                 << expected_enum;
     EDeviceType matched = kBogusEnum;
     if (expected_enum == EDeviceType::kUnknown) {
-      EXPECT_FALSE(MatchDeviceType(StringView(text), matched));
+      EXPECT_FALSE(MatchDeviceType(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
     } else {
-      EXPECT_TRUE(MatchDeviceType(StringView(text), matched));
+      EXPECT_TRUE(MatchDeviceType(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -144,10 +145,11 @@ TEST(MatchLiteralsTest, MatchCommonDeviceMethod) {
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(
-          internal::MatchCommonDeviceMethod(StringView(text), matched));
+          internal::MatchCommonDeviceMethod(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
     } else {
-      EXPECT_TRUE(internal::MatchCommonDeviceMethod(StringView(text), matched));
+      EXPECT_TRUE(
+          internal::MatchCommonDeviceMethod(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -180,13 +182,13 @@ TEST(MatchLiteralsTest, MatchObservingConditionsMethod) {
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice,
                                      EDeviceType::kObservingConditions,
-                                     StringView(text), matched));
+                                     MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
 
     } else {
       EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice,
                                     EDeviceType::kObservingConditions,
-                                    StringView(text), matched));
+                                    MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -222,13 +224,13 @@ TEST(MatchLiteralsTest, MatchSafetyMonitorMethod) {
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice,
                                      EDeviceType::kSafetyMonitor,
-                                     StringView(text), matched));
+                                     MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
 
     } else {
       EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice,
                                     EDeviceType::kSafetyMonitor,
-                                    StringView(text), matched));
+                                    MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -296,11 +298,11 @@ TEST(MatchLiteralsTest, MatchParameter) {
                 << expected_enum;
     EParameter matched = kBogusEnum;
     if (expected_enum == EParameter::kUnknown) {
-      EXPECT_FALSE(MatchParameter(StringView(text), matched));
+      EXPECT_FALSE(MatchParameter(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
 
     } else {
-      EXPECT_TRUE(MatchParameter(StringView(text), matched));
+      EXPECT_TRUE(MatchParameter(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -325,11 +327,11 @@ TEST(MatchLiteralsTest, MatchSensorName) {
                 << expected_enum;
     ESensorName matched = kBogusEnum;
     if (expected_enum == ESensorName::kUnknown) {
-      EXPECT_FALSE(MatchSensorName(StringView(text), matched));
+      EXPECT_FALSE(MatchSensorName(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
 
     } else {
-      EXPECT_TRUE(MatchSensorName(StringView(text), matched));
+      EXPECT_TRUE(MatchSensorName(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }
@@ -349,10 +351,10 @@ TEST(MatchLiteralsTest, EHttpHeader) {
                 << expected_enum;
     EHttpHeader matched = kBogusEnum;
     if (expected_enum == EHttpHeader::kUnknown) {
-      EXPECT_FALSE(MatchHttpHeader(StringView(text), matched));
+      EXPECT_FALSE(MatchHttpHeader(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
     } else {
-      EXPECT_TRUE(MatchHttpHeader(StringView(text), matched));
+      EXPECT_TRUE(MatchHttpHeader(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
   }

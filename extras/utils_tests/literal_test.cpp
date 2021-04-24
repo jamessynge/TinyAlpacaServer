@@ -6,7 +6,9 @@
 #include "absl/strings/case.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
+#include "extras/test_tools/literal_utils.h"
 #include "extras/test_tools/print_to_std_string.h"
+#include "extras/test_tools/string_view_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/hex_escape.h"
@@ -43,7 +45,7 @@ TEST(LiteralTest, LowerComparison) {
 
   // Make a copy so that we know that operator== isn't just comparing pointers.
   std::string str(kLowerStr);
-  StringView view(str);
+  StringView view = MakeStringView(str);
   EXPECT_EQ(literal, view);
 
   // This prefix will share the same pointer, but not the same length.
@@ -77,7 +79,7 @@ TEST(LiteralTest, MixedComparison) {
 
   // Make a copy so that we know that operator== isn't just comparing pointers.
   std::string str(kMixedStr);
-  StringView view(str);
+  StringView view = MakeStringView(str);
   EXPECT_EQ(literal, view);
 
   // This prefix will share the same pointer, but not the same length.
@@ -111,7 +113,7 @@ TEST(LiteralTest, UpperComparison) {
 
   // Make a copy so that we know that operator== isn't just comparing pointers.
   std::string str(kUpperStr);
-  StringView view(str);
+  StringView view = MakeStringView(str);
   EXPECT_EQ(literal, view);
 
   // This prefix will share the same pointer, but not the same length.

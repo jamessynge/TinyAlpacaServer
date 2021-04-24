@@ -25,12 +25,6 @@
 #include "utils/o_print_stream.h"
 #include "utils/platform.h"
 
-#if TAS_HOST_TARGET
-#include <ostream>
-#include <string>
-#include <string_view>
-#endif  // TAS_HOST_TARGET
-
 namespace alpaca {
 
 class StringView {
@@ -63,11 +57,6 @@ class StringView {
   // Construct with a specified length.
   TAS_CONSTEXPR_FUNC StringView(const char* ptr, size_type length)
       : ptr_(ptr), size_(length) {}
-
-#if TAS_HOST_TARGET
-  // Construct from a std::string. This is used for tests.
-  explicit StringView(const std::string& str);
-#endif  // TAS_HOST_TARGET
 
   // Copy constructor.
   TAS_CONSTEXPR_FUNC StringView(const StringView& other) = default;
@@ -125,6 +114,7 @@ class StringView {
 
   const_iterator begin() const { return ptr_; }
   const_iterator end() const { return ptr_ + size_; }
+
   char front() const {
     TAS_DCHECK(!empty());
     return *ptr_;
@@ -232,19 +222,6 @@ class StringView {
   const char* ptr_;
   size_type size_;
 };
-
-#if TAS_HOST_TARGET
-// Insertion streaming operator (i.e. operator<<) for values of type StringView,
-// used on host for tests, DCHECK_EQ, DVLOG, etc.
-std::ostream& operator<<(std::ostream& out, const StringView& view);
-
-// The equals operators below are used for tests, CHECK_EQ, etc., where we want
-// to compare StringViews against strings from the standard library. They aren't
-// used by the embedded portion of the decoder.
-bool operator==(const StringView& a, std::string_view b);
-bool operator==(std::string_view a, const StringView& b);
-
-#endif  // TAS_HOST_TARGET
 
 }  // namespace alpaca
 

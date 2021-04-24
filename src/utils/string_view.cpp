@@ -1,22 +1,11 @@
 #include "utils/string_view.h"
 
-#if TAS_HOST_TARGET
-#include <string_view>
-#endif  // TAS_HOST_TARGET
-
 #include "utils/hex_escape.h"
 
 namespace alpaca {
 
 // Generally speaking, methods are implemented in the same order in which they
 // were declared in the header file.
-
-#if TAS_HOST_TARGET
-StringView::StringView(const std::string& str)
-    : ptr_(str.data()), size_(str.size()) {
-  TAS_DCHECK_LE(str.size(), kMaxSize);
-}
-#endif
 
 bool StringView::operator==(const StringView& other) const {
   if (other.size_ != size_) {
@@ -79,21 +68,5 @@ bool StringView::to_uint32(uint32_t& out) const {
 }
 
 size_t StringView::printTo(Print& p) const { return p.write(ptr_, size_); }
-
-#if TAS_HOST_TARGET
-
-std::ostream& operator<<(std::ostream& out, const StringView& view) {
-  return out.write(view.data(), view.size());
-}
-
-bool operator==(const StringView& a, std::string_view b) {
-  return a == StringView(b.data(), b.size());
-}
-
-bool operator==(std::string_view a, const StringView& b) {
-  return b == StringView(a.data(), a.size());
-}
-
-#endif
 
 }  // namespace alpaca

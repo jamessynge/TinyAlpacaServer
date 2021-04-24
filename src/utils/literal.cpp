@@ -1,9 +1,5 @@
 #include "utils/literal.h"
 
-#if TAS_HOST_TARGET
-#include <string_view>
-#endif  // TAS_HOST_TARGET
-
 #include "utils/logging.h"
 
 namespace alpaca {
@@ -80,24 +76,5 @@ size_t Literal::printTo(Print& out) const {
   }
   return total;
 }
-
-#if TAS_HOST_TARGET
-
-// Supports streaming literals, useful for logging and debugging.
-class PrintableLiteral : public Printable {
- public:
-  explicit PrintableLiteral(const Literal& literal) : literal_(literal) {}
-
-  size_t printTo(Print& p) const override { return literal_.printTo(p); }
-
- private:
-  const Literal literal_;
-};
-
-std::ostream& operator<<(std::ostream& out, const Literal& literal) {
-  return out << PrintableLiteral(literal);
-}
-
-#endif
 
 }  // namespace alpaca

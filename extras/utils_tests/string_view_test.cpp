@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "config.h"
+#include "extras/test_tools/string_view_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "logging.h"
@@ -83,7 +84,7 @@ TEST(StringViewTest, CreateEmpty) {
   }
   {
     std::string empty;
-    StringView view(empty);
+    StringView view = MakeStringView(empty);
     EXPECT_EQ(view.data(), empty.data());
     EXPECT_EQ(view.size(), 0);
   }
@@ -220,7 +221,7 @@ TEST(StringViewTest, ContainsChar) {
 
 TEST(StringViewTest, ContainsStringView) {
   const std::string buffer("abcdefghijkl");
-  StringView view(buffer);
+  StringView view = MakeStringView(buffer);
 
   EXPECT_EQ(view, buffer);
   EXPECT_EQ(view, StringView("abcdefghijkl"));
@@ -301,7 +302,7 @@ TEST(StringViewTest, ToUint32) {
       {"0000004294967295", 4294967295},
   });
   for (const auto& test_case : test_cases) {
-    StringView view(test_case.first);
+    StringView view = MakeStringView(test_case.first);
     uint32_t out = 0;
     EXPECT_TRUE(view.to_uint32(out));
     EXPECT_EQ(out, test_case.second);
@@ -322,7 +323,7 @@ TEST(StringViewTest, ToUint32Fails) {
            "4294967296",  // One too large.
            "4294967300"   // 5 too large, hits a different case.
        }) {
-    StringView view(not_a_uint32);
+    StringView view = MakeStringView(not_a_uint32);
     uint32_t out = tester;
     EXPECT_FALSE(view.to_uint32(out));
     EXPECT_EQ(out, tester);
@@ -333,7 +334,7 @@ TEST(StringViewTest, ToUint32Fails) {
 TEST(StringViewTest, StreamOutOperator) {
   std::ostringstream oss;
   const std::string s("abc'\"\t\r\e");
-  const StringView view(s);
+  const StringView view = MakeStringView(s);
   oss << view;
   EXPECT_EQ(oss.str(), s);
 }
