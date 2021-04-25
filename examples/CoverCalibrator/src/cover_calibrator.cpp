@@ -1,11 +1,5 @@
 #include "cover_calibrator.h"
 
-#include "alpaca_request.h"
-#include "ascom_error_codes.h"
-#include "device_types/cover_calibrator/cover_calibrator_adapter.h"
-#include "device_types/cover_calibrator/cover_calibrator_constants.h"
-#include "utils/status.h"
-
 #if 0
 // Based on AM_CoverCalibrator_schematic_rev_5_pcb.pdf (which has more detail
 // than rev 6).
@@ -44,25 +38,30 @@
 // D51 - MOSI (SPI)
 // D52 - SCK (SPI)
 
-#define kLedChannel1PwmPin 46      // OC5A
-#define kLedChannel1EnabledPin 43  // PL6
+#define kLedChannel1PwmPin 46      // OC5A      was 5
+#define kLedChannel1EnabledPin 43  // PL6       was 9
 
-#define kLedChannel2PwmPin 45      // OC5B
-#define kLedChannel2EnabledPin 41  // PG0
+#define kLedChannel2PwmPin 45      // OC5B      was 6
+#define kLedChannel2EnabledPin 41  // PG0       was 10
 
-#define kLedChannel3PwmPin 44      // OC5C
-#define kLedChannel3EnabledPin 39  // PG2
+#define kLedChannel3PwmPin 44      // OC5C      was 7
+#define kLedChannel3EnabledPin 39  // PG2       was 11
 
-#define kLedChannel4PwmPin 12      // OC1B
-#define kLedChannel4EnabledPin 37  // A8
+#define kLedChannel4PwmPin 12      // OC1B      was 8
+#define kLedChannel4EnabledPin 37  // A8        was 12
 
-#define kCoverMotorStepPin 3
-#define kCoverMotorDirectionPin 5
-#define kCoverOpenLimitPin 6    // PCINT8
-#define kCoverCloseLimitPin 11  // PCINT5
-#define kCoverEnabledPin 12
+#define kCoverMotorStepPin 3       //
+#define kCoverMotorDirectionPin 5  //
+#define kCoverOpenLimitPin 6       // PCINT8    was 20
+#define kCoverCloseLimitPin 11     // PCINT5    was 21
+#define kCoverEnabledPin 42        //           was 13
+
+// TODO(jamessynge): Discuss adding a pin for the direction of the direction
+// pin (i.e. whether HI means open or close the cover).
 
 #endif
+
+#define kLedChannel1RampStepMicros 1500
 
 namespace astro_makers {
 namespace {
@@ -101,8 +100,10 @@ const alpaca::DeviceInfo kDeviceInfo{
 
 CoverCalibrator::CoverCalibrator()
     : alpaca::CoverCalibratorAdapter(kDeviceInfo),
-      white_led_(kLedChannel1PwmPin, kLedChannel1EnabledPin,
-                 kLedChannel1RampStepMicros),
+      led1_(alpaca::TimerCounterChannel::A, kLedChannel1EnabledPin),
+      led2_(alpaca::TimerCounterChannel::B, kLedChannel2EnabledPin),
+      led3_(alpaca::TimerCounterChannel::C, kLedChannel3EnabledPin),
+      led4_(alpaca::TimerCounterChannel::B, kLedChannel4EnabledPin),
       cover_(kCoverMotorStepPin, kCoverMotorDirectionPin, kCoverOpenLimitPin,
              kCoverCloseLimitPin, kCoverEnabledPin) {}
 
@@ -115,7 +116,6 @@ void CoverCalibrator::Initialize() {
 
 void CoverCalibrator::MaintainDevice() {
   alpaca::CoverCalibratorAdapter::MaintainDevice();
-  white_led_.MaintainDevice();
 
   // Just in case we've fallen behind with updates, we give the stepper a chance
   // to take multiple steps.
@@ -126,8 +126,8 @@ void CoverCalibrator::MaintainDevice() {
 // Returns the current calibrator brightness. Not sure if this should be the
 // target or the brightness we've most recently told the LEDs to be.
 StatusOr<int32_t> CoverCalibrator::GetBrightness() {
-  if (white_led_.is_enabled()) {
-    return white_led_.current_brightness();
+  if (led1_.is_enabled()) {
+    return led1_.get_pulse_count();
   } else {
     return alpaca::ErrorCodes::ActionNotImplemented();
   }
@@ -136,38 +136,38 @@ StatusOr<int32_t> CoverCalibrator::GetBrightness() {
 // Returns the state of the calibration device, or kUnknown if not overridden
 // by a subclass.
 StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
-  if (white_led_.has_reached_target()) {
+  if (led1_.is_enabled()) {
     // We treat 0 as turning off the calibrator. Not sure if that is right.
-    if (white_led_.current_brightness() == 0) {
+    if (led1_.get_pulse_count() == 0) {
       return ECalibratorStatus::kOff;
     } else {
       return ECalibratorStatus::kReady;
     }
   } else {
-    return ECalibratorStatus::kNotReady;
+    return ECalibratorStatus::kNotPresent;
   }
 }
 
 StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() {
-  return white_led_.max_brightness();
+  return led1_.max_count();
 }
 
 Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
-  if (!white_led_.is_enabled()) {
+  if (!led1_.is_enabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
-  if (brightness > white_led_.max_brightness()) {
+  if (brightness > led1_.max_count()) {
     return alpaca::ErrorCodes::InvalidValue();
   }
-  white_led_.set_brightness_target(brightness);
+  led1_.set_pulse_count(brightness);
   return alpaca::OkStatus();
 }
 
 Status CoverCalibrator::SetCalibratorOff() {
-  if (!white_led_.is_enabled()) {
+  if (!led1_.is_enabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
-  white_led_.set_brightness_immediately(0);
+  led1_.set_pulse_count(0);
   return alpaca::OkStatus();
 }
 

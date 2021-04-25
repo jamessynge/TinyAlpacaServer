@@ -12,6 +12,12 @@ cc_library(
 )
 
 cc_library(
+    name = "literal_utils",
+    hdrs = ["literal_utils.h"],
+    deps = [":literal"],
+)
+
+cc_library(
     name = "mock_device_interface",
     hdrs = ["mock_device_interface.h"],
     deps = [
@@ -51,12 +57,6 @@ cc_library(
     name = "sample_printable",
     hdrs = ["sample_printable.h"],
     deps = [":print"],
-)
-
-cc_library(
-    name = "literal_utils",
-    hdrs = ["literal_utils.h"],
-    deps = [":literal"],
 )
 
 cc_library(

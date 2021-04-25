@@ -10,10 +10,6 @@
 #include <TinyAlpacaServer.h>
 
 #include "cover.h"
-#include "ramp_pwm_led.h"
-
-// Include the AccelStepper library:
-// #include <AccelStepper.h>
 
 namespace astro_makers {
 
@@ -46,7 +42,10 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   alpaca::Status HaltCoverMotion() override;
 
  private:
-  RampPwmLed white_led_;
+  alpaca::TimerCounter5Pwm16Output led1_;
+  alpaca::TimerCounter5Pwm16Output led2_;
+  alpaca::TimerCounter5Pwm16Output led3_;
+  alpaca::TimerCounter1Pwm16Output led4_;
   Cover cover_;
 };
 

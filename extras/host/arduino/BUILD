@@ -14,6 +14,7 @@ cc_library(
     srcs = ["arduino.cc"],
     hdrs = ["arduino.h"],
     deps = [
+        ":avr_io",
         ":character",
         ":int_types",
         ":pgmspace",
@@ -39,6 +40,13 @@ cc_library(
         "//absl/flags:flag",
         "//base",
     ],
+)
+
+cc_library(
+    name = "avr_io",
+    srcs = ["avr_io.cc"],
+    hdrs = ["avr_io.h"],
+    deps = [":int_types"],
 )
 
 cc_library(

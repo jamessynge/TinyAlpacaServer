@@ -1,12 +1,12 @@
-#ifndef TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_PWM_LED_H_
-#define TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_PWM_LED_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_FUTURES_PWM_LED_H_
+#define TINY_ALPACA_SERVER_EXTRAS_FUTURES_PWM_LED_H_
 
 // Controls the brightness of one LED, currently using analogWrite with 8-bit
 // brightness values.
 //
 // Author: james.synge@gmail.com
 
-#include <Arduino.h>
+#include "extras/host/arduino/arduino.h"
 
 namespace astro_makers {
 
@@ -25,4 +25,4 @@ class PwmLed {
 
 }  // namespace astro_makers
 
-#endif  // TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_PWM_LED_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_FUTURES_PWM_LED_H_

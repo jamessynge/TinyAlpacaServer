@@ -1,15 +1,13 @@
-#ifndef TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_RAMP_PWM_LED_H_
-#define TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_RAMP_PWM_LED_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_FUTURES_RAMP_PWM_LED_H_
+#define TINY_ALPACA_SERVER_EXTRAS_FUTURES_RAMP_PWM_LED_H_
 
 // Controls the brightness of one LED, with a simple linear fade in/fade out
 // used to go from one level to another.
 //
 // Author: james.synge@gmail.com
 
-#include <Arduino.h>
-#include <TinyAlpacaServer.h>
-
-#include "pwm_led.h"
+#include "extras/futures/pwm_led.h"
+#include "extras/host/arduino/arduino.h"
 #include "utils/platform.h"
 
 namespace astro_makers {
@@ -46,4 +44,4 @@ class RampPwmLed {
 
 }  // namespace astro_makers
 
-#endif  // TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_RAMP_PWM_LED_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_FUTURES_RAMP_PWM_LED_H_

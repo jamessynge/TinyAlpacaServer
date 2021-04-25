@@ -17,15 +17,6 @@ namespace alpaca {
 // HTML response, or to provide a function for that purpose, maybe as a
 // Printable instance.
 struct ServerDescription {
-  // constexpr ServerDescription(const Literal& server_name,
-  //                             const Literal& manufacturer,
-  //                             const Literal& manufacturer_version,
-  //                             const Literal& location)
-  //     : server_name(server_name),
-  //       manufacturer(manufacturer),
-  //       manufacturer_version(manufacturer_version),
-  //       location(location) {}
-
   // Write the description of this server to the specified JsonObjectEncoder.
   // The encoder should be for the nested object that is the value of the
   // "Value" property of the response object, NOT the outermost object that is

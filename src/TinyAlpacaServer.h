@@ -41,6 +41,7 @@
 #include "utils/any_printable.h"             // IWYU pragma: export
 #include "utils/array.h"                     // IWYU pragma: export
 #include "utils/array_view.h"                // IWYU pragma: export
+#include "utils/avr_timer_counter.h"         // IWYU pragma: export
 #include "utils/connection.h"                // IWYU pragma: export
 #include "utils/counting_print.h"            // IWYU pragma: export
 #include "utils/eeprom_io.h"                 // IWYU pragma: export

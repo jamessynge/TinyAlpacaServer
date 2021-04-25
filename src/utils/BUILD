@@ -49,6 +49,19 @@ cc_library(
 )
 
 cc_library(
+    name = "avr_timer_counter",
+    srcs = ["avr_timer_counter.cc"],
+    hdrs = ["avr_timer_counter.h"],
+    deps = [
+        ":inline_literal",
+        ":logging",
+        ":platform",
+        ":print_misc",
+        ":printable_progmem_string",
+    ],
+)
+
+cc_library(
     name = "connection",
     srcs = ["connection.cc"],
     hdrs = ["connection.h"],

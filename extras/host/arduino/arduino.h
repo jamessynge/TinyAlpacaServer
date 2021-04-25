@@ -20,9 +20,9 @@
 // These AVR specific libraries are included directly or indirectly by
 // Arduino.h.
 
+#include "extras/host/arduino/avr_io.h"    // IWYU pragma: export
 #include "extras/host/arduino/pgmspace.h"  // IWYU pragma: export
 
-// #include avr/io   // Not needed (or implemented) on host.
 // #include avr/interrupt  // Not needed on host.
 
 // These Arduino specific libraries are included directly or indirectly by
@@ -63,5 +63,8 @@ void delayMicroseconds(uint32_t us);
 #define analogWrite(pin_number, value)
 
 #define digitalRead(pin_number) HIGH
+
+inline void noInterrupts() {}
+inline void interrupts() {}
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_

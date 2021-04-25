@@ -14,6 +14,7 @@ cc_library(
         ":array",
         ":array_view",
         ":ascom_error_codes",
+        ":avr_timer_counter",
         ":config",
         ":connection",
         ":constants",
