@@ -85,6 +85,37 @@ uint16_t TimerCounter5GetOutputCompareRegister(TimerCounterChannel channel);
 class TimerCounter1Pwm16Output {
  public:
   TimerCounter1Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
+  explicit TimerCounter1Pwm16Output(TimerCounterChannel channel);
+
+  bool is_enabled() const;
+  void set_pulse_count(uint16_t value);
+  uint16_t get_pulse_count() const;
+  constexpr uint16_t max_count() const { return 0xFFFF; }
+
+ private:
+  const TimerCounterChannel channel_;
+  const uint8_t enabled_pin_;
+};
+
+class TimerCounter3Pwm16Output {
+ public:
+  TimerCounter3Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
+  explicit TimerCounter3Pwm16Output(TimerCounterChannel channel);
+
+  bool is_enabled() const;
+  void set_pulse_count(uint16_t value);
+  uint16_t get_pulse_count() const;
+  constexpr uint16_t max_count() const { return 0xFFFF; }
+
+ private:
+  const TimerCounterChannel channel_;
+  const uint8_t enabled_pin_;
+};
+
+class TimerCounter4Pwm16Output {
+ public:
+  TimerCounter4Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
+  explicit TimerCounter4Pwm16Output(TimerCounterChannel channel);
 
   bool is_enabled() const;
   void set_pulse_count(uint16_t value);
@@ -99,6 +130,7 @@ class TimerCounter1Pwm16Output {
 class TimerCounter5Pwm16Output {
  public:
   TimerCounter5Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
+  explicit TimerCounter5Pwm16Output(TimerCounterChannel channel);
 
   bool is_enabled() const;
   void set_pulse_count(uint16_t value);

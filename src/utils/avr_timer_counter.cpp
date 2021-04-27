@@ -350,11 +350,20 @@ uint16_t TimerCounter5GetOutputCompareRegister(TimerCounterChannel channel) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace {
+constexpr uint8_t kNoEnabledPin = 255;
+}
+
 TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel,
                                                    uint8_t enabled_pin)
     : channel_(channel), enabled_pin_(enabled_pin) {}
+TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel)
+    : TimerCounter1Pwm16Output(channel, kNoEnabledPin) {}
 
 bool TimerCounter1Pwm16Output::is_enabled() const {
+  if (enabled_pin_ == kNoEnabledPin) {
+    return true;
+  }
   pinMode(enabled_pin_, INPUT_PULLUP);
   return digitalRead(enabled_pin_) == LOW;
 }
@@ -378,11 +387,82 @@ uint16_t TimerCounter1Pwm16Output::get_pulse_count() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+TimerCounter3Pwm16Output::TimerCounter3Pwm16Output(TimerCounterChannel channel,
+                                                   uint8_t enabled_pin)
+    : channel_(channel), enabled_pin_(enabled_pin) {}
+TimerCounter3Pwm16Output::TimerCounter3Pwm16Output(TimerCounterChannel channel)
+    : TimerCounter3Pwm16Output(channel, kNoEnabledPin) {}
+
+bool TimerCounter3Pwm16Output::is_enabled() const {
+  if (enabled_pin_ == kNoEnabledPin) {
+    return true;
+  }
+  pinMode(enabled_pin_, INPUT_PULLUP);
+  return digitalRead(enabled_pin_) == LOW;
+}
+
+void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
+  TAS_DCHECK(is_enabled());
+  if (value == 0) {
+    TimerCounter3SetCompareOutputMode(channel_,
+                                      FastPwmCompareOutputMode::kDisabled);
+  } else {
+    TimerCounter3SetCompareOutputMode(
+        channel_, FastPwmCompareOutputMode::kNonInvertingMode);
+    TimerCounter3SetOutputCompareRegister(channel_, value);
+  }
+}
+
+uint16_t TimerCounter3Pwm16Output::get_pulse_count() const {
+  TAS_DCHECK(is_enabled());
+  return TimerCounter3GetOutputCompareRegister(channel_);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+TimerCounter4Pwm16Output::TimerCounter4Pwm16Output(TimerCounterChannel channel,
+                                                   uint8_t enabled_pin)
+    : channel_(channel), enabled_pin_(enabled_pin) {}
+TimerCounter4Pwm16Output::TimerCounter4Pwm16Output(TimerCounterChannel channel)
+    : TimerCounter4Pwm16Output(channel, kNoEnabledPin) {}
+
+bool TimerCounter4Pwm16Output::is_enabled() const {
+  if (enabled_pin_ == kNoEnabledPin) {
+    return true;
+  }
+  pinMode(enabled_pin_, INPUT_PULLUP);
+  return digitalRead(enabled_pin_) == LOW;
+}
+
+void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
+  TAS_DCHECK(is_enabled());
+  if (value == 0) {
+    TimerCounter4SetCompareOutputMode(channel_,
+                                      FastPwmCompareOutputMode::kDisabled);
+  } else {
+    TimerCounter4SetCompareOutputMode(
+        channel_, FastPwmCompareOutputMode::kNonInvertingMode);
+    TimerCounter4SetOutputCompareRegister(channel_, value);
+  }
+}
+
+uint16_t TimerCounter4Pwm16Output::get_pulse_count() const {
+  TAS_DCHECK(is_enabled());
+  return TimerCounter4GetOutputCompareRegister(channel_);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 TimerCounter5Pwm16Output::TimerCounter5Pwm16Output(TimerCounterChannel channel,
                                                    uint8_t enabled_pin)
     : channel_(channel), enabled_pin_(enabled_pin) {}
+TimerCounter5Pwm16Output::TimerCounter5Pwm16Output(TimerCounterChannel channel)
+    : TimerCounter5Pwm16Output(channel, kNoEnabledPin) {}
 
 bool TimerCounter5Pwm16Output::is_enabled() const {
+  if (enabled_pin_ == kNoEnabledPin) {
+    return true;
+  }
   pinMode(enabled_pin_, INPUT_PULLUP);
   return digitalRead(enabled_pin_) == LOW;
 }

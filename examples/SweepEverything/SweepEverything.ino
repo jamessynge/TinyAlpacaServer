@@ -18,32 +18,31 @@
 // D51 - MOSI (SPI)
 // D52 - SCK (SPI)
 
-#define kLedChannel1PwmPin 46      // OC5A      was 5
-#define kLedChannel1EnabledPin 43  // PL6       was 9
-
-#define kLedChannel2PwmPin 45      // OC5B      was 6
-#define kLedChannel2EnabledPin 41  // PG0       was 10
-
-#define kLedChannel3PwmPin 44      // OC5C      was 7
-#define kLedChannel3EnabledPin 39  // PG2       was 11
-
-#define kLedChannel4PwmPin 12      // OC1B      was 8
-#define kLedChannel4EnabledPin 37  // A8        was 12
-
-#define kCoverMotorStepPin 3       //
-#define kCoverMotorDirectionPin 5  //
-#define kCoverOpenLimitPin 6       // PCINT8    was 20
-#define kCoverCloseLimitPin 11     // PCINT5    was 21
-#define kCoverEnabledPin 42        //           was 13
+#define kLedChannel1PwmPin 5           // OC3A      unchanged
+#define kLedChannel2PwmPin 6           // OC4A      unchanged
+#define kLedChannel2EnabledPin PIN_A1  //           was 10
+#define kLedChannel3PwmPin 7           // OC4B      unchanged
+#define kLedChannel3EnabledPin PIN_A2  //           was 11
+#define kLedChannel4PwmPin 8           // OC1B      unchanged
+#define kLedChannel4EnabledPin PIN_A3  //           was 12
+#define kCoverMotorStepPin 3           //           unchanged
+#define kCoverMotorDirectionPin 5      //           unchanged
+#define kCoverOpenLimitPin 20          //           unchanged
+#define kCoverCloseLimitPin 21         //           unchanged
+#define kCoverEnabledPin PIN_A4        //           was 13
 
 using ::alpaca::TimerCounter1Pwm16Output;
-using ::alpaca::TimerCounter5Pwm16Output;
+using ::alpaca::TimerCounter3Pwm16Output;
+using ::alpaca::TimerCounter4Pwm16Output;
 using ::alpaca::TimerCounterChannel;
 
-TimerCounter5Pwm16Output led1(TimerCounterChannel::A, kLedChannel1EnabledPin);
-TimerCounter5Pwm16Output led2(TimerCounterChannel::B, kLedChannel2EnabledPin);
-TimerCounter5Pwm16Output led3(TimerCounterChannel::C, kLedChannel3EnabledPin);
-TimerCounter1Pwm16Output led4(TimerCounterChannel::B, kLedChannel4EnabledPin);
+TimerCounter3Pwm16Output led1(TimerCounterChannel::A);
+TimerCounter4Pwm16Output led2(
+    TimerCounterChannel::A /*, kLedChannel2EnabledPin */);
+TimerCounter4Pwm16Output led3(
+    TimerCounterChannel::B /*, kLedChannel3EnabledPin */);
+TimerCounter1Pwm16Output led4(
+    TimerCounterChannel::B /*, kLedChannel4EnabledPin */);
 
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
@@ -62,7 +61,8 @@ void setup() {
   TAS_VLOG(1) << "Initializing 16 PWM";
 
   TimerCounter1Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
-  TimerCounter5Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
+  TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
+  TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
 }
 
 template <class T>
@@ -92,10 +92,10 @@ void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
 }
 
 void loop() {
-  Sweep16BitPwm(led1, 1, 4, "led1");
-  Sweep16BitPwm(led2, 1, 4, "led2");
-  Sweep16BitPwm(led3, 1, 4, "led3");
-  Sweep16BitPwm(led4, 1, 4, "led4");
+  Sweep16BitPwm(led1, 50, 4, "led1");
+  Sweep16BitPwm(led2, 50, 4, "led2");
+  Sweep16BitPwm(led3, 50, 4, "led3");
+  Sweep16BitPwm(led4, 50, 4, "led4");
 }
 
 #if 0
