@@ -4,6 +4,13 @@
 // Implements much of the common logic for Cover Calibrator devices, dispatching
 // requests to more device-type specific methods (e.g. GetBrightness).
 //
+// NOTE: the Alpaca API specification states that the brightness and max
+// brightness return values are of type signed 32-bit integer, but that the
+// brightness value that one can set is in the range 0 to max brightness,
+// implying that max brightness is (quite reasonably) a positive value. I'm
+// following that here, which implies that subclasses should take care to return
+// sensible values.
+//
 // Author: james.synge@gmail.com
 
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"

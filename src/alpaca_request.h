@@ -58,7 +58,7 @@ struct AlpacaRequest {
     have_connected = true;
   }
 
-  void set_brightness(uint32_t value) {
+  void set_brightness(int32_t value) {
     TAS_DCHECK(!have_brightness);
     brightness = value;
     have_brightness = true;
@@ -83,7 +83,7 @@ struct AlpacaRequest {
   uint32_t client_transaction_id;
   ESensorName sensor_name;
   bool connected;
-  uint32_t brightness;
+  int32_t brightness;
 
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know

@@ -475,8 +475,8 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
       state.request.set_client_transaction_id(id);
     }
   } else if (state.current_parameter == EParameter::kBrightness) {
-    uint32_t brightness;
-    bool converted_ok = value.to_uint32(brightness);
+    int32_t brightness;
+    bool converted_ok = value.to_int32(brightness);
     if (state.request.have_brightness || !converted_ok) {
       status = ReportExtraParameter(state, value);
     } else {
