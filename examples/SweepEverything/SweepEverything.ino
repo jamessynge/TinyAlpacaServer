@@ -45,6 +45,19 @@ TimerCounter5Pwm16Output led2(TimerCounterChannel::B, kLedChannel2EnabledPin);
 TimerCounter5Pwm16Output led3(TimerCounterChannel::C, kLedChannel3EnabledPin);
 TimerCounter1Pwm16Output led4(TimerCounterChannel::B, kLedChannel4EnabledPin);
 
+void blinkPin(int pin, int blink_count) {
+  for (int i = 0; i < blink_count; ++i) {
+    digitalWrite(pin, HIGH);
+    TAS_VLOG(1) << "pin "<< pin<<" set HIGH";
+    delay(300);
+    digitalWrite(pin, LOW);
+    TAS_VLOG(1) << "pin "<< pin<<" set LOW";
+    delay(300);
+  }
+}
+
+
+
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
   // read. Note that the baud rate is meaningful on boards that do true serial,
@@ -59,10 +72,42 @@ void setup() {
   while (!Serial) {
   }
 
+  TAS_VLOG(1) << "\n\nSerial working\n";
+
+  Serial << "TCCR1A = 0b";
+  Serial.println(TCCR1A, 2); 
+  Serial << "TCCR1B = 0b";
+  Serial.println(TCCR1B, 2); 
+
+  Serial << "TCCR5A = 0b";
+  Serial.println(TCCR5A, 2); 
+  Serial << "TCCR5B = 0b";
+  Serial.println(TCCR5B, 2); 
+  
   TAS_VLOG(1) << "Initializing 16 PWM";
 
   TimerCounter1Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
   TimerCounter5Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
+
+  Serial << "TCCR1A = 0b";
+  Serial.println(TCCR1A, 2); 
+  Serial << "TCCR1B = 0b";
+  Serial.println(TCCR1B, 2); 
+
+  Serial << "TCCR5A = 0b";
+  Serial.println(TCCR5A, 2); 
+  Serial << "TCCR5B = 0b";
+  Serial.println(TCCR5B, 2); 
+
+  blinkPin(46, 1000);
+
+
+
+  
+  blinkPin(13, 20);
+  blinkPin(46, 15);
+  blinkPin(45, 10);
+  blinkPin(44, 20);
 }
 
 template <class T>
@@ -92,8 +137,8 @@ void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
 }
 
 void loop() {
-  Sweep16BitPwm(led1, 1, 4, "led1");
-  Sweep16BitPwm(led2, 1, 4, "led2");
+  Sweep16BitPwm(led1, 50, 4, "led1");
+  Sweep16BitPwm(led2, 1, 1, "led2");
   Sweep16BitPwm(led3, 1, 4, "led3");
   Sweep16BitPwm(led4, 1, 4, "led4");
 }
