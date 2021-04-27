@@ -187,6 +187,7 @@ cc_test(
         ":config",
         ":string_view",
         ":string_view_utils",
+        "//absl/strings",
         "//core:logging",
         "//googletest:gunit_main",
     ],

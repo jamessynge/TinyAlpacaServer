@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/strings/numbers.h"
 #include "config.h"
 #include "extras/test_tools/string_view_utils.h"
 #include "googletest/gmock.h"
@@ -299,7 +300,7 @@ TEST(StringViewTest, ToUint32) {
       {"0000000000123456789", 123456789},
       {"987654321", 987654321},
       {"4294967295", 4294967295},
-      {"0000004294967295", 4294967295},
+      {"0000004294967295", UINT32_MAX},
   });
   for (const auto& test_case : test_cases) {
     StringView view = MakeStringView(test_case.first);
@@ -330,6 +331,110 @@ TEST(StringViewTest, ToUint32Fails) {
     ++tester;
   }
 }
+
+TEST(StringViewTest, ToInt32) {
+  std::vector<std::pair<std::string, int32_t>> test_cases({
+      {"0", 0},
+      {"-0", 0},
+      {"1", 1},
+      {"-1", -1},
+      {"10", 10},
+      {"-10", -10},
+      {"99", 99},
+      {"-99", -99},
+      {"0000000000123456789", 123456789},
+      {"-2147483647", -2147483647},
+      {"-000000002147483647", -2147483647},
+      {"-2147483648", -2147483648},
+      {"-000000002147483648", INT32_MIN},
+      {"2147483647", 2147483647},
+      {"0000000002147483647", INT32_MAX},
+  });
+  for (const auto& test_case : test_cases) {
+    StringView view = MakeStringView(test_case.first);
+    int32_t out = 0;
+    EXPECT_TRUE(view.to_int32(out));
+    EXPECT_EQ(out, test_case.second);
+
+    out = ~out;  // Flip all the bits, try again.
+    EXPECT_TRUE(view.to_int32(out));
+    EXPECT_EQ(out, test_case.second);
+  }
+}
+
+TEST(StringViewTest, ToInt32Fails) {
+  uint32_t tester = 1734594785;  // Vaguely random, value doesn't really matter.
+  for (const std::string not_a_uint32 : {
+           "+1",          // Explicitly positive number.
+           "--1",         // Double negative number
+           "-",           // Sign only.
+           "+",           // Sign only.
+           "",            // Empty string
+           "123,456",     // Number with non-digit.
+           "123.456",     // Number with non-digit.
+           "2147483648",  // One too large.
+       }) {
+    StringView view = MakeStringView(not_a_uint32);
+    int32_t out = tester;
+    EXPECT_FALSE(view.to_int32(out));
+    EXPECT_EQ(out, tester);
+    ++tester;
+  }
+  int32_t min_int = -2147483648;
+  EXPECT_EQ(min_int, INT_MIN);
+  min_int = 0x80000000;
+  EXPECT_EQ(min_int, INT_MIN);
+}
+
+#ifdef NDEBUG
+// Really slow if not optimized.
+#if TAS_ENABLED_VLOG_LEVEL < 1
+// to_uint32 and to_int32 are a bit noisy at level 5, which would slow this down
+// too much, so skip if logging.
+#if 0
+// On my workstation, this runs at about 20 million values per second, or almost
+// 4 minutes for each of these two test cases, which is really not worth the
+// trouble.
+
+TEST(StringViewTest, ToUint32All) {
+  char buffer[32];
+  uint32_t value = 0;
+  uint32_t announce = 0;
+  do {
+    int size = absl::numbers_internal::FastIntToBuffer(value, buffer) - buffer;
+    ASSERT_LT(size, 32);
+    StringView view(buffer, size);
+    uint32_t out = 0;
+    ASSERT_TRUE(view.to_uint32(out));
+    ASSERT_EQ(out, value);
+    if (++announce >= 10000000) {
+      announce = 0;
+      LOG(INFO) << "value: " << value;
+    }
+  } while (value++ < UINT32_MAX);
+}
+
+TEST(StringViewTest, ToInt32All) {
+  char buffer[32];
+  int32_t value = INT32_MIN;
+  uint32_t announce = 0;
+  do {
+    int size = absl::numbers_internal::FastIntToBuffer(value, buffer) - buffer;
+    ASSERT_LT(size, 32);
+    StringView view(buffer, size);
+    int32_t out = 0;
+    ASSERT_TRUE(view.to_int32(out));
+    ASSERT_EQ(out, value);
+    if (++announce >= 10000000) {
+      announce = 0;
+      LOG(INFO) << "value: " << value;
+    }
+  } while (value++ < INT32_MAX);
+}
+
+#endif  // 0
+#endif  // TAS_ENABLED_VLOG_LEVEL < 1
+#endif  // NDEBUG
 
 TEST(StringViewTest, StreamOutOperator) {
   std::ostringstream oss;

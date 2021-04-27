@@ -45,7 +45,6 @@ bool StringView::to_uint32(uint32_t& out) const {
   }
   constexpr uint32_t value_max = 0xFFFFFFFF;
   constexpr uint32_t value_max_div_10 = value_max / 10;
-
   uint32_t value = 0;
   for (const char c : *this) {
     if (!('0' <= c && c <= '9')) {
@@ -61,9 +60,36 @@ bool StringView::to_uint32(uint32_t& out) const {
     }
     value += digit;
   }
-
   TAS_VLOG(5) << TASLIT("StringView::to_uint32 produced ") << value;
   out = value;
+  return true;
+}
+
+bool StringView::to_int32(int32_t& out) const {
+  TAS_VLOG(7) << TASLIT("StringView::to_int32 converting ")
+              << HexEscaped(*this);
+  StringView copy(*this);
+  bool negative = copy.match_and_consume('-');
+  uint32_t value;
+  if (!copy.to_uint32(value)) {
+    return false;
+  }
+  if (negative) {
+    // I'm assuming 2s complement numbers.
+    constexpr uint32_t value_max = 0x80000000;
+    if (value <= value_max) {
+      out = -value;
+    } else {
+      return false;
+    }
+  } else {
+    constexpr uint32_t value_max = 0x7fffffff;
+    if (value > value_max) {
+      return false;
+    }
+    out = static_cast<int32_t>(value);
+  }
+  TAS_VLOG(5) << TASLIT("StringView::to_int32 produced ") << out;
   return true;
 }
 

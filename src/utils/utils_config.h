@@ -44,7 +44,7 @@ extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
 #else  // !ARDUINO
 
 #ifndef TAS_ENABLED_VLOG_LEVEL
-#define TAS_ENABLED_VLOG_LEVEL 9
+#define TAS_ENABLED_VLOG_LEVEL 4
 #endif  //! TAS_ENABLED_VLOG_LEVEL
 
 #ifndef TAS_ENABLE_CHECK
