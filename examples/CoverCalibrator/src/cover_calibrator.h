@@ -42,10 +42,10 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   alpaca::Status HaltCoverMotion() override;
 
  private:
-  alpaca::TimerCounter5Pwm16Output led1_;
-  alpaca::TimerCounter5Pwm16Output led2_;
-  alpaca::TimerCounter5Pwm16Output led3_;
-  alpaca::TimerCounter1Pwm16Output led4_;
+  alpaca::TimerCounter3Pwm16Output led1_;
+  alpaca::TimerCounter4Pwm16Output led2_;
+  alpaca::TimerCounter4Pwm16Output led3_;
+  alpaca::TimerCounter4Pwm16Output led4_;
   Cover cover_;
 };
 

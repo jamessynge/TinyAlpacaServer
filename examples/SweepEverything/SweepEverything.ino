@@ -5,10 +5,8 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
-#include "utils/avr_timer_counter.h"
-
 // Modified pin selection to avoid pins used for other purposes.
-// Pins to avoid:
+// Pins we should (or must) avoid on the Robotdyn Mega ETH:
 // D00 - RX (Serial over USB)
 // D01 - TX (Serial over USB)
 // D04 - SDcard Chip Select
@@ -31,46 +29,45 @@
 #define kCoverCloseLimitPin 21         //           unchanged
 #define kCoverEnabledPin PIN_A4        //           was 13
 
-using ::alpaca::TimerCounter1Pwm16Output;
 using ::alpaca::TimerCounter3Pwm16Output;
 using ::alpaca::TimerCounter4Pwm16Output;
 using ::alpaca::TimerCounterChannel;
 
 TimerCounter3Pwm16Output led1(TimerCounterChannel::A);
 TimerCounter4Pwm16Output led2(
-  TimerCounterChannel::A /*, kLedChannel2EnabledPin */);
+    TimerCounterChannel::A /*, kLedChannel2EnabledPin */);
 TimerCounter4Pwm16Output led3(
-  TimerCounterChannel::B /*, kLedChannel3EnabledPin */);
+    TimerCounterChannel::B /*, kLedChannel3EnabledPin */);
 TimerCounter4Pwm16Output led4(
-  TimerCounterChannel::C /*, kLedChannel4EnabledPin */);
+    TimerCounterChannel::C /*, kLedChannel4EnabledPin */);
 
-#define DUMP_TCCR(n) \
+#define DUMP_TCCR(n)               \
   Serial.print("TCCR" #n "A: 0b"); \
-  Serial.println(TCCR ## n ## A, 2); \
+  Serial.println(TCCR##n##A, 2);   \
   Serial.print("TCCR" #n "B: 0b"); \
-  Serial.println(TCCR ## n ## B, 2); \
+  Serial.println(TCCR##n##B, 2);   \
   Serial.print("TCCR" #n "C: 0b"); \
-  Serial.println(TCCR ## n ## C, 2); \
+  Serial.println(TCCR##n##C, 2);   \
   Serial.println()
 
-#define DUMP_OCR(n) \
+#define DUMP_OCR(n)             \
   Serial.print("OCR" #n "A: "); \
-  Serial.println(OCR ## n ## A); \
+  Serial.println(OCR##n##A);    \
   Serial.print("OCR" #n "B: "); \
-  Serial.println(OCR ## n ## B); \
+  Serial.println(OCR##n##B);    \
   Serial.print("OCR" #n "C: "); \
-  Serial.println(OCR ## n ## C); \
+  Serial.println(OCR##n##C);    \
   Serial.println()
 
-#define DUMP_TC(n) \
-  DUMP_TCCR(n); \
+#define DUMP_TC(n)             \
+  DUMP_TCCR(n);                \
   Serial.print("ICR" #n ": "); \
-  Serial.println(ICR ## n); \
-  DUMP_OCR(n); \
+  Serial.println(ICR##n);      \
+  DUMP_OCR(n);                 \
   Serial.println()
 
 #define DUMP_USED_TIMER_COUNTERS \
-  DUMP_TC(3); \
+  DUMP_TC(3);                    \
   DUMP_TC(4)
 
 void setup() {
@@ -87,11 +84,7 @@ void setup() {
   while (!Serial) {
   }
 
-
   DUMP_USED_TIMER_COUNTERS;
-
-
-
 
   TAS_VLOG(1) << "Initializing 16-bit PWM";
 
@@ -99,16 +92,14 @@ void setup() {
   pinMode(kLedChannel2PwmPin, OUTPUT);
   pinMode(kLedChannel3PwmPin, OUTPUT);
   pinMode(kLedChannel4PwmPin, OUTPUT);
-  //  TimerCounter1Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
+
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
 
   TAS_VLOG(1) << "Initialized 16-bit PWM";
   Serial.println();
 
-
   DUMP_USED_TIMER_COUNTERS;
-
 }
 
 template <class T>
@@ -125,7 +116,6 @@ void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
       if (value == 1 || (value + increment) >= t.max_count()) {
         TAS_VLOG(1) << "value = " << value;
         DUMP_USED_TIMER_COUNTERS;
-
       }
 
       value += increment;
@@ -141,7 +131,6 @@ void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
     TAS_VLOG(1) << "value = " << value;
 
     DUMP_USED_TIMER_COUNTERS;
-
 
     TAS_VLOG(1) << "Turning " << name << " off";
     t.set_pulse_count(0);

@@ -350,23 +350,28 @@ uint16_t TimerCounter5GetOutputCompareRegister(TimerCounterChannel channel) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-constexpr uint8_t kNoEnabledPin = 255;
-}
+EnableableByPin::EnableableByPin(uint8_t enabled_pin)
+    : enabled_pin_(enabled_pin) {}
 
-TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel,
-                                                   uint8_t enabled_pin)
-    : channel_(channel), enabled_pin_(enabled_pin) {}
-TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel)
-    : TimerCounter1Pwm16Output(channel, kNoEnabledPin) {}
+EnableableByPin::EnableableByPin() : enabled_pin_(kNoEnabledPin) {}
 
-bool TimerCounter1Pwm16Output::is_enabled() const {
+bool EnableableByPin::is_enabled() const {
   if (enabled_pin_ == kNoEnabledPin) {
     return true;
   }
   pinMode(enabled_pin_, INPUT_PULLUP);
-  return digitalRead(enabled_pin_) == LOW;
+  bool result = digitalRead(enabled_pin_) == LOW;
+  pinMode(enabled_pin_, INPUT);  // Avoid supplying current unncessarily.
+  return result;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel,
+                                                   uint8_t enabled_pin)
+    : EnableableByPin(enabled_pin), channel_(channel) {}
+TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel)
+    : channel_(channel) {}
 
 void TimerCounter1Pwm16Output::set_pulse_count(uint16_t value) {
   TAS_DCHECK(is_enabled());
@@ -389,17 +394,9 @@ uint16_t TimerCounter1Pwm16Output::get_pulse_count() const {
 
 TimerCounter3Pwm16Output::TimerCounter3Pwm16Output(TimerCounterChannel channel,
                                                    uint8_t enabled_pin)
-    : channel_(channel), enabled_pin_(enabled_pin) {}
+    : EnableableByPin(enabled_pin), channel_(channel) {}
 TimerCounter3Pwm16Output::TimerCounter3Pwm16Output(TimerCounterChannel channel)
-    : TimerCounter3Pwm16Output(channel, kNoEnabledPin) {}
-
-bool TimerCounter3Pwm16Output::is_enabled() const {
-  if (enabled_pin_ == kNoEnabledPin) {
-    return true;
-  }
-  pinMode(enabled_pin_, INPUT_PULLUP);
-  return digitalRead(enabled_pin_) == LOW;
-}
+    : channel_(channel) {}
 
 void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
   TAS_DCHECK(is_enabled());
@@ -422,17 +419,9 @@ uint16_t TimerCounter3Pwm16Output::get_pulse_count() const {
 
 TimerCounter4Pwm16Output::TimerCounter4Pwm16Output(TimerCounterChannel channel,
                                                    uint8_t enabled_pin)
-    : channel_(channel), enabled_pin_(enabled_pin) {}
+    : EnableableByPin(enabled_pin), channel_(channel) {}
 TimerCounter4Pwm16Output::TimerCounter4Pwm16Output(TimerCounterChannel channel)
-    : TimerCounter4Pwm16Output(channel, kNoEnabledPin) {}
-
-bool TimerCounter4Pwm16Output::is_enabled() const {
-  if (enabled_pin_ == kNoEnabledPin) {
-    return true;
-  }
-  pinMode(enabled_pin_, INPUT_PULLUP);
-  return digitalRead(enabled_pin_) == LOW;
-}
+    : channel_(channel) {}
 
 void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
   TAS_DCHECK(is_enabled());
@@ -455,17 +444,9 @@ uint16_t TimerCounter4Pwm16Output::get_pulse_count() const {
 
 TimerCounter5Pwm16Output::TimerCounter5Pwm16Output(TimerCounterChannel channel,
                                                    uint8_t enabled_pin)
-    : channel_(channel), enabled_pin_(enabled_pin) {}
+    : EnableableByPin(enabled_pin), channel_(channel) {}
 TimerCounter5Pwm16Output::TimerCounter5Pwm16Output(TimerCounterChannel channel)
-    : TimerCounter5Pwm16Output(channel, kNoEnabledPin) {}
-
-bool TimerCounter5Pwm16Output::is_enabled() const {
-  if (enabled_pin_ == kNoEnabledPin) {
-    return true;
-  }
-  pinMode(enabled_pin_, INPUT_PULLUP);
-  return digitalRead(enabled_pin_) == LOW;
-}
+    : channel_(channel) {}
 
 void TimerCounter5Pwm16Output::set_pulse_count(uint16_t value) {
   TAS_DCHECK(is_enabled());

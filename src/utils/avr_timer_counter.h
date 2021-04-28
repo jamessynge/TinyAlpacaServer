@@ -5,10 +5,10 @@
 //
 // TimerCounter[1345]Initialize16BitFastPwm sets the waveform generation mode to
 // Fast PWM (mode 14), sets the clock prescaling as requested, and disables all
-// outputs. The Input Capture Register is set to 0xFFFF (maximum uint16), so the
-// smallest duty cycle is 1/65535 (or is it 65536?); if the system clock is
-// 16MHz and prescaling is ClockPrescaling::kAsIs, the smallest pulse duration
-// is approximately 62.5ns.
+// of that timer/counter's output channels. The Input Capture Register is set to
+// 0xFFFF (maximum uint16), so the smallest duty cycle is 1/65535 (or is it
+// 65536?); if the system clock is 16MHz and prescaling is
+// ClockPrescaling::kAsIs, the smallest pulse duration is approximately 62.5ns.
 //
 // TimerCounter[1345]SetCompareOutputMode is used to enable and disable output
 // for specific channels of the counter.
@@ -16,6 +16,12 @@
 // TimerCounter[1345]SetOutputCompareRegister sets the counter value (0 through
 // 65535) at which the output is turned off (it is turned on during the wrap
 // around from 65535 to 0).
+//
+// NOTE: I wrote this code in this fashion with the idea of avoiding pulling in
+// code for handling timer/counters that aren't in use. But, that now looks
+// annoyingly hard to work with. A rethink is in order.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 #include "utils/printable_progmem_string.h"
@@ -50,6 +56,7 @@ enum class TimerCounterChannel {
 
 size_t PrintValueTo(TimerCounterChannel v, Print& out);
 PrintableProgmemString ToPrintableProgmemString(TimerCounterChannel v);
+////////////////////////////////////////////////////////////////////////////////
 
 void TimerCounter1Initialize16BitFastPwm(ClockPrescaling prescaling);
 void TimerCounter1SetCompareOutputMode(TimerCounterChannel channel,
@@ -79,67 +86,73 @@ void TimerCounter5SetOutputCompareRegister(TimerCounterChannel channel,
                                            uint16_t value);
 uint16_t TimerCounter5GetOutputCompareRegister(TimerCounterChannel channel);
 
+////////////////////////////////////////////////////////////////////////////////
+
 // The following classes encapsulate access to the above TimerCounter* methods
 // (except for the Initialize methods).
 
-class TimerCounter1Pwm16Output {
+class EnableableByPin {
+ public:
+  static constexpr uint8_t kNoEnabledPin = 255;
+
+  explicit EnableableByPin(uint8_t enabled_pin);
+  EnableableByPin();  // For when the use of the pin is itself disabled.
+  bool is_enabled() const;
+
+ private:
+  const uint8_t enabled_pin_;
+};
+
+class TimerCounter1Pwm16Output : public EnableableByPin {
  public:
   TimerCounter1Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
   explicit TimerCounter1Pwm16Output(TimerCounterChannel channel);
 
-  bool is_enabled() const;
   void set_pulse_count(uint16_t value);
   uint16_t get_pulse_count() const;
   constexpr uint16_t max_count() const { return 0xFFFF; }
 
  private:
   const TimerCounterChannel channel_;
-  const uint8_t enabled_pin_;
 };
 
-class TimerCounter3Pwm16Output {
+class TimerCounter3Pwm16Output : public EnableableByPin {
  public:
   TimerCounter3Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
   explicit TimerCounter3Pwm16Output(TimerCounterChannel channel);
 
-  bool is_enabled() const;
   void set_pulse_count(uint16_t value);
   uint16_t get_pulse_count() const;
   constexpr uint16_t max_count() const { return 0xFFFF; }
 
  private:
   const TimerCounterChannel channel_;
-  const uint8_t enabled_pin_;
 };
 
-class TimerCounter4Pwm16Output {
+class TimerCounter4Pwm16Output : public EnableableByPin {
  public:
   TimerCounter4Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
   explicit TimerCounter4Pwm16Output(TimerCounterChannel channel);
 
-  bool is_enabled() const;
   void set_pulse_count(uint16_t value);
   uint16_t get_pulse_count() const;
   constexpr uint16_t max_count() const { return 0xFFFF; }
 
  private:
   const TimerCounterChannel channel_;
-  const uint8_t enabled_pin_;
 };
 
-class TimerCounter5Pwm16Output {
+class TimerCounter5Pwm16Output : public EnableableByPin {
  public:
   TimerCounter5Pwm16Output(TimerCounterChannel channel, uint8_t enabled_pin);
   explicit TimerCounter5Pwm16Output(TimerCounterChannel channel);
 
-  bool is_enabled() const;
   void set_pulse_count(uint16_t value);
   uint16_t get_pulse_count() const;
   constexpr uint16_t max_count() const { return 0xFFFF; }
 
  private:
   const TimerCounterChannel channel_;
-  const uint8_t enabled_pin_;
 };
 
 }  // namespace alpaca
