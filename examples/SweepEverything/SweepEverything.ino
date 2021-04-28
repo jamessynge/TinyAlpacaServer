@@ -23,7 +23,7 @@
 #define kLedChannel2EnabledPin PIN_A1  //           was 10
 #define kLedChannel3PwmPin 7           // OC4B      unchanged
 #define kLedChannel3EnabledPin PIN_A2  //           was 11
-#define kLedChannel4PwmPin 8           // OC1B      unchanged
+#define kLedChannel4PwmPin 8           // OC4C      unchanged
 #define kLedChannel4EnabledPin PIN_A3  //           was 12
 #define kCoverMotorStepPin 3           //           unchanged
 #define kCoverMotorDirectionPin 5      //           unchanged
@@ -38,11 +38,40 @@ using ::alpaca::TimerCounterChannel;
 
 TimerCounter3Pwm16Output led1(TimerCounterChannel::A);
 TimerCounter4Pwm16Output led2(
-    TimerCounterChannel::A /*, kLedChannel2EnabledPin */);
+  TimerCounterChannel::A /*, kLedChannel2EnabledPin */);
 TimerCounter4Pwm16Output led3(
-    TimerCounterChannel::B /*, kLedChannel3EnabledPin */);
-TimerCounter1Pwm16Output led4(
-    TimerCounterChannel::B /*, kLedChannel4EnabledPin */);
+  TimerCounterChannel::B /*, kLedChannel3EnabledPin */);
+TimerCounter4Pwm16Output led4(
+  TimerCounterChannel::C /*, kLedChannel4EnabledPin */);
+
+#define DUMP_TCCR(n) \
+  Serial.print("TCCR" #n "A: 0b"); \
+  Serial.println(TCCR ## n ## A, 2); \
+  Serial.print("TCCR" #n "B: 0b"); \
+  Serial.println(TCCR ## n ## B, 2); \
+  Serial.print("TCCR" #n "C: 0b"); \
+  Serial.println(TCCR ## n ## C, 2); \
+  Serial.println()
+
+#define DUMP_OCR(n) \
+  Serial.print("OCR" #n "A: "); \
+  Serial.println(OCR ## n ## A); \
+  Serial.print("OCR" #n "B: "); \
+  Serial.println(OCR ## n ## B); \
+  Serial.print("OCR" #n "C: "); \
+  Serial.println(OCR ## n ## C); \
+  Serial.println()
+
+#define DUMP_TC(n) \
+  DUMP_TCCR(n); \
+  Serial.print("ICR" #n ": "); \
+  Serial.println(ICR ## n); \
+  DUMP_OCR(n); \
+  Serial.println()
+
+#define DUMP_USED_TIMER_COUNTERS \
+  DUMP_TC(3); \
+  DUMP_TC(4)
 
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
@@ -58,11 +87,28 @@ void setup() {
   while (!Serial) {
   }
 
-  TAS_VLOG(1) << "Initializing 16 PWM";
 
-  TimerCounter1Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
+  DUMP_USED_TIMER_COUNTERS;
+
+
+
+
+  TAS_VLOG(1) << "Initializing 16-bit PWM";
+
+  pinMode(kLedChannel1PwmPin, OUTPUT);
+  pinMode(kLedChannel2PwmPin, OUTPUT);
+  pinMode(kLedChannel3PwmPin, OUTPUT);
+  pinMode(kLedChannel4PwmPin, OUTPUT);
+  //  TimerCounter1Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
+
+  TAS_VLOG(1) << "Initialized 16-bit PWM";
+  Serial.println();
+
+
+  DUMP_USED_TIMER_COUNTERS;
+
 }
 
 template <class T>
@@ -71,9 +117,17 @@ void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
   if (t.is_enabled()) {
     TAS_VLOG(1) << name << " is enabled.";
     TAS_VLOG(1) << "Sweeping " << name << " upwards";
+
     int32_t value = 1;
     while (value <= t.max_count()) {
       t.set_pulse_count(static_cast<uint16_t>(value & 0xFFFF));
+
+      if (value == 1 || (value + increment) >= t.max_count()) {
+        TAS_VLOG(1) << "value = " << value;
+        DUMP_USED_TIMER_COUNTERS;
+
+      }
+
       value += increment;
       delay(delay_by);
     }
@@ -84,8 +138,16 @@ void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
       value -= increment;
       delay(delay_by);
     }
+    TAS_VLOG(1) << "value = " << value;
+
+    DUMP_USED_TIMER_COUNTERS;
+
+
     TAS_VLOG(1) << "Turning " << name << " off";
     t.set_pulse_count(0);
+
+    DUMP_USED_TIMER_COUNTERS;
+
   } else {
     TAS_VLOG(1) << name << " is disabled.";
   }
@@ -93,115 +155,11 @@ void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
 
 void loop() {
   Sweep16BitPwm(led1, 50, 4, "led1");
+  //  delay(120 * 1000U);
   Sweep16BitPwm(led2, 50, 4, "led2");
+  //  delay(120 * 1000U);
   Sweep16BitPwm(led3, 50, 4, "led3");
+  //  delay(120 * 1000U);
   Sweep16BitPwm(led4, 50, 4, "led4");
+  //  delay(120 * 1000U);
 }
-
-#if 0
-// Define stepper motor connections and motor interface type. Motor interface
-// type must be set to 1 when using a driver:
-#define dirPin 4
-#define stepPin 3
-#define motorInterfaceType 1
-
-// Create a new instance of the AccelStepper class:
-AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
-
-int led5Pin = 5;  // LED5 connected to digital pin 5
-int led6Pin = 6;  // LED6 connected to digital pin 6
-int led7Pin = 7;  // LED7 connected to digital pin 7
-int led8Pin = 8;  // LED8 connected to digital pin 8
-
-void setup() {
-  // Set the maximum speed in steps per second:
-  stepper.setMaxSpeed(20000);
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-}
-
-void loop() {
-  // fade in from min to max in increments of 1 ADU:
-  for (int fadeValue = 0; fadeValue <= 255; fadeValue += 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led5Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-
-  // fade out from max to min in increments of 1 ADU:
-  for (int fadeValue = 255; fadeValue >= 0; fadeValue -= 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led5Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-  // fade in from min to max in increments of 1 ADU:
-  for (int fadeValue = 0; fadeValue <= 255; fadeValue += 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led6Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-
-  // fade out from max to min in increments of 1 ADU:
-  for (int fadeValue = 255; fadeValue >= 0; fadeValue -= 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led6Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-  // fade in from min to max in increments of 1 ADU:
-  for (int fadeValue = 0; fadeValue <= 255; fadeValue += 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led7Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-
-  // fade out from max to min in increments of 1 ADU:
-  for (int fadeValue = 255; fadeValue >= 0; fadeValue -= 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led7Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-  // fade in from min to max in increments of 1 ADU:
-  for (int fadeValue = 0; fadeValue <= 255; fadeValue += 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led8Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-
-  // fade out from max to min in increments of 1 ADU:
-  for (int fadeValue = 255; fadeValue >= 0; fadeValue -= 1) {
-    // sets the value (range from 0 to 255):
-    analogWrite(led8Pin, fadeValue);
-    // wait for 2 milliseconds to see the dimming effect
-    delay(2);
-  }
-  // Set the current position to 0:
-  stepper.setCurrentPosition(0);
-
-  // Run the motor forward at 10000 steps/second until the motor reaches 108000
-  // steps (3/4 revolutions):
-
-  while (stepper.currentPosition() != 108000) {
-    stepper.setSpeed(10000);
-    stepper.runSpeed();
-  }
-
-  delay(1000);
-
-  // Run the motor backwards at 10000 steps/second until the motor reaches
-  // position 0 (3/4 revolution):
-
-  while (stepper.currentPosition() != 0) {
-    stepper.setSpeed(-10000);
-    stepper.runSpeed();
-  }
-
-  delay(1000);
-}
-#endif
