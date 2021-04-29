@@ -213,6 +213,11 @@ it must be rediscovered each time.
     Some thought will be needed to decide how to check the conformance of a
     server w.r.t. PUT requests (i.e. we don't want to damage anything).
 
+1.  Figure out how to use a timer/counter and the watchdog timer to produce a
+    better seed for randomness than the Arduino `rand()` function has. As things
+    stand, all of the devices that I load these sketches on to are getting the
+    same MAC address and default IP.
+
 ## Planning
 
 *   Split various parts of src/utils out into its their own Arduino libraries.
