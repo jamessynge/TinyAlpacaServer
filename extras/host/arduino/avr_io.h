@@ -87,4 +87,12 @@ constexpr uint8_t CS50 = 0;
 #define PIN_A14 (68)
 #define PIN_A15 (69)
 
+#define NOT_AN_INTERRUPT 0xff
+
+#define digitalPinToInterrupt(p) \
+  ((p) == 2                      \
+       ? 0                       \
+       : ((p) == 3 ? 1           \
+                   : ((p) >= 18 && (p) <= 21 ? 23 - (p) : NOT_AN_INTERRUPT)))
+
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_AVR_IO_H_

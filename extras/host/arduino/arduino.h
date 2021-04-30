@@ -66,5 +66,8 @@ void delayMicroseconds(uint32_t us);
 
 inline void noInterrupts() {}
 inline void interrupts() {}
+inline void attachInterrupt(uint8_t interruptNum, void (*userFunc)(),
+                            int mode) {}
+inline void detachInterrupt(uint8_t interruptNum) {}
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_
