@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <TinyAlpacaServer.h>
+//#include <TinyAlpacaServer.h>
 
 // This is an experiment with using PWM (or timer/counter interrupts) for
 // controlling the stepper motor for the cover of the cover-calibrator, and
@@ -16,18 +16,6 @@
 //
 // Author: james.synge@gmail.com
 
-// -----------------------------------------------------------------------------
-// From cover_calibrator.cc:
-// Pins we should (or must) avoid on the Robotdyn Mega ETH:
-// D00 - RX (Serial over USB)
-// D01 - TX (Serial over USB)
-// D04 - SDcard Chip Select
-// D10 - W5500 Chip Select
-// D13 - Built-in LED
-// D50 - MISO (SPI)
-// D51 - MOSI (SPI)
-// D52 - SCK (SPI)
-
 #define kLedChannel1PwmPin 5           // OC3A      unchanged
 #define kLedChannel2PwmPin 6           // OC4A      unchanged
 #define kLedChannel2EnabledPin PIN_A1  //           was 10
@@ -41,96 +29,79 @@
 #define kCoverCloseLimitPin 21         // INT0      unchanged
 #define kCoverEnabledPin PIN_A4        //           was 13
 
-// -----------------------------------------------------------------------------
-//
-// Pin selection analysis:
-//
-// For the limit switches, we've already selected pins that can be used for
-// triggering an interrupt when one of those pins is held low AND the External
-// Interrupt Control Register A (for INT0 through INT3) enables that pin to
-// interrupt. This means that we should do the following when preparing to close
-// the cover:
-//
-// 1) Set volatile field current_action_ that indicates we're moving the cover
-//    towards closed (e.g. an enum field, where the enum has enumerators
-//    kNotMoving, kOpening, kClosing).
-// 2) Enable the "pin low" interrupt for detecting that the cover is closed
-//    (e.g. INT0 is LOW). When that interrupt is trigged, it should set field
-//    current_action_ to kNotMoving and then should disable itself; note that it
-//    is possible that the switch is bouncy, and may first indicate the limit is
-//    reached slightly earlier (see below); it that turns out to be true, we may
-//    need to debounce in either the interrupt handler, or in some main loop()
-//    code.
-// 3) Configure PWM or a timer/counter with interrupt on overflow or match; the
-//    latter would have the benefit that the PWM pulse isn't automatically
-//    generated, but instead allows a small amount of logic to decide whether to
-//    emit the pulse, including doing debouncing before disabling the timer.
-
-// Arduino Mega pins 11 and 12, i.e. PB5 and PB6, can be used as 16-bit T/C 1
-// outputs OC1A and OC1B, can also be used as Pin Change Interrupts.
-
-// Limit switches:
-//
-// The limit switches are intended to tell the software when it should stop
-// moving the cover, and at startup they could be used to determine whether the
-// cover should be closed. I assume that the switches may be bouncy, and may
-// trigger before the cover has reached the full limit. Furthermore, both
-// switches are located near the hinge rather than near the far side of the
-// cover, so they're likely to be rather sensitive to exact placement: if you
-// move them a little closer to the cover, they'll trigger to soon; if you move
-// them a little farther away, they may sometimes fail to trigger.
-//
-// Testing will be needed to determine exactly when the switches trigger and
-// whether they're well placed.
-
-// Movement limits:
-//
-// The prototype Cover-Calibrator uses this stepper motor with a 90.25:1
-// reduction gear:
-//
-//   https://www.omc-stepperonline.com/nema-8-stepper-motor-bipolar-l-38mm-w-gear-ratio-90-1-planetary-gearbox.html
-//
-// A full step is 1.8 degress, and the Arduino Shield we're using configures the
-// stepper driver to do 1/8th microsteps. To rotate 270 degress (i.e. fully open
-// to fully closed, or visa versa), requires 108300 microsteps:
-//
-//   270 / 1.8 * 8 * 90.25 = 108300
-//
-// In addition to using the limit switches, it is probably a good idea to stop
-// or otherwise alert if the number of steps taken is sufficient beyond the
-// expected number.
-//
-// The stepper driver chip requires that a pulse be HIGH for at least 1
-// microsecond, followed by LOW for at least 1 microsecond. If the stepper
-// driver and stepper could move that fast, we'd be able to move 500K 1/8
-// microsteps per second, i.e. a full sweep of the cover would take just over
-// 2/10 of a second, dangerously fast.
-//
-// Alan's prototype sketch configured AccelStepper to run at 20K steps per
-// second, or around 5.25 seconds to open and close; the sketch did not use the
-// acceleration and deceleration features of AccelStepper, so it isn't clear to
-// me how fast we can actually drive the motor and cover.
-
 namespace {
-constexpr uint8_t cover_open_interrupt =
+
+enum TestMode { kCountBounces, kFirstPress };
+
+constexpr TestMode kTestMode = kCountBounces;
+
+constexpr uint8_t kCoverOpenInterruptNumber =
     digitalPinToInterrupt(kCoverOpenLimitPin);
-constexpr uint8_t cover_close_interrupt =
+constexpr uint8_t kCoverCloseInterruptNumber =
     digitalPinToInterrupt(kCoverCloseLimitPin);
 
-int open_pressed_count = 0;
-int close_pressed_count = 0;
+class PressInfo {
+ public:
+  PressInfo(const char* name) { Reset(); }
+
+  void Reset() {
+    press_count_ = 0;
+    first_press_micros_ = 0;
+    latest_press_micros_ = 0;
+  }
+
+  void Pressed() {
+    
+  }
+
+
+ private:
+  volatile uint8_t press_count_;
+  volatile uint32_t first_press_micros_;
+  volatile uint32_t latest_press_micros_;
+};
+
+volatile uint8_t open_pressed_count = 0;
+volatile uint32_t first_open_pressed_micros = 0;
+volatile uint32_t latest_open_pressed_micros = 0;
+
+volatile uint8_t close_pressed_count = 0;
+volatile uint32_t first_close_pressed_micros = 0;
+volatile uint32_t latest_close_pressed_micros = 0;
+
+
+
+
+
+
+
 
 void OpenPressed() {
+  auto now = micros();
+  if (open_pressed_count == 0) {
+    first_open_pressed_micros = now;
+    if (kTestMode == kFirstPress) {
+      detachInterrupt(kCoverOpenInterruptNumber);
+    }
+  }
+  latest_open_pressed_micros = now;
   ++open_pressed_count;
-  detachInterrupt(cover_open_interrupt);
 }
 
 void ClosePressed() {
+  auto now = micros();
+  if (close_pressed_count == 0) {
+    first_close_pressed_micros = now;
+    if (kTestMode == kFirstPress) {
+      detachInterrupt(kCoverCloseInterruptNumber);
+    }
+  }
+  latest_close_pressed_micros = now;
   ++close_pressed_count;
-  detachInterrupt(cover_close_interrupt);
 }
 
 }  // namespace
+
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
   // read. Note that the baud rate is meaningful on boards that do true serial,
@@ -144,9 +115,67 @@ void setup() {
   // almost always get the initial output.
   while (!Serial) {
   }
+  Serial.println("Serial ready");
 
   pinMode(kCoverOpenLimitPin, INPUT_PULLUP);
   pinMode(kCoverCloseLimitPin, INPUT_PULLUP);
+
+  attachInterrupt(kCoverOpenInterruptNumber, OpenPressed, FALLING);
+  attachInterrupt(kCoverCloseInterruptNumber, ClosePressed, FALLING);
 }
 
-void loop() {}
+void report_presses(const char* name, volatile uint8_t& count, uint32)
+
+
+
+volatile uint8_t open_pressed_count = 0;
+volatile uint32_t first_open_pressed_micros = 0;
+volatile uint32_t latest_open_pressed_micros = 0;
+
+volatile uint8_t close_pressed_count = 0;
+volatile uint32_t first_close_pressed_micros = 0;
+volatile uint32_t latest_close_pressed_micros = 0;
+
+
+
+
+void loop() {
+  auto open_pressed_count_copy = open_pressed_count;
+      auto first_open_pressed_micros_copy = first_open_pressed_micros;
+  if (open_pressed_count_copy > 0) {
+    auto now = micros();
+    if (kTestMode == kCountBounces) {
+      noInterrupts();
+      auto first_open_pressed_micros_copy = first_open_pressed_micros;
+      interrupts();
+      if (now - first_open_pressed_micros_copy > 500) {
+        detachInterrupt(kCoverOpenInterruptNumber);
+      }
+    } else {
+      detachInterrupt(kCoverOpenInterruptNumber);
+    }
+    Serial.print("open_pressed_count: ");
+    Serial.println(open_pressed_count_copy);
+    Serial.print("first_open_pressed_micros: ");
+    Serial.println(first_open_pressed_micros);
+  }
+
+  auto close_pressed_count_copy = close_pressed_count;
+  if (close_pressed_count_copy > 0) {
+    auto now = micros();
+    if (kTestMode == kCountBounces) {
+      noInterrupts();
+      auto first_close_pressed_micros_copy = first_close_pressed_micros;
+      interrupts();
+      if (now - first_close_pressed_micros_copy > 500) {
+        detachInterrupt(kCoverCloseInterruptNumber);
+      }
+    } else {
+      detachInterrupt(kCoverCloseInterruptNumber);
+    }
+    Serial.print("close_pressed_count: ");
+    Serial.println(close_pressed_count_copy);
+    Serial.print("first_close_pressed_micros: ");
+    Serial.println(first_close_pressed_micros);
+  }
+}
