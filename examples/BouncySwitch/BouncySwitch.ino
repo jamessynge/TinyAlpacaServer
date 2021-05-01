@@ -9,128 +9,145 @@
 #define kCoverOpenLimitPin 20
 #define kCoverCloseLimitPin 21
 
-namespace {
+// #define RECORD_RISING_AND_FALLING
+#define RECORD_CHANGE
 
-constexpr uint8_t kCoverOpenInterruptNumber =
-  digitalPinToInterrupt(kCoverOpenLimitPin);
-constexpr uint8_t kCoverCloseInterruptNumber =
-  digitalPinToInterrupt(kCoverCloseLimitPin);
+namespace {
 
 // Forward declarations
 
+#ifdef RECORD_RISING_AND_FALLING
 void OnFalling();
 void OnRising();
+#elif defined(RECORD_CHANGE)
+void OnChange();
+#endif
 
 class EventInfo {
-  public:
-    EventInfo(const char* name, uint8_t pin)
+ public:
+  EventInfo(const char* name, uint8_t pin)
       : name_(name), pin_(pin), interrupt_(digitalPinToInterrupt(pin)) {}
 
-    void Reset() {
-      TAS_VLOG(1) << "\nEventInfo::Reset\n";
+  void Reset() {
+    TAS_VLOG(1) << "\nEventInfo::Reset\n";
 
-      pinMode(pin_, INPUT);
+    pinMode(pin_, INPUT);
+    noInterrupts();
+#ifdef RECORD_RISING_AND_FALLING
+    bool awaiting_falling;
+    while (true) {
+      auto value1 = digitalRead(pin_);
+      if (value1 == LOW) {
+        attachInterrupt(interrupt_, OnRising, RISING);
+      } else {
+        attachInterrupt(interrupt_, OnFalling, FALLING);
+      }
+      auto value2 = digitalRead(pin_);
+      if (value1 == value2) {
+        awaiting_falling = value2 == HIGH;
+        break;
+      }
+    }
+#elif defined(RECORD_CHANGE)
+    attachInterrupt(interrupt_, OnChange, CHANGE);
+#else
+#error "Don't know what to do."
+#endif
+
+    count_ = 0;
+    missed_count_ = 0;
+    interrupts();
+
+#ifdef RECORD_RISING_AND_FALLING
+    if (awaiting_falling) {
+      TAS_VLOG(1) << "Awaiting " << name_ << "pin FALLING";
+    } else {
+      TAS_VLOG(1) << "Awaiting pin RISING";
+    }
+#elif defined(RECORD_CHANGE)
+    TAS_VLOG(1) << "Awaiting pin CHANGE";
+#endif
+  }
+
+#ifdef RECORD_RISING_AND_FALLING
+  void OnPinFalling() {
+    RecordEvent(true);
+    attachInterrupt(interrupt_, OnRising, RISING);
+  }
+
+  void OnPinRising() {
+    RecordEvent(false);
+    attachInterrupt(interrupt_, OnFalling, FALLING);
+  }
+#elif defined(RECORD_CHANGE)
+  void OnPinChange() { RecordEvent(digitalRead(pin_) == LOW); }
+#endif
+
+  // If we've recorded events, and things have stabilized, then report the
+  // results.
+  void Loop() {
+    auto count = count_;
+    if (count == 0) {
+      return;
+    }
+
+    // Have things stabilized?
+    auto micros_since_last_event = micros() - event_micros_[count - 1];
+    if (micros_since_last_event < 100000) {
+      // Not necessarily.
+      return;
+    }
+
+    if (count > kMaxEvents) {
       noInterrupts();
-      bool awaiting_falling;
-      while (true) {
-        auto value1 = digitalRead(pin_);
-        if (value1 == LOW) {
-          attachInterrupt(interrupt_, OnRising, RISING);
-        } else {
-          attachInterrupt(interrupt_, OnFalling, FALLING);
-        }
-        auto value2 = digitalRead(pin_);
-        if (value1 == value2) {
-          awaiting_falling = value2 == HIGH;
-          break;
-        }
-      }
-      count_ = 0;
-      missed_count_ = 0;
+      auto missed_count = missed_count_;
       interrupts();
-
-      if (awaiting_falling) {
-        TAS_VLOG(1) << "Expecting FALLING next.";
-      } else {
-        TAS_VLOG(1) << "Expecting RISING next.";
-      }
+      TAS_VLOG(1) << "There were " << missed_count
+                  << " events that we didn't record.";
     }
 
-    void OnPinFalling() {
-      RecordEvent(true);
-      attachInterrupt(interrupt_, OnRising, RISING);
+    TAS_VLOG(1) << "Recorded " << count << " events.";
+    TAS_VLOG(1) << (event_is_falling_[0] ? "Falling" : "Rising") << " @ micros "
+                << event_micros_[0];
+    for (uint8_t ndx = 1; ndx < count; ++ndx) {
+      TAS_VLOG(1) << '+' << (event_micros_[ndx] - event_micros_[ndx - 1])
+                  << " micros later was "
+                  << (event_is_falling_[ndx] ? "Falling" : "Rising")
+                  << " @ micros " << event_micros_[ndx];
     }
 
-    void OnPinRising() {
-      RecordEvent(false);
-      attachInterrupt(interrupt_, OnFalling, FALLING);
+    Reset();
+  }
+
+ private:
+  void RecordEvent(bool falling) {
+    if (count_ >= kMaxEvents) {
+      ++missed_count_;
+    } else {
+      event_micros_[count_] = micros();
+      event_is_falling_[count_] = falling;
+      ++count_;
     }
+  }
 
-    // If we've recorded events, and things have stabilized, then report the
-    // results.
-    void Loop() {
-      auto count = count_;
-      if (count == 0) {
-        return;
-      }
-
-      // Have things stabilized?
-      auto micros_since_last_event = micros() - event_micros_[count];
-      if (micros_since_last_event < 100000) {
-        // Not necessarily.
-        return;
-      }
-
-      if (count > kMaxEvents) {
-        noInterrupts();
-        auto missed_count = missed_count_;
-        interrupts();
-        TAS_VLOG(1) << "There were " << missed_count
-                    << " events that we didn't record.";
-      }
-
-      TAS_VLOG(1) << "Recorded " << count << " events.";
-      TAS_VLOG(1) << (event_is_falling_[0] ? "Falling" : "Rising") << " @ micros "
-                  << event_micros_[0];
-      for (uint8_t ndx = 1; ndx < count; ++ndx) {
-        TAS_VLOG(1) << '+' << (event_micros_[ndx] - event_micros_[ndx - 1])
-                    << " micros later was "
-                    << (event_is_falling_[ndx] ? "Falling" : "Rising")
-                    << " @ micros " << event_micros_[ndx];
-      }
-
-      Reset();
-    }
-
-  private:
-    void RecordEvent(bool falling) {
-      if (count_ >= kMaxEvents) {
-        ++missed_count_;
-      } else {
-        event_micros_[count_] = micros();
-        event_is_falling_[count_] = falling;
-        ++count_;
-      }
-    }
-
-    static constexpr uint8_t kMaxEvents = 100;
-    volatile uint8_t count_;
-    volatile bool event_is_falling_[kMaxEvents];
-    volatile uint32_t event_micros_[kMaxEvents];
-    volatile uint16_t missed_count_;
-    const char* const name_;
-    const uint8_t pin_;
-    const uint8_t interrupt_;
+  static constexpr uint8_t kMaxEvents = 100;
+  volatile uint8_t count_;
+  volatile bool event_is_falling_[kMaxEvents];
+  volatile uint32_t event_micros_[kMaxEvents];
+  volatile uint16_t missed_count_;
+  const char* const name_;
+  const uint8_t pin_;
+  const uint8_t interrupt_;
 };
 
 EventInfo event_info("Open Limit", kCoverOpenLimitPin);
 
-void OnFalling() {
-  event_info.OnPinFalling();
-}
-void OnRising() {
-  event_info.OnPinRising();
-}
+#ifdef RECORD_RISING_AND_FALLING
+void OnFalling() { event_info.OnPinFalling(); }
+void OnRising() { event_info.OnPinRising(); }
+#elif defined(RECORD_CHANGE)
+void OnChange() { event_info.OnPinChange(); }
+#endif
 
 }  // namespace
 
@@ -151,6 +168,4 @@ void setup() {
   event_info.Reset();
 }
 
-void loop() {
-  event_info.Loop();
-}
+void loop() { event_info.Loop(); }

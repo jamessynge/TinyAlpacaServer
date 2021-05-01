@@ -1,9 +1,10 @@
-# TODO(jamessynge): describe this package.
+# Experiment with edge triggered pin interrupts.
 
-cc_library(
-    name = "bouncy_switch_ino",
+cc_binary(
+    name = "bouncy_switch",
     srcs = ["BouncySwitch.ino.cc"],
     deps = [
         ":TinyAlpacaServer",
+        ":arduino_main",
     ],
 )
