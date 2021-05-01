@@ -70,4 +70,8 @@ inline void attachInterrupt(uint8_t interruptNum, void (*userFunc)(),
                             int mode) {}
 inline void detachInterrupt(uint8_t interruptNum) {}
 
+#define CHANGE 7
+#define FALLING 8
+#define RISING 9
+
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_

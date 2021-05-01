@@ -1,5 +1,5 @@
 #include <Arduino.h>
-//#include <TinyAlpacaServer.h>
+#include <TinyAlpacaServer.h>
 
 // This is an experiment with using PWM (or timer/counter interrupts) for
 // controlling the stepper motor for the cover of the cover-calibrator, and
@@ -63,10 +63,7 @@ class PressInfo {
     latest_press_micros_ = 0;
   }
 
-  void Pressed() {
-    
-  }
-
+  void Pressed() {}
 
  private:
   volatile uint8_t press_count_;
@@ -81,13 +78,6 @@ volatile uint32_t latest_open_pressed_micros = 0;
 volatile uint8_t close_pressed_count = 0;
 volatile uint32_t first_close_pressed_micros = 0;
 volatile uint32_t latest_close_pressed_micros = 0;
-
-
-
-
-
-
-
 
 void OpenPressed() {
   auto now = micros();
@@ -139,9 +129,7 @@ void setup() {
 
 void report_presses(const char* name, volatile uint8_t& count, uint32)
 
-
-
-volatile uint8_t open_pressed_count = 0;
+    volatile uint8_t open_pressed_count = 0;
 volatile uint32_t first_open_pressed_micros = 0;
 volatile uint32_t latest_open_pressed_micros = 0;
 
@@ -149,12 +137,9 @@ volatile uint8_t close_pressed_count = 0;
 volatile uint32_t first_close_pressed_micros = 0;
 volatile uint32_t latest_close_pressed_micros = 0;
 
-
-
-
 void loop() {
   auto open_pressed_count_copy = open_pressed_count;
-      auto first_open_pressed_micros_copy = first_open_pressed_micros;
+  auto first_open_pressed_micros_copy = first_open_pressed_micros;
   if (open_pressed_count_copy > 0) {
     auto now = micros();
     if (kTestMode == kCountBounces) {
