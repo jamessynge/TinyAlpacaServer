@@ -63,6 +63,14 @@ void loop() {
 
   // Adding call to DecodeBuffer: 8178/583
   decoder.DecodeBuffer(buffer_view, false, false);
+
+
+//Sketch uses 18968 bytes (7%) of program storage space. Maximum is 253952 bytes.
+//Global variables use 615 bytes (7%) of dynamic memory, leaving 7577 bytes for local variables. Maximum is 8192 bytes.
+  auto fn = []() {
+    Serial.println(F("In lambda function"));
+  };
+//  fn();
 }
 
 // NOLINTEND
