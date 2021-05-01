@@ -22,6 +22,7 @@
 // D00 - RX (Serial over USB)
 // D01 - TX (Serial over USB)
 // D04 - SDcard Chip Select
+// D09 - SDcard Detect
 // D10 - W5500 Chip Select
 // D13 - Built-in LED
 // D50 - MISO (SPI)
