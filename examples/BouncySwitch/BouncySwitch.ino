@@ -71,13 +71,13 @@ class EventInfo {
 
 #ifdef RECORD_RISING_AND_FALLING
   void OnPinFalling() {
-    RecordEvent(true);
     attachInterrupt(interrupt_, OnRising, RISING);
+    RecordEvent(true);
   }
 
   void OnPinRising() {
-    RecordEvent(false);
     attachInterrupt(interrupt_, OnFalling, FALLING);
+    RecordEvent(false);
   }
 #elif defined(RECORD_CHANGE)
   void OnPinChange() { RecordEvent(digitalRead(pin_) == LOW); }
