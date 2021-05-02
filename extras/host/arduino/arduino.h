@@ -74,4 +74,9 @@ inline void detachInterrupt(uint8_t interruptNum) {}
 #define FALLING 8
 #define RISING 9
 
+#define bitSet(value, bit) ((value) |= (1UL << (bit)))
+#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
+#define bitWrite(value, bit, bitvalue) \
+  ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
+
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_
