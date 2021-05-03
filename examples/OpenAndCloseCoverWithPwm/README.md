@@ -1,27 +1,65 @@
 ** Pin Avoidance
 
-Pins we should (or must) avoid on the Robotdyn Mega ETH:
+Pins we must, should or may want to avoid on the Robotdyn Mega ETH:
 
-D00 - RX (Serial over USB) D01 - TX (Serial over USB) D04 - SDcard Chip Select
-D10 - W5500 Chip Select D13 - Built-in LED D50 - MISO (SPI) D51 - MOSI (SPI)
-D52 - SCK (SPI)
+| Arduino Mega Pin | Avoid? | Reserved Purpose                                 |
+| ---------------- | ------ | ------------------------------------------------ |
+| D0 (RX)          | Must   | Serial Input                                     |
+| D1 (TX)          | Must   | Serial Output                                    |
+| D4               | Should | Micro SD Chip Select (Must avoid to use SD card) |
+| D7               | Maybe  | W5500 Hard Reset (Not connected by default, but  |
+:                  :        : Alan has done so on his boards)                  :
+| D8               | Maybe  | W5500 Interrupts (Not connected by default)      |
+| D9               | Maybe  | Micro SD card detect (Not connected by default,  |
+:                  :        : but probably a good idea unless it is easy to to :
+:                  :        : so by other means)                               :
+| D10              | Must   | W5500 Chip Select (with SPI)                     |
+| D13              | Maybe  | Built-in LED (useful for status output, but it   |
+:                  :        : is also an ouptut pin for two different          :
+:                  :        : timer/counters, 0 and 1)                         :
+| D14 (TX3)        | Maybe  | ESP-01 Daughter board (Optional accessory, not   |
+:                  :        : used for the AstroMakers CoverCalibrator)        :
+| D15 (RX3)        | Maybe  | ESP-01 Daughter board (Optional)                 |
+| D50 (MISO)       | Must   | SPI for W5500 and micro SD card                  |
+| D51 (MOSI/DI)    | Must   | SPI for W5500 and micro SD card                  |
+| D52 (SCK/CLK)    | Must   | SPI for W5500 and micro SD card                  |
 
 ** Pin Selection
+
+The "unchanged" and "was N" comments are relative to Rev. 6 of the AstroMakers
+Cover Calibrator schematic.
 
 Purpose                        | Arduino Mega Pin | ATmega2560 Name | Comment
 ------------------------------ | ---------------- | --------------- | ---------
 LED #1 Pwm Output              | 5                | OC3A            | unchanged
 LED #2 Pwm Output              | 6                | OC4A            | unchanged
-LED #2 Enabled Output          | PIN_A1           |                 | was 10
+LED #2 Enabled Output          | A1               |                 | was 10
 LED #3 Pwm Output              | 7                | OC4B            | unchanged
-LED #3 Enabled Output          | PIN_A2           |                 | was 11
+LED #3 Enabled Output          | A2               |                 | was 11
 LED #4 Pwm Output              | 8                | OC4C unchanged  |
-LED #4 Enabled Output          | PIN_A3           |                 | was 12
+LED #4 Enabled Output          | A3               |                 | was 12
 Cover Motor Step Output        | 3                |                 | unchanged
 Cover Motor Direction Output   | 5                |                 | unchanged
 Cover Open Limit Switch Input  | 20               | INT1 unchanged  |
 Cover Close Limit Switch Input | 21               | INT0 unchanged  |
-Cover Motor Enabled Input      | PIN_A4           |                 | was 13
+Cover Motor Enabled Input      | A4               |                 | was 13
+
+Arduino Mega Pin | ATmega2560 Name | Purpose                 | Comment
+---------------- | --------------- | ----------------------- | -------------
+0                | PCINT8          | reserved                | Serial Input
+1                | PCINT3          | reserved                | Serial Output
+2                | INT4 / OC3B     | unused                  |
+3                |                 | Cover Motor Step Output | zzz
+4                | xxx             | xxx                     | zzz
+5                | xxx             | xxx                     | zzz
+6                | xxx             | xxx                     | zzz
+7                | xxx             | xxx                     | zzz
+8                | xxx             | xxx                     | zzz
+9                | xxx             | xxx                     | zzz
+10               | xxx             | xxx                     | zzz
+11               | xxx             | xxx                     | zzz
+12               | xxx             | xxx                     | zzz
+13               | xxx             | xxx                     | zzz
 
 ** Pin Selection Analysis
 

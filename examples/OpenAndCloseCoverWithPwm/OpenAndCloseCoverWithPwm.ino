@@ -16,19 +16,6 @@
 //
 // Author: james.synge@gmail.com
 
-// -----------------------------------------------------------------------------
-// From cover_calibrator.cc:
-// Pins we should (or must) avoid on the Robotdyn Mega ETH:
-// D00 - RX (Serial over USB)
-// D01 - TX (Serial over USB)
-// D04 - SDcard Chip Select
-// D09 - SDcard Detect
-// D10 - W5500 Chip Select
-// D13 - Built-in LED
-// D50 - MISO (SPI)
-// D51 - MOSI (SPI)
-// D52 - SCK (SPI)
-
 #define kLedChannel1PwmPin 5           // OC3A      unchanged
 #define kLedChannel2PwmPin 6           // OC4A      unchanged
 #define kLedChannel2EnabledPin PIN_A1  //           was 10
@@ -53,56 +40,6 @@ constexpr uint8_t kCoverOpenInterruptNumber =
 constexpr uint8_t kCoverCloseInterruptNumber =
     digitalPinToInterrupt(kCoverCloseLimitPin);
 
-class PressInfo {
- public:
-  PressInfo(const char* name) { Reset(); }
-
-  void Reset() {
-    press_count_ = 0;
-    first_press_micros_ = 0;
-    latest_press_micros_ = 0;
-  }
-
-  void Pressed() {}
-
- private:
-  volatile uint8_t press_count_;
-  volatile uint32_t first_press_micros_;
-  volatile uint32_t latest_press_micros_;
-};
-
-volatile uint8_t open_pressed_count = 0;
-volatile uint32_t first_open_pressed_micros = 0;
-volatile uint32_t latest_open_pressed_micros = 0;
-
-volatile uint8_t close_pressed_count = 0;
-volatile uint32_t first_close_pressed_micros = 0;
-volatile uint32_t latest_close_pressed_micros = 0;
-
-void OpenPressed() {
-  auto now = micros();
-  if (open_pressed_count == 0) {
-    first_open_pressed_micros = now;
-    if (kTestMode == kFirstPress) {
-      detachInterrupt(kCoverOpenInterruptNumber);
-    }
-  }
-  latest_open_pressed_micros = now;
-  ++open_pressed_count;
-}
-
-void ClosePressed() {
-  auto now = micros();
-  if (close_pressed_count == 0) {
-    first_close_pressed_micros = now;
-    if (kTestMode == kFirstPress) {
-      detachInterrupt(kCoverCloseInterruptNumber);
-    }
-  }
-  latest_close_pressed_micros = now;
-  ++close_pressed_count;
-}
-
 }  // namespace
 
 void setup() {
@@ -119,61 +56,6 @@ void setup() {
   while (!Serial) {
   }
   Serial.println("Serial ready");
-
-  pinMode(kCoverOpenLimitPin, INPUT_PULLUP);
-  pinMode(kCoverCloseLimitPin, INPUT_PULLUP);
-
-  attachInterrupt(kCoverOpenInterruptNumber, OpenPressed, FALLING);
-  attachInterrupt(kCoverCloseInterruptNumber, ClosePressed, FALLING);
 }
 
-void report_presses(const char* name, volatile uint8_t& count, uint32)
-
-    volatile uint8_t open_pressed_count = 0;
-volatile uint32_t first_open_pressed_micros = 0;
-volatile uint32_t latest_open_pressed_micros = 0;
-
-volatile uint8_t close_pressed_count = 0;
-volatile uint32_t first_close_pressed_micros = 0;
-volatile uint32_t latest_close_pressed_micros = 0;
-
-void loop() {
-  auto open_pressed_count_copy = open_pressed_count;
-  auto first_open_pressed_micros_copy = first_open_pressed_micros;
-  if (open_pressed_count_copy > 0) {
-    auto now = micros();
-    if (kTestMode == kCountBounces) {
-      noInterrupts();
-      auto first_open_pressed_micros_copy = first_open_pressed_micros;
-      interrupts();
-      if (now - first_open_pressed_micros_copy > 500) {
-        detachInterrupt(kCoverOpenInterruptNumber);
-      }
-    } else {
-      detachInterrupt(kCoverOpenInterruptNumber);
-    }
-    Serial.print("open_pressed_count: ");
-    Serial.println(open_pressed_count_copy);
-    Serial.print("first_open_pressed_micros: ");
-    Serial.println(first_open_pressed_micros);
-  }
-
-  auto close_pressed_count_copy = close_pressed_count;
-  if (close_pressed_count_copy > 0) {
-    auto now = micros();
-    if (kTestMode == kCountBounces) {
-      noInterrupts();
-      auto first_close_pressed_micros_copy = first_close_pressed_micros;
-      interrupts();
-      if (now - first_close_pressed_micros_copy > 500) {
-        detachInterrupt(kCoverCloseInterruptNumber);
-      }
-    } else {
-      detachInterrupt(kCoverCloseInterruptNumber);
-    }
-    Serial.print("close_pressed_count: ");
-    Serial.println(close_pressed_count_copy);
-    Serial.print("first_close_pressed_micros: ");
-    Serial.println(first_close_pressed_micros);
-  }
-}
+void loop() {}
