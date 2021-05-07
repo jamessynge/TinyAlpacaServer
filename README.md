@@ -15,8 +15,8 @@ The Arduino sketch using alpaca::TinyAlpacaServer configures the server instance
 with device specific information, after which the server takes care of
 responding to requests and delegating requests for information or action to
 device specific code provided by the sketch. See
-[TinyAlpacaServerDemo](examples/TinyAlpacaServerDemo.ino) for an example of how
-to use the server.
+[TinyAlpacaServerDemo](examples/TinyAlpacaServerDemo/TinyAlpacaServerDemo.ino)
+for an example of how to use the server.
 
 This library has been developed using the Ethernet3 library, which supports the
 [WIZnet W5500](https://www.wiznet.io/product-item/w5500/) networking offload

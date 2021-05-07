@@ -1,30 +1,70 @@
-** Pin Avoidance
+## Pin Avoidance
 
 Pins we must, should or may want to avoid on the Robotdyn Mega ETH:
 
-| Arduino Mega Pin | Avoid? | Reserved Purpose                                 |
-| ---------------- | ------ | ------------------------------------------------ |
-| D0 (RX)          | Must   | Serial Input                                     |
-| D1 (TX)          | Must   | Serial Output                                    |
-| D4               | Should | Micro SD Chip Select (Must avoid to use SD card) |
-| D7               | Maybe  | W5500 Hard Reset (Not connected by default, but  |
-:                  :        : Alan has done so on his boards)                  :
-| D8               | Maybe  | W5500 Interrupts (Not connected by default)      |
-| D9               | Maybe  | Micro SD card detect (Not connected by default,  |
-:                  :        : but probably a good idea unless it is easy to to :
-:                  :        : so by other means)                               :
-| D10              | Must   | W5500 Chip Select (with SPI)                     |
-| D13              | Maybe  | Built-in LED (useful for status output, but it   |
-:                  :        : is also an ouptut pin for two different          :
-:                  :        : timer/counters, 0 and 1)                         :
-| D14 (TX3)        | Maybe  | ESP-01 Daughter board (Optional accessory, not   |
-:                  :        : used for the AstroMakers CoverCalibrator)        :
-| D15 (RX3)        | Maybe  | ESP-01 Daughter board (Optional)                 |
-| D50 (MISO)       | Must   | SPI for W5500 and micro SD card                  |
-| D51 (MOSI/DI)    | Must   | SPI for W5500 and micro SD card                  |
-| D52 (SCK/CLK)    | Must   | SPI for W5500 and micro SD card                  |
+Arduino Mega Pin | Avoid? | Reserved or Optional Purpose
+---------------- | ------ | -------------------------------
+D0 (RX)          | Should | Serial Input
+D1 (TX)          | Should | Serial Output
+D4               | Must   | Micro SD Chip Select
+D7               | Should | W5500 Hard Reset
+D8               | Maybe  | W5500 Interrupt
+D9               | Should | Micro SD card detect
+D10              | Must   | W5500 Chip Select
+D13              | Maybe  | Built-in LED
+D14 (TX3)        | Maybe  | Optional ESP-01 Daughter board
+D15 (RX3)        | Maybe  | Optional ESP-01 Daughter board
+D50 (MISO)       | Must   | SPI for W5500 and micro SD card
+D51 (MOSI/DI)    | Must   | SPI for W5500 and micro SD card
+D52 (SCK/CLK)    | Must   | SPI for W5500 and micro SD card
 
-** Pin Selection
+Notes:
+
+*   D0 and D1 are used for Serial input and output. While this feature isn't
+    essential in production, it is for debugging, and we might choose to use
+    them during configuration of a new device, e.g. running a (separate?) sketch
+    to store a MAC address and other hardware information.
+
+*   Chip select data lines D4 and D10 are used together with the 3 required
+    [SPI data lines](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface)
+    (MISO, MOSI, SCLK, i.e. D50, D51 and D52) to indicate the one peripheral
+    with which the host (the ATmega2560 in this case) is communicating. Since we
+    require the W5500 for communication and want to use the SD card as a source
+    of web pages (and possibly as a place to store configuration data), we need
+    to avoid using their chip select pins for other purposes.
+
+*   D7 may be connected to the RSTn pin of W5500 chip, enabling the ATmega2560
+    to force a hard reset of the network chip. The connection is formed by
+    creating a solder bridge on the back of the board between two adjacent pads
+    labeled D7. So far using this feature hasn't been necessary (i.e. soft reset
+    has worked at startup), but it seems prudent to leave it available.
+
+*   D8 may be connected to the INTn pin of W5500 chip, enabling it to signal to
+    the ATmega2560 for certain conditions occur (e.g. when a Wake-on-LAN packet
+    is received or when a new TCP connection is established). We're not planning
+    to need these interrupts, so we may use D8 for other purposes (e.g. for PWM
+    output associated with OC4C).
+
+*   D9 may be connected to a Card Detect pin of the Micro SD Card socket on the
+    Mega ETH board. This is done by creating a solder bridge on the back of the
+    board between two adjacent pads labeled D9.
+
+    NOTE: I'm not certain yet whether D9 is pulled low when a chip is inserted,
+    but that seems most likely.
+
+*   D13 is a rather overloaded pin. It can be used as a regular GPIO pin, but is
+    also hooked up to an LED on the board (for output), is the output pin for
+    two different timer/counter peripherals of the ATmega2560 and can be used as
+    a pin-change interrupt input. It is most likely that we'll want to use it as
+    an output pin.
+
+*   D14 and D15 may be used for talking to an (optional) ESP-01 daughter board.
+    Since we're planning on receiving Power-over-Ethernet and communicating
+    using the W5500 (i.e. the reasons that we chose the Robotdyn Mega ETH), it
+    is unlikely that also we'll add an ESP-01, so it seems safe to use those two
+    pins.
+
+## Pin Selection
 
 The "unchanged" and "was N" comments are relative to Rev. 6 of the AstroMakers
 Cover Calibrator schematic.
@@ -61,7 +101,7 @@ Arduino Mega Pin | ATmega2560 Name | Purpose                 | Comment
 12               | xxx             | xxx                     | zzz
 13               | xxx             | xxx                     | zzz
 
-** Pin Selection Analysis
+## Pin Selection Analysis
 
 For the limit switches, we've already selected pins that can be used for
 triggering an interrupt when one of those pins is held low AND the External
@@ -69,18 +109,20 @@ Interrupt Control Register A (for INT0 through INT3) enables that pin to
 interrupt. This means that we should do the following when preparing to close
 the cover:
 
-1) Set volatile field current_action_ that indicates we're moving the cover
-towards closed (e.g. an enum field, where the enum has enumerators kNotMoving,
-kOpening, kClosing). 2) Enable the "pin low" interrupt for detecting that the
-cover is closed (e.g. INT0 is LOW). When that interrupt is trigged, it should
-set field current_action_ to kNotMoving and then should disable itself; note
-that it is possible that the switch is bouncy, and may first indicate the limit
-is reached slightly earlier (see below); it that turns out to be true, we may
-need to debounce in either the interrupt handler, or in some main loop() code.
-3) Configure PWM or a timer/counter with interrupt on overflow or match; the
-latter would have the benefit that the PWM pulse isn't automatically generated,
-but instead allows a small amount of logic to decide whether to emit the pulse,
-including doing debouncing before disabling the timer.
+1.  Set volatile field current_action_ that indicates we're moving the cover
+    towards closed (e.g. an enum field, where the enum has enumerators
+    kNotMoving, kOpening, kClosing).
+2.  Enable the "pin low" interrupt for detecting that the cover is closed (e.g.
+    INT0 is LOW). When that interrupt is trigged, it should set field
+    current_action_ to kNotMoving and then should disable itself; note that it
+    is possible that the switch is bouncy, and may first indicate the limit is
+    reached slightly earlier (see below); it that turns out to be true, we may
+    need to debounce in either the interrupt handler, or in some main loop()
+    code.
+3.  Configure PWM or a timer/counter with interrupt on overflow or match; the
+    latter would have the benefit that the PWM pulse isn't automatically
+    generated, but instead allows a small amount of logic to decide whether to
+    emit the pulse, including doing debouncing before disabling the timer.
 
 Arduino Mega pins 11 and 12, i.e. PB5 and PB6, can be used as 16-bit T/C 1
 outputs OC1A and OC1B, can also be used as Pin Change Interrupts.
