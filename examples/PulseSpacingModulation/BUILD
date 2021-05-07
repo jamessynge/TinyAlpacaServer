@@ -5,5 +5,6 @@ cc_library(
     srcs = ["PulseSpacingModulation.ino.cc"],
     deps = [
         ":TinyAlpacaServer",
+        ":avr_io",
     ],
 )

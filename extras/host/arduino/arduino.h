@@ -79,4 +79,6 @@ inline void detachInterrupt(uint8_t interruptNum) {}
 #define bitWrite(value, bit, bitvalue) \
   ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
 
+#define F_CPU 16000000
+
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_ARDUINO_H_

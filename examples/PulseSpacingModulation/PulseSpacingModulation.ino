@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
+#include "extras/host/arduino/avr_io.h"
+
 // An experiment in generating a pulse of ~constant duration spaced at varying
 // intervals using AVR Timer/Counter interrupts. This is sort of like using the
 // PWM feature to generate pulses of varying width, but where the pulse is of
@@ -13,7 +15,13 @@
 //
 // Concretely, Alan has used AccelStepper to drive the CoverCalibrator stepper
 // motor at a requesed 10K microsteps per second (a step every 100us), which
-// seemed to be the maximum achieveable
+// seemed to be the maximum achieveable speed (above that the motor would miss
+// steps or completely stall).
+//
+// I've learned how to write this from various sources: primarily the Microchip
+// datasheet for the ATmega2560, but also from various public examples,
+// including TimerOne which has a good example of how to use the phase correct
+// PWM mode and the interrupt on overflow feature of the AVR chip.
 
 #define kCoverMotorStepPin 3
 #define kCoverMotorDirectionPin 5
@@ -22,6 +30,7 @@
 
 #define kStepsPerSecond 20000
 
+namespace {
 enum MovementMode {
   kNotMoving,
   kStopMoving,
@@ -31,12 +40,21 @@ enum MovementMode {
 
 volatile MovementMode movement_mode = kNotMoving;
 
+enum class ClockPrescaling : uint8_t {
+  kAsIs = 0 << CS52 | 0 << CS52 | 1 << CS50,
+  kDivideBy1 = kAsIs,
+  kDivideBy8 = 0 << CS52 | 1 << CS52 | 0 << CS50,
+  kDivideBy64 = 0 << CS52 | 1 << CS52 | 1 << CS50,
+  kDivideBy256 = 1 << CS52 | 0 << CS52 | 0 << CS50,
+  kDivideBy1024 = 1 << CS52 | 0 << CS52 | 1 << CS50,
+};
+
 // volatile uint8_t *step_pin_port;
 // volatile uint8_t step_pin_mask;
 
 volatile uint8_t limit_pin;
-volatile uint8_t* limit_pin_port;
-volatile uint8_t limit_pin_mask;
+// volatile uint8_t* limit_pin_port;
+// volatile uint8_t limit_pin_mask;
 
 // If > 0, then is reduced until it reaches zero at which point the counter is
 // disabled.
@@ -44,14 +62,143 @@ volatile bool apply_allowed_steps = false;
 volatile uint32_t allowed_steps = 0;
 volatile uint32_t step_count = 0;
 
-inline void DoStep() {
-  // Writing using step_pin_port and step_pin_mask is likely to be much faster.
-  digitalWrite(kCoverMotorStepPin, HIGH);
-  delayMicroseconds(1);
-  digitalWrite(kCoverMotorStepPin, LOW);
+void DisableTimer5() {
+  TCCR5A = 0;
+  TCCR5B = 0;
+  TCCR5C = 0;
+  TIMSK5 = 0;
+  ICR5 = 0;
+  TCNT5 = 0;
 }
 
-ISR(TIMER5_COMPC_vect) {
+// F_CPU is defined by the build system to the (standard) number of system clock
+// cycles per second (e.g. 16,000,000 for the ATmega2560). Note that we depend
+// here on the compiler performing these calculations at compile time and just
+// leaving us with constants in the expressions.
+constexpr double kSystemClockTicksPerMicrosecond = F_CPU / 1000000.0;
+constexpr double kSystemClockTickDurationMicroseconds =
+    1.0 / kSystemClockTicksPerMicrosecond;
+constexpr uint32_t kMaxDualSlopeTicks = 0xFFFF * 2UL;
+constexpr uint32_t kPrescaleBy1MaxDualSlopeMicroseconds = static_cast<uint32_t>(
+    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds + 0.5);
+constexpr uint32_t kPrescaleBy8MaxDualSlopeMicroseconds = static_cast<uint32_t>(
+    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 8 + 0.5);
+constexpr uint32_t kPrescaleBy64MaxDualSlopeMicroseconds =
+    static_cast<uint32_t>(
+        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 64 + 0.5);
+constexpr uint32_t kPrescaleBy256MaxDualSlopeMicroseconds =
+    static_cast<uint32_t>(
+        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 256 + 0.5);
+constexpr uint32_t kPrescaleBy1024MaxDualSlopeMicroseconds =
+    static_cast<uint32_t>(
+        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 1024 + 0.5);
+
+// period_us is the desired time between interrupts in microseconds. We use WGM
+// mode 9, i.e. Phase and Frequency Correct PWM Mode. In this mode TCNT5 is
+// incremented by one at each clock tick until it reaches TOP (OCR5A) , then
+// decremented down to BOTTOM (0), at which point it starts incrementing up
+// again. This dual slope operation means that the period is 2 * TOP, i.e. 2 *
+// OCR5A. Note that the counter is at TOP for only one clock cycle (I don't know
+// if that also means that the counter is at BOTTOM for only one clock cycle,
+// but that seems likely).
+//
+// To achieve an interrupt interval closest to the requested period, we want to
+// use the least amount of prescaling of the system clock such that twice the
+// value of MAX (0xFFFF) is bigger than the desired period; this results in the
+// smallest time between one counter increment and the next.
+//
+// The overflow interrupt occurs each time the counter reaches BOTTOM.
+void AdjustTimerPeriod(uint32_t period_us) {
+  uint8_t a = 1 << WGM50;
+  uint8_t b = 1 << WGM53;
+  uint16_t top;
+
+  // Convert the period into 1/2 the number of system clock cycles for that same
+  // duration. This somewhat convoluted expression deals with the precision
+  // issues of multiplying and dividing integers. For example (F_CPU / 100,000)
+  // is the number of clock cycles in 10 microseconds.
+  const uint32_t half_period_cycles = ((F_CPU / 100000) * period_us) / 20;
+  constexpr uint32_t kMaxCount = 65536UL;
+
+  if (half_period_cycles < kMaxCount) {
+    b |= static_cast<uint8_t>(ClockPrescaling::kDivideBy1);
+    top = half_period_cycles;
+  } else if (half_period_cycles < kMaxCount * 8) {
+    b |= static_cast<uint8_t>(ClockPrescaling::kDivideBy8);
+    top = half_period_cycles / 8;
+  } else if (half_period_cycles < kMaxCount * 64) {
+    b |= static_cast<uint8_t>(ClockPrescaling::kDivideBy64);
+    top = half_period_cycles / 64;
+  } else if (half_period_cycles < kMaxCount * 256) {
+    b |= static_cast<uint8_t>(ClockPrescaling::kDivideBy256);
+    top = half_period_cycles / 256;
+  } else {
+    TAS_DCHECK_LT(half_period_cycles, kMaxCount * 1024);
+    b |= static_cast<uint8_t>(ClockPrescaling::kDivideBy1024);
+    top = half_period_cycles / 1024;
+  }
+
+  OCR5A = top;
+  TCCR5A = a;
+  TCCR5B = b;
+}
+
+void StartTimer5(uint32_t period_us) {
+  DisableTimer5();
+  AdjustTimerPeriod(period_us);
+}
+
+void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
+                 double steps_per_second) {
+  if (movement_mode != kNotMoving) {
+    // Disable timer 5
+    DisableTimer5();
+    movement_mode = kNotMoving;
+  }
+
+  limit_pin = limit_switch_pin;
+
+  if (digitalRead(limit_pin) == LOW) {
+    // Limit switch is closed, so no need to move.
+    return;
+  }
+
+  // limit_pin_port = portOutputRegister(digitalPinToPort(limit_pin));
+  // limit_pin_mask = digitalPinToBitMask(limit_pin);
+
+  // double clock_ticks_per_second = 16000000.0;
+  // uint16_t clock_ticks_per_step = clock_ticks_per_second / steps_per_second;
+
+  apply_allowed_steps = true;
+  allowed_steps = 120000;
+  step_count = 0;
+
+  movement_mode = new_movement_mode;
+
+  StartTimer5(1000000 / steps_per_second);
+  TCNT5 = 0;
+  bitWrite(TIMSK5, TOIE5, 1);
+}
+
+void DoOpen() {
+  // Set the direction.
+  digitalWrite(kCoverMotorDirectionPin, LOW);
+
+  // Start moving the cover in that direction.
+  StartMoving(kOpening, kCoverOpenLimitPin, kStepsPerSecond);
+}
+
+void DoClose() {
+  // Set the direction.
+  digitalWrite(kCoverMotorDirectionPin, HIGH);
+
+  // Start moving the cover in that direction.
+  StartMoving(kClosing, kCoverCloseLimitPin, kStepsPerSecond);
+}
+
+}  // namespace
+
+ISR(TIMER5_OVF_vect) {
   if (movement_mode == kOpening || movement_mode == kClosing) {
     // Reached the limit?
     if (digitalRead(limit_pin) == HIGH) {
@@ -69,9 +216,7 @@ ISR(TIMER5_COMPC_vect) {
   }
 
   // Shutoff the timer...
-
-  // Disable timer 5
-  bitWrite(TIMSK5, OCIE5C, 0);
+  TIMSK5 = 0;
 }
 
 void setup() {
@@ -92,58 +237,6 @@ void setup() {
   pinMode(kCoverMotorDirectionPin, OUTPUT);
   pinMode(kCoverOpenLimitPin, INPUT_PULLUP);
   pinMode(kCoverCloseLimitPin, INPUT_PULLUP);
-
-  // Put timer 5 into "Clear Timer on Compare Match" (CTC) Mode, with no scaling
-  // of the built-in clock (i.e. 16MHz if a normal Arduino Mega).
-  TCCR5A = 0;
-  TCCR5B = 1 << WGM52 | 1 << CS50;
-}
-
-void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
-                 double steps_per_second) {
-  if (movement_mode != kNotMoving) {
-    // Disable timer 5
-    bitWrite(TIMSK5, OCIE5C, 0);
-    movement_mode = kNotMoving;
-  }
-
-  limit_pin = limit_switch_pin;
-
-  if (digitalRead(limit_pin) == LOW) {
-    // Limit switch is closed, so no need to move.
-    return;
-  }
-
-  // limit_pin_port = portOutputRegister(digitalPinToPort(limit_pin));
-  // limit_pin_mask = digitalPinToBitMask(limit_pin);
-
-  double clock_ticks_per_second = 16000000.0;
-  uint16_t clock_ticks_per_step = clock_ticks_per_second / steps_per_second;
-
-  apply_allowed_steps = true;
-  allowed_steps = 120000;
-  step_count = 0;
-
-  movement_mode = new_movement_mode;
-  OCR5C = clock_ticks_per_step;
-  TCNT5 = 0;
-  bitWrite(TIMSK5, OCIE5A, 1);
-}
-
-void DoOpen() {
-  // Set the direction.
-  digitalWrite(kCoverMotorDirectionPin, LOW);
-
-  // Start moving the cover in that direction.
-  StartMoving(kOpening, kCoverOpenLimitPin, kStepsPerSecond);
-}
-
-void DoClose() {
-  // Set the direction.
-  digitalWrite(kCoverMotorDirectionPin, HIGH);
-
-  // Start moving the cover in that direction.
-  StartMoving(kClosing, kCoverCloseLimitPin, kStepsPerSecond);
 }
 
 void loop() {
