@@ -29,7 +29,6 @@
 #define kCoverOpenLimitPin 20
 #define kCoverCloseLimitPin 21
 
-#define kStepsPerSecond 7000
 #define kMaximumAllowedSteps 1000000
 
 namespace {
@@ -63,6 +62,10 @@ volatile uint8_t limit_pin;
 volatile bool apply_allowed_steps = false;
 volatile uint32_t allowed_steps = 0;
 volatile uint32_t step_count = 0;
+
+// Amount of time we spent
+uint32_t start_timer_micros = 0;
+uint32_t stop_timer_micros = 0;
 
 void DisableTimer5() {
   TCCR5A = 0;
@@ -140,11 +143,12 @@ void AdjustTimerPeriod(uint32_t period_us) {
     top = half_period_cycles / 1024;
   }
 
-  TAS_VLOG(1) << "a=0x" << alpaca::BaseHex << a;
-  TAS_VLOG(1) << "b=0x" << alpaca::BaseHex << b;
-  TAS_VLOG(1) << "top=" <<  top << " (0x" << alpaca::BaseHex << top << ")";
-
-  delay(50);
+  TAS_VLOG(1) << "period_us=" << period_us
+              << ", top=" <<  top
+              << " (0x" << alpaca::BaseHex << top
+              << "), a=0x" << a
+              << ", b=0x" << alpaca::BaseHex << b;
+  delay(20);
 
   noInterrupts();
   OCR5A = top;
@@ -157,11 +161,12 @@ void AdjustTimerPeriod(uint32_t period_us) {
 void StartTimer5(uint32_t period_us) {
   DisableTimer5();
 
-
-  TAS_VLOG(1) << "StartTimer5(" << period_us << ")";
+  TAS_VLOG(5) << "StartTimer5(" << period_us << ")";
   delay(20);
 
   AdjustTimerPeriod(period_us);
+  start_timer_micros = micros();
+  bitWrite(TIMSK5, TOIE5, 1);
 }
 
 void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
@@ -197,25 +202,23 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
 
   movement_mode = new_movement_mode;
 
-  StartTimer5(1000000 / steps_per_second);
-  TCNT5 = 0;
-  bitWrite(TIMSK5, TOIE5, 1);
+  StartTimer5(1000000 / steps_per_second + 0.5);
 }
 
-void DoOpen() {
+void DoOpen(uint16_t steps_per_second) {
   // Set the direction.
   digitalWrite(kCoverMotorDirectionPin, LOW);
 
   // Start moving the cover in that direction.
-  StartMoving(kOpening, kCoverOpenLimitPin, kStepsPerSecond);
+  StartMoving(kOpening, kCoverOpenLimitPin, steps_per_second);
 }
 
-void DoClose() {
+void DoClose(uint16_t steps_per_second) {
   // Set the direction.
   digitalWrite(kCoverMotorDirectionPin, HIGH);
 
   // Start moving the cover in that direction.
-  StartMoving(kClosing, kCoverCloseLimitPin, kStepsPerSecond);
+  StartMoving(kClosing, kCoverCloseLimitPin, steps_per_second);
 }
 
 }  // namespace
@@ -231,7 +234,7 @@ ISR(TIMER5_OVF_vect) {
       delayMicroseconds(2);
       digitalWrite(kCoverMotorStepPin, LOW);
       ++step_count;
-      if (!apply_allowed_steps || allowed_steps > ++step_count) {
+      if (!apply_allowed_steps || allowed_steps > step_count) {
         return;
       }
     }
@@ -240,6 +243,7 @@ ISR(TIMER5_OVF_vect) {
   // Shutoff the timer...
   TIMSK5 = 0;
   movement_mode = kNotMoving;
+  stop_timer_micros = micros();
 }
 
 void setup() {
@@ -264,44 +268,39 @@ void setup() {
 
 void loop() {
   static bool open_next = true;
-  static uint32_t start_micros = 0;
-  static uint32_t last_announce_millis;
-  auto now = micros();
-
-  bool announce = (movement_mode != kNotMoving && (millis() - last_announce_millis > 2000)) ||
-                  (movement_mode == kNotMoving && step_count > 0);
-
-  if (announce) {
-    last_announce_millis = millis();
-    auto elapsed = now - start_micros;
-    Serial.print("step_count=");
-    Serial.print(step_count);
-    Serial.print(", elapsed_micros=");
-    Serial.print(elapsed);
-    Serial.print(", elapsed_seconds=");
-    Serial.print(elapsed / 1000000.0, 3);
-    Serial.print(", micros/step=");
-    Serial.println(elapsed / step_count);
-    Serial.println();
-  }
+  static uint16_t steps_per_second = 15000;
+  static uint16_t start_count = 0;
 
   if (movement_mode == kNotMoving) {
+    if (step_count > 0) {
+      const auto elapsed_us = stop_timer_micros - start_timer_micros;
+      const double elapsed_s = elapsed_us / 1000000.0;
+      const double steps_per_s = step_count / elapsed_s;
+      const double pct_target = steps_per_s / steps_per_second * 100.0;
+      TAS_VLOG(1) << "steps=" << step_count
+                  << ", elapsed_us=" << elapsed_us
+                  << ", elapsed_s=" << elapsed_s
+                  << ", steps/s=" << steps_per_s
+                  << ", % target steps/s=" << pct_target
+                  << "\n";
+    }
+    start_timer_micros = 0;
+    stop_timer_micros = 0;
+    step_count = 0;
+    if (++start_count > 4) {
+      start_count = 0;
+      steps_per_second += 100;
+    }
     if (open_next) {
       open_next = false;
-      last_announce_millis = millis();
       Serial.println("DoOpen ...");
-      delay(100);
-      start_micros = micros();
-      DoOpen();
-      delay(10);
+      delay(20);
+      DoOpen(steps_per_second);
     } else {
       open_next = true;
-      last_announce_millis = millis();
       Serial.println("DoClose ...");
-      delay(100);
-      start_micros = micros();
-      DoClose();
-      delay(10);
+      delay(20);
+      DoClose(steps_per_second);
     }
   }
 }
