@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
-#include "extras/host/arduino/avr_io.h"
-
 // An experiment in generating a pulse of ~constant duration spaced at varying
 // intervals using AVR Timer/Counter interrupts. This is sort of like using the
 // PWM feature to generate pulses of varying width, but where the pulse is of
@@ -23,12 +21,16 @@
 // including TimerOne which has a good example of how to use the phase correct
 // PWM mode and the interrupt on overflow feature of the AVR chip.
 
+
+// These are the rev 6 pin definitions, not necessarily those we desire to use
+// long-term:
 #define kCoverMotorStepPin 3
-#define kCoverMotorDirectionPin 5
+#define kCoverMotorDirectionPin 4
 #define kCoverOpenLimitPin 20
 #define kCoverCloseLimitPin 21
 
-#define kStepsPerSecond 20000
+#define kStepsPerSecond 7000
+#define kMaximumAllowedSteps 1000000
 
 namespace {
 enum MovementMode {
@@ -77,21 +79,21 @@ void DisableTimer5() {
 // leaving us with constants in the expressions.
 constexpr double kSystemClockTicksPerMicrosecond = F_CPU / 1000000.0;
 constexpr double kSystemClockTickDurationMicroseconds =
-    1.0 / kSystemClockTicksPerMicrosecond;
+  1.0 / kSystemClockTicksPerMicrosecond;
 constexpr uint32_t kMaxDualSlopeTicks = 0xFFFF * 2UL;
 constexpr uint32_t kPrescaleBy1MaxDualSlopeMicroseconds = static_cast<uint32_t>(
-    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds + 0.5);
+      kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds + 0.5);
 constexpr uint32_t kPrescaleBy8MaxDualSlopeMicroseconds = static_cast<uint32_t>(
-    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 8 + 0.5);
+      kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 8 + 0.5);
 constexpr uint32_t kPrescaleBy64MaxDualSlopeMicroseconds =
-    static_cast<uint32_t>(
-        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 64 + 0.5);
+  static_cast<uint32_t>(
+    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 64 + 0.5);
 constexpr uint32_t kPrescaleBy256MaxDualSlopeMicroseconds =
-    static_cast<uint32_t>(
-        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 256 + 0.5);
+  static_cast<uint32_t>(
+    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 256 + 0.5);
 constexpr uint32_t kPrescaleBy1024MaxDualSlopeMicroseconds =
-    static_cast<uint32_t>(
-        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 1024 + 0.5);
+  static_cast<uint32_t>(
+    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 1024 + 0.5);
 
 // period_us is the desired time between interrupts in microseconds. We use WGM
 // mode 9, i.e. Phase and Frequency Correct PWM Mode. In this mode TCNT5 is
@@ -138,28 +140,48 @@ void AdjustTimerPeriod(uint32_t period_us) {
     top = half_period_cycles / 1024;
   }
 
+  TAS_VLOG(1) << "a=0x" << alpaca::BaseHex << a;
+  TAS_VLOG(1) << "b=0x" << alpaca::BaseHex << b;
+  TAS_VLOG(1) << "top=" <<  top << " (0x" << alpaca::BaseHex << top << ")";
+
+  delay(50);
+
+  noInterrupts();
   OCR5A = top;
-  TCCR5A = a;
   TCCR5B = b;
+  TCCR5A = a;
+  TCNT5 = 1;
+  interrupts();
 }
 
 void StartTimer5(uint32_t period_us) {
   DisableTimer5();
+
+
+  TAS_VLOG(1) << "StartTimer5(" << period_us << ")";
+  delay(20);
+
   AdjustTimerPeriod(period_us);
 }
 
 void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
                  double steps_per_second) {
-  if (movement_mode != kNotMoving) {
+  MovementMode copy = movement_mode;
+  if (copy != kNotMoving) {
     // Disable timer 5
     DisableTimer5();
     movement_mode = kNotMoving;
+    TAS_VLOG(1) << "movement_mode was " << copy << ", now " << movement_mode;
   }
+
+  TAS_VLOG(1) << "StartMoving(" << new_movement_mode << ", "
+              << limit_switch_pin << ", " << steps_per_second << ")";
+  delay(20);
 
   limit_pin = limit_switch_pin;
 
   if (digitalRead(limit_pin) == LOW) {
-    // Limit switch is closed, so no need to move.
+    TAS_VLOG(1) << "Limit switch is closed, so no need to move.";
     return;
   }
 
@@ -170,7 +192,7 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
   // uint16_t clock_ticks_per_step = clock_ticks_per_second / steps_per_second;
 
   apply_allowed_steps = true;
-  allowed_steps = 120000;
+  allowed_steps = kMaximumAllowedSteps;
   step_count = 0;
 
   movement_mode = new_movement_mode;
@@ -206,7 +228,7 @@ ISR(TIMER5_OVF_vect) {
       // Writing using step_pin_port and step_pin_mask is likely to be much
       // faster.
       digitalWrite(kCoverMotorStepPin, HIGH);
-      delayMicroseconds(1);
+      delayMicroseconds(2);
       digitalWrite(kCoverMotorStepPin, LOW);
       ++step_count;
       if (!apply_allowed_steps || allowed_steps > ++step_count) {
@@ -217,6 +239,7 @@ ISR(TIMER5_OVF_vect) {
 
   // Shutoff the timer...
   TIMSK5 = 0;
+  movement_mode = kNotMoving;
 }
 
 void setup() {
@@ -242,34 +265,43 @@ void setup() {
 void loop() {
   static bool open_next = true;
   static uint32_t start_micros = 0;
+  static uint32_t last_announce_millis;
   auto now = micros();
 
-  if (movement_mode != kNotMoving) {
-    return;
-  }
+  bool announce = (movement_mode != kNotMoving && (millis() - last_announce_millis > 2000)) ||
+                  (movement_mode == kNotMoving && step_count > 0);
 
-  if (step_count > 0) {
+  if (announce) {
+    last_announce_millis = millis();
     auto elapsed = now - start_micros;
     Serial.print("step_count=");
     Serial.print(step_count);
     Serial.print(", elapsed_micros=");
     Serial.print(elapsed);
+    Serial.print(", elapsed_seconds=");
+    Serial.print(elapsed / 1000000.0, 3);
     Serial.print(", micros/step=");
     Serial.println(elapsed / step_count);
     Serial.println();
   }
 
-  if (open_next) {
-    open_next = false;
-    Serial.println("DoOpen ...");
-    delay(100);
-    start_micros = micros();
-    DoOpen();
-  } else {
-    open_next = true;
-    Serial.println("DoClose ...");
-    delay(100);
-    start_micros = micros();
-    DoClose();
+  if (movement_mode == kNotMoving) {
+    if (open_next) {
+      open_next = false;
+      last_announce_millis = millis();
+      Serial.println("DoOpen ...");
+      delay(100);
+      start_micros = micros();
+      DoOpen();
+      delay(10);
+    } else {
+      open_next = true;
+      last_announce_millis = millis();
+      Serial.println("DoClose ...");
+      delay(100);
+      start_micros = micros();
+      DoClose();
+      delay(10);
+    }
   }
 }
