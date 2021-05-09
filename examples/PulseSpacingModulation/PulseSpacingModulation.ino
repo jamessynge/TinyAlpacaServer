@@ -29,7 +29,7 @@
 #define kCoverOpenLimitPin 20
 #define kCoverCloseLimitPin 21
 
-#define kMaximumAllowedSteps 1000000
+#define kMaximumAllowedSteps 150000
 
 namespace {
 enum MovementMode {
@@ -63,9 +63,11 @@ volatile bool apply_allowed_steps = false;
 volatile uint32_t allowed_steps = 0;
 volatile uint32_t step_count = 0;
 
+volatile uint16_t target_top = 0;
+
 // Amount of time we spent
-uint32_t start_timer_micros = 0;
-uint32_t stop_timer_micros = 0;
+volatile uint32_t start_timer_micros = 0;
+volatile uint32_t stop_timer_micros = 0;
 
 void DisableTimer5() {
   TCCR5A = 0;
@@ -113,7 +115,7 @@ constexpr uint32_t kPrescaleBy1024MaxDualSlopeMicroseconds =
 // smallest time between one counter increment and the next.
 //
 // The overflow interrupt occurs each time the counter reaches BOTTOM.
-void AdjustTimerPeriod(uint32_t period_us) {
+void AdjustTimerPeriod(uint32_t period_ns) {
   uint8_t a = 1 << WGM50;
   uint8_t b = 1 << WGM53;
   uint16_t top;
@@ -122,7 +124,7 @@ void AdjustTimerPeriod(uint32_t period_us) {
   // duration. This somewhat convoluted expression deals with the precision
   // issues of multiplying and dividing integers. For example (F_CPU / 100,000)
   // is the number of clock cycles in 10 microseconds.
-  const uint32_t half_period_cycles = ((F_CPU / 100000) * period_us) / 20;
+  const uint32_t half_period_cycles = ((F_CPU / 100000) * period_ns) / 20000;
   constexpr uint32_t kMaxCount = 65536UL;
 
   if (half_period_cycles < kMaxCount) {
@@ -143,7 +145,12 @@ void AdjustTimerPeriod(uint32_t period_us) {
     top = half_period_cycles / 1024;
   }
 
-  TAS_VLOG(1) << "period_us=" << period_us
+  target_top = top;
+  auto initial_top = top * 32UL;
+  top = min(65535, initial_top);
+
+  TAS_VLOG(1) << "period_ns=" << period_ns
+              << ", target_top=" << target_top
               << ", top=" <<  top
               << " (0x" << alpaca::BaseHex << top
               << "), a=0x" << a
@@ -158,13 +165,13 @@ void AdjustTimerPeriod(uint32_t period_us) {
   interrupts();
 }
 
-void StartTimer5(uint32_t period_us) {
+void StartTimer5(uint32_t period_ns) {
   DisableTimer5();
 
-  TAS_VLOG(5) << "StartTimer5(" << period_us << ")";
+  TAS_VLOG(5) << "StartTimer5(" << period_ns << ")";
   delay(20);
 
-  AdjustTimerPeriod(period_us);
+  AdjustTimerPeriod(period_ns);
   start_timer_micros = micros();
   bitWrite(TIMSK5, TOIE5, 1);
 }
@@ -202,7 +209,9 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
 
   movement_mode = new_movement_mode;
 
-  StartTimer5(1000000 / steps_per_second + 0.5);
+  uint32_t period_ns = 1000000000.0 / steps_per_second + 0.5;
+
+  StartTimer5(period_ns);
 }
 
 void DoOpen(uint16_t steps_per_second) {
@@ -235,15 +244,23 @@ ISR(TIMER5_OVF_vect) {
       digitalWrite(kCoverMotorStepPin, LOW);
       ++step_count;
       if (!apply_allowed_steps || allowed_steps > step_count) {
+        if (target_top != 0) {
+          uint16_t current_target = OCR5A;
+          uint32_t new_target = (current_target * 15 + target_top) / 16;
+          OCR5A = new_target;
+          if (new_target <= target_top) {
+            target_top = 0;
+          }
+        }
         return;
       }
     }
   }
 
   // Shutoff the timer...
-  TIMSK5 = 0;
-  movement_mode = kNotMoving;
   stop_timer_micros = micros();
+  movement_mode = kNotMoving;
+  TIMSK5 = 0;
 }
 
 void setup() {
@@ -268,7 +285,7 @@ void setup() {
 
 void loop() {
   static bool open_next = true;
-  static uint16_t steps_per_second = 15000;
+  static uint16_t steps_per_second = 19500;
   static uint16_t start_count = 0;
 
   if (movement_mode == kNotMoving) {
@@ -289,17 +306,17 @@ void loop() {
     step_count = 0;
     if (++start_count > 4) {
       start_count = 0;
-      steps_per_second += 100;
+      steps_per_second += 50;
     }
     if (open_next) {
       open_next = false;
       Serial.println("DoOpen ...");
-      delay(20);
+      delay(500);  // Longer because in current orientation open requires more torque at the start.
       DoOpen(steps_per_second);
     } else {
       open_next = true;
       Serial.println("DoClose ...");
-      delay(20);
+      delay(100);
       DoClose(steps_per_second);
     }
   }
