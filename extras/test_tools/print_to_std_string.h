@@ -1,8 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_PRINT_TO_STD_STRING_H_
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_PRINT_TO_STD_STRING_H_
 
-// Helps with testing methods that accept a Print& instance and print/write to
-// it.
+// PrintToStdString helps with testing methods that accept a Print object and
+// print/write to it. And PrintValueToStdString helps with formatting values for
+// which we have Arduino compatible formatters, but not std::ostream formatters.
 //
 // Author: james.synge@gmail.com
 

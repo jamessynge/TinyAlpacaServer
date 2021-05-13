@@ -20,7 +20,11 @@
 // datasheet for the ATmega2560, but also from various public examples,
 // including TimerOne which has a good example of how to use the phase correct
 // PWM mode and the interrupt on overflow feature of the AVR chip.
-
+//
+// I also found this page useful for learning and understanding the terminology
+// of stepper motors and the torque they can generate:
+//
+//   https://www.orientalmotor.com/stepper-motors/technology/speed-torque-curves-for-stepper-motors.html
 
 // These are the rev 6 pin definitions, not necessarily those we desire to use
 // long-term:
@@ -84,21 +88,21 @@ void DisableTimer5() {
 // leaving us with constants in the expressions.
 constexpr double kSystemClockTicksPerMicrosecond = F_CPU / 1000000.0;
 constexpr double kSystemClockTickDurationMicroseconds =
-  1.0 / kSystemClockTicksPerMicrosecond;
+    1.0 / kSystemClockTicksPerMicrosecond;
 constexpr uint32_t kMaxDualSlopeTicks = 0xFFFF * 2UL;
 constexpr uint32_t kPrescaleBy1MaxDualSlopeMicroseconds = static_cast<uint32_t>(
-      kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds + 0.5);
+    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds + 0.5);
 constexpr uint32_t kPrescaleBy8MaxDualSlopeMicroseconds = static_cast<uint32_t>(
-      kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 8 + 0.5);
+    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 8 + 0.5);
 constexpr uint32_t kPrescaleBy64MaxDualSlopeMicroseconds =
-  static_cast<uint32_t>(
-    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 64 + 0.5);
+    static_cast<uint32_t>(
+        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 64 + 0.5);
 constexpr uint32_t kPrescaleBy256MaxDualSlopeMicroseconds =
-  static_cast<uint32_t>(
-    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 256 + 0.5);
+    static_cast<uint32_t>(
+        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 256 + 0.5);
 constexpr uint32_t kPrescaleBy1024MaxDualSlopeMicroseconds =
-  static_cast<uint32_t>(
-    kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 1024 + 0.5);
+    static_cast<uint32_t>(
+        kMaxDualSlopeTicks * kSystemClockTickDurationMicroseconds * 1024 + 0.5);
 
 // period_us is the desired time between interrupts in microseconds. We use WGM
 // mode 9, i.e. Phase and Frequency Correct PWM Mode. In this mode TCNT5 is
@@ -147,14 +151,11 @@ void AdjustTimerPeriod(uint32_t period_ns) {
 
   target_top = top;
   auto initial_top = top * 32UL;
-  top = min(65535, initial_top);
+  top = min(65535UL, initial_top);
 
-  TAS_VLOG(1) << "period_ns=" << period_ns
-              << ", target_top=" << target_top
-              << ", top=" <<  top
-              << " (0x" << alpaca::BaseHex << top
-              << "), a=0x" << a
-              << ", b=0x" << alpaca::BaseHex << b;
+  TAS_VLOG(1) << "period_ns=" << period_ns << ", target_top=" << target_top
+              << ", top=" << top << " (0x" << alpaca::BaseHex << top
+              << "), a=0x" << a << ", b=0x" << alpaca::BaseHex << b;
   delay(20);
 
   noInterrupts();
@@ -186,8 +187,8 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
     TAS_VLOG(1) << "movement_mode was " << copy << ", now " << movement_mode;
   }
 
-  TAS_VLOG(1) << "StartMoving(" << new_movement_mode << ", "
-              << limit_switch_pin << ", " << steps_per_second << ")";
+  TAS_VLOG(1) << "StartMoving(" << new_movement_mode << ", " << limit_switch_pin
+              << ", " << steps_per_second << ")";
   delay(20);
 
   limit_pin = limit_switch_pin;
@@ -294,12 +295,9 @@ void loop() {
       const double elapsed_s = elapsed_us / 1000000.0;
       const double steps_per_s = step_count / elapsed_s;
       const double pct_target = steps_per_s / steps_per_second * 100.0;
-      TAS_VLOG(1) << "steps=" << step_count
-                  << ", elapsed_us=" << elapsed_us
-                  << ", elapsed_s=" << elapsed_s
-                  << ", steps/s=" << steps_per_s
-                  << ", % target steps/s=" << pct_target
-                  << "\n";
+      TAS_VLOG(1) << "steps=" << step_count << ", elapsed_us=" << elapsed_us
+                  << ", elapsed_s=" << elapsed_s << ", steps/s=" << steps_per_s
+                  << ", % target steps/s=" << pct_target << "\n";
     }
     start_timer_micros = 0;
     stop_timer_micros = 0;
@@ -311,7 +309,11 @@ void loop() {
     if (open_next) {
       open_next = false;
       Serial.println("DoOpen ...");
-      delay(500);  // Longer because in current orientation open requires more torque at the start.
+      // Longer because in the current orientation of the prototype on a table
+      // top, open requires more torque at the start because the cover is
+      // horizontal, so the motor has the most work to do to move it from
+      // stationary to rotating "upwards".
+      delay(500);
       DoOpen(steps_per_second);
     } else {
       open_next = true;

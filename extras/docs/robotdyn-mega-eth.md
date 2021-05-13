@@ -154,6 +154,10 @@ fully closed, or visa versa), requires 108300 microsteps:
 
 270 / 1.8 * 8 * 90.25 = 108300
 
+[This file](https://www.omc-stepperonline.com/download/8HS11-0204S_Torque_Curve.pdf)
+contains the Pull-Out Torque graph for the stepper motor (without the reduction
+gear).
+
 In addition to using the limit switches, it is probably a good idea to stop or
 otherwise alert if the number of steps taken is sufficient beyond the expected
 number.
