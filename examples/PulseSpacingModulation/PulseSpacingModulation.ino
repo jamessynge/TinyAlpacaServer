@@ -46,8 +46,7 @@ enum MovementMode {
 volatile MovementMode movement_mode = kNotMoving;
 
 enum class ClockPrescaling : uint8_t {
-  kAsIs = 0 << CS52 | 0 << CS52 | 1 << CS50,
-  kDivideBy1 = kAsIs,
+  kDivideBy1 = 0 << CS52 | 0 << CS52 | 1 << CS50,
   kDivideBy8 = 0 << CS52 | 1 << CS52 | 0 << CS50,
   kDivideBy64 = 0 << CS52 | 1 << CS52 | 1 << CS50,
   kDivideBy256 = 1 << CS52 | 0 << CS52 | 0 << CS50,

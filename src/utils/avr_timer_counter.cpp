@@ -37,8 +37,10 @@ size_t PrintValueTo(TimerCounterChannel v, Print& out) {
 
 PrintableProgmemString ToPrintableProgmemString(ClockPrescaling v) {
   switch (v) {
-    case ClockPrescaling::kAsIs:
-      return TASLIT("AsIs");
+    case ClockPrescaling::kDisabled:
+      return TASLIT("Disabled");
+    case ClockPrescaling::kDivideBy1:
+      return TASLIT("DivideBy1");
     case ClockPrescaling::kDivideBy8:
       return TASLIT("DivideBy8");
     case ClockPrescaling::kDivideBy64:
@@ -73,6 +75,130 @@ PrintableProgmemString ToPrintableProgmemString(TimerCounterChannel v) {
       return TASLIT("C");
   }
   return PrintableProgmemString();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+uint16_t ToClockDivisor(ClockPrescaling prescaling) {
+  switch (prescaling) {
+    case ClockPrescaling::kDivideBy1:
+      return 1;
+    case ClockPrescaling::kDivideBy8:
+      return 8;
+    case ClockPrescaling::kDivideBy64:
+      return 64;
+    case ClockPrescaling::kDivideBy256:
+      return 256;
+    case ClockPrescaling::kDivideBy1024:
+      return 1024;
+    default:
+      return 0;
+  }
+}
+
+TC16ClockAndTicks TC16ClockAndTicks::FromSystemClockCycles(
+    uint32_t system_clock_cycles) {
+  TAS_VLOG(5) << "FromSystemClockCycles " << system_clock_cycles;
+  TAS_DCHECK_LE(system_clock_cycles, kMaxSystemClockCycles)
+      << "system_clock_cycles: " << system_clock_cycles
+      << "  kMaxSystemClockCycles: " << kMaxSystemClockCycles;
+  if (system_clock_cycles <= kMaxClockTicks) {
+    if (system_clock_cycles == 0) {
+      return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
+    }
+    return {.clock_select = ClockPrescaling::kDivideBy1,
+            .clock_ticks = static_cast<uint16_t>(system_clock_cycles)};
+  } else if (system_clock_cycles <= kMaxClockTicks * 8) {
+    return {.clock_select = ClockPrescaling::kDivideBy8,
+            .clock_ticks = static_cast<uint16_t>(system_clock_cycles / 8)};
+  } else if (system_clock_cycles <= kMaxClockTicks * 64) {
+    return {.clock_select = ClockPrescaling::kDivideBy64,
+            .clock_ticks = static_cast<uint16_t>(system_clock_cycles / 64)};
+  } else if (system_clock_cycles <= kMaxClockTicks * 256) {
+    return {.clock_select = ClockPrescaling::kDivideBy256,
+            .clock_ticks = static_cast<uint16_t>(system_clock_cycles / 256)};
+  } else if (system_clock_cycles <= kMaxClockTicks * 1024) {
+    return {.clock_select = ClockPrescaling::kDivideBy1024,
+            .clock_ticks = static_cast<uint16_t>(system_clock_cycles / 1024)};
+  } else {
+    TAS_DCHECK(false) << "system_clock_cycles: " << system_clock_cycles
+                      << "  kMaxSystemClockCycles: " << kMaxSystemClockCycles;
+    return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
+  }
+}
+
+TC16ClockAndTicks TC16ClockAndTicks::FromMicroSeconds(uint32_t us) {
+  // Convert a duration (us) into the number of system clock cycles for
+  // approximately that same duration; it is accurate if an integral number of
+  // cycles fits into a microsecond. The following somewhat convoluted
+  // expression deals with the precision issues of multiplying and dividing
+  // fixed bit size integers. For example (F_CPU / 100,000) is the number of
+  // clock cycles in 10 microseconds.
+  const uint32_t system_clock_cycles = ((F_CPU / 100000) * us) / 10;
+  return FromSystemClockCycles(system_clock_cycles);
+}
+
+TC16ClockAndTicks TC16ClockAndTicks::FromNanoSeconds(uint32_t ns) {
+  // Working in nanoseconds risks overflow in the 32-bit calculations of the
+  // number of clock cycles, therefore I'm dividing this up into separate cases
+  // for short periods and long periods. I'm assuming (and verifying) here that
+  // kShortPeriodLimit is far longer than a system clock cycle.
+  constexpr uint32_t kShortPeriodLimit = (UINT32_MAX - 0) / (F_CPU / 100000);
+  static_assert(kShortPeriodLimit / kNanoSecondsPerSystemClockCycle > 100,
+                "kShortPeriodLimit is too small");
+
+  constexpr uint32_t half_cycle_ns = 500000000UL / F_CPU;
+  if ((ns + half_cycle_ns) >= kShortPeriodLimit) {
+    // Round ns to the nearest microsecond.
+    return FromMicroSeconds((ns + 500) / 1000);
+  }
+
+  // Convert a duration (ns) into the number of system clock cycles that most
+  // closely represents the same duration. Some rounding is inevitable because
+  // we expect that for microcontrollers the system clock cycle is far long than
+  // a nanosecond); we explicitly round ns up by one half of a system clock
+  // cycle.
+  ns += half_cycle_ns;
+  // The following somewhat convoluted expression deals with the precision
+  // issues of multiplying and dividing fixed bit size integers. For example
+  // (F_CPU / 100,000) is the number of clock cycles in 10 microseconds.
+  const uint32_t system_clock_cycles = ((F_CPU / 100000) * ns) / 10000;
+  return FromSystemClockCycles(system_clock_cycles);
+}
+
+TC16ClockAndTicks TC16ClockAndTicks::FromSeconds(double s) {
+  TAS_DCHECK_LE(s, kMaxSeconds);
+  if (s > kMaxSeconds) {
+    return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
+  }
+  double cycles = s * F_CPU + 0.5;
+  TAS_DCHECK_LE(cycles, UINT32_MAX);
+  return FromSystemClockCycles(cycles);
+}
+
+TC16ClockAndTicks TC16ClockAndTicks::FromIntegerEventsPerSecond(
+    uint16_t events) {
+  TAS_DCHECK_GT(events, 0);
+  if (events > 0) {
+    return FromSystemClockCycles(F_CPU / events);
+  }
+  return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
+}
+
+TC16ClockAndTicks TC16ClockAndTicks::FromDoubleEventsPerSecond(double events) {
+  TAS_DCHECK_GT(events, 0);
+  if (events <= 0) {
+    return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
+  }
+  return FromSystemClockCycles(F_CPU / events);
+}
+
+uint32_t TC16ClockAndTicks::ToSystemClockCycles() const {
+  return static_cast<uint32_t>(clock_ticks) * ToClockDivisor(clock_select);
+}
+
+double TC16ClockAndTicks::ToSeconds() const {
+  return ToSystemClockCycles() / static_cast<double>(F_CPU);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

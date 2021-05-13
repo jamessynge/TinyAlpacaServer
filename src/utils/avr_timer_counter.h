@@ -7,8 +7,8 @@
 // Fast PWM (mode 14), sets the clock prescaling as requested, and disables all
 // of that timer/counter's output channels. The Input Capture Register is set to
 // 0xFFFF (maximum uint16), so the smallest duty cycle is 1/65535 (or is it
-// 65536?); if the system clock is 16MHz and prescaling is
-// ClockPrescaling::kAsIs, the smallest pulse duration is approximately 62.5ns.
+// 65536?); if the system clock is 16MHz and prescaling is kDivideBy1, the
+// smallest pulse duration is approximately 62.5ns.
 //
 // TimerCounter[1345]SetCompareOutputMode is used to enable and disable output
 // for specific channels of the counter.
@@ -29,7 +29,8 @@
 namespace alpaca {
 
 enum class ClockPrescaling : uint8_t {
-  kAsIs = 0b001,
+  kDisabled = 0,
+  kDivideBy1 = 0b001,
   kDivideBy8 = 0b010,
   kDivideBy64 = 0b011,
   kDivideBy256 = 0b100,
@@ -56,6 +57,61 @@ enum class TimerCounterChannel {
 
 size_t PrintValueTo(TimerCounterChannel v, Print& out);
 PrintableProgmemString ToPrintableProgmemString(TimerCounterChannel v);
+
+////////////////////////////////////////////////////////////////////////////////
+
+// TC16ClockAndTicks encapsulates an ATmega2560's 16-bit timer/counter clock
+// select and ticks values, representing some timer interval. The FromXyz
+// methods act as factory methods for creating TC16ClockAndTicks instances from
+// either a requested period or a requested frequency.
+//
+// Why? To make it easier to pre-compute the settings for a timer/counter, as
+// when performing acceleration and deceleration of a stepper motor.
+struct TC16ClockAndTicks {
+  static constexpr double kNanoSecondsPerSystemClockCycle =
+      1000000000.0 / F_CPU;  // 62.5 for 16MHz AVRs.
+
+  // The maximum value of clock_ticks that a 16-bit timer/counter can represent
+  // (i.e. UINT16_MAX). Note that there is also a minimum for the ATmega2560, et
+  // al, of 3, which is not dealt with in this code.
+  static constexpr uint16_t kMaxClockTicks = 65535;
+
+  // The maximum number of system clock cycles to which a 16-bit timer/counter
+  // can count.
+  static constexpr uint32_t kMaxSystemClockCycles = kMaxClockTicks * 1024UL;
+
+  // The maximum number of seconds to which a 16-bit timer/counter can count.
+  static constexpr double kMaxSeconds =
+      static_cast<double>(kMaxSystemClockCycles) / F_CPU;
+
+  // Factory methods for converting a period (duration) into a
+  // TC16ClockAndTicks.
+  static TC16ClockAndTicks FromSystemClockCycles(uint32_t system_clock_cycles);
+  static TC16ClockAndTicks FromNanoSeconds(uint32_t ns);
+  static TC16ClockAndTicks FromMicroSeconds(uint32_t us);
+  static TC16ClockAndTicks FromSeconds(double s);
+
+  // Factory methods for converting a frequency (events per second) into a
+  // TC16ClockAndTicks.
+  static TC16ClockAndTicks FromIntegerEventsPerSecond(uint16_t events);
+  static TC16ClockAndTicks FromDoubleEventsPerSecond(double events);
+
+  // Returns the duration, in system clock cycles, represented by this instance.
+  // This method is expected to be used primarily (or solely) for testing.
+  uint32_t ToSystemClockCycles() const;
+
+  // Returns the duration, in seconds, represented by this instance. This method
+  // is expected to be used primarily (or solely) for testing.
+  double ToSeconds() const;
+
+  ClockPrescaling clock_select;
+  uint16_t clock_ticks;
+};
+
+// Returns the divisor applied to the system clock for the specified prescaling
+// of the system clock.
+uint16_t ToClockDivisor(ClockPrescaling prescaling);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void TimerCounter1Initialize16BitFastPwm(ClockPrescaling prescaling);

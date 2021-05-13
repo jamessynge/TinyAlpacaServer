@@ -29,6 +29,18 @@ cc_test(
 )
 
 cc_test(
+    name = "avr_timer_counter_test",
+    srcs = ["avr_timer_counter_test.cc"],
+    deps = [
+        ":avr_timer_counter",
+        ":o_print_stream",
+        ":print_to_std_string",
+        "//absl/time",
+        "//googletest:gunit_main",
+    ],
+)
+
+cc_test(
     name = "counting_print_test",
     srcs = ["counting_print_test.cc"],
     deps = [

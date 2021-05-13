@@ -93,8 +93,8 @@ void setup() {
   pinMode(kLedChannel3PwmPin, OUTPUT);
   pinMode(kLedChannel4PwmPin, OUTPUT);
 
-  TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
-  TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kAsIs);
+  TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
+  TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
 
   TAS_VLOG(1) << "Initialized 16-bit PWM";
   Serial.println();
