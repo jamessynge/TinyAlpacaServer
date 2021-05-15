@@ -104,6 +104,9 @@ struct TC16ClockAndTicks {
   // is expected to be used primarily (or solely) for testing.
   double ToSeconds() const;
 
+  // The clock prescaler bits for the TCCRnB register.
+  uint8_t ClockSelectBits() const { return static_cast<uint8_t>(clock_select); }
+
   ClockPrescaling clock_select;
   uint16_t clock_ticks;
 };
