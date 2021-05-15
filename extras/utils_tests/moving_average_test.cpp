@@ -94,6 +94,8 @@ TEST(MovingAverageTest, Many) {
     LOG(INFO) << "data[" << ndx << "] " << data[ndx];
   }
   MovingAverage moving_average;
+  double sum_of_deltas = 0;
+  double sum_of_diffs = 0;
   for (int ndx = 0; ndx < data.size(); ++ndx) {
     moving_average.RecordNewValue(data[ndx], ndx, kAveragePeriod);
     EXPECT_TRUE(moving_average.has_average_value());
@@ -106,14 +108,18 @@ TEST(MovingAverageTest, Many) {
       ++count;
     } while (--ndx2 >= limit);
     v /= count;
-    auto diff = abs(moving_average.average_value() - v);
+    auto delta = moving_average.average_value() - v;
+    sum_of_deltas += delta;
+    auto diff = abs(delta);
+    sum_of_diffs += diff;
     LOG(INFO) << "data[" << ndx << "]\t" << data[ndx] << " \t moving_average "
               << moving_average.average_value() << " \t diff " << diff;
     if (ndx > kAveragePeriod) {
-      EXPECT_LT(diff, 1);
+      EXPECT_LT(diff, 2);
     }
   }
   EXPECT_EQ(moving_average.last_update_time(), data.size() - 1);
+  EXPECT_LT(sum_of_diffs / data.size(), 0.5);
 }
 
 }  // namespace
