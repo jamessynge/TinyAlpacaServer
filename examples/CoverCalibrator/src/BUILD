@@ -8,6 +8,9 @@ cc_library(
     hdrs = ["cover.h"],
     deps = [
         ":TinyAlpacaServer",
+        ":avr_io",
+        ":avr_timer_counter",
+        ":constants",
         ":cover_calibrator_constants",
     ],
 )
@@ -18,6 +21,7 @@ cc_library(
     hdrs = ["cover_calibrator.h"],
     deps = [
         ":TinyAlpacaServer",
+        ":constants",
         ":cover",
     ],
 )
@@ -30,4 +34,9 @@ cc_library(
         ":TinyAlpacaServer",
         ":cover_calibrator",
     ],
+)
+
+cc_library(
+    name = "constants",
+    hdrs = ["constants.h"],
 )

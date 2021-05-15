@@ -14,6 +14,8 @@ D10              | Must   | W5500 Chip Select
 D13              | Maybe  | Built-in LED
 D14 (TX3)        | Maybe  | Optional ESP-01 Daughter board
 D15 (RX3)        | Maybe  | Optional ESP-01 Daughter board
+D20 (SDA)        | Maybe  | Two-Wire Serial Interface
+D21 (SCL)        | Maybe  | Two-Wire Serial Interface
 D50 (MISO)       | Must   | SPI for W5500 and micro SD card
 D51 (MOSI/DI)    | Must   | SPI for W5500 and micro SD card
 D52 (SCK/CLK)    | Must   | SPI for W5500 and micro SD card
@@ -64,44 +66,73 @@ Notes:
     is unlikely that also we'll add an ESP-01, so it seems safe to use those two
     pins.
 
+*   D20 and D21 support the two-wire serial interface, which is used by various
+    sensors and other peripherals. This is not initially required for the
+    AstroMakers cover-calibrator, nor for the weather sensors. However, we may
+    come up with a sensor we want to add that requires this interface, so
+    keeping these two pins available is a good idea if it isn't too
+    inconvenient.
+
+## Available GPIO Pins
+
+These are the GPIO pins which it is reasonable for us to use, avoiding though
+the 2x18 header that has GPIOs 22 through 53, which is inconvenient to use with
+the shield that Alan has designed.
+
+Arduino Mega Pin | Alternate Function(s)
+---------------- | ---------------------
+D2               | OC3B, INT4
+D3               | OC3C, INT5
+D5               | OC3A, AIN1
+D6               | OC4A, PCINT8
+D11              | OC1A, PCINT5
+D12              | OC1B, PCINT6
+D14              | TXD3, PCINT10
+D15              | RXD3, PCINT9
+D16              | TXD2
+D17              | RXD2
+D18              | TXD1, INT3
+D19              | RXD1, INT2
+A0               | ADC0
+A1               | ADC1
+A2               | ADC2
+A3               | ADC3
+A4               | ADC4, TCK
+A5               | ADC5, TMS
+A6               | ADC6, TDO
+A7               | ADC7, TDI
+A8               | ADC8, PCINT16
+A9               | ADC9, PCINT17
+A10              | ADC10, PCINT18
+A11              | ADC11, PCINT19
+A12              | ADC12, PCINT20
+A13              | ADC13, PCINT21
+A14              | ADC14, PCINT22
+A15              | ADC15, PCINT23
+
 ## Pin Selection
 
 The "unchanged" and "was N" comments are relative to Rev. 6 of the AstroMakers
 Cover Calibrator schematic.
 
-Purpose                        | Arduino Mega Pin | ATmega2560 Name | Comment
------------------------------- | ---------------- | --------------- | ---------
-LED #1 Pwm Output              | 5                | OC3A            | unchanged
-LED #2 Pwm Output              | 6                | OC4A            | unchanged
-LED #2 Enabled Output          | A1               |                 | was 10
-LED #3 Pwm Output              | 7                | OC4B            | unchanged
-LED #3 Enabled Output          | A2               |                 | was 11
-LED #4 Pwm Output              | 8                | OC4C unchanged  |
-LED #4 Enabled Output          | A3               |                 | was 12
-Cover Motor Step Output        | 3                |                 | unchanged
-Cover Motor Direction Output   | 5                |                 | unchanged
-Cover Open Limit Switch Input  | 20               | INT1 unchanged  |
-Cover Close Limit Switch Input | 21               | INT0 unchanged  |
-Cover Motor Enabled Input      | A4               |                 | was 13
-
-Arduino Mega Pin | ATmega2560 Name | Purpose                 | Comment
----------------- | --------------- | ----------------------- | -------------
-0                | PCINT8          | reserved                | Serial Input
-1                | PCINT3          | reserved                | Serial Output
-2                | INT4 / OC3B     | unused                  |
-3                |                 | Cover Motor Step Output | zzz
-4                | xxx             | xxx                     | zzz
-5                | xxx             | xxx                     | zzz
-6                | xxx             | xxx                     | zzz
-7                | xxx             | xxx                     | zzz
-8                | xxx             | xxx                     | zzz
-9                | xxx             | xxx                     | zzz
-10               | xxx             | xxx                     | zzz
-11               | xxx             | xxx                     | zzz
-12               | xxx             | xxx                     | zzz
-13               | xxx             | xxx                     | zzz
+Purpose                        | Arduino Mega Pin | Alt. Func. | Comment
+------------------------------ | ---------------- | ---------- | ---------
+LED #1 Pwm Output              | 2                | OC3B       | unchanged
+LED #2 Pwm Output              | 3                | OC3C       | unchanged
+LED #3 Pwm Output              | 5                | OC3A       | unchanged
+LED #4 Pwm Output              | 6                | OC4A       | unchanged
+LED #2 Enabled Input           | A1               |            | was 10
+LED #3 Enabled Input           | A2               |            | was 11
+LED #4 Enabled Input           | A3               |            | was 12
+Cover Motor Enabled Input      | A4               |            | was 13
+Cover Motor Step Output        | 16               |            | unchanged
+Cover Motor Direction Output   | 17               |            | unchanged
+Cover Open Limit Switch Input  | 18               | INT1       | unchanged
+Cover Close Limit Switch Input | 19               | INT0       | unchanged
 
 ## Pin Selection Analysis
+
+TODO: Update to match CoverCalibrator/src/constants.h and the table above.
 
 For the limit switches, we've already selected pins that can be used for
 triggering an interrupt when one of those pins is held low AND the External
@@ -168,7 +199,11 @@ and stepper could move that fast, we'd be able to move 500K 1/8 microsteps per
 second, i.e. a full sweep of the cover would take just over 2/10 of a second,
 dangerously fast.
 
-Alan's prototype sketch configured AccelStepper to run at 20K steps per second,
-or around 5.25 seconds to open and close; the sketch did not use the
+Alan's prototype sketch configured AccelStepper to run at 10K steps per second,
+or around 10.8 seconds to open and close; the sketch did not use the
 acceleration and deceleration features of AccelStepper, so it isn't clear to me
 how fast we can actually drive the motor and cover.
+
+UPDATE: I wrote sketch PulseSpacingModulation with which I drove the cover at up
+to 20K steps per second, with acceleration used to allow for starting. Beyond
+that it failed.

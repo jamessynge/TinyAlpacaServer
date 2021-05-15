@@ -18,7 +18,10 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   CoverCalibrator();
 
   void Initialize() override;
-  void MaintainDevice() override;
+
+  // Don't need to override MaintainDevice as we're using timer/counter
+  // interrupts and PWM output.
+  //  void MaintainDevice() override;
 
   // Returns the current calibrator brightness.
   alpaca::StatusOr<int32_t> GetBrightness() override;
@@ -42,10 +45,13 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   alpaca::Status HaltCoverMotion() override;
 
  private:
+  // TODO(jamessynge): Need something like template specialization to select the
+  // timer/counter number and channel given the kLedChannel1PwmPin macro (and
+  // other such macros). Doing so could avoid linking in unused objects.
   alpaca::TimerCounter3Pwm16Output led1_;
-  alpaca::TimerCounter4Pwm16Output led2_;
-  alpaca::TimerCounter4Pwm16Output led3_;
-  alpaca::TimerCounter4Pwm16Output led4_;
+  // alpaca::TimerCounter4Pwm16Output led2_;
+  // alpaca::TimerCounter4Pwm16Output led3_;
+  // alpaca::TimerCounter4Pwm16Output led4_;
   Cover cover_;
 };
 
