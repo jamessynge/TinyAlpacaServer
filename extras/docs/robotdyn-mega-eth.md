@@ -75,9 +75,9 @@ Notes:
 
 ## Available GPIO Pins
 
-These are the GPIO pins which it is reasonable for us to use, avoiding though
-the 2x18 header that has GPIOs 22 through 53, which is inconvenient to use with
-the shield that Alan has designed.
+It is useful to avoid the 2x18 header that has GPIOs 22 through 53 because we
+can use that space on the shield for a terminal strip used for stepper motor and
+limit switch connectors. This leaves us with the pins below:
 
 Arduino Mega Pin | Alternate Function(s)
 ---------------- | ---------------------
@@ -116,23 +116,38 @@ The "unchanged" and "was N" comments are relative to Rev. 6 of the AstroMakers
 Cover Calibrator schematic.
 
 Purpose                        | Arduino Mega Pin | Alt. Func. | Comment
------------------------------- | ---------------- | ---------- | ---------
-LED #1 Pwm Output              | 2                | OC3B       | unchanged
-LED #2 Pwm Output              | 3                | OC3C       | unchanged
-LED #3 Pwm Output              | 5                | OC3A       | unchanged
-LED #4 Pwm Output              | 6                | OC4A       | unchanged
-LED #2 Enabled Input           | A1               |            | was 10
-LED #3 Enabled Input           | A2               |            | was 11
-LED #4 Enabled Input           | A3               |            | was 12
-Cover Motor Enabled Input      | A4               |            | was 13
-Cover Motor Step Output        | 16               |            | unchanged
-Cover Motor Direction Output   | 17               |            | unchanged
-Cover Open Limit Switch Input  | 18               | INT1       | unchanged
-Cover Close Limit Switch Input | 19               | INT0       | unchanged
+------------------------------ | ---------------- | ---------- | -------
+LED #1 Pwm Output              | D2               | OC3B       | was D5
+LED #2 Pwm Output              | D3               | OC3C       | was D6
+LED #3 Pwm Output              | D5               | OC3A       | was D7
+LED #4 Pwm Output              | D6               | OC4A       | was D8
+LED #2 Enabled Input           | A1               |            | was D10
+LED #3 Enabled Input           | A2               |            | was D11
+LED #4 Enabled Input           | A3               |            | was D12
+Cover Motor Enabled Input      | A4               |            | was D13
+Cover Motor Step Output        | D16              |            | was D3
+Cover Motor Direction Output   | D17              |            | was D4
+Cover Open Limit Switch Input  | D18              | INT1       | was D20
+Cover Close Limit Switch Input | D19              | INT0       | was D21
+
+Notes:
+
+*   The exact mapping of LED1 to the proposed PWM pins D2, D3, D5 and D6 isn't
+    important, just that those are the PWM pins to use for LEDs.
+
+*   A similar situation applies to the *enabled input* pins A1 to A4: any 4
+    Arduino Mega `An` pin will be fine for this purpose.
+
+*   The cover motor step and direction pins D16 and D17 can be swapped with each
+    other.
+
+*   The cover open and closed limit pins D18 and D19 can be swapped with each
+    other.
 
 ## Pin Selection Analysis
 
-TODO: Update to match CoverCalibrator/src/constants.h and the table above.
+TODO: Update to match CoverCalibrator/src/constants.h and the table above, and
+trim some of the rambling text.
 
 For the limit switches, we've already selected pins that can be used for
 triggering an interrupt when one of those pins is held low AND the External
@@ -155,8 +170,9 @@ the cover:
     generated, but instead allows a small amount of logic to decide whether to
     emit the pulse, including doing debouncing before disabling the timer.
 
-Arduino Mega pins 11 and 12, i.e. PB5 and PB6, can be used as 16-bit T/C 1
-outputs OC1A and OC1B, can also be used as Pin Change Interrupts.
+Arduino Mega pins D11 and D12, i.e. PB5 and PB6, can be used as 16-bit
+Timer/Counter 1 outputs OC1A and OC1B, can also be used as Pin Change
+Interrupts.
 
 Limit switches:
 
@@ -172,7 +188,7 @@ away, they may sometimes fail to trigger.
 Testing will be needed to determine exactly when the switches trigger and
 whether they're well placed.
 
-Movement limits:
+## Movement Limits
 
 The prototype Cover-Calibrator uses this stepper motor with a 90.25:1 reduction
 gear:
@@ -183,7 +199,15 @@ A full step is 1.8 degress, and the Arduino Shield we're using configures the
 stepper driver to do 1/8th microsteps. To rotate 270 degress (i.e. fully open to
 fully closed, or visa versa), requires 108300 microsteps:
 
-270 / 1.8 * 8 * 90.25 = 108300
+`270 / 1.8 * 8 * 90.25 = 108300`
+
+Alan's prototype sketch configured AccelStepper to run at 10K steps per second,
+or around 10.8 seconds to open and close. Later experiments shows that I could
+drive the motor at up to 20K steps per second via interrupts, if I included
+acceleration. Beyond that the torque wasn't sufficient to hold it in the closed
+position after stopping abruptly. It is possible that with deceleration, maybe
+just for a modest number of microsteps after the limit switch triggers, might be
+sufficient to allow the motor to hold the cover.
 
 [This file](https://www.omc-stepperonline.com/download/8HS11-0204S_Torque_Curve.pdf)
 contains the Pull-Out Torque graph for the stepper motor (without the reduction
@@ -197,13 +221,4 @@ The stepper driver chip requires that a pulse be HIGH for at least 1
 microsecond, followed by LOW for at least 1 microsecond. If the stepper driver
 and stepper could move that fast, we'd be able to move 500K 1/8 microsteps per
 second, i.e. a full sweep of the cover would take just over 2/10 of a second,
-dangerously fast.
-
-Alan's prototype sketch configured AccelStepper to run at 10K steps per second,
-or around 10.8 seconds to open and close; the sketch did not use the
-acceleration and deceleration features of AccelStepper, so it isn't clear to me
-how fast we can actually drive the motor and cover.
-
-UPDATE: I wrote sketch PulseSpacingModulation with which I drove the cover at up
-to 20K steps per second, with acceleration used to allow for starting. Beyond
-that it failed.
+dangerously fast. However, the torque isn't sufficient for that.
