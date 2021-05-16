@@ -169,7 +169,7 @@ int SaveableIPAddress::read(int fromAddress, Crc32* crc) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
-  TAS_VLOG(3) << TASLIT("Entered loadOrGenAndSave");
+  TAS_VLOG(4) << TASLIT("Entered loadOrGenAndSave");
   if (load(oui_prefix)) {
     return;
   }
@@ -185,8 +185,7 @@ void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
 }
 
 void Addresses::save() const {
-  Serial.print(TASLIT("Saving "));
-  Serial.println(kName);
+  TAS_VLOG(3) << TASLIT("Saving ") << kName;
 
   int ipAddress = saveName(0, kName);
   Crc32 crc;

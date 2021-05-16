@@ -117,6 +117,7 @@ cc_library(
     deps = [
         ":addresses",
         ":inline_literal",
+        ":logging",
         ":platform",
         ":platform_ethernet",
     ],

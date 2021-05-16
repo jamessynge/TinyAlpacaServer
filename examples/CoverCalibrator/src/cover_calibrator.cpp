@@ -77,14 +77,14 @@ void CoverCalibrator::Initialize() {
   // EEPROM).
 
   InitializeDeviceEnabledPin(kLedChannel1EnabledPin);
-  InitializeDeviceEnabledPin(kLedChannel2EnabledPin);
-  InitializeDeviceEnabledPin(kLedChannel3EnabledPin);
-  InitializeDeviceEnabledPin(kLedChannel4EnabledPin);
+  // InitializeDeviceEnabledPin(kLedChannel2EnabledPin);
+  // InitializeDeviceEnabledPin(kLedChannel3EnabledPin);
+  // InitializeDeviceEnabledPin(kLedChannel4EnabledPin);
 
   pinMode(kLedChannel1PwmPin, OUTPUT);
-  pinMode(kLedChannel2PwmPin, OUTPUT);
-  pinMode(kLedChannel3PwmPin, OUTPUT);
-  pinMode(kLedChannel4PwmPin, OUTPUT);
+  // pinMode(kLedChannel2PwmPin, OUTPUT);
+  // pinMode(kLedChannel3PwmPin, OUTPUT);
+  // pinMode(kLedChannel4PwmPin, OUTPUT);
 
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);

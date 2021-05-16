@@ -1,6 +1,7 @@
 #include "utils/ip_device.h"
 
 #include "utils/inline_literal.h"
+#include "utils/logging.h"
 
 namespace alpaca {
 namespace {
@@ -12,8 +13,20 @@ constexpr uint8_t kSDcardSelectPin = 4;
 // static
 void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
   // Make sure that the SD Card interface is not the selected SPI device.
+#if kSDcardSelectPin != 4
   pinMode(kSDcardSelectPin, OUTPUT);
   digitalWrite(kSDcardSelectPin, HIGH);
+#else
+  TAS_VLOG(1) << TASLIT("SetupW5500 applying fix for pin ") << kSDcardSelectPin
+              << ", replacing with PE7 (pin 9 of ATmega2560)";
+
+  // Set PE7 (Port E, bit 7) to output HIGH. As described in section 13.2.3 of
+  // the ATmega2560 datasheet, we can't transition directly from tri-state to
+  // output HIGH, so we swap the order of setting the bits, as suggested in the
+  // datasheet.
+  bitSet(PORTE, PE7);  // Set to output high.
+  bitSet(DDRE, DDE7);  // Set data direction to output.
+#endif
 
   // Configure Ethernet3's EthernetClass instance with the pins used to access
   // the W5500.
