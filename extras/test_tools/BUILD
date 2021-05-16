@@ -5,24 +5,24 @@ cc_library(
     srcs = ["json_test_utils.cc"],
     hdrs = ["json_test_utils.h"],
     deps = [
-        ":any_printable",
-        ":json_encoder",
-        ":platform",
+        "//src/utils:any_printable",
+        "//src/utils:json_encoder",
+        "//src/utils:platform",
     ],
 )
 
 cc_library(
     name = "literal_utils",
     hdrs = ["literal_utils.h"],
-    deps = [":literal"],
+    deps = ["//src/utils:literal"],
 )
 
 cc_library(
     name = "mock_device_interface",
     hdrs = ["mock_device_interface.h"],
     deps = [
-        ":device_interface",
         "//googletest:gunit_headers",
+        "//src:device_interface",
     ],
 )
 
@@ -30,7 +30,7 @@ cc_library(
     name = "mock_ethernet_client",
     hdrs = ["mock_ethernet_client.h"],
     deps = [
-        ":ethernet_client",
+        "//extras/host/ethernet3:ethernet_client",
         "//googletest:gunit_headers",
     ],
 )
@@ -39,8 +39,8 @@ cc_library(
     name = "mock_request_listener",
     hdrs = ["mock_request_listener.h"],
     deps = [
-        ":request_listener",
         "//googletest:gunit_headers",
+        "//src:request_listener",
     ],
 )
 
@@ -48,19 +48,19 @@ cc_library(
     name = "print_to_std_string",
     hdrs = ["print_to_std_string.h"],
     deps = [
-        ":o_print_stream",
-        ":print",
+        "//extras/host/arduino:print",
+        "//src/utils:o_print_stream",
     ],
 )
 
 cc_library(
     name = "sample_printable",
     hdrs = ["sample_printable.h"],
-    deps = [":print"],
+    deps = ["//extras/host/arduino:print"],
 )
 
 cc_library(
     name = "string_view_utils",
     hdrs = ["string_view_utils.h"],
-    deps = [":string_view"],
+    deps = ["//src/utils:string_view"],
 )

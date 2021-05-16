@@ -4,7 +4,8 @@ cc_binary(
     name = "CoverCalibrator",
     srcs = ["CoverCalibrator.ino.cc"],
     deps = [
-        ":arduino_main",
-        ":server",
+        "//examples/CoverCalibrator/src:server",
+        "//extras/host/arduino",
+        "//extras/host/arduino:arduino_main",
     ],
 )

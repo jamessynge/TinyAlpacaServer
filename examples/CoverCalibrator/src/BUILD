@@ -7,11 +7,13 @@ cc_library(
     srcs = ["cover.cc"],
     hdrs = ["cover.h"],
     deps = [
-        ":TinyAlpacaServer",
-        ":avr_io",
-        ":avr_timer_counter",
         ":constants",
-        ":cover_calibrator_constants",
+        "//extras/host/accel_stepper",
+        "//extras/host/arduino",
+        "//extras/host/arduino:avr_io",
+        "//src:TinyAlpacaServer",
+        "//src/device_types/cover_calibrator:cover_calibrator_constants",
+        "//src/utils:avr_timer_counter",
     ],
 )
 
@@ -20,9 +22,10 @@ cc_library(
     srcs = ["cover_calibrator.cc"],
     hdrs = ["cover_calibrator.h"],
     deps = [
-        ":TinyAlpacaServer",
         ":constants",
         ":cover",
+        "//extras/host/arduino",
+        "//src:TinyAlpacaServer",
     ],
 )
 
@@ -31,8 +34,9 @@ cc_library(
     srcs = ["server.cc"],
     hdrs = ["server.h"],
     deps = [
-        ":TinyAlpacaServer",
         ":cover_calibrator",
+        "//extras/host/arduino",
+        "//src:TinyAlpacaServer",
     ],
 )
 

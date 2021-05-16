@@ -44,7 +44,7 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
-        ":type_traits",
+        "//src/utils/traits:type_traits",
     ],
 )
 
@@ -197,8 +197,8 @@ cc_library(
     hdrs = ["o_print_stream.h"],
     deps = [
         ":platform",
-        ":print_to_trait",
-        ":type_traits",
+        "//src/utils/traits:print_to_trait",
+        "//src/utils/traits:type_traits",
     ],
 )
 
@@ -206,11 +206,13 @@ cc_library(
     name = "platform",
     hdrs = ["platform.h"],
     deps = [
-        ":core_headers",
-        ":pgmspace",
-        ":print",
-        ":stream",
         ":utils_config",
+        "//absl/base:core_headers",
+        "//extras/host/arduino",
+        "//extras/host/arduino:pgmspace",
+        "//extras/host/arduino:print",
+        "//extras/host/arduino:stream",
+        "//extras/host/eeprom",
     ],
 )
 
@@ -219,11 +221,12 @@ cc_library(
     srcs = ["platform_ethernet.cc"],
     hdrs = ["platform_ethernet.h"],
     deps = [
-        ":client",
-        ":host_sockets",
-        ":ip_address",
         ":logging",
         ":platform",
+        "//extras/host/arduino:client",
+        "//extras/host/arduino:ip_address",
+        "//extras/host/ethernet3",
+        "//extras/host/ethernet3:host_sockets",
     ],
 )
 

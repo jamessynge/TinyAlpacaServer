@@ -6,7 +6,6 @@
 //
 // Author: james.synge@gmail.com
 
-#include <AccelStepper.h>
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 

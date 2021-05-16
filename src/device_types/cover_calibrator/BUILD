@@ -5,14 +5,14 @@ cc_library(
     srcs = ["cover_calibrator_adapter.cc"],
     hdrs = ["cover_calibrator_adapter.h"],
     deps = [
-        ":alpaca_response",
-        ":ascom_error_codes",
-        ":constants",
         ":cover_calibrator_constants",
-        ":device_impl_base",
-        ":literals",
-        ":platform",
-        ":status_or",
+        "//src:alpaca_response",
+        "//src:ascom_error_codes",
+        "//src:constants",
+        "//src:literals",
+        "//src/device_types:device_impl_base",
+        "//src/utils:platform",
+        "//src/utils:status_or",
     ],
 )
 
@@ -21,9 +21,9 @@ cc_library(
     srcs = ["cover_calibrator_constants.cc"],
     hdrs = ["cover_calibrator_constants.h"],
     deps = [
-        ":inline_literal",
-        ":platform",
-        ":print_misc",
-        ":printable_progmem_string",
+        "//src/utils:inline_literal",
+        "//src/utils:platform",
+        "//src/utils:print_misc",
+        "//src/utils:printable_progmem_string",
     ],
 )

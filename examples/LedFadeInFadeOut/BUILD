@@ -4,7 +4,9 @@ cc_binary(
     name = "led_fade_in_fade_out",
     srcs = ["LedFadeInFadeOut.ino.cc"],
     deps = [
-        ":TinyAlpacaServer",
-        ":arduino_main",
+        "//extras/host/accel_stepper",
+        "//extras/host/arduino",
+        "//extras/host/arduino:arduino_main",
+        "//src:TinyAlpacaServer",
     ],
 )

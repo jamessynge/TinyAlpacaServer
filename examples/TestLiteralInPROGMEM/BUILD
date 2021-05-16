@@ -9,7 +9,8 @@ cc_binary(
         "manual",
     ],
     deps = [
-        ":TinyAlpacaServer",
-        ":arduino_main",
+        "//extras/host/arduino",
+        "//extras/host/arduino:arduino_main",
+        "//src:TinyAlpacaServer",
     ],
 )

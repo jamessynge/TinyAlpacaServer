@@ -3,9 +3,6 @@
 #include <Arduino.h>
 
 #include "constants.h"
-#include "device_types/cover_calibrator/cover_calibrator_constants.h"
-#include "extras/host/arduino/avr_io.h"
-#include "utils/avr_timer_counter.h"
 
 namespace {
 

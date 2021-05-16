@@ -4,7 +4,7 @@ cc_binary(
     name = "TestLogExperimentDisabled",
     srcs = ["TestLogExperimentDisabled.ino.cc"],
     deps = [
-        ":arduino_main",
-        ":log_experiment",
+        "//extras/host/arduino:arduino_main",
+        "//src:log_experiment",
     ],
 )
