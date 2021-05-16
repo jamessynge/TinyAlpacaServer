@@ -24,16 +24,6 @@ astro_makers::InterruptHandler* GetInterruptHandler() {
   return copy;
 }
 
-// Set the value of interrupt_handler. This does not need to be used by code
-// where it is known that interrupts are disabled, which is the situation when
-// an ISR is called.
-void SetInterruptHandler(astro_makers::InterruptHandler* new_handler) {
-  TAS_DCHECK_EQ(GetInterruptHandler(), nullptr);
-  noInterrupts();
-  interrupt_handler = new_handler;
-  interrupts();
-}
-
 // Clear interrupt_handler if it is set to old_handler. This does not need to be
 // used by code where it is known that interrupts are disabled, which is the
 // situation when an ISR is called.
@@ -236,22 +226,29 @@ void Cover::HandleInterrupt() {
     return;
   }
 
-  // On the assumption that our steps are small and rapid, we check the limits
-  // after stepping.
+  // On the assumption that our steps are small and rapid, we check the limit
+  // switches after stepping. Note that writing or reading by direct access to
+  // the port is much faster, should performance become an issue.
+
   digitalWrite(step_pin_, HIGH);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   digitalWrite(step_pin_, LOW);
   ++step_count_;
 
-  if (digitalRead(limit_pin) == LOW) {
+  // Note that we don't debounce the limit pin (e.g. we don't check that it
+  // stays closed for at least 1ms).
+  if (digitalRead(limit_pin) == kLimitSwitchClosed) {
     // Reached the end.
     motor_status_ = kNotMoving;
     interrupt_handler = nullptr;
     return;
   }
 
-  if (digitalRead(limit_pin) == LOW && step_count_ >= allowed_start_steps_) {
-    // Failed to move far enough.
+  // We only check once for this situation.
+  if (step_count_ == allowed_start_steps_ &&
+      digitalRead(start_pin) == kLimitSwitchClosed) {
+    // The other limit switch is still closed, so we must have failed to move
+    // far enough.
     if (motor_status_ == kClosing) {
       motor_status_ = kStartClosingFailed;
     } else {

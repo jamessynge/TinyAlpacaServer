@@ -8,12 +8,6 @@
 // the range 1 through 9).
 //
 //
-// TODO(jamessynge): Change the contract for TAS_CHECK such that the expression
-// is always evaluated, but without TAS_ENABLE_CHECK there will be no logging.
-// This allows natural code such as this:
-//
-//    TAS_CHECK(object.ResetDevice()) << "Failed to initialize";
-//
 // Author: james.synge@gmail.com
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,32 +27,33 @@
 //
 // TAS_CHECK Usage:
 //
-// TAS_CHECK(expression) << val1 << val2 << val3;
+// TAS_CHECK(expression) << message << values;
 //
-// If TAS_ENABLE_CHECK is defined, then the expression will be evaluated; if the
-// expression is is true, no message is emitted and the statement completes
-// normally. However if the statement evaluates to false, this will emit a
-// message will emit a line of text with the string representations of val1,
-// val2, and val3 concatenated together, terminated by a newline, and the
-// program will not continue. On the Arduino, it will endlessly loop producing
-// an error message; on the host it will exit the program.
+// The expression is always evaluated, but the result is only examined by the
+// macro if TAS_ENABLE_CHECK is defined.
 //
-// If TAS_ENABLE_CHECK is not defined, then neither the expression nor the
-// message values will be evaluated. This means that you must not place calls to
-// mutating production code into a TAS_CHECK and rely on it being called; i.e.
-// don't do something like:
+// In all cases, if expression is true, then no message is emitted and the
+// statement completes normally (e.g. the next statement is executed or the
+// scope is exited, as appropriate).
 //
-//    TAS_CHECK(InitializeHardware())
-//        << TASLIT("Failed to initialize hardware.");
+// When TAS_ENABLE_CHECK is defined and the expression is false, TAS_CHECK will
+// emit a line of text indicating that the expression has failed, followed by
+// the string representations of the message values inserted into TAS_CHECK, and
+// finally a newline. On the host, the program will exit; on the Arduino, it
+// will endlessly loop producing an error message; on the host it will exit the
+// program.
 //
-// UNLESS you're planning to always leave TAS_CHECK_ENABLED defined for your
-// production (embedded) environment, which is OK if you've kept your use of
-// these macros (and hence the messages strings which may consume a lot of
-// memory). To be safe, it is preferable to do the following:
+// If TAS_ENABLE_CHECK is not defined and the expression is false, it will be
+// treated as if true. This allows one to include code such as the following,
+// and know that InitializeHardware will always be called when that statement is
+// reached, regardless of whether TAS_ENABLE_CHECK is defined:
 //
-//    auto initialized = InitializeHardware();
-//    TAS_CHECK(initialized)
-//        << TASLIT("Failed to initialize hardware.");
+//     TAS_CHECK(InitializeHardware())
+//         << TASLIT("Failed to initialize hardware.");
+//
+// This allows you to make extensive use of TAS_CHECK, yet know that the
+// compiled size of the statement will shrink to that of the expression when
+// TAS_ENABLE_CHECK is not defined.
 //
 // Note that we use the TASLIT macro here so that when compiling for AVR
 // microcontrollers the string is stored only in Flash (PROGMEM), and is not
@@ -71,12 +66,15 @@
 //
 // TAS_DCHECK Usage:
 //
-// TAS_DCHECK(expression) << val1 << val2 << val3;
+// TAS_DCHECK(expression) << message << values;
 //
-// Provides an assert like feature, just like TAS_CHECK, but can be disabled
-// while leaving TAS_CHECK enabled. Thus you can place many TAS_DCHECKs in your
-// code for debugging, but then disable all of them while still leaving some
-// critical TAS_CHECKs enabled.
+// Provides an assert like feature, similar to TAS_CHECK, but the expression is
+// evaluated only if both TAS_ENABLE_CHECK and TAS_ENABLE_DCHECK are defined.
+// Thus you can place many TAS_DCHECKs in your code for debugging, but then
+// disable all of them while still leaving some critical TAS_CHECKs enabled.
+//
+// TAS_DCHECK_NE, TAS_DCHECK_EQ, etc. expand to a TAS_DCHECK macro with the
+// named comparison.
 
 #include "utils/log_sink.h"
 #include "utils/utils_config.h"
@@ -132,7 +130,7 @@ extern void [[TAS_ENABLE_CHECK_is_defined]] SomeFuncB();
 #define TAS_CHECK_INTERNAL_(expression, message) \
   switch (0)                                     \
   default:                                       \
-    (true || (expression)) ? (void)0             \
+    ((expression) || true) ? (void)0             \
                            : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
