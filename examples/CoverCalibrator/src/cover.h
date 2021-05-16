@@ -36,7 +36,11 @@ class Cover : InterruptHandler {
         uint8_t closed_limit_pin, uint8_t cover_present_pin,
         uint32_t allowed_steps, uint32_t allowed_start_steps);
 
+  // Uses the values in constants.h to call the above ctor.
   Cover();
+
+  // Resets the timer/counter.
+  void Initialize();
 
   alpaca::ECoverStatus GetCoverStatus() const;
 

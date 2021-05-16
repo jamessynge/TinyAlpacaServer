@@ -109,16 +109,29 @@ Cover::Cover(uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
       cover_present_pin_(cover_present_pin),
       allowed_steps_(allowed_steps),
       allowed_start_steps_(allowed_start_steps),
-      motor_status_(kNotMoving) {
-  pinMode(open_limit_pin, kLimitSwitchPinMode);
-  pinMode(closed_limit_pin, kLimitSwitchPinMode);
-  pinMode(cover_present_pin, kCoverPresentPinMode);
-}
+      motor_status_(kNotMoving) {}
 
 Cover::Cover()
     : Cover(kCoverMotorStepPin, kCoverMotorDirectionPin, kCoverOpenLimitPin,
             kCoverCloseLimitPin, kCoverEnabledPin, kMaximumSteps,
             kMaximumStartSteps) {}
+
+void Cover::Initialize() {
+  pinMode(step_pin_, OUTPUT);
+  digitalWrite(step_pin_, LOW);
+
+  pinMode(direction_pin_, OUTPUT);
+  digitalWrite(direction_pin_, LOW);  // Initial value doesn't really matter.
+
+  pinMode(open_limit_pin_, kLimitSwitchPinMode);
+  pinMode(closed_limit_pin_, kLimitSwitchPinMode);
+
+  if (cover_present_pin_ != kNoSuchPin) {
+    pinMode(cover_present_pin_, kCoverPresentPinMode);
+  }
+
+  ResetTimer5();
+}
 
 ECoverStatus Cover::GetCoverStatus() const {
   if (digitalRead(cover_present_pin_) == LOW) {
@@ -136,7 +149,7 @@ ECoverStatus Cover::GetCoverStatus() const {
 }
 
 bool Cover::IsPresent() const {
-  return cover_present_pin_ == 0 ||
+  return cover_present_pin_ == kNoSuchPin ||
          digitalRead(cover_present_pin_) == kCoverIsPresent;
 }
 
@@ -206,10 +219,11 @@ bool Cover::Close() {
 }
 
 void Cover::Halt() {
+  // Don't change the value of motor_status_ unless it appears we were moving.
   if (IsMoving()) {
     motor_status_ = kNotMoving;
-    RemoveInterruptHandler(this);
   }
+  RemoveInterruptHandler(this);
 }
 
 void Cover::HandleInterrupt() {

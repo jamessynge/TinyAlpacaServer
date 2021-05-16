@@ -1,5 +1,7 @@
 #include "cover_calibrator.h"
 
+#include <Arduino.h>
+
 #include "constants.h"
 
 namespace astro_makers {
@@ -41,6 +43,23 @@ const alpaca::DeviceInfo kDeviceInfo{
     .interface_version = 1,
 };
 
+void InitializeDeviceEnabledPin(int pin, int mode = kDeviceEnabledPinMode) {
+  if (pin != kNoSuchPin) {
+    pinMode(pin, mode);
+  }
+}
+
+bool GetDeviceEnabled(int pin, int mode = kDeviceEnabledPinMode) {
+  if (pin != kNoSuchPin) {
+    if (digitalRead(pin) == LOW) {
+      return mode == INPUT_PULLUP;
+    } else {
+      return mode == INPUT;
+    }
+  }
+  return true;
+}
+
 }  // namespace
 
 CoverCalibrator::CoverCalibrator()
@@ -57,6 +76,11 @@ void CoverCalibrator::Initialize() {
   // OR always close it (maybe based on a choice by the end-user stored in
   // EEPROM).
 
+  InitializeDeviceEnabledPin(kLedChannel1EnabledPin);
+  InitializeDeviceEnabledPin(kLedChannel2EnabledPin);
+  InitializeDeviceEnabledPin(kLedChannel3EnabledPin);
+  InitializeDeviceEnabledPin(kLedChannel4EnabledPin);
+
   pinMode(kLedChannel1PwmPin, OUTPUT);
   pinMode(kLedChannel2PwmPin, OUTPUT);
   pinMode(kLedChannel3PwmPin, OUTPUT);
@@ -64,6 +88,8 @@ void CoverCalibrator::Initialize() {
 
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
+
+  cover_.Initialize();
 }
 
 // Returns the current calibrator brightness. Not sure if this should be the
