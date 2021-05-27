@@ -5,7 +5,7 @@
 
 #define kNoSuchPin 255  // Enable pins are allowed to be omitted.
 
-#if 1
+#if 0
 
 // Based on AM_CoverCalibrator_schematic_rev_5_pcb.pdf, which has more detail
 // than revision 6, though in revision 6 there is no LED 1 enabled pin.
@@ -31,8 +31,10 @@
 
 #else
 
-// Suggested pin selection for next revision. Note that the exact choice LED PWM
-// pin doesn't matter (i.e. LED1 PWM pin could be 2, 3, 5, or 6).
+// Suggested pin selection for next revision. Note that the exact choice which
+// "LED PWM pin" maps to which of the suggested PWM pins (2, 3, 5 or 6) doesn't
+// matter (i.e. LED1 PWM pin could be 2, 3, 5, or 6). The same applies to which
+// "enabled device pin" is mapped to which Analog/GPIO pin (A0 to A15).
 
 #define kLedChannel1PwmPin 2               // OC3B         was 5
 #define kLedChannel2PwmPin 3               // OC3C         was 6
