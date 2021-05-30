@@ -266,6 +266,11 @@ it must be rediscovered each time.
 *   Normalize string comparison support so that we can have fewer types of
     strings or more templated comparison functions.
 
+*   Add support for serving files from the SDcard for paths under /setup and
+    /assets. Non-normalized paths should be rejected (e.g. those with `//`,
+    `/../`, or `/./`). I'm planning to use Bill Greiman's SdFat library which
+    supports long file names (127 ASCII characters).
+
 *   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
     paths (e.g. POST /setserverlocation?value=Mauna+Kea). This could include
     support for requests such as GET /static/path-to/file-on/sd-card, where all
