@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Provides the ability to find IPv4 ASCOM Alpaca servers on the local networks.
 
 Uses the netifaces library to find the broadcast IPs that can be used for

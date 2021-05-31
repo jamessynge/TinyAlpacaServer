@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Generates helpers for C++ enums, and tests of those helpers.
 
 The input is a single C++ source file (e.g. a .h or .cc file) with one or more
