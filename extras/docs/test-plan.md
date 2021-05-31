@@ -93,6 +93,8 @@ JSON object matching the DescriptionResponse schema.
 
 ## Alpaca Device API
 
+[API Specification](https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml)
+
 Only those devices reported by the `/management/v1/configureddevices` should be
 present. For example, we should be able to request the name of devices 0, 1 and
 2 of all known device types (e.g. `telescope`), and get an error for all but
