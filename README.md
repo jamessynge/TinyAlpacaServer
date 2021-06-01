@@ -1,4 +1,4 @@
-# [Tiny Alpaca Server](https://github.com/jamessynge/tiny-alpaca-server)
+# [Tiny Alpaca Server](https://github.com/jamessynge/TinyAlpacaServer)
 
 Author: James Synge (james.synge@gmail.com)
 
