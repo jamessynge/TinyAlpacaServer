@@ -14,16 +14,24 @@ import queue
 import socket
 import threading
 import time
-from typing import Dict, Generator, List
+from typing import Callable, Dict, Generator, List
 
 import dataclasses
 # You can install it with:
 #      pip install netifaces
 import netifaces
 
-ALPACA_DISCOVERY_PORT = 32227  # a temporary port that I choose for testing
-ALPACA_DISCOVERY = 'ALPACA_DISCOVERY1'
-ALPACA_RESPONSE = 'alpacaport'
+# Daniel VanNoord selected UDP port 32227 for the Alpaca Discovery protocol, but
+# there it is not assigned to the protocol, so may change some day. An Alpaca
+# Server can confirm that the packet is intended for it by looking for the
+# string 'alpacadiscovery1' as the entire body of the UDP packet it receives at
+# that port, and an Alpaca Discovery client can confirm that a response is from
+# an Alpaca Server by checking that the response body can be parsed as JSON and
+# has a property 'alpacaport' whose value is an integer that can be a TCP port
+# number (e.g. 1 to 65535).
+ALPACA_DISCOVERY_PORT = 32227
+DISCOVERY_REQUEST_BODY = 'alpacadiscovery1'
+ALPACA_SERVER_PORT_PROPERTY = 'alpacaport'
 
 
 @dataclasses.dataclass
@@ -55,7 +63,7 @@ class DiscoverySource:
   def send_discovery_packet(self, sock: socket.socket):
     action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
     print('%s to %s' % (action, self.src_address))
-    sock.sendto(ALPACA_DISCOVERY.encode(),
+    sock.sendto(DISCOVERY_REQUEST_BODY.encode(),
                 (self.src_address, ALPACA_DISCOVERY_PORT))
 
 
@@ -68,7 +76,7 @@ class DiscoveryResponse:
   def get_port(self) -> int:
     data_str = str(self.data_bytes, 'ascii')
     jsondata = json.loads(data_str)
-    return int(jsondata[ALPACA_RESPONSE])
+    return int(jsondata[ALPACA_SERVER_PORT_PROPERTY])
 
 
 def generate_addresses(address_family) -> Generator[Dict[str, str], None, None]:
@@ -76,12 +84,14 @@ def generate_addresses(address_family) -> Generator[Dict[str, str], None, None]:
   # netifaces.interfaces returns a list of interface names.
   for name in netifaces.interfaces():
     # netifaces.ifaddresses(interface_name) returns a dictionary mapping an
-    # address family (e.g. netifaces.AF_INET for IPv4) to details about that
-    # address family on that interface.
-    for address_family, addr_groups in netifaces.ifaddresses(name).items():
-      if address_family == netifaces.AF_INET:
+    # address family (e.g. netifaces.AF_INET for IPv4) to a list of address
+    # groups (dictionaries) provided by that interface. Note that a single
+    # interface may have multiple addresses, even for a single address family.
+    for addr_family, addr_groups in netifaces.ifaddresses(name).items():
+      if address_family == addr_family:
         for address_group in addr_groups:
           if 'addr' not in address_group:
+            # Note that I'm assuming
             continue
           result = dict(interface_name=name)
           result.update(address_group)
@@ -164,28 +174,11 @@ class Discoverer(object):
     print(f'Collected {count} responses for source {self.source.get_name()}')
 
 
-def find_broadcast_addresses():
-  """Returns the broadcast IPv4 addresses of the computer's network interfaces."""
-  addresses = []
-  # netifaces.interfaces returns a list of interface names.
-  for interface_name in netifaces.interfaces():
-    # netifaces.ifaddresses(interface_name) returns a dictionary mapping an
-    # address family (e.g. netifaces.AF_INET for IPv4) to details about that
-    # address family on that interface.
-    for interfacedata in netifaces.ifaddresses(interface_name):
-      if netifaces.AF_INET == interfacedata:
-        ifaddrs = netifaces.ifaddresses(interface_name)
-        for ifaddrs in ifaddrs[netifaces.AF_INET]:
-          if 'broadcast' in ifaddrs:
-            addresses.append(ifaddrs['broadcast'])
-  if not addresses:
-    raise ValueError('Found no broadcast addresses')
-  return addresses
-
-
 def perform_discovery(sources: List[DiscoverySource],
+                      discovery_response_handler: Callable[[DiscoveryResponse],
+                                                           None],
                       max_wait_time: float = 5.0):
-  """INCOMPLETE test method."""
+  """Sends a discovery packet from all sources, passes results to handler."""
   discoverers = [Discoverer(source) for source in sources]
   q = queue.Queue(maxsize=1000)
   threads = [
@@ -203,12 +196,16 @@ def perform_discovery(sources: List[DiscoverySource],
     threads = alive_threads
     while not q.empty():
       dr = q.get(block=False)
-      pprint.pprint(dr)
+      discovery_response_handler(dr)
 
 
 def main():
   sources = list(generate_discovery_sources())
-  perform_discovery(sources)
+
+  def discovery_response_handler(dr: DiscoveryResponse) -> None:
+    pprint.pprint(dr)
+
+  perform_discovery(sources, discovery_response_handler)
 
 
 if __name__ == '__main__':
