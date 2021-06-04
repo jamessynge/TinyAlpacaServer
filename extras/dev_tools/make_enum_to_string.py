@@ -150,12 +150,12 @@ def generate_enum_definitions(
 
   handler: TokenHandler = find_enum_start
 
-  for token, s in tokenize_cpp.generate_cpp_tokens(file_path=file_path):
+  for token in tokenize_cpp.generate_cpp_tokens(file_path=file_path):
     # print(f'{handler.__name__}({s!r}, {token})')
 
     # Recursive type hints aren't supported by pytype yet, so I've disabled the
     # errors it reports as of June 2021.
-    handler = handler(s, token)  # pytype: disable=annotation-type-mismatch
+    handler = handler(token.src, token.kind)  # pytype: disable=annotation-type-mismatch
     if handler:
       continue
     if current_enum_info and current_enum_info['enumerators']:

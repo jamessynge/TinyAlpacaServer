@@ -1,26 +1,62 @@
 #!/usr/bin/env python3
-"""Split C++ source file into tokens.
+"""Split C++ source file into Tokens.
 
 Why? In support of tools that read a source file and extract info, such as enum
-definitions.
+definitions. While it would probably be better to build on tools like clang,
+that requires installing a lot of tooling, while Python3 is commonly present and
+doesn't require compiling the tool.
 
-It would probably be better to build on tools like clang, but that requires
-installing a lot of tooling.
+A Token instance tells us the kind of token found, the source text for the token
+and the position (character index within the file).
 """
 
 import enum
 import re
 import sys
-from typing import Generator, Match, Optional, Sequence, Tuple
+from typing import Generator, List, Match, Optional, Sequence, Tuple
+
+import dataclasses
+
+# Regular expressions used to match various tokens, or parts of such tokens, in
+# a C++ source file.
+
+WHITESPACE_RE = re.compile(r'\s+', flags=re.MULTILINE)
+
+# Simplistic attribute specifier matcher. Not sure that I need re.MULTILINE for
+# any case I've had to deal with, and re.DOTALL might actually be what I meant!
+ATTRIBUTE_RE = re.compile(r'\[\[.*\]\]', flags=re.MULTILINE)
+
+PREPROCESSOR_RE = re.compile(r'^#.*', flags=re.MULTILINE)
+
+LINE_COMMENT_RE = re.compile(r'//.*$', flags=re.MULTILINE)
+
+MULTI_LINE_COMMENT_RE = re.compile(r'/\*.*?\*/', flags=re.DOTALL)
+
+START_CHAR_LITERAL_RE = re.compile(r"(u8|u|U|L)?'")
+
+START_STRING_LITERAL_RE = re.compile(r'(u8|u|U|L)?"')
+
+START_RAW_STRING_LITERAL_RE = re.compile(r'(u8|u|U|L)?R"')
+
+SINGLE_QUOTE_OR_BACKSLASH = re.compile(r"'|\\")
+
+DOUBLE_QUOTE_OR_BACKSLASH = re.compile(r'"|\\')
+
+FLOATING_POINT_RE = re.compile(r'[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?')
+
+IDENTIFIER_RE = re.compile(r'[a-zA-Z_][a-zA-Z_0-9]*')
+
+# Maybe useful later.
+# integer_re = re.compile(r'[-+]?(0[xX][\dA-Fa-f]+|0[0-7]*|\d+)')
+# rest_of_line_re = re.compile(r'.*$', flags=re.MULTILINE)
 
 
 def find_char_end(file_src: str, start_pos: int) -> int:
   """Returns the pos just beyond the end of the char literal at start_pos."""
   # print('find_char_end start_pos:', start_pos)
   pos = start_pos + 1
-  regexp = re.compile(r"'|\\")
   while pos < len(file_src):
-    m = regexp.search(file_src, pos=pos)
+    m = SINGLE_QUOTE_OR_BACKSLASH.search(file_src, pos=pos)
     if not m:
       break
     if file_src[m.start()] != '\\':
@@ -35,11 +71,10 @@ def find_char_literal_end(file_src: str, m: Match[str]) -> int:
 
 
 def find_string_end(file_src: str, start_pos: int) -> int:
-  """Returns the pos just beyond the end of the string literal at start_pos."""
+  """Returns the pos just beyond the string literal at start_pos."""
   pos = start_pos + 1
-  regexp = re.compile(r'"|\\')
   while pos < len(file_src):
-    m = regexp.search(file_src, pos=pos)
+    m = DOUBLE_QUOTE_OR_BACKSLASH.search(file_src, pos=pos)
     if not m:
       break
     if file_src[m.start()] != '\\':
@@ -49,11 +84,10 @@ def find_string_end(file_src: str, start_pos: int) -> int:
   raise AssertionError(f'Unterminated string starting at {start_pos}')
 
 
-def find_string_literal_end(file_src: str, m: Match[str]) -> int:
-  """Returns the pos just beyond the end of the string that starts with m."""
+def find_raw_string_literal_end(file_src: str, m: Match[str]) -> int:
+  """Returns the pos just beyond the raw string literal that starts with m."""
   if not m.group(0).endswith('R"'):
-    # Not a string literal, so relatively simple.
-    return find_string_end(file_src, m.end() - 1)
+    raise AssertionError(f'Expected start of raw string literal: {m.group()}')
 
   # We've matched the start of a Raw String Literal. Determine the delimiter,
   # then search for the end of the string.
@@ -129,9 +163,8 @@ class EToken(enum.Enum):
   RIGHT_PARENTHESIS = enum.auto()
   SEMICOLON = enum.auto()
   STRING = enum.auto()
+  RAW_STRING = enum.auto()
 
-
-Token = Tuple[EToken, str]
 
 OPS_AND_PUNC = sorted(
     [
@@ -189,13 +222,239 @@ OPS_AND_PUNC = sorted(
 
 OPS_AND_PUNC_CHAR_SET = set([v[0][0] for v in OPS_AND_PUNC])
 
+# Kind of token, its phase 2 text, and its phase 2 start and beyond indices.
+Phase2Token = Tuple[EToken, str, int, int]
 
-def match_operator_or_punctuation(file_src: str, pos: int) -> Optional[Token]:
+
+def match_operator_or_punctuation(phase2_source: str,
+                                  pos: int) -> Optional[Phase2Token]:
   for s, e in OPS_AND_PUNC:
-    token = file_src[pos:pos + len(s)]
+    end_pos = pos + len(s)
+    token = phase2_source[pos:end_pos]
     if s == token:
-      return (e, s)
+      return (e, s, pos, end_pos)
   return None
+
+
+def generate_phase2_tokenization(
+    phase2_source: str,
+    file_path: str = '') -> Generator[Phase2Token, None, None]:
+  """Yields relevant C++ tokens, not every valid/required C++ token.
+
+  Only those matching those things I've needed for the tool(s) I've written
+  (i.e. for matching enum definitions and generating enum logging support).
+
+  Args:
+    phase2_source: Source after phase 2 of translation.
+    file_path: File name or path, used only in error messages.
+  """
+
+  pos = 0
+  while pos < len(phase2_source):
+    # print('pos=', pos)
+
+    # Skip whitespace.
+    m = WHITESPACE_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'WHITESPACE_RE matched [{pos}:{m.end()}]')
+      pos = m.end()
+      continue
+
+    # Skip attribute specifiers (e.g. [[noreturn]]). This pattern doesn't match
+    # 'interesting' attribute specifier sequences, but so far those haven't been
+    # needed.
+    m = ATTRIBUTE_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'ATTRIBUTE_RE matched [{pos}:{m.end()}]')
+      pos = m.end()
+      continue
+
+    # Skip preprocessor lines.
+    m = PREPROCESSOR_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'PREPROCESSOR_RE matched [{pos}:{m.end()}]')
+      pos = m.end()
+      continue
+
+    # Skip comments.
+    m = LINE_COMMENT_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'LINE_COMMENT_RE matched [{pos}:{m.end()}]')
+      pos = m.end()
+      continue
+    m = MULTI_LINE_COMMENT_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'MULTI_LINE_COMMENT_RE matched [{pos}:{m.end()}]')
+      pos = m.end()
+      continue
+
+    # Match strings and characters.
+    m = START_CHAR_LITERAL_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'START_CHAR_LITERAL_RE matched [{pos}:{m.end()}]')
+      end_pos = find_char_literal_end(phase2_source, m)
+      token = phase2_source[pos:end_pos]
+      yield (EToken.CHAR, token, pos, end_pos)
+      pos = end_pos
+      continue
+
+    m = START_STRING_LITERAL_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'START_STRING_LITERAL_RE matched [{pos}:{m.end()}]')
+      end_pos = find_string_end(phase2_source, m.end() - 1)
+      token = phase2_source[pos:end_pos]
+      yield (EToken.STRING, token, pos, end_pos)
+      pos = end_pos
+      continue
+
+    m = START_RAW_STRING_LITERAL_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'START_RAW_STRING_LITERAL_RE matched [{pos}:{m.end()}]')
+      end_pos = find_raw_string_literal_end(phase2_source, m)
+      token = phase2_source[pos:end_pos]
+      yield (EToken.RAW_STRING, token, pos, end_pos)
+      pos = end_pos
+      continue
+
+    # Match numbers.
+    m = FLOATING_POINT_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'FLOATING_POINT_RE matched [{pos}:{m.end()}]')
+      token = phase2_source[pos:m.end()]
+      yield (EToken.NUMBER, token, pos, end_pos)
+      pos = m.end()
+      continue
+
+    # Match operators and other punctuation. Not attempting to make them
+    # complete tokens (i.e. '->' will be yielded as '-' and '>').
+
+    if phase2_source[pos] in OPS_AND_PUNC_CHAR_SET:
+      # print(f'Found operator or punctuation at {pos}')
+      v = match_operator_or_punctuation(phase2_source, pos)
+      if v:
+        yield v
+        pos += len(v[1])
+        continue
+      # This is surprising!
+      raise ValueError(
+          f'Unable to match {phase2_source[pos:pos+20]!r} in file {file_path!r}'
+      )
+
+    # Match identifiers.
+    m = IDENTIFIER_RE.match(phase2_source, pos=pos)
+    if m:
+      # print(f'identifier_re matched [{pos}:{m.end()}]')
+      token = phase2_source[pos:m.end()]
+      yield (EToken.IDENTIFIER, token, pos, m.end())
+      pos = m.end()
+      continue
+
+    raise ValueError(
+        f'Unable to match {phase2_source[pos:pos+20]!r} in file {file_path!r}')
+
+
+@dataclasses.dataclass()
+class Token:
+  """Represents one token in a C++ source file."""
+
+  kind: EToken
+  # Source of the token after phase 2 translation.
+  src: str
+  # Source of the token before phase 2 translation. In general, this is the
+  # same as src, but not if a Raw String Literal with a backslash at the end
+  # of a line in the string.
+  raw_src: str
+
+  # First character index in the raw file source, which here means before phase
+  # 2 translation that collapses continued lines.
+  raw_start: int
+
+  # The character just beyond token in the raw file source.
+  raw_end: int
+
+  def __post_init__(self):
+    if self.kind == EToken.RAW_STRING:
+      # Just in case phase 2 processing removed backslash-newline pairs, we
+      # replace src with raw_src.
+      self.src = self.raw_src
+
+
+IndexPair = Tuple[int, int]
+
+
+class CppSource(object):
+  """Provides mapping to the raw source from its phase2 translation."""
+
+  def __init__(self, raw_source: str, file_path: str = ''):
+    self.raw_source: str = raw_source
+    self.file_path = file_path
+    self.phase2_source: str = ''
+    # A list of tuples: phase2_source index to raw_source index.
+    self.phase2_source_to_raw_source: List[IndexPair] = []
+    self.perform_phase2()
+
+  def perform_phase2(self):
+    """Remove occurrences of backlash-newline, tracks where that happened."""
+    self.phase2_source = ''
+    self.phase2_source_to_raw_source = []
+
+    # start and end are indices in self.raw_source
+    start = 0
+
+    def append_phase2_segment(end: int):
+      if start > end:
+        raise AssertionError(f'start > end: {start} > {end}')
+      elif start == end:
+        # Continuation line marker at the start of the file or right after the
+        # last such marker.
+        return
+
+      self.phase2_source_to_raw_source.append((len(self.phase2_source), start))
+      if start == 0 and end == len(self.raw_source):
+        # This is the most common case, and so we can avoid making a copy.
+        if self.phase2_source:
+          raise AssertionError('Why is phase2_source already set?')
+        self.phase2_source = self.raw_source
+      else:
+        segment = self.raw_source[start:end]
+        self.phase2_source = self.phase2_source + segment
+
+    while start < len(self.raw_source):
+      end = self.raw_source.find('\\\n', start)
+      if end == -1:
+        break
+      append_phase2_segment(end)
+      start = end + 2
+
+    # There are no more continued lines.
+    if start < len(self.raw_source):
+      append_phase2_segment(len(self.raw_source))
+
+    self.phase2_source_to_raw_source.append(
+        (len(self.phase2_source), len(self.raw_source)))
+    self.phase2_source_to_raw_source.reverse()
+
+  def phase2_index_to_raw_source_index(self, ndx) -> int:
+    if ndx < 0 or ndx > len(self.phase2_source):
+      raise ValueError(f'ndx ({ndx} is not in [0, {len(self.phase2_source)}])')
+    for phase2_index, raw_index in self.phase2_source_to_raw_source:
+      if phase2_index <= ndx:
+        return raw_index + (ndx - phase2_index)
+    raise AssertionError(
+        f'Unable to locate segment start at or before {ndx}; '
+        f'segment map: {self.phase2_source_to_raw_source}')
+
+  def tokenize(self) -> Generator[Token, None, None]:
+    for kind, src, phase2_start, phase2_end in generate_phase2_tokenization(
+        self.phase2_source, file_path=self.file_path):
+      if phase2_start >= phase2_end:
+        raise AssertionError(
+            f'phase2_start >= phase2_end ({phase2_start} > {phase2_end}) '
+            f'for token {src!r} of kind {kind}')
+      raw_start = self.phase2_index_to_raw_source_index(phase2_start)
+      raw_end = self.phase2_index_to_raw_source_index(phase2_end - 1) + 1
+      yield Token(
+          kind, src, self.raw_source[raw_start:raw_end], raw_start, raw_end)
 
 
 def generate_cpp_tokens(file_src: str = '',
@@ -205,146 +464,17 @@ def generate_cpp_tokens(file_src: str = '',
     with open(file_path, mode='r') as f:
       file_src: str = f.read()
 
-  # print('len(file_src):', len(file_src))
-
-  # Phase 2 of C++ translation: combine lines separated by a backslash newline.
-  file_src = file_src.replace('\\\n', '')
-
-  # print('len(file_src) after removing backslash lines:', len(file_src))
-
-  whitespace_re = re.compile(r'\s+', flags=re.MULTILINE)
-  # Simplistic attribute matcher.
-  attribute_re = re.compile(r'\[\[.*\]\]', flags=re.MULTILINE)
-
-  preprocessor_re = re.compile(r'^#.*', flags=re.MULTILINE)
-
-  fp_re = re.compile(r'[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?')
-
-  identifier_re = re.compile(r'[a-zA-Z_][a-zA-Z_0-9]*')
-
-  line_comment_re = re.compile(r'//.*$', flags=re.MULTILINE)
-
-  other_comment_re = re.compile(r'/\*.*?\*/', flags=re.DOTALL)
-
-  start_char_literal_re = re.compile(r"(u8|u|U|L)?'")
-
-  start_string_literal_re = re.compile(r'(u8|u|U|L)?R?"')
-
-  # Maybe useful.
-  # integer_re = re.compile(r'[-+]?(0[xX][\dA-Fa-f]+|0[0-7]*|\d+)')
-  # rest_of_line_re = re.compile(r'.*$', flags=re.MULTILINE)
-
-  pos = 0
-  while pos < len(file_src):
-    # print('pos=', pos)
-
-    # Skip whitespace.
-    m = whitespace_re.match(file_src, pos=pos)
-    if m:
-      # print(f'whitespace_re matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Skip attribute (e.g. [[noreturn]]).
-    m = attribute_re.match(file_src, pos=pos)
-    if m:
-      # print(f'attribute_re matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Skip preprocessor lines.
-    m = preprocessor_re.match(file_src, pos=pos)
-    if m:
-      # print(f'preprocessor_re matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Skip comments.
-    m = line_comment_re.match(file_src, pos=pos)
-    if m:
-      # print(f'line_comment_re matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-    m = other_comment_re.match(file_src, pos=pos)
-    if m:
-      # print(f'other_comment_re matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Match strings and characters.
-    m = start_char_literal_re.match(file_src, pos=pos)
-    if m:
-      # print(f'start_char_literal_re matched [{pos}:{m.end()}]')
-      end_pos = find_char_literal_end(file_src, m)
-      token = file_src[pos:end_pos]
-      yield (EToken.CHAR, token)
-      pos = end_pos
-      continue
-
-    m = start_string_literal_re.match(file_src, pos=pos)
-    if m:
-      # print(f'start_string_literal_re matched [{pos}:{m.end()}]')
-      end_pos = find_string_literal_end(file_src, m)
-      token = file_src[pos:end_pos]
-      yield (EToken.STRING, token)
-      pos = end_pos
-      continue
-
-    #     if file_src[pos] == '"':
-    #       end_pos = find_string_end(file_src, pos)
-    #       token = file_src[pos:end_pos]
-    #       yield (EToken.STRING, token)
-    #       pos = end_pos
-    #       continue
-
-    #     if file_src[pos] == "'":
-    #       end_pos = find_char_end(file_src, pos + 1)
-    #       token = file_src[pos:end_pos]
-    #       yield (EToken.CHAR, token)
-    #       pos = end_pos
-    #       continue
-
-    # Match numbers.
-    m = fp_re.match(file_src, pos=pos)
-    if m:
-      # print(f'fp_re matched [{pos}:{m.end()}]')
-      token = file_src[pos:m.end()]
-      yield (EToken.NUMBER, token)
-      pos = m.end()
-      continue
-
-    # Match operators and other punctuation. Not attempting to make them
-    # complete tokens (i.e. '->' will be yielded as '-' and '>').
-
-    if file_src[pos] in OPS_AND_PUNC_CHAR_SET:
-      # print(f'Found operator or punctuation at {pos}')
-      v = match_operator_or_punctuation(file_src, pos)
-      if v:
-        yield v
-        pos += len(v[1])
-        continue
-      # This is surprising!
-      raise ValueError(f'Unable to match {file_src[pos:pos+20]!r}')
-
-    # Match identifiers.
-    m = identifier_re.match(file_src, pos=pos)
-    if m:
-      # print(f'identifier_re matched [{pos}:{m.end()}]')
-      token = file_src[pos:m.end()]
-      yield (EToken.IDENTIFIER, token)
-      pos = m.end()
-      continue
-
-    raise ValueError(f'Unable to match {file_src[pos:pos+20]!r}')
+  cpp_source = CppSource(file_src, file_path=file_path)
+  yield from cpp_source.tokenize()
 
 
 def process_file(file_path: str):
-  """Reads a file, finds enum definitions, emits print functions."""
+  """Reads a file and prints its C++ tokenization."""
   print()
   print('#' * 80)
   print('Tokenizing file', file_path, flush=True)
-  for token, s in generate_cpp_tokens(file_path=file_path):
-    print(f'{token}\t{s!r}')
+  for token in generate_cpp_tokens(file_path=file_path):
+    print(token)
   print()
 
 
