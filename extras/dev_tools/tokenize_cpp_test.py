@@ -2,7 +2,7 @@
 
 from absl import flags
 
-from google3.experimental.users.jamessynge.tiny_alpaca_server.extras.dev_tools import tokenize_cpp
+import tokenize_cpp
 from google3.testing.pybase import googletest
 
 FLAGS = flags.FLAGS

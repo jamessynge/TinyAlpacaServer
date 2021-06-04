@@ -12,7 +12,7 @@ import re
 import sys
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
 
-from google3.experimental.users.jamessynge.tiny_alpaca_server.extras.dev_tools import tokenize_cpp
+import tokenize_cpp
 
 EToken = tokenize_cpp.EToken
 
