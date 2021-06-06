@@ -29,6 +29,19 @@ TEST(JsonMethodResponseTest, AllFields) {
             R"("ErrorMessage": "Are you saying \"Hey, look at that!\"?"})");
 }
 
+TEST(JsonMethodResponseTest, NoError) {
+  AlpacaRequest request;
+  request.set_server_transaction_id(123);
+  request.set_client_transaction_id(789);
+
+  JsonMethodResponse response(request);
+
+  PrintToStdString out;
+  JsonObjectEncoder::Encode(response, out);
+  EXPECT_EQ(out.str(), R"({"ClientTransactionID": 789, )"
+                       R"("ServerTransactionID": 123})");
+}
+
 TEST(JsonArrayResponseTest, Empty) {
   ElementSourceFunctionAdapter elements([](JsonArrayEncoder& encoder) {});
   AlpacaRequest request;
@@ -39,9 +52,7 @@ TEST(JsonArrayResponseTest, Empty) {
   PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [], )"
-                       R"("ServerTransactionID": 0, )"
-                       R"("ErrorNumber": 0, )"
-                       R"("ErrorMessage": ""})");
+                       R"("ServerTransactionID": 0})");
 }
 
 TEST(JsonArrayResponseTest, Mixed) {
@@ -57,9 +68,7 @@ TEST(JsonArrayResponseTest, Mixed) {
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [false, -1, ")"
                        "\\r\\n"
-                       R"("], )"
-                       R"("ErrorNumber": 0, )"
-                       R"("ErrorMessage": ""})");
+                       R"("]})");
 }
 
 TEST(JsonBoolResponseTest, True) {
@@ -68,9 +77,7 @@ TEST(JsonBoolResponseTest, True) {
 
   PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
-  EXPECT_EQ(out.str(), R"({"Value": true, )"
-                       R"("ErrorNumber": 0, )"
-                       R"("ErrorMessage": ""})");
+  EXPECT_EQ(out.str(), R"({"Value": true})");
 }
 
 TEST(JsonBoolResponseTest, False) {
@@ -83,9 +90,7 @@ TEST(JsonBoolResponseTest, False) {
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": false, )"
                        R"("ClientTransactionID": 2, )"
-                       R"("ServerTransactionID": 3, )"
-                       R"("ErrorNumber": 0, )"
-                       R"("ErrorMessage": ""})");
+                       R"("ServerTransactionID": 3})");
 }
 
 }  // namespace
