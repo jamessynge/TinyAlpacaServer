@@ -63,7 +63,7 @@ class DiscoverySource:
   def send_discovery_packet(self, sock: socket.socket):
     action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
     print('%s from %s to %s' % (action, self.src_address, self.dst_address))
-    sock.sendto(ALPACA_DISCOVERY.encode(encoding='ascii'),
+    sock.sendto(DISCOVERY_REQUEST_BODY.encode(encoding='ascii'),
                 (self.dst_address, ALPACA_DISCOVERY_PORT))
 
 
