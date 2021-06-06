@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""TODO(jamessynge): DO NOT SUBMIT without one-line documentation for alpaca_client.
-
-TODO(jamessynge): DO NOT SUBMIT without a detailed description of alpaca_client.
-"""
+"""Makes HTTP requests to Alpaca servers, returns HTTP responses."""
 
 import enum
 import random
@@ -42,66 +39,6 @@ class EDeviceType(enum.Enum):
     return self.name.lower()
 
 
-# class EDeviceMethod(enum.Enum):
-#   """All Alpaca device methods."""
-#   # pylint: disable=invalid-name
-
-#   # This is the only method for EAlpacaApi::kDeviceSetup:
-#   Setup = enum.auto()
-
-#   # Supported common methods:
-#   Action = enum.auto()
-#   CommandBlind = enum.auto()
-#   CommandBool = enum.auto()
-#   CommandString = enum.auto()
-#   Connected = enum.auto()
-#   Description = enum.auto()
-#   DriverInfo = enum.auto()
-#   DriverVersion = enum.auto()
-#   InterfaceVersion = enum.auto()
-#   Name = enum.auto()
-#   SupportedActions = enum.auto()
-
-#   # CoverCalibrator methods:
-#   Brightness = enum.auto()
-#   CalibratorState = enum.auto()
-#   CoverState = enum.auto()
-#   MaxBrightness = enum.auto()
-
-#   CalibratorOff = enum.auto()
-#   CalibratorOn = enum.auto()
-#   CloseCover = enum.auto()
-#   HaltCover = enum.auto()
-#   OpenCover = enum.auto()
-
-#   # ObservingConditions methods:
-#   AveragePeriod = enum.auto()
-#   CloudCover = enum.auto()
-#   DewPoint = enum.auto()
-#   Humidity = enum.auto()
-#   Pressure = enum.auto()
-#   RainRate = enum.auto()
-#   Refresh = enum.auto()
-#   SensorDescription = enum.auto()
-#   SkyBrightness = enum.auto()
-#   SkyQuality = enum.auto()
-#   SkyTemperature = enum.auto()
-#   StarFullWidthHalfMax = enum.auto()
-#   Temperature = enum.auto()
-#   TimeSinceLastUpdate = enum.auto()
-#   WindDirection = enum.auto()
-#   WindGust = enum.auto()
-#   WindSpeed = enum.auto()
-
-#   # SafetyMonitor methods:
-#   IsSafe = enum.auto()
-
-#   # pylint: enable=invalid-name
-
-#   def api_name(self):
-#     return self.name.lower()
-
-
 def int_value_or_default(name: str,
                          value: Optional[int],
                          dflt: int,
@@ -110,7 +47,7 @@ def int_value_or_default(name: str,
   """Returns value if provided and valid, or dflt if not provided."""
   if value is None:
     return dflt
-  elif not isinstance(value, int) or value < min or value > max:
+  elif not isinstance(value, int) or value < minimum or value > maximum:
     raise ValueError(f'Unexpected {name}: {value!r}')
   else:
     return value
@@ -157,16 +94,17 @@ class AlpacaClient(object):
   def send(
       self, request: Union[requests.Request, requests.PreparedRequest]
   ) -> requests.Response:
+    """Sends an HTTP request, returns the response."""
     if isinstance(request, requests.Request):
       request = request.prepare()
     request: requests.PreparedRequest
-    print('sending PreparedRequest')
-    print(request)
-    print('method', request.method)
-    print('url', request.url)
+    # print('sending PreparedRequest')
+    # print(request)
+    # print('method', request.method)
+    # print('url', request.url)
     r = self.session.send(request)
-    print('response', r)
-    print('content', r.content)
+    # print('response', r)
+    # print('content', r.content)
     return r
 
   def get_apiversions(self) -> requests.Response:
@@ -373,18 +311,6 @@ def main(argv: Sequence[str]) -> None:
   print('get_apiversions', client.get_apiversions())
   print('get_description', client.get_description())
   print('get_configureddevices', client.get_configureddevices())
-  # print(
-  #     client.make_url_path(EDeviceType.CoverCalibrator, 1,
-  #                          EDeviceMethod.Description))
-  # r = client.device_api_put_request(
-  #     EDeviceType.CoverCalibrator,
-  #     1,
-  #     EDeviceMethod.Action,
-  #     Action='EnableLED',
-  #     Parameters='1')
-  # print(r)
-  # print(r.url)
-  # print(r.request.body)
 
 
 if __name__ == '__main__':
