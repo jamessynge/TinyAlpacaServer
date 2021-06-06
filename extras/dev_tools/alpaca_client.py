@@ -263,15 +263,113 @@ class DeviceBase(object):
 
 
 class CoverCalibrator(DeviceBase):
-  pass
+  """Makes HTTP requests to a CoverCalibrator device."""
+
+  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+    super().__init__(client, 'covercalibrator', device_number, **kwargs)
+
+  def get_brightness(self) -> requests.Response:
+    return self._get('brightness')
+
+  def get_calibratorstate(self) -> requests.Response:
+    return self._get('calibratorstate')
+
+  def get_coverstate(self) -> requests.Response:
+    return self._get('coverstate')
+
+  def get_maxbrightness(self) -> requests.Response:
+    return self._get('maxbrightness')
+
+  def put_calibratoroff(self) -> requests.Response:
+    return self._put('calibratoroff')
+
+  def put_calibratoron(self, brightness: int) -> requests.Response:
+    return self._put('calibratoron', Brightness=brightness)
+
+  def put_closecover(self) -> requests.Response:
+    return self._put('closecover')
+
+  def put_haltcover(self) -> requests.Response:
+    return self._put('haltcover')
+
+  def put_opencover(self) -> requests.Response:
+    return self._put('opencover')
+
+
+class ObservingConditions(DeviceBase):
+  """Makes HTTP requests to an ObservingConditions device."""
+
+  def get_averageperiod(self) -> requests.Response:
+    return self._get('averageperiod')
+
+  def get_cloudcover(self) -> requests.Response:
+    return self._get('cloudcover')
+
+  def get_dewpoint(self) -> requests.Response:
+    return self._get('dewpoint')
+
+  def get_humidity(self) -> requests.Response:
+    return self._get('humidity')
+
+  def get_pressure(self) -> requests.Response:
+    return self._get('pressure')
+
+  def get_rainrate(self) -> requests.Response:
+    return self._get('rainrate')
+
+  def get_skybrightness(self) -> requests.Response:
+    return self._get('skybrightness')
+
+  def get_skyquality(self) -> requests.Response:
+    return self._get('skyquality')
+
+  def get_skytemperature(self) -> requests.Response:
+    return self._get('skytemperature')
+
+  def get_starfwhm(self) -> requests.Response:
+    return self._get('starfwhm')
+
+  def get_temperature(self) -> requests.Response:
+    return self._get('temperature')
+
+  def get_winddirection(self) -> requests.Response:
+    return self._get('winddirection')
+
+  def get_windgust(self) -> requests.Response:
+    return self._get('windgust')
+
+  def get_windspeed(self) -> requests.Response:
+    return self._get('windspeed')
+
+  def get_sensordescription(self) -> requests.Response:
+    return self._get('sensordescription')
+
+  def get_timesincelastupdate(self) -> requests.Response:
+    return self._get('timesincelastupdate')
+
+  def put_averageperiod(self, average_period: float) -> requests.Response:
+    return self._put('averageperiod', AveragePeriod=average_period)
+
+  def put_refresh(self) -> requests.Response:
+    return self._put('refresh')
+
+
+class SafetyMonitor(DeviceBase):
+  """Makes HTTP requests to an SafetyMonitor device."""
+
+  def get_issafe(self) -> requests.Response:
+    return self._get('issafe')
 
 
 def main(argv: Sequence[str]) -> None:
-  local_server = 'http://192.168.86.50'
-  sample_mgmt_server = 'https://private-d6fe6-ascom.apiary-mock.com/ascom'
-  sample_device_api_server = 'https://virtserver.swaggerhub.com/ASCOMInitiative'
+  # mgmt_server = 'https://private-d6fe6-ascom.apiary-mock.com/ascom'
+  # device_api_server = 'https://virtserver.swaggerhub.com/ASCOMInitiative'
+  if len(argv) != 1:
+    raise ValueError('Expects one arg, the base of the URL')
 
-  client = AlpacaClient(sample_mgmt_server)
+  url_base = argv[0]
+
+  client = AlpacaClient(url_base)
   print('get_apiversions', client.get_apiversions())
   print('get_description', client.get_description())
   print('get_configureddevices', client.get_configureddevices())
@@ -290,4 +388,4 @@ def main(argv: Sequence[str]) -> None:
 
 
 if __name__ == '__main__':
-  main(sys.argv)
+  main(sys.argv[1:])
