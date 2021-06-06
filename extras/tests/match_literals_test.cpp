@@ -155,8 +155,56 @@ TEST(MatchLiteralsTest, MatchCommonDeviceMethod) {
   }
 }
 
+TEST(MatchLiteralsTest, MatchCoverCalibratorMethod) {
+  const EDeviceMethod kBogusEnum = static_cast<EDeviceMethod>(0xff);
+  const EDeviceType kDeviceType = EDeviceType::kCoverCalibrator;
+
+  // Tests of the Device API, as opposed to the Setup API.
+  DeviceMethodTestCases test_cases = {
+      {"brightness", EDeviceMethod::kAveragePeriod},
+      {"calibratoroff", EDeviceMethod::kCalibratorOff},
+      {"calibratoron", EDeviceMethod::kCalibratorOn},
+      {"calibratorstate", EDeviceMethod::kCloudCover},
+      {"closecover", EDeviceMethod::kCloseCover},
+      {"coverstate", EDeviceMethod::kDewPoint},
+      {"haltcover", EDeviceMethod::kHaltCover},
+      {"maxbrightness", EDeviceMethod::kHumidity},
+      {"opencover", EDeviceMethod::kOpenCover},
+      {"", EDeviceMethod::kUnknown},
+      {"cloudcover", EDeviceMethod::kUnknown},
+      {"setup", EDeviceMethod::kUnknown},
+  };
+  PrependCommonDeviceMethodTestCases(test_cases);
+
+  for (const auto [text, expected_enum] : test_cases) {
+    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+                << expected_enum;
+    EDeviceMethod matched = kBogusEnum;
+    if (expected_enum == EDeviceMethod::kUnknown) {
+      EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
+                                     MakeStringView(text), matched));
+      EXPECT_EQ(matched, kBogusEnum);
+
+    } else {
+      EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
+                                    MakeStringView(text), matched));
+      EXPECT_EQ(matched, expected_enum);
+    }
+  }
+
+  // Now tests of the Setup API.
+  EDeviceMethod matched = kBogusEnum;
+  EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
+                                 StringView("connected"), matched));
+  EXPECT_EQ(matched, kBogusEnum);
+  EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
+                                StringView("setup"), matched));
+  EXPECT_EQ(matched, EDeviceMethod::kSetup);
+}
+
 TEST(MatchLiteralsTest, MatchObservingConditionsMethod) {
   const EDeviceMethod kBogusEnum = static_cast<EDeviceMethod>(0xff);
+  const EDeviceType kDeviceType = EDeviceType::kObservingConditions;
 
   // Tests of the Device API, as opposed to the Setup API.
   DeviceMethodTestCases test_cases = {
@@ -180,14 +228,12 @@ TEST(MatchLiteralsTest, MatchObservingConditionsMethod) {
                 << expected_enum;
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
-      EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice,
-                                     EDeviceType::kObservingConditions,
+      EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                      MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
 
     } else {
-      EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice,
-                                    EDeviceType::kObservingConditions,
+      EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                     MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
@@ -195,18 +241,17 @@ TEST(MatchLiteralsTest, MatchObservingConditionsMethod) {
 
   // Now tests of the Setup API.
   EDeviceMethod matched = kBogusEnum;
-  EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kSetup,
-                                 EDeviceType::kObservingConditions,
+  EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
                                  StringView("connected"), matched));
   EXPECT_EQ(matched, kBogusEnum);
-  EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kSetup,
-                                EDeviceType::kObservingConditions,
+  EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
                                 StringView("setup"), matched));
   EXPECT_EQ(matched, EDeviceMethod::kSetup);
 }
 
 TEST(MatchLiteralsTest, MatchSafetyMonitorMethod) {
   const EDeviceMethod kBogusEnum = static_cast<EDeviceMethod>(0xff);
+  const EDeviceType kDeviceType = EDeviceType::kSafetyMonitor;
 
   // Tests of the Device API, as opposed to the Setup API.
   DeviceMethodTestCases test_cases = {
@@ -222,14 +267,12 @@ TEST(MatchLiteralsTest, MatchSafetyMonitorMethod) {
                 << expected_enum;
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
-      EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice,
-                                     EDeviceType::kSafetyMonitor,
+      EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                      MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
 
     } else {
-      EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice,
-                                    EDeviceType::kSafetyMonitor,
+      EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                     MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
     }
@@ -237,10 +280,10 @@ TEST(MatchLiteralsTest, MatchSafetyMonitorMethod) {
 
   // Now tests of the Setup API.
   EDeviceMethod matched = kBogusEnum;
-  EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kSetup, EDeviceType::kSafetyMonitor,
+  EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
                                  StringView("connected"), matched));
   EXPECT_EQ(matched, kBogusEnum);
-  EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kSetup, EDeviceType::kSafetyMonitor,
+  EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
                                 StringView("setup"), matched));
   EXPECT_EQ(matched, EDeviceMethod::kSetup);
 }
