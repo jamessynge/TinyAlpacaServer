@@ -98,10 +98,10 @@ class AlpacaClient(object):
     if isinstance(request, requests.Request):
       request = request.prepare()
     request: requests.PreparedRequest
-    # print('sending PreparedRequest')
-    # print(request)
+    print('sending PreparedRequest')
+    print(request)
     # print('method', request.method)
-    # print('url', request.url)
+    print('url', request.url)
     r = self.session.send(request)
     # print('response', r)
     # print('content', r.content)
