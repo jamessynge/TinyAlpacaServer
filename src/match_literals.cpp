@@ -76,11 +76,11 @@ bool MatchCoverCalibratorMethod(const StringView& view, EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(brightness, EDeviceMethod::kAveragePeriod);
   MATCH_ONE_LITERAL_EXACTLY(calibratoroff, EDeviceMethod::kCalibratorOff);
   MATCH_ONE_LITERAL_EXACTLY(calibratoron, EDeviceMethod::kCalibratorOn);
-  MATCH_ONE_LITERAL_EXACTLY(calibratorstate, EDeviceMethod::kCloudCover);
+  MATCH_ONE_LITERAL_EXACTLY(calibratorstate, EDeviceMethod::kCalibratorState);
   MATCH_ONE_LITERAL_EXACTLY(closecover, EDeviceMethod::kCloseCover);
-  MATCH_ONE_LITERAL_EXACTLY(coverstate, EDeviceMethod::kDewPoint);
+  MATCH_ONE_LITERAL_EXACTLY(coverstate, EDeviceMethod::kCoverState);
   MATCH_ONE_LITERAL_EXACTLY(haltcover, EDeviceMethod::kHaltCover);
-  MATCH_ONE_LITERAL_EXACTLY(maxbrightness, EDeviceMethod::kHumidity);
+  MATCH_ONE_LITERAL_EXACTLY(maxbrightness, EDeviceMethod::kMaxBrightness);
   MATCH_ONE_LITERAL_EXACTLY(opencover, EDeviceMethod::kOpenCover);
   return false;
 }
