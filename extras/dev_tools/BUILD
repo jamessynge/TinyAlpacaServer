@@ -19,6 +19,14 @@ pytype_strict_binary(
     deps = ["//third_party/py/dataclasses"],
 )
 
+pytype_strict_binary(
+    name = "alpaca_client",
+    srcs = ["alpaca_client.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = ["//third_party/py/requests"],
+)
+
 pytype_strict_library(
     name = "tokenize_cpp_lib",
     srcs = ["tokenize_cpp.py"],
