@@ -22,7 +22,7 @@ import dataclasses
 import netifaces
 
 ALPACA_DISCOVERY_PORT = 32227  # a temporary port that I choose for testing
-ALPACA_DISCOVERY = 'ALPACA_DISCOVERY1'
+ALPACA_DISCOVERY = 'alpacadiscovery1'
 ALPACA_RESPONSE = 'alpacaport'
 
 
@@ -54,9 +54,9 @@ class DiscoverySource:
 
   def send_discovery_packet(self, sock: socket.socket):
     action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
-    print('%s to %s' % (action, self.src_address))
-    sock.sendto(ALPACA_DISCOVERY.encode(),
-                (self.src_address, ALPACA_DISCOVERY_PORT))
+    print('%s to %s' % (action, self.dst_address))
+    sock.sendto(ALPACA_DISCOVERY.encode(encoding='ascii'),
+                (self.dst_address, ALPACA_DISCOVERY_PORT))
 
 
 @dataclasses.dataclass
@@ -204,6 +204,8 @@ def perform_discovery(sources: List[DiscoverySource],
     while not q.empty():
       dr = q.get(block=False)
       pprint.pprint(dr)
+      print('Found Alpaca Server at %s:%d' % (dr.addr[0], dr.get_port()))
+
 
 
 def main():

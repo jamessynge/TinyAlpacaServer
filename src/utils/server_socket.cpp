@@ -98,6 +98,8 @@ bool ServerSocket::BeginListening(uint8_t sock_num) {
   disconnect_data_.Reset();
   if (PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_)) {
     last_status_ = PlatformEthernet::SocketStatus(sock_num);
+    TAS_VLOG(1) << "Listening for " << tcp_port_ << " on socket " << sock_num
+                << ", last_status is " << last_status_;
     VERIFY_LAST_STATUS_IS(SnSR::LISTEN, last_status_);
     return true;
   }
@@ -126,8 +128,10 @@ void ServerSocket::PerformIO() {
     }
     // Should we return here? Maybe... but not if waiting for a timeout on a
     // disconnect.
+  } else {
+    TAS_VLOG(3) << "Socket " << sock_num_ << " status changed from "
+                << last_status_ << " to " << status;
   }
-
   switch (status) {
     case SnSR::CLOSED:
       BeginListening(sock_num_);

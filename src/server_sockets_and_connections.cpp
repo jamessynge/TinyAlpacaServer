@@ -27,11 +27,11 @@ bool ServerSocketsAndConnections::Initialize() {
 }
 
 void ServerSocketsAndConnections::PerformIO() {
-  TAS_VLOG(4) << TASLIT("ServerSocketsAndConnections::PerformIO entry");
+  TAS_VLOG(6) << TASLIT("ServerSocketsAndConnections::PerformIO entry");
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
     GetServerSocketAndConnection(ndx)->PerformIO();
   }
-  TAS_VLOG(4) << TASLIT("ServerSocketsAndConnections::PerformIO exit");
+  TAS_VLOG(6) << TASLIT("ServerSocketsAndConnections::PerformIO exit");
 }
 
 ServerSocketAndConnection*
