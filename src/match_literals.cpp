@@ -72,6 +72,19 @@ bool MatchCommonDeviceMethod(const StringView& view, EDeviceMethod& match) {
 }  // namespace internal
 
 namespace {
+bool MatchCoverCalibratorMethod(const StringView& view, EDeviceMethod& match) {
+  MATCH_ONE_LITERAL_EXACTLY(brightness, EDeviceMethod::kAveragePeriod);
+  MATCH_ONE_LITERAL_EXACTLY(calibratoroff, EDeviceMethod::kCalibratorOff);
+  MATCH_ONE_LITERAL_EXACTLY(calibratoron, EDeviceMethod::kCalibratorOn);
+  MATCH_ONE_LITERAL_EXACTLY(calibratorstate, EDeviceMethod::kCloudCover);
+  MATCH_ONE_LITERAL_EXACTLY(closecover, EDeviceMethod::kCloseCover);
+  MATCH_ONE_LITERAL_EXACTLY(coverstate, EDeviceMethod::kDewPoint);
+  MATCH_ONE_LITERAL_EXACTLY(haltcover, EDeviceMethod::kHaltCover);
+  MATCH_ONE_LITERAL_EXACTLY(maxbrightness, EDeviceMethod::kHumidity);
+  MATCH_ONE_LITERAL_EXACTLY(opencover, EDeviceMethod::kOpenCover);
+  return false;
+}
+
 bool MatchObservingConditionsMethod(const StringView& view,
                                     EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(averageperiod, EDeviceMethod::kAveragePeriod);
@@ -107,6 +120,12 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
                        const StringView& view, EDeviceMethod& match) {
   if (group == EApiGroup::kDevice) {
     switch (device_type) {
+      case EDeviceType::kCoverCalibrator:
+        if (MatchCoverCalibratorMethod(view, match)) {
+          return true;
+        }
+        break;
+
       case EDeviceType::kObservingConditions:
         if (MatchObservingConditionsMethod(view, match)) {
           return true;
