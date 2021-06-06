@@ -1,4 +1,15 @@
-.development
+# I put random stuff I don't want exported into no-export directories.
 **/no-export/**
+
+# For tooling on workstation.
 **/METADATA
+
+# Python produces these files during execution.
+**/__pycache__/**
+
+# .development tells the Arduino IDE to allow editing and overwriting of
+# examples, etc., rather than forcing a copy (Save As) in order to save.
+.development
+
+# Visual Studio (VS) Code editor creates a file (or directory?) with this name.
 .vscode

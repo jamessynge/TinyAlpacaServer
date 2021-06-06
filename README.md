@@ -1,4 +1,4 @@
-# [Tiny Alpaca Server](https://github.com/jamessynge/tiny-alpaca-server)
+# [Tiny Alpaca Server](https://github.com/jamessynge/TinyAlpacaServer)
 
 Author: James Synge (james.synge@gmail.com)
 
@@ -199,7 +199,7 @@ it must be rediscovered each time.
 
 ## Improvement Priorities
 
-1.  High-Resolution PWM for CoverCalibrator.
+1.  DONE: High-Resolution PWM for CoverCalibrator.
 1.  Write Python Alpaca Client Library for the UDP and HTTP Protocols.
 1.  Write a minimal "Conformance Test" in Python, that checks for valid and
     sensible responses to:

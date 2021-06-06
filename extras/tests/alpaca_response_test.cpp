@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "extras/test_tools/json_test_utils.h"
@@ -39,15 +40,15 @@ std::string MakeExpectedResponseHeader(std::string_view expected_body,
 // value.
 std::string MakeExpectedResponse(std::string_view raw_json_for_value,
                                  bool do_close = kDoNotClose, int txn_id = 0) {
-  std::string expected_body = "{";
+  std::vector<std::string> entries;
   if (!raw_json_for_value.empty()) {
-    expected_body += absl::StrCat(R"("Value": )", raw_json_for_value, ", ");
+    entries.push_back(absl::StrCat(R"("Value": )", raw_json_for_value));
   }
   if (txn_id >= 0) {
-    expected_body += absl::StrCat(R"("ServerTransactionID": )", txn_id, ", ");
+    entries.push_back(absl::StrCat(R"("ServerTransactionID": )", txn_id));
   }
-  expected_body +=
-      absl::StrCat(R"("ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
+  std::string expected_body =
+      absl::StrCat("{", absl::StrJoin(entries, ", "), "}", kEOL);
   std::string header = MakeExpectedResponseHeader(expected_body, do_close);
   return header + expected_body;
 }
@@ -317,8 +318,7 @@ TEST(AlpacaResponseTest, LiteralArrayResponse) {
   EXPECT_TRUE(WriteResponse::LiteralArrayResponse(request, value, out));
 
   const std::string expected_body =
-      absl::StrCat(R"({"Value": ["DeviceType", "ManufacturerVersion"],)",
-                   R"( "ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
+      absl::StrCat(R"({"Value": ["DeviceType", "ManufacturerVersion"]})", kEOL);
   EXPECT_EQ(out.str(),
             absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer",
                          kEOL, "Content-Type: application/json", kEOL,

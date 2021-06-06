@@ -34,6 +34,7 @@ TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
     request.http_method = EHttpMethod::GET;
     request.api_group = EApiGroup::kManagement;
     request.api = EAlpacaApi::kManagementConfiguredDevices;
+    request.set_server_transaction_id(123);
 
     PrintToStdString out;
     EXPECT_TRUE(devices.HandleManagementConfiguredDevices(request, out));
@@ -41,6 +42,7 @@ TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
     EXPECT_THAT(out.str(), Not(HasSubstr("Connection: close")));
     EXPECT_THAT(out.str(), HasSubstr("Content-Type: application/json"));
     EXPECT_THAT(out.str(), HasSubstr("\r\n\r\n{\"Value\": [], "));
+    EXPECT_THAT(out.str(), HasSubstr("\"ServerTransactionID\": 123"));
   }
   {
     AlpacaRequest request;
@@ -178,10 +180,10 @@ TEST_F(AlpacaDevicesTest, OneConfiguredDevice) {
                                      "], ")));
   EXPECT_THAT(
       out.str(),
-      HasSubstr(
-          "\"ClientTransactionID\": 222, \"ServerTransactionID\": 111, "));
-  EXPECT_THAT(out.str(),
-              EndsWith("\"ErrorNumber\": 0, \"ErrorMessage\": \"\"}\r\n"));
+      HasSubstr("\"ClientTransactionID\": 222, \"ServerTransactionID\": 111"));
+  EXPECT_THAT(out.str(), EndsWith("}\r\n"));
+  EXPECT_THAT(out.str(), Not(HasSubstr("\"ErrorNumber\":")));
+  EXPECT_THAT(out.str(), Not(HasSubstr("\"ErrorMessage\":")));
 }
 
 TEST_F(AlpacaDevicesTest, ThreeConfiguredDevices) {
@@ -206,10 +208,8 @@ TEST_F(AlpacaDevicesTest, ThreeConfiguredDevices) {
                              kConfiguredDeviceObservingConditions1, "], ")));
   EXPECT_THAT(
       out.str(),
-      HasSubstr(
-          "\"ClientTransactionID\": 222, \"ServerTransactionID\": 111, "));
-  EXPECT_THAT(out.str(),
-              EndsWith("\"ErrorNumber\": 0, \"ErrorMessage\": \"\"}\r\n"));
+      HasSubstr("\"ClientTransactionID\": 222, \"ServerTransactionID\": 111"));
+  EXPECT_THAT(out.str(), EndsWith("}\r\n"));
 }
 
 TEST_F(AlpacaDevicesTest, SetupUnknownDevice) {

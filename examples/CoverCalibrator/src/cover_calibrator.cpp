@@ -19,7 +19,7 @@ constexpr MillisT kLedRampStepTime = 2;
 TAS_DEFINE_LITERAL(CovCalName, "Cover-Calibrator");
 TAS_DEFINE_LITERAL(CovCalDescription, "AstroMakers Cover Calibrator");
 TAS_DEFINE_LITERAL(CovCalDriverInfo,
-                   "https://github/jamessynge/tiny-alpaca-server");
+                   "https://github/jamessynge/TinyAlpacaServer");
 TAS_DEFINE_LITERAL(CovCalDriverVersion, "0.1");
 TAS_DEFINE_LITERAL(CovCalUniqueId, "856cac35-7685-4a70-9bbf-be2b00f80af5");
 

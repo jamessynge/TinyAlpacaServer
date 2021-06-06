@@ -39,11 +39,10 @@ class JsonMethodResponse : public JsonPropertySource {
       object_encoder.AddUIntProperty(Literals::ServerTransactionID(),
                                      request_.server_transaction_id);
     }
-    object_encoder.AddUIntProperty(Literals::ErrorNumber(), error_number_);
-    if (error_message_ == nullptr) {
-      object_encoder.AddStringProperty(Literals::ErrorMessage(),
-                                       AnyPrintable());
-    } else {
+    if (error_number_ != 0) {
+      object_encoder.AddUIntProperty(Literals::ErrorNumber(), error_number_);
+    }
+    if (error_message_ != nullptr) {
       object_encoder.AddStringProperty(Literals::ErrorMessage(),
                                        *error_message_);
     }
