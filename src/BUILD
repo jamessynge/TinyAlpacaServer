@@ -324,6 +324,7 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":alpaca_response",
+        ":config",
         ":constants",
         ":literals",
         ":request_decoder",
