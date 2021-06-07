@@ -10,6 +10,7 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
+#include "config.h"
 #include "request_decoder.h"
 #include "request_listener.h"
 #include "utils/platform.h"
@@ -39,7 +40,7 @@ class ServerConnection : public ServerSocketListener {
   uint8_t sock_num_;
   bool between_requests_;
   uint8_t input_buffer_size_;
-  char input_buffer_[32];
+  char input_buffer_[SERVER_CONNECTION_INPUT_BUFFER_SIZE];
 };
 
 }  // namespace alpaca

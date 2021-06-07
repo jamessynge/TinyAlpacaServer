@@ -100,10 +100,11 @@ class AlpacaClient(object):
     request: requests.PreparedRequest
     print('sending PreparedRequest')
     print(request.method, request.url)
-    print(request.body)
+    print('Headers:', request.headers)
+    print('body', f'{request.body!r}')
     r = self.session.send(request)
-    # print('response', r)
-    # print('content', r.content)
+    print('response', r)
+    print('content', r.content)
     return r
 
   def get_apiversions(self) -> requests.Response:
