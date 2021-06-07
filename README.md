@@ -315,7 +315,6 @@ The syntax of the ASCOM Alpaca Device API is specified in large part via a
 hence is machine readable. This makes it reasonable to consider generating the
 device-type specific code. Ideas:
 
-
 *   Instead of having a single EDeviceMethod enum shared by all device types, we
     could manually or automatically define an ECommonDeviceApiMethod with the
     methods common to all device types, and then generate a EXyzDeviceApiMethod

@@ -5,7 +5,6 @@ from typing import Sequence
 
 from absl import app
 
-
 Spec = Dict[str, Union['Spec', str, int, List['Spec']]]
 
 
@@ -36,15 +35,9 @@ def make_components_map(spec: Spec) -> Dict[str, Spec]:
   return result
 
 
-
-
-
-
 @dataclasses.dataclass()
 class Schema(object):
   type_: str
-
-
 
 
 @dataclasses.dataclass()
@@ -63,14 +56,8 @@ class Parameter(object):
   name: str
 
 
-
-
-
-
 class Property(object):
   """Represents a named value provided in an HTTP request or response body."""
-
-
 
 
 class AlpacaSpec(object):
@@ -89,6 +76,7 @@ class AlpacaSpec(object):
 
   def _resolve_elem_refs(self, lst: List[Any]):
     pass
+
 
 def main(argv: Sequence[str]) -> None:
   if len(argv) > 1:

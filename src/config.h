@@ -18,7 +18,9 @@
 // query parameters and headers that it doesn't natively handle.
 #define TAS_ENABLE_REQUEST_DECODER_LISTENER 0
 
-
+// Number of bytes for storage of incoming request bytes. This needs to be 1
+// byte larger than the largest item that we will need to be able to match,
+// where that extra byte is necessary to detect the end of that item.
 #define SERVER_CONNECTION_INPUT_BUFFER_SIZE 34
 
 // This isn't fully fleshed out, but the basics are there for storing the

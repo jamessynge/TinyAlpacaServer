@@ -440,9 +440,8 @@ class CppSource(object):
     for phase2_index, raw_index in self.phase2_source_to_raw_source:
       if phase2_index <= ndx:
         return raw_index + (ndx - phase2_index)
-    raise AssertionError(
-        f'Unable to locate segment start at or before {ndx}; '
-        f'segment map: {self.phase2_source_to_raw_source}')
+    raise AssertionError(f'Unable to locate segment start at or before {ndx}; '
+                         f'segment map: {self.phase2_source_to_raw_source}')
 
   def tokenize(self) -> Generator[Token, None, None]:
     for kind, src, phase2_start, phase2_end in generate_phase2_tokenization(
@@ -453,8 +452,8 @@ class CppSource(object):
             f'for token {src!r} of kind {kind}')
       raw_start = self.phase2_index_to_raw_source_index(phase2_start)
       raw_end = self.phase2_index_to_raw_source_index(phase2_end - 1) + 1
-      yield Token(
-          kind, src, self.raw_source[raw_start:raw_end], raw_start, raw_end)
+      yield Token(kind, src, self.raw_source[raw_start:raw_end], raw_start,
+                  raw_end)
 
 
 def generate_cpp_tokens(file_src: str = '',

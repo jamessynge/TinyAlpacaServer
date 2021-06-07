@@ -48,15 +48,9 @@ def make_components_map(spec: Spec) -> Dict[str, Spec]:
   return result
 
 
-
-
-
-
 @dataclasses.dataclass()
 class Schema(object):
   type_: str
-
-
 
 
 @dataclasses.dataclass()
@@ -75,14 +69,8 @@ class Parameter(object):
   name: str
 
 
-
-
-
-
 class Property(object):
   """Represents a named value provided in an HTTP request or response body."""
-
-
 
 
 class AlpacaSpec(object):
@@ -103,7 +91,6 @@ class AlpacaSpec(object):
     pass
 
 
-
 def main(argv: List[str]):
   text = get_spec()
   raw_spec = yaml.safe_load(text)
@@ -113,7 +100,6 @@ def main(argv: List[str]):
   action = spec.paths['/{device_type}/{device_number}/action']
   put = action['put']
   pprint.pprint(put, indent=1)
-
 
   # make_components_map(spec)
 
