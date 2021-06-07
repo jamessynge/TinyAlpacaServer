@@ -134,7 +134,7 @@ void Cover::Initialize() {
 }
 
 ECoverStatus Cover::GetCoverStatus() const {
-  if (digitalRead(cover_present_pin_) == LOW) {
+  if (!IsPresent()) {
     return ECoverStatus::kNotPresent;
   } else if (IsMoving()) {
     return ECoverStatus::kMoving;

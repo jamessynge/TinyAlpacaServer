@@ -99,9 +99,8 @@ class AlpacaClient(object):
       request = request.prepare()
     request: requests.PreparedRequest
     print('sending PreparedRequest')
-    print(request)
-    # print('method', request.method)
-    print('url', request.url)
+    print(request.method, request.url)
+    print(request.body)
     r = self.session.send(request)
     # print('response', r)
     # print('content', r.content)
