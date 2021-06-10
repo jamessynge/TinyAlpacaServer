@@ -3,17 +3,20 @@
 # device.
 
 cc_library(
+    name = "constants",
+    hdrs = ["constants.h"],
+)
+
+cc_library(
     name = "cover",
     srcs = ["cover.cc"],
     hdrs = ["cover.h"],
     deps = [
         ":constants",
-        "//extras/host/accel_stepper",
         "//extras/host/arduino",
-        "//extras/host/arduino:avr_io",
         "//src:TinyAlpacaServer",
-        "//src/device_types/cover_calibrator:cover_calibrator_constants",
-        "//src/utils:avr_timer_counter",
+        "//src/utils:logging",
+        "//src/utils:o_print_stream",
     ],
 )
 
@@ -38,9 +41,4 @@ cc_library(
         "//extras/host/arduino",
         "//src:TinyAlpacaServer",
     ],
-)
-
-cc_library(
-    name = "constants",
-    hdrs = ["constants.h"],
 )

@@ -10,12 +10,10 @@ namespace {
 // can be created, only a single Timer/Counter is used on the ATmega2560 (number
 // 5), therefore only a single Cover instance can be moving a cover at the same
 // time. While it is unlikely that a single AstroMakers server will be serving
-// multiple covers, this field allows for such a device.
+// multiple covers, this field allows for such a server.
 astro_makers::InterruptHandler* interrupt_handler = nullptr;
 
-// Get the value of interrupt_handler. This does not need to be used by code
-// where it is known that interrupts are disabled, which is the situation when
-// an ISR is called.
+// Get the value of interrupt_handler.
 astro_makers::InterruptHandler* GetInterruptHandler() {
   astro_makers::InterruptHandler* copy;
   noInterrupts();
@@ -24,9 +22,7 @@ astro_makers::InterruptHandler* GetInterruptHandler() {
   return copy;
 }
 
-// Clear interrupt_handler if it is set to old_handler. This does not need to be
-// used by code where it is known that interrupts are disabled, which is the
-// situation when an ISR is called.
+// Clear interrupt_handler if it is set to old_handler.
 void RemoveInterruptHandler(astro_makers::InterruptHandler* old_handler) {
   noInterrupts();
   if (interrupt_handler == old_handler) {
@@ -79,6 +75,11 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   bitWrite(TIMSK5, TOIE5, 1);
   bitWrite(TIFR5, TOV5, 1);
   interrupts();
+
+  TAS_VLOG(1) << alpaca::BaseHex << "StartTimer5 OCR5A: 0x" << OCR5A
+              << ", OCR5B: 0x" << OCR5B << ", OCR5C: 0x" << OCR5C;
+  TAS_VLOG(1) << alpaca::BaseHex << "StartTimer5 TCCR5A: 0x" << TCCR5A
+              << ", TCCR5B: 0x" << TCCR5B << ", TCNT5: 0x" << TCNT5;
 }
 
 void StartTimer5(uint16_t interrupts_per_second) {
@@ -184,13 +185,10 @@ bool Cover::Open() {
       // Already moving.
       return true;
     }
-    ResetTimer5();
   } else {
-    TAS_DCHECK_EQ(handler, nullptr);
+    TAS_DCHECK_EQ(handler, nullptr);  // CanMove should prevent this failing.
   }
-  digitalWrite(direction_pin_, kDirectionOpen);
-  handler = this;
-  StartTimer5(kStepsPerSecond);
+  StartMoving(kDirectionOpen);
   return true;
 }
 
@@ -208,14 +206,18 @@ bool Cover::Close() {
       // Already moving.
       return true;
     }
-    ResetTimer5();
   } else {
     TAS_DCHECK_EQ(handler, nullptr);
   }
-  digitalWrite(direction_pin_, kDirectionClose);
-  handler = this;
-  StartTimer5(kStepsPerSecond);
+  StartMoving(kDirectionClose);
   return true;
+}
+
+void Cover::StartMoving(int direction_pin_value) {
+  ResetTimer5();
+  digitalWrite(direction_pin_, direction_pin_value);
+  interrupt_handler = this;
+  StartTimer5(kStepsPerSecond);
 }
 
 void Cover::Halt() {
@@ -250,7 +252,7 @@ void Cover::HandleInterrupt() {
   ++step_count_;
 
   // Note that we don't debounce the limit pin (e.g. we don't check that it
-  // stays closed for at least 1ms).
+  // stays closed for at least one ms or three interrupts).
   if (digitalRead(limit_pin) == kLimitSwitchClosed) {
     // Reached the end.
     motor_status_ = kNotMoving;

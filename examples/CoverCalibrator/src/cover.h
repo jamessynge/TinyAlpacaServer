@@ -75,6 +75,8 @@ class Cover : InterruptHandler {
   bool CanMove() const;
 
  private:
+  void StartMoving(int direction_pin_value);
+
   void HandleInterrupt() override;
 
   // bool StartMoving(MotorStatus motor_status,
