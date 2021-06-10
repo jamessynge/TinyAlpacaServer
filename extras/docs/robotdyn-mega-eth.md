@@ -129,14 +129,21 @@ Cover Motor Step Output        | D16              |            | was D3
 Cover Motor Direction Output   | D17              |            | was D4
 Cover Open Limit Switch Input  | D18              | INT1       | was D20
 Cover Close Limit Switch Input | D19              | INT0       | was D21
+Microstep Resolution MS1       | A8               |            | New
+Microstep Resolution MS2       | A9               |            | New
+Microstep Resolution MS3       | A10              |            | New
 
 Notes:
 
 *   The exact mapping of LED1 to the proposed PWM pins D2, D3, D5 and D6 isn't
     important, just that those are the PWM pins to use for LEDs.
 
-*   A similar situation applies to the *enabled input* pins A1 to A4: any 4
-    Arduino Mega `An` pin will be fine for this purpose.
+*   A similar situation applies to the four *enabled input* pins: any 4 Arduino
+    Mega `An` pins will be fine for this purpose.
+
+*   And the same applies to the three *Microstepping Resolution* pins: any 3
+    Arduino Mega `An` pins will be fine for this purpose, as long as they don't
+    conflict with those used for the *enabled pins*.
 
 *   The cover motor step and direction pins D16 and D17 can be swapped with each
     other.
