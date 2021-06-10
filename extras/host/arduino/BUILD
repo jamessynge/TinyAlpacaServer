@@ -22,6 +22,7 @@ cc_library(
         ":random",
         ":serial",
         ":stream",
+        ":wstring",
         "//absl/time",
     ],
 )
@@ -121,4 +122,10 @@ cc_library(
     name = "stream",
     hdrs = ["stream.h"],
     deps = [":print"],
+)
+
+cc_library(
+    name = "wstring",
+    hdrs = ["wstring.h"],
+    deps = [":pgmspace"],
 )

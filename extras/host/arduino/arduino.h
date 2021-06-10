@@ -37,6 +37,7 @@
 // while decoding a request.
 #include "extras/host/arduino/character.h"  // IWYU pragma: export
 #include "extras/host/arduino/int_types.h"  // IWYU pragma: export
+#include "extras/host/arduino/wstring.h"    // IWYU pragma: export
 
 // Arduino's HardwareSerial.h includes Stream.h, which in turn includes Print.h.
 // I'm explicitly including them here to make it easier to work with IWYU.
@@ -58,11 +59,10 @@ void delayMicroseconds(uint32_t us);
 
 #define LOW 0
 #define HIGH 1
-#define digitalWrite(pin_number, value)
-
-#define analogWrite(pin_number, value)
-
-#define digitalRead(pin_number) HIGH
+inline void digitalWrite(uint8_t pin_number, uint8_t value) {}
+inline int digitalRead(uint8_t pin_number) { return HIGH; }
+inline void analogWrite(uint8_t pin_number, int value) {}
+inline int analogRead(uint8_t pin_number) { return 0; }
 
 inline void noInterrupts() {}
 inline void interrupts() {}
