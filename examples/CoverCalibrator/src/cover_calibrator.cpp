@@ -61,8 +61,12 @@ void CoverCalibrator::Initialize() {
   pinMode(kLedChannel3PwmPin, OUTPUT);
   pinMode(kLedChannel4PwmPin, OUTPUT);
 
+  // Fastest clock mode.
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
+
+  brightness_ = 0;
+  enabled_led_channels_ = 0xf;  // ALL.
 
   // TODO(jamessynge): Figure out what the initial position of the cover is,
   // OR always close it (maybe based on a choice by the end-user stored in
@@ -70,22 +74,23 @@ void CoverCalibrator::Initialize() {
   cover_.Initialize();
 }
 
-// Returns the current calibrator brightness. Not sure if this should be the
-// target or the brightness we've most recently told the LEDs to be.
+// Returns the current calibrator brightness that has been requested, but only
+// if there are LED channels that are present (according to the hardware pins)..
+// This does not take into account whether any of the LED is enabled by the
+// switch feature.
 StatusOr<int32_t> CoverCalibrator::GetBrightness() {
-  if (led1_.is_enabled()) {
-    return led1_.get_pulse_count();
-  } else {
-    return alpaca::ErrorCodes::ActionNotImplemented();
+  if (IsCalibratorHardwareEnabled()) {
+    return brightness_;
   }
+  return alpaca::ErrorCodes::ActionNotImplemented();
 }
 
 // Returns the state of the calibration device, or kUnknown if not overridden
 // by a subclass.
 StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
-  if (led1_.is_enabled()) {
+  if (IsCalibratorHardwareEnabled()) {
     // We treat 0 as turning off the calibrator. Not sure if that is right.
-    if (led1_.get_pulse_count() == 0) {
+    if (brightness_ == 0) {
       return ECalibratorStatus::kOff;
     } else {
       return ECalibratorStatus::kReady;
@@ -95,27 +100,78 @@ StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
   }
 }
 
-StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() {
-  return led1_.max_count();
-}
+StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() { return kMaxBrightness; }
 
 Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
-  if (!led1_.is_enabled()) {
+  if (!IsCalibratorHardwareEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
-  if (brightness > led1_.max_count()) {
+  if (brightness > kMaxBrightness) {
     return alpaca::ErrorCodes::InvalidValue();
   }
-  led1_.set_pulse_count(brightness);
+  brightness_ = brightness;
+  if (GetLedChannelEnabled(0)) {
+    led1_.set_pulse_count(brightness_);
+  }
+  if (GetLedChannelEnabled(1)) {
+    led2_.set_pulse_count(brightness_);
+  }
+  if (GetLedChannelEnabled(2)) {
+    led3_.set_pulse_count(brightness_);
+  }
+  if (GetLedChannelEnabled(3)) {
+    led4_.set_pulse_count(brightness_);
+  }
   return alpaca::OkStatus();
 }
 
 Status CoverCalibrator::SetCalibratorOff() {
-  if (!led1_.is_enabled()) {
+  if (!IsCalibratorHardwareEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
   led1_.set_pulse_count(0);
+  led2_.set_pulse_count(0);
+  led3_.set_pulse_count(0);
+  led4_.set_pulse_count(0);
   return alpaca::OkStatus();
+}
+
+bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
+  if (0 <= channel && channel < 4) {
+    if (enabled) {
+      bitSet(enabled_led_channels_, channel);
+    } else {
+      bitClear(enabled_led_channels_, channel);
+    }
+    if (brightness_ > 0) {
+      SetCalibratorBrightness(brightness_);
+    }
+  }
+  return GetLedChannelEnabled(channel);
+}
+
+bool CoverCalibrator::IsCalibratorHardwareEnabled() const {
+  return led1_.is_enabled() || led2_.is_enabled() || led3_.is_enabled() ||
+         led4_.is_enabled();
+}
+
+bool CoverCalibrator::GetLedChannelEnabled(int channel) const {
+  return GetLedChannelHardwareEnabled(channel) &&
+         (enabled_led_channels_ & (1 << channel)) != 0;
+}
+
+bool CoverCalibrator::GetLedChannelHardwareEnabled(int channel) const {
+  switch (channel) {
+    case 0:
+      return led1_.is_enabled();
+    case 1:
+      return led2_.is_enabled();
+    case 2:
+      return led3_.is_enabled();
+    case 3:
+      return led4_.is_enabled();
+  }
+  return false;
 }
 
 StatusOr<alpaca::ECoverStatus> CoverCalibrator::GetCoverState() {

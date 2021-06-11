@@ -74,4 +74,6 @@
 #define kMaximumSteps 120000
 #define kMaximumStartSteps 5000
 
+#define kMaxBrightness 0xffff  // We're using a 16-bit Timer/Counter.
+
 #endif  // TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_CONSTANTS_H_
