@@ -43,52 +43,30 @@ const alpaca::DeviceInfo kDeviceInfo{
     .interface_version = 1,
 };
 
-void InitializeDeviceEnabledPin(int pin, int mode = kDeviceEnabledPinMode) {
-  if (pin != kNoSuchPin) {
-    pinMode(pin, mode);
-  }
-}
-
-bool GetDeviceEnabled(int pin, int mode = kDeviceEnabledPinMode) {
-  if (pin != kNoSuchPin) {
-    if (digitalRead(pin) == LOW) {
-      return mode == INPUT_PULLUP;
-    } else {
-      return mode == INPUT;
-    }
-  }
-  return true;
-}
-
 }  // namespace
 
 CoverCalibrator::CoverCalibrator()
     : alpaca::CoverCalibratorAdapter(kDeviceInfo),
-      led1_(TimerCounterChannel::A),  // OC3A for rev6.
-      // led2_(TimerCounterChannel::C /*, kLedChannel2EnabledPin */),
-      // led3_(TimerCounterChannel::A /*, kLedChannel3EnabledPin */),
-      // led4_(TimerCounterChannel::A /*, kLedChannel4EnabledPin */),
+      led1_(TimerCounterChannel::B, kLedChannel1EnabledPin),
+      led2_(TimerCounterChannel::C, kLedChannel2EnabledPin),
+      led3_(TimerCounterChannel::A, kLedChannel3EnabledPin),
+      led4_(TimerCounterChannel::A, kLedChannel4EnabledPin),
       cover_() {}
 
 void CoverCalibrator::Initialize() {
   alpaca::CoverCalibratorAdapter::Initialize();
-  // TODO(jamessynge): Figure out what the initial position of the cover is,
-  // OR always close it (maybe based on a choice by the end-user stored in
-  // EEPROM).
-
-  InitializeDeviceEnabledPin(kLedChannel1EnabledPin);
-  // InitializeDeviceEnabledPin(kLedChannel2EnabledPin);
-  // InitializeDeviceEnabledPin(kLedChannel3EnabledPin);
-  // InitializeDeviceEnabledPin(kLedChannel4EnabledPin);
 
   pinMode(kLedChannel1PwmPin, OUTPUT);
-  // pinMode(kLedChannel2PwmPin, OUTPUT);
-  // pinMode(kLedChannel3PwmPin, OUTPUT);
-  // pinMode(kLedChannel4PwmPin, OUTPUT);
+  pinMode(kLedChannel2PwmPin, OUTPUT);
+  pinMode(kLedChannel3PwmPin, OUTPUT);
+  pinMode(kLedChannel4PwmPin, OUTPUT);
 
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
 
+  // TODO(jamessynge): Figure out what the initial position of the cover is,
+  // OR always close it (maybe based on a choice by the end-user stored in
+  // EEPROM).
   cover_.Initialize();
 }
 

@@ -86,8 +86,11 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
               << ", TCCR5B: 0x" << TCCR5B;
   TAS_VLOG(1) << "StartTimer5 TCNT5: " << TCNT5 << ", OCR5A: " << OCR5A
               << ", OCR5B: " << OCR5B << ", OCR5C: " << OCR5C;
-  delay(1);
 
+  // If something goes wrong right away, the interrupt handler will disable the
+  // counter, so log the registers again after a millisecond.
+
+  delay(1);
   TAS_VLOG(1) << alpaca::BaseHex << "StartTimer5 TCCR5A: 0x" << TCCR5A
               << ", TCCR5B: 0x" << TCCR5B;
   TAS_VLOG(1) << "StartTimer5 TCNT5: " << TCNT5 << ", OCR5A: " << OCR5A
@@ -237,14 +240,15 @@ void Cover::StartMoving(int direction_pin_value) {
   StartTimer5(kStepsPerSecond);
   delay(1);
 
-  InterruptHandler* handler = GetInterruptHandler();
-  noInterrupts();
-  uint32_t step_count_copy = step_count_;
-  interrupts();
+  if (TAS_IS_VLOG_ON(1)) {
+    noInterrupts();
+    uint32_t step_count_copy = step_count_;
+    interrupts();
 
-  TAS_VLOG(1) << "StartMoving done, handler=" << handler
-              << ", motor_status_=" << motor_status_
-              << ", step_count=" << step_count_copy;
+    TAS_VLOG(1) << "StartMoving done, handler=" << GetInterruptHandler()
+                << ", motor_status_=" << motor_status_
+                << ", step_count=" << step_count_copy;
+  }
 }
 
 void Cover::Halt() {

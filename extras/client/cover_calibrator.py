@@ -11,7 +11,7 @@ import requests
 
 import alpaca_http_client
 
-MOVING_SLEEP_TIME=1
+MOVING_SLEEP_TIME = 1
 
 
 def get_cover_state(
@@ -55,7 +55,6 @@ def close_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
     print('Failed to close, cover state is', state)
 
 
-
 def open_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
@@ -93,6 +92,7 @@ def main(argv: Sequence[str]) -> None:
   open_cover(cover_calibrator)
   close_cover(cover_calibrator)
   open_cover(cover_calibrator)
+
 
 if __name__ == '__main__':
   main(sys.argv[1:])

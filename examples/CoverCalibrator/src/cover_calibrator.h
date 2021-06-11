@@ -49,9 +49,9 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   // timer/counter number and channel given the kLedChannel1PwmPin macro (and
   // other such macros). Doing so could avoid linking in unused objects.
   alpaca::TimerCounter3Pwm16Output led1_;
-  // alpaca::TimerCounter4Pwm16Output led2_;
-  // alpaca::TimerCounter4Pwm16Output led3_;
-  // alpaca::TimerCounter4Pwm16Output led4_;
+  alpaca::TimerCounter3Pwm16Output led2_;
+  alpaca::TimerCounter3Pwm16Output led3_;
+  alpaca::TimerCounter4Pwm16Output led4_;
   Cover cover_;
 };
 

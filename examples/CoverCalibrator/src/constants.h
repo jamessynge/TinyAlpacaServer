@@ -36,19 +36,23 @@
 // matter (i.e. LED1 PWM pin could be 2, 3, 5, or 6). The same applies to which
 // "enabled device pin" is mapped to which Analog/GPIO pin (A0 to A15).
 
-#define kLedChannel1PwmPin 2               // OC3B         was 5
-#define kLedChannel2PwmPin 3               // OC3C         was 6
-#define kLedChannel3PwmPin 5               // OC3A         was 7
-#define kLedChannel4PwmPin 6               // OC4A         was 8
-#define kLedChannel1EnabledPin kNoSuchPin  //
-#define kLedChannel2EnabledPin PIN_A1      //              was 10
-#define kLedChannel3EnabledPin PIN_A2      //              was 11
-#define kLedChannel4EnabledPin PIN_A3      //              was 12
-#define kCoverEnabledPin PIN_A4            //              was 13
-#define kCoverMotorStepPin 16              // TXD2         was 3
-#define kCoverMotorDirectionPin 17         // RXD2         was 4
-#define kCoverOpenLimitPin 18              // TXD1, INT3   was 20
-#define kCoverCloseLimitPin 19             // RXD1, INT2   was 21
+//                                        Alt. Func.   Rev. 6 pin
+#define kLedChannel1PwmPin 2           // OC3B             was 5
+#define kLedChannel2PwmPin 3           // OC3C             was 6
+#define kLedChannel3PwmPin 5           // OC3A             was 7
+#define kLedChannel4PwmPin 6           // OC4A             was 8
+#define kLedChannel1EnabledPin PIN_A0  // ADC0             NEW
+#define kLedChannel2EnabledPin PIN_A1  // ADC1             was 10
+#define kLedChannel3EnabledPin PIN_A2  // ADC2             was 11
+#define kLedChannel4EnabledPin PIN_A3  // ADC3             was 12
+#define kCoverMotorStepPin 16          // TXD2             was 3
+#define kCoverMotorDirectionPin 17     // RXD2             was 4
+#define kCoverOpenLimitPin 18          // TXD1, INT3       was 20
+#define kCoverCloseLimitPin 19         // RXD1, INT2       was 21
+#define kCoverEnabledPin PIN_A8        // ADC8, PCINT16    was 13
+#define kMicrostepResolution1 PIN_A9   // ADC9, PCINT17    NEW
+#define kMicrostepResolution2 PIN_A10  // ADC10, PCINT18   NEW
+#define kMicrostepResolution3 PIN_A11  // ADC11, PCINT19   NEW
 
 #endif
 

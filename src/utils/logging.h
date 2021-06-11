@@ -7,7 +7,6 @@
 // by the value of TAS_ENABLED_VLOG_LEVEL (undefined or defined to an integer in
 // the range 1 through 9).
 //
-//
 // Author: james.synge@gmail.com
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,6 +89,8 @@
         ? (void)0                    \
         : ::alpaca::LogSinkVoidify() && ::alpaca::LogSink()
 
+#define TAS_IS_VLOG_ON(level) ((level) >= TAS_ENABLED_VLOG_LEVEL)
+
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
 #endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
@@ -100,6 +101,8 @@ extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
   switch (0)            \
   default:              \
     (true) ? (void)0 : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+
+#define TAS_IS_VLOG_ON(level) (false)
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_VLOG_uses_THE_VOID_SINK]] SomeFuncA();
