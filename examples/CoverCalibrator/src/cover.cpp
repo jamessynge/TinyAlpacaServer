@@ -56,7 +56,8 @@ void ResetTimer5() {
 
 // ct represents 1/2 of the period between Timer/Counter 5 overflow interrupts.
 void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
-  TAS_VLOG(1) << "StartTimer5 ct=" << ct;
+  TAS_VLOG(1) << "StartTimer5 ct=" << ct
+              << ", ct.ClockSelectBits=" << ct.ClockSelectBits();
 
   // We use Waveform Generation Mode 9, i.e. Phase and Frequency Correct PWM
   // Mode; in this mode TCNT5 is incremented by one at each clock tick until it
@@ -69,6 +70,9 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   uint8_t b = (1 << WGM53) | ct.ClockSelectBits();
   uint16_t top = ct.clock_ticks;
 
+  TAS_VLOG(1) << alpaca::BaseHex << "a=0x" << a << ", b=0x" << b
+              << alpaca::BaseDec << ", top=" << top;
+
   noInterrupts();
   OCR5A = top;
   TCNT5 = 0;
@@ -78,10 +82,16 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   bitWrite(TIFR5, TOV5, 1);
   interrupts();
 
-  TAS_VLOG(1) << alpaca::BaseHex << "StartTimer5 OCR5A: 0x" << OCR5A
-              << ", OCR5B: 0x" << OCR5B << ", OCR5C: 0x" << OCR5C;
   TAS_VLOG(1) << alpaca::BaseHex << "StartTimer5 TCCR5A: 0x" << TCCR5A
-              << ", TCCR5B: 0x" << TCCR5B << ", TCNT5: 0x" << TCNT5;
+              << ", TCCR5B: 0x" << TCCR5B;
+  TAS_VLOG(1) << "StartTimer5 TCNT5: " << TCNT5 << ", OCR5A: " << OCR5A
+              << ", OCR5B: " << OCR5B << ", OCR5C: " << OCR5C;
+  delay(1);
+
+  TAS_VLOG(1) << alpaca::BaseHex << "StartTimer5 TCCR5A: 0x" << TCCR5A
+              << ", TCCR5B: 0x" << TCCR5B;
+  TAS_VLOG(1) << "StartTimer5 TCNT5: " << TCNT5 << ", OCR5A: " << OCR5A
+              << ", OCR5B: " << OCR5B << ", OCR5C: " << OCR5C;
 }
 
 void StartTimer5(uint16_t interrupts_per_second) {
@@ -147,6 +157,8 @@ ECoverStatus Cover::GetCoverStatus() const {
   } else if (IsOpen()) {
     return ECoverStatus::kOpen;
   } else {
+    TAS_VLOG(1) << "GetCoverStatus -> Unknown; motor_status=" << motor_status_
+                << ", step_count=" << step_count_;
     return ECoverStatus::kUnknown;
   }
 }
@@ -190,6 +202,7 @@ bool Cover::Open() {
   } else {
     TAS_DCHECK_EQ(handler, nullptr);  // CanMove should prevent this failing.
   }
+  motor_status_ = kOpening;
   StartMoving(kDirectionOpen);
   return true;
 }
@@ -211,15 +224,27 @@ bool Cover::Close() {
   } else {
     TAS_DCHECK_EQ(handler, nullptr);
   }
+  motor_status_ = kClosing;
   StartMoving(kDirectionClose);
   return true;
 }
 
 void Cover::StartMoving(int direction_pin_value) {
   ResetTimer5();
+  step_count_ = 0;
   digitalWrite(direction_pin_, direction_pin_value);
   interrupt_handler = this;
   StartTimer5(kStepsPerSecond);
+  delay(1);
+
+  InterruptHandler* handler = GetInterruptHandler();
+  noInterrupts();
+  uint32_t step_count_copy = step_count_;
+  interrupts();
+
+  TAS_VLOG(1) << "StartMoving done, handler=" << handler
+              << ", motor_status_=" << motor_status_
+              << ", step_count=" << step_count_copy;
 }
 
 void Cover::Halt() {

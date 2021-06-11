@@ -11,6 +11,8 @@ import requests
 
 import alpaca_http_client
 
+MOVING_SLEEP_TIME=1
+
 
 def get_cover_state(
     cover_calibrator: alpaca_http_client.CoverCalibrator) -> int:
@@ -45,12 +47,32 @@ def close_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
   print('Started to close')
   while is_moving(cover_calibrator):
     print('Still moving')
-    time.sleep(1)
+    time.sleep(MOVING_SLEEP_TIME)
   state = get_cover_state(cover_calibrator)
   if state == 1:
     print('Successfully closed')
   else:
     print('Failed to close, cover state is', state)
+
+
+
+def open_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
+  if not is_present(cover_calibrator):
+    raise UserWarning('No cover')
+  if is_open(cover_calibrator):
+    return
+  resp = cover_calibrator.put_opencover()
+  if resp.status_code != 200:
+    resp.raise_for_status()
+  print('Started to open')
+  while is_moving(cover_calibrator):
+    print('Still moving')
+    time.sleep(MOVING_SLEEP_TIME)
+  state = get_cover_state(cover_calibrator)
+  if state == 3:
+    print('Successfully opened')
+  else:
+    print('Failed to open, cover state is', state)
 
 
 def main(argv: Sequence[str]) -> None:
@@ -68,8 +90,9 @@ def main(argv: Sequence[str]) -> None:
 
   cover_calibrator = alpaca_http_client.CoverCalibrator(client, device_number)
 
+  open_cover(cover_calibrator)
   close_cover(cover_calibrator)
-
+  open_cover(cover_calibrator)
 
 if __name__ == '__main__':
   main(sys.argv[1:])
