@@ -1,7 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_TRAITS_PRINT_TO_TRAIT_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_TRAITS_PRINT_TO_TRAIT_H_
 
-// Support for determining at compile time if a class type has a printTo method.
+// Support for determining at compile time if a value has support for being
+// inserted into an OPrintStream. In particular, is it a class instance with a
+// printTo method that has a signature compatible with Arduino's
+// Printable::printTo method, or is there a PrintValueTo function that will
+// print the value to a Print instance.
 //
 // Author: james.synge@gmail.com
 
@@ -30,9 +34,10 @@ static auto test_print_to(long) -> false_type;  // NOLINT
 template <typename T>
 struct has_print_to : decltype(print_to_trait_internal::test_print_to<T>(0)) {};
 
-// has_print_to extends either true_type or false_type, depending on whether
-// there exists a PrintValueTo(T, Print&) function.
-
+// has_print_value_to extends either true_type or false_type, depending on
+// whether there exists a PrintValueTo(T, Print&) function. The first definition
+// matches any type for which there is not a corresponding PrintValueTo
+// function.
 template <class, class = void>
 struct has_print_value_to : false_type {};
 

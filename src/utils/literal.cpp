@@ -1,6 +1,7 @@
 #include "utils/literal.h"
 
 #include "utils/logging.h"
+#include "utils/traits/print_to_trait.h"
 
 namespace alpaca {
 namespace {
@@ -66,6 +67,7 @@ bool Literal::copyTo(char* out, size_type size) {
 }
 
 size_t Literal::printTo(Print& out) const {
+  static_assert(has_print_to<decltype(*this)>{}, "has_print_to should be true");
   // Not particularly efficient, but probably OK. If not, use memcpy_P to copy
   // in sequential chunks of the literal into a small stack allocated buffer
   // (e.g. char buffer[16]), printing the buffer's contents after each copy

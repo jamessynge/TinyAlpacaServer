@@ -1,8 +1,12 @@
 #include "utils/avr_timer_counter.h"
 
+#include "utils/counting_print.h"
 #include "utils/inline_literal.h"
 #include "utils/logging.h"
 #include "utils/print_misc.h"
+#include "utils/stream_to_print.h"
+#include "utils/traits/print_to_trait.h"
+#include "utils/traits/type_traits.h"
 
 namespace alpaca {
 
@@ -199,6 +203,13 @@ uint32_t TC16ClockAndTicks::ToSystemClockCycles() const {
 
 double TC16ClockAndTicks::ToSeconds() const {
   return ToSystemClockCycles() / static_cast<double>(F_CPU);
+}
+
+size_t TC16ClockAndTicks::printTo(Print& out) const {
+  static_assert(has_print_to<decltype(*this)>{}, "has_print_to should be true");
+  CountingPrint counter(out);
+  counter << "{.cs=" << clock_select << ", .ticks=" << clock_ticks << "}";
+  return counter.count();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

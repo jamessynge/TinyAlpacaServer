@@ -107,6 +107,9 @@ struct TC16ClockAndTicks {
   // The clock prescaler bits for the TCCRnB register.
   uint8_t ClockSelectBits() const { return static_cast<uint8_t>(clock_select); }
 
+  // Print the fields to out, e.g. "{.cs=DivideBy1, .ticks=123}"
+  size_t printTo(Print& out) const;
+
   ClockPrescaling clock_select;
   uint16_t clock_ticks;
 };

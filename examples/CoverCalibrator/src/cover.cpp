@@ -56,6 +56,8 @@ void ResetTimer5() {
 
 // ct represents 1/2 of the period between Timer/Counter 5 overflow interrupts.
 void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
+  TAS_VLOG(1) << "StartTimer5 ct=" << ct;
+
   // We use Waveform Generation Mode 9, i.e. Phase and Frequency Correct PWM
   // Mode; in this mode TCNT5 is incremented by one at each clock tick until it
   // reaches TOP (OCR5A) , then decremented down to BOTTOM (0), at which point
@@ -69,9 +71,9 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
 
   noInterrupts();
   OCR5A = top;
-  TCCR5B = b;
-  TCCR5A = a;
   TCNT5 = 0;
+  TCCR5A = a;
+  TCCR5B = b;
   bitWrite(TIMSK5, TOIE5, 1);
   bitWrite(TIFR5, TOV5, 1);
   interrupts();

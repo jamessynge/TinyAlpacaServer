@@ -53,11 +53,15 @@ cc_library(
     srcs = ["avr_timer_counter.cc"],
     hdrs = ["avr_timer_counter.h"],
     deps = [
+        ":counting_print",
         ":inline_literal",
         ":logging",
         ":platform",
         ":print_misc",
         ":printable_progmem_string",
+        ":stream_to_print",
+        "//src/utils/traits:print_to_trait",
+        "//src/utils/traits:type_traits",
     ],
 )
 
@@ -157,6 +161,7 @@ cc_library(
         ":logging",
         ":platform",
         ":printable_progmem_string",
+        "//src/utils/traits:print_to_trait",
     ],
 )
 
@@ -337,6 +342,7 @@ cc_library(
         ":logging",
         ":o_print_stream",
         ":platform",
+        "//src/utils/traits:print_to_trait",
     ],
 )
 

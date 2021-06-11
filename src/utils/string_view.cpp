@@ -1,6 +1,7 @@
 #include "utils/string_view.h"
 
 #include "utils/hex_escape.h"
+#include "utils/traits/print_to_trait.h"
 
 namespace alpaca {
 
@@ -93,6 +94,9 @@ bool StringView::to_int32(int32_t& out) const {
   return true;
 }
 
-size_t StringView::printTo(Print& p) const { return p.write(ptr_, size_); }
+size_t StringView::printTo(Print& p) const {
+  static_assert(has_print_to<decltype(*this)>{}, "has_print_to should be true");
+  return p.write(ptr_, size_);
+}
 
 }  // namespace alpaca
