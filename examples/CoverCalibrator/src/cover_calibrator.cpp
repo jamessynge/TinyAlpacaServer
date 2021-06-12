@@ -56,7 +56,8 @@ CoverCalibrator::CoverCalibrator()
 
 #define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin) \
   TAS_VLOG(level) << TASLIT(name) << EnabledPinIs()            \
-                  << (enableable_by_pin.is_enabled() ? 1 : 0)
+                  << (enableable_by_pin.is_enabled() ? 1 : 0)  \
+                  << TASLIT("; pin# ") << enableable_by_pin.enabled_pin()
 
 void CoverCalibrator::Initialize() {
   alpaca::CoverCalibratorAdapter::Initialize();
