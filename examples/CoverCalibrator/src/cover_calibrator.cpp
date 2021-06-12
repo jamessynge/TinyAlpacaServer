@@ -22,7 +22,8 @@ TAS_DEFINE_LITERAL(CovCalDriverInfo,
                    "https://github/jamessynge/TinyAlpacaServer");
 TAS_DEFINE_LITERAL(CovCalDriverVersion, "0.1");
 TAS_DEFINE_LITERAL(CovCalUniqueId, "856cac35-7685-4a70-9bbf-be2b00f80af5");
-TAS_DEFINE_LITERAL(EnabledPinIs, " enabled pin is ");
+TAS_DEFINE_LITERAL(IsNotEnabled, " is not enabled");
+TAS_DEFINE_LITERAL(IsEnabled, " is enabled");
 
 // No extra actions.
 const auto kSupportedActions = alpaca::LiteralArray({
@@ -54,10 +55,13 @@ CoverCalibrator::CoverCalibrator()
       led4_(TimerCounterChannel::A, kLedChannel4EnabledPin),
       cover_() {}
 
-#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin) \
-  TAS_VLOG(level) << TASLIT(name) << EnabledPinIs()            \
-                  << (enableable_by_pin.is_enabled() ? 1 : 0)  \
-                  << TASLIT("; pin# ") << enableable_by_pin.enabled_pin()
+#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)          \
+  TAS_VLOG(level) << TASLIT(name)                                       \
+                  << (enableable_by_pin.IsEnabled() ? IsEnabled()       \
+                                                    : IsNotEnabled())   \
+                  << TASLIT("; digitalRead(")                           \
+                  << enableable_by_pin.enabled_pin() << TASLIT(") -> ") \
+                  << enableable_by_pin.ReadPin()
 
 void CoverCalibrator::Initialize() {
   alpaca::CoverCalibratorAdapter::Initialize();
@@ -85,7 +89,7 @@ void CoverCalibrator::Initialize() {
   VLOG_ENABLEABLE_BY_PIN(1, "LED #2", led2_);
   VLOG_ENABLEABLE_BY_PIN(1, "LED #3", led3_);
   VLOG_ENABLEABLE_BY_PIN(1, "LED #4", led4_);
-  VLOG_ENABLEABLE_BY_PIN(1, "Cover Motor ", cover_);
+  VLOG_ENABLEABLE_BY_PIN(1, "Cover Motor", cover_);
 }
 
 // Returns the current calibrator brightness that has been requested, but only
@@ -169,8 +173,8 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
 }
 
 bool CoverCalibrator::IsCalibratorHardwareEnabled() const {
-  return led1_.is_enabled() || led2_.is_enabled() || led3_.is_enabled() ||
-         led4_.is_enabled();
+  return led1_.IsEnabled() || led2_.IsEnabled() || led3_.IsEnabled() ||
+         led4_.IsEnabled();
 }
 
 bool CoverCalibrator::GetLedChannelEnabled(int channel) const {
@@ -181,13 +185,13 @@ bool CoverCalibrator::GetLedChannelEnabled(int channel) const {
 bool CoverCalibrator::GetLedChannelHardwareEnabled(int channel) const {
   switch (channel) {
     case 0:
-      return led1_.is_enabled();
+      return led1_.IsEnabled();
     case 1:
-      return led2_.is_enabled();
+      return led2_.IsEnabled();
     case 2:
-      return led3_.is_enabled();
+      return led3_.IsEnabled();
     case 3:
-      return led4_.is_enabled();
+      return led4_.IsEnabled();
   }
   return false;
 }
@@ -197,7 +201,7 @@ StatusOr<alpaca::ECoverStatus> CoverCalibrator::GetCoverState() {
 }
 
 Status CoverCalibrator::MoveCover(bool open) {
-  if (!cover_.is_enabled()) {
+  if (!cover_.IsEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   } else if (open) {
     cover_.Open();
@@ -208,7 +212,7 @@ Status CoverCalibrator::MoveCover(bool open) {
 }
 
 Status CoverCalibrator::HaltCoverMotion() {
-  if (!cover_.is_enabled()) {
+  if (!cover_.IsEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   } else {
     cover_.Halt();

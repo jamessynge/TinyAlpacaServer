@@ -105,7 +105,7 @@ void setup() {
 template <class T>
 void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
                    const char* name) {
-  if (t.is_enabled()) {
+  if (t.IsEnabled()) {
     TAS_VLOG(1) << name << " is enabled.";
     TAS_VLOG(1) << "Sweeping " << name << " upwards";
 

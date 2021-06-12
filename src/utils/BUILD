@@ -60,6 +60,7 @@ cc_library(
         ":print_misc",
         ":printable_progmem_string",
         ":stream_to_print",
+        "//extras/host/arduino",
         "//src/utils/traits:print_to_trait",
         "//src/utils/traits:type_traits",
     ],

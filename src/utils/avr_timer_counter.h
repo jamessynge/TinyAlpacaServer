@@ -159,7 +159,8 @@ class EnableableByPin {
 
   explicit EnableableByPin(uint8_t enabled_pin);
   EnableableByPin();  // For when the use of the pin is itself disabled.
-  bool is_enabled() const;
+  bool IsEnabled() const;
+  int ReadPin() const;
   uint8_t enabled_pin() const { return enabled_pin_; }
 
  private:

@@ -146,7 +146,7 @@ void Cover::Initialize() {
 }
 
 ECoverStatus Cover::GetCoverStatus() const {
-  if (!is_enabled()) {
+  if (!IsEnabled()) {
     return ECoverStatus::kNotPresent;
   } else if (IsMoving()) {
     return ECoverStatus::kMoving;
@@ -167,15 +167,15 @@ bool Cover::IsMoving() const {
 }
 
 bool Cover::IsOpen() const {
-  return digitalRead(open_limit_pin_) == kLimitSwitchClosed && is_enabled();
+  return digitalRead(open_limit_pin_) == kLimitSwitchClosed && IsEnabled();
 }
 
 bool Cover::IsClosed() const {
-  return digitalRead(closed_limit_pin_) == kLimitSwitchClosed && is_enabled();
+  return digitalRead(closed_limit_pin_) == kLimitSwitchClosed && IsEnabled();
 }
 
 bool Cover::CanMove() const {
-  if (is_enabled()) {
+  if (IsEnabled()) {
     InterruptHandler* handler = GetInterruptHandler();
     return (handler == nullptr || handler == this);
   }

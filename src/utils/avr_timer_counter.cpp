@@ -1,5 +1,6 @@
 #include "utils/avr_timer_counter.h"
 
+#include "extras/host/arduino/arduino.h"
 #include "utils/counting_print.h"
 #include "utils/inline_literal.h"
 #include "utils/logging.h"
@@ -492,12 +493,23 @@ EnableableByPin::EnableableByPin(uint8_t enabled_pin)
 
 EnableableByPin::EnableableByPin() : enabled_pin_(kNoEnabledPin) {}
 
-bool EnableableByPin::is_enabled() const {
+bool EnableableByPin::IsEnabled() const {
   if (enabled_pin_ == kNoEnabledPin) {
     return true;
   }
   pinMode(enabled_pin_, INPUT_PULLUP);
   bool result = digitalRead(enabled_pin_) == LOW;
+  pinMode(enabled_pin_, INPUT);  // Avoid supplying current unncessarily.
+  return result;
+}
+
+int EnableableByPin::ReadPin() const {
+  if (enabled_pin_ == kNoEnabledPin) {
+    return -1;
+  }
+  pinMode(enabled_pin_, INPUT_PULLUP);
+  delayMicroseconds(50);
+  int result = digitalRead(enabled_pin_);
   pinMode(enabled_pin_, INPUT);  // Avoid supplying current unncessarily.
   return result;
 }
@@ -511,7 +523,7 @@ TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter1Pwm16Output::set_pulse_count(uint16_t value) {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   if (value == 0) {
     TimerCounter1SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -523,7 +535,7 @@ void TimerCounter1Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter1Pwm16Output::get_pulse_count() const {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   return TimerCounter1GetOutputCompareRegister(channel_);
 }
 
@@ -536,7 +548,7 @@ TimerCounter3Pwm16Output::TimerCounter3Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   if (value == 0) {
     TimerCounter3SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -548,7 +560,7 @@ void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter3Pwm16Output::get_pulse_count() const {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   return TimerCounter3GetOutputCompareRegister(channel_);
 }
 
@@ -561,7 +573,7 @@ TimerCounter4Pwm16Output::TimerCounter4Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   if (value == 0) {
     TimerCounter4SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -573,7 +585,7 @@ void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter4Pwm16Output::get_pulse_count() const {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   return TimerCounter4GetOutputCompareRegister(channel_);
 }
 
@@ -586,7 +598,7 @@ TimerCounter5Pwm16Output::TimerCounter5Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter5Pwm16Output::set_pulse_count(uint16_t value) {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   if (value == 0) {
     TimerCounter5SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -598,7 +610,7 @@ void TimerCounter5Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter5Pwm16Output::get_pulse_count() const {
-  TAS_DCHECK(is_enabled());
+  TAS_DCHECK(IsEnabled());
   return TimerCounter5GetOutputCompareRegister(channel_);
 }
 
