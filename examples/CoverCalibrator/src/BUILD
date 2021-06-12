@@ -15,8 +15,7 @@ cc_library(
         ":constants",
         "//extras/host/arduino",
         "//src:TinyAlpacaServer",
-        "//src/utils:logging",
-        "//src/utils:o_print_stream",
+        "//src/utils:avr_timer_counter",
     ],
 )
 

@@ -22,6 +22,7 @@ TAS_DEFINE_LITERAL(CovCalDriverInfo,
                    "https://github/jamessynge/TinyAlpacaServer");
 TAS_DEFINE_LITERAL(CovCalDriverVersion, "0.1");
 TAS_DEFINE_LITERAL(CovCalUniqueId, "856cac35-7685-4a70-9bbf-be2b00f80af5");
+TAS_DEFINE_LITERAL(EnabledPinIs, " enabled pin is ");
 
 // No extra actions.
 const auto kSupportedActions = alpaca::LiteralArray({
@@ -53,6 +54,10 @@ CoverCalibrator::CoverCalibrator()
       led4_(TimerCounterChannel::A, kLedChannel4EnabledPin),
       cover_() {}
 
+#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin) \
+  TAS_VLOG(level) << TASLIT(name) << EnabledPinIs()            \
+                  << (enableable_by_pin.is_enabled() ? 1 : 0)
+
 void CoverCalibrator::Initialize() {
   alpaca::CoverCalibratorAdapter::Initialize();
 
@@ -72,6 +77,14 @@ void CoverCalibrator::Initialize() {
   // OR always close it (maybe based on a choice by the end-user stored in
   // EEPROM).
   cover_.Initialize();
+
+  // Announce enablement once only.
+
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #1", led1_);
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #2", led2_);
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #3", led3_);
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #4", led4_);
+  VLOG_ENABLEABLE_BY_PIN(1, "Cover Motor ", cover_);
 }
 
 // Returns the current calibrator brightness that has been requested, but only
@@ -103,6 +116,9 @@ StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
 StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() { return kMaxBrightness; }
 
 Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
+  if (brightness == 0) {
+    return SetCalibratorOff();
+  }
   if (!IsCalibratorHardwareEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
@@ -133,6 +149,7 @@ Status CoverCalibrator::SetCalibratorOff() {
   led2_.set_pulse_count(0);
   led3_.set_pulse_count(0);
   led4_.set_pulse_count(0);
+  brightness_ = 0;
   return alpaca::OkStatus();
 }
 
@@ -179,7 +196,7 @@ StatusOr<alpaca::ECoverStatus> CoverCalibrator::GetCoverState() {
 }
 
 Status CoverCalibrator::MoveCover(bool open) {
-  if (!cover_.IsPresent()) {
+  if (!cover_.is_enabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   } else if (open) {
     cover_.Open();
@@ -190,7 +207,7 @@ Status CoverCalibrator::MoveCover(bool open) {
 }
 
 Status CoverCalibrator::HaltCoverMotion() {
-  if (!cover_.IsPresent()) {
+  if (!cover_.is_enabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   } else {
     cover_.Halt();

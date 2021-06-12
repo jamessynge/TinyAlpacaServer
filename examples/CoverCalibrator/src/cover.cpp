@@ -118,11 +118,11 @@ using ::alpaca::ECoverStatus;
 Cover::Cover(uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
              uint8_t closed_limit_pin, uint8_t cover_present_pin,
              uint32_t allowed_steps, uint32_t allowed_start_steps)
-    : step_pin_(step_pin),
+    : alpaca::EnableableByPin(cover_present_pin),
+      step_pin_(step_pin),
       direction_pin_(direction_pin),
       open_limit_pin_(open_limit_pin),
       closed_limit_pin_(closed_limit_pin),
-      cover_present_pin_(cover_present_pin),
       allowed_steps_(allowed_steps),
       allowed_start_steps_(allowed_start_steps),
       motor_status_(kNotMoving) {}
@@ -142,15 +142,11 @@ void Cover::Initialize() {
   pinMode(open_limit_pin_, kLimitSwitchPinMode);
   pinMode(closed_limit_pin_, kLimitSwitchPinMode);
 
-  if (cover_present_pin_ != kNoSuchPin) {
-    pinMode(cover_present_pin_, kCoverPresentPinMode);
-  }
-
   ResetTimer5();
 }
 
 ECoverStatus Cover::GetCoverStatus() const {
-  if (!IsPresent()) {
+  if (!is_enabled()) {
     return ECoverStatus::kNotPresent;
   } else if (IsMoving()) {
     return ECoverStatus::kMoving;
@@ -166,26 +162,24 @@ ECoverStatus Cover::GetCoverStatus() const {
   }
 }
 
-bool Cover::IsPresent() const {
-  return cover_present_pin_ == kNoSuchPin ||
-         digitalRead(cover_present_pin_) == kCoverIsPresent;
-}
-
 bool Cover::IsMoving() const {
   return motor_status_ == kOpening || motor_status_ == kClosing;
 }
 
 bool Cover::IsOpen() const {
-  return digitalRead(open_limit_pin_) == kLimitSwitchClosed && IsPresent();
+  return digitalRead(open_limit_pin_) == kLimitSwitchClosed && is_enabled();
 }
 
 bool Cover::IsClosed() const {
-  return digitalRead(closed_limit_pin_) == kLimitSwitchClosed && IsPresent();
+  return digitalRead(closed_limit_pin_) == kLimitSwitchClosed && is_enabled();
 }
 
 bool Cover::CanMove() const {
-  InterruptHandler* handler = GetInterruptHandler();
-  return IsPresent() && (handler == nullptr || handler == this);
+  if (is_enabled()) {
+    InterruptHandler* handler = GetInterruptHandler();
+    return (handler == nullptr || handler == this);
+  }
+  return false;
 }
 
 bool Cover::Open() {

@@ -20,7 +20,7 @@ class InterruptHandler {
   virtual void HandleInterrupt() = 0;
 };
 
-class Cover : InterruptHandler {
+class Cover : public alpaca::EnableableByPin, InterruptHandler {
  public:
   enum MotorStatus : uint8_t {
     kNotMoving,
@@ -45,10 +45,6 @@ class Cover : InterruptHandler {
   alpaca::ECoverStatus GetCoverStatus() const;
 
   MotorStatus GetMotorStatus() const { return motor_status_; }
-
-  // Returns true IFF the cover present pin indicates that the cover motor
-  // feature is installed/usable.
-  bool IsPresent() const;
 
   // Returns true IFF the cover has been successfully commanded to move, and has
   // not completed the movement.
@@ -93,9 +89,6 @@ class Cover : InterruptHandler {
 
   // If LOW, the Closed Limit switch has been closed (grounded).
   const uint8_t closed_limit_pin_;
-
-  // If LOW, the jumper is installed indicating that a cover motor is available.
-  const uint8_t cover_present_pin_;
 
   // Maximum number of steps we can take during a single movement. This helps to
   // prevent burning out the motor if something goes wrong.
