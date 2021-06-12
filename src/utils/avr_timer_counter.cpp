@@ -1,6 +1,5 @@
 #include "utils/avr_timer_counter.h"
 
-#include "extras/host/arduino/arduino.h"
 #include "utils/counting_print.h"
 #include "utils/inline_literal.h"
 #include "utils/logging.h"
