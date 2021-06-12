@@ -59,6 +59,17 @@ struct PlatformEthernet {
   // Returns true if the socket is completely closed (not in use for any
   // purpose).
   static bool SocketIsClosed(uint8_t sock_num);
+
+  // Returns true if the status indicates that the TCP connection is at least
+  // half-open.
+  static bool StatusIsOpen(uint8_t status);
+
+  // Returns true if the status indicates that the TCP connection is half-open.
+  static bool StatusIsHalfOpen(uint8_t status);
+
+  // Returns true if the status indicates that the TCP connection is in the
+  // process of closing (e.g. FIN_WAIT).
+  static bool StatusIsClosing(uint8_t status);
 };
 
 }  // namespace alpaca

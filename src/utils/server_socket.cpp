@@ -1,11 +1,14 @@
 #include "utils/server_socket.h"
 
 #include "utils/logging.h"
+#include "utils/o_print_stream.h"
 #include "utils/platform.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
 namespace {
+
+constexpr MillisT kDisconnectMaxMillis = 5000;
 
 class TcpServerConnection : public WrappedClientConnection {
  public:
@@ -31,7 +34,7 @@ class TcpServerConnection : public WrappedClientConnection {
     auto socket_number = sock_num();
     auto status = PlatformEthernet::SocketStatus(socket_number);
     TAS_VLOG(2) << TASLIT("TcpServerConnection::close, sock_num=")
-                << socket_number << TASLIT(", status=") << status;
+                << socket_number << TASLIT(", status=") << BaseHex << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
       disconnect_data_.RecordDisconnect();
       PlatformEthernet::DisconnectSocket(socket_number);
@@ -59,7 +62,6 @@ ServerSocket::ServerSocket(uint16_t tcp_port, ServerSocketListener &listener)
       last_status_(0),
       listener_(listener),
       tcp_port_(tcp_port) {}
-// ServerSocket::~ServerSocket() {}
 
 bool ServerSocket::Initialize() {
   TAS_CHECK_EQ(sock_num_, MAX_SOCK_NUM)
@@ -80,26 +82,26 @@ bool ServerSocket::Initialize() {
   return false;
 }
 
-#define LAST_STATUS_IS_UNEXPECTED_MESSAGE(expected_str, current_status) \
-  TASLIT("Expected last_status_ to be ")                                \
-      << TASLIT(expected_str) << TASLIT(", but is ") << last_status_    \
-      << TASLIT("; current status is ") << current_status
+#define LAST_STATUS_IS_UNEXPECTED_MESSAGE(expected_str, current_status)     \
+  BaseHex << TASLIT("Expected last_status_ to be ") << TASLIT(expected_str) \
+          << TASLIT(", but is ") << last_status_                            \
+          << TASLIT("; current status is ") << current_status
 
 #define LAST_STATUS_IS_UNEXPECTED(expected_str, current_status)        \
   TAS_DCHECK(false) << LAST_STATUS_IS_UNEXPECTED_MESSAGE(expected_str, \
                                                          current_status)
 
-#define VERIFY_LAST_STATUS_IS(expected_status, current_status)            \
-  TAS_DCHECK_EQ(last_status_, expected_status)                            \
-      << "Expected last_status_ to be " << expected_status << ", but is " \
-      << last_status_;
+#define VERIFY_LAST_STATUS_IS(expected_status, current_status)        \
+  TAS_DCHECK_EQ(last_status_, expected_status)                        \
+      << BaseHex << "Expected last_status_ to be " << expected_status \
+      << ", but is " << last_status_;
 
 bool ServerSocket::BeginListening(uint8_t sock_num) {
   disconnect_data_.Reset();
   if (PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_)) {
     last_status_ = PlatformEthernet::SocketStatus(sock_num);
     TAS_VLOG(1) << "Listening for " << tcp_port_ << " on socket " << sock_num
-                << ", last_status is " << last_status_;
+                << ", last_status is " << BaseHex << last_status_;
     VERIFY_LAST_STATUS_IS(SnSR::LISTEN, last_status_);
     return true;
   }
@@ -126,12 +128,49 @@ void ServerSocket::PerformIO() {
       AnnounceCanRead();
       return;
     }
-    // Should we return here? Maybe... but not if waiting for a timeout on a
-    // disconnect.
+
+    // Are we waiting for the final connection cleanup?
+    if (PlatformEthernet::StatusIsClosing(status)) {
+      // The Ethernet3 library baked in a limit of 1 second for closing a
+      // connection, and did so by using a loop checking to see if the
+      // connection closed. Since this implementation doesn't block in a loop,
+      // we can allow a bit more time.
+      constexpr MillisT kDisconnectMaxMillis = 5000;
+      if (disconnect_data_.disconnected &&
+          disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
+        // Time to give up.
+        PlatformEthernet::CloseSocket(sock_num_);
+      } else {
+        // Keep waiting.
+        return;
+      }
+    }
   } else {
-    TAS_VLOG(3) << "Socket " << sock_num_ << " status changed from "
+    TAS_VLOG(3) << "Socket " << sock_num_ << " status changed from " << BaseHex
                 << last_status_ << " to " << status;
+
+    // Make sure that we announce disconnections.
+    if (PlatformEthernet::StatusIsOpen(last_status_)) {
+      if (PlatformEthernet::StatusIsHalfOpen(status)) {
+        TAS_DCHECK(!PlatformEthernet::StatusIsHalfOpen(last_status_))
+            << BaseHex << last_status_;
+        // Do NOT update last_status_, leave that decision to HandleCloseWait.
+        HandleCloseWait();
+        return;
+      } else if (PlatformEthernet::StatusIsClosing(status)) {
+        disconnect_data_.RecordDisconnect();
+        listener_.OnDisconnect();
+        last_status_ = status;
+        return;
+      } else {
+        TAS_DCHECK(status != SnSR::CLOSED)
+            << TASLIT("Socket ") << sock_num_ << BaseHex
+            << TASLIT(" has unexpected non-CLOSED status ") << status
+            << TASLIT(", last_status_ is ") << last_status_;
+      }
+    }
   }
+
   switch (status) {
     case SnSR::CLOSED:
       BeginListening(sock_num_);
@@ -163,31 +202,27 @@ void ServerSocket::PerformIO() {
       return;
 
     case SnSR::CLOSE_WAIT:
-      // Do NOT update last_status_, leave that decision to HandleCloseWait.
-      HandleCloseWait();
+      VERIFY_LAST_STATUS_IS(SnSR::CLOSE_WAIT, status);
       return;
 
     case SnSR::FIN_WAIT:
     case SnSR::CLOSING:
     case SnSR::TIME_WAIT:
     case SnSR::LAST_ACK:
-      // Transient states after the connection is closed.
-      if (last_status_ == SnSR::ESTABLISHED ||
-          last_status_ == SnSR::CLOSE_WAIT) {
-        disconnect_data_.RecordDisconnect();
-        listener_.OnDisconnect();
-        return;
-      } else {
-        // The Ethernet3 library baked in a limit of 1 second for closing a
-        // connection, and did so by using a loop checking to see if the
-        // connection closed. Since this implementation doesn't block in a loop,
-        // we can allow a bit more time.
-        constexpr MillisT kDisconnectMaxMillis = 5000;
-        if (disconnect_data_.disconnected &&
-            disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
-          // Time to give up.
-          PlatformEthernet::CloseSocket(sock_num_);
-        }
+      // Transient states after the connection is closed, but before the final
+      // cleanup is complete. The last_status_ should be one of these status
+      // values.
+      TAS_DCHECK(PlatformEthernet::StatusIsClosing(last_status_))
+          << LAST_STATUS_IS_UNEXPECTED_MESSAGE("a closing value", status);
+
+      // The Ethernet3 library baked in a limit of 1 second for closing a
+      // connection, and did so by using a loop checking to see if the
+      // connection closed. Since this implementation doesn't block in a loop,
+      // we can allow a bit more time.
+      if (disconnect_data_.disconnected &&
+          disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
+        // Time to give up.
+        PlatformEthernet::CloseSocket(sock_num_);
       }
       break;
 
@@ -200,13 +235,13 @@ void ServerSocket::PerformIO() {
     case SnSR::IPRAW:
     case SnSR::MACRAW:
     case SnSR::PPPOE:
-      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_
+      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_ << BaseHex
                         << TASLIT(" has unexpected status ") << status
                         << TASLIT(", last_status_ is ") << last_status_;
       break;
 
     default:
-      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_
+      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_ << BaseHex
                         << TASLIT(" has UNKNOWN status ") << status
                         << TASLIT(", last_status_ is ") << last_status_;
   }

@@ -100,4 +100,23 @@ bool PlatformEthernet::SocketIsClosed(uint8_t sock_num) {
 #endif  // TAS_EMBEDDED_TARGET
 }
 
+bool PlatformEthernet::StatusIsOpen(uint8_t status) {
+  return status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT;
+}
+
+bool PlatformEthernet::StatusIsHalfOpen(uint8_t status) {
+  return status == SnSR::CLOSE_WAIT;
+}
+
+bool PlatformEthernet::StatusIsClosing(uint8_t status) {
+  switch (status) {
+    case SnSR::FIN_WAIT:
+    case SnSR::CLOSING:
+    case SnSR::TIME_WAIT:
+    case SnSR::LAST_ACK:
+      return true;
+  }
+  return false;
+}
+
 }  // namespace alpaca

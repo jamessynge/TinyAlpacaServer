@@ -22,13 +22,16 @@ class SocketListener {
   // also called by ServerSocket for existing connections.
   virtual void OnCanRead(Connection& connection) = 0;
 
-  // Called when there is no more data to come from the client (i.e. it has
-  // half closed the socket). Note that compliant routers, firewalls, etc.,
-  // should support the TCP connection staying in this half-closed state for a
-  // long time (i.e. so that we can stream a response slowly), those middle
-  // boxes may interpret a FIN from one peer in the connection as a sign that
-  // they connection will soon close, and will wait very little time before
-  // effectively breaking the connection.
+  // Called when there is no more data to come from the client (i.e. it has half
+  // closed its socket), but this end of the connection may still write. This
+  // may not be called between OnConnect and OnDisconnect.
+  //
+  // Note that while compliant routers, firewalls, etc., should support the TCP
+  // connection staying in this half-closed state for a long time (i.e. so that
+  // we can stream a response slowly), NAT devices may interpret a FIN from one
+  // peer in the connection as a sign that they connection will soon close, and
+  // will wait very little time before effectively breaking the connection by
+  // losing track of the address and port mapping.
   virtual void OnHalfClosed(Connection& connection) = 0;
 
   // Called when we discover that the connection has been broken by the other

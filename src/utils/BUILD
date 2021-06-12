@@ -276,6 +276,7 @@ cc_library(
     deps = [
         ":connection",
         ":logging",
+        ":o_print_stream",
         ":platform",
         ":platform_ethernet",
         ":socket_listener",
