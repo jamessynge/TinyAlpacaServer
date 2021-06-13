@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_SRC_SERVER_CONNECTION2_H_
-#define TINY_ALPACA_SERVER_SRC_SERVER_CONNECTION2_H_
+#ifndef TINY_ALPACA_SERVER_SRC_SERVER_CONNECTION_H_
+#define TINY_ALPACA_SERVER_SRC_SERVER_CONNECTION_H_
 
 // ServerConnection gathers everything we need to deal with a single TCP
 // connection from a client, without actually including any of the networking
@@ -45,4 +45,4 @@ class ServerConnection : public ServerSocketListener {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_SERVER_CONNECTION2_H_
+#endif  // TINY_ALPACA_SERVER_SRC_SERVER_CONNECTION_H_

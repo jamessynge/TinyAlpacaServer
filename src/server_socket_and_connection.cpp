@@ -8,7 +8,7 @@ ServerSocketAndConnection::ServerSocketAndConnection(
       server_socket_(tcp_port, server_connection_) {}
 
 bool ServerSocketAndConnection::Initialize() {
-  return server_socket_.Initialize();
+  return server_socket_.PickClosedSocket();
 }
 
 void ServerSocketAndConnection::PerformIO() { server_socket_.PerformIO(); }

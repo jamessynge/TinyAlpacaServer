@@ -64,3 +64,12 @@ cc_library(
     hdrs = ["string_view_utils.h"],
     deps = ["//src/utils:string_view"],
 )
+
+cc_library(
+    name = "mock_socket_listener",
+    hdrs = ["mock_socket_listener.h"],
+    deps = [
+        "//googletest:gunit_headers",
+        "//src/utils:socket_listener",
+    ],
+)

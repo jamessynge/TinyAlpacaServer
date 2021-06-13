@@ -17,13 +17,15 @@ ServerSocketsAndConnections::ServerSocketsAndConnections(
 
 bool ServerSocketsAndConnections::Initialize() {
   TAS_VLOG(2) << TASLIT("ServerSocketsAndConnections::Initialize");
-  bool result = true;
+  uint8_t count = 0;
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
-    if (!GetServerSocketAndConnection(ndx)->Initialize()) {
-      result = false;
+    if (GetServerSocketAndConnection(ndx)->Initialize()) {
+      ++count;
     }
   }
-  return result;
+  TAS_VLOG(2) << "Initialized " << count << " of " << kNumSockets
+              << " ServerSocketAndConnection objects";
+  return count != kNumSockets;
 }
 
 void ServerSocketsAndConnections::PerformIO() {

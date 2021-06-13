@@ -31,13 +31,21 @@ class ServerSocket {
   };
 
   ServerSocket(uint16_t tcp_port, ServerSocketListener& listener);
-  // ~ServerSocket();
 
-  // Finds a closed socket and starts listening for TCP connections to
-  // 'tcp_port'. Returns true if able to find such a socket and it it
-  // successfully configures the underlying socket. Returns false if already
-  // successfully called.
-  bool Initialize();
+  // Finds a closed hardware socket and starts listening for TCP connections to
+  // 'tcp_port'. Returns true if able to find such a socket and configure the
+  // underlying socket for listening. Returns false if already successfully
+  // called.
+  bool PickClosedSocket();
+
+  // Returns true if has a hardware socket,
+  bool HasSocket() const;
+
+  // Returns true if the hardware socket is somewhere between LISTENING and
+  // CLOSED w.r.t. the TCP connection lifecyle. This may include just starting
+  // the TCP handshake, or waiting for timeout following the closure of the
+  // connection.
+  bool IsConnected() const;
 
   // Notifies listener_ of relevant events/states of the socket (i.e. a new
   // connection from a client, available data to read, room to write, client
@@ -47,18 +55,36 @@ class ServerSocket {
   // thousands of times a second).
   void PerformIO();
 
+  // Release the socket; if IsConnected is true does nothing and returns false;
+  // if not HasSocket, returns false (and fails a DCHECK in debug builds).
+  bool ReleaseSocket();
+
  private:
-  bool BeginListening(uint8_t sock_num);
+  enum class EConnectionStatus : uint8_t {
+    kNone,
+    kConnected,
+    kHalfClosed,
+    kClosing,
+  };
+
+  // May already be listening, but not worrying about that.
+  bool BeginListening();
 
   void AnnounceConnected();
   void AnnounceCanRead();
   void HandleCloseWait();
 
+  void MaybeAnnounceDisconnect();
+
   // If the listener called Connection::close(), we'll handle that by performing
   // a disconnect and recording the time when it started. That allows us to
   // safely close the connection after a suitable timeout, and without blocking
   // (EthernetClient::close() is blocking).
-  void HandleConnectionClose();
+  void DetectDisconnect();
+
+  // Handle the transition from closing to closed to listening.
+  // If kClosing, and the time to complete the Close has taken to
+  void MaybeHandleClosure();
 
   // If sock_num_ is >= MAX_SOCK_NUM, then there isn't (yet) a hardware socket
   // bound to this ServerSocket instance.
@@ -67,6 +93,9 @@ class ServerSocket {
   // Status at the end of the last call to Initialize or PerformIO.
   // Status after a successful Initialize call will be SnSR::LISTEN,
   uint8_t last_status_;
+
+  // Status of the connection as last reported to the listener; starts as kNone.
+  EConnectionStatus prev_status_;
 
   // Object to be called with events.
   ServerSocketListener& listener_;

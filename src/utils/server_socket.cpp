@@ -60,16 +60,22 @@ MillisT ElapsedMillis(MillisT start_time) { return millis() - start_time; }
 ServerSocket::ServerSocket(uint16_t tcp_port, ServerSocketListener &listener)
     : sock_num_(MAX_SOCK_NUM),
       last_status_(0),
+      prev_status_(EConnectionStatus::kNone),
       listener_(listener),
       tcp_port_(tcp_port) {}
 
-bool ServerSocket::Initialize() {
-  TAS_CHECK_EQ(sock_num_, MAX_SOCK_NUM)
-      << "ServerSocket::Initialize already called, sock_num_=" << sock_num_;
+bool ServerSocket::PickClosedSocket() {
+  if (HasSocket()) {
+    return false;
+  }
+
+  last_status_ = SnSR::CLOSED;
+  prev_status_ = EConnectionStatus::kNone;
+
   int sock_num = PlatformEthernet::FindUnusedSocket();
   if (0 <= sock_num && sock_num < MAX_SOCK_NUM) {
     sock_num_ = sock_num & 0xff;
-    if (BeginListening(sock_num_)) {
+    if (BeginListening()) {
       last_status_ = PlatformEthernet::SocketStatus(sock_num_);
       return true;
     }
@@ -80,6 +86,27 @@ bool ServerSocket::Initialize() {
     TAS_VLOG(1) << "No free socket for " << tcp_port_;
   }
   return false;
+}
+
+bool ServerSocket::HasSocket() const { return sock_num_ < MAX_SOCK_NUM; }
+
+bool ServerSocket::IsConnected() const {
+  return HasSocket() &&
+         PlatformEthernet::SocketIsInTcpConnectionLifecycle(sock_num_);
+}
+
+bool ServerSocket::ReleaseSocket() {
+  TAS_DCHECK(HasSocket());
+  if (IsConnected()) {
+    return false;
+  }
+  // Make sure we didn't miss a disconnection announcement.
+  MaybeAnnounceDisconnect();
+
+  prev_status_ = EConnectionStatus::kNone;
+  auto result = PlatformEthernet::CloseSocket(sock_num_);
+  sock_num_ = 0;
+  return result;
 }
 
 #define LAST_STATUS_IS_UNEXPECTED_MESSAGE(expected_str, current_status)     \
@@ -96,17 +123,27 @@ bool ServerSocket::Initialize() {
       << BaseHex << "Expected last_status_ to be " << expected_status \
       << ", but is " << last_status_;
 
-bool ServerSocket::BeginListening(uint8_t sock_num) {
-  disconnect_data_.Reset();
-  if (PlatformEthernet::InitializeTcpListenerSocket(sock_num, tcp_port_)) {
-    last_status_ = PlatformEthernet::SocketStatus(sock_num);
-    TAS_VLOG(1) << "Listening for " << tcp_port_ << " on socket " << sock_num
+bool ServerSocket::BeginListening() {
+  if (!HasSocket()) {
+    return false;
+  }
+  if (IsConnected()) {
+    return false;
+  }
+
+  // Make sure we didn't miss a disconnection announcement.
+  MaybeAnnounceDisconnect();
+
+  if (PlatformEthernet::InitializeTcpListenerSocket(sock_num_, tcp_port_)) {
+    last_status_ = PlatformEthernet::SocketStatus(sock_num_);
+    prev_status_ = EConnectionStatus::kNone;
+    TAS_VLOG(1) << "Listening for " << tcp_port_ << " on socket " << sock_num_
                 << ", last_status is " << BaseHex << last_status_;
     VERIFY_LAST_STATUS_IS(SnSR::LISTEN, last_status_);
     return true;
   }
   TAS_VLOG(1) << "listen for " << tcp_port_ << " failed with socket "
-              << sock_num;
+              << sock_num_;
   return false;
 }
 
@@ -120,132 +157,49 @@ bool ServerSocket::BeginListening(uint8_t sock_num) {
 // interrupt features of the W5500 to learn which sockets have state changes
 // more rapidly.
 void ServerSocket::PerformIO() {
-  // Detect transitions.
-  auto status = PlatformEthernet::SocketStatus(sock_num_);
-  if (status == last_status_) {
-    // No change.
-    if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
-      AnnounceCanRead();
-      return;
-    }
+  if (!HasSocket()) {
+    return;
+  }
+  const auto status = PlatformEthernet::SocketStatus(sock_num_);
 
-    // Are we waiting for the final connection cleanup?
-    if (PlatformEthernet::StatusIsClosing(status)) {
-      // The Ethernet3 library baked in a limit of 1 second for closing a
-      // connection, and did so by using a loop checking to see if the
-      // connection closed. Since this implementation doesn't block in a loop,
-      // we can allow a bit more time.
-      constexpr MillisT kDisconnectMaxMillis = 5000;
-      if (disconnect_data_.disconnected &&
-          disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
-        // Time to give up.
-        PlatformEthernet::CloseSocket(sock_num_);
-      } else {
-        // Keep waiting.
+  switch (prev_status_) {
+    case EConnectionStatus::kNone:
+      if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
+        prev_status_ = EConnectionStatus::kConnected;
+        AnnounceConnected();
         return;
       }
-    }
-  } else {
-    TAS_VLOG(3) << "Socket " << sock_num_ << " status changed from " << BaseHex
-                << last_status_ << " to " << status;
+      break;
 
-    // Make sure that we announce disconnections.
-    if (PlatformEthernet::StatusIsOpen(last_status_)) {
-      if (PlatformEthernet::StatusIsHalfOpen(status)) {
-        TAS_DCHECK(!PlatformEthernet::StatusIsHalfOpen(last_status_))
-            << BaseHex << last_status_;
-        // Do NOT update last_status_, leave that decision to HandleCloseWait.
+    case EConnectionStatus::kConnected:
+      if (status == SnSR::ESTABLISHED) {
+        AnnounceCanRead();
+        return;
+      } else if (status == SnSR::CLOSE_WAIT) {
         HandleCloseWait();
         return;
-      } else if (PlatformEthernet::StatusIsClosing(status)) {
+      } else {
+        prev_status_ = EConnectionStatus::kClosing;
         disconnect_data_.RecordDisconnect();
         listener_.OnDisconnect();
-        last_status_ = status;
+      }
+      break;
+
+    case EConnectionStatus::kHalfClosed:
+      if (status == SnSR::CLOSE_WAIT) {
+        HandleCloseWait();
         return;
       } else {
-        TAS_DCHECK(status != SnSR::CLOSED)
-            << TASLIT("Socket ") << sock_num_ << BaseHex
-            << TASLIT(" has unexpected non-CLOSED status ") << status
-            << TASLIT(", last_status_ is ") << last_status_;
+        prev_status_ = EConnectionStatus::kClosing;
+        disconnect_data_.RecordDisconnect();
+        listener_.OnDisconnect();
       }
-    }
+      break;
+
+    case EConnectionStatus::kClosing:
+      break;
   }
-
-  switch (status) {
-    case SnSR::CLOSED:
-      BeginListening(sock_num_);
-      return;
-
-    case SnSR::LISTEN:
-      VERIFY_LAST_STATUS_IS(SnSR::LISTEN, status);
-      break;
-
-    case SnSR::SYNRECV:
-      // This is a transient state that the chip handles (i.e. responds with a
-      // SYN/ACK, waits for an ACK from the client to complete the three step
-      // TCP handshake).
-#if TAS_ENABLED_VLOG_LEVEL > 0
-      if (!(last_status_ == SnSR::LISTEN || last_status_ == SnSR::SYNRECV)) {
-        LAST_STATUS_IS_UNEXPECTED("LISTEN or SYNRECV", status);
-      }
-#endif
-      break;
-
-    case SnSR::ESTABLISHED:
-#if TAS_ENABLED_VLOG_LEVEL > 0
-      if (!(last_status_ == SnSR::LISTEN || last_status_ == SnSR::SYNRECV)) {
-        LAST_STATUS_IS_UNEXPECTED("LISTEN or SYNRECV", status);
-      }
-#endif
-      last_status_ = status;
-      AnnounceConnected();
-      return;
-
-    case SnSR::CLOSE_WAIT:
-      VERIFY_LAST_STATUS_IS(SnSR::CLOSE_WAIT, status);
-      return;
-
-    case SnSR::FIN_WAIT:
-    case SnSR::CLOSING:
-    case SnSR::TIME_WAIT:
-    case SnSR::LAST_ACK:
-      // Transient states after the connection is closed, but before the final
-      // cleanup is complete. The last_status_ should be one of these status
-      // values.
-      TAS_DCHECK(PlatformEthernet::StatusIsClosing(last_status_))
-          << LAST_STATUS_IS_UNEXPECTED_MESSAGE("a closing value", status);
-
-      // The Ethernet3 library baked in a limit of 1 second for closing a
-      // connection, and did so by using a loop checking to see if the
-      // connection closed. Since this implementation doesn't block in a loop,
-      // we can allow a bit more time.
-      if (disconnect_data_.disconnected &&
-          disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
-        // Time to give up.
-        PlatformEthernet::CloseSocket(sock_num_);
-      }
-      break;
-
-    // States that the socket should not have if it is being used as a server
-    // socket.
-    case SnSR::INIT:  // Transient state during setup of a TCP listener, not
-                      // visible yet.
-    case SnSR::SYNSENT:
-    case SnSR::UDP:
-    case SnSR::IPRAW:
-    case SnSR::MACRAW:
-    case SnSR::PPPOE:
-      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_ << BaseHex
-                        << TASLIT(" has unexpected status ") << status
-                        << TASLIT(", last_status_ is ") << last_status_;
-      break;
-
-    default:
-      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_ << BaseHex
-                        << TASLIT(" has UNKNOWN status ") << status
-                        << TASLIT(", last_status_ is ") << last_status_;
-  }
-  last_status_ = status;
+  MaybeHandleClosure();
 }
 
 // NOTE: Could choose to add another method that accepts a member function
@@ -257,14 +211,14 @@ void ServerSocket::AnnounceConnected() {
   EthernetClient client(sock_num_);
   TcpServerConnection conn(client, disconnect_data_);
   listener_.OnConnect(conn);
-  HandleConnectionClose();
+  DetectDisconnect();
 }
 
 void ServerSocket::AnnounceCanRead() {
   EthernetClient client(sock_num_);
   TcpServerConnection conn(client, disconnect_data_);
   listener_.OnCanRead(conn);
-  HandleConnectionClose();
+  DetectDisconnect();
 }
 
 void ServerSocket::HandleCloseWait() {
@@ -279,14 +233,60 @@ void ServerSocket::HandleCloseWait() {
     listener_.OnCanRead(conn);
   } else {
     last_status_ = SnSR::CLOSE_WAIT;
+    prev_status_ = EConnectionStatus::kHalfClosed;
     listener_.OnHalfClosed(conn);
   }
-  HandleConnectionClose();
+  DetectDisconnect();
 }
 
-void ServerSocket::HandleConnectionClose() {
+void ServerSocket::MaybeAnnounceDisconnect() {
+  if (prev_status_ == EConnectionStatus::kConnected ||
+      prev_status_ == EConnectionStatus::kHalfClosed) {
+    disconnect_data_.RecordDisconnect();
+    listener_.OnDisconnect();
+  }
+}
+
+void ServerSocket::DetectDisconnect() {
   if (disconnect_data_.disconnected) {
     last_status_ = PlatformEthernet::SocketStatus(sock_num_);
+    if (PlatformEthernet::StatusIsClosing(last_status_)) {
+      prev_status_ = EConnectionStatus::kClosing;
+    } else {
+      prev_status_ = EConnectionStatus::kNone;
+    }
+  }
+}
+
+void ServerSocket::MaybeHandleClosure() {
+  auto status = PlatformEthernet::SocketStatus(sock_num_);
+
+  switch (prev_status_) {
+    case EConnectionStatus::kConnected:
+    case EConnectionStatus::kHalfClosed:
+      break;
+
+    case EConnectionStatus::kClosing:
+      if (status != SnSR::CLOSED) {
+        // The Ethernet3 library baked in a limit of 1 second for closing a
+        // connection, and did so by using a loop checking to see if the
+        // connection closed. Since this implementation doesn't block in a loop,
+        // we can allow a bit more time.
+        if (disconnect_data_.disconnected &&
+            disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
+          // Time to give up.
+          PlatformEthernet::CloseSocket(sock_num_);
+          status = PlatformEthernet::SocketStatus(sock_num_);
+        } else {
+          // Keep waiting.
+          return;
+        }
+      }
+      prev_status_ = EConnectionStatus::kNone;
+      TAS_FALLTHROUGH_INTENDED;
+
+    case EConnectionStatus::kNone:
+      BeginListening();
   }
 }
 

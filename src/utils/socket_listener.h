@@ -24,7 +24,9 @@ class SocketListener {
 
   // Called when there is no more data to come from the client (i.e. it has half
   // closed its socket), but this end of the connection may still write. This
-  // may not be called between OnConnect and OnDisconnect.
+  // may not be called between OnConnect and OnDisconnect. This may be called
+  // multiple times for a single connection (i.e. because the listener hasn't
+  // yet chosen to fully close the connection, as when streaming out a reply).
   //
   // Note that while compliant routers, firewalls, etc., should support the TCP
   // connection staying in this half-closed state for a long time (i.e. so that

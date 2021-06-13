@@ -30,7 +30,7 @@ class ServerSocketsAndConnections {
   // Not using all of the ports, need to reserve one for the Alpaca Discovery
   // protocols, one for DHCP renewal, and maybe one for outbound connections to
   // a time server.
-  static constexpr size_t kNumSockets = TAS_NUM_SERVER_CONNECTIONS;
+  static constexpr uint8_t kNumSockets = TAS_NUM_SERVER_CONNECTIONS;
 
   using ServerSocketAndConnectionArray = ServerSocketAndConnection[kNumSockets];
   static constexpr size_t kServerSocketAndConnectionStorage =

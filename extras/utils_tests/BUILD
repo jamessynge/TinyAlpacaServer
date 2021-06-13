@@ -204,3 +204,15 @@ cc_test(
         "//src/utils:string_view",
     ],
 )
+
+cc_test(
+    name = "server_socket_test",
+    srcs = ["server_socket_test.cc"],
+    deps = [
+        "//extras/test_tools:mock_socket_listener",
+        "//extras/test_tools:print_to_std_string",
+        "//googletest:gunit_main",
+        "//src/utils:server_socket",
+        "//src/utils:socket_listener",
+    ],
+)

@@ -37,7 +37,7 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
       break;
 
     case EAlpacaApi::kDeviceApi:
-      // ABSL_FALLTHROUGH_INTENDED
+      TAS_FALLTHROUGH_INTENDED;
     case EAlpacaApi::kDeviceSetup:
       return alpaca_devices_.DispatchDeviceRequest(request, out);
 
