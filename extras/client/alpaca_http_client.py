@@ -98,13 +98,13 @@ class AlpacaClient(object):
     if isinstance(request, requests.Request):
       request = request.prepare()
     request: requests.PreparedRequest
-    print('sending PreparedRequest')
-    print(request.method, request.url)
-    print('Headers:', request.headers)
-    print('body', f'{request.body!r}')
+    # print('sending PreparedRequest')
+    # print(request.method, request.url)
+    # print('Headers:', request.headers)
+    # print('body', f'{request.body!r}')
     r = self.session.send(request)
-    print('response', r)
-    print('content', r.content)
+    # print('response', r)
+    # print('content', r.content)
     return r
 
   def get_apiversions(self) -> requests.Response:
