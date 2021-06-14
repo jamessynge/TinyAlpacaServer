@@ -94,13 +94,15 @@ bool PlatformEthernet::SocketIsInTcpConnectionLifecycle(uint8_t sock_num) {
 #endif  // TAS_HAS_PLATFORM_ETHERNET_INTERFACE
 }
 
-bool PlatformEthernet::SocketIsTcpListener(uint8_t sock_num) {
+bool PlatformEthernet::SocketIsTcpListener(uint8_t sock_num,
+                                           uint16_t tcp_port) {
   TAS_DCHECK_LT(sock_num, MAX_SOCK_NUM);
 #if TAS_HAS_PLATFORM_ETHERNET_INTERFACE
   TAS_CHECK_NE(g_platform_ethernet_impl, nullptr);
-  return g_platform_ethernet_impl->SocketIsTcpListener(sock_num);
+  return g_platform_ethernet_impl->SocketIsTcpListener(sock_num, tcp_port);
 #else   // !TAS_HAS_PLATFORM_ETHERNET_INTERFACE
-  return SocketStatus(sock_num) == SnSR::LISTEN;
+  return EthernetClass::_server_port[sock_num] == tcp_port &&
+         SocketStatus(sock_num) == SnSR::LISTEN;
 #endif  // TAS_HAS_PLATFORM_ETHERNET_INTERFACE
 }
 

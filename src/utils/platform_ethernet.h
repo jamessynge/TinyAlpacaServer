@@ -59,7 +59,7 @@ class PlatformEthernetInterface {
   virtual bool SocketIsInTcpConnectionLifecycle(uint8_t sock_num) = 0;
 
   // Returns true if the hardware socket is listening for TCP connections.
-  virtual bool SocketIsTcpListener(uint8_t sock_num) = 0;
+  virtual bool SocketIsTcpListener(uint8_t sock_num, uint16_t tcp_port) = 0;
 
   // Returns true if the socket is connected to a peer.
   virtual bool SocketIsConnected(uint8_t sock_num) = 0;
@@ -118,7 +118,7 @@ struct PlatformEthernet {
   static bool SocketIsInTcpConnectionLifecycle(uint8_t sock_num);
 
   // Returns true if the hardware socket is listening for TCP connections.
-  static bool SocketIsTcpListener(uint8_t sock_num);
+  static bool SocketIsTcpListener(uint8_t sock_num, uint16_t tcp_port);
 
   // Returns true if the socket is connected to a peer.
   static bool SocketIsConnected(uint8_t sock_num);

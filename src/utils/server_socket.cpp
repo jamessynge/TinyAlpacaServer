@@ -126,8 +126,10 @@ bool ServerSocket::ReleaseSocket() {
 bool ServerSocket::BeginListening() {
   if (!HasSocket()) {
     return false;
-  }
-  if (IsConnected()) {
+  } else if (PlatformEthernet::SocketIsTcpListener(sock_num_, tcp_port_)) {
+    // Already listening.
+    return true;
+  } else if (IsConnected()) {
     return false;
   }
 
