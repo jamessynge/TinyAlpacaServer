@@ -123,6 +123,11 @@ memcpy_P, which copies a string from PROGMEM to RAM. Of special interest are:
 Both of these functions have a parameter to indicate the length of the strings
 (arrays).
 
+These pages have some very interesting info about sections:
+
+*   [Memory Sections](https://www.nongnu.org/avr-libc/user-manual/mem_sections.html)
+*   [Maximum PROGMEM data size? - Arduino Mega Forum](https://forum.arduino.cc/t/maximum-progmem-data-size-arduino-mega/373448/12)
+
 ### Literals in Tiny Alpaca Server
 
 To simplify working with strings in PROGMEM, I've developed classes and macros
