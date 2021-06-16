@@ -3,10 +3,34 @@
 
 // ServerSocket binds a hardware socket of a WIZnet W5500 to listen for
 // connections to a TCP port, and dispatches the handling of connections
-// received by that socket to a listener. The binding starts when Initialize is
-// called and lasts from then on (i.e. there is no teardown support, as that
-// isn't needed in the embedded setting). After a connection is closed, the
-// socket will resume listening for new connections.
+// received by that socket to a listener. The binding starts when
+// PickClosedSocket is called and lasts from then until ReleaseSocket is called.
+//
+// The socket status value is used to drive the behavior of instances that have
+// a socket when PerformIO is called:
+//
+// * If there was an open connection (ESTABLISHED or CLOSE_WAIT) and is now not
+//   open, then the listener's OnDisconnect method is called.
+//
+// * If the socket is closed, then we start listening.
+//
+// * If the connection transitions from LISTENING to ESTABLISHED or CLOSE_WAIT,
+//   we call the listeners OnConnect method (via AnnounceConnected).
+//
+// * If the connection is ESTABLISHED, we call the listeners OnCanRead.
+//
+// * If the connection is CLOSE_WAIT, we call HandleCloseWait.
+//
+// * If the connection is closing (e.g. PlatformEthernet::StatusIsClosing), we
+//   call HandleClosingTimeout to ensure the socket isn't in the state for too
+//   long.
+//
+// * If the connection is in some other state (e.g. MACRAW), we DCHECK and then
+//   close the hardware socket. On the next call to PerformIO we'll start
+//   listening again.
+//
+// last_status_ is used to detect transitions, and is updated at selected times
+// so that we don't miss key transitions.
 //
 // Author: james.synge@gmail.com
 
@@ -60,31 +84,36 @@ class ServerSocket {
   bool ReleaseSocket();
 
  private:
-  enum class EConnectionStatus : uint8_t {
-    kNone,
-    kConnected,
-    kHalfClosed,
-    kClosing,
-  };
-
   // May already be listening, but not worrying about that.
   bool BeginListening();
 
+  // Announce a new connection to the listener.
   void AnnounceConnected();
+
+  // Give the listener a chance to read from (or write to) the connection.
   void AnnounceCanRead();
+
+  // Give the listener a chance to write to a half-closed connection, or to read
+  // from it if there is still buffered input.
   void HandleCloseWait();
 
-  void MaybeAnnounceDisconnect();
+  // Let the listener know if the connection has been closed by an actor other
+  // than the listener (most likely the peer).
+  void AnnounceDisconnect();
 
   // If the listener called Connection::close(), we'll handle that by performing
   // a disconnect and recording the time when it started. That allows us to
   // safely close the connection after a suitable timeout, and without blocking
   // (EthernetClient::close() is blocking).
-  void DetectDisconnect();
+  void DetectListenerInitiatedDisconnect();
 
-  // Handle the transition from closing to closed to listening.
-  // If kClosing, and the time to complete the Close has taken to
-  void MaybeHandleClosure();
+  // Detect when a closing connection has taken too long to be cleaned up.
+  void DetectCloseTimeout();
+
+  // Close the hardware socket, and inform the listener of the disconnect if
+  // we've informed it of a connection but it hasn't initiated or been notified
+  // of the closure of that connection.
+  void CloseHardwareSocket();
 
   // If sock_num_ is >= MAX_SOCK_NUM, then there isn't (yet) a hardware socket
   // bound to this ServerSocket instance.
@@ -93,9 +122,6 @@ class ServerSocket {
   // Status at the end of the last call to Initialize or PerformIO.
   // Status after a successful Initialize call will be SnSR::LISTEN,
   uint8_t last_status_;
-
-  // Status of the connection as last reported to the listener; starts as kNone.
-  EConnectionStatus prev_status_;
 
   // Object to be called with events.
   ServerSocketListener& listener_;

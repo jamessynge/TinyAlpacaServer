@@ -29,10 +29,10 @@ including Power-over-Ethernet.
 
 ## Status
 
-The basic server is complete, though the server setup methods is just a stub and
-each device implementation will need to provide its own setup methods.
-Furthermore, support for query parameters is limited (i.e. only ClientID,
-ClientTransactionID, Connected and SensorName are supported).
+The basic server is complete, though the server and device setup methods are
+just stubs (each device implementation will need to provide its own setup
+methods). Furthermore, support for query parameters is limited (i.e. only
+ClientID, ClientTransactionID, Connected and SensorName are supported).
 
 Automated tests of the entire system aren't yet implemented.
 

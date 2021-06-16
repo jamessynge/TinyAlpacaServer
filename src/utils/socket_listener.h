@@ -10,8 +10,12 @@
 
 namespace alpaca {
 
-// There is no OnCanWrite because (for now) we don't need it and don't have the
-// ability to buffer data and resume writing later when there is room for more.
+// There is no OnCanWrite because we don't seem to need it (for now) for the
+// purposes of Tiny Alpaca Server, i.e. where we don't have long streams of data
+// to return and don't have the ability to buffer data and resume writing later
+// when there is room for more. Instead, OnHalfClosed is called multiple times
+// if the peer half-closes the socket and the SocketListener doesn't close the
+// connection when OnHalfClosed is called (i.e. on every loop).
 class SocketListener {
  public:
 #if !TAS_EMBEDDED_TARGET
@@ -26,7 +30,8 @@ class SocketListener {
   // closed its socket), but this end of the connection may still write. This
   // may not be called between OnConnect and OnDisconnect. This may be called
   // multiple times for a single connection (i.e. because the listener hasn't
-  // yet chosen to fully close the connection, as when streaming out a reply).
+  // yet chosen to fully close the connection, as when streaming out a reply as
+  // data becomes available).
   //
   // Note that while compliant routers, firewalls, etc., should support the TCP
   // connection staying in this half-closed state for a long time (i.e. so that

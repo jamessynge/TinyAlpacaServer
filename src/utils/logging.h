@@ -169,6 +169,10 @@ extern void [[TAS_ENABLE_DCHECK_is_defined]] SomeFuncC();
 
 #else
 
+#ifdef TAS_ENABLE_DCHECK
+#undef TAS_ENABLE_DCHECK
+#endif
+
 #define TAS_DCHECK_INTERNAL_(expression, message) \
   switch (0)                                      \
   default:                                        \
