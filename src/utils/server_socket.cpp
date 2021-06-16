@@ -110,10 +110,10 @@ bool ServerSocket::ReleaseSocket() {
           << TASLIT(expected_str) << TASLIT(", but is ") << BaseHex \
           << some_status << TASLIT("; current status is ") << current_status
 
-#define VERIFY_STATUS_IS(expected_status, status)                    \
-  TAS_DCHECK_EQ(last_status_, status)                                \
-      << BaseHex << "Expected " #status " to be " << expected_status \
-      << ", but is " << status;
+#define VERIFY_STATUS_IS(expected_status, some_status)                    \
+  TAS_DCHECK_EQ(expected_status, some_status)                             \
+      << BaseHex << "Expected " #some_status " to be " << expected_status \
+      << ", but is " << some_status
 
 bool ServerSocket::BeginListening() {
   if (!HasSocket()) {
@@ -190,17 +190,20 @@ void ServerSocket::PerformIO() {
 
     case SnSR::ESTABLISHED:
       if (!was_open) {
-        VERIFY_STATUS_IS(SnSR::LISTEN, past_status);
+        VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
+            << " while handling ESTABLISHED";
         AnnounceConnected();
       } else {
-        VERIFY_STATUS_IS(SnSR::ESTABLISHED, past_status);
+        VERIFY_STATUS_IS(SnSR::ESTABLISHED, past_status)
+            << " while handling ESTABLISHED";
         AnnounceCanRead();
       }
       break;
 
     case SnSR::CLOSE_WAIT:
       if (!was_open) {
-        VERIFY_STATUS_IS(SnSR::LISTEN, past_status);
+        VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
+            << " while handling CLOSE_WAIT";
         AnnounceConnected();
       } else {
         TAS_DCHECK(past_status == SnSR::ESTABLISHED ||
@@ -228,8 +231,14 @@ void ServerSocket::PerformIO() {
       // This is a transient state during setup of a TCP listener, and should
       // not be visible to us because BeginListening should make calls that
       // complete the process.
-      TAS_DCHECK_NE(last_status_, status)
-          << TASLIT("Socket in INIT state, incomplete LISTEN setup.");
+      TAS_DCHECK(false) << TASLIT(
+                               "Socket in INIT state, incomplete LISTEN setup; "
+                               "past_status is ")
+                        << past_status;
+      if (past_status == SnSR::INIT) {
+        // Apparently stuck in this state.
+        CloseHardwareSocket();
+      }
       break;
 
     ///////////////////////////////////////////////////////////////////////////
