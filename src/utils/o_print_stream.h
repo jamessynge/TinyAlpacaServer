@@ -18,8 +18,8 @@ namespace alpaca {
 class OPrintStream {
  public:
   // An OPrintStreamManipulator is a function which can modify the OPrintStream
-  // instance. So far the only two are BaseDec and BaseHex, allowing a logging
-  // statement to choose the base for printing numbers.
+  // instance. So far the only three are BaseTwo, BaseDec and BaseHex, allowing
+  // a logging statement to choose the base for printing numbers.
   using OPrintStreamManipulator = void (*)(OPrintStream&);
 
   explicit OPrintStream(Print& out) : out_(out), base_(10) {}
@@ -63,7 +63,18 @@ class OPrintStream {
   // Type T is an integral type (includes bool and char).
   template <typename T>
   void do_print_b(const T value, true_type /*is_integral*/) {
-    out_.print(value, base_);
+    if (base_ == 10 || (base_ != 2 && base_ != 16)) {
+      out_.print(value, base_);
+    } else if (base_ == 16) {
+      print_hex(value);
+    } else if (base_ == 2) {
+      out_.print('0');
+      out_.print('b');
+      out_.print(value, base_);
+    } else {
+      // Should be unreachable.
+      out_.print(value, base_);
+    }
   }
 
   // Type T is NOT an integral type.
@@ -93,7 +104,7 @@ class OPrintStream {
 
   void do_print_d(const void* misc_pointer, true_type /*is_pointer*/) {
     auto i = reinterpret_cast<const uintptr_t>(misc_pointer);
-    out_.print(i, HEX);
+    print_hex(i);
   }
 
 #if TAS_HOST_TARGET
@@ -106,21 +117,35 @@ class OPrintStream {
   void do_print_d(const T value, false_type /*!is_pointer*/) {
     out_.print(value);
   }
+
+  template <typename T>
+  void print_hex(const T value) {
+    out_.print('0');
+    out_.print('x');
+    out_.print(value, 16);
+  }
 };
 
 // Set the base for printing numbers to 16. For example:
 //
 //   strm << "In hex: " << BaseHex << 123;
 //
-// Will insert "In hex: 7B" into strm.
+// Will insert "In hex: 0x7B" into strm.
 inline void BaseHex(OPrintStream& strm) { strm.set_base(16); }
 
 // Set the base for printing numbers to 10 (the default). For example:
 //
 //   strm << BaseHex << "Value: " << 123 << BaseDec << ", " << 123;
 //
-// Will insert "Value: 7B, 123" into strm.
+// Will insert "Value: 0x7B, 123" into strm.
 inline void BaseDec(OPrintStream& strm) { strm.set_base(10); }
+
+// Set the base for printing numbers to 2. For example:
+//
+//   strm << BaseTwo << "Value: " << 10 << BaseHex << ", " << 10;
+//
+// Will insert "Value: 0b1010, 0xA" into strm.
+inline void BaseTwo(OPrintStream& strm) { strm.set_base(2); }
 
 }  // namespace alpaca
 

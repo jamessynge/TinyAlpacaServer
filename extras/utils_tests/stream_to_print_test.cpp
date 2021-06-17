@@ -86,7 +86,7 @@ TEST(StreamToPrintTest, ConstPrintable) {
 TEST(StreamToPrintTest, ChangeBase) {
   PrintToStdString p2ss;
   p2ss << 127 << " " << BaseHex << 127 << ' ' << BaseDec << -123;
-  EXPECT_EQ(p2ss.str(), "127 7F -123");
+  EXPECT_EQ(p2ss.str(), "127 0x7F -123");
 }
 
 }  // namespace

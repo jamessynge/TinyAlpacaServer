@@ -15,12 +15,12 @@ class TcpServerConnection : public WrappedClientConnection {
   explicit TcpServerConnection(EthernetClient &client,
                                ServerSocket::DisconnectData &disconnect_data)
       : client_(client), disconnect_data_(disconnect_data) {
-    TAS_VLOG(5) << TASLIT("TcpServerConnection@0x") << this << TASLIT(" ctor");
+    TAS_VLOG(5) << TASLIT("TcpServerConnection@") << this << TASLIT(" ctor");
     disconnect_data_.Reset();
   }
 #if TAS_ENABLED_VLOG_LEVEL >= 2
   ~TcpServerConnection() {  // NOLINT
-    TAS_VLOG(5) << TASLIT("TcpServerConnection@0x") << this << TASLIT(" dtor");
+    TAS_VLOG(5) << TASLIT("TcpServerConnection@") << this << TASLIT(" dtor");
   }
 #endif
 
@@ -59,7 +59,7 @@ MillisT ElapsedMillis(MillisT start_time) { return millis() - start_time; }
 
 ServerSocket::ServerSocket(uint16_t tcp_port, ServerSocketListener &listener)
     : sock_num_(MAX_SOCK_NUM),
-      last_status_(0),
+      last_status_(SnSR::CLOSED),
       listener_(listener),
       tcp_port_(tcp_port) {}
 

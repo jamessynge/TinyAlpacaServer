@@ -153,8 +153,8 @@ void AdjustTimerPeriod(uint32_t period_ns) {
   top = min(65535UL, initial_top);
 
   TAS_VLOG(1) << "period_ns=" << period_ns << ", target_top=" << target_top
-              << ", top=" << top << " (0x" << alpaca::BaseHex << top
-              << "), a=0x" << a << ", b=0x" << alpaca::BaseHex << b;
+              << ", top=" << top << " (" << alpaca::BaseHex << top
+              << "), a=" << a << ", b=" << b;
   delay(20);
 
   noInterrupts();

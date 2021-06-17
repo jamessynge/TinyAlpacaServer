@@ -93,8 +93,8 @@ TEST(OPrintStreamTest, ChangeBase) {
   PrintToStdString p2ss;
   OPrintStream out(p2ss);
 
-  out << 127 << " " << BaseHex << 127 << ' ' << BaseDec << -123;
-  EXPECT_EQ(p2ss.str(), "127 7F -123");
+  out << 127 << " " << BaseHex << 127 << ' ' << BaseTwo << 127;
+  EXPECT_EQ(p2ss.str(), "127 0x7F 0b1111111");
 }
 
 }  // namespace

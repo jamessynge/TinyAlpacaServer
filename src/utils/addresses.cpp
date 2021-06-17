@@ -101,7 +101,7 @@ void MacAddress::generateAddress(const OuiPrefix* oui_prefix) {
       r = toOuiUnicast(r);
     }
     mac[i] = r;
-    TAS_VLOG(4) << TASLIT("mac[") << i << TASLIT("] = 0x") << BaseHex
+    TAS_VLOG(4) << TASLIT("mac[") << i << TASLIT("] = ") << BaseHex
                 << (mac[i] + 0);
   }
 }

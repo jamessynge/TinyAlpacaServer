@@ -1,10 +1,12 @@
 #include "extras/host/arduino/print.h"
 
+#include <bitset>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <limits>
 #include <ostream>
+#include <sstream>
 #include <type_traits>
 
 #include "absl/strings/ascii.h"
@@ -19,28 +21,35 @@ template <typename T>
 size_t printIntegerWithBaseTo(T value, const int base, Print& out) {
   DVLOG(5) << "value: " << (value + 0) << "    base: " << base
            << "    radix digits: " << std::numeric_limits<T>::digits;
-  if (base == 10 || value == 0) {
+  if (base == 0) {
+    return out.write(value);
+  }
+  if (base == 10 || base < 2 || base > 36) {
     auto s = std::to_string(value);
     return out.write(s.data(), s.size());
-  } else if (base == 16) {
-    using UT = typename std::make_unsigned<T>::type;
-    UT v2 = static_cast<UT>(value);
-    DVLOG(5) << "v2: " << (v2 + 0)
-             << "    radix digits: " << std::numeric_limits<UT>::digits;
-    char buffer[64];
-    char* p = buffer + sizeof buffer;
-    *(--p) = '\0';  // NUL terminate the string.
-    while (v2 != 0) {
-      DCHECK_GT(p, buffer);
-      *(--p) = kHexDigits[v2 & 0xf];
-      v2 >>= 4;
-    }
-    DCHECK_GT(strlen(p), 0);
-    return out.write(p);
-  } else {
-    CHECK(false) << "Unsupported base " << base;
-    return 0;
   }
+
+  using UT = typename std::make_unsigned<T>::type;
+  UT v2 = static_cast<UT>(value);
+  DVLOG(5) << "v2: " << (v2 + 0)
+           << "    radix digits: " << std::numeric_limits<UT>::digits;
+
+  // Room for base 2, i.e. 8 binary digits + a trailing NUL.
+  char buffer[1 + 8 * sizeof v2];
+  char* p = buffer + sizeof buffer;
+  *(--p) = '\0';  // NUL terminate the string.
+  do {
+    DCHECK_GT(p, buffer);
+    uint8_t low_digit = v2 % base;
+    v2 /= base;
+    if (low_digit < 10) {
+      *(--p) = '0' + low_digit;
+    } else {
+      *(--p) = 'A' + (low_digit - 10);
+    }
+  } while (v2 != 0);
+  DCHECK_GT(strlen(p), 0);
+  return out.write(p);
 }
 }  // namespace
 
