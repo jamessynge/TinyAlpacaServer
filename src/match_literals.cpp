@@ -114,6 +114,24 @@ bool MatchSafetyMonitorMethod(const StringView& view, EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(issafe, EDeviceMethod::kIsSafe);
   return false;
 }
+
+bool MatchSwitchMethod(const StringView& view, EDeviceMethod& match) {
+  MATCH_ONE_LITERAL_EXACTLY(canwrite, EDeviceMethod::kCanWrite);
+  MATCH_ONE_LITERAL_EXACTLY(getswitch, EDeviceMethod::kGetSwitch);
+  MATCH_ONE_LITERAL_EXACTLY(getswitchdescription,
+                            EDeviceMethod::kGetSwitchDescription);
+  MATCH_ONE_LITERAL_EXACTLY(getswitchname, EDeviceMethod::kGetSwitchName);
+  MATCH_ONE_LITERAL_EXACTLY(getswitchvalue, EDeviceMethod::kGetSwitchValue);
+  MATCH_ONE_LITERAL_EXACTLY(maxswitch, EDeviceMethod::kMaxSwitch);
+  MATCH_ONE_LITERAL_EXACTLY(maxswitchvalue, EDeviceMethod::kMaxSwitchValue);
+  MATCH_ONE_LITERAL_EXACTLY(minswitchvalue, EDeviceMethod::kMinSwitchValue);
+  MATCH_ONE_LITERAL_EXACTLY(setswitch, EDeviceMethod::kSetSwitch);
+  MATCH_ONE_LITERAL_EXACTLY(setswitchname, EDeviceMethod::kSetSwitchName);
+  MATCH_ONE_LITERAL_EXACTLY(setswitchvalue, EDeviceMethod::kSetSwitchValue);
+  MATCH_ONE_LITERAL_EXACTLY(switchstep, EDeviceMethod::kSwitchStep);
+  return false;
+}
+
 }  // namespace
 
 bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
@@ -134,6 +152,12 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
 
       case EDeviceType::kSafetyMonitor:
         if (MatchSafetyMonitorMethod(view, match)) {
+          return true;
+        }
+        break;
+
+      case EDeviceType::kSwitch:
+        if (MatchSwitchMethod(view, match)) {
           return true;
         }
         break;
@@ -169,9 +193,14 @@ bool MatchParameter(const StringView& view, EParameter& match) {
                                        EParameter::kClientTransactionID);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Command, EParameter::kCommand);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Connected, EParameter::kConnected);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Id, EParameter::kId);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Name, EParameter::kName);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Parameters, EParameter::kParameters);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Raw, EParameter::kRaw);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(SensorName, EParameter::kSensorName);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(State, EParameter::kState);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Value, EParameter::kValue);
+
   return false;
 }
 

@@ -329,6 +329,30 @@ PrintableProgmemString ToPrintableProgmemString(EDeviceMethod v) {
       return TASLIT("WindSpeed");
     case EDeviceMethod::kIsSafe:
       return TASLIT("IsSafe");
+    case EDeviceMethod::kMaxSwitch:
+      return TASLIT("MaxSwitch");
+    case EDeviceMethod::kCanWrite:
+      return TASLIT("CanWrite");
+    case EDeviceMethod::kGetSwitch:
+      return TASLIT("GetSwitch");
+    case EDeviceMethod::kGetSwitchDescription:
+      return TASLIT("GetSwitchDescription");
+    case EDeviceMethod::kGetSwitchName:
+      return TASLIT("GetSwitchName");
+    case EDeviceMethod::kGetSwitchValue:
+      return TASLIT("GetSwitchValue");
+    case EDeviceMethod::kMinSwitchValue:
+      return TASLIT("MinSwitchValue");
+    case EDeviceMethod::kMaxSwitchValue:
+      return TASLIT("MaxSwitchValue");
+    case EDeviceMethod::kSetSwitch:
+      return TASLIT("SetSwitch");
+    case EDeviceMethod::kSetSwitchName:
+      return TASLIT("SetSwitchName");
+    case EDeviceMethod::kSetSwitchValue:
+      return TASLIT("SetSwitchValue");
+    case EDeviceMethod::kSwitchStep:
+      return TASLIT("SwitchStep");
   }
   return PrintableProgmemString();
 }
@@ -355,6 +379,14 @@ PrintableProgmemString ToPrintableProgmemString(EParameter v) {
       return TASLIT("Raw");
     case EParameter::kSensorName:
       return TASLIT("SensorName");
+    case EParameter::kId:
+      return TASLIT("Id");
+    case EParameter::kName:
+      return TASLIT("Name");
+    case EParameter::kState:
+      return TASLIT("State");
+    case EParameter::kValue:
+      return TASLIT("Value");
   }
   return PrintableProgmemString();
 }

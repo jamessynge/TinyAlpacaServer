@@ -209,6 +209,20 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
 
   // Supported SafetyMonitor methods:
   kIsSafe,
+
+  // Supported Switch methods:
+  kMaxSwitch,
+  kCanWrite,
+  kGetSwitch,
+  kGetSwitchDescription,
+  kGetSwitchName,
+  kGetSwitchValue,
+  kMinSwitchValue,
+  kMaxSwitchValue,
+  kSetSwitch,
+  kSetSwitchName,
+  kSetSwitchValue,
+  kSwitchStep,
 };
 
 // These are parameter names used in *requests*, not responses. Names such as
@@ -217,15 +231,24 @@ using EParameter_UnderlyingType = uint8_t;
 enum class EParameter : EParameter_UnderlyingType {
   kUnknown,
 
+  // Common or all method parameters.
   kAction,
-  kBrightness,
   kClientID,
   kClientTransactionID,
   kCommand,
   kConnected,
   kParameters,
   kRaw,
+
+  // ObservingConditions parameters.
+  kBrightness,
   kSensorName,
+
+  // Switch parameters.
+  kId,
+  kName,
+  kState,
+  kValue,
 };
 
 // These are sensor names used in an ObservingConditions SensorDescription

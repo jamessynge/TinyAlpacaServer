@@ -1,5 +1,10 @@
 #include "match_literals.h"
 
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "absl/strings/ascii.h"
 #include "absl/strings/escaping.h"
 #include "constants.h"
 #include "extras/test_tools/print_to_std_string.h"
@@ -184,7 +189,6 @@ TEST(MatchLiteralsTest, MatchCoverCalibratorMethod) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                      MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
-
     } else {
       EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                     MakeStringView(text), matched));
@@ -231,7 +235,6 @@ TEST(MatchLiteralsTest, MatchObservingConditionsMethod) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                      MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
-
     } else {
       EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                     MakeStringView(text), matched));
@@ -270,7 +273,54 @@ TEST(MatchLiteralsTest, MatchSafetyMonitorMethod) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                      MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
+    } else {
+      EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
+                                    MakeStringView(text), matched));
+      EXPECT_EQ(matched, expected_enum);
+    }
+  }
 
+  // Now tests of the Setup API.
+  EDeviceMethod matched = kBogusEnum;
+  EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
+                                 StringView("connected"), matched));
+  EXPECT_EQ(matched, kBogusEnum);
+  EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kSetup, kDeviceType,
+                                StringView("setup"), matched));
+  EXPECT_EQ(matched, EDeviceMethod::kSetup);
+}
+
+TEST(MatchLiteralsTest, MatchSwitchMethod) {
+  const EDeviceMethod kBogusEnum = static_cast<EDeviceMethod>(0xff);
+  const EDeviceType kDeviceType = EDeviceType::kSwitch;
+
+  // Tests of the Device API, as opposed to the Setup API.
+  DeviceMethodTestCases test_cases = {
+      {"canwrite", EDeviceMethod::kCanWrite},
+      {"getswitch", EDeviceMethod::kGetSwitch},
+      {"getswitchdescription", EDeviceMethod::kGetSwitchDescription},
+      {"getswitchname", EDeviceMethod::kGetSwitchName},
+      {"getswitchvalue", EDeviceMethod::kGetSwitchValue},
+      {"maxswitch", EDeviceMethod::kMaxSwitch},
+      {"maxswitchvalue", EDeviceMethod::kMaxSwitchValue},
+      {"minswitchvalue", EDeviceMethod::kMinSwitchValue},
+      {"setswitchvalue", EDeviceMethod::kSetSwitchValue},
+      {"switchstep", EDeviceMethod::kSwitchStep},
+      {"", EDeviceMethod::kUnknown},
+      {"issafe", EDeviceMethod::kUnknown},
+      {"averageperiod", EDeviceMethod::kUnknown},
+      {"setup", EDeviceMethod::kUnknown},
+  };
+  PrependCommonDeviceMethodTestCases(test_cases);
+
+  for (const auto [text, expected_enum] : test_cases) {
+    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+                << expected_enum;
+    EDeviceMethod matched = kBogusEnum;
+    if (expected_enum == EDeviceMethod::kUnknown) {
+      EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
+                                     MakeStringView(text), matched));
+      EXPECT_EQ(matched, kBogusEnum);
     } else {
       EXPECT_TRUE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
                                     MakeStringView(text), matched));
@@ -325,28 +375,45 @@ TEST(MatchLiteralsDeathTest, MatchDeviceMethodWrongApiGroup) {
 
 TEST(MatchLiteralsTest, MatchParameter) {
   const std::vector<std::pair<std::string, EParameter>> test_cases = {
-      {"clientid", EParameter::kClientID},
+      {"Action", EParameter::kAction},
+      {"Brightness", EParameter::kBrightness},
       {"ClientId", EParameter::kClientID},
-      {"clientTRANSACTIONid", EParameter::kClientTransactionID},
-      {"CLIENTtransactionID", EParameter::kClientTransactionID},
+      {"ClientTransactionId", EParameter::kClientTransactionID},
+      {"Command", EParameter::kCommand},
       {"Connected", EParameter::kConnected},
-      {"connECTED", EParameter::kConnected},
+      {"Id", EParameter::kId},
+      {"Name", EParameter::kName},
+      {"Parameters", EParameter::kParameters},
+      {"Raw", EParameter::kRaw},
+      {"SensorName", EParameter::kSensorName},
+      {"State", EParameter::kState},
+      {"Value", EParameter::kValue},
       {"", EParameter::kUnknown},
       {"cloudcover", EParameter::kUnknown},
       {"Content-Length", EParameter::kUnknown},
   };
-  const EParameter kBogusEnum = static_cast<EParameter>(0xff);
-  for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
-    EParameter matched = kBogusEnum;
-    if (expected_enum == EParameter::kUnknown) {
-      EXPECT_FALSE(MatchParameter(MakeStringView(text), matched));
-      EXPECT_EQ(matched, kBogusEnum);
+  // Matching should be case insensitive, so we transform the string to lower
+  // and upper after checking that it works in the original case.
+  std::vector<std::function<std::string(std::string)>> string_transformer = {
+      [](std::string s) -> std::string { return s; },
+      [](std::string s) -> std::string { return absl::AsciiStrToLower(s); },
+      [](std::string s) -> std::string { return absl::AsciiStrToUpper(s); },
+  };
 
-    } else {
-      EXPECT_TRUE(MatchParameter(MakeStringView(text), matched));
-      EXPECT_EQ(matched, expected_enum);
+  const EParameter kBogusEnum = static_cast<EParameter>(0xff);
+  for (const auto [test_case_text, expected_enum] : test_cases) {
+    for (const auto transformer_fn : string_transformer) {
+      std::string text = transformer_fn(test_case_text);
+      TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+                  << expected_enum;
+      EParameter matched = kBogusEnum;
+      if (expected_enum == EParameter::kUnknown) {
+        EXPECT_FALSE(MatchParameter(MakeStringView(text), matched));
+        EXPECT_EQ(matched, kBogusEnum);
+      } else {
+        EXPECT_TRUE(MatchParameter(MakeStringView(text), matched));
+        EXPECT_EQ(matched, expected_enum);
+      }
     }
   }
 }
@@ -372,7 +439,6 @@ TEST(MatchLiteralsTest, MatchSensorName) {
     if (expected_enum == ESensorName::kUnknown) {
       EXPECT_FALSE(MatchSensorName(MakeStringView(text), matched));
       EXPECT_EQ(matched, kBogusEnum);
-
     } else {
       EXPECT_TRUE(MatchSensorName(MakeStringView(text), matched));
       EXPECT_EQ(matched, expected_enum);
