@@ -1,6 +1,12 @@
 # Libraries intended to simplify the task of writing tests of Tiny Alpaca Server.
 
 cc_library(
+    name = "fake_platform_ethernet",
+    hdrs = ["fake_platform_ethernet.h"],
+    deps = ["//src/utils:platform_ethernet"],
+)
+
+cc_library(
     name = "json_test_utils",
     srcs = ["json_test_utils.cc"],
     hdrs = ["json_test_utils.h"],
@@ -45,6 +51,15 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_socket_listener",
+    hdrs = ["mock_socket_listener.h"],
+    deps = [
+        "//googletest:gunit_headers",
+        "//src/utils:socket_listener",
+    ],
+)
+
+cc_library(
     name = "print_to_std_string",
     hdrs = ["print_to_std_string.h"],
     deps = [
@@ -63,13 +78,4 @@ cc_library(
     name = "string_view_utils",
     hdrs = ["string_view_utils.h"],
     deps = ["//src/utils:string_view"],
-)
-
-cc_library(
-    name = "mock_socket_listener",
-    hdrs = ["mock_socket_listener.h"],
-    deps = [
-        "//googletest:gunit_headers",
-        "//src/utils:socket_listener",
-    ],
 )

@@ -60,7 +60,6 @@ cc_library(
         ":print_misc",
         ":printable_progmem_string",
         ":stream_to_print",
-        "//extras/host/arduino",
         "//src/utils/traits:print_to_trait",
         "//src/utils/traits:type_traits",
     ],
@@ -234,7 +233,6 @@ cc_library(
         "//extras/host/arduino:ip_address",
         "//extras/host/ethernet3",
         "//extras/host/ethernet3:host_sockets",
-        "//extras/host/ethernet3:w5500",
     ],
 )
 
@@ -281,7 +279,6 @@ cc_library(
         ":platform",
         ":platform_ethernet",
         ":socket_listener",
-        "//extras/host/ethernet3:w5500",
     ],
 )
 
