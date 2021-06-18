@@ -20,3 +20,14 @@ pytype_strict_binary(
     srcs_version = "PY3",
     deps = ["//third_party/py/requests"],
 )
+
+pytype_strict_binary(
+    name = "cover_calibrator",
+    srcs = ["cover_calibrator.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":alpaca_http_client",
+        "//third_party/py/requests",
+    ],
+)

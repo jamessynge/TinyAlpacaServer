@@ -1,11 +1,17 @@
 #!/usr/bin/python3
 """Simple tool to read Swagger YAML files (i.e. API definitions)."""
 
-from typing import Sequence
+import os
+import typing
+from typing import Any, Dict, Generator, List, Match, Optional, Sequence, Tuple, Union
 
 from absl import app
+import dataclasses
+import requests
 
-Spec = Dict[str, Union['Spec', str, int, List['Spec']]]
+# Spec = Dict[str, Union['Spec', str, int, List['Spec']]]
+
+Spec = typing.TypeVar('Spec')
 
 
 def get_spec() -> str:
@@ -25,8 +31,8 @@ def get_spec() -> str:
   return text
 
 
-def make_components_map(spec: Spec) -> Dict[str, Spec]:
-  result: Dict[str, Spec] = {}
+def make_components_map(spec: Any) -> Dict[str, Any]:
+  result: Dict[str, Any] = {}
   all_components = spec['components']
   for component_type, components_of_type in all_components.items():
     for component_name, component_def in components_of_type.items():
@@ -62,11 +68,11 @@ class Property(object):
 
 class AlpacaSpec(object):
 
-  def __init__(self, spec: Spec):
+  def __init__(self, spec: Dict[str, Any]):
     self.spec = spec
     print('spec keys:', self.spec.keys())
     self.paths = spec['paths']
-    self.components: Dict[str, Spec] = make_components_map(spec)
+    self.components: Dict[str, Any] = make_components_map(spec)
     print('components keys:\n\t', end='')
     print('\n\t'.join(sorted(self.components.keys())))
     self.resolve_re = None

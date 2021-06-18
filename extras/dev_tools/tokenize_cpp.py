@@ -42,7 +42,9 @@ SINGLE_QUOTE_OR_BACKSLASH = re.compile(r"'|\\")
 
 DOUBLE_QUOTE_OR_BACKSLASH = re.compile(r'"|\\')
 
-FLOATING_POINT_RE = re.compile(r'[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?')
+FLOATING_POINT_RE = re.compile(r'(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?')
+
+INTEGER_RE = re.compile(r'\d+')
 
 IDENTIFIER_RE = re.compile(r'[a-zA-Z_][a-zA-Z_0-9]*')
 
@@ -252,102 +254,117 @@ def generate_phase2_tokenization(
   pos = 0
   while pos < len(phase2_source):
     # print('pos=', pos)
+    try:
 
-    # Skip whitespace.
-    m = WHITESPACE_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'WHITESPACE_RE matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Skip attribute specifiers (e.g. [[noreturn]]). This pattern doesn't match
-    # 'interesting' attribute specifier sequences, but so far those haven't been
-    # needed.
-    m = ATTRIBUTE_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'ATTRIBUTE_RE matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Skip preprocessor lines.
-    m = PREPROCESSOR_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'PREPROCESSOR_RE matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Skip comments.
-    m = LINE_COMMENT_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'LINE_COMMENT_RE matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-    m = MULTI_LINE_COMMENT_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'MULTI_LINE_COMMENT_RE matched [{pos}:{m.end()}]')
-      pos = m.end()
-      continue
-
-    # Match strings and characters.
-    m = START_CHAR_LITERAL_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'START_CHAR_LITERAL_RE matched [{pos}:{m.end()}]')
-      end_pos = find_char_literal_end(phase2_source, m)
-      token = phase2_source[pos:end_pos]
-      yield (EToken.CHAR, token, pos, end_pos)
-      pos = end_pos
-      continue
-
-    m = START_STRING_LITERAL_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'START_STRING_LITERAL_RE matched [{pos}:{m.end()}]')
-      end_pos = find_string_end(phase2_source, m.end() - 1)
-      token = phase2_source[pos:end_pos]
-      yield (EToken.STRING, token, pos, end_pos)
-      pos = end_pos
-      continue
-
-    m = START_RAW_STRING_LITERAL_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'START_RAW_STRING_LITERAL_RE matched [{pos}:{m.end()}]')
-      end_pos = find_raw_string_literal_end(phase2_source, m)
-      token = phase2_source[pos:end_pos]
-      yield (EToken.RAW_STRING, token, pos, end_pos)
-      pos = end_pos
-      continue
-
-    # Match numbers.
-    m = FLOATING_POINT_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'FLOATING_POINT_RE matched [{pos}:{m.end()}]')
-      token = phase2_source[pos:m.end()]
-      yield (EToken.NUMBER, token, pos, end_pos)
-      pos = m.end()
-      continue
-
-    # Match operators and other punctuation. Not attempting to make them
-    # complete tokens (i.e. '->' will be yielded as '-' and '>').
-
-    if phase2_source[pos] in OPS_AND_PUNC_CHAR_SET:
-      # print(f'Found operator or punctuation at {pos}')
-      v = match_operator_or_punctuation(phase2_source, pos)
-      if v:
-        yield v
-        pos += len(v[1])
+      # Skip whitespace.
+      m = WHITESPACE_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'WHITESPACE_RE matched [{pos}:{m.end()}]')
+        pos = m.end()
         continue
-      # This is surprising!
-      raise ValueError(
-          f'Unable to match {phase2_source[pos:pos+20]!r} in file {file_path!r}'
-      )
 
-    # Match identifiers.
-    m = IDENTIFIER_RE.match(phase2_source, pos=pos)
-    if m:
-      # print(f'identifier_re matched [{pos}:{m.end()}]')
-      token = phase2_source[pos:m.end()]
-      yield (EToken.IDENTIFIER, token, pos, m.end())
-      pos = m.end()
-      continue
+      # Skip attribute specifiers (e.g. [[noreturn]]). This pattern doesn't
+      # match 'interesting' attribute specifier sequences, but so far those
+      # haven't been needed.
+      m = ATTRIBUTE_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'ATTRIBUTE_RE matched [{pos}:{m.end()}]')
+        pos = m.end()
+        continue
+
+      # Skip preprocessor lines.
+      m = PREPROCESSOR_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'PREPROCESSOR_RE matched [{pos}:{m.end()}]')
+        pos = m.end()
+        continue
+
+      # Skip comments.
+      m = LINE_COMMENT_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'LINE_COMMENT_RE matched [{pos}:{m.end()}]')
+        pos = m.end()
+        continue
+      m = MULTI_LINE_COMMENT_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'MULTI_LINE_COMMENT_RE matched [{pos}:{m.end()}]')
+        pos = m.end()
+        continue
+
+      # Match strings and characters.
+      m = START_CHAR_LITERAL_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'START_CHAR_LITERAL_RE matched [{pos}:{m.end()}]')
+        end_pos = find_char_literal_end(phase2_source, m)
+        token = phase2_source[pos:end_pos]
+        yield (EToken.CHAR, token, pos, end_pos)
+        pos = end_pos
+        continue
+
+      m = START_STRING_LITERAL_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'START_STRING_LITERAL_RE matched [{pos}:{m.end()}]')
+        end_pos = find_string_end(phase2_source, m.end() - 1)
+        token = phase2_source[pos:end_pos]
+        yield (EToken.STRING, token, pos, end_pos)
+        pos = end_pos
+        continue
+
+      m = START_RAW_STRING_LITERAL_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'START_RAW_STRING_LITERAL_RE matched [{pos}:{m.end()}]')
+        end_pos = find_raw_string_literal_end(phase2_source, m)
+        token = phase2_source[pos:end_pos]
+        yield (EToken.RAW_STRING, token, pos, end_pos)
+        pos = end_pos
+        continue
+
+      # Match numbers.
+      m = FLOATING_POINT_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'FLOATING_POINT_RE matched [{pos}:{m.end()}]')
+        token = phase2_source[pos:m.end()]
+        yield (EToken.NUMBER, token, pos, m.end())
+        pos = m.end()
+        continue
+
+      # m = INTEGER_RE.match(phase2_source, pos=pos)
+      # if m:
+      #   # print(f'INTEGER_RE matched [{pos}:{m.end()}]')
+      #   token = phase2_source[pos:m.end()]
+      #   yield (EToken.NUMBER, token, pos, end_pos)
+      #   pos = m.end()
+      #   continue
+
+      # Match operators and other punctuation. Not attempting to make them
+      # complete tokens (i.e. '->' will be yielded as '-' and '>').
+
+      if phase2_source[pos] in OPS_AND_PUNC_CHAR_SET:
+        # print(f'Found operator or punctuation at {pos}')
+        v = match_operator_or_punctuation(phase2_source, pos)
+        if v:
+          yield v
+          pos += len(v[1])
+          continue
+        # This is surprising!
+        raise ValueError(
+            f'Unable to match {phase2_source[pos:pos+20]!r} in file {file_path!r}'
+        )
+
+      # Match identifiers.
+      m = IDENTIFIER_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'identifier_re matched [{pos}:{m.end()}]')
+        token = phase2_source[pos:m.end()]
+        yield (EToken.IDENTIFIER, token, pos, m.end())
+        pos = m.end()
+        continue
+    except:
+      print(
+          'Exception while matching '
+          f'{phase2_source[pos:pos+20]!r} in file {file_path!r}',
+          file=sys.stderr)
+      raise
 
     raise ValueError(
         f'Unable to match {phase2_source[pos:pos+20]!r} in file {file_path!r}')

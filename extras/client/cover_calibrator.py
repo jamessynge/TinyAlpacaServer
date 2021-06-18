@@ -2,15 +2,17 @@
 """Makes HTTP requests to Alpaca servers, returns HTTP responses."""
 
 import datetime
-import enum
-import random
 import sys
-import time
+import typing
 from typing import Dict, List, Optional, Sequence, Union
 
 import requests
 
-import alpaca_http_client
+try:
+  from google3.experimental.users.jamessynge.tiny_alpaca_server.extras.client import alpaca_http_client  # pylint: disable=g-import-not-at-top
+except ImportError:
+  if not typing.TYPE_CHECKING:
+    import alpaca_http_client  # pylint: disable=g-import-not-at-top
 
 MOVING_SLEEP_TIME = 1
 
