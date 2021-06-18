@@ -15,6 +15,7 @@ namespace alpaca {
 class ObservingConditionsAdapter : public DeviceImplBase {
  public:
   explicit ObservingConditionsAdapter(const DeviceInfo& device_info);
+  ~ObservingConditionsAdapter() override {}
 
   // Handles GET 'request', writes the HTTP response message to 'out'. Returns
   // true to indicate that the response was written without error, otherwise
