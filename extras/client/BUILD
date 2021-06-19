@@ -1,6 +1,6 @@
 # Client (host) code, primarily for remote testing.
 
-load("//devtools/python/blaze:pytype.bzl", "pytype_strict_binary")
+load("//devtools/python/blaze:pytype.bzl", "pytype_strict_binary", "pytype_strict_library")
 
 pytype_strict_binary(
     name = "alpaca_discovery",
@@ -21,13 +21,20 @@ pytype_strict_binary(
     deps = ["//third_party/py/requests"],
 )
 
+pytype_strict_library(
+    name = "alpaca_http_client_lib",
+    srcs = ["alpaca_http_client.py"],
+    srcs_version = "PY3",
+    deps = ["//third_party/py/requests"],
+)
+
 pytype_strict_binary(
     name = "cover_calibrator",
     srcs = ["cover_calibrator.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
-        ":alpaca_http_client",
+        ":alpaca_http_client_lib",
         "//third_party/py/requests",
     ],
 )
