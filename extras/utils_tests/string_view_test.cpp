@@ -364,7 +364,7 @@ TEST(StringViewTest, ToInt32) {
 
 TEST(StringViewTest, ToInt32Fails) {
   uint32_t tester = 1734594785;  // Vaguely random, value doesn't really matter.
-  for (const std::string not_a_uint32 : {
+  for (const std::string not_an_int32 : {
            "+1",          // Explicitly positive number.
            "--1",         // Double negative number
            "-",           // Sign only.
@@ -374,7 +374,7 @@ TEST(StringViewTest, ToInt32Fails) {
            "123.456",     // Number with non-digit.
            "2147483648",  // One too large.
        }) {
-    StringView view = MakeStringView(not_a_uint32);
+    StringView view = MakeStringView(not_an_int32);
     int32_t out = tester;
     EXPECT_FALSE(view.to_int32(out));
     EXPECT_EQ(out, tester);
@@ -384,6 +384,79 @@ TEST(StringViewTest, ToInt32Fails) {
   EXPECT_EQ(min_int, INT_MIN);
   min_int = 0x80000000;
   EXPECT_EQ(min_int, INT_MIN);
+}
+
+TEST(StringViewTest, ToDouble) {
+  std::vector<std::pair<std::string, double>> test_cases({
+      {"0", 0},
+      {"-0", 0},
+      {"0.", 0},
+      {"-0.", 0},
+      {".0", 0},
+      {"-.0", 0},
+      {"1", 1},
+      {"-1", -1},
+      {"1.", 1},
+      {"-1.", -1},
+      {"10", 10},
+      {"-10", -10},
+      {"99", 99},
+      {"-99", -99},
+      {".1", .1},
+      {".01", .01},
+      {".22", .22},
+      {"9.1", 9.1},
+      {"9000.01", 9000.01},
+      {"2222.22", 2222.22},
+      {"987654321.123456789", 987654321.123456789},
+      {".99999999999", .99999999999},
+      {"0000000000123456789", 123456789},
+      {"-2147483647", -2147483647},
+      {"-000000002147483647", -2147483647},
+      {"-2147483648", -2147483648},
+      {"-000000002147483648", INT32_MIN},
+      {"2147483647", 2147483647},
+      {"0000000002147483647", INT32_MAX},
+      {"4294967295", 4294967295},
+      {"0000004294967295", UINT32_MAX},
+      {"429496729500", UINT32_MAX * 100.0},
+  });
+  for (const auto& test_case : test_cases) {
+    StringView view = MakeStringView(test_case.first);
+    double out = 0;
+    EXPECT_TRUE(view.to_double(out)) << "\nInput string: " << test_case.first;
+    EXPECT_DOUBLE_EQ(out, test_case.second)
+        << "\nInput string: " << test_case.first;
+
+    // Make sure that the value of out has no impact on decoding by changing it
+    // to a very different value, then decoding again.
+    out = -out * 3.14159265359;
+    EXPECT_TRUE(view.to_double(out)) << "\nInput string: " << test_case.first;
+    EXPECT_DOUBLE_EQ(out, test_case.second)
+        << "\nInput string: " << test_case.first;
+  }
+}
+
+TEST(StringViewTest, ToDoubleFails) {
+  uint32_t tester = 1734594785;  // Vaguely random, value doesn't really matter.
+  for (const std::string not_a_double : {
+           "",         // Empty string
+           ".",        // Decimal point only.
+           "+1",       // Explicitly positive number.
+           "--1",      // Double negative number
+           "-",        // Sign only.
+           "+",        // Sign only.
+           "-.",       // Sign and decimal point only.
+           "+.",       // Sign and decimal point only.
+           "123,456",  // Number with non-digit.
+           "1.2.3",    // Too many decimal points.
+       }) {
+    StringView view = MakeStringView(not_a_double);
+    double out = tester;
+    EXPECT_FALSE(view.to_double(out)) << "\nInput string: " << not_a_double;
+    EXPECT_EQ(out, tester) << "\nInput string: " << not_a_double;
+    ++tester;
+  }
 }
 
 #ifdef NDEBUG

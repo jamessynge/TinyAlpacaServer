@@ -216,6 +216,10 @@ class StringView {
   // out.
   bool to_int32(int32_t& out) const;
 
+  // Parse the string as a signed double, writing the value to out. Returns true
+  // iff successful. If not successful, does not modify out.
+  bool to_double(double& out) const;
+
   // Print the string to Print by calling Print::write(data(), size()). The
   // name printTo comes from Arduino's Printable::printTo, with which this is
   // mostly compatible; the exception is that it is not virtual because that
