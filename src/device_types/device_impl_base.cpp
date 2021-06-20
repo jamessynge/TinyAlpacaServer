@@ -9,6 +9,7 @@
 #include "utils/counting_print.h"
 #include "utils/json_encoder.h"
 #include "utils/o_print_stream.h"
+#include "utils/status.h"
 
 namespace alpaca {
 namespace {
@@ -105,8 +106,7 @@ bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
           request, device_info_.supported_actions, out);
 
     default:
-      return WriteResponse::AscomErrorResponse(
-          request, ErrorCodes::ActionNotImplemented(), out);
+      return WriteResponse::AscomNotImplementedResponse(request, out);
   }
 }
 
@@ -129,32 +129,34 @@ bool DeviceImplBase::HandlePutRequest(const AlpacaRequest& request,
       return HandlePutConnected(request, out);
 
     default:
-      return WriteResponse::AscomErrorResponse(
-          request, ErrorCodes::ActionNotImplemented(), out);
+      return WriteResponse::AscomNotImplementedResponse(request, out);
   }
 }
 
 bool DeviceImplBase::HandlePutAction(const AlpacaRequest& request, Print& out) {
+  // If there are NO supported actions, then we return MethodNotImplemented,
+  // rather than ActionNotImplemented, which we return when there are some valid
+  // actions, but the specified action name is not supported.
+  if (device_info_.supported_actions.size == 0) {
+    return WriteResponse::AscomNotImplementedResponse(request, out);
+  }
   return WriteResponse::AscomErrorResponse(
       request, ErrorCodes::ActionNotImplemented(), out);
 }
 
 bool DeviceImplBase::HandlePutCommandBlind(const AlpacaRequest& request,
                                            Print& out) {
-  return WriteResponse::AscomErrorResponse(
-      request, ErrorCodes::ActionNotImplemented(), out);
+  return WriteResponse::AscomNotImplementedResponse(request, out);
 }
 
 bool DeviceImplBase::HandlePutCommandBool(const AlpacaRequest& request,
                                           Print& out) {
-  return WriteResponse::AscomErrorResponse(
-      request, ErrorCodes::ActionNotImplemented(), out);
+  return WriteResponse::AscomNotImplementedResponse(request, out);
 }
 
 bool DeviceImplBase::HandlePutCommandString(const AlpacaRequest& request,
                                             Print& out) {
-  return WriteResponse::AscomErrorResponse(
-      request, ErrorCodes::ActionNotImplemented(), out);
+  return WriteResponse::AscomNotImplementedResponse(request, out);
 }
 
 bool DeviceImplBase::HandlePutConnected(const AlpacaRequest& request,
@@ -167,8 +169,8 @@ bool DeviceImplBase::HandlePutConnected(const AlpacaRequest& request,
                                        out);
 }
 
-Status DeviceImplBase::SetConnected(bool value) {
-  return ErrorCodes::ActionNotImplemented();
-}
+StatusOr<bool> DeviceImplBase::GetConnected() { return true; }
+
+Status DeviceImplBase::SetConnected(bool value) { return OkStatus(); }
 
 }  // namespace alpaca

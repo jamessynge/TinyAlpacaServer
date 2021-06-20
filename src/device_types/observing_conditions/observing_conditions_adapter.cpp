@@ -167,7 +167,7 @@ bool ObservingConditionsAdapter::HandlePutAveragePeriod(
   // return WriteResponse::AscomErrorResponse(request, SetAveragePeriod(hours),
   //                                          out);
 
-  return WriteResponse::AscomActionNotImplementedResponse(request, out);
+  return WriteResponse::AscomNotImplementedResponse(request, out);
 }
 
 bool ObservingConditionsAdapter::HandlePutRefresh(const AlpacaRequest& request,

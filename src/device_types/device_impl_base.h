@@ -84,10 +84,10 @@ class DeviceImplBase : public DeviceInterface {
 
   // Default implementations of common methods.
 
-  // Is the driver connected to (i.e. able to talk to) the device?
-  virtual StatusOr<bool> GetConnected() {
-    return ErrorCodes::ActionNotImplemented();
-  }
+  // Is the driver connected to (i.e. able to talk to) the device? By default,
+  // we assume the device is connected, and prevent the device from being
+  // disconnected. A subclass can override to change this.
+  virtual StatusOr<bool> GetConnected();
 
   // Invokes the named device-specific action.
   virtual bool HandlePutAction(const AlpacaRequest& request, Print& out);

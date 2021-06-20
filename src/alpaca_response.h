@@ -154,6 +154,10 @@ struct WriteResponse {
                                                  Literal parameter_name,
                                                  Print& out);
 
+  // Write an ASCOM Method Not Implemented error response.
+  static bool AscomNotImplementedResponse(const AlpacaRequest& request,
+                                          Print& out);
+
   // Write an ASCOM Action Not Implemented error response.
   static bool AscomActionNotImplementedResponse(const AlpacaRequest& request,
                                                 Print& out);

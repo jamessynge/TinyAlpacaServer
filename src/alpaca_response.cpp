@@ -211,6 +211,11 @@ bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                             AnyPrintable(error_status.message()), out);
 }
 
+bool WriteResponse::AscomNotImplementedResponse(const AlpacaRequest& request,
+                                                Print& out) {
+  return AscomErrorResponse(request, ErrorCodes::NotImplemented(), out);
+}
+
 bool WriteResponse::AscomActionNotImplementedResponse(
     const AlpacaRequest& request, Print& out) {
   return AscomErrorResponse(request, ErrorCodes::ActionNotImplemented(), out);
