@@ -201,8 +201,18 @@ def process_file(file_path: str):
   for enum_def in enum_definitions:
     name = enum_def['name']
     print(f'size_t PrintValueTo({name} v, Print& out);')
+  print()
+  for enum_def in enum_definitions:
+    name = enum_def['name']
     print(f'PrintableProgmemString ToPrintableProgmemString({name} v);')
-    print()
+  print()
+  print('#if TAS_HOST_TARGET')
+  print('// Support for debug logging of enums.')
+  for enum_def in enum_definitions:
+    name = enum_def['name']
+    print(f'std::ostream& operator<<(std::ostream& os, {name} v);')
+  print('#endif  // TAS_HOST_TARGET')
+  print()
   print('}  // namespace alpaca')
   print()
   print()
@@ -240,6 +250,32 @@ PrintableProgmemString ToPrintableProgmemString({name} v) {{
   }
   return PrintableProgmemString();
 }""")
+  print()
+
+  print()
+  print('#if TAS_HOST_TARGET')
+  print('// Support for debug logging of enums.')
+
+  for enum_def in enum_definitions:
+    name = enum_def['name']
+    enumerators = enum_def['enumerators']
+    print(
+        f"""
+std::ostream& operator<<(std::ostream& os, {name} v) {{
+  switch (v) {{""",
+        end='')
+    for enumerator, dq_string in enumerators:
+      print(
+          f"""
+    case {name}::{enumerator}:
+      return os << {dq_string};""",
+          end='')
+    print(r"""
+  }
+  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+}""")
+
+  print('#endif  // TAS_HOST_TARGET')
   print()
   print('}  // namespace alpaca')
 

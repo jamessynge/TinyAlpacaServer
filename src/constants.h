@@ -22,6 +22,10 @@
 #include "utils/platform.h"
 #include "utils/printable_progmem_string.h"
 
+#if TAS_HOST_TARGET
+#include <ostream>  // pragma: keep standard include
+#endif
+
 #define TASENUMERATOR(id, text) id
 
 namespace alpaca {
@@ -246,7 +250,7 @@ enum class EParameter : EParameter_UnderlyingType {
 
   // Switch parameters.
   kId,
-  kName,
+  kName,  // DECODING NOT YET SUPPORTED (No provision for storage)
   kState,
   kValue,
 };
@@ -321,6 +325,21 @@ size_t PrintValueTo(ESensorName v, Print& out);
 size_t PrintValueTo(EHttpHeader v, Print& out);
 size_t PrintValueTo(EContentType v, Print& out);
 
+#if TAS_HOST_TARGET
+// Support for debug logging of enums.
+std::ostream& operator<<(std::ostream& os, RequestDecoderStatus v);
+std::ostream& operator<<(std::ostream& os, EHttpStatusCode v);
+std::ostream& operator<<(std::ostream& os, EHttpMethod v);
+std::ostream& operator<<(std::ostream& os, EApiGroup v);
+std::ostream& operator<<(std::ostream& os, EAlpacaApi v);
+std::ostream& operator<<(std::ostream& os, EManagementMethod v);
+std::ostream& operator<<(std::ostream& os, EDeviceType v);
+std::ostream& operator<<(std::ostream& os, EDeviceMethod v);
+std::ostream& operator<<(std::ostream& os, EParameter v);
+std::ostream& operator<<(std::ostream& os, ESensorName v);
+std::ostream& operator<<(std::ostream& os, EHttpHeader v);
+std::ostream& operator<<(std::ostream& os, EContentType v);
+#endif  // TAS_HOST_TARGET
 }  // namespace alpaca
 
 #undef TASENUMERATOR
