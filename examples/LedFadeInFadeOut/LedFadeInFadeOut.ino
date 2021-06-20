@@ -1,7 +1,6 @@
 // A modification of Alan's demo of the cover-calibrator hardware to deal with
 // my remapping of the pins.
 
-#include <AccelStepper.h>
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 

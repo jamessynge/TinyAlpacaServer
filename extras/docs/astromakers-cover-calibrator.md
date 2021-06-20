@@ -37,6 +37,7 @@ Cover Motor Enabled Input      | A8               | ADC8, PCINT16  | was D13
 Microstep Resolution MS1       | A9               | ADC9, PCINT17  | **new**
 Microstep Resolution MS2       | A10              | ADC10, PCINT18 | **new**
 Microstep Resolution MS3       | A11              | ADC11, PCINT19 | **new**
+Cover Motor Enabled Input      | A12              | ADC12, PCINT20 | **new**
 
 With the exception of the pin purposes marked as new, these recommendations have
 been tested by using a Rev. 6 shield and a set of jumper cables mapping its pins
@@ -50,7 +51,7 @@ Notes:
     need to be updated because I've not written code that handles figuring out
     the Timer/Counter registers based on a pin number.
 
-*   A similar situation applies to the 4 *enabled input* pins and the 3
+*   A similar situation applies to the 5 *enabled input* pins and the 3
     *Microstepping Resolution* pins: the exact mapping from purpose to those 7
     pins isn't important. There are also another 4 analog pins (A12-A15) that
     can be selected if those are easier to layout traces for.
