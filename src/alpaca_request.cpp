@@ -21,6 +21,9 @@ void AlpacaRequest::Reset() {
   have_server_transaction_id = false;
   have_connected = false;
   have_brightness = false;
+  have_id = false;
+  have_state = false;
+  have_value = false;
   do_close = false;
 
   // Theoretically we don't need to clear the following fields because they
@@ -41,6 +44,7 @@ void AlpacaRequest::Reset() {
   // specifically.
   client_id = kResetClientId;
   client_transaction_id = kResetClientTransactionId;
+  id = -1;
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
   extra_parameters.clear();

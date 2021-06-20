@@ -64,6 +64,24 @@ struct AlpacaRequest {
     have_brightness = true;
   }
 
+  void set_id(int32_t value) {
+    TAS_DCHECK(!have_id);
+    id = value;
+    have_id = true;
+  }
+
+  void set_state(bool value) {
+    TAS_DCHECK(!have_state);
+    state = value;
+    have_state = true;
+  }
+
+  void set_value(double v) {
+    TAS_DCHECK(!have_value);
+    value = v;
+    have_value = true;
+  }
+
   // From the HTTP method and path:
   EHttpMethod http_method;
   EApiGroup api_group;
@@ -79,11 +97,16 @@ struct AlpacaRequest {
 
   // Parameters, either from the path (GET & HEAD) or the body (PUT), or both
   // (PUT).
+  // TODO(jamessynge): Rework so that we don't waste space for parameters that
+  // aren't provided in the same request.
   uint32_t client_id;
   uint32_t client_transaction_id;
   ESensorName sensor_name;
   bool connected;
   int32_t brightness;
+  int32_t id;  // Switch id.
+  bool state;
+  double value;
 
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know
@@ -98,6 +121,10 @@ struct AlpacaRequest {
   unsigned int have_server_transaction_id : 1;
   unsigned int have_connected : 1;
   unsigned int have_brightness : 1;
+  unsigned int have_id : 1;
+  unsigned int have_state : 1;
+  unsigned int have_value : 1;
+
   unsigned int do_close : 1;  // Set to true if client requests it.
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS

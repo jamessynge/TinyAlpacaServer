@@ -88,7 +88,7 @@ bool IsNameChar(const char c) {
 
 // Match characters allowed in a URL encoded parameter value, whether in the
 // path or in the body of a PUT request.
-TAS_CONSTEXPR_VAR StringView kExtraParamValueChars("-_=%");
+TAS_CONSTEXPR_VAR StringView kExtraParamValueChars("-+_=%.");
 bool IsParamValueChar(const char c) {
   return isAlphaNumeric(c) || kExtraParamValueChars.contains(c);
 }
@@ -456,7 +456,8 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     value = view;
     view.remove_prefix(value.size());
   }
-  TAS_VLOG(1) << TASLIT("DecodeParamValue value: ") << HexEscaped(value);
+  TAS_VLOG(1) << TASLIT("DecodeParamValue param: ") << state.current_parameter
+              << TASLIT(", value: ") << HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_parameter == EParameter::kClientID) {
     uint32_t id;
@@ -474,6 +475,14 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     } else {
       state.request.set_client_transaction_id(id);
     }
+  } else if (state.current_parameter == EParameter::kId) {
+    uint32_t id;
+    bool converted_ok = value.to_uint32(id);
+    if (state.request.have_id || !converted_ok) {
+      status = ReportExtraParameter(state, value);
+    } else {
+      state.request.set_id(id);
+    }
   } else if (state.current_parameter == EParameter::kBrightness) {
     int32_t brightness;
     bool converted_ok = value.to_int32(brightness);
@@ -482,14 +491,29 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     } else {
       state.request.set_brightness(brightness);
     }
+  } else if (state.current_parameter == EParameter::kValue) {
+    double d;
+    bool converted_ok = value.to_double(d);
+    if (state.request.have_value || !converted_ok) {
+      status = ReportExtraParameter(state, value);
+    } else {
+      state.request.set_value(d);
+    }
   } else if (state.current_parameter == EParameter::kConnected) {
     if (CaseEqual(value, Literals::False()) && !state.request.have_connected) {
-      state.request.connected = false;
-      state.request.have_connected = true;
+      state.request.set_connected(false);
     } else if (CaseEqual(value, Literals::True()) &&
                !state.request.have_connected) {
-      state.request.connected = true;
-      state.request.have_connected = true;
+      state.request.set_connected(true);
+    } else {
+      status = ReportExtraParameter(state, value);
+    }
+  } else if (state.current_parameter == EParameter::kState) {
+    if (CaseEqual(value, Literals::False()) && !state.request.have_state) {
+      state.request.set_state(false);
+    } else if (CaseEqual(value, Literals::True()) &&
+               !state.request.have_state) {
+      state.request.set_state(true);
     } else {
       status = ReportExtraParameter(state, value);
     }

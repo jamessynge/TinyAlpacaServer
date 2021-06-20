@@ -1194,7 +1194,7 @@ TEST(RequestDecoderTest, BadHeaderLineEnd) {
     EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
 
     if (TestHasFailed()) {
-      break;
+      return;
     }
   }
 }
@@ -1396,7 +1396,136 @@ TEST(RequestDecoderTest, VerboseLogging) {
     EXPECT_EQ(alpaca_request.client_transaction_id, 9);
 
     if (TestHasFailed()) {
-      break;
+      return;
+    }
+  }
+}
+
+TEST(RequestDecoderTest, SwitchRequests) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, &listener);
+  {
+    const std::string full_request(
+        "GET /api/v1/switch/9999/getswitchvalue"
+        "?ClientID=123&clienttransactionid=432&Id=789 "
+        "HTTP/1.1\r\n"
+        "Content-Length: 0\r\n"
+        "\r\n");
+    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+      auto result = DecodePartitionedRequest(decoder, partition);
+
+      const EHttpStatusCode status = std::get<0>(result);
+      const std::string buffer = std::get<1>(result);
+      const std::string remainder = std::get<2>(result);
+
+      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+      EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSwitch);
+      EXPECT_EQ(alpaca_request.device_number, 9999);
+      EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kGetSwitchValue);
+      EXPECT_TRUE(alpaca_request.have_client_id);
+      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
+      EXPECT_TRUE(alpaca_request.have_id);
+      EXPECT_FALSE(alpaca_request.have_state);
+      EXPECT_FALSE(alpaca_request.have_value);
+      EXPECT_EQ(alpaca_request.client_id, 123);
+      EXPECT_EQ(alpaca_request.client_transaction_id, 432);
+      EXPECT_EQ(alpaca_request.id, 789);
+
+      if (TestHasFailed()) {
+        return;
+      }
+    }
+  }
+  {
+    const std::string body =
+        "state=false&id=9&clienttransactionid=8&clientid=7";
+
+    const std::string full_request = absl::StrCat(
+        "PUT /api/v1/switch/0/setswitch "
+        "HTTP/1.1\r\n",
+        "content-TYPE:application/x-www-form-urlencoded\r\n",
+        "Content-Length:", body.size(), "\r\n",  // Last header line.
+        "\r\n",  // End of headers, separator between message header and body.
+        body);
+
+    LOG(INFO) << "full_request:\n" << full_request << "\n";
+
+    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+      auto result = DecodePartitionedRequest(decoder, partition);
+
+      const EHttpStatusCode status = std::get<0>(result);
+      const std::string buffer = std::get<1>(result);
+      const std::string remainder = std::get<2>(result);
+
+      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+      EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
+      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSwitch);
+      EXPECT_EQ(alpaca_request.device_number, 0);
+      EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kSetSwitch);
+      EXPECT_TRUE(alpaca_request.have_client_id);
+      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
+      EXPECT_TRUE(alpaca_request.have_id);
+      EXPECT_TRUE(alpaca_request.have_state);
+      EXPECT_FALSE(alpaca_request.have_value);
+      // EXPECT_FALSE(alpaca_request.have_name);  // Not supported yet.
+      EXPECT_EQ(alpaca_request.client_id, 7);
+      EXPECT_EQ(alpaca_request.client_transaction_id, 8);
+      EXPECT_EQ(alpaca_request.id, 9);
+      EXPECT_EQ(alpaca_request.state, false);
+
+      if (TestHasFailed()) {
+        return;
+      }
+    }
+  }
+  {
+    const std::string body =
+        "value=0.99999&id=0&clienttransactionid=9&clientid=7";
+
+    const std::string full_request = absl::StrCat(
+        "PUT /api/v1/switch/0/setswitchvalue "
+        "HTTP/1.1\r\n",
+        "content-TYPE:application/x-www-form-urlencoded\r\n",
+        "Content-Length:", body.size(), "\r\n",  // Last header line.
+        "\r\n",  // End of headers, separator between message header and body.
+        body);
+
+    LOG(INFO) << "full_request:\n" << full_request << "\n";
+
+    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+      auto result = DecodePartitionedRequest(decoder, partition);
+
+      const EHttpStatusCode status = std::get<0>(result);
+      const std::string buffer = std::get<1>(result);
+      const std::string remainder = std::get<2>(result);
+
+      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+      EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
+      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSwitch);
+      EXPECT_EQ(alpaca_request.device_number, 0);
+      EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kSetSwitchValue);
+      EXPECT_TRUE(alpaca_request.have_client_id);
+      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
+      EXPECT_TRUE(alpaca_request.have_id);
+      EXPECT_TRUE(alpaca_request.have_value);
+      EXPECT_FALSE(alpaca_request.have_state);
+      // EXPECT_FALSE(alpaca_request.have_name);  // Not supported yet.
+      EXPECT_EQ(alpaca_request.client_id, 7);
+      EXPECT_EQ(alpaca_request.client_transaction_id, 9);
+      EXPECT_EQ(alpaca_request.id, 0);
+      EXPECT_EQ(alpaca_request.value, 0.99999);
+
+      if (TestHasFailed()) {
+        return;
+      }
     }
   }
 }
