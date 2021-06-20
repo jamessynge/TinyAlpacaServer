@@ -19,8 +19,6 @@ constexpr char kHexDigits[] = "0123456789ABCDEF";
 
 template <typename T>
 size_t printIntegerWithBaseTo(T value, const int base, Print& out) {
-  DVLOG(5) << "value: " << (value + 0) << "    base: " << base
-           << "    radix digits: " << std::numeric_limits<T>::digits;
   if (base == 0) {
     return out.write(value);
   }
@@ -31,8 +29,6 @@ size_t printIntegerWithBaseTo(T value, const int base, Print& out) {
 
   using UT = typename std::make_unsigned<T>::type;
   UT v2 = static_cast<UT>(value);
-  DVLOG(5) << "v2: " << (v2 + 0)
-           << "    radix digits: " << std::numeric_limits<UT>::digits;
 
   // Room for base 2, i.e. 8 binary digits + a trailing NUL.
   char buffer[1 + 8 * sizeof v2];
@@ -48,7 +44,7 @@ size_t printIntegerWithBaseTo(T value, const int base, Print& out) {
       *(--p) = 'A' + (low_digit - 10);
     }
   } while (v2 != 0);
-  DCHECK_GT(strlen(p), 0);
+  DCHECK_GT(strlen(p), 0) << "\nvalue=" << value << ", base=" << base;
   return out.write(p);
 }
 }  // namespace

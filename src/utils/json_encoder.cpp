@@ -45,7 +45,7 @@ size_t PrintCharJsonEscaped(Print& out, const char c) {
     total += out.print('\\');
     total += out.print('t');
   } else {
-    // This used to be a DCHECK, but a DVLOG is better because the character
+    // This used to be a DCHECK, but a VLOG is better because the character
     // could come from client input.
     TAS_VLOG(4) << TASLIT("Unsupported JSON character: ") << BaseHex << (c + 0);
   }
