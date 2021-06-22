@@ -16,7 +16,7 @@ class ErrorCodes {
   static Status NotImplemented();
 
   // Reserved error code (0x401, 1025) for reporting an invalid value.
-  static constexpr uint32_t kInvalidValue = 0x401;
+  static constexpr uint32_t kInvalidValue = 1025;
   static Status InvalidValue();
 
   // Reserved error code (0x402) for reporting that a value has not been set.

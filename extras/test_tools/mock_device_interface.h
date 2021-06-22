@@ -6,7 +6,7 @@
 
 namespace alpaca {
 
-class MockDeviceInterface : public alpaca::DeviceInterface {
+class MockDeviceInterface : public DeviceInterface {
  public:
   MOCK_METHOD(const struct alpaca::DeviceInfo &, device_info, (),
               (const, override));

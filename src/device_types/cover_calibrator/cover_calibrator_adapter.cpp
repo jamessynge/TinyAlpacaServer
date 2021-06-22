@@ -8,7 +8,9 @@
 namespace alpaca {
 
 CoverCalibratorAdapter::CoverCalibratorAdapter(const DeviceInfo& device_info)
-    : DeviceImplBase(device_info) {}
+    : DeviceImplBase(device_info) {
+  TAS_DCHECK_EQ(device_info.device_type, EDeviceType::kCoverCalibrator);
+}
 
 bool CoverCalibratorAdapter::HandleGetRequest(const AlpacaRequest& request,
                                               Print& out) {

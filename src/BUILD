@@ -31,6 +31,7 @@ cc_library(
         "//src/device_types/cover_calibrator:cover_calibrator_adapter",
         "//src/device_types/cover_calibrator:cover_calibrator_constants",
         "//src/device_types/observing_conditions:observing_conditions_adapter",
+        "//src/device_types/switch:switch_adapter",
         "//src/utils:addresses",
         "//src/utils:any_printable",
         "//src/utils:array",

@@ -231,8 +231,8 @@ bool WriteResponse::AscomParameterMissingErrorResponse(
 
 bool WriteResponse::AscomParameterInvalidErrorResponse(
     const AlpacaRequest& request, Literal parameter_name, Print& out) {
-  auto error_message = PrintableCat(TASLIT("Value of parameter "),
-                                    parameter_name, TASLIT(" is invalid."));
+  auto error_message =
+      PrintableCat(TASLIT("Invalid parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
                             out);
 }

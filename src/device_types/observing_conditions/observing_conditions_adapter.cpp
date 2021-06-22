@@ -9,7 +9,9 @@ namespace alpaca {
 
 ObservingConditionsAdapter::ObservingConditionsAdapter(
     const DeviceInfo& device_info)
-    : DeviceImplBase(device_info) {}
+    : DeviceImplBase(device_info) {
+  TAS_DCHECK_EQ(device_info.device_type, EDeviceType::kObservingConditions);
+}
 
 // Handle a GET 'request', write the HTTP response message to out.
 bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,

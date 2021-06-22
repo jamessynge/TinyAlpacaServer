@@ -88,10 +88,6 @@ size_t PrintJsonEscapedStringTo(const Printable& value, Print& raw_output) {
   return count;
 }
 
-// size_t PrintJsonEscapedStringTo(const Literal& value, Print& raw_output) {
-//   return PrintJsonEscapedStringTo(AnyPrintable(value), raw_output);
-// }
-
 void PrintBoolean(Print& out, const bool value) {
   if (value) {
     JsonTrue().printTo(out);
@@ -125,6 +121,23 @@ void PrintFloatingPoint(Print& out, const T value) {
   } else {
     // We're assuming that the Print object is configured to match JSON
     // requirements for the formatting of numbers.
+    //
+    // NOTE: That assumption isn't very good. Arduino's Print::print(double)
+    // method prints at most 2 digits to the right of the decimal point by
+    // default, even if the number is 0.000123, so that example prints as "0.".
+    //
+    // TODO(jamessynge): Improve the printing of floating point values such that
+    // we don't lose too much precision. Note that JSON allows for scientific
+    // notation, which can allow for reasonable precision without requiring a
+    // lot of digits be output. Consider using log10, frexp, etc. to determine
+    // the base-10 exponent that applies, and thus whether to shift to
+    // scientific notation or not.
+    //
+    // For ideas, see:
+    // https://jkorpela.fi/c/eng.html
+    // https://stackoverflow.com/a/19083594
+    // https://stackoverflow.com/a/28334452
+    // https://stackoverflow.com/a/17175504
     out.print(value);
   }
 }
