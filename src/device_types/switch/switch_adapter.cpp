@@ -114,7 +114,7 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
             request, Literals::State(), out);
       }
       return WriteResponse::StatusResponse(
-          request, PutSetSwitch(request.id, request.state), out);
+          request, SetSwitch(request.id, request.state), out);
 
     case EDeviceMethod::kSetSwitchValue:
       // Requires the value parameter.
@@ -122,17 +122,17 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
         return WriteResponse::AscomParameterMissingErrorResponse(
             request, Literals::Value(), out);
       }
-      if ((request.value < GetMinSwitchValue(request.id)) ||
-          (GetMaxSwitchValue(request.id) < request.value)) {
+      if (request.value < GetMinSwitchValue(request.id) ||
+          GetMaxSwitchValue(request.id) < request.value) {
         return WriteResponse::AscomParameterInvalidErrorResponse(
             request, Literals::Value(), out);
       }
       return WriteResponse::StatusResponse(
-          request, PutSetSwitchValue(request.id, request.value), out);
+          request, SetSwitchValue(request.id, request.value), out);
 
     case EDeviceMethod::kSetSwitchName:
-      // TODO(jamessynge): Implement this.
-      TAS_FALLTHROUGH_INTENDED;
+      // TODO(jamessynge): Verify that the request has a valid name parameter.
+      return HandleSetSwitchName(request, request.id, out);
 
     default:
       return DeviceImplBase::HandlePutRequest(request, out);

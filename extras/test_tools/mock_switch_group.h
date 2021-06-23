@@ -16,36 +16,34 @@ class MockSwitchGroup : public SwitchAdapter {
       : SwitchAdapter(device_info) {}
 
   MOCK_METHOD(bool, HandleGetSwitchDescription,
-              (const struct alpaca::AlpacaRequest &, int32_t, class Print &),
+              (const struct AlpacaRequest &, uint16_t, class Print &),
               (override));
 
   MOCK_METHOD(bool, HandleGetSwitchName,
-              (const struct alpaca::AlpacaRequest &, int32_t, class Print &),
+              (const struct AlpacaRequest &, uint16_t, class Print &),
               (override));
 
   MOCK_METHOD(bool, HandleSetSwitchName,
-              (const struct alpaca::AlpacaRequest &, int32_t,
-               class alpaca::StringView, class Print &),
+              (const struct AlpacaRequest &, uint16_t, class Print &),
               (override));
 
   MOCK_METHOD(uint16_t, GetMaxSwitch, (), (override));
 
-  MOCK_METHOD(bool, GetCanWrite, (int32_t), (override));
+  MOCK_METHOD(bool, GetCanWrite, (uint16_t), (override));
 
-  MOCK_METHOD(StatusOr<bool>, GetSwitch, (int32_t), (override));
+  MOCK_METHOD(StatusOr<bool>, GetSwitch, (uint16_t), (override));
 
-  MOCK_METHOD(StatusOr<double>, GetSwitchValue, (int32_t), (override));
+  MOCK_METHOD(StatusOr<double>, GetSwitchValue, (uint16_t), (override));
 
-  MOCK_METHOD(double, GetMinSwitchValue, (int32_t), (override));
+  MOCK_METHOD(double, GetMinSwitchValue, (uint16_t), (override));
 
-  MOCK_METHOD(double, GetMaxSwitchValue, (int32_t), (override));
+  MOCK_METHOD(double, GetMaxSwitchValue, (uint16_t), (override));
 
-  MOCK_METHOD(double, GetSwitchStep, (int32_t), (override));
+  MOCK_METHOD(double, GetSwitchStep, (uint16_t), (override));
 
-  MOCK_METHOD(class alpaca::Status, PutSetSwitch, (int32_t, bool), (override));
+  MOCK_METHOD(class Status, SetSwitch, (uint16_t, bool), (override));
 
-  MOCK_METHOD(class alpaca::Status, PutSetSwitchValue, (int32_t, double),
-              (override));
+  MOCK_METHOD(class Status, SetSwitchValue, (uint16_t, double), (override));
 };
 
 }  // namespace alpaca

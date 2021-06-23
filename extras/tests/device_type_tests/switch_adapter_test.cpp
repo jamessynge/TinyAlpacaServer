@@ -333,13 +333,13 @@ TEST_F(SwitchGroupTest, GetSwitchStep) {
   EXPECT_THAT(response, HasSubstr(R"("Value": 1.00,)"));
 }
 
-TEST_F(SwitchGroupTest, PutSetSwitch_MissingState) {
+TEST_F(SwitchGroupTest, SetSwitch_MissingState) {
   EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
 
   request_.device_method = EDeviceMethod::kSetSwitch;
   request_.set_id(0);
   request_.set_value(1.23);  // Should be ignored.
-  EXPECT_CALL(switch_group_, PutSetSwitch).Times(0);
+  EXPECT_CALL(switch_group_, SetSwitch).Times(0);
 
   PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
@@ -351,14 +351,13 @@ TEST_F(SwitchGroupTest, PutSetSwitch_MissingState) {
   EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
 }
 
-TEST_F(SwitchGroupTest, PutSetSwitch) {
+TEST_F(SwitchGroupTest, SetSwitch) {
   EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
 
   request_.device_method = EDeviceMethod::kSetSwitch;
   request_.set_id(0);
   request_.set_state(false);
-  EXPECT_CALL(switch_group_, PutSetSwitch(0, false))
-      .WillOnce(Return(OkStatus()));
+  EXPECT_CALL(switch_group_, SetSwitch(0, false)).WillOnce(Return(OkStatus()));
 
   PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
@@ -367,13 +366,13 @@ TEST_F(SwitchGroupTest, PutSetSwitch) {
   EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
 }
 
-TEST_F(SwitchGroupTest, PutSetSwitchValue_MissingValue) {
+TEST_F(SwitchGroupTest, SetSwitchValue_MissingValue) {
   EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
 
   request_.device_method = EDeviceMethod::kSetSwitchValue;
   request_.set_id(0);
   request_.set_state(false);  // Should be ignored.
-  EXPECT_CALL(switch_group_, PutSetSwitchValue).Times(0);
+  EXPECT_CALL(switch_group_, SetSwitchValue).Times(0);
 
   PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
@@ -385,7 +384,7 @@ TEST_F(SwitchGroupTest, PutSetSwitchValue_MissingValue) {
   EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
 }
 
-TEST_F(SwitchGroupTest, PutSetSwitchValue_InvalidValue) {
+TEST_F(SwitchGroupTest, SetSwitchValue_InvalidValue) {
   EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
   EXPECT_CALL(switch_group_, GetMinSwitchValue).WillRepeatedly(Return(0.0));
   EXPECT_CALL(switch_group_, GetMaxSwitchValue).WillRepeatedly(Return(1.0));
@@ -418,7 +417,7 @@ TEST_F(SwitchGroupTest, PutSetSwitchValue_InvalidValue) {
   }
 }
 
-TEST_F(SwitchGroupTest, PutSetSwitchValue) {
+TEST_F(SwitchGroupTest, SetSwitchValue) {
   EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
   EXPECT_CALL(switch_group_, GetMinSwitchValue).WillRepeatedly(Return(0));
   EXPECT_CALL(switch_group_, GetMaxSwitchValue).WillRepeatedly(Return(2));
@@ -426,7 +425,7 @@ TEST_F(SwitchGroupTest, PutSetSwitchValue) {
   request_.device_method = EDeviceMethod::kSetSwitchValue;
   request_.set_id(0);
   request_.set_value(1.23);
-  EXPECT_CALL(switch_group_, PutSetSwitchValue(0, 1.23))
+  EXPECT_CALL(switch_group_, SetSwitchValue(0, 1.23))
       .WillOnce(Return(OkStatus()));
 
   PrintToStdString out;

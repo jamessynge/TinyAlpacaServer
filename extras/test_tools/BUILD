@@ -60,6 +60,16 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_switch_group",
+    hdrs = ["mock_switch_group.h"],
+    deps = [
+        ":mock_device_interface",
+        "//googletest:gunit_headers",
+        "//src/device_types/switch:switch_adapter",
+    ],
+)
+
+cc_library(
     name = "print_to_std_string",
     hdrs = ["print_to_std_string.h"],
     deps = [
@@ -78,14 +88,4 @@ cc_library(
     name = "string_view_utils",
     hdrs = ["string_view_utils.h"],
     deps = ["//src/utils:string_view"],
-)
-
-cc_library(
-    name = "mock_switch_group",
-    hdrs = ["mock_switch_group.h"],
-    deps = [
-        ":mock_device_interface",
-        "//googletest:gunit_headers",
-        "//src/device_types/switch:switch_adapter",
-    ],
 )
