@@ -19,25 +19,26 @@ that, the following table has the recommended pins to be used for the cover
 calibrator. The "unchanged" and "was N" comments are relative to Rev. 6 of the
 AstroMakers Cover Calibrator schematic.
 
-Purpose                        | Arduino Mega Pin | Alt. Func.     | Comment
------------------------------- | ---------------- | -------------- | -------
-LED #1 Pwm Output              | D2               | OC3B           | was D5
-LED #2 Pwm Output              | D3               | OC3C           | was D6
-LED #3 Pwm Output              | D5               | OC3A           | was D7
-LED #4 Pwm Output              | D6               | OC4A           | was D8
-LED #1 Enabled Input           | A0               | ADC0           | **new**
-LED #2 Enabled Input           | A1               | ADC1           | was D10
-LED #3 Enabled Input           | A2               | ADC2           | was D11
-LED #4 Enabled Input           | A3               | ACD3           | was D12
-Cover Motor Step Output        | D16              | TXD2           | was D3
-Cover Motor Direction Output   | D17              | RXD2           | was D4
-Cover Open Limit Switch Input  | D18              | INT1           | was D20
-Cover Close Limit Switch Input | D19              | INT0           | was D21
-Cover Motor Enabled Input      | A8               | ADC8, PCINT16  | was D13
-Microstep Resolution MS1       | A9               | ADC9, PCINT17  | **new**
-Microstep Resolution MS2       | A10              | ADC10, PCINT18 | **new**
-Microstep Resolution MS3       | A11              | ADC11, PCINT19 | **new**
-Cover Motor Enabled Input      | A12              | ADC12, PCINT20 | **new**
+Purpose                         | Arduino Mega Pin | Alt. Func.     | Comment
+------------------------------- | ---------------- | -------------- | -------
+LED #1 Pwm Output               | D2               | OC3B           | was D5
+LED #2 Pwm Output               | D3               | OC3C           | was D6
+LED #3 Pwm Output               | D5               | OC3A           | was D7
+LED #4 Pwm Output               | D6               | OC4A           | was D8
+LED #1 Enabled Input            | A0               | ADC0           | **new**
+LED #2 Enabled Input            | A1               | ADC1           | was D10
+LED #3 Enabled Input            | A2               | ADC2           | was D11
+LED #4 Enabled Input            | A3               | ACD3           | was D12
+Cover Motor Step Output         | D16              | TXD2           | was D3
+Cover Motor Direction Output    | D17              | RXD2           | was D4
+Cover Open Limit Switch Input   | D18              | INT1           | was D20
+Cover Close Limit Switch Input  | D19              | INT0           | was D21
+Cover Motor Enabled Input       | A8               | ADC8, PCINT16  | was D13
+Microstep Resolution MS1 Output | A9               | ADC9, PCINT17  | **new**
+Microstep Resolution MS2 Output | A10              | ADC10, PCINT18 | **new**
+Microstep Resolution MS3 Output | A11              | ADC11, PCINT19 | **new**
+Cover Motor Enabled Input       | A12              | ADC12, PCINT20 | **new**
+LED PWM Resolution Input        | A13              | ADC13, PCINT21 | **new**
 
 With the exception of the pin purposes marked as new, these recommendations have
 been tested by using a Rev. 6 shield and a set of jumper cables mapping its pins

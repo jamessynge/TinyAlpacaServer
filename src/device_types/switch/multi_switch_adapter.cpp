@@ -1,12 +1,9 @@
 #include "device_types/switch/multi_switch_adapter.h"
 
-#include "device_info.h"
-
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
+#include "device_info.h"
 #include "literals.h"
 
 namespace alpaca {
