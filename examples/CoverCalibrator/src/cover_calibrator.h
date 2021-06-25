@@ -56,9 +56,13 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   // from SetLedChannelEnabled. Returns false if the channel value is invalid.
   bool GetLedChannelEnabled(int channel) const;
 
+  // Gets the enabled value for the specified channel (0 through 3) based solely
+  // on the jumper pin for that channel. Returns false if the channel value is
+  // invalid.
+  bool GetLedChannelHardwareEnabled(int channel) const;
+
  private:
   bool IsCalibratorHardwareEnabled() const;
-  bool GetLedChannelHardwareEnabled(int channel) const;
 
   // TODO(jamessynge): Need something like template specialization to select the
   // timer/counter number and channel given the kLedChannel1PwmPin macro (and
