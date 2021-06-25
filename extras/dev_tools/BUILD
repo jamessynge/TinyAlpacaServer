@@ -45,7 +45,7 @@ py_strict_test(
     srcs_version = "PY3",
     deps = [
         ":tokenize_cpp_lib",
-        "//testing/pybase",
+        "//absltest",
         "//third_party/py/absl/flags",
     ],
 )

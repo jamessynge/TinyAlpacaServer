@@ -3,7 +3,7 @@
 from absl import flags
 
 import tokenize_cpp
-from google3.testing.pybase import googletest
+import absltest
 
 FLAGS = flags.FLAGS
 
@@ -34,7 +34,7 @@ def make_expected_raw_string_token(raw_src, raw_start=0):
       raw_end=raw_start + len(raw_src))
 
 
-class TokenizeCppTest(googletest.TestCase):
+class TokenizeCppTest(absltest.TestCase):
 
   STRING_PREFIXES = ['', 'L', 'u8', 'u', 'U']
 
@@ -103,4 +103,4 @@ class TokenizeCppTest(googletest.TestCase):
 
 
 if __name__ == '__main__':
-  googletest.main()
+  absltest.main()

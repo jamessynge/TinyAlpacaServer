@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Generate a DeviceImplBase subclass for a specified device type.
 
 This is very much a work in progress; really, just at the beginning.
@@ -6,15 +6,12 @@ This is very much a work in progress; really, just at the beginning.
 See ../README.md for ideas on what this will do.
 """
 
-import dataclasses
-import enum
 import os
-import pathlib
 import pprint
-import re
 import sys
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Union
 
+import dataclasses
 import requests
 import yaml
 

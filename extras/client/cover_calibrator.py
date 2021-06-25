@@ -3,16 +3,9 @@
 
 import datetime
 import sys
-import typing
-from typing import Dict, List, Optional, Sequence, Union
+from typing import List, Sequence
 
-import requests
-
-try:
-  from google3.experimental.users.jamessynge.tiny_alpaca_server.extras.client import alpaca_http_client  # pylint: disable=g-import-not-at-top
-except ImportError:
-  if not typing.TYPE_CHECKING:
-    import alpaca_http_client  # pylint: disable=g-import-not-at-top
+import alpaca_http_client
 
 MOVING_SLEEP_TIME = 1
 
@@ -88,6 +81,10 @@ def sweep_brightness(cover_calibrator: alpaca_http_client.CoverCalibrator,
   Generally assumed that the brightnesses rise from low to high, so this has the
   effect of gradually increasing the brightness, then lowering it back down
   before turning it off.
+
+  Args:
+    cover_calibrator: The Cover Calibrator device.
+    brightnesses: The list of brightness values.
   """
   start = datetime.datetime.now()
   for brightness in brightnesses:

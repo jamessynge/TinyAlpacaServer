@@ -1,11 +1,11 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Simple tool to read Swagger YAML files (i.e. API definitions)."""
 
 import os
+import sys
 import typing
-from typing import Any, Dict, Generator, List, Match, Optional, Sequence, Tuple, Union
+from typing import Any, Dict,  List, Match, Optional, Sequence, Tuple, Union
 
-from absl import app
 import dataclasses
 import requests
 
@@ -86,8 +86,8 @@ class AlpacaSpec(object):
 
 def main(argv: Sequence[str]) -> None:
   if len(argv) > 1:
-    raise app.UsageError('Too many command-line arguments.')
+    raise UserWarning('Too many command-line arguments.')
 
 
 if __name__ == '__main__':
-  app.run(main)
+  main(sys.argv[1:])

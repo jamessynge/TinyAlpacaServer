@@ -1,4 +1,8 @@
-"""Find ^DEFINE_LITERAL(a, b) occurrences in .h and .cc, update literals.inc."""
+#!/usr/bin/env python3
+"""Update literals.inc with literals defined in other files.
+
+And determine which literals are actually in use, flag for removal.
+"""
 
 from typing import Sequence, Dict
 
