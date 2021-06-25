@@ -4,7 +4,7 @@
 import os
 import sys
 import typing
-from typing import Any, Dict,  List, Match, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Sequence
 
 import dataclasses
 import requests
@@ -67,6 +67,7 @@ class Property(object):
 
 
 class AlpacaSpec(object):
+  """An Alpaca API spec."""
 
   def __init__(self, spec: Dict[str, Any]):
     self.spec = spec
