@@ -47,7 +47,8 @@ def get_cover_state_after_moving(
       return state
 
 
-def close_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
+def close_cover(cover_calibrator: alpaca_http_client.CoverCalibrator) -> None:
+  """Close the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
   if is_closed(cover_calibrator):
@@ -63,7 +64,8 @@ def close_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
     print('Failed to close, cover state is', state)
 
 
-def open_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
+def open_cover(cover_calibrator: alpaca_http_client.CoverCalibrator) -> None:
+  """Open the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
   if is_open(cover_calibrator):
@@ -81,6 +83,12 @@ def open_cover(cover_calibrator: alpaca_http_client.CoverCalibrator):
 
 def sweep_brightness(cover_calibrator: alpaca_http_client.CoverCalibrator,
                      brightnesses: List[int]) -> None:
+  """Set the brightness to each brightness, then reverse order, then turn off.
+
+  Generally assumed that the brightnesses rise from low to high, so this has the
+  effect of gradually increasing the brightness, then lowering it back down
+  before turning it off.
+  """
   start = datetime.datetime.now()
   for brightness in brightnesses:
     print('brightness', brightness)
@@ -93,6 +101,14 @@ def sweep_brightness(cover_calibrator: alpaca_http_client.CoverCalibrator,
   elapsed = end - start
   print('Elapsed time:', elapsed)
   print('Request duration', elapsed / (1 + 2 * len(brightnesses)))
+
+
+def sweep_led_channel(led_switches: alpaca_http_client.Switch, led_channel: int,
+                      cover_calibrator: alpaca_http_client.CoverCalibrator,
+                      brightnesses: List[int]) -> None:
+  for n in range(4):
+    led_switches.put_setswitch(led_channel, led_channel == n)
+  sweep_brightness(cover_calibrator, brightnesses)
 
 
 def main(argv: Sequence[str]) -> None:
@@ -109,8 +125,11 @@ def main(argv: Sequence[str]) -> None:
   print('get_configureddevices', client.get_configureddevices())
 
   cover_calibrator = alpaca_http_client.CoverCalibrator(client, device_number)
+  led_switches = alpaca_http_client.Switch(client, device_number)
 
-  sweep_brightness(cover_calibrator, list(range(1, 50)))
+  for led_channel in range(4):
+    sweep_led_channel(led_switches, led_channel, cover_calibrator,
+                      list(range(0, 500, 25)))
 
   open_cover(cover_calibrator)
   close_cover(cover_calibrator)
