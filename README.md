@@ -78,8 +78,8 @@ straightforward to add new ones:
 
 ### JSON Representation
 
-Alpaca responses are JSON encoded, with top-level object (aka dictionary), with
-4 or 5 properties. There are 4 properties common to all responses:
+Most Alpaca responses are JSON encoded objects with 4 or 5 properties. There are
+4 properties common to all responses:
 
 *   ClientTransactionID (uint32)
 *   ServerTransactionID (uint32)
@@ -312,6 +312,10 @@ it must be rediscovered each time.
     the IndirectPrintable to be passed by value. The pointer would be of type
     Printable*, thus allowing any source to be used for printing, i.e. RAM,
     PROGMEM, EEPROM or SD Card.
+
+*   To eliminate RAM consumed for alpaca::DeviceInfo objects, change the
+    internal API for locating those to instead pass in a stack allocated
+    DeviceInfo to be filled in when the info is needed.
 
 ### Generate Device-Type Specific Code
 

@@ -13,42 +13,13 @@ using ::alpaca::Status;
 using ::alpaca::StatusOr;
 using ::alpaca::TimerCounterChannel;
 
-constexpr MillisT kLedRampStepTime = 2;
-
-// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-TAS_DEFINE_LITERAL(CovCalName, "Cover-Calibrator");
-TAS_DEFINE_LITERAL(CovCalDescription, "AstroMakers Cover Calibrator");
-TAS_DEFINE_LITERAL(CovCalDriverInfo,
-                   "https://github/jamessynge/TinyAlpacaServer");
-TAS_DEFINE_LITERAL(CovCalDriverVersion, "0.1");
-TAS_DEFINE_LITERAL(CovCalUniqueId, "856cac35-7685-4a70-9bbf-be2b00f80af5");
 TAS_DEFINE_LITERAL(IsNotEnabled, " is not enabled");
 TAS_DEFINE_LITERAL(IsEnabled, " is enabled");
 
-// No extra actions.
-const auto kSupportedActions = alpaca::LiteralArray({
-    // Someday add action(s) to allow client to specify the LED string (or
-    // strings) to light up (e.g. Vis, IR, UV), maybe with actions such as
-    // "EnableLed" and "DisableLed", with parameter(s) to specify the LED(s) to
-    // be enabled or disabled.
-});
-
-const alpaca::DeviceInfo kDeviceInfo{
-    .device_type = alpaca::EDeviceType::kCoverCalibrator,
-    .device_number = 1,
-    .name = CovCalName(),
-    .unique_id = CovCalUniqueId(),
-    .description = CovCalDescription(),
-    .driver_info = CovCalDriverInfo(),
-    .driver_version = CovCalDriverVersion(),
-    .supported_actions = kSupportedActions,
-    .interface_version = 1,
-};
-
 }  // namespace
 
-CoverCalibrator::CoverCalibrator()
-    : alpaca::CoverCalibratorAdapter(kDeviceInfo),
+CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
+    : CoverCalibratorAdapter(device_info),
       led1_(TimerCounterChannel::B, kLedChannel1EnabledPin),
       led2_(TimerCounterChannel::C, kLedChannel2EnabledPin),
       led3_(TimerCounterChannel::A, kLedChannel3EnabledPin),
@@ -64,7 +35,7 @@ CoverCalibrator::CoverCalibrator()
                   << enableable_by_pin.ReadPin()
 
 void CoverCalibrator::Initialize() {
-  alpaca::CoverCalibratorAdapter::Initialize();
+  CoverCalibratorAdapter::Initialize();
 
   pinMode(kLedChannel1PwmPin, OUTPUT);
   pinMode(kLedChannel2PwmPin, OUTPUT);

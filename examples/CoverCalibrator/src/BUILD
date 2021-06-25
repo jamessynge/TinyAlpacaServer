@@ -46,6 +46,7 @@ cc_library(
     hdrs = ["server.h"],
     deps = [
         ":cover_calibrator",
+        ":led_channel_switch_group",
         "//extras/host/arduino",
         "//src:TinyAlpacaServer",
     ],

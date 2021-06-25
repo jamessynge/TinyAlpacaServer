@@ -15,7 +15,7 @@ namespace astro_makers {
 
 class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
  public:
-  CoverCalibrator();
+  CoverCalibrator(const alpaca::DeviceInfo& device_info);
 
   void Initialize() override;
 

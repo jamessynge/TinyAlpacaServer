@@ -4,6 +4,7 @@
 #include <TinyAlpacaServer.h>
 
 #include "cover_calibrator.h"
+#include "led_channel_switch_group.h"
 
 // Define some literals, which get stored in PROGMEM (in the case of AVR chips).
 TAS_DEFINE_LITERAL(
@@ -15,6 +16,54 @@ TAS_DEFINE_LITERAL(DeviceLocation, "Earth Bound");
 
 namespace astro_makers {
 namespace {
+using ::alpaca::DeviceInfo;
+using ::alpaca::EDeviceType;
+using ::alpaca::LiteralArray;
+
+// No extra actions.
+const auto kSupportedActions = LiteralArray();
+
+TAS_DEFINE_LITERAL(GithubRepoLink,
+                   "https://github/jamessynge/TinyAlpacaServer");
+TAS_DEFINE_LITERAL(DriverVersion, "0.1");
+
+TAS_DEFINE_LITERAL(CovCalName, "Cover-Calibrator");
+TAS_DEFINE_LITERAL(CovCalDescription, "AstroMakers Cover Calibrator");
+TAS_DEFINE_LITERAL(CovCalUniqueId, "856cac35-7685-4a70-9bbf-be2b00f80af5");
+
+const DeviceInfo kCoverCalibratorDeviceInfo{
+    .device_type = EDeviceType::kCoverCalibrator,
+    .device_number = 1,
+    .name = CovCalName(),
+    .unique_id = CovCalUniqueId(),
+    .description = CovCalDescription(),
+    .driver_info = GithubRepoLink(),
+    .driver_version = DriverVersion(),
+    .supported_actions = kSupportedActions,
+    .interface_version = 1,
+};
+
+CoverCalibrator cover_calibrator(kCoverCalibratorDeviceInfo);  // NOLINT
+
+TAS_DEFINE_LITERAL(LedSwitchesName, "Cover-Calibrator LED Channel Switches");
+TAS_DEFINE_LITERAL(LedSwitchesDescription,
+                   "AstroMakers Cover Calibrator Extension");
+TAS_DEFINE_LITERAL(LedSwitchesUniqueId, "491c450a-0d1d-4f2b-9d28-5878e968e9df");
+
+const DeviceInfo kLedSwitchesDeviceInfo{
+    .device_type = EDeviceType::kSwitch,
+    .device_number = 1,
+    .name = LedSwitchesName(),
+    .unique_id = LedSwitchesUniqueId(),
+    .description = LedSwitchesDescription(),
+    .driver_info = GithubRepoLink(),
+    .driver_version = DriverVersion(),
+    .supported_actions = kSupportedActions,
+    .interface_version = 1,
+};
+
+LedChannelSwitchGroup led_switches(  // NOLINT
+    kLedSwitchesDeviceInfo, cover_calibrator);
 
 constexpr alpaca::ServerDescription kServerDescription{
     .server_name = ServerName(),
@@ -23,9 +72,7 @@ constexpr alpaca::ServerDescription kServerDescription{
     .location = DeviceLocation(),
 };
 
-CoverCalibrator cover_calibrator;  // NOLINT
-
-alpaca::DeviceInterface* kDevices[] = {&cover_calibrator};
+alpaca::DeviceInterface* kDevices[] = {&cover_calibrator, &led_switches};
 
 alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
     /*tcp_port=*/80, kServerDescription, kDevices);
