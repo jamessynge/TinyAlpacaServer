@@ -31,6 +31,16 @@ cc_library(
 )
 
 cc_library(
+    name = "led_channel_switch_group",
+    srcs = ["led_channel_switch_group.cc"],
+    hdrs = ["led_channel_switch_group.h"],
+    deps = [
+        ":cover_calibrator",
+        "//src:TinyAlpacaServer",
+    ],
+)
+
+cc_library(
     name = "server",
     srcs = ["server.cc"],
     hdrs = ["server.h"],
