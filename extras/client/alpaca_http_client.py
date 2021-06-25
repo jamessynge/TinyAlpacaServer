@@ -237,6 +237,9 @@ class CoverCalibrator(DeviceBase):
 class ObservingConditions(DeviceBase):
   """Makes HTTP requests to an ObservingConditions device."""
 
+  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+    super().__init__(client, 'observingconditions', device_number, **kwargs)
+
   def get_averageperiod(self) -> requests.Response:
     return self._get('averageperiod')
 
@@ -295,8 +298,55 @@ class ObservingConditions(DeviceBase):
 class SafetyMonitor(DeviceBase):
   """Makes HTTP requests to an SafetyMonitor device."""
 
+  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+    super().__init__(client, 'safetymonitor', device_number, **kwargs)
+
   def get_issafe(self) -> requests.Response:
     return self._get('issafe')
+
+
+class Switch(DeviceBase):
+  """Makes HTTP requests to a Switch device."""
+
+  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+    super().__init__(client, 'switch', device_number, **kwargs)
+
+  def get_maxswitch(self) -> requests.Response:
+    return self._get('maxswitch')
+
+  def get_canwrite(self, switch_id: int) -> requests.Response:
+    return self._get('canwrite', Id=switch_id)
+
+  def get_getswitch(self, switch_id: int) -> requests.Response:
+    return self._get('getswitch', Id=switch_id)
+
+  def get_getswitchdescription(self, switch_id: int) -> requests.Response:
+    return self._get('getswitchdescription', Id=switch_id)
+
+  def get_getswitchname(self, switch_id: int) -> requests.Response:
+    return self._get('getswitchname', Id=switch_id)
+
+  def get_getswitchvalue(self, switch_id: int) -> requests.Response:
+    return self._get('getswitchvalue', Id=switch_id)
+
+  def get_minswitchvalue(self, switch_id: int) -> requests.Response:
+    return self._get('minswitchvalue', Id=switch_id)
+
+  def get_maxswitchvalue(self, switch_id: int) -> requests.Response:
+    return self._get('maxswitchvalue', Id=switch_id)
+
+  def get_switchstep(self, switch_id: int) -> requests.Response:
+    return self._get('switchstep', Id=switch_id)
+
+  def put_setswitch(self, switch_id: int, state: bool) -> requests.Response:
+    return self._put('setswitch', Id=switch_id, State=state)
+
+  def put_setswitchname(self, switch_id: int, name: str) -> requests.Response:
+    return self._put('setswitchname', Id=switch_id, Name=name)
+
+  def put_setswitchvalue(self, switch_id: int,
+                         value: float) -> requests.Response:
+    return self._put('setswitchvalue', Id=switch_id, Value=value)
 
 
 def main(argv: Sequence[str]) -> None:
