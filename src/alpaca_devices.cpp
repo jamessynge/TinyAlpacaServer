@@ -100,20 +100,23 @@ bool AlpacaDevices::HandleManagementConfiguredDevices(AlpacaRequest& request,
 }
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
-  TAS_VLOG(3) << TASLIT("AlpacaDevices::DispatchDeviceRequest: device_type=")
-              << request.device_type << TASLIT(", device_number=")
-              << request.device_number;
   TAS_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
              request.api == EAlpacaApi::kDeviceSetup);
 
   for (DeviceInterface* device : devices_) {
     if (request.device_type == device->device_type() &&
         request.device_number == device->device_number()) {
-      return DispatchDeviceRequest(request, *device, out);
+      const auto result = DispatchDeviceRequest(request, *device, out);
+      TAS_VLOG(3) << TASLIT("DispatchDeviceRequest result=") << result;
+      return result;
     }
   }
 
-  TAS_VLOG(3) << TASLIT("Found no Device API Handler");
+  TAS_VLOG(3) << TASLIT("AlpacaDevices::DispatchDeviceRequest:")
+              << TASLIT(" Found no Device API Handler for api=") << request.api
+              << TASLIT(" device_type=") << request.device_type
+              << TASLIT(", device_number=") << request.device_number;
+
   // https://ascom-standards.org/Developer/ASCOM%20Alpaca%20API%20Reference.pdf
   // says we should return Bad Request rather than Not Found or another such
   // error for an understandable Alpaca path which is for a non-existent device.
@@ -123,10 +126,11 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
                                           DeviceInterface& device, Print& out) {
+  TAS_VLOG(3) << TASLIT("AlpacaDevices::DispatchDeviceRequest: ")
+              << request.device_type << TASLIT("/") << request.device_number
+              << TASLIT("/") << request.device_method
+              << TASLIT(", client txn id=") << request.client_transaction_id;
   if (request.api == EAlpacaApi::kDeviceApi) {
-    TAS_VLOG(3) << TASLIT(
-                       "AlpacaDevices::DispatchDeviceRequest: device_method=")
-                << request.device_method;
     return device.HandleDeviceApiRequest(request, out);
   } else if (request.api == EAlpacaApi::kDeviceSetup) {
     return device.HandleDeviceSetupRequest(request, out);

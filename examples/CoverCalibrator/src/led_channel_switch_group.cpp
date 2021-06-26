@@ -3,6 +3,7 @@
 namespace astro_makers {
 
 using ::alpaca::AlpacaRequest;
+using ::alpaca::AnyPrintable;
 using ::alpaca::DeviceInfo;
 using ::alpaca::ErrorCodes;
 using ::alpaca::OkStatus;
@@ -22,7 +23,8 @@ bool LedChannelSwitchGroup::HandleGetSwitchDescription(
   TAS_DCHECK_LT(switch_id, GetMaxSwitch());
   return WriteResponse::PrintableStringResponse(
       request,
-      PrintableCat(TASLIT("Enables Cover-Calibrator LED Channel #"), switch_id,
+      PrintableCat(TASLIT("Enables Cover-Calibrator LED Channel #"),
+                   AnyPrintable(switch_id),
                    TASLIT(", if hardware is available")),
       out);
 }
@@ -68,11 +70,17 @@ double LedChannelSwitchGroup::GetSwitchStep(uint16_t switch_id) { return 1; }
 
 Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id, bool state) {
   if (!GetCanWrite(switch_id)) {
+    TAS_VLOG(1) << TASLIT("Can NOT write switch #") << switch_id;
     return ErrorCodes::NotImplemented();
   } else if (cover_calibrator_.SetLedChannelEnabled(switch_id, state) !=
              state) {
+    TAS_VLOG(1) << TASLIT("Failed to set channel ") << switch_id
+                << TASLIT(" to state ") << state;
     TAS_DCHECK(false) << TASLIT("Failed to set channel ") << switch_id
                       << TASLIT(" to state ") << state;
+  } else {
+    TAS_VLOG(1) << TASLIT("Switch #") << switch_id << TASLIT(" now set to ")
+                << state;
   }
   return OkStatus();
 }

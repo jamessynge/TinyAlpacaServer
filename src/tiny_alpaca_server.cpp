@@ -31,7 +31,6 @@ void TinyAlpacaServerBase::OnStartDecoding(AlpacaRequest& request) {
 
 bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
                                             Print& out) {
-  TAS_VLOG(3) << TASLIT("OnRequestDecoded: api=") << request.api;
   switch (request.api) {
     case EAlpacaApi::kUnknown:
       break;
@@ -54,6 +53,7 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
       return HandleServerSetup(request, out);
   }
 
+  TAS_VLOG(5) << TASLIT("OnRequestDecoded: api=") << request.api;
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError, Literals::ApiUnknown(), out);
 }

@@ -66,15 +66,11 @@ class AlpacaClient(object):
     self.client_id = int_value_or_default(
         'client_id',
         client_id,
-        random.randint(1, 65535),
-        minimum=100,
-        maximum=1000000)
+        random.randint(1, 65535))
     self.next_client_transaction_id = int_value_or_default(
         'initial_client_transaction_id',
         initial_client_transaction_id,
-        random.randint(1, 1000000),
-        minimum=100,
-        maximum=1000000)
+        random.randint(1, 1000000))
     self.session = requests.session()
 
   def gen_standard_params(self, increment_transaction=True) -> Dict[str, str]:
@@ -99,9 +95,10 @@ class AlpacaClient(object):
       request = request.prepare()
     request: requests.PreparedRequest
     # print('sending PreparedRequest')
-    # print(request.method, request.url)
+    print(request.method, request.url)
     # print('Headers:', request.headers)
-    # print('body', f'{request.body!r}')
+    if request.body:
+      print('body', f'{request.body!r}')
     r = self.session.send(request)
     # print('response', r)
     # print('content', r.content)

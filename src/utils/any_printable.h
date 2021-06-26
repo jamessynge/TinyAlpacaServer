@@ -43,6 +43,8 @@ class AnyPrintable : public Printable {
   explicit AnyPrintable(Printable& value);
   explicit AnyPrintable(const Printable& value);
   explicit AnyPrintable(char value);
+  explicit AnyPrintable(int16_t value);
+  explicit AnyPrintable(uint16_t value);
   explicit AnyPrintable(int32_t value);
   explicit AnyPrintable(uint32_t value);
   explicit AnyPrintable(float value);

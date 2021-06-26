@@ -23,6 +23,12 @@ AnyPrintable::AnyPrintable(const Printable& value)
 AnyPrintable::AnyPrintable(char value)
     : type_(AnyPrintable::kChar), char_(value) {}
 
+AnyPrintable::AnyPrintable(int16_t value)
+    : type_(AnyPrintable::kInteger), signed_(value) {}
+
+AnyPrintable::AnyPrintable(uint16_t value)
+    : type_(AnyPrintable::kUnsignedInteger), unsigned_(value) {}
+
 AnyPrintable::AnyPrintable(int32_t value)
     : type_(AnyPrintable::kInteger), signed_(value) {}
 

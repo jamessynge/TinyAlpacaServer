@@ -130,6 +130,11 @@ Status CoverCalibrator::SetCalibratorOff() {
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
+  TAS_VLOG(1) << TASLIT("SetLedChannelEnabled(") << channel << TASLIT(", ")
+              << enabled << TASLIT(") ENTER, brightness_ = ") << brightness_
+              << TASLIT(", enabled_led_channels_ = ") << alpaca::BaseHex
+              << enabled_led_channels_;
+
   if (0 <= channel && channel < 4) {
     if (enabled) {
       bitSet(enabled_led_channels_, channel);
@@ -140,6 +145,11 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
       SetCalibratorBrightness(brightness_);
     }
   }
+
+  TAS_VLOG(1) << TASLIT("SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
+              << channel << TASLIT(") = ") << GetLedChannelEnabled(channel)
+              << TASLIT(", enabled_led_channels_ = ")
+              << alpaca::BaseHex << enabled_led_channels_;
   return GetLedChannelEnabled(channel);
 }
 

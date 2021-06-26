@@ -12,7 +12,7 @@
 
 // The number of hardware sockets we'll dedicate to listening for TCP
 // connections to the Tiny Alpaca Server.
-#define TAS_NUM_SERVER_CONNECTIONS 1
+#define TAS_NUM_SERVER_CONNECTIONS 3
 
 // If non-zero, RequestDecoder will make calls to the provided listener for
 // query parameters and headers that it doesn't natively handle.

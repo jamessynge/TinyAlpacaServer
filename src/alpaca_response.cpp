@@ -65,6 +65,7 @@ bool WriteResponse::OkJsonResponse(const AlpacaRequest& request,
 
 bool WriteResponse::StatusResponse(const AlpacaRequest& request, Status status,
                                    Print& out) {
+  TAS_VLOG(1) << TASLIT("ENTER StatusResponse, status: ") << status;
   if (status.ok()) {
     JsonMethodResponse body(request);
     return OkJsonResponse(request, body, out);

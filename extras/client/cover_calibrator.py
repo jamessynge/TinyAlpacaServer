@@ -2,6 +2,7 @@
 """Makes HTTP requests to Alpaca servers, returns HTTP responses."""
 
 import datetime
+import random
 import sys
 from typing import List, Sequence
 
@@ -104,7 +105,7 @@ def sweep_led_channel(led_switches: alpaca_http_client.Switch, led_channel: int,
                       cover_calibrator: alpaca_http_client.CoverCalibrator,
                       brightnesses: List[int]) -> None:
   for n in range(4):
-    led_switches.put_setswitch(led_channel, led_channel == n)
+    led_switches.put_setswitch(n, led_channel == n)
   sweep_brightness(cover_calibrator, brightnesses)
 
 
@@ -115,7 +116,10 @@ def main(argv: Sequence[str]) -> None:
   url_base = argv[0]
   device_number = int(argv[1])
 
-  client = alpaca_http_client.AlpacaClient(url_base)
+  client = alpaca_http_client.AlpacaClient(url_base,
+  client_id=random.randint(0,10),
+  initial_client_transaction_id=random.randint(10,20)
+  )
 
   print('get_apiversions', client.get_apiversions())
   print('get_description', client.get_description())
@@ -123,6 +127,11 @@ def main(argv: Sequence[str]) -> None:
 
   cover_calibrator = alpaca_http_client.CoverCalibrator(client, device_number)
   led_switches = alpaca_http_client.Switch(client, device_number)
+
+  # for led_channel in range(4):
+  #   sweep_led_channel(led_switches, led_channel, cover_calibrator, [500])
+  # return
+
 
   for led_channel in range(4):
     sweep_led_channel(led_switches, led_channel, cover_calibrator,
