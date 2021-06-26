@@ -148,8 +148,8 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
 
   TAS_VLOG(1) << TASLIT("SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
               << channel << TASLIT(") = ") << GetLedChannelEnabled(channel)
-              << TASLIT(", enabled_led_channels_ = ")
-              << alpaca::BaseHex << enabled_led_channels_;
+              << TASLIT(", enabled_led_channels_ = ") << alpaca::BaseHex
+              << enabled_led_channels_;
   return GetLedChannelEnabled(channel);
 }
 

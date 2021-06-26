@@ -32,7 +32,7 @@ class OPrintStream {
   }
 
   // Set the base in which numbers are printed.
-  void set_base(int base) { base_ = base; }
+  void set_base(uint8_t base) { base_ = base; }
 
  protected:
   // Exposed so that subclasses can call this.
@@ -42,7 +42,7 @@ class OPrintStream {
   }
 
   Print& out_;
-  int base_;
+  uint8_t base_;
 
  private:
   // I'm using type traits to steer the call to the appropriate method or
