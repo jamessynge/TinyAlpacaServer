@@ -39,19 +39,7 @@ class Status {
   bool ok() const { return code_ == 0; }
   uint32_t code() const { return code_; }
   const Literal message() const { return message_; }
-
-  size_t printTo(Print& out) const {
-    size_t count = 0;
-    count += out.print('{');
-    count += out.print(code_);
-    if (!ok()) {
-      count += out.print(',');
-      count += out.print(' ');
-      count += message_.printTo(out);
-    }
-    count += out.print('{');
-    return count;
-  }
+  size_t printTo(Print& out) const;
 
  private:
   uint32_t code_;

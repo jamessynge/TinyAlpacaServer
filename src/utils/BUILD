@@ -293,9 +293,14 @@ cc_library(
 
 cc_library(
     name = "status",
+    srcs = ["status.cc"],
     hdrs = ["status.h"],
     deps = [
+        ":counting_print",
+        ":hex_escape",
+        ":inline_literal",
         ":literal",
+        ":o_print_stream",
         ":platform",
     ],
 )
