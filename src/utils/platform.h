@@ -93,9 +93,13 @@ constexpr size_t MaxOf4(size_t a, size_t b, size_t c, size_t d) {
 
 // It turns out that absl/meta/type_traits.h uses the symbol F in a template
 // definition, and Arduino's WString.h definition of macro F(s) interferes if
-// the former is included after the latter. Avoiding this problem by defining
-// FLASHSTR instead.
+// the former is included after the latter. Avoiding this problem by using
+// FLASHSTR in place of F on the host.
+#ifdef ARDUINO
+#define FLASHSTR(string_literal) F(string_literal)
+#else  // !ARDUINO
 #define FLASHSTR(string_literal) \
   (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
+#endif  // ARDUINO
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_PLATFORM_H_

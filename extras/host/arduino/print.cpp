@@ -62,6 +62,14 @@ size_t Print::write(const char* buffer, size_t size) {
   return write(reinterpret_cast<const uint8_t*>(buffer), size);
 }
 
+size_t Print::print(const __FlashStringHelper* str) {
+  // Assuming here that PROGMEM is meaningless on the host (i.e. that I haven't
+  // implemented some fancy emulation).
+  return write(reinterpret_cast<const char*>(str));
+}
+
+size_t print(const __FlashStringHelper* str);
+
 size_t Print::print(const char str[]) { return write(str); }
 
 size_t Print::print(char c) { return write(c); }
@@ -100,64 +108,67 @@ size_t Print::print(double value, int digits) {
 
 size_t Print::print(const Printable& value) { return value.printTo(*this); }
 
-#define EOL '\n'
+size_t Print::println(const __FlashStringHelper* str) {
+  size_t count = print(str);
+  return count + println();
+}
 
 size_t Print::println(const char str[]) {
   size_t count = write(str);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(char c) {
   size_t count = write(c);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(unsigned char value, int base) {
   size_t count = printIntegerWithBaseTo(value, base, *this);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(int value, int base) {
   size_t count = printIntegerWithBaseTo(value, base, *this);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(unsigned int value, int base) {
   size_t count = printIntegerWithBaseTo(value, base, *this);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(short value, int base) {  // NOLINT
   size_t count = printIntegerWithBaseTo(value, base, *this);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(unsigned short value, int base) {  // NOLINT
   size_t count = printIntegerWithBaseTo(value, base, *this);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(long value, int base) {  // NOLINT
   size_t count = printIntegerWithBaseTo(value, base, *this);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(unsigned long value, int base) {  // NOLINT
   size_t count = printIntegerWithBaseTo(value, base, *this);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(double value, int digits) {
   size_t count = printDouble(value, digits);
-  return count + write(EOL);
+  return count + println();
 }
 
 size_t Print::println(const Printable& value) {
   size_t count = value.printTo(*this);
-  return count + write(EOL);
+  return count + println();
 }
 
-size_t Print::println() { return write(EOL); }
+size_t Print::println() { return write('\n'); }
 
 void Print::flush() {}
 

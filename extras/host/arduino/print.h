@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <ostream>
 
+#include "extras/host/arduino/wstring.h"
+
 class Print;
 
 class Printable {
@@ -52,6 +54,7 @@ class Print {
   // Prints (writes) a value of various types. 'short' isn't supported on
   // Arduino AVR, where int == uint16_t (i.e. int and short are the same type on
   // that platform). To make it testable on host, we support short explicitly.
+  size_t print(const __FlashStringHelper* str);
   size_t print(const char str[]);
   size_t print(char c);
   size_t print(unsigned char value, int base = DEC);
@@ -65,6 +68,7 @@ class Print {
   size_t print(const Printable& value);
 
   // Prints (writes) a value of various types, with a trailing \n.
+  size_t println(const __FlashStringHelper* str);
   size_t println(const char str[]);
   size_t println(char c);
   size_t println(unsigned char value, int base = DEC);

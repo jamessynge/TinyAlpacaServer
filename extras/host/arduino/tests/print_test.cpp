@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "absl/strings/str_cat.h"
+#include "extras/host/arduino/wstring.h"
 #include "extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/sample_printable.h"
 #include "googletest/gmock.h"
@@ -14,6 +15,21 @@ namespace {
 using ::alpaca::PrintToStdString;
 using ::alpaca::SamplePrintable;
 
+template <typename T, typename U = T>
+const U MaybePromote(const T value) {
+  return value;
+}
+
+template <>
+const int MaybePromote(const char value) {
+  return value + 0;
+}
+
+template <>
+const unsigned int MaybePromote(const unsigned char value) {
+  return value + 0;
+}
+
 // Verify's print with one arg of type const T.
 template <typename T>
 void VerifyPrint1(const T value, std::string_view expected) {
@@ -21,7 +37,7 @@ void VerifyPrint1(const T value, std::string_view expected) {
   out.println(value);
   out.print(value);
   EXPECT_EQ(out.str(), absl::StrCat(expected, "\n", expected))
-      << "Value: " << (value + 0);
+      << "Value: " << MaybePromote(value);
 }
 
 // Verify's Print.print with two args, one of type const T, the other an int.
@@ -31,7 +47,7 @@ void VerifyPrint2(const T value, int arg2, std::string_view expected) {
   out.println(value, arg2);
   out.print(value, arg2);
   EXPECT_EQ(out.str(), absl::StrCat(expected, "\n", expected))
-      << "Value: " << (value + 0);
+      << "Value: " << MaybePromote(value);
 }
 
 template <typename T>
@@ -43,6 +59,10 @@ TEST(PrintTest, Char) {
   VerifyPrint1<char>('a', "a");
   VerifyPrint1<char>('\0', std::string_view("\0", 1));
   VerifyPrint1<const char*>("abc", "abc");
+}
+
+TEST(PrintTest, FlashString) {
+  VerifyPrint1<const __FlashStringHelper*>(FLASHSTR("abc"), "abc");
 }
 
 TEST(PrintTest, NumericTypes) {

@@ -16,6 +16,7 @@ cc_test(
     deps = [
         "//absl/strings",
         "//extras/host/arduino:print",
+        "//extras/host/arduino:wstring",
         "//extras/test_tools:print_to_std_string",
         "//extras/test_tools:sample_printable",
         "//googletest:gunit_main",

@@ -97,6 +97,10 @@ class OPrintStream {
     out_.print(value);
   }
 
+  void do_print_d(const __FlashStringHelper* value, true_type /*is_pointer*/) {
+    out_.print(value);
+  }
+
   void do_print_d(OPrintStreamManipulator manipulator,
                   true_type /*is_pointer*/) {
     (*manipulator)(*this);

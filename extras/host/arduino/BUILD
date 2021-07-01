@@ -92,6 +92,7 @@ cc_library(
     srcs = ["print.cc"],
     hdrs = ["print.h"],
     deps = [
+        ":wstring",
         "//absl/strings",
         "//absl/strings:str_format",
         "//core:logging",
