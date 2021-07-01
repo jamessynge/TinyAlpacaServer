@@ -29,7 +29,7 @@ class StatusOr {
   bool ok() const { return ok_; }
 
   const T& value() const {
-    TAS_CHECK(ok_) << TASLIT("Hey, there isn't a value!");
+    TAS_CHECK(ok_) << FLASHSTR("Hey, there isn't a value!");
     return t_;
   }
 

@@ -65,7 +65,7 @@ bool WriteResponse::OkJsonResponse(const AlpacaRequest& request,
 
 bool WriteResponse::StatusResponse(const AlpacaRequest& request, Status status,
                                    Print& out) {
-  TAS_VLOG(1) << TASLIT("ENTER StatusResponse, status: ") << status;
+  TAS_VLOG(1) << FLASHSTR("ENTER StatusResponse, status: ") << status;
   if (status.ok()) {
     JsonMethodResponse body(request);
     return OkJsonResponse(request, body, out);
@@ -241,7 +241,7 @@ bool WriteResponse::AscomParameterInvalidErrorResponse(
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
   TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
-      << TASLIT("Status code should be for an error.");
+      << FLASHSTR("Status code should be for an error.");
 
   HttpResponseHeader hrh;
   if (status_code < EHttpStatusCode::kHttpBadRequest) {

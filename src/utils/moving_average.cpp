@@ -17,7 +17,7 @@ void MovingAverage::RecordNewValue(double new_value, uint32_t current_time,
   if (has_average_value()) {
     uint32_t time_step = current_time - last_update_time_;
     if (time_step == 0) {
-      TAS_VLOG(1) << TASLIT(
+      TAS_VLOG(1) << FLASHSTR(
           "MovingAverage::RecordNewValue called too quickly, current_time "
           "hasn't advanced beyond last_update_time_");
       return;
@@ -27,8 +27,8 @@ void MovingAverage::RecordNewValue(double new_value, uint32_t current_time,
     // This is not a well founded adjustment; TBD later.
     time_step *= 2;
     if (average_period <= time_step) {
-      TAS_VLOG(1) << TASLIT("average_period (") << average_period
-                  << TASLIT(") should be much greater than time_step (")
+      TAS_VLOG(1) << FLASHSTR("average_period (") << average_period
+                  << FLASHSTR(") should be much greater than time_step (")
                   << time_step << ')';
       average_value_ = new_value;
     } else {

@@ -170,7 +170,7 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
         // i.e. we don't want to decide too early that a kHttpBadRequest error
         // should be returned.
         TAS_VLOG(2) << device_type
-                    << TASLIT(" is not supported by MatchDeviceMethod");
+                    << FLASHSTR(" is not supported by MatchDeviceMethod");
         break;
     }
     return internal::MatchCommonDeviceMethod(view, match);
@@ -179,8 +179,8 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
     MATCH_ONE_LITERAL_EXACTLY(setup, EDeviceMethod::kSetup);
     return false;
   } else {
-    TAS_CHECK(false) << TASLIT("api group (") << group
-                     << TASLIT(") is not device or setup");
+    TAS_CHECK(false) << FLASHSTR("api group (") << group
+                     << FLASHSTR(") is not device or setup");
     return false;
   }
 }

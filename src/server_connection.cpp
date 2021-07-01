@@ -17,12 +17,12 @@ ServerConnection::ServerConnection(RequestListener& request_listener)
     : request_listener_(request_listener),
       request_decoder_(request_),
       sock_num_(MAX_SOCK_NUM) {
-  TAS_VLOG(4) << TASLIT("ServerConnection @ ") << this << TASLIT(" ctor");
+  TAS_VLOG(4) << FLASHSTR("ServerConnection @ ") << this << FLASHSTR(" ctor");
 }
 
 void ServerConnection::OnConnect(Connection& connection) {
-  TAS_VLOG(2) << TASLIT("ServerConnection @ ") << this
-              << TASLIT(" ->::OnConnect ") << connection.sock_num();
+  TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
+              << FLASHSTR(" ->::OnConnect ") << connection.sock_num();
   TAS_DCHECK(!has_socket());
   sock_num_ = connection.sock_num();
   request_decoder_.Reset();
@@ -31,7 +31,7 @@ void ServerConnection::OnConnect(Connection& connection) {
 }
 
 void ServerConnection::OnCanRead(Connection& connection) {
-  TAS_VLOG(5) << TASLIT("ServerConnection @ ") << this
+  TAS_VLOG(5) << FLASHSTR("ServerConnection @ ") << this
               << " ->::OnCanRead socket " << connection.sock_num();
   TAS_DCHECK_EQ(sock_num(), connection.sock_num());
   TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
@@ -83,8 +83,8 @@ void ServerConnection::OnCanRead(Connection& connection) {
       return;
     }
 
-    TAS_VLOG(2) << TASLIT("ServerConnection @ ") << this
-                << TASLIT(" ->::OnCanRead status_code: ") << status_code;
+    TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
+                << FLASHSTR(" ->::OnCanRead status_code: ") << status_code;
 
     bool close_connection = false;
     if (status_code == EHttpStatusCode::kHttpOk) {
@@ -113,8 +113,8 @@ void ServerConnection::OnCanRead(Connection& connection) {
 }
 
 void ServerConnection::OnHalfClosed(Connection& connection) {
-  TAS_VLOG(2) << TASLIT("ServerConnection @ ") << this
-              << TASLIT(" ->::OnHalfClosed socket ") << connection.sock_num();
+  TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
+              << FLASHSTR(" ->::OnHalfClosed socket ") << connection.sock_num();
   TAS_DCHECK_EQ(sock_num(), connection.sock_num());
 
   if (!between_requests_) {
@@ -127,8 +127,8 @@ void ServerConnection::OnHalfClosed(Connection& connection) {
 }
 
 void ServerConnection::OnDisconnect() {
-  TAS_VLOG(2) << TASLIT("ServerConnection @ ") << this
-              << TASLIT(" ->::OnDisconnect, sock_num_=") << sock_num_;
+  TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
+              << FLASHSTR(" ->::OnDisconnect, sock_num_=") << sock_num_;
   TAS_DCHECK(has_socket());
   sock_num_ = MAX_SOCK_NUM;
 }

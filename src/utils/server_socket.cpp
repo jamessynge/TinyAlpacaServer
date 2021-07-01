@@ -15,12 +15,14 @@ class TcpServerConnection : public WrappedClientConnection {
   explicit TcpServerConnection(EthernetClient &client,
                                ServerSocket::DisconnectData &disconnect_data)
       : client_(client), disconnect_data_(disconnect_data) {
-    TAS_VLOG(5) << TASLIT("TcpServerConnection@") << this << TASLIT(" ctor");
+    TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
+                << FLASHSTR(" ctor");
     disconnect_data_.Reset();
   }
 #if TAS_ENABLED_VLOG_LEVEL >= 2
   ~TcpServerConnection() {  // NOLINT
-    TAS_VLOG(5) << TASLIT("TcpServerConnection@") << this << TASLIT(" dtor");
+    TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
+                << FLASHSTR(" dtor");
   }
 #endif
 
@@ -33,8 +35,8 @@ class TcpServerConnection : public WrappedClientConnection {
     // PerformIO below will complete the close at some time in the future.
     auto socket_number = sock_num();
     auto status = PlatformEthernet::SocketStatus(socket_number);
-    TAS_VLOG(2) << TASLIT("TcpServerConnection::close, sock_num=")
-                << socket_number << TASLIT(", status=") << BaseHex << status;
+    TAS_VLOG(2) << FLASHSTR("TcpServerConnection::close, sock_num=")
+                << socket_number << FLASHSTR(", status=") << BaseHex << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
       disconnect_data_.RecordDisconnect();
       PlatformEthernet::DisconnectSocket(socket_number);
@@ -104,11 +106,11 @@ bool ServerSocket::ReleaseSocket() {
   return true;
 }
 
-#define STATUS_IS_UNEXPECTED_MESSAGE(expected_str, some_status,     \
-                                     current_status)                \
-  BaseHex << TASLIT("Expected " #some_status " to be ")             \
-          << TASLIT(expected_str) << TASLIT(", but is ") << BaseHex \
-          << some_status << TASLIT("; current status is ") << current_status
+#define STATUS_IS_UNEXPECTED_MESSAGE(expected_str, some_status,         \
+                                     current_status)                    \
+  BaseHex << FLASHSTR("Expected " #some_status " to be ")               \
+          << FLASHSTR(expected_str) << FLASHSTR(", but is ") << BaseHex \
+          << some_status << FLASHSTR("; current status is ") << current_status
 
 #define VERIFY_STATUS_IS(expected_status, some_status)                    \
   TAS_DCHECK_EQ(expected_status, some_status)                             \
@@ -231,7 +233,7 @@ void ServerSocket::PerformIO() {
       // This is a transient state during setup of a TCP listener, and should
       // not be visible to us because BeginListening should make calls that
       // complete the process.
-      TAS_DCHECK(false) << TASLIT(
+      TAS_DCHECK(false) << FLASHSTR(
                                "Socket in INIT state, incomplete LISTEN setup; "
                                "past_status is ")
                         << past_status;
@@ -252,16 +254,16 @@ void ServerSocket::PerformIO() {
     case SnSR::IPRAW:
     case SnSR::MACRAW:
     case SnSR::PPPOE:
-      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_ << BaseHex
-                        << TASLIT(" has unexpected status ") << status
-                        << TASLIT(", last_status_ is ") << last_status_;
+      TAS_DCHECK(false) << FLASHSTR("Socket ") << sock_num_ << BaseHex
+                        << FLASHSTR(" has unexpected status ") << status
+                        << FLASHSTR(", last_status_ is ") << last_status_;
       CloseHardwareSocket();
       break;
 
     default:
-      TAS_DCHECK(false) << TASLIT("Socket ") << sock_num_ << BaseHex
-                        << TASLIT(" has unsupported status ") << status
-                        << TASLIT(", last_status_ is ") << last_status_;
+      TAS_DCHECK(false) << FLASHSTR("Socket ") << sock_num_ << BaseHex
+                        << FLASHSTR(" has unsupported status ") << status
+                        << FLASHSTR(", last_status_ is ") << last_status_;
       CloseHardwareSocket();
       break;
   }

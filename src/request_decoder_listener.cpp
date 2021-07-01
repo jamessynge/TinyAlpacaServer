@@ -13,43 +13,43 @@ RequestDecoderListener::~RequestDecoderListener() {}
 
 EHttpStatusCode RequestDecoderListener::OnExtraParameter(
     EParameter param, const StringView& value) {
-  TAS_VLOG(1) << TASLIT("OnExtraParameter(") << param << TASLIT(", ")
-              << HexEscaped(value) << TASLIT(")");
+  TAS_VLOG(1) << FLASHSTR("OnExtraParameter(") << param << FLASHSTR(", ")
+              << HexEscaped(value) << FLASHSTR(")");
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnExtraHeader(EHttpHeader header,
                                                       const StringView& value) {
-  TAS_VLOG(1) << TASLIT("OnExtraHeader(") << header << TASLIT(", ")
-              << HexEscaped(value) << TASLIT(")");
+  TAS_VLOG(1) << FLASHSTR("OnExtraHeader(") << header << FLASHSTR(", ")
+              << HexEscaped(value) << FLASHSTR(")");
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownParameterName(
     const StringView& name) {
-  TAS_VLOG(1) << TASLIT("OnUnknownParameterName(") << HexEscaped(name)
-              << TASLIT(")");
+  TAS_VLOG(1) << FLASHSTR("OnUnknownParameterName(") << HexEscaped(name)
+              << FLASHSTR(")");
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownParameterValue(
     const StringView& value) {
-  TAS_VLOG(1) << TASLIT("OnUnknownParameterValue(") << HexEscaped(value)
-              << TASLIT(")");
+  TAS_VLOG(1) << FLASHSTR("OnUnknownParameterValue(") << HexEscaped(value)
+              << FLASHSTR(")");
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownHeaderName(
     const StringView& name) {
-  TAS_VLOG(1) << TASLIT("OnUnknownHeaderName(") << HexEscaped(name)
-              << TASLIT(")");
+  TAS_VLOG(1) << FLASHSTR("OnUnknownHeaderName(") << HexEscaped(name)
+              << FLASHSTR(")");
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownHeaderValue(
     const StringView& value) {
-  TAS_VLOG(1) << TASLIT("OnUnknownHeaderValue(") << HexEscaped(value)
-              << TASLIT(")");
+  TAS_VLOG(1) << FLASHSTR("OnUnknownHeaderValue(") << HexEscaped(value)
+              << FLASHSTR(")");
   return EHttpStatusCode::kContinueDecoding;
 }
 

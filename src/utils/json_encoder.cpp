@@ -47,7 +47,8 @@ size_t PrintCharJsonEscaped(Print& out, const char c) {
   } else {
     // This used to be a DCHECK, but a VLOG is better because the character
     // could come from client input.
-    TAS_VLOG(4) << TASLIT("Unsupported JSON character: ") << BaseHex << (c + 0);
+    TAS_VLOG(4) << FLASHSTR("Unsupported JSON character: ") << BaseHex
+                << (c + 0);
   }
   return total;
 }

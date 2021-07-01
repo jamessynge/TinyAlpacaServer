@@ -26,12 +26,12 @@ CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
       led4_(TimerCounterChannel::A, kLedChannel4EnabledPin),
       cover_() {}
 
-#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)          \
-  TAS_VLOG(level) << TASLIT(name)                                       \
-                  << (enableable_by_pin.IsEnabled() ? IsEnabled()       \
-                                                    : IsNotEnabled())   \
-                  << TASLIT("; digitalRead(")                           \
-                  << enableable_by_pin.enabled_pin() << TASLIT(") -> ") \
+#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)            \
+  TAS_VLOG(level) << FLASHSTR(name)                                       \
+                  << (enableable_by_pin.IsEnabled() ? IsEnabled()         \
+                                                    : IsNotEnabled())     \
+                  << FLASHSTR("; digitalRead(")                           \
+                  << enableable_by_pin.enabled_pin() << FLASHSTR(") -> ") \
                   << enableable_by_pin.ReadPin()
 
 void CoverCalibrator::Initialize() {
@@ -130,9 +130,9 @@ Status CoverCalibrator::SetCalibratorOff() {
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
-  TAS_VLOG(1) << TASLIT("SetLedChannelEnabled(") << channel << TASLIT(", ")
-              << enabled << TASLIT(") ENTER, brightness_ = ") << brightness_
-              << TASLIT(", enabled_led_channels_ = ") << alpaca::BaseHex
+  TAS_VLOG(1) << FLASHSTR("SetLedChannelEnabled(") << channel << FLASHSTR(", ")
+              << enabled << FLASHSTR(") ENTER, brightness_ = ") << brightness_
+              << FLASHSTR(", enabled_led_channels_ = ") << alpaca::BaseHex
               << enabled_led_channels_;
 
   if (0 <= channel && channel < 4) {
@@ -146,9 +146,9 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
     }
   }
 
-  TAS_VLOG(1) << TASLIT("SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
-              << channel << TASLIT(") = ") << GetLedChannelEnabled(channel)
-              << TASLIT(", enabled_led_channels_ = ") << alpaca::BaseHex
+  TAS_VLOG(1) << FLASHSTR("SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
+              << channel << FLASHSTR(") = ") << GetLedChannelEnabled(channel)
+              << FLASHSTR(", enabled_led_channels_ = ") << alpaca::BaseHex
               << enabled_led_channels_;
   return GetLedChannelEnabled(channel);
 }

@@ -70,7 +70,7 @@ bool AddOnesPlace(double& value, const char c) {
 }  // namespace
 
 bool StringView::to_uint32(uint32_t& out) const {
-  TAS_VLOG(7) << TASLIT("StringView::to_uint32 converting ")
+  TAS_VLOG(7) << FLASHSTR("StringView::to_uint32 converting ")
               << HexEscaped(*this);
   if (empty()) {
     return false;
@@ -81,13 +81,13 @@ bool StringView::to_uint32(uint32_t& out) const {
       return false;
     }
   }
-  TAS_VLOG(5) << TASLIT("StringView::to_uint32 produced ") << value;
+  TAS_VLOG(5) << FLASHSTR("StringView::to_uint32 produced ") << value;
   out = value;
   return true;
 }
 
 bool StringView::to_int32(int32_t& out) const {
-  TAS_VLOG(7) << TASLIT("StringView::to_int32 converting ")
+  TAS_VLOG(7) << FLASHSTR("StringView::to_int32 converting ")
               << HexEscaped(*this);
   StringView copy(*this);
   bool negative = copy.match_and_consume('-');
@@ -110,12 +110,12 @@ bool StringView::to_int32(int32_t& out) const {
     }
     out = static_cast<int32_t>(value);
   }
-  TAS_VLOG(5) << TASLIT("StringView::to_int32 produced ") << out;
+  TAS_VLOG(5) << FLASHSTR("StringView::to_int32 produced ") << out;
   return true;
 }
 
 bool StringView::to_double(double& out) const {
-  TAS_VLOG(7) << TASLIT("StringView::to_double converting ")
+  TAS_VLOG(7) << FLASHSTR("StringView::to_double converting ")
               << HexEscaped(*this);
   StringView copy(*this);
   bool negative = copy.match_and_consume('-');
@@ -152,7 +152,7 @@ bool StringView::to_double(double& out) const {
   if (negative) {
     value = -value;
   }
-  TAS_VLOG(5) << TASLIT("StringView::to_double produced ") << value;
+  TAS_VLOG(5) << FLASHSTR("StringView::to_double produced ") << value;
   out = value;
   return true;
 }

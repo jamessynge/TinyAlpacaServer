@@ -24,13 +24,13 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
     return;
   }
 
-  TAS_VLOG(1) << TASLIT("Received UDP message of size ") << packet_size
-              << TASLIT(" from ") << udp_.remoteIP() << ':'
+  TAS_VLOG(1) << FLASHSTR("Received UDP message of size ") << packet_size
+              << FLASHSTR(" from ") << udp_.remoteIP() << ':'
               << udp_.remotePort();
 
   if (packet_size != kDiscoveryMessage().size()) {
     // Ignoring unexpected message.
-    TAS_VLOG(1) << TASLIT("Ignoring UDP message of unexpected length");
+    TAS_VLOG(1) << FLASHSTR("Ignoring UDP message of unexpected length");
     return;
   }
 
@@ -39,12 +39,12 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
   auto copied = udp_.read(buffer, packet_size);
   StringView view(buffer, copied);
 
-  TAS_VLOG(1) << TASLIT("UDP message contents: ") << HexEscaped(view);
+  TAS_VLOG(1) << FLASHSTR("UDP message contents: ") << HexEscaped(view);
 
   if (copied != packet_size) {
     // Ignoring unexpected message.
-    TAS_VLOG(1) << TASLIT("Expected to read ") << packet_size
-                << TASLIT(" bytes, but actually got ") << copied;
+    TAS_VLOG(1) << FLASHSTR("Expected to read ") << packet_size
+                << FLASHSTR(" bytes, but actually got ") << copied;
     return;
   }
 
@@ -53,7 +53,7 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
   // Is the message the expected one?
   if (kDiscoveryMessage() != view) {
     // Ignoring unexpected message.
-    TAS_VLOG(1) << TASLIT("Received unexpected discovery message");
+    TAS_VLOG(1) << FLASHSTR("Received unexpected discovery message");
     return;
   }
 

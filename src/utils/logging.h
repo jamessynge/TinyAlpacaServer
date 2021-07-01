@@ -48,7 +48,7 @@
 // reached, regardless of whether TAS_ENABLE_CHECK is defined:
 //
 //     TAS_CHECK(InitializeHardware())
-//         << TASLIT("Failed to initialize hardware.");
+//         << FLASHSTR("Failed to initialize hardware.");
 //
 // This allows you to make extensive use of TAS_CHECK, yet know that the
 // compiled size of the statement will shrink to that of the expression when

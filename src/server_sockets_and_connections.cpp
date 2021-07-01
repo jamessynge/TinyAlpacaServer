@@ -16,7 +16,7 @@ ServerSocketsAndConnections::ServerSocketsAndConnections(
 }
 
 bool ServerSocketsAndConnections::Initialize() {
-  TAS_VLOG(2) << TASLIT("ServerSocketsAndConnections::Initialize");
+  TAS_VLOG(2) << FLASHSTR("ServerSocketsAndConnections::Initialize");
   uint8_t count = 0;
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
     if (GetServerSocketAndConnection(ndx)->Initialize()) {
@@ -29,11 +29,11 @@ bool ServerSocketsAndConnections::Initialize() {
 }
 
 void ServerSocketsAndConnections::PerformIO() {
-  TAS_VLOG(6) << TASLIT("ServerSocketsAndConnections::PerformIO entry");
+  TAS_VLOG(6) << FLASHSTR("ServerSocketsAndConnections::PerformIO entry");
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
     GetServerSocketAndConnection(ndx)->PerformIO();
   }
-  TAS_VLOG(6) << TASLIT("ServerSocketsAndConnections::PerformIO exit");
+  TAS_VLOG(6) << FLASHSTR("ServerSocketsAndConnections::PerformIO exit");
 }
 
 ServerSocketAndConnection*
