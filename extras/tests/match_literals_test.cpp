@@ -24,8 +24,8 @@ TEST(MatchLiteralsTest, EHttpMethod) {
   };
   const EHttpMethod kBogusEnum = static_cast<EHttpMethod>(0xff);
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EHttpMethod matched = kBogusEnum;
     if (expected_enum == EHttpMethod::kUnknown) {
       EXPECT_FALSE(MatchHttpMethod(MakeStringView(text), matched));
@@ -48,8 +48,8 @@ TEST(MatchLiteralsTest, EApiGroup) {
   };
   const EApiGroup kBogusEnum = static_cast<EApiGroup>(0xff);
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EApiGroup matched = kBogusEnum;
     if (expected_enum == EApiGroup::kUnknown) {
       EXPECT_FALSE(MatchApiGroup(MakeStringView(text), matched));
@@ -73,8 +73,8 @@ TEST(MatchLiteralsTest, MatchManagementMethod) {
   };
   const EManagementMethod kBogusEnum = static_cast<EManagementMethod>(0xff);
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EManagementMethod matched = kBogusEnum;
     if (expected_enum == EManagementMethod::kUnknown) {
       EXPECT_FALSE(MatchManagementMethod(MakeStringView(text), matched));
@@ -103,8 +103,8 @@ TEST(MatchLiteralsTest, MatchDeviceType) {
   };
   const EDeviceType kBogusEnum = static_cast<EDeviceType>(0xff);
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EDeviceType matched = kBogusEnum;
     if (expected_enum == EDeviceType::kUnknown) {
       EXPECT_FALSE(MatchDeviceType(MakeStringView(text), matched));
@@ -145,8 +145,8 @@ TEST(MatchLiteralsTest, MatchCommonDeviceMethod) {
 
   const EDeviceMethod kBogusEnum = static_cast<EDeviceMethod>(0xff);
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(
@@ -182,8 +182,8 @@ TEST(MatchLiteralsTest, MatchCoverCalibratorMethod) {
   PrependCommonDeviceMethodTestCases(test_cases);
 
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
@@ -228,8 +228,8 @@ TEST(MatchLiteralsTest, MatchObservingConditionsMethod) {
   PrependCommonDeviceMethodTestCases(test_cases);
 
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
@@ -266,8 +266,8 @@ TEST(MatchLiteralsTest, MatchSafetyMonitorMethod) {
   PrependCommonDeviceMethodTestCases(test_cases);
 
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
@@ -314,8 +314,8 @@ TEST(MatchLiteralsTest, MatchSwitchMethod) {
   PrependCommonDeviceMethodTestCases(test_cases);
 
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EDeviceMethod matched = kBogusEnum;
     if (expected_enum == EDeviceMethod::kUnknown) {
       EXPECT_FALSE(MatchDeviceMethod(EApiGroup::kDevice, kDeviceType,
@@ -404,8 +404,8 @@ TEST(MatchLiteralsTest, MatchParameter) {
   for (const auto [test_case_text, expected_enum] : test_cases) {
     for (const auto transformer_fn : string_transformer) {
       std::string text = transformer_fn(test_case_text);
-      TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                  << expected_enum;
+      VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+              << expected_enum;
       EParameter matched = kBogusEnum;
       if (expected_enum == EParameter::kUnknown) {
         EXPECT_FALSE(MatchParameter(MakeStringView(text), matched));
@@ -433,8 +433,8 @@ TEST(MatchLiteralsTest, MatchSensorName) {
   };
   const ESensorName kBogusEnum = static_cast<ESensorName>(0xff);
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     ESensorName matched = kBogusEnum;
     if (expected_enum == ESensorName::kUnknown) {
       EXPECT_FALSE(MatchSensorName(MakeStringView(text), matched));
@@ -456,8 +456,8 @@ TEST(MatchLiteralsTest, EHttpHeader) {
   };
   const EHttpHeader kBogusEnum = static_cast<EHttpHeader>(0xff);
   for (const auto [text, expected_enum] : test_cases) {
-    TAS_VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
-                << expected_enum;
+    VLOG(1) << "Matching '" << absl::CHexEscape(text) << "', expecting "
+            << expected_enum;
     EHttpHeader matched = kBogusEnum;
     if (expected_enum == EHttpHeader::kUnknown) {
       EXPECT_FALSE(MatchHttpHeader(MakeStringView(text), matched));
