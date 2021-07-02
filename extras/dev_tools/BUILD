@@ -17,7 +17,6 @@ pytype_strict_binary(
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
-        "//third_party/py/absl:app",
         "//third_party/py/dataclasses",
         "//third_party/py/requests",
     ],

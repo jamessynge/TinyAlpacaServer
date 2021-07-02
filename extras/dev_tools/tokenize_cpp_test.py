@@ -5,6 +5,7 @@ from absl import flags
 import tokenize_cpp
 import absltest
 
+EToken = tokenize_cpp.EToken
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string(
@@ -100,6 +101,28 @@ class TokenizeCppTest(absltest.TestCase):
         tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=src))
         # print(tokenization, flush=True)
         self.assertSequenceEqual(tokenization, [expected])
+
+  def test_replacement(self):
+    cpp_source = tokenize_cpp.CppSource(raw_source=' "str" ')
+    self.assertSequenceEqual(cpp_source.all_tokens,
+                             [make_expected_string_token('"str"', raw_start=1)])
+    self.assertSequenceEqual(cpp_source.all_tokens, cpp_source.cpp_tokens)
+    self.assertSequenceEqual(cpp_source.all_tokens,
+                             cpp_source.grouped_cpp_tokens)
+    token = cpp_source.all_tokens[0]
+    # In backwards ordered deliberately.
+    replacements = [
+        tokenize_cpp.Replacement.after(token, ')'),
+        tokenize_cpp.Replacement.before(token, 'X('),
+    ]
+    cpp_source.edit_raw_source(replacements)
+    self.assertEqual(cpp_source.raw_source, ' X("str") ')
+    self.assertLen(cpp_source.all_tokens, 4)
+    self.assertSequenceEqual(cpp_source.all_tokens, cpp_source.cpp_tokens)
+    self.assertSequenceEqual([t.kind for t in cpp_source.all_tokens], [
+        EToken.IDENTIFIER, EToken.LEFT_PARENTHESIS, EToken.STRING,
+        EToken.RIGHT_PARENTHESIS
+    ])
 
 
 if __name__ == '__main__':
