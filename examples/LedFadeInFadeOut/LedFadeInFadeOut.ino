@@ -85,7 +85,7 @@ void setup() {
 
   DUMP_USED_TIMER_COUNTERS;
 
-  TAS_VLOG(1) << "Initializing 16-bit PWM";
+  TAS_VLOG(1) << FLASHSTR("Initializing 16-bit PWM");
 
   pinMode(kLedChannel1PwmPin, OUTPUT);
   pinMode(kLedChannel2PwmPin, OUTPUT);
@@ -95,7 +95,7 @@ void setup() {
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
 
-  TAS_VLOG(1) << "Initialized 16-bit PWM";
+  TAS_VLOG(1) << FLASHSTR("Initialized 16-bit PWM");
   Serial.println();
 
   DUMP_USED_TIMER_COUNTERS;
@@ -105,39 +105,39 @@ template <class T>
 void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
                    const char* name) {
   if (t.IsEnabled()) {
-    TAS_VLOG(1) << name << " is enabled.";
-    TAS_VLOG(1) << "Sweeping " << name << " upwards";
+    TAS_VLOG(1) << name << FLASHSTR(" is enabled.");
+    TAS_VLOG(1) << FLASHSTR("Sweeping ") << name << FLASHSTR(" upwards");
 
     int32_t value = 1;
     while (value <= t.max_count()) {
       t.set_pulse_count(static_cast<uint16_t>(value & 0xFFFF));
 
       if (value == 1 || (value + increment) >= t.max_count()) {
-        TAS_VLOG(1) << "value = " << value;
+        TAS_VLOG(1) << FLASHSTR("value = ") << value;
         DUMP_USED_TIMER_COUNTERS;
       }
 
       value += increment;
       delay(delay_by);
     }
-    TAS_VLOG(1) << "Sweeping " << name << " downwards";
+    TAS_VLOG(1) << FLASHSTR("Sweeping ") << name << FLASHSTR(" downwards");
     value = t.max_count();
     while (value >= 1) {
       t.set_pulse_count(static_cast<uint16_t>(value & 0xFFFF));
       value -= increment;
       delay(delay_by);
     }
-    TAS_VLOG(1) << "value = " << value;
+    TAS_VLOG(1) << FLASHSTR("value = ") << value;
 
     DUMP_USED_TIMER_COUNTERS;
 
-    TAS_VLOG(1) << "Turning " << name << " off";
+    TAS_VLOG(1) << FLASHSTR("Turning ") << name << FLASHSTR(" off");
     t.set_pulse_count(0);
 
     DUMP_USED_TIMER_COUNTERS;
 
   } else {
-    TAS_VLOG(1) << name << " is disabled.";
+    TAS_VLOG(1) << name << FLASHSTR(" is disabled.");
   }
 }
 

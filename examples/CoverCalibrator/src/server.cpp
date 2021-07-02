@@ -115,14 +115,14 @@ void setup() {
   announceAddresses();
   tiny_alpaca_server.Initialize();
 
-  TAS_VLOG(1) << "sizeof(nullptr): " << sizeof(nullptr);
-  TAS_VLOG(1) << "sizeof(char*): " << sizeof(char*);
-  TAS_VLOG(1) << "sizeof(short): " << sizeof(short);
-  TAS_VLOG(1) << "sizeof(int): " << sizeof(int);
-  TAS_VLOG(1) << "sizeof(long): " << sizeof(long);
-  TAS_VLOG(1) << "sizeof(float): " << sizeof(float);
-  TAS_VLOG(1) << "sizeof(double): " << sizeof(double);
-  TAS_VLOG(1) << "sizeof(&setup): " << sizeof(&setup);
+  TAS_VLOG(1) << FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
+  TAS_VLOG(1) << FLASHSTR("sizeof(char*): ") << sizeof(char*);
+  TAS_VLOG(1) << FLASHSTR("sizeof(short): ") << sizeof(short);
+  TAS_VLOG(1) << FLASHSTR("sizeof(int): ") << sizeof(int);
+  TAS_VLOG(1) << FLASHSTR("sizeof(long): ") << sizeof(long);
+  TAS_VLOG(1) << FLASHSTR("sizeof(float): ") << sizeof(float);
+  TAS_VLOG(1) << FLASHSTR("sizeof(double): ") << sizeof(double);
+  TAS_VLOG(1) << FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
 }
 
 void loop() {

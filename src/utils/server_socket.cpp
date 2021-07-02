@@ -79,11 +79,11 @@ bool ServerSocket::PickClosedSocket() {
       last_status_ = PlatformEthernet::SocketStatus(sock_num_);
       return true;
     }
-    TAS_VLOG(1) << "listen for " << tcp_port_ << " failed with socket "
-                << sock_num_;
+    TAS_VLOG(1) << FLASHSTR("listen for ") << tcp_port_
+                << FLASHSTR(" failed with socket ") << sock_num_;
     sock_num_ = MAX_SOCK_NUM;
   } else {
-    TAS_VLOG(1) << "No free socket for " << tcp_port_;
+    TAS_VLOG(1) << FLASHSTR("No free socket for ") << tcp_port_;
   }
   return false;
 }
@@ -131,13 +131,14 @@ bool ServerSocket::BeginListening() {
 
   if (PlatformEthernet::InitializeTcpListenerSocket(sock_num_, tcp_port_)) {
     last_status_ = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(1) << "Listening for " << tcp_port_ << " on socket " << sock_num_
-                << ", last_status is " << BaseHex << last_status_;
+    TAS_VLOG(1) << FLASHSTR("Listening for ") << tcp_port_
+                << FLASHSTR(" on socket ") << sock_num_
+                << FLASHSTR(", last_status is ") << BaseHex << last_status_;
     VERIFY_STATUS_IS(SnSR::LISTEN, last_status_);
     return true;
   }
-  TAS_VLOG(1) << "listen for " << tcp_port_ << " failed with socket "
-              << sock_num_;
+  TAS_VLOG(1) << FLASHSTR("listen for ") << tcp_port_
+              << FLASHSTR(" failed with socket ") << sock_num_;
   return false;
 }
 

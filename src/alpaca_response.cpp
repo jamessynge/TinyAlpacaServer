@@ -283,7 +283,7 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
         break;
       default:
         // We don't have a reason phrase programmed in here.
-        TAS_DCHECK(false) << "Please add a case for status code "
+        TAS_DCHECK(false) << FLASHSTR("Please add a case for status code ")
                           << status_code;
         hrh.reason_phrase = Literal();
     }

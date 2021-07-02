@@ -23,8 +23,8 @@ bool ServerSocketsAndConnections::Initialize() {
       ++count;
     }
   }
-  TAS_VLOG(2) << "Initialized " << count << " of " << kNumSockets
-              << " ServerSocketAndConnection objects";
+  TAS_VLOG(2) << FLASHSTR("Initialized ") << count << FLASHSTR(" of ")
+              << kNumSockets << FLASHSTR(" ServerSocketAndConnection objects");
   return count != kNumSockets;
 }
 

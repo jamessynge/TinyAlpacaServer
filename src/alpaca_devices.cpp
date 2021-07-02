@@ -27,8 +27,8 @@ bool AlpacaDevices::Initialize() {
   for (int i = 0; i < devices_.size(); ++i) {
     DeviceInterface* const device = devices_[i];
     if (device == nullptr) {
-      TAS_DCHECK_NE(device, nullptr)
-          << "DeviceInterface pointer [" << i << "] is null!";
+      TAS_DCHECK_NE(device, nullptr) << FLASHSTR("DeviceInterface pointer [")
+                                     << i << FLASHSTR("] is null!");
       result = false;  // TAS_DCHECK may be disabled.
     }
   }
@@ -41,25 +41,25 @@ bool AlpacaDevices::Initialize() {
       DeviceInterface* const device2 = devices_[j];
       if (device1 == device2) {
         TAS_DCHECK_NE(device1, device2)
-            << "Device appears twice in the list of devices: "
-            << "type=" << device1->device_type()
-            << ", number=" << device1->device_number()
-            << ", name=" << HexEscaped(device1->device_info().name);
+            << FLASHSTR("Device appears twice in the list of devices: ")
+            << FLASHSTR("type=") << device1->device_type()
+            << FLASHSTR(", number=") << device1->device_number()
+            << FLASHSTR(", name=") << HexEscaped(device1->device_info().name);
         result = false;  // TAS_DCHECK may be disabled.
         break;
       }
       if (device1->device_info().unique_id ==
           device2->device_info().unique_id) {
-        TAS_DCHECK(false) << "Devices [" << i << "] and [" << j
-                          << "] have the same unique_id";
+        TAS_DCHECK(false) << FLASHSTR("Devices [") << i << FLASHSTR("] and [")
+                          << j << FLASHSTR("] have the same unique_id");
         result = false;  // TAS_DCHECK may be disabled.
       }
       if (device1->device_type() != device2->device_type()) {
         break;
       }
       if (device1->device_number() == device2->device_number()) {
-        TAS_DCHECK(false) << "Devices [" << i << "] and [" << j
-                          << "] have the same type and number";
+        TAS_DCHECK(false) << FLASHSTR("Devices [") << i << FLASHSTR("] and [")
+                          << j << FLASHSTR("] have the same type and number");
         result = false;  // TAS_DCHECK may be disabled.
       }
 #if 0
@@ -67,8 +67,9 @@ bool AlpacaDevices::Initialize() {
           device2->device_info().config_id) {
         // Someday we'll generate a UUID from the device type and config_id,
         // so they need to be distinct.
-        TAS_DCHECK(false) << "Devices [" << i << "] and [" << j
-                          << "] have the same type and config_id";
+        TAS_DCHECK(false) << FLASHSTR("Devices [") << i << FLASHSTR("] and [")
+                          << j
+                          << FLASHSTR("] have the same type and config_id");
         result = false;  // TAS_DCHECK may be disabled.
       }
 #endif

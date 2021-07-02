@@ -7,5 +7,6 @@ cc_binary(
         "//extras/host/arduino",
         "//extras/host/arduino:arduino_main",
         "//src:TinyAlpacaServer",
+        "//src/utils:platform",
     ],
 )

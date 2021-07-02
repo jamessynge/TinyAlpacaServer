@@ -29,7 +29,7 @@ class EventInfo {
       : name_(name), pin_(pin), interrupt_(digitalPinToInterrupt(pin)) {}
 
   void Reset() {
-    TAS_VLOG(1) << "\nEventInfo::Reset\n";
+    TAS_VLOG(1) << FLASHSTR("\nEventInfo::Reset\n");
 
     pinMode(pin_, INPUT);
     noInterrupts();
@@ -60,12 +60,12 @@ class EventInfo {
 
 #ifdef RECORD_RISING_AND_FALLING
     if (awaiting_falling) {
-      TAS_VLOG(1) << "Awaiting " << name_ << "pin FALLING";
+      TAS_VLOG(1) << FLASHSTR("Awaiting ") << name_ << FLASHSTR("pin FALLING");
     } else {
-      TAS_VLOG(1) << "Awaiting pin RISING";
+      TAS_VLOG(1) << FLASHSTR("Awaiting pin RISING");
     }
 #elif defined(RECORD_CHANGE)
-    TAS_VLOG(1) << "Awaiting pin CHANGE";
+    TAS_VLOG(1) << FLASHSTR("Awaiting pin CHANGE");
 #endif
   }
 
@@ -102,18 +102,20 @@ class EventInfo {
       noInterrupts();
       auto missed_count = missed_count_;
       interrupts();
-      TAS_VLOG(1) << "There were " << missed_count
-                  << " events that we didn't record.";
+      TAS_VLOG(1) << FLASHSTR("There were ") << missed_count
+                  << FLASHSTR(" events that we didn't record.");
     }
 
-    TAS_VLOG(1) << "Recorded " << count << " events.";
-    TAS_VLOG(1) << (event_is_falling_[0] ? "Falling" : "Rising") << " @ micros "
-                << event_micros_[0];
+    TAS_VLOG(1) << FLASHSTR("Recorded ") << count << FLASHSTR(" events.");
+    TAS_VLOG(1) << (event_is_falling_[0] ? FLASHSTR("Falling")
+                                         : FLASHSTR("Rising"))
+                << FLASHSTR(" @ micros ") << event_micros_[0];
     for (uint8_t ndx = 1; ndx < count; ++ndx) {
       TAS_VLOG(1) << '+' << (event_micros_[ndx] - event_micros_[ndx - 1])
-                  << " micros later was "
-                  << (event_is_falling_[ndx] ? "Falling" : "Rising")
-                  << " @ micros " << event_micros_[ndx];
+                  << FLASHSTR(" micros later was ")
+                  << (event_is_falling_[ndx] ? FLASHSTR("Falling")
+                                             : FLASHSTR("Rising"))
+                  << FLASHSTR(" @ micros ") << event_micros_[ndx];
     }
 
     Reset();

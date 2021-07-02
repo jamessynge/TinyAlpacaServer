@@ -19,7 +19,7 @@ void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
 #else
   TAS_VLOG(1) << FLASHSTR("SetupW5500 applying fix for pin ")
               << kSDcardSelectPin
-              << ", replacing with PE7 (pin 9 of ATmega2560)";
+              << FLASHSTR(", replacing with PE7 (pin 9 of ATmega2560)");
 
   // Set PE7 (Port E, bit 7) to output HIGH. As described in section 13.2.3 of
   // the ATmega2560 datasheet, we can't transition directly from tri-state to

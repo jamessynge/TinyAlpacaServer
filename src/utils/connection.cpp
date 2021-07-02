@@ -11,7 +11,8 @@ size_t Connection::read(uint8_t *buf, size_t size) {
     if (c < 0) {
       break;
     }
-    TAS_DCHECK_LT(c, 256) << "c (" << c << ") should be in the range [0, 255]";
+    TAS_DCHECK_LT(c, 256) << FLASHSTR("c (") << c
+                          << FLASHSTR(") should be in the range [0, 255]");
     *buf++ = c & 0xff;
     ++result;
     --size;

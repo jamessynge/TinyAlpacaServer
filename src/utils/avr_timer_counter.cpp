@@ -102,10 +102,10 @@ uint16_t ToClockDivisor(ClockPrescaling prescaling) {
 
 TC16ClockAndTicks TC16ClockAndTicks::FromSystemClockCycles(
     uint32_t system_clock_cycles) {
-  TAS_VLOG(5) << "FromSystemClockCycles " << system_clock_cycles;
+  TAS_VLOG(5) << FLASHSTR("FromSystemClockCycles ") << system_clock_cycles;
   TAS_DCHECK_LE(system_clock_cycles, kMaxSystemClockCycles)
-      << "system_clock_cycles: " << system_clock_cycles
-      << "  kMaxSystemClockCycles: " << kMaxSystemClockCycles;
+      << FLASHSTR("system_clock_cycles: ") << system_clock_cycles
+      << FLASHSTR("  kMaxSystemClockCycles: ") << kMaxSystemClockCycles;
   if (system_clock_cycles <= kMaxClockTicks) {
     if (system_clock_cycles == 0) {
       return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
@@ -125,8 +125,10 @@ TC16ClockAndTicks TC16ClockAndTicks::FromSystemClockCycles(
     return {.clock_select = ClockPrescaling::kDivideBy1024,
             .clock_ticks = static_cast<uint16_t>(system_clock_cycles / 1024)};
   } else {
-    TAS_DCHECK(false) << "system_clock_cycles: " << system_clock_cycles
-                      << "  kMaxSystemClockCycles: " << kMaxSystemClockCycles;
+    TAS_DCHECK(false) << FLASHSTR("system_clock_cycles: ")
+                      << system_clock_cycles
+                      << FLASHSTR("  kMaxSystemClockCycles: ")
+                      << kMaxSystemClockCycles;
     return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
   }
 }
@@ -249,7 +251,7 @@ void TimerCounter1SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM1C0;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR1A = (TCCR1A & keep_mask) | set_mask;
@@ -269,7 +271,7 @@ void TimerCounter1SetOutputCompareRegister(TimerCounterChannel channel,
       OCR1C = value;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
 }
 
@@ -282,7 +284,7 @@ uint16_t TimerCounter1GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR1C;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
       return 0;
   }
 }
@@ -315,7 +317,7 @@ void TimerCounter3SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM3C0;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR3A = (TCCR3A & keep_mask) | set_mask;
@@ -335,7 +337,7 @@ void TimerCounter3SetOutputCompareRegister(TimerCounterChannel channel,
       OCR3C = value;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
 }
 
@@ -348,7 +350,7 @@ uint16_t TimerCounter3GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR3C;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
       return 0;
   }
 }
@@ -381,7 +383,7 @@ void TimerCounter4SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM4C0;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR4A = (TCCR4A & keep_mask) | set_mask;
@@ -401,7 +403,7 @@ void TimerCounter4SetOutputCompareRegister(TimerCounterChannel channel,
       OCR4C = value;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
 }
 
@@ -414,7 +416,7 @@ uint16_t TimerCounter4GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR4C;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
       return 0;
   }
 }
@@ -447,7 +449,7 @@ void TimerCounter5SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM5C0;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR5A = (TCCR5A & keep_mask) | set_mask;
@@ -467,7 +469,7 @@ void TimerCounter5SetOutputCompareRegister(TimerCounterChannel channel,
       OCR5C = value;
       break;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
   }
 }
 
@@ -480,7 +482,7 @@ uint16_t TimerCounter5GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR5C;
     default:
-      TAS_DCHECK(false) << "Unknown channel " << channel;
+      TAS_DCHECK(false) << FLASHSTR("Unknown channel ") << channel;
       return 0;
   }
 }

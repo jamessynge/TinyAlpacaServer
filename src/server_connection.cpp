@@ -32,7 +32,7 @@ void ServerConnection::OnConnect(Connection& connection) {
 
 void ServerConnection::OnCanRead(Connection& connection) {
   TAS_VLOG(5) << FLASHSTR("ServerConnection @ ") << this
-              << " ->::OnCanRead socket " << connection.sock_num();
+              << FLASHSTR(" ->::OnCanRead socket ") << connection.sock_num();
   TAS_DCHECK_EQ(sock_num(), connection.sock_num());
   TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
              request_decoder_.status() == RequestDecoderStatus::kDecoding);
