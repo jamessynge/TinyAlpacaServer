@@ -112,10 +112,10 @@ bool ServerSocket::ReleaseSocket() {
           << FLASHSTR(expected_str) << FLASHSTR(", but is ") << BaseHex \
           << some_status << FLASHSTR("; current status is ") << current_status
 
-#define VERIFY_STATUS_IS(expected_status, some_status)                    \
-  TAS_DCHECK_EQ(expected_status, some_status)                             \
-      << BaseHex << "Expected " #some_status " to be " << expected_status \
-      << ", but is " << some_status
+#define VERIFY_STATUS_IS(expected_status, some_status)           \
+  TAS_DCHECK_EQ(expected_status, some_status)                    \
+      << BaseHex << FLASHSTR("Expected " #some_status " to be ") \
+      << expected_status << FLASHSTR(", but is ") << some_status
 
 bool ServerSocket::BeginListening() {
   if (!HasSocket()) {
@@ -194,11 +194,11 @@ void ServerSocket::PerformIO() {
     case SnSR::ESTABLISHED:
       if (!was_open) {
         VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
-            << " while handling ESTABLISHED";
+            << FLASHSTR(" while handling ESTABLISHED");
         AnnounceConnected();
       } else {
         VERIFY_STATUS_IS(SnSR::ESTABLISHED, past_status)
-            << " while handling ESTABLISHED";
+            << FLASHSTR(" while handling ESTABLISHED");
         AnnounceCanRead();
       }
       break;
@@ -206,7 +206,7 @@ void ServerSocket::PerformIO() {
     case SnSR::CLOSE_WAIT:
       if (!was_open) {
         VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
-            << " while handling CLOSE_WAIT";
+            << FLASHSTR(" while handling CLOSE_WAIT");
         AnnounceConnected();
       } else {
         TAS_DCHECK(past_status == SnSR::ESTABLISHED ||

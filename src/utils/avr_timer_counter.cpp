@@ -210,7 +210,8 @@ double TC16ClockAndTicks::ToSeconds() const {
 size_t TC16ClockAndTicks::printTo(Print& out) const {
   static_assert(has_print_to<decltype(*this)>{}, "has_print_to should be true");
   CountingPrint counter(out);
-  counter << "{.cs=" << clock_select << ", .ticks=" << clock_ticks << "}";
+  counter << FLASHSTR("{.cs=") << clock_select << FLASHSTR(", .ticks=")
+          << clock_ticks << FLASHSTR("}");
   return counter.count();
 }
 
