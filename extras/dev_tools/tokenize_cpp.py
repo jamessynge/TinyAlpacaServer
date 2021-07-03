@@ -397,9 +397,8 @@ def generate_phase2_tokenization(
           pos += len(v[1])
           continue
         # This is surprising!
-        raise ValueError(
-            f'Unable to match {phase2_source[pos:pos+20]!r} in file {file_path!r}'
-        )
+        raise ValueError(f'Unable to match {phase2_source[pos:pos+20]!r} in '
+                         f'file {file_path!r}')
 
       # Match identifiers.
       m = IDENTIFIER_RE.match(phase2_source, pos=pos)

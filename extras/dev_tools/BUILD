@@ -4,6 +4,28 @@ load("//devtools/python/blaze:pytype.bzl", "pytype_strict_binary", "pytype_stric
 load("//devtools/python/blaze:strict.bzl", "py_strict_test")
 
 pytype_strict_binary(
+    name = "add_flashstr",
+    srcs = ["add_flashstr.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":tokenize_cpp_lib",
+        "//third_party/py/dataclasses",
+    ],
+)
+
+pytype_strict_binary(
+    name = "find_non_progmem_strings",
+    srcs = ["find_non_progmem_strings.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":tokenize_cpp_lib",
+        "//third_party/py/dataclasses",
+    ],
+)
+
+pytype_strict_binary(
     name = "make_enum_to_string",
     srcs = ["make_enum_to_string.py"],
     python_version = "PY3",
