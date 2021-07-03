@@ -37,4 +37,55 @@ size_t WrappedClientConnection::read(uint8_t *buf, size_t size) {
 int WrappedClientConnection::peek() { return client().peek(); }
 void WrappedClientConnection::flush() { return client().flush(); }
 
+WriteBufferedWrappedClientConnection::WriteBufferedWrappedClientConnection(
+    uint8_t *write_buffer, uint8_t write_buffer_limit)
+    : write_buffer_(write_buffer),
+      write_buffer_limit_(write_buffer_limit),
+      write_buffer_size_(0) {
+  TAS_DCHECK(write_buffer != nullptr);
+  TAS_DCHECK(write_buffer_limit > 0);
+}
+size_t WriteBufferedWrappedClientConnection::write(uint8_t b) {
+  if (write_buffer_size_ >= write_buffer_limit_) {
+    flush();
+  }
+  write_buffer_[write_buffer_size_++] = b;
+  return 1;
+}
+size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
+                                                   size_t size) {
+  auto room = write_buffer_limit_ - write_buffer_size_;
+  if (size > room) {
+    flush();
+    return client().write(buf, size);
+  }
+  memcpy(write_buffer_ + write_buffer_size_, buf, size);
+  write_buffer_size_ += size;
+  return size;
+}
+int WriteBufferedWrappedClientConnection::available() {
+  return client().available();
+}
+int WriteBufferedWrappedClientConnection::read() { return client().read(); }
+size_t WriteBufferedWrappedClientConnection::read(uint8_t *buf, size_t size) {
+  int result = client().read(buf, size);
+  if (result >= 0) {
+    return result;
+  } else {
+    return 0;
+  }
+}
+int WriteBufferedWrappedClientConnection::peek() { return client().peek(); }
+void WriteBufferedWrappedClientConnection::flush() {
+  while (write_buffer_size_ > 0) {
+    auto wrote = client().write(write_buffer_, write_buffer_size_);
+    TAS_DCHECK_GT(wrote, 0);
+    TAS_DCHECK_LE(wrote, write_buffer_size_);
+    write_buffer_size_ -= wrote;
+    if (wrote <= 0) {
+      return;
+    }
+  }
+}
+
 }  // namespace alpaca

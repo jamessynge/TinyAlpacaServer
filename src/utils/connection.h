@@ -52,6 +52,30 @@ class WrappedClientConnection : public Connection {
   virtual Client &client() const = 0;
 };
 
+// An abstract implementation of Connection that delegates to a Client instance
+// provided by a subclass. To produce a concrete instance, some subclass will
+// also need to implement close() and connected().
+class WriteBufferedWrappedClientConnection : public Connection {
+ public:
+  size_t write(uint8_t b) override;
+  size_t write(const uint8_t *buf, size_t size) override;
+  int available() override;
+  int read() override;
+  size_t read(uint8_t *buf, size_t size) override;
+  int peek() override;
+  void flush() override;
+
+ protected:
+  WriteBufferedWrappedClientConnection(uint8_t *write_buffer,
+                                       uint8_t write_buffer_limit);
+
+  virtual Client &client() const = 0;
+
+  uint8_t *const write_buffer_;
+  const uint8_t write_buffer_limit_;
+  uint8_t write_buffer_size_;
+};
+
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_CONNECTION_H_

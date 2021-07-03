@@ -9,22 +9,26 @@ namespace alpaca {
 namespace {
 
 constexpr MillisT kDisconnectMaxMillis = 5000;
+constexpr uint8_t kWriteBufferSize = 255;
 
-class TcpServerConnection : public WrappedClientConnection {
+class TcpServerConnection : public WriteBufferedWrappedClientConnection {
  public:
-  explicit TcpServerConnection(EthernetClient &client,
+  explicit TcpServerConnection(uint8_t *write_buffer,
+                               uint8_t write_buffer_limit,
+                               EthernetClient &client,
                                ServerSocket::DisconnectData &disconnect_data)
-      : client_(client), disconnect_data_(disconnect_data) {
+      : WriteBufferedWrappedClientConnection(write_buffer, write_buffer_limit),
+        client_(client),
+        disconnect_data_(disconnect_data) {
     TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
                 << FLASHSTR(" ctor");
     disconnect_data_.Reset();
   }
-#if TAS_ENABLED_VLOG_LEVEL >= 2
   ~TcpServerConnection() {  // NOLINT
     TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
                 << FLASHSTR(" dtor");
+    flush();
   }
-#endif
 
   void close() override {
     // The Ethernet3 library's EthernetClient::stop method bakes in a limit of 1
@@ -38,6 +42,7 @@ class TcpServerConnection : public WrappedClientConnection {
     TAS_VLOG(2) << FLASHSTR("TcpServerConnection::close, sock_num=")
                 << socket_number << FLASHSTR(", status=") << BaseHex << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
+      flush();
       disconnect_data_.RecordDisconnect();
       PlatformEthernet::DisconnectSocket(socket_number);
     }
@@ -277,21 +282,27 @@ void ServerSocket::PerformIO() {
 
 void ServerSocket::AnnounceConnected() {
   EthernetClient client(sock_num_);
-  TcpServerConnection conn(client, disconnect_data_);
+  uint8_t write_buffer[kWriteBufferSize];
+  TcpServerConnection conn(write_buffer, kWriteBufferSize, client,
+                           disconnect_data_);
   listener_.OnConnect(conn);
   DetectListenerInitiatedDisconnect();
 }
 
 void ServerSocket::AnnounceCanRead() {
   EthernetClient client(sock_num_);
-  TcpServerConnection conn(client, disconnect_data_);
+  uint8_t write_buffer[kWriteBufferSize];
+  TcpServerConnection conn(write_buffer, kWriteBufferSize, client,
+                           disconnect_data_);
   listener_.OnCanRead(conn);
   DetectListenerInitiatedDisconnect();
 }
 
 void ServerSocket::HandleCloseWait() {
   EthernetClient client(sock_num_);
-  TcpServerConnection conn(client, disconnect_data_);
+  uint8_t write_buffer[kWriteBufferSize];
+  TcpServerConnection conn(write_buffer, kWriteBufferSize, client,
+                           disconnect_data_);
   if (client.available() > 0) {
     // Still have data that we can read from the client (i.e. buffered up in the
     // network chip).
