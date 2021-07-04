@@ -77,15 +77,16 @@ size_t WriteBufferedWrappedClientConnection::read(uint8_t *buf, size_t size) {
 }
 int WriteBufferedWrappedClientConnection::peek() { return client().peek(); }
 void WriteBufferedWrappedClientConnection::flush() {
-  while (write_buffer_size_ > 0) {
+  while (write_buffer_size_ > 0 && client().connected()) {
     auto wrote = client().write(write_buffer_, write_buffer_size_);
     TAS_DCHECK_GT(wrote, 0);
     TAS_DCHECK_LE(wrote, write_buffer_size_);
-    write_buffer_size_ -= wrote;
     if (wrote <= 0) {
-      return;
+      break;
     }
+    write_buffer_size_ -= wrote;
   }
+  TAS_DCHECK_EQ(write_buffer_size_, 0);
 }
 
 }  // namespace alpaca

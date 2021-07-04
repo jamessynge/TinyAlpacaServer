@@ -32,24 +32,42 @@ TEST(LogSinkTest, InsertIntoTemporary) {
 
 TEST(CheckSinkDeathTest, CreateAndDelete) {
   PrintToStdString out;
-  EXPECT_DEATH({ CheckSink sink(out, TASLIT("prefix")); },
-               "TAS_CHECK FAILED: prefix");
+  EXPECT_DEATH(
+      { CheckSink sink(out, FLASHSTR("foo.cc"), 123, FLASHSTR("prefix1")); },
+      "TAS_CHECK FAILED: foo.cc:123] prefix1");
+}
+
+TEST(CheckSinkDeathTest, NoFileName) {
+  PrintToStdString out;
+  EXPECT_DEATH({ CheckSink sink(out, nullptr, 123, FLASHSTR("prefix2")); },
+               "TAS_CHECK FAILED: prefix2");
+}
+
+TEST(CheckSinkDeathTest, NoLineNumber) {
+  PrintToStdString out;
+  EXPECT_DEATH(
+      { CheckSink sink(out, FLASHSTR("foo.cc"), 0, FLASHSTR("prefix3")); },
+      "TAS_CHECK FAILED: foo.cc] prefix3");
 }
 
 TEST(CheckSinkDeathTest, InsertIntoNonTemporary) {
   PrintToStdString out;
   EXPECT_DEATH(
       {
-        CheckSink sink(out, TASLIT("Prefix"));
+        CheckSink sink(out, FLASHSTR("foo/bar.cc"), 234, FLASHSTR("Prefix4"));
         sink << "abc";
       },
-      "TAS_CHECK FAILED: Prefix");
+      "TAS_CHECK FAILED: bar.cc:234] Prefix4");
 }
 
 TEST(CheckSinkDeathTest, InsertIntoTemporary) {
   PrintToStdString out;
-  EXPECT_DEATH({ CheckSink(out, TASLIT("message")) << "abc"; },
-               "TAS_CHECK FAILED: message");
+  EXPECT_DEATH(
+      {
+        CheckSink(out, FLASHSTR("foo/bar/baz.h"), 321, FLASHSTR("message"))
+            << "abc";
+      },
+      "TAS_CHECK FAILED: baz.h:321] message");
 }
 
 }  // namespace

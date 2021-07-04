@@ -175,6 +175,8 @@ cc_library(
         ":platform",
         "//base:logging_extensions",
         "//core:logging",
+        "//extras/host/arduino:wstring",
+        "//extras/test_tools:print_to_std_string",
     ],
 )
 

@@ -26,12 +26,18 @@ class LogSink : public OPrintStream {
 
 class CheckSink : public OPrintStream {
  public:
-  CheckSink(Print& out, PrintableProgmemString expression_message);
-  explicit CheckSink(PrintableProgmemString expression_message);
+  CheckSink(Print& out, const __FlashStringHelper* file, uint16_t line_number,
+            const __FlashStringHelper* expression_message);
+  CheckSink(const __FlashStringHelper* file, uint16_t line_number,
+            const __FlashStringHelper* expression_message);
   ~CheckSink();
 
  private:
-  PrintableProgmemString expression_message_;
+  void Announce(Print& out) const;
+
+  const __FlashStringHelper* const file_;
+  const __FlashStringHelper* const expression_message_;
+  const uint16_t line_number_;
 };
 
 class VoidSink {

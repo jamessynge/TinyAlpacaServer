@@ -26,5 +26,6 @@ uint32_t pgm_read_dword_far(const uint32_t* ptr);
 int memcmp_P(const void* lhs, const void* rhs, size_t count);
 int strncasecmp_P(const char* s1, const char* s2, size_t n);
 void* memcpy_P(void* dest, const void* src, size_t n);
+const char* strrchr_P(const char* s, int val);
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_PGMSPACE_H_

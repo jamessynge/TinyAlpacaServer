@@ -57,6 +57,9 @@ class WrappedClientConnection : public Connection {
 // also need to implement close() and connected().
 class WriteBufferedWrappedClientConnection : public Connection {
  public:
+  WriteBufferedWrappedClientConnection(uint8_t *write_buffer,
+                                       uint8_t write_buffer_limit);
+
   size_t write(uint8_t b) override;
   size_t write(const uint8_t *buf, size_t size) override;
   int available() override;
@@ -66,11 +69,10 @@ class WriteBufferedWrappedClientConnection : public Connection {
   void flush() override;
 
  protected:
-  WriteBufferedWrappedClientConnection(uint8_t *write_buffer,
-                                       uint8_t write_buffer_limit);
-
   virtual Client &client() const = 0;
+  uint8_t write_buffer_size() const { return write_buffer_size_; }
 
+ private:
   uint8_t *const write_buffer_;
   const uint8_t write_buffer_limit_;
   uint8_t write_buffer_size_;
