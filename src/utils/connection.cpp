@@ -54,7 +54,7 @@ size_t WriteBufferedWrappedClientConnection::write(uint8_t b) {
 }
 size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
                                                    size_t size) {
-  auto room = write_buffer_limit_ - write_buffer_size_;
+  size_t room = write_buffer_limit_ - write_buffer_size_;
   if (size > room) {
     flush();
     return client().write(buf, size);

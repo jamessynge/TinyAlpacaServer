@@ -16,7 +16,7 @@ void setup() {
   while (!Serial) {
   }
 
-  // Initialize networking and the server
+  // Initialize networking and the server.
   astro_makers::setup();
 }
 

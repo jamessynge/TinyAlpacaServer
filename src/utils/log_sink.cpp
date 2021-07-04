@@ -15,9 +15,9 @@ namespace {
 // occurrence of '/'.
 const __FlashStringHelper* TrimPath(const __FlashStringHelper* file) {
   if (file != nullptr) {
-    auto* last_slash = strrchr_P(PSTR(file), '/');
+    auto* last_slash = strrchr_P(reinterpret_cast<const char*>(file), '/');
     if (last_slash != nullptr) {
-      return FLASHSTR(last_slash + 1);
+      return reinterpret_cast<decltype(file)>(last_slash + 1);
     }
   }
   return file;
