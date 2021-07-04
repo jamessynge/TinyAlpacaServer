@@ -27,7 +27,7 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
   ~TcpServerConnection() {  // NOLINT
     TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
                 << FLASHSTR(" dtor");
-    flush();
+    client_.flush();
   }
 
   void close() override {
@@ -312,6 +312,8 @@ void ServerSocket::HandleCloseWait() {
     listener_.OnCanRead(conn);
   } else {
     listener_.OnHalfClosed(conn);
+    TAS_VLOG(2) << FLASHSTR("HandleCloseWait ") << FLASHSTR("disconnected=")
+                << disconnect_data_.disconnected;
   }
   DetectListenerInitiatedDisconnect();
 }
@@ -322,6 +324,8 @@ void ServerSocket::AnnounceDisconnect() {
 }
 
 void ServerSocket::DetectListenerInitiatedDisconnect() {
+  TAS_VLOG(2) << FLASHSTR("DetectListenerInitiatedDisconnect ")
+              << FLASHSTR("disconnected=") << disconnect_data_.disconnected;
   if (disconnect_data_.disconnected) {
     auto new_status = PlatformEthernet::SocketStatus(sock_num_);
     TAS_VLOG(2) << FLASHSTR("DetectListenerInitiatedDisconnect")

@@ -58,7 +58,10 @@ CheckSink::~CheckSink() {
 #ifdef ARDUINO
   uint8_t seconds = 0;
   while (true) {
-    delay(5000L + 5000L * seconds++);
+    if (seconds < 255) {
+      ++seconds;
+    }
+    delay(10000L + 10000L * seconds);
     Announce(out_);
     out_.println();
     out_.flush();
