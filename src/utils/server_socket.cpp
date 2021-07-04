@@ -169,6 +169,7 @@ void ServerSocket::PerformIO() {
 
   if (was_open && !is_open) {
     // Connection closed without us taking action. Let the listener know.
+    TAS_VLOG(2) << FLASHSTR("was open, not now");
     AnnounceDisconnect();
     // We'll deal with the new status next time (e.g. FIN_WAIT or closing)
     return;
@@ -262,14 +263,14 @@ void ServerSocket::PerformIO() {
     case SnSR::PPPOE:
       TAS_DCHECK(false) << FLASHSTR("Socket ") << sock_num_ << BaseHex
                         << FLASHSTR(" has unexpected status ") << status
-                        << FLASHSTR(", last_status_ is ") << last_status_;
+                        << FLASHSTR(", past_status is ") << past_status;
       CloseHardwareSocket();
       break;
 
     default:
       TAS_DCHECK(false) << FLASHSTR("Socket ") << sock_num_ << BaseHex
                         << FLASHSTR(" has unsupported status ") << status
-                        << FLASHSTR(", last_status_ is ") << last_status_;
+                        << FLASHSTR(", past_status is ") << past_status;
       CloseHardwareSocket();
       break;
   }
@@ -324,7 +325,7 @@ void ServerSocket::AnnounceDisconnect() {
 }
 
 void ServerSocket::DetectListenerInitiatedDisconnect() {
-  TAS_VLOG(2) << FLASHSTR("DetectListenerInitiatedDisconnect ")
+  TAS_VLOG(9) << FLASHSTR("DetectListenerInitiatedDisconnect ")
               << FLASHSTR("disconnected=") << disconnect_data_.disconnected;
   if (disconnect_data_.disconnected) {
     auto new_status = PlatformEthernet::SocketStatus(sock_num_);
