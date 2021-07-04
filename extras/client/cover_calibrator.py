@@ -116,10 +116,10 @@ def main(argv: Sequence[str]) -> None:
   url_base = argv[0]
   device_number = int(argv[1])
 
-  client = alpaca_http_client.AlpacaClient(url_base,
-  client_id=random.randint(0,10),
-  initial_client_transaction_id=random.randint(10,20)
-  )
+  client = alpaca_http_client.AlpacaClient(
+      url_base,
+      client_id=random.randint(0, 10),
+      initial_client_transaction_id=random.randint(10, 20))
 
   print('get_apiversions', client.get_apiversions())
   print('get_description', client.get_description())
@@ -135,8 +135,7 @@ def main(argv: Sequence[str]) -> None:
   try:
     while True:
       for led_channel in range(4):
-        sweep_led_channel(led_switches, led_channel, cover_calibrator,
-                          [500])
+        sweep_led_channel(led_switches, led_channel, cover_calibrator, [500])
       # open_cover(cover_calibrator)
       # close_cover(cover_calibrator)
       # open_cover(cover_calibrator)

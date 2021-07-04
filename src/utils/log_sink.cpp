@@ -17,7 +17,7 @@ const __FlashStringHelper* TrimPath(const __FlashStringHelper* file) {
   if (file != nullptr) {
     auto* last_slash = strrchr_P(reinterpret_cast<const char*>(file), '/');
     if (last_slash != nullptr) {
-      return reinterpret_cast<decltype(file)>(last_slash + 1);
+      file = reinterpret_cast<decltype(file)>(last_slash + 1);
     }
   }
   return file;
