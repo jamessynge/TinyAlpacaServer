@@ -32,7 +32,8 @@ void ServerConnection::OnConnect(Connection& connection) {
 
 void ServerConnection::OnCanRead(Connection& connection) {
   TAS_VLOG(5) << FLASHSTR("ServerConnection @ ") << this
-              << FLASHSTR(" ->::OnCanRead socket ") << connection.sock_num();
+              << FLASHSTR(" ->::OnCanRead ") << FLASHSTR("socket ")
+              << connection.sock_num();
   TAS_DCHECK_EQ(sock_num(), connection.sock_num());
   TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
              request_decoder_.status() == RequestDecoderStatus::kDecoding);
@@ -84,7 +85,8 @@ void ServerConnection::OnCanRead(Connection& connection) {
     }
 
     TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
-                << FLASHSTR(" ->::OnCanRead status_code: ") << status_code;
+                << FLASHSTR(" ->::OnCanRead ") << FLASHSTR("status_code: ")
+                << status_code;
 
     bool close_connection = false;
     if (status_code == EHttpStatusCode::kHttpOk) {
@@ -103,6 +105,10 @@ void ServerConnection::OnCanRead(Connection& connection) {
     // If we've returned an error, then we also close the connection so that
     // we don't require finding the end of a corrupt input request.
     if (close_connection) {
+      TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
+                  << FLASHSTR(" ->::OnCanRead ")
+                  << FLASHSTR("closing connection");
+
       connection.close();
       sock_num_ = MAX_SOCK_NUM;
     } else {

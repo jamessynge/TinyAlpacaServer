@@ -323,7 +323,11 @@ void ServerSocket::AnnounceDisconnect() {
 
 void ServerSocket::DetectListenerInitiatedDisconnect() {
   if (disconnect_data_.disconnected) {
-    last_status_ = PlatformEthernet::SocketStatus(sock_num_);
+    auto new_status = PlatformEthernet::SocketStatus(sock_num_);
+    TAS_VLOG(2) << FLASHSTR("DetectListenerInitiatedDisconnect")
+                << FLASHSTR(" last_status=") << last_status_
+                << FLASHSTR(" new_status=") << new_status;
+    last_status_ = new_status;
   }
 }
 
@@ -335,11 +339,14 @@ void ServerSocket::DetectCloseTimeout() {
   if (disconnect_data_.disconnected &&
       disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
     // Time to give up.
+    TAS_VLOG(2) << FLASHSTR("DetectCloseTimeout closing socket");
     CloseHardwareSocket();
   }
 }
 
 void ServerSocket::CloseHardwareSocket() {
+  TAS_VLOG(2) << FLASHSTR("CloseHardwareSocket") << FLASHSTR(" last_status=")
+              << last_status_;
   if (PlatformEthernet::StatusIsOpen(last_status_)) {
     AnnounceDisconnect();
   }
@@ -350,6 +357,7 @@ void ServerSocket::CloseHardwareSocket() {
 
 void ServerSocket::DisconnectData::RecordDisconnect() {
   if (!disconnected) {
+    TAS_VLOG(2) << FLASHSTR("DisconnectData::RecordDisconnect");
     disconnected = true;
     disconnect_time_millis = millis();
   }
