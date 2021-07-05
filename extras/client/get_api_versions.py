@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""Makes HTTP requests to Alpaca servers, returns HTTP responses."""
+"""Makes /management/apiversions requests, prints responses."""
 
-import datetime
 import random
 import sys
-from typing import List, Sequence
+from typing import List
 
 import alpaca_http_client
 
-MOVING_SLEEP_TIME = 1
 
-
-def main(argv: Sequence[str]) -> None:
+def main(argv: List[str]) -> None:
   if len(argv) not in [1, 2]:
     raise ValueError(
         'Expects one arg, the base of the URL, '

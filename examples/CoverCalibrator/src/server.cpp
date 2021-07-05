@@ -99,6 +99,9 @@ void announceFailure(const char* message) {
 }  // namespace
 
 void setup() {
+  // *Attempt* to learn why the microcontroller started/restarted executing the
+  // sketch. To learn more, see:
+  //   https://forum.arduino.cc/t/how-to-distinguish-between-reset-and-real-power-loss/239738
   const auto mcusr = MCUSR;
   // Clear all MCUSR registers immediately for 'next use'
   MCUSR = 0;

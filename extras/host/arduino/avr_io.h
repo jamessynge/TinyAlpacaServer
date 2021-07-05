@@ -69,6 +69,13 @@ DEFINE_AVR_GPIO_PORT_REGISTERS_AND_FIELDS(E);
 DEFINE_AVR_GPIO_PORT_REGISTERS_AND_FIELDS(F);
 DEFINE_AVR_GPIO_PORT_REGISTERS_AND_FIELDS(G);
 
+AVR_IO_REGISTER_LINKAGE volatile uint8_t MCUSR;
+constexpr uint8_t JTRF = 4;
+constexpr uint8_t WDRF = 3;
+constexpr uint8_t BORF = 2;
+constexpr uint8_t EXTRF = 1;
+constexpr uint8_t PORF = 0;
+
 #define PIN_A0 (54)
 #define PIN_A1 (55)
 #define PIN_A2 (56)
@@ -101,5 +108,8 @@ DEFINE_AVR_GPIO_PORT_REGISTERS_AND_FIELDS(G);
 #define digitalPinToBitMask(p) 1
 
 #define ISR(name) void ISR_##name()
+
+// From avr-libc's include/avr/sfr_defs.h
+#define _BV(bit) (1 << (bit))
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_AVR_IO_H_

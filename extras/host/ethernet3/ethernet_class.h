@@ -30,8 +30,11 @@ class EthernetClass {
   // passed to init().
   void init(uint8_t maxSockNum = 8) {}
 
-  uint8_t softreset();  // can set only after Ethernet.begin
-  void hardreset();     // You need to set the Rst pin
+  // You need to call setCsPin first.
+  uint8_t softreset() { return 1; }
+
+  // You need to call setRstPin first.
+  void hardreset() {}
 
   void setRstPin(uint8_t pinRST) {}
   void setCsPin(uint8_t pinCS) {}

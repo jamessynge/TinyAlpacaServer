@@ -43,9 +43,17 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
                 << socket_number << FLASHSTR(", status=") << BaseHex << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
       flush();
-      disconnect_data_.RecordDisconnect();
-      PlatformEthernet::DisconnectSocket(socket_number);
+      status = PlatformEthernet::SocketStatus(socket_number);
+      if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
+        PlatformEthernet::DisconnectSocket(socket_number);
+        status = PlatformEthernet::SocketStatus(socket_number);
+      }
     }
+    // On the assumption that this is only called when there was a working
+    // connection at the start of a call to the listener (e.g. OnHalfClosed), we
+    // record this as a disconnect initiated by the listener so that we don't
+    // later notify the listener of a disconnect
+    disconnect_data_.RecordDisconnect(status);
   }
 
   bool connected() const override { return client_.connected(); }
@@ -170,7 +178,12 @@ void ServerSocket::PerformIO() {
   if (was_open && !is_open) {
     // Connection closed without us taking action. Let the listener know.
     TAS_VLOG(2) << FLASHSTR("was open, not now");
-    AnnounceDisconnect();
+    if (!disconnect_data_.disconnected) {
+      disconnect_data_.RecordDisconnect(status);
+      listener_.OnDisconnect();
+    } else {
+      TAS_VLOG(2) << FLASHSTR("Disconnect already recorded");
+    }
     // We'll deal with the new status next time (e.g. FIN_WAIT or closing)
     return;
   }
@@ -319,11 +332,6 @@ void ServerSocket::HandleCloseWait() {
   DetectListenerInitiatedDisconnect();
 }
 
-void ServerSocket::AnnounceDisconnect() {
-  disconnect_data_.RecordDisconnect();
-  listener_.OnDisconnect();
-}
-
 void ServerSocket::DetectListenerInitiatedDisconnect() {
   TAS_VLOG(9) << FLASHSTR("DetectListenerInitiatedDisconnect ")
               << FLASHSTR("disconnected=") << disconnect_data_.disconnected;
@@ -352,25 +360,24 @@ void ServerSocket::DetectCloseTimeout() {
 void ServerSocket::CloseHardwareSocket() {
   TAS_VLOG(2) << FLASHSTR("CloseHardwareSocket") << FLASHSTR(" last_status=")
               << last_status_;
-  if (PlatformEthernet::StatusIsOpen(last_status_)) {
-    AnnounceDisconnect();
-  }
   PlatformEthernet::CloseSocket(sock_num_);
   last_status_ = PlatformEthernet::SocketStatus(sock_num_);
   TAS_DCHECK_EQ(last_status_, SnSR::CLOSED);
 }
 
-void ServerSocket::DisconnectData::RecordDisconnect() {
+void ServerSocket::DisconnectData::RecordDisconnect(uint8_t new_status) {
   if (!disconnected) {
     TAS_VLOG(2) << FLASHSTR("DisconnectData::RecordDisconnect");
     disconnected = true;
     disconnect_time_millis = millis();
+    disconnect_status = new_status;
   }
 }
 
 void ServerSocket::DisconnectData::Reset() {
   disconnected = false;
   disconnect_time_millis = 0;
+  disconnect_status = 0;
 }
 
 MillisT ServerSocket::DisconnectData::ElapsedDisconnectTime() {

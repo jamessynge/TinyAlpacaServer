@@ -34,7 +34,9 @@ void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
   Ethernet.setRstPin(kW5500ResetPin);
   Ethernet.setCsPin(kW5500ChipSelectPin);
 
-
+  // If there has been a crash and restart of the ATmega, I've found that the
+  // networking seems to be broken, so doing a hard reset explicitly so that
+  // we always act more like a power-up situation.
   Ethernet.hardreset();
 
   // For now use all of the allowed sockets. Need to have at least one UDP

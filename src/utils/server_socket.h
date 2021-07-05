@@ -45,13 +45,14 @@ class ServerSocket {
   // Struct used to record whether the listener called Connection::close(), and
   // if so, when.
   struct DisconnectData {
-    void RecordDisconnect();
+    void RecordDisconnect(uint8_t new_status);
     void Reset();
     // Time since RecordDisconnect set disconnect_time_millis.
     MillisT ElapsedDisconnectTime();
 
-    bool disconnected{false};
-    MillisT disconnect_time_millis{0};
+    bool disconnected;
+    MillisT disconnect_time_millis;
+    uint8_t disconnect_status;
   };
 
   ServerSocket(uint16_t tcp_port, ServerSocketListener& listener);
@@ -96,10 +97,6 @@ class ServerSocket {
   // Give the listener a chance to write to a half-closed connection, or to read
   // from it if there is still buffered input.
   void HandleCloseWait();
-
-  // Let the listener know if the connection has been closed by an actor other
-  // than the listener (most likely the peer).
-  void AnnounceDisconnect();
 
   // If the listener called Connection::close(), we'll handle that by performing
   // a disconnect and recording the time when it started. That allows us to
