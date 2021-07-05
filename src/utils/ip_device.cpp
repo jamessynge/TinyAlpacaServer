@@ -34,6 +34,9 @@ void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
   Ethernet.setRstPin(kW5500ResetPin);
   Ethernet.setCsPin(kW5500ChipSelectPin);
 
+
+  Ethernet.hardreset();
+
   // For now use all of the allowed sockets. Need to have at least one UDP
   // socket, and maybe more; our UDP uses include DHCP lease & lease renewal,
   // the Alpaca discovery protocol, and possibly for time. Then we need at least
