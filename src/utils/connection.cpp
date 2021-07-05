@@ -62,13 +62,11 @@ size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
   // a caller. Also avoiding optimizing for long strings, just appending
   // to the write buffer multiple times if necessary, with flushes in
   // between.
+  FlushIfFull();
   size_t remaining = size;
   while (remaining > 0) {
     size_t room = write_buffer_limit_ - write_buffer_size_;
-    if (room == 0) {
-      flush();
-      room = write_buffer_limit_;
-    }
+    TAS_DCHECK_GT(room, 0);
     if (room > remaining) {
       room = remaining;
     }
@@ -76,6 +74,7 @@ size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
     write_buffer_size_ += room;
     buf += room;
     remaining -= room;
+    FlushIfFull();
   }
   return size;
 }
