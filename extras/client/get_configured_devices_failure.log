@@ -1,0 +1,203 @@
+ServerConnection @ 0x700 ->::OnConnect 1
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=189
+wrote=189
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+was open, not now
+DisconnectData::RecordDisconnect
+ServerConnection @ 0x700 ->::OnDisconnect, sock_num_=1
+CloseHardwareSocket last_status=0
+PlatformEthernet::InitializeTcpListenerSocket(1, 80) _server_port is 80
+Socket status: 0
+Listening for 80 on socket 1, last_status is 0x14
+ServerConnection @ 0x700 ->::OnConnect 1
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+was open, not now
+DisconnectData::RecordDisconnect
+ServerConnection @ 0x700 ->::OnDisconnect, sock_num_=1
+CloseHardwareSocket last_status=0
+PlatformEthernet::InitializeTcpListenerSocket(1, 80) _server_port is 80
+Socket status: 0
+Listening for 80 on socket 1, last_status is 0x14
+ServerConnection @ 0x700 ->::OnConnect 1
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+wrote=255
+write_buffer_write_buffer_size_=255
+size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=190
+wrote=190
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+Crc32::verify(15) computed value=0x66B3139D
+stored value=0x66B3139D
+MAC: 52-75-76-A7-F1-D9
+Default IP: 169.254.239.130
+
+MAC: 52-75-76-A7-F1-D9
+IP: 192.168.86.250
+Subnet: 255.255.255.0
+Gateway: 192.168.86.1
+DNS: 192.168.86.1
+
+LED #1 is enabled; digitalRead(54) -> 0
+LED #2 is enabled; digitalRead(55) -> 0
+LED #3 is enabled; digitalRead(56) -> 0
+LED #4 is enabled; digitalRead(57) -> 0
+Cover Motor is enabled; digitalRead(62) -> 0
+ServerSocketsAndConnections::Initialize
+CloseHardwareSocket last_status=0
+PlatformEthernet::InitializeTcpListenerSocket(5, 80) _server_port is 0
+Socket status: 0
+Listening for 80 on socket 5, last_status is 0x14
+CloseHardwareSocket last_status=0
+PlatformEthernet::InitializeTcpListenerSocket(6, 80) _server_port is 0
+Socket status: 0
+Listening for 80 on socket 6, last_status is 0x14
+CloseHardwareSocket last_status=0
+PlatformEthernet::InitializeTcpListenerSocket(7, 80) _server_port is 0
+Socket status: 0
+Listening for 80 on socket 7, last_status is 0x14
+Initialized 3 of 3 ServerSocketAndConnection objects
+sizeof(nullptr): 2
+sizeof(char*): 2
+sizeof(short): 2
+sizeof(int): 2
+sizeof(long): 4
+sizeof(float): 4
+sizeof(double): 4
+sizeof(&setup): 2

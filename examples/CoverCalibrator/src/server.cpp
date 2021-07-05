@@ -99,6 +99,10 @@ void announceFailure(const char* message) {
 }  // namespace
 
 void setup() {
+  const auto mcusr = MCUSR;
+  // Clear all MCUSR registers immediately for 'next use'
+  MCUSR = 0;
+
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
   Ethernet.setDhcp(&dhcp);
@@ -123,6 +127,28 @@ void setup() {
   TAS_VLOG(1) << FLASHSTR("sizeof(float): ") << sizeof(float);
   TAS_VLOG(1) << FLASHSTR("sizeof(double): ") << sizeof(double);
   TAS_VLOG(1) << FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
+
+  TAS_VLOG(1) << FLASHSTR("MCUSR: ") << alpaca::BaseHex << mcusr;
+  if (mcusr & _BV(JTRF)) {
+    // JTAG Reset
+    TAS_VLOG(1) << FLASHSTR("JTAG") << TASLIT(" reset occured");
+  }
+  if (mcusr & _BV(WDRF)) {
+    // Watchdog Reset
+    TAS_VLOG(1) << FLASHSTR("Watchdog") << TASLIT(" reset occured");
+  }
+  if (mcusr & _BV(BORF)) {
+    // Brownout Reset
+    TAS_VLOG(1) << FLASHSTR("Brownout") << TASLIT(" reset occured");
+  }
+  if (mcusr & _BV(EXTRF)) {
+    // Reset button or otherwise some software reset
+    TAS_VLOG(1) << FLASHSTR("External") << TASLIT(" reset occured");
+  }
+  if (mcusr & _BV(PORF)) {
+    // Power On Reset
+    TAS_VLOG(1) << FLASHSTR("Power-on") << TASLIT(" reset occured");
+  }
 }
 
 void loop() {

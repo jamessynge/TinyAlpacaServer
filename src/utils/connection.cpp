@@ -67,13 +67,16 @@ size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
     if (hasWriteError()) {
       return 0;
     }
-    auto wrote = client().write(buf, size);
-    if (wrote < size || !client().connected() ||
-        client().getWriteError() != 0) {
-      setWriteError(1);
-      return 0;
+    TAS_DCHECK_EQ(write_buffer_size_, 0);
+    if (size >= write_buffer_limit_) {
+      auto wrote = client().write(buf, size);
+      if (wrote < size || !client().connected() ||
+          client().getWriteError() != 0) {
+        setWriteError(1);
+        return wrote;
+      }
+      return wrote;
     }
-    return wrote;
   }
   memcpy(write_buffer_ + write_buffer_size_, buf, size);
   write_buffer_size_ += size;
@@ -94,10 +97,12 @@ size_t WriteBufferedWrappedClientConnection::read(uint8_t *buf, size_t size) {
 int WriteBufferedWrappedClientConnection::peek() { return client().peek(); }
 void WriteBufferedWrappedClientConnection::flush() {
   if (write_buffer_size_ > 0 && !hasWriteError()) {
+    TAS_VLOG(2) << FLASHSTR("write_buffer_size_=") << write_buffer_size_;
     auto cursor = write_buffer_;
     auto remaining = write_buffer_size_;
     while (true) {
       auto wrote = client().write(cursor, remaining);
+      TAS_VLOG(2) << FLASHSTR("wrote=") << wrote;
       TAS_DCHECK_LE(wrote, remaining);
       if (wrote <= 0 || !client().connected()) {
         setWriteError(1);

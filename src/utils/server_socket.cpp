@@ -27,7 +27,7 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
   ~TcpServerConnection() {  // NOLINT
     TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
                 << FLASHSTR(" dtor");
-    client_.flush();
+    flush();
   }
 
   void close() override {
@@ -268,10 +268,10 @@ void ServerSocket::PerformIO() {
       break;
 
     default:
-      TAS_DCHECK(false) << FLASHSTR("Socket ") << sock_num_ << BaseHex
-                        << FLASHSTR(" has unsupported status ") << status
-                        << FLASHSTR(", past_status is ") << past_status;
-      CloseHardwareSocket();
+      TAS_VLOG(3) << FLASHSTR("Socket ") << sock_num_ << BaseHex
+                  << FLASHSTR(" has undocumented status ") << status
+                  << FLASHSTR(", past_status is ") << past_status;
+      // CloseHardwareSocket();
       break;
   }
 }
