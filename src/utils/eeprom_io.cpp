@@ -47,11 +47,14 @@ int Crc32::put(int crcAddress) const {
 // Validate that the computed value (value_) matches the value stored
 // at the specified address.
 bool Crc32::verify(int crcAddress) const {
-  TAS_VLOG(1) << FLASHSTR("Crc32::verify(") << crcAddress
-              << FLASHSTR(") computed value=") << BaseHex << value_;
   uint32_t stored = 0;
   EEPROM.get(crcAddress, stored);
-  TAS_VLOG(1) << FLASHSTR("stored value=") << BaseHex << stored;
+  if (value_ != stored) {
+    TAS_VLOG(1) << FLASHSTR("Crc32::verify(") << crcAddress
+                << FLASHSTR(") computed value=") << BaseHex << value_
+                << FLASHSTR(", stored value=") << BaseHex << stored;
+    return false;
+  }
   return value_ == stored;
 }
 

@@ -53,7 +53,7 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
     // connection at the start of a call to the listener (e.g. OnHalfClosed), we
     // record this as a disconnect initiated by the listener so that we don't
     // later notify the listener of a disconnect
-    disconnect_data_.RecordDisconnect(status);
+    disconnect_data_.RecordDisconnect();
   }
 
   bool connected() const override { return client_.connected(); }
@@ -144,7 +144,7 @@ bool ServerSocket::BeginListening() {
 
   if (PlatformEthernet::InitializeTcpListenerSocket(sock_num_, tcp_port_)) {
     last_status_ = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(1) << FLASHSTR("Listening for ") << tcp_port_
+    TAS_VLOG(1) << FLASHSTR("Listening to port ") << tcp_port_
                 << FLASHSTR(" on socket ") << sock_num_
                 << FLASHSTR(", last_status is ") << BaseHex << last_status_;
     VERIFY_STATUS_IS(SnSR::LISTEN, last_status_);
@@ -179,7 +179,7 @@ void ServerSocket::PerformIO() {
     // Connection closed without us taking action. Let the listener know.
     TAS_VLOG(2) << FLASHSTR("was open, not now");
     if (!disconnect_data_.disconnected) {
-      disconnect_data_.RecordDisconnect(status);
+      disconnect_data_.RecordDisconnect();
       listener_.OnDisconnect();
     } else {
       TAS_VLOG(2) << FLASHSTR("Disconnect already recorded");
@@ -284,6 +284,11 @@ void ServerSocket::PerformIO() {
       TAS_VLOG(3) << FLASHSTR("Socket ") << sock_num_ << BaseHex
                   << FLASHSTR(" has undocumented status ") << status
                   << FLASHSTR(", past_status is ") << past_status;
+      // Noticed that status sometimes equals 0x11 after LISTEN, but 0x11 is
+      // not a documented value. Choosing to ignore that transition.
+      if (past_status == SnSR::LISTEN && status == 0x11) {
+        last_status_ = past_status;
+      }
       // CloseHardwareSocket();
       break;
   }
@@ -337,7 +342,7 @@ void ServerSocket::DetectListenerInitiatedDisconnect() {
               << FLASHSTR("disconnected=") << disconnect_data_.disconnected;
   if (disconnect_data_.disconnected) {
     auto new_status = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(2) << FLASHSTR("DetectListenerInitiatedDisconnect")
+    TAS_VLOG(2) << FLASHSTR("DetectListenerInitiatedDisconnect") << BaseHex
                 << FLASHSTR(" last_status=") << last_status_
                 << FLASHSTR(" new_status=") << new_status;
     last_status_ = new_status;
@@ -359,25 +364,23 @@ void ServerSocket::DetectCloseTimeout() {
 
 void ServerSocket::CloseHardwareSocket() {
   TAS_VLOG(2) << FLASHSTR("CloseHardwareSocket") << FLASHSTR(" last_status=")
-              << last_status_;
+              << BaseHex << last_status_;
   PlatformEthernet::CloseSocket(sock_num_);
   last_status_ = PlatformEthernet::SocketStatus(sock_num_);
   TAS_DCHECK_EQ(last_status_, SnSR::CLOSED);
 }
 
-void ServerSocket::DisconnectData::RecordDisconnect(uint8_t new_status) {
+void ServerSocket::DisconnectData::RecordDisconnect() {
   if (!disconnected) {
     TAS_VLOG(2) << FLASHSTR("DisconnectData::RecordDisconnect");
     disconnected = true;
     disconnect_time_millis = millis();
-    disconnect_status = new_status;
   }
 }
 
 void ServerSocket::DisconnectData::Reset() {
   disconnected = false;
   disconnect_time_millis = 0;
-  disconnect_status = 0;
 }
 
 MillisT ServerSocket::DisconnectData::ElapsedDisconnectTime() {

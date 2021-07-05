@@ -124,17 +124,13 @@ def main(argv: Sequence[str]) -> None:
       initial_client_transaction_id=random.randint(10, 20))
 
   try:
-    print('get_apiversions', client.get_apiversions())
-    print('get_description', client.get_description())
-    print('get_configureddevices', client.get_configureddevices())
-
     cover_calibrator = alpaca_http_client.CoverCalibrator(client, device_number)
     led_switches = alpaca_http_client.Switch(client, device_number)
 
-    # for led_channel in range(4):
-    #   sweep_led_channel(led_switches, led_channel, cover_calibrator, [500])
-    # return
     while True:
+      print('get_apiversions', client.get_apiversions())
+      print('get_description', client.get_description())
+      print('get_configureddevices', client.get_configureddevices())
       for led_channel in range(4):
         sweep_led_channel(led_switches, led_channel, cover_calibrator, [500])
       # open_cover(cover_calibrator)

@@ -57,29 +57,26 @@ size_t WriteBufferedWrappedClientConnection::write(uint8_t b) {
   return 1;
 }
 size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
-                                                   size_t size) {
-  if (size == 0 || hasWriteError()) {
-    return 0;
-  }
-  size_t room = write_buffer_limit_ - write_buffer_size_;
-  if (size > room) {
-    flush();
-    if (hasWriteError()) {
-      return 0;
+                                                   const size_t size) {
+  // NOTE: Avoiding checking for hasWriteError, and leaving that up to
+  // a caller. Also avoiding optimizing for long strings, just appending
+  // to the write buffer multiple times if necessary, with flushes in
+  // between.
+  size_t remaining = size;
+  while (remaining > 0) {
+    size_t room = write_buffer_limit_ - write_buffer_size_;
+    if (room == 0) {
+      flush();
+      room = write_buffer_limit_;
     }
-    TAS_DCHECK_EQ(write_buffer_size_, 0);
-    if (size >= write_buffer_limit_) {
-      auto wrote = client().write(buf, size);
-      if (wrote < size || !client().connected() ||
-          client().getWriteError() != 0) {
-        setWriteError(1);
-        return wrote;
-      }
-      return wrote;
+    if (room > remaining) {
+      room = remaining;
     }
+    memcpy(write_buffer_ + write_buffer_size_, buf, room);
+    write_buffer_size_ += room;
+    buf += room;
+    remaining -= room;
   }
-  memcpy(write_buffer_ + write_buffer_size_, buf, size);
-  write_buffer_size_ += size;
   return size;
 }
 int WriteBufferedWrappedClientConnection::available() {
@@ -96,25 +93,36 @@ size_t WriteBufferedWrappedClientConnection::read(uint8_t *buf, size_t size) {
 }
 int WriteBufferedWrappedClientConnection::peek() { return client().peek(); }
 void WriteBufferedWrappedClientConnection::flush() {
-  if (write_buffer_size_ > 0 && !hasWriteError()) {
+  if (write_buffer_size_ > 0) {
     TAS_VLOG(2) << FLASHSTR("write_buffer_size_=") << write_buffer_size_;
-    auto cursor = write_buffer_;
-    auto remaining = write_buffer_size_;
-    while (true) {
-      auto wrote = client().write(cursor, remaining);
-      TAS_VLOG(2) << FLASHSTR("wrote=") << wrote;
-      TAS_DCHECK_LE(wrote, remaining);
-      if (wrote <= 0 || !client().connected()) {
-        setWriteError(1);
-        return;
+    if (!hasWriteError()) {
+      TAS_VLOG(2) << FLASHSTR("hasWriteError=") << false;
+      auto cursor = write_buffer_;
+      auto remaining = write_buffer_size_;
+      while (true) {
+        auto wrote = client().write(cursor, remaining);
+        TAS_VLOG(2) << FLASHSTR("wrote=") << wrote;
+        TAS_DCHECK_LE(wrote, remaining);
+        if (wrote <= 0 || !client().connected()) {
+          setWriteError(1);
+          break;
+        }
+        if (wrote >= remaining) {
+          break;
+        }
+        cursor += wrote;
+        remaining -= wrote;
       }
-      if (wrote == remaining) {
-        write_buffer_size_ = 0;
-        return;
-      }
-      cursor += wrote;
-      remaining -= wrote;
+    } else {
+      TAS_VLOG(2) << FLASHSTR("hasWriteError=") << true;
     }
+    write_buffer_size_ = 0;
+    return;
+  }
+}
+void WriteBufferedWrappedClientConnection::FlushIfFull() {
+  if (write_buffer_size_ >= write_buffer_limit_) {
+    flush();
   }
 }
 

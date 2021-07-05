@@ -76,6 +76,8 @@ class WriteBufferedWrappedClientConnection : public Connection {
   uint8_t write_buffer_size() const { return write_buffer_size_; }
 
  private:
+  void FlushIfFull();
+
   uint8_t *const write_buffer_;
   const uint8_t write_buffer_limit_;
   uint8_t write_buffer_size_;

@@ -192,10 +192,6 @@ void Addresses::save() const {
   int macAddress = ip.save(ipAddress, &crc);
   int crcAddress = mac.save(macAddress, &crc);
   crc.put(crcAddress);
-  // int dataStartAddress = crcAddress + 4;
-  // int dataAddress = ip.save(dataStartAddress, &crc);
-  // dataAddress = mac.save(dataAddress, &crc);
-  // putCrc(crcAddress, crc);
 }
 
 bool Addresses::load(const OuiPrefix* oui_prefix) {

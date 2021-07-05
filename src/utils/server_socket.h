@@ -45,14 +45,13 @@ class ServerSocket {
   // Struct used to record whether the listener called Connection::close(), and
   // if so, when.
   struct DisconnectData {
-    void RecordDisconnect(uint8_t new_status);
+    void RecordDisconnect();
     void Reset();
     // Time since RecordDisconnect set disconnect_time_millis.
     MillisT ElapsedDisconnectTime();
 
     bool disconnected;
     MillisT disconnect_time_millis;
-    uint8_t disconnect_status;
   };
 
   ServerSocket(uint16_t tcp_port, ServerSocketListener& listener);

@@ -201,3 +201,32 @@ sizeof(long): 4
 sizeof(float): 4
 sizeof(double): 4
 sizeof(&setup): 2
+
+
+======================================================================
+
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=191
+wrote=191
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=191
+wrote=191
+ServerConnection @ 0x700 ->::OnCanRead status_code: HttpOk
+AlpacaDevices::HandleManagementConfiguredDevices
+write_buffer_size_=255
+wrote=255
+write_buffer_size_=191
+wrote=191
+ServerConnection @ 0x700 ->::OnHalfClosed socket 1
+TcpServerConnection::close, sock_num=1, status=0x0
+HandleCloseWait disconnected=0
+was open, not now
+DisconnectData::RecordDisconnect
+ServerConnection @ 0x700 ->::OnDisconnect, sock_num_=8
+TAS_CHECK FAILED: server_connection.cpp:138] has_socket()
+TAS_CHECK FAILED: server_connection.cpp:138] has_socket()

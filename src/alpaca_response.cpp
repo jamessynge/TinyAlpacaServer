@@ -35,6 +35,7 @@ bool WriteResponse::OkResponse(const AlpacaRequest& request,
                                EContentType content_type,
                                const Printable& content_source, Print& out,
                                bool append_http_newline) {
+  TAS_VLOG(1) << FLASHSTR("OkResponse ENTER");
   const auto eol = Literals::HttpEndOfLine();
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
@@ -44,8 +45,10 @@ bool WriteResponse::OkResponse(const AlpacaRequest& request,
   if (append_http_newline) {
     hrh.content_length += 2;
   }
+  TAS_VLOG(1) << FLASHSTR("hrh.content_length=")<<hrh.content_length;
   hrh.do_close = request.do_close;
   hrh.printTo(out);
+  TAS_VLOG(1) << FLASHSTR("request.http_method=")<<request.http_method;
   if (request.http_method != EHttpMethod::HEAD) {
     content_source.printTo(out);
     if (append_http_newline) {
