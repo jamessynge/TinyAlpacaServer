@@ -84,8 +84,16 @@ class Print {
 
   virtual void flush();
 
+  int getWriteError();
+  void clearWriteError();
+
+ protected:
+  void setWriteError(int err = 1);
+
  private:
   size_t printDouble(double value, int digits);
+
+  int write_error_;
 };
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ARDUINO_PRINT_H_

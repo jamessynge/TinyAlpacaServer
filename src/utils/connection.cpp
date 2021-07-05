@@ -20,6 +20,10 @@ size_t Connection::read(uint8_t *buf, size_t size) {
   return result;
 }
 
+bool Connection::hasWriteError() {
+  return getWriteError() != 0 || !connected();
+}
+
 size_t WrappedClientConnection::write(uint8_t b) { return client().write(b); }
 size_t WrappedClientConnection::write(const uint8_t *buf, size_t size) {
   return client().write(buf, size);
@@ -54,10 +58,22 @@ size_t WriteBufferedWrappedClientConnection::write(uint8_t b) {
 }
 size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
                                                    size_t size) {
+  if (size == 0 || hasWriteError()) {
+    return 0;
+  }
   size_t room = write_buffer_limit_ - write_buffer_size_;
   if (size > room) {
     flush();
-    return client().write(buf, size);
+    if (hasWriteError()) {
+      return 0;
+    }
+    auto wrote = client().write(buf, size);
+    if (wrote < size || !client().connected() ||
+        client().getWriteError() != 0) {
+      setWriteError(1);
+      return 0;
+    }
+    return wrote;
   }
   memcpy(write_buffer_ + write_buffer_size_, buf, size);
   write_buffer_size_ += size;
@@ -77,19 +93,24 @@ size_t WriteBufferedWrappedClientConnection::read(uint8_t *buf, size_t size) {
 }
 int WriteBufferedWrappedClientConnection::peek() { return client().peek(); }
 void WriteBufferedWrappedClientConnection::flush() {
-  while (write_buffer_size_ > 0) {
-    auto wrote = client().write(write_buffer_, write_buffer_size_);
-    if (!client().connected()) {
-      return;
+  if (write_buffer_size_ > 0 && !hasWriteError()) {
+    auto cursor = write_buffer_;
+    auto remaining = write_buffer_size_;
+    while (true) {
+      auto wrote = client().write(cursor, remaining);
+      TAS_DCHECK_LE(wrote, remaining);
+      if (wrote <= 0 || !client().connected()) {
+        setWriteError(1);
+        return;
+      }
+      if (wrote == remaining) {
+        write_buffer_size_ = 0;
+        return;
+      }
+      cursor += wrote;
+      remaining -= wrote;
     }
-    TAS_DCHECK_GT(wrote, 0);
-    TAS_DCHECK_LE(wrote, write_buffer_size_);
-    if (wrote <= 0) {
-      break;
-    }
-    write_buffer_size_ -= wrote;
   }
-  TAS_DCHECK_EQ(write_buffer_size_, 0);
 }
 
 }  // namespace alpaca

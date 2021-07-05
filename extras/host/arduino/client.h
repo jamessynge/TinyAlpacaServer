@@ -12,7 +12,6 @@ class Client : public Stream {
   virtual int connect(const char *host, uint16_t port) = 0;
   using Stream::read;
   virtual int read(uint8_t *buf, size_t size) = 0;
-  virtual void flush() = 0;
   virtual void stop() = 0;
   virtual uint8_t connected() = 0;
   virtual operator bool() = 0;  // NOLINT

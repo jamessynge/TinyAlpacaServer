@@ -172,6 +172,12 @@ size_t Print::println() { return write('\n'); }
 
 void Print::flush() {}
 
+int Print::getWriteError() { return write_error_; }
+
+void Print::clearWriteError() { setWriteError(0); }
+
+void Print::setWriteError(int err) { write_error_ = err; }
+
 size_t Print::printDouble(double value, int digits) {
   if (digits > 20) {
     digits = 20;

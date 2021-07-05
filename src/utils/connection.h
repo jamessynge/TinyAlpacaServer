@@ -33,6 +33,9 @@ class Connection : public Stream {
   // Returns the hardware socket number of this connection. This is exposed
   // primarily to support debugging.
   virtual uint8_t sock_num() const = 0;
+
+  // Returns true if there is a write error or if the connection is broken.
+  virtual bool hasWriteError();
 };
 
 // An abstract implementation of Connection that delegates to a Client instance
