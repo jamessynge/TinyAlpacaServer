@@ -66,6 +66,15 @@ cc_library(
 )
 
 cc_library(
+    name = "basename",
+    hdrs = ["basename.h"],
+    deps = [
+        ":inline_literal",
+        ":platform",
+    ],
+)
+
+cc_library(
     name = "connection",
     srcs = ["connection.cc"],
     hdrs = ["connection.h"],
@@ -184,6 +193,7 @@ cc_library(
     name = "logging",
     hdrs = ["logging.h"],
     deps = [
+        ":basename",
         ":log_sink",
         ":utils_config",
     ],

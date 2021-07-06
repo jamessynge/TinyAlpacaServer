@@ -75,6 +75,7 @@
 // TAS_DCHECK_NE, TAS_DCHECK_EQ, etc. expand to a TAS_DCHECK macro with the
 // named comparison.
 
+#include "utils/basename.h"
 #include "utils/log_sink.h"
 #include "utils/utils_config.h"
 
@@ -122,7 +123,7 @@ extern void [[TAS_VLOG_uses_THE_VOID_SINK]] SomeFuncA();
   default:                                                                   \
     (expression) ? (void)0                                                   \
                  : ::alpaca::LogSinkVoidify() &&                             \
-                       ::alpaca::CheckSink(TAS_FLASHSTR(__FILE__), __LINE__, \
+                       ::alpaca::CheckSink(TAS_BASENAME(__FILE__), __LINE__, \
                                            TAS_FLASHSTR(message))
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
@@ -162,7 +163,7 @@ extern void [[TAS_ENABLE_CHECK_is_NOT_defined]] SomeFuncB();
   default:                                                                   \
     (expression) ? (void)0                                                   \
                  : ::alpaca::LogSinkVoidify() &&                             \
-                       ::alpaca::CheckSink(TAS_FLASHSTR(__FILE__), __LINE__, \
+                       ::alpaca::CheckSink(TAS_BASENAME(__FILE__), __LINE__, \
                                            TAS_FLASHSTR(message))
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH

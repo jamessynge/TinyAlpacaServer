@@ -41,6 +41,16 @@ cc_test(
 )
 
 cc_test(
+    name = "basename_test",
+    srcs = ["basename_test.cc"],
+    deps = [
+        "//extras/test_tools:print_to_std_string",
+        "//googletest:gunit_main",
+        "//src/utils:basename",
+    ],
+)
+
+cc_test(
     name = "counting_print_test",
     srcs = ["counting_print_test.cc"],
     deps = [
