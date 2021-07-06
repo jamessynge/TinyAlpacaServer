@@ -1,9 +1,18 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_INLINE_LITERAL_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_INLINE_LITERAL_H_
 
-// Provides a macro, TASLIT(x), that expands to a Literal instance with the
-// string x as the value, which in the case of the avr-gcc compiler is stored in
-// program memory (PROGMEM) rather than RAM.
+// Provides macros for storing string literals in program memory (PROGMEM)
+// rather than RAM, when compiled with avr-gcc for the AVR line of processors.
+// The linker should be able to collapse multiple occurrences of the same string
+// literal into a single array in PROGMEM; this isn't true when using the
+// Arduino defined F(string_literal) macro, where every occurrence in a single
+// file is stored separately.
+//
+// TASLIT(string_literal) expands to a Printable instance with string_literal as
+// the value that is printed.
+//
+// TAS_FLASHSTR(string_literal) expands to a const __FlashStringHelper* pointer
+// value, just as F(string_literal) does, but without the wasted storage.
 //
 // This is based on https://github.com/irrequietus/typestring, by George
 // Makrydakis <george@irrequietus.eu>. Makrydakis's typestring.hh expands a
@@ -31,17 +40,21 @@ class ProgmemStringStorage final {
     return PrintableProgmemString(data_, sizeof...(C));
   }
 
+  static constexpr const __FlashStringHelper* FlashStringHelper() {
+    return reinterpret_cast<const __FlashStringHelper*>(data_);
+  }
+
  private:
   // NOTE: there is no trailing NUL here because we are using this to make a
   // PrintableProgmemString instance, and we know exactly the size of the
   // literal string (i.e. without the NUL), so we can pass that size to the
   // PrintableProgmemString ctor.
-  static constexpr char const data_[sizeof...(C)] AVR_PROGMEM = {C...};
+  static constexpr char const data_[sizeof...(C) + 1] AVR_PROGMEM = {C..., 0};
 };
 
 template <char... C>
 constexpr char const
-    ProgmemStringStorage<C...>::data_[sizeof...(C)] AVR_PROGMEM;
+    ProgmemStringStorage<C...>::data_[sizeof...(C) + 1] AVR_PROGMEM;
 
 // Get the Nth char from a string of length M.
 template <int N, int M>
@@ -100,5 +113,10 @@ auto typeek(ProgmemStringStorage<C...>)
   (decltype(::alpaca::progmem_data::typeek(                   \
       ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128( \
           , x)>()))::MakePrintable())
+
+#define TAS_FLASHSTR(x)                                       \
+  (decltype(::alpaca::progmem_data::typeek(                   \
+      ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128( \
+          , x)>()))::FlashStringHelper())
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_INLINE_LITERAL_H_
