@@ -1,6 +1,7 @@
 #include "extras/test_tools/json_test_utils.h"
 
 namespace alpaca {
+namespace test {
 
 void AddArrayElement(JsonArrayEncoder& encoder,
                      const JsonElementSourceFunction& func) {
@@ -50,4 +51,5 @@ size_t JsonEncodedObjectSize(const JsonPropertySourceFunction& func) {
   return JsonObjectEncoder::EncodedSize(source);
 }
 
+}  // namespace test
 }  // namespace alpaca

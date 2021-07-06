@@ -13,6 +13,7 @@
 #include "utils/status.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 using ::testing::ContainsRegex;
@@ -437,4 +438,5 @@ TEST_F(SwitchGroupTest, SetSwitchValue) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

@@ -7,6 +7,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 using progmem_data::ProgmemStringStorage;
 
@@ -39,4 +40,5 @@ TEST(InlineLiteralTest, Basic) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

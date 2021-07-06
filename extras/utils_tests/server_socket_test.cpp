@@ -9,6 +9,7 @@
 #include "utils/socket_listener.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 using ::testing::AnyNumber;
@@ -43,4 +44,5 @@ TEST_F(ServerSocketTest, FixtureTest) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

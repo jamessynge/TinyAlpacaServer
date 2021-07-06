@@ -54,6 +54,7 @@ cc_test(
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src:device_info",
+        "//src/utils:json_encoder_helpers",
     ],
 )
 
@@ -108,24 +109,15 @@ cc_test(
     ],
 )
 
-cc_library(
-    name = "request_decoder_listener_mock",
-    hdrs = ["request_decoder_listener_mock.h"],
-    deps = [
-        "//googletest:gunit_headers",
-        "//src:request_decoder_listener",
-    ],
-)
-
 cc_test(
     name = "request_decoder_test",
     timeout = "short",
     srcs = ["request_decoder_test.cc"],
     deps = [
-        ":request_decoder_listener_mock",
         "//absl/flags:flag",
         "//absl/strings",
         "//core:logging",
+        "//extras/test_tools:mock_request_decoder_listener",
         "//googletest:gunit_main",
         "//src:alpaca_request",
         "//src:constants",

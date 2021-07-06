@@ -19,6 +19,7 @@
 #include "utils/counting_print.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 class JsonEncodersTest : public testing::Test {
@@ -237,4 +238,5 @@ TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

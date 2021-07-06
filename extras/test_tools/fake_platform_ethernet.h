@@ -6,6 +6,7 @@
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
+namespace test {
 
 class FakePlatformEthernet : public PlatformEthernetInterface {
  public:
@@ -13,6 +14,7 @@ class FakePlatformEthernet : public PlatformEthernetInterface {
   struct FakeConnection {};
 };
 
+}  // namespace test
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_FAKE_PLATFORM_ETHERNET_H_

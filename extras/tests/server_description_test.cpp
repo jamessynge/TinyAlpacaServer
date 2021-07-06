@@ -20,6 +20,7 @@ constexpr alpaca::ServerDescription kServerDescription{
 };
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(ServerDescriptionTest, Output) {
@@ -34,4 +35,5 @@ TEST(ServerDescriptionTest, Output) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

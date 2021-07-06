@@ -1,8 +1,6 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_LITERAL_UTILS_H_
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_LITERAL_UTILS_H_
 
-// TODO(jamessynge): Describe why this file exists/what it provides.
-
 #include "utils/literal.h"
 
 namespace alpaca {

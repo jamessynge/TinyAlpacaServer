@@ -4,6 +4,7 @@
 #include "utils/traits/type_traits.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 struct SomeStructType {};
@@ -34,4 +35,5 @@ TEST(IsIntegralTest, IsIntegralV) {
 #endif
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

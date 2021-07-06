@@ -4,6 +4,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 constexpr double kZeroDoubles[] = {};
@@ -53,4 +54,5 @@ TEST(ArrayViewTest, MakeArrayViewFromConst) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

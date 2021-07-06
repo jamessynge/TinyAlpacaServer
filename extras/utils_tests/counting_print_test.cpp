@@ -7,6 +7,7 @@
 #include "googletest/gmock.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(CountingPrintTest, Unused) {
@@ -52,4 +53,5 @@ TEST(CountingPrintTest, Mixed) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

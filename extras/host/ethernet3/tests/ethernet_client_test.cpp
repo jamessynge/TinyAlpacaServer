@@ -5,6 +5,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(EthernetClientTest, NoFixtureTest) {
@@ -13,4 +14,5 @@ TEST(EthernetClientTest, NoFixtureTest) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

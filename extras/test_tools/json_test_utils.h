@@ -7,12 +7,14 @@
 // Author: james.synge@gmail.com
 
 #include <functional>
+#include <utility>
 
 #include "utils/any_printable.h"
 #include "utils/json_encoder.h"
 #include "utils/platform.h"
 
 namespace alpaca {
+namespace test {
 
 using JsonElementSourceFunction = std::function<void(JsonArrayEncoder&)>;
 using JsonPropertySourceFunction = std::function<void(JsonObjectEncoder&)>;
@@ -53,6 +55,7 @@ void AddObjectProperty(JsonObjectEncoder& encoder, const AnyPrintable& name,
 void JsonEncodeObject(const JsonPropertySourceFunction& func, Print& out);
 size_t JsonEncodedObjectSize(const JsonPropertySourceFunction& func);
 
+}  // namespace test
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_JSON_TEST_UTILS_H_

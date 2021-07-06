@@ -5,6 +5,7 @@
 #include "request_listener.h"
 
 namespace alpaca {
+namespace test {
 
 class MockRequestListener : public RequestListener {
  public:
@@ -18,6 +19,7 @@ class MockRequestListener : public RequestListener {
               (override));
 };
 
+}  // namespace test
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_REQUEST_LISTENER_H_

@@ -8,6 +8,7 @@
 #include "literals.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 constexpr char kEOL[] = "\r\n";
@@ -45,4 +46,5 @@ TEST(HttpResponseHeaderTest, Error) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

@@ -16,6 +16,7 @@
 #include "utils/string_view.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 using ::testing::IsEmpty;
 
@@ -226,4 +227,5 @@ TEST(LiteralTest, Inequality) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

@@ -14,6 +14,7 @@
 #include "utils/string_view.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 using ::testing::Contains;
@@ -161,4 +162,5 @@ TEST(HexEscapedTest, LiteralWithEscapes) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

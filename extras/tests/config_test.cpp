@@ -4,6 +4,8 @@
 #include "googletest/gtest.h"
 #include "utils/platform.h"
 
+namespace alpaca {
+namespace test {
 namespace {
 
 TEST(ConfigTest, LogInfo) {
@@ -34,3 +36,5 @@ TEST(ConfigTest, LogInfo) {
 }
 
 }  // namespace
+}  // namespace test
+}  // namespace alpaca

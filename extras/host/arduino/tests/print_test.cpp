@@ -13,7 +13,7 @@
 
 namespace {
 using ::alpaca::PrintToStdString;
-using ::alpaca::SamplePrintable;
+using ::alpaca::test::SamplePrintable;
 
 template <typename T, typename U = T>
 const U MaybePromote(const T value) {

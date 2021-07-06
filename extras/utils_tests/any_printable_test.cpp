@@ -7,6 +7,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 #ifdef TEST_TEMPORARY_PRINTABLE
@@ -147,4 +148,5 @@ TEST(AnyPrintableTest, ManyTypes) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

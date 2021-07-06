@@ -16,8 +16,9 @@
 #include "logging.h"
 
 namespace alpaca {
-
+namespace test {
 namespace {
+
 using ::testing::IsEmpty;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -544,4 +545,5 @@ TEST(StringViewTest, StreamOutOperatorObeysLimits) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

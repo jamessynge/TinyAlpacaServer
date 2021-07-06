@@ -14,6 +14,7 @@
 #include "utils/logging.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(MatchLiteralsTest, EHttpMethod) {
@@ -470,4 +471,5 @@ TEST(MatchLiteralsTest, EHttpHeader) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

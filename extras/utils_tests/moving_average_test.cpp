@@ -16,6 +16,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 std::unique_ptr<absl::BitGen> MakeBitGen() {
@@ -123,4 +124,5 @@ TEST(MovingAverageTest, Many) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

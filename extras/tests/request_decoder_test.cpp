@@ -17,7 +17,7 @@
 #include "absl/strings/str_join.h"
 #include "alpaca_request.h"
 #include "constants.h"
-#include "extras/tests/request_decoder_listener_mock.h"
+#include "extras/test_tools/mock_request_decoder_listener.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "logging.h"
@@ -27,7 +27,9 @@
 ABSL_DECLARE_FLAG(int, v);
 
 namespace alpaca {
+namespace test {
 namespace {
+
 constexpr const size_t kDecodeBufferSize = 40;
 
 using ::testing::EndsWith;
@@ -1531,4 +1533,5 @@ TEST(RequestDecoderTest, SwitchRequests) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

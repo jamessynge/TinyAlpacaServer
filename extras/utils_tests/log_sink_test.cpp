@@ -5,6 +5,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(LogSinkTest, CreateAndDelete) {
@@ -71,4 +72,5 @@ TEST(CheckSinkDeathTest, InsertIntoTemporary) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

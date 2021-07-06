@@ -5,6 +5,7 @@
 #include "utils/socket_listener.h"
 
 namespace alpaca {
+namespace test {
 
 class MockSocketListener : public SocketListener {
  public:
@@ -26,6 +27,7 @@ class MockServerSocketListener : public ServerSocketListener {
   MOCK_METHOD(void, OnConnect, (class alpaca::Connection &), (override));
 };
 
+}  // namespace test
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_SOCKET_LISTENER_H_

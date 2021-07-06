@@ -42,6 +42,15 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_request_decoder_listener",
+    hdrs = ["mock_request_decoder_listener.h"],
+    deps = [
+        "//googletest:gunit_headers",
+        "//src:request_decoder_listener",
+    ],
+)
+
+cc_library(
     name = "mock_request_listener",
     hdrs = ["mock_request_listener.h"],
     deps = [

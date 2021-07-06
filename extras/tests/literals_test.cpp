@@ -6,6 +6,7 @@
 #include "utils/string_view.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(LiteralsTest, Basics) {
@@ -37,4 +38,5 @@ TEST(LiteralsTest, Basics) {
 #undef TAS_DEFINE_BUILTIN_LITERAL
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

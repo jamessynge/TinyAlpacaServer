@@ -5,6 +5,7 @@
 #include "utils/string_view.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 template <typename T>
@@ -80,4 +81,5 @@ TEST(StatusOrTest, StringViewValue) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

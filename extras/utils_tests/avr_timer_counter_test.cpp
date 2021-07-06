@@ -22,6 +22,7 @@ std::ostream& operator<<(std::ostream& out, const TC16ClockAndTicks& v) {
              << ", .system_clock_cycles = " << v.ToSystemClockCycles() << "}";
 }
 
+namespace test {
 namespace {
 
 constexpr double kUnitNs = TC16ClockAndTicks::kNanoSecondsPerSystemClockCycle;
@@ -295,4 +296,5 @@ TEST(TC16ClockAndTicksTest, CountUpSystemClockCycles) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

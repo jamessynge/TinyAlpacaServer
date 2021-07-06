@@ -4,6 +4,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 using ::testing::ElementsAre;
 
@@ -51,4 +52,5 @@ TEST(ArrayTest, Size3Array) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

@@ -6,6 +6,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 template <typename T>
@@ -98,4 +99,5 @@ TEST(OPrintStreamTest, ChangeBase) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

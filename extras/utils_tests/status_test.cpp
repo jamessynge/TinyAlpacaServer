@@ -3,6 +3,7 @@
 #include "googletest/gtest.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 Status ReturnStatusWithoutMessage(uint32_t code) { return Status(code); }
@@ -60,4 +61,5 @@ TEST(StatusTest, ReturnedNotOkWithMessage) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

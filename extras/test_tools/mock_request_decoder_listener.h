@@ -9,6 +9,7 @@
 #include "request_decoder_listener.h"
 
 namespace alpaca {
+namespace test {
 
 class MockRequestDecoderListener : public RequestDecoderListener {
  public:
@@ -26,6 +27,7 @@ class MockRequestDecoderListener : public RequestDecoderListener {
               (override));
 };
 
+}  // namespace test
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TESTS_REQUEST_DECODER_LISTENER_MOCK_H_

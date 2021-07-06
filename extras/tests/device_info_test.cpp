@@ -3,20 +3,65 @@
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/json_encoder_helpers.h"
 
-// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-TAS_DEFINE_LITERAL(Dht22DeviceName, "DHT22");
-TAS_DEFINE_LITERAL(Dht22Description, "");
-TAS_DEFINE_LITERAL(ManufacturerVersion,
-                   "9099c8af5796a80137ce334713a67a718fd0cd3f");
-TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory");
+// Defining everything outside of the alpaca namespace as is expected for a real
+// device.
+
+const alpaca::Literal kActionLiterals[] = {TASLIT("ActionA"),
+                                           TASLIT("Action2")};
+const auto kSupportedActions = alpaca::LiteralArray(kActionLiterals);
+
+TAS_DEFINE_LITERAL(DeviceName, "AbcDeviceName");
+TAS_DEFINE_LITERAL(DeviceDescription, "The Device Desc.");
+TAS_DEFINE_LITERAL(DeviceUniqueId, "123456");
+TAS_DEFINE_LITERAL(GithubRepoLink,
+                   "https://github/jamessynge/TinyAlpacaServer");
+TAS_DEFINE_LITERAL(DriverVersion, "1");
+
+const alpaca::DeviceInfo kDeviceInfo{
+    .device_type = alpaca::EDeviceType::kCamera,
+    .device_number = 312,
+    .name = DeviceName(),
+    .unique_id = DeviceUniqueId(),
+    .description = DeviceDescription(),
+    .driver_info = GithubRepoLink(),
+    .driver_version = DriverVersion(),
+    .supported_actions = kSupportedActions,
+    .interface_version = 1,
+};
+
+namespace alpaca {
+namespace test {
+namespace {
+
+TEST(DeviceInfoTest, Output) {
+  PrintToStdString out;
+  JsonPropertySourceAdapter<DeviceInfo> adapter(kDeviceInfo);
+  JsonObjectEncoder::Encode(adapter, out);
+  EXPECT_EQ(out.str(), R"({"Name": "AbcDeviceName", )"
+                       R"("DeviceType": "Camera", )"
+                       R"("DeviceNumber": 312, )"
+                       R"("UniqueID": "123456"})");
+}
+
+}  // namespace
+}  // namespace test
+}  // namespace alpaca
+
+// // Define some literals, which get stored in PROGMEM (in the case of AVR
+// chips). TAS_DEFINE_LITERAL(Dht22DeviceName, "DHT22");
+// TAS_DEFINE_LITERAL(Dht22Description, "");
+// TAS_DEFINE_LITERAL(ManufacturerVersion,
+//                    "9099c8af5796a80137ce334713a67a718fd0cd3f");
+// TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory");
 
 // // For responding to /management/v1/description
 // constexpr alpaca::ServerDescription kServerDescription(ServerName(),
 //                                                        Manufacturer(),
 //                                                        ManufacturerVersion(),
 //                                                        DeviceLocation());
-// namespace alpaca {
+// namespace alpaca { namespace test {
 // namespace {
 
 // TEST(ServerDescriptionTest, Output) {

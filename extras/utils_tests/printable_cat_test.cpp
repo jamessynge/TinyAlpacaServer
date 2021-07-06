@@ -11,6 +11,7 @@
 #include "utils/string_view.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(PrintableCatTest, Strings) {
@@ -29,4 +30,5 @@ TEST(PrintableCatTest, Numbers) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

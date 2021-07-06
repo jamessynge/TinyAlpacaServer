@@ -19,6 +19,7 @@
 #include "utils/literal.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 constexpr char kEOL[] = "\r\n";
@@ -426,4 +427,5 @@ TEST(AlpacaResponseDeathTest, HttpErrorResponse_NoReasonCode) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

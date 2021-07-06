@@ -11,6 +11,7 @@
 #include "utils/json_encoder_helpers.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 using ::testing::EndsWith;
@@ -299,4 +300,5 @@ TEST_F(AlpacaDevicesDeathTest, SameDeviceTypeAndNumber) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca

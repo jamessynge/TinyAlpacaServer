@@ -9,6 +9,7 @@
 #include "googletest/gmock.h"
 
 namespace alpaca {
+namespace test {
 
 class MockSwitchGroup : public SwitchAdapter {
  public:
@@ -46,6 +47,7 @@ class MockSwitchGroup : public SwitchAdapter {
   MOCK_METHOD(class Status, SetSwitchValue, (uint16_t, double), (override));
 };
 
+}  // namespace test
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_SWITCH_GROUP_H_

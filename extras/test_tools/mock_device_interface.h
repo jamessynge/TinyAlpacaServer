@@ -5,6 +5,7 @@
 #include "googletest/gmock.h"
 
 namespace alpaca {
+namespace test {
 
 class MockDeviceInterface : public DeviceInterface {
  public:
@@ -30,6 +31,7 @@ class MockDeviceInterface : public DeviceInterface {
               (override));
 };
 
+}  // namespace test
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_DEVICE_INTERFACE_H_

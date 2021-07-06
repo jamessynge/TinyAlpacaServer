@@ -7,6 +7,7 @@
 #include "utils/any_printable.h"
 
 namespace alpaca {
+namespace test {
 namespace {
 
 TEST(JsonMethodResponseTest, AllFields) {
@@ -94,4 +95,5 @@ TEST(JsonBoolResponseTest, False) {
 }
 
 }  // namespace
+}  // namespace test
 }  // namespace alpaca
