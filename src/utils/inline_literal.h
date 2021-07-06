@@ -34,33 +34,25 @@ namespace alpaca {
 
 namespace progmem_data {
 template <char... C>
-class ProgmemStringStorage final {
- public:
+struct ProgmemStringStorage final {
   static PrintableProgmemString MakePrintable() {
-    return PrintableProgmemString(data_, sizeof...(C));
+    return PrintableProgmemString(kData, sizeof...(C));
   }
 
   static constexpr const __FlashStringHelper* FlashStringHelper() {
-    return reinterpret_cast<const __FlashStringHelper*>(data_);
+    return reinterpret_cast<const __FlashStringHelper*>(kData);
   }
 
- private:
-  // NOTE: there is no trailing NUL here because we are using this to make a
-  // PrintableProgmemString instance, and we know exactly the size of the
-  // literal string (i.e. without the NUL), so we can pass that size to the
-  // PrintableProgmemString ctor.
-  static constexpr char const data_[sizeof...(C) + 1] AVR_PROGMEM = {C..., 0};
+  // We add a trailing NUL here so that we can return kData from
+  // FlashStringHelper() above; Arduino's Print::print(const
+  // __FlashStringHelper*) needs the string to be NUL terminated so that it
+  // knows when it has found the end of the string.
+  static constexpr char const kData[sizeof...(C) + 1] AVR_PROGMEM = {C..., 0};
 };
 
 template <char... C>
 constexpr char const
-    ProgmemStringStorage<C...>::data_[sizeof...(C) + 1] AVR_PROGMEM;
-
-// Get the Nth char from a string of length M.
-template <int N, int M>
-constexpr char GetNthCharOfM(char const (&c)[M]) {
-  return c[N < M ? N : M - 1];
-}
+    ProgmemStringStorage<C...>::kData[sizeof...(C) + 1] AVR_PROGMEM;
 
 // Type deduction related templates from typestring.hh. They have the effect of
 // determining the length of the string literal by detecting the NUL that
@@ -85,10 +77,17 @@ template <char... C>
 auto typeek(ProgmemStringStorage<C...>)
     -> decltype(typoke(ProgmemStringStorage<C>()...));
 
+// Get the Nth char from a string of length M. These are used to produce the
+// parameter pack
+template <int N, int M>
+constexpr char GetNthCharOfM(char const (&c)[M]) {
+  return c[N < M ? N : M - 1];
+}
+
 }  // namespace progmem_data
 }  // namespace alpaca
 
-#define TASLIT_N_M(n, m, x) alpaca::progmem_data::GetNthCharOfM<0x##n##m>(x)
+#define TASLIT_N_M(n, m, x) ::alpaca::progmem_data::GetNthCharOfM<0x##n##m>(x)
 
 /* 2^4 = 16 */
 #define TASLIT16(n, x)                                               \
@@ -108,6 +107,20 @@ auto typeek(ProgmemStringStorage<C...>)
   TASLIT16(n##0, x), TASLIT16(n##1, x), TASLIT16(n##2, x), TASLIT16(n##3, x), \
       TASLIT16(n##4, x), TASLIT16(n##5, x), TASLIT16(n##6, x),                \
       TASLIT16(n##7, x)
+
+/* 2^8 = 256 */
+#define TASLIT256(n, x)                                                       \
+  TASLIT16(n##0, x), TASLIT16(n##1, x), TASLIT16(n##2, x), TASLIT16(n##3, x), \
+      TASLIT16(n##4, x), TASLIT16(n##5, x), TASLIT16(n##6, x),                \
+      TASLIT16(n##7, x), TASLIT16(n##8, x), TASLIT16(n##9, x),                \
+      TASLIT16(n##A, x), TASLIT16(n##B, x), TASLIT16(n##C, x),                \
+      TASLIT16(n##D, x), TASLIT16(n##E, x), TASLIT16(n##F, x)
+
+/* 2^9 = 512 */
+#define TASLIT512(n, x) TASLIT256(n##0, x), TASLIT256(n##1, x)
+
+// If your string literals have more than 127 characters (not including the
+// trailing NUL), replace TASLIT128 with TASLIT256 or TASLIT512, as necessary.
 
 #define TASLIT(x)                                             \
   (decltype(::alpaca::progmem_data::typeek(                   \
