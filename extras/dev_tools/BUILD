@@ -8,10 +8,7 @@ pytype_strict_binary(
     srcs = ["add_flashstr.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [
-        ":tokenize_cpp_lib",
-        "//third_party/py/dataclasses",
-    ],
+    deps = [":tokenize_cpp_lib"],
 )
 
 pytype_strict_binary(
@@ -19,10 +16,7 @@ pytype_strict_binary(
     srcs = ["find_non_progmem_strings.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [
-        ":tokenize_cpp_lib",
-        "//third_party/py/dataclasses",
-    ],
+    deps = [":tokenize_cpp_lib"],
 )
 
 pytype_strict_binary(
@@ -38,10 +32,7 @@ pytype_strict_binary(
     srcs = ["make_literals_inc.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [
-        ":tokenize_cpp_lib",
-        "//third_party/py/dataclasses",
-    ],
+    deps = [":tokenize_cpp_lib"],
 )
 
 pytype_strict_binary(
