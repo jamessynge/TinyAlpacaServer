@@ -152,10 +152,11 @@ void AdjustTimerPeriod(uint32_t period_ns) {
   auto initial_top = top * 32UL;
   top = min(65535UL, initial_top);
 
-  TAS_VLOG(1) << FLASHSTR("period_ns=") << period_ns
-              << FLASHSTR(", target_top=") << target_top << FLASHSTR(", top=")
-              << top << FLASHSTR(" (") << alpaca::BaseHex << top
-              << FLASHSTR("), a=") << a << FLASHSTR(", b=") << b;
+  TAS_VLOG(1) << TAS_FLASHSTR("period_ns=") << period_ns
+              << TAS_FLASHSTR(", target_top=") << target_top
+              << TAS_FLASHSTR(", top=") << top << TAS_FLASHSTR(" (")
+              << alpaca::BaseHex << top << TAS_FLASHSTR("), a=") << a
+              << TAS_FLASHSTR(", b=") << b;
   delay(20);
 
   noInterrupts();
@@ -169,7 +170,7 @@ void AdjustTimerPeriod(uint32_t period_ns) {
 void StartTimer5(uint32_t period_ns) {
   DisableTimer5();
 
-  TAS_VLOG(5) << FLASHSTR("StartTimer5(") << period_ns << FLASHSTR(")");
+  TAS_VLOG(5) << TAS_FLASHSTR("StartTimer5(") << period_ns << TAS_FLASHSTR(")");
   delay(20);
 
   AdjustTimerPeriod(period_ns);
@@ -184,19 +185,19 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
     // Disable timer 5
     DisableTimer5();
     movement_mode = kNotMoving;
-    TAS_VLOG(1) << FLASHSTR("movement_mode was ") << copy << FLASHSTR(", now ")
-                << movement_mode;
+    TAS_VLOG(1) << TAS_FLASHSTR("movement_mode was ") << copy
+                << TAS_FLASHSTR(", now ") << movement_mode;
   }
 
-  TAS_VLOG(1) << FLASHSTR("StartMoving(") << new_movement_mode << FLASHSTR(", ")
-              << limit_switch_pin << FLASHSTR(", ") << steps_per_second
-              << FLASHSTR(")");
+  TAS_VLOG(1) << TAS_FLASHSTR("StartMoving(") << new_movement_mode
+              << TAS_FLASHSTR(", ") << limit_switch_pin << TAS_FLASHSTR(", ")
+              << steps_per_second << TAS_FLASHSTR(")");
   delay(20);
 
   limit_pin = limit_switch_pin;
 
   if (digitalRead(limit_pin) == LOW) {
-    TAS_VLOG(1) << FLASHSTR("Limit switch is closed, so no need to move.");
+    TAS_VLOG(1) << TAS_FLASHSTR("Limit switch is closed, so no need to move.");
     return;
   }
 
@@ -297,12 +298,12 @@ void loop() {
       const double elapsed_s = elapsed_us / 1000000.0;
       const double steps_per_s = step_count / elapsed_s;
       const double pct_target = steps_per_s / steps_per_second * 100.0;
-      TAS_VLOG(1) << FLASHSTR("steps=") << step_count
-                  << FLASHSTR(", elapsed_us=") << elapsed_us
-                  << FLASHSTR(", elapsed_s=") << elapsed_s
-                  << FLASHSTR(", steps/s=") << steps_per_s
-                  << FLASHSTR(", % target steps/s=") << pct_target
-                  << FLASHSTR("\n");
+      TAS_VLOG(1) << TAS_FLASHSTR("steps=") << step_count
+                  << TAS_FLASHSTR(", elapsed_us=") << elapsed_us
+                  << TAS_FLASHSTR(", elapsed_s=") << elapsed_s
+                  << TAS_FLASHSTR(", steps/s=") << steps_per_s
+                  << TAS_FLASHSTR(", % target steps/s=") << pct_target
+                  << TAS_FLASHSTR("\n");
     }
     start_timer_micros = 0;
     stop_timer_micros = 0;

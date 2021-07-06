@@ -122,35 +122,35 @@ void setup() {
   announceAddresses();
   tiny_alpaca_server.Initialize();
 
-  TAS_VLOG(1) << FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
-  TAS_VLOG(1) << FLASHSTR("sizeof(char*): ") << sizeof(char*);
-  TAS_VLOG(1) << FLASHSTR("sizeof(short): ") << sizeof(short);
-  TAS_VLOG(1) << FLASHSTR("sizeof(int): ") << sizeof(int);
-  TAS_VLOG(1) << FLASHSTR("sizeof(long): ") << sizeof(long);
-  TAS_VLOG(1) << FLASHSTR("sizeof(float): ") << sizeof(float);
-  TAS_VLOG(1) << FLASHSTR("sizeof(double): ") << sizeof(double);
-  TAS_VLOG(1) << FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(char*): ") << sizeof(char*);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(short): ") << sizeof(short);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(int): ") << sizeof(int);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(long): ") << sizeof(long);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(float): ") << sizeof(float);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(double): ") << sizeof(double);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
 
-  TAS_VLOG(1) << FLASHSTR("MCUSR: ") << alpaca::BaseHex << mcusr;
+  TAS_VLOG(1) << TAS_FLASHSTR("MCUSR: ") << alpaca::BaseHex << mcusr;
   if (mcusr & _BV(JTRF)) {
     // JTAG Reset
-    TAS_VLOG(1) << FLASHSTR("JTAG") << TASLIT(" reset occured");
+    TAS_VLOG(1) << TAS_FLASHSTR("JTAG") << TASLIT(" reset occured");
   }
   if (mcusr & _BV(WDRF)) {
     // Watchdog Reset
-    TAS_VLOG(1) << FLASHSTR("Watchdog") << TASLIT(" reset occured");
+    TAS_VLOG(1) << TAS_FLASHSTR("Watchdog") << TASLIT(" reset occured");
   }
   if (mcusr & _BV(BORF)) {
     // Brownout Reset
-    TAS_VLOG(1) << FLASHSTR("Brownout") << TASLIT(" reset occured");
+    TAS_VLOG(1) << TAS_FLASHSTR("Brownout") << TASLIT(" reset occured");
   }
   if (mcusr & _BV(EXTRF)) {
     // Reset button or otherwise some software reset
-    TAS_VLOG(1) << FLASHSTR("External") << TASLIT(" reset occured");
+    TAS_VLOG(1) << TAS_FLASHSTR("External") << TASLIT(" reset occured");
   }
   if (mcusr & _BV(PORF)) {
     // Power On Reset
-    TAS_VLOG(1) << FLASHSTR("Power-on") << TASLIT(" reset occured");
+    TAS_VLOG(1) << TAS_FLASHSTR("Power-on") << TASLIT(" reset occured");
   }
 }
 

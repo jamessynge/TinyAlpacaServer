@@ -70,17 +70,17 @@ double LedChannelSwitchGroup::GetSwitchStep(uint16_t switch_id) { return 1; }
 
 Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id, bool state) {
   if (!GetCanWrite(switch_id)) {
-    TAS_VLOG(1) << FLASHSTR("Can NOT write switch #") << switch_id;
+    TAS_VLOG(1) << TAS_FLASHSTR("Can NOT write switch #") << switch_id;
     return ErrorCodes::NotImplemented();
   } else if (cover_calibrator_.SetLedChannelEnabled(switch_id, state) !=
              state) {
-    TAS_VLOG(1) << FLASHSTR("Failed to set channel ") << switch_id
-                << FLASHSTR(" to state ") << state;
-    TAS_DCHECK(false) << FLASHSTR("Failed to set channel ") << switch_id
-                      << FLASHSTR(" to state ") << state;
+    TAS_VLOG(1) << TAS_FLASHSTR("Failed to set channel ") << switch_id
+                << TAS_FLASHSTR(" to state ") << state;
+    TAS_DCHECK(false) << TAS_FLASHSTR("Failed to set channel ") << switch_id
+                      << TAS_FLASHSTR(" to state ") << state;
   } else {
-    TAS_VLOG(1) << FLASHSTR("Switch #") << switch_id << FLASHSTR(" now set to ")
-                << state;
+    TAS_VLOG(1) << TAS_FLASHSTR("Switch #") << switch_id
+                << TAS_FLASHSTR(" now set to ") << state;
   }
   return OkStatus();
 }

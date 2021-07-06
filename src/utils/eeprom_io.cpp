@@ -26,19 +26,19 @@ uint32_t GetCrcTableEntry(uint32_t key) {
 }  // namespace
 
 void Crc32::appendByte(uint8_t v) {
-  TAS_VLOG(6) << FLASHSTR("Crc32::appendByte(") << (v + 0)
-              << FLASHSTR(") old value=") << BaseHex << value_;
+  TAS_VLOG(6) << TAS_FLASHSTR("Crc32::appendByte(") << (v + 0)
+              << TAS_FLASHSTR(") old value=") << BaseHex << value_;
   value_ = GetCrcTableEntry(value_ ^ v) ^ (value_ >> 4);
   value_ = GetCrcTableEntry(value_ ^ (v >> 4)) ^ (value_ >> 4);
   value_ = ~value_;
-  TAS_VLOG(6) << FLASHSTR("new value=") << BaseHex << value_;
+  TAS_VLOG(6) << TAS_FLASHSTR("new value=") << BaseHex << value_;
 }
 
 // Store the value at the specified address.
 int Crc32::put(int crcAddress) const {
   static_assert(4 == sizeof value_, "sizeof value_ is not 4");
-  TAS_VLOG(6) << FLASHSTR("Crc32::put(") << crcAddress << FLASHSTR(") value=")
-              << BaseHex << value_;
+  TAS_VLOG(6) << TAS_FLASHSTR("Crc32::put(") << crcAddress
+              << TAS_FLASHSTR(") value=") << BaseHex << value_;
   EEPROM.put(crcAddress, value_);
   TAS_CHECK(verify(crcAddress));
   return crcAddress + static_cast<int>(sizeof value_);
@@ -50,9 +50,9 @@ bool Crc32::verify(int crcAddress) const {
   uint32_t stored = 0;
   EEPROM.get(crcAddress, stored);
   if (value_ != stored) {
-    TAS_VLOG(1) << FLASHSTR("Crc32::verify(") << crcAddress
-                << FLASHSTR(") computed value=") << BaseHex << value_
-                << FLASHSTR(", stored value=") << BaseHex << stored;
+    TAS_VLOG(1) << TAS_FLASHSTR("Crc32::verify(") << crcAddress
+                << TAS_FLASHSTR(") computed value=") << BaseHex << value_
+                << TAS_FLASHSTR(", stored value=") << BaseHex << stored;
     return false;
   }
   return value_ == stored;

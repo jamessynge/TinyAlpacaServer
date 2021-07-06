@@ -53,7 +53,7 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
       return HandleServerSetup(request, out);
   }
 
-  TAS_VLOG(5) << FLASHSTR("OnRequestDecoded: api=") << request.api;
+  TAS_VLOG(5) << TAS_FLASHSTR("OnRequestDecoded: api=") << request.api;
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError, Literals::ApiUnknown(), out);
 }
@@ -61,13 +61,13 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
 void TinyAlpacaServerBase::OnRequestDecodingError(AlpacaRequest& request,
                                                   EHttpStatusCode status,
                                                   Print& out) {
-  TAS_VLOG(3) << FLASHSTR("OnRequestDecodingError: status=") << status;
+  TAS_VLOG(3) << TAS_FLASHSTR("OnRequestDecodingError: status=") << status;
   WriteResponse::HttpErrorResponse(status, AnyPrintable(), out);
 }
 
 bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
                                                        Print& out) {
-  TAS_VLOG(3) << FLASHSTR("HandleManagementApiVersions");
+  TAS_VLOG(3) << TAS_FLASHSTR("HandleManagementApiVersions");
   uint32_t versions[] = {1};
   return WriteResponse::ArrayResponse(
       request, MakeArrayViewSource(versions, &JsonArrayEncoder::AddUIntElement),
@@ -76,14 +76,15 @@ bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
 
 bool TinyAlpacaServerBase::HandleManagementDescription(AlpacaRequest& request,
                                                        Print& out) {
-  TAS_VLOG(3) << FLASHSTR("TinyAlpacaServerBase::HandleManagementDescription");
+  TAS_VLOG(3) << TAS_FLASHSTR(
+      "TinyAlpacaServerBase::HandleManagementDescription");
   JsonPropertySourceAdapter<ServerDescription> description(server_description_);
   return WriteResponse::ObjectResponse(request, description, out);
 }
 
 bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
                                              Print& out) {
-  TAS_VLOG(3) << FLASHSTR("HandleServerSetup");
+  TAS_VLOG(3) << TAS_FLASHSTR("HandleServerSetup");
 
   auto body = TASLIT(
       "<html><body>"

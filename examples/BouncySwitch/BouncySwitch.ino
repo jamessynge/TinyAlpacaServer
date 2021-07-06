@@ -29,7 +29,7 @@ class EventInfo {
       : name_(name), pin_(pin), interrupt_(digitalPinToInterrupt(pin)) {}
 
   void Reset() {
-    TAS_VLOG(1) << FLASHSTR("\nEventInfo::Reset\n");
+    TAS_VLOG(1) << TAS_FLASHSTR("\nEventInfo::Reset\n");
 
     pinMode(pin_, INPUT);
     noInterrupts();
@@ -60,12 +60,13 @@ class EventInfo {
 
 #ifdef RECORD_RISING_AND_FALLING
     if (awaiting_falling) {
-      TAS_VLOG(1) << FLASHSTR("Awaiting ") << name_ << FLASHSTR("pin FALLING");
+      TAS_VLOG(1) << TAS_FLASHSTR("Awaiting ") << name_
+                  << TAS_FLASHSTR("pin FALLING");
     } else {
-      TAS_VLOG(1) << FLASHSTR("Awaiting pin RISING");
+      TAS_VLOG(1) << TAS_FLASHSTR("Awaiting pin RISING");
     }
 #elif defined(RECORD_CHANGE)
-    TAS_VLOG(1) << FLASHSTR("Awaiting pin CHANGE");
+    TAS_VLOG(1) << TAS_FLASHSTR("Awaiting pin CHANGE");
 #endif
   }
 
@@ -102,20 +103,21 @@ class EventInfo {
       noInterrupts();
       auto missed_count = missed_count_;
       interrupts();
-      TAS_VLOG(1) << FLASHSTR("There were ") << missed_count
-                  << FLASHSTR(" events that we didn't record.");
+      TAS_VLOG(1) << TAS_FLASHSTR("There were ") << missed_count
+                  << TAS_FLASHSTR(" events that we didn't record.");
     }
 
-    TAS_VLOG(1) << FLASHSTR("Recorded ") << count << FLASHSTR(" events.");
-    TAS_VLOG(1) << (event_is_falling_[0] ? FLASHSTR("Falling")
-                                         : FLASHSTR("Rising"))
-                << FLASHSTR(" @ micros ") << event_micros_[0];
+    TAS_VLOG(1) << TAS_FLASHSTR("Recorded ") << count
+                << TAS_FLASHSTR(" events.");
+    TAS_VLOG(1) << (event_is_falling_[0] ? TAS_FLASHSTR("Falling")
+                                         : TAS_FLASHSTR("Rising"))
+                << TAS_FLASHSTR(" @ micros ") << event_micros_[0];
     for (uint8_t ndx = 1; ndx < count; ++ndx) {
       TAS_VLOG(1) << '+' << (event_micros_[ndx] - event_micros_[ndx - 1])
-                  << FLASHSTR(" micros later was ")
-                  << (event_is_falling_[ndx] ? FLASHSTR("Falling")
-                                             : FLASHSTR("Rising"))
-                  << FLASHSTR(" @ micros ") << event_micros_[ndx];
+                  << TAS_FLASHSTR(" micros later was ")
+                  << (event_is_falling_[ndx] ? TAS_FLASHSTR("Falling")
+                                             : TAS_FLASHSTR("Rising"))
+                  << TAS_FLASHSTR(" @ micros ") << event_micros_[ndx];
     }
 
     Reset();

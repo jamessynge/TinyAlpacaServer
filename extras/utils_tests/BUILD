@@ -120,6 +120,7 @@ cc_test(
     deps = [
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
+        "//src/utils:inline_literal",
         "//src/utils:log_sink",
     ],
 )

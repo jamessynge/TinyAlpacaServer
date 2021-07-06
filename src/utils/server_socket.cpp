@@ -20,13 +20,13 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
       : WriteBufferedWrappedClientConnection(write_buffer, write_buffer_limit),
         client_(client),
         disconnect_data_(disconnect_data) {
-    TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
-                << FLASHSTR(" ctor");
+    TAS_VLOG(5) << TAS_FLASHSTR("TcpServerConnection@") << this
+                << TAS_FLASHSTR(" ctor");
     disconnect_data_.Reset();
   }
   ~TcpServerConnection() {  // NOLINT
-    TAS_VLOG(5) << FLASHSTR("TcpServerConnection@") << this
-                << FLASHSTR(" dtor");
+    TAS_VLOG(5) << TAS_FLASHSTR("TcpServerConnection@") << this
+                << TAS_FLASHSTR(" dtor");
     flush();
   }
 
@@ -39,8 +39,9 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
     // PerformIO below will complete the close at some time in the future.
     auto socket_number = sock_num();
     auto status = PlatformEthernet::SocketStatus(socket_number);
-    TAS_VLOG(2) << FLASHSTR("TcpServerConnection::close, sock_num=")
-                << socket_number << FLASHSTR(", status=") << BaseHex << status;
+    TAS_VLOG(2) << TAS_FLASHSTR("TcpServerConnection::close, sock_num=")
+                << socket_number << TAS_FLASHSTR(", status=") << BaseHex
+                << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
       flush();
       status = PlatformEthernet::SocketStatus(socket_number);
@@ -92,11 +93,11 @@ bool ServerSocket::PickClosedSocket() {
       last_status_ = PlatformEthernet::SocketStatus(sock_num_);
       return true;
     }
-    TAS_VLOG(1) << FLASHSTR("listen for ") << tcp_port_
-                << FLASHSTR(" failed with socket ") << sock_num_;
+    TAS_VLOG(1) << TAS_FLASHSTR("listen for ") << tcp_port_
+                << TAS_FLASHSTR(" failed with socket ") << sock_num_;
     sock_num_ = MAX_SOCK_NUM;
   } else {
-    TAS_VLOG(1) << FLASHSTR("No free socket for ") << tcp_port_;
+    TAS_VLOG(1) << TAS_FLASHSTR("No free socket for ") << tcp_port_;
   }
   return false;
 }
@@ -119,16 +120,17 @@ bool ServerSocket::ReleaseSocket() {
   return true;
 }
 
-#define STATUS_IS_UNEXPECTED_MESSAGE(expected_str, some_status,         \
-                                     current_status)                    \
-  BaseHex << FLASHSTR("Expected " #some_status " to be ")               \
-          << FLASHSTR(expected_str) << FLASHSTR(", but is ") << BaseHex \
-          << some_status << FLASHSTR("; current status is ") << current_status
+#define STATUS_IS_UNEXPECTED_MESSAGE(expected_str, some_status,             \
+                                     current_status)                        \
+  BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ")               \
+          << TAS_FLASHSTR(expected_str) << TAS_FLASHSTR(", but is ")        \
+          << BaseHex << some_status << TAS_FLASHSTR("; current status is ") \
+          << current_status
 
-#define VERIFY_STATUS_IS(expected_status, some_status)           \
-  TAS_DCHECK_EQ(expected_status, some_status)                    \
-      << BaseHex << FLASHSTR("Expected " #some_status " to be ") \
-      << expected_status << FLASHSTR(", but is ") << some_status
+#define VERIFY_STATUS_IS(expected_status, some_status)               \
+  TAS_DCHECK_EQ(expected_status, some_status)                        \
+      << BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ") \
+      << expected_status << TAS_FLASHSTR(", but is ") << some_status
 
 bool ServerSocket::BeginListening() {
   if (!HasSocket()) {
@@ -144,14 +146,14 @@ bool ServerSocket::BeginListening() {
 
   if (PlatformEthernet::InitializeTcpListenerSocket(sock_num_, tcp_port_)) {
     last_status_ = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(1) << FLASHSTR("Listening to port ") << tcp_port_
-                << FLASHSTR(" on socket ") << sock_num_
-                << FLASHSTR(", last_status is ") << BaseHex << last_status_;
+    TAS_VLOG(1) << TAS_FLASHSTR("Listening to port ") << tcp_port_
+                << TAS_FLASHSTR(" on socket ") << sock_num_
+                << TAS_FLASHSTR(", last_status is ") << BaseHex << last_status_;
     VERIFY_STATUS_IS(SnSR::LISTEN, last_status_);
     return true;
   }
-  TAS_VLOG(1) << FLASHSTR("listen for ") << tcp_port_
-              << FLASHSTR(" failed with socket ") << sock_num_;
+  TAS_VLOG(1) << TAS_FLASHSTR("listen for ") << tcp_port_
+              << TAS_FLASHSTR(" failed with socket ") << sock_num_;
   return false;
 }
 
@@ -177,12 +179,12 @@ void ServerSocket::PerformIO() {
 
   if (was_open && !is_open) {
     // Connection closed without us taking action. Let the listener know.
-    TAS_VLOG(2) << FLASHSTR("was open, not now");
+    TAS_VLOG(2) << TAS_FLASHSTR("was open, not now");
     if (!disconnect_data_.disconnected) {
       disconnect_data_.RecordDisconnect();
       listener_.OnDisconnect();
     } else {
-      TAS_VLOG(2) << FLASHSTR("Disconnect already recorded");
+      TAS_VLOG(2) << TAS_FLASHSTR("Disconnect already recorded");
     }
     // We'll deal with the new status next time (e.g. FIN_WAIT or closing)
     return;
@@ -213,11 +215,11 @@ void ServerSocket::PerformIO() {
     case SnSR::ESTABLISHED:
       if (!was_open) {
         VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
-            << FLASHSTR(" while handling ESTABLISHED");
+            << TAS_FLASHSTR(" while handling ESTABLISHED");
         AnnounceConnected();
       } else {
         VERIFY_STATUS_IS(SnSR::ESTABLISHED, past_status)
-            << FLASHSTR(" while handling ESTABLISHED");
+            << TAS_FLASHSTR(" while handling ESTABLISHED");
         AnnounceCanRead();
       }
       break;
@@ -225,7 +227,7 @@ void ServerSocket::PerformIO() {
     case SnSR::CLOSE_WAIT:
       if (!was_open) {
         VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
-            << FLASHSTR(" while handling CLOSE_WAIT");
+            << TAS_FLASHSTR(" while handling CLOSE_WAIT");
         AnnounceConnected();
       } else {
         TAS_DCHECK(past_status == SnSR::ESTABLISHED ||
@@ -253,7 +255,7 @@ void ServerSocket::PerformIO() {
       // This is a transient state during setup of a TCP listener, and should
       // not be visible to us because BeginListening should make calls that
       // complete the process.
-      TAS_DCHECK(false) << FLASHSTR(
+      TAS_DCHECK(false) << TAS_FLASHSTR(
                                "Socket in INIT state, incomplete LISTEN setup; "
                                "past_status is ")
                         << past_status;
@@ -274,16 +276,16 @@ void ServerSocket::PerformIO() {
     case SnSR::IPRAW:
     case SnSR::MACRAW:
     case SnSR::PPPOE:
-      TAS_DCHECK(false) << FLASHSTR("Socket ") << sock_num_ << BaseHex
-                        << FLASHSTR(" has unexpected status ") << status
-                        << FLASHSTR(", past_status is ") << past_status;
+      TAS_DCHECK(false) << TAS_FLASHSTR("Socket ") << sock_num_ << BaseHex
+                        << TAS_FLASHSTR(" has unexpected status ") << status
+                        << TAS_FLASHSTR(", past_status is ") << past_status;
       CloseHardwareSocket();
       break;
 
     default:
-      TAS_VLOG(3) << FLASHSTR("Socket ") << sock_num_ << BaseHex
-                  << FLASHSTR(" has undocumented status ") << status
-                  << FLASHSTR(", past_status is ") << past_status;
+      TAS_VLOG(3) << TAS_FLASHSTR("Socket ") << sock_num_ << BaseHex
+                  << TAS_FLASHSTR(" has undocumented status ") << status
+                  << TAS_FLASHSTR(", past_status is ") << past_status;
       // Noticed that status sometimes equals 0x11 after LISTEN, but 0x11 is
       // not a documented value. Choosing to ignore that transition.
       if (past_status == SnSR::LISTEN && status == 0x11) {
@@ -331,20 +333,21 @@ void ServerSocket::HandleCloseWait() {
     listener_.OnCanRead(conn);
   } else {
     listener_.OnHalfClosed(conn);
-    TAS_VLOG(2) << FLASHSTR("HandleCloseWait ") << FLASHSTR("disconnected=")
+    TAS_VLOG(2) << TAS_FLASHSTR("HandleCloseWait ")
+                << TAS_FLASHSTR("disconnected=")
                 << disconnect_data_.disconnected;
   }
   DetectListenerInitiatedDisconnect();
 }
 
 void ServerSocket::DetectListenerInitiatedDisconnect() {
-  TAS_VLOG(9) << FLASHSTR("DetectListenerInitiatedDisconnect ")
-              << FLASHSTR("disconnected=") << disconnect_data_.disconnected;
+  TAS_VLOG(9) << TAS_FLASHSTR("DetectListenerInitiatedDisconnect ")
+              << TAS_FLASHSTR("disconnected=") << disconnect_data_.disconnected;
   if (disconnect_data_.disconnected) {
     auto new_status = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(2) << FLASHSTR("DetectListenerInitiatedDisconnect") << BaseHex
-                << FLASHSTR(" last_status=") << last_status_
-                << FLASHSTR(" new_status=") << new_status;
+    TAS_VLOG(2) << TAS_FLASHSTR("DetectListenerInitiatedDisconnect") << BaseHex
+                << TAS_FLASHSTR(" last_status=") << last_status_
+                << TAS_FLASHSTR(" new_status=") << new_status;
     last_status_ = new_status;
   }
 }
@@ -357,14 +360,14 @@ void ServerSocket::DetectCloseTimeout() {
   if (disconnect_data_.disconnected &&
       disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
     // Time to give up.
-    TAS_VLOG(2) << FLASHSTR("DetectCloseTimeout closing socket");
+    TAS_VLOG(2) << TAS_FLASHSTR("DetectCloseTimeout closing socket");
     CloseHardwareSocket();
   }
 }
 
 void ServerSocket::CloseHardwareSocket() {
-  TAS_VLOG(2) << FLASHSTR("CloseHardwareSocket") << FLASHSTR(" last_status=")
-              << BaseHex << last_status_;
+  TAS_VLOG(2) << TAS_FLASHSTR("CloseHardwareSocket")
+              << TAS_FLASHSTR(" last_status=") << BaseHex << last_status_;
   PlatformEthernet::CloseSocket(sock_num_);
   last_status_ = PlatformEthernet::SocketStatus(sock_num_);
   TAS_DCHECK_EQ(last_status_, SnSR::CLOSED);
@@ -372,7 +375,7 @@ void ServerSocket::CloseHardwareSocket() {
 
 void ServerSocket::DisconnectData::RecordDisconnect() {
   if (!disconnected) {
-    TAS_VLOG(2) << FLASHSTR("DisconnectData::RecordDisconnect");
+    TAS_VLOG(2) << TAS_FLASHSTR("DisconnectData::RecordDisconnect");
     disconnected = true;
     disconnect_time_millis = millis();
   }

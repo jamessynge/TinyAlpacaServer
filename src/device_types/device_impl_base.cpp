@@ -21,20 +21,22 @@ class DeviceInfoHtml : public Printable {
   size_t printTo(Print& out) const override {
     CountingPrint counter(out);
     OPrintStream strm(counter);
-    strm << FLASHSTR(
+    strm << TAS_FLASHSTR(
                 "<html><body>"
                 "<h1>Tiny Alpaca Server Device Setup</h1>\n"
                 "Type: ")
-         << info_.device_type << FLASHSTR("<br>")  //
-         << FLASHSTR("Number: ") << info_.device_number << FLASHSTR("<br>")
-         << FLASHSTR("Name: ") << info_.name << FLASHSTR("<br>")
-         << FLASHSTR("Description: ") << info_.description << FLASHSTR("<br>")
-         << FLASHSTR("Unique ID: ") << info_.unique_id << FLASHSTR("<br>")
-         << FLASHSTR("Driver Info: ") << info_.driver_info << FLASHSTR("<br>")
-         << FLASHSTR("Driver Version: ") << info_.driver_version
-         << FLASHSTR("<br>") << FLASHSTR("Interface Version: ")
-         << info_.interface_version << FLASHSTR("<br>")
-         << FLASHSTR("</body></html>");
+         << info_.device_type << TAS_FLASHSTR("<br>")  //
+         << TAS_FLASHSTR("Number: ") << info_.device_number
+         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Name: ") << info_.name
+         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Description: ")
+         << info_.description << TAS_FLASHSTR("<br>")
+         << TAS_FLASHSTR("Unique ID: ") << info_.unique_id
+         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Driver Info: ")
+         << info_.driver_info << TAS_FLASHSTR("<br>")
+         << TAS_FLASHSTR("Driver Version: ") << info_.driver_version
+         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Interface Version: ")
+         << info_.interface_version << TAS_FLASHSTR("<br>")
+         << TAS_FLASHSTR("</body></html>");
     return counter.count();
   }
 

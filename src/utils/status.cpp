@@ -12,11 +12,11 @@ size_t Status::printTo(Print& out) const {
   CountingPrint counter(out);
   OPrintStream strm(counter);
   if (ok()) {
-    strm << FLASHSTR("OK");
+    strm << TAS_FLASHSTR("OK");
   } else {
-    strm << FLASHSTR("{.code=}") << code_;
+    strm << TAS_FLASHSTR("{.code=}") << code_;
     if (message_.size()) {
-      strm << FLASHSTR(", message=\"") << HexEscaped(message_) << '"';
+      strm << TAS_FLASHSTR(", message=\"") << HexEscaped(message_) << '"';
     }
     strm << '}';
   }

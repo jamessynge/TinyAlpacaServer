@@ -48,13 +48,13 @@
 // reached, regardless of whether TAS_ENABLE_CHECK is defined:
 //
 //     TAS_CHECK(InitializeHardware())
-//         << FLASHSTR("Failed to initialize hardware.");
+//         << TAS_FLASHSTR("Failed to initialize hardware.");
 //
 // This allows you to make extensive use of TAS_CHECK, yet know that the
 // compiled size of the statement will shrink to that of the expression when
 // TAS_ENABLE_CHECK is not defined.
 //
-// Note that we use the FLASHSTR macro here so that when compiling for AVR
+// Note that we use the TAS_FLASHSTR macro here so that when compiling for AVR
 // microcontrollers the string is stored only in Flash (PROGMEM), and is not
 // copied to RAM.
 //
@@ -117,13 +117,13 @@ extern void [[TAS_VLOG_uses_THE_VOID_SINK]] SomeFuncA();
 
 #ifdef TAS_ENABLE_CHECK
 
-#define TAS_CHECK_INTERNAL_(expression, message)                         \
-  switch (0)                                                             \
-  default:                                                               \
-    (expression) ? (void)0                                               \
-                 : ::alpaca::LogSinkVoidify() &&                         \
-                       ::alpaca::CheckSink(FLASHSTR(__FILE__), __LINE__, \
-                                           FLASHSTR(message))
+#define TAS_CHECK_INTERNAL_(expression, message)                             \
+  switch (0)                                                                 \
+  default:                                                                   \
+    (expression) ? (void)0                                                   \
+                 : ::alpaca::LogSinkVoidify() &&                             \
+                       ::alpaca::CheckSink(TAS_FLASHSTR(__FILE__), __LINE__, \
+                                           TAS_FLASHSTR(message))
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_ENABLE_CHECK_is_defined]] SomeFuncB();
@@ -157,13 +157,13 @@ extern void [[TAS_ENABLE_CHECK_is_NOT_defined]] SomeFuncB();
 
 #if defined(TAS_ENABLE_CHECK) && defined(TAS_ENABLE_DCHECK)
 
-#define TAS_DCHECK_INTERNAL_(expression, message)                        \
-  switch (0)                                                             \
-  default:                                                               \
-    (expression) ? (void)0                                               \
-                 : ::alpaca::LogSinkVoidify() &&                         \
-                       ::alpaca::CheckSink(FLASHSTR(__FILE__), __LINE__, \
-                                           FLASHSTR(message))
+#define TAS_DCHECK_INTERNAL_(expression, message)                            \
+  switch (0)                                                                 \
+  default:                                                                   \
+    (expression) ? (void)0                                                   \
+                 : ::alpaca::LogSinkVoidify() &&                             \
+                       ::alpaca::CheckSink(TAS_FLASHSTR(__FILE__), __LINE__, \
+                                           TAS_FLASHSTR(message))
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_ENABLE_DCHECK_is_defined]] SomeFuncC();

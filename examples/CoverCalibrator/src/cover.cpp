@@ -56,8 +56,8 @@ void ResetTimer5() {
 
 // ct represents 1/2 of the period between Timer/Counter 5 overflow interrupts.
 void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
-  TAS_VLOG(1) << FLASHSTR("StartTimer5 ct=") << ct
-              << FLASHSTR(", ct.ClockSelectBits=") << ct.ClockSelectBits();
+  TAS_VLOG(1) << TAS_FLASHSTR("StartTimer5 ct=") << ct
+              << TAS_FLASHSTR(", ct.ClockSelectBits=") << ct.ClockSelectBits();
 
   // We use Waveform Generation Mode 9, i.e. Phase and Frequency Correct PWM
   // Mode; in this mode TCNT5 is incremented by one at each clock tick until it
@@ -70,8 +70,9 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   uint8_t b = (1 << WGM53) | ct.ClockSelectBits();
   uint16_t top = ct.clock_ticks;
 
-  TAS_VLOG(1) << alpaca::BaseHex << FLASHSTR("a=") << a << FLASHSTR(", b=") << b
-              << alpaca::BaseDec << FLASHSTR(", top=") << top;
+  TAS_VLOG(1) << alpaca::BaseHex << TAS_FLASHSTR("a=") << a
+              << TAS_FLASHSTR(", b=") << b << alpaca::BaseDec
+              << TAS_FLASHSTR(", top=") << top;
 
   noInterrupts();
   OCR5A = top;
@@ -82,21 +83,21 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   bitWrite(TIFR5, TOV5, 1);
   interrupts();
 
-  TAS_VLOG(1) << alpaca::BaseHex << FLASHSTR("StartTimer5 TCCR5A: ") << TCCR5A
-              << FLASHSTR(", TCCR5B: ") << TCCR5B;
-  TAS_VLOG(1) << FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
-              << FLASHSTR(", OCR5A: ") << OCR5A << FLASHSTR(", OCR5B: ")
-              << OCR5B << FLASHSTR(", OCR5C: ") << OCR5C;
+  TAS_VLOG(1) << alpaca::BaseHex << TAS_FLASHSTR("StartTimer5 TCCR5A: ")
+              << TCCR5A << TAS_FLASHSTR(", TCCR5B: ") << TCCR5B;
+  TAS_VLOG(1) << TAS_FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
+              << TAS_FLASHSTR(", OCR5A: ") << OCR5A << TAS_FLASHSTR(", OCR5B: ")
+              << OCR5B << TAS_FLASHSTR(", OCR5C: ") << OCR5C;
 
   // If something goes wrong right away, the interrupt handler will disable the
   // counter, so log the registers again after a millisecond.
 
   delay(1);
-  TAS_VLOG(1) << alpaca::BaseHex << FLASHSTR("StartTimer5 TCCR5A: ") << TCCR5A
-              << FLASHSTR(", TCCR5B: ") << TCCR5B;
-  TAS_VLOG(1) << FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
-              << FLASHSTR(", OCR5A: ") << OCR5A << FLASHSTR(", OCR5B: ")
-              << OCR5B << FLASHSTR(", OCR5C: ") << OCR5C;
+  TAS_VLOG(1) << alpaca::BaseHex << TAS_FLASHSTR("StartTimer5 TCCR5A: ")
+              << TCCR5A << TAS_FLASHSTR(", TCCR5B: ") << TCCR5B;
+  TAS_VLOG(1) << TAS_FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
+              << TAS_FLASHSTR(", OCR5A: ") << OCR5A << TAS_FLASHSTR(", OCR5B: ")
+              << OCR5B << TAS_FLASHSTR(", OCR5C: ") << OCR5C;
 }
 
 void StartTimer5(uint16_t interrupts_per_second) {
@@ -158,8 +159,9 @@ ECoverStatus Cover::GetCoverStatus() const {
   } else if (IsOpen()) {
     return ECoverStatus::kOpen;
   } else {
-    TAS_VLOG(1) << FLASHSTR("GetCoverStatus -> Unknown; motor_status=")
-                << motor_status_ << FLASHSTR(", step_count=") << step_count_;
+    TAS_VLOG(1) << TAS_FLASHSTR("GetCoverStatus -> Unknown; motor_status=")
+                << motor_status_ << TAS_FLASHSTR(", step_count=")
+                << step_count_;
     return ECoverStatus::kUnknown;
   }
 }
@@ -241,9 +243,9 @@ void Cover::StartMoving(int direction_pin_value) {
     uint32_t step_count_copy = step_count_;
     interrupts();
 
-    TAS_VLOG(1) << FLASHSTR("StartMoving done, handler=")
-                << GetInterruptHandler() << FLASHSTR(", motor_status_=")
-                << motor_status_ << FLASHSTR(", step_count=")
+    TAS_VLOG(1) << TAS_FLASHSTR("StartMoving done, handler=")
+                << GetInterruptHandler() << TAS_FLASHSTR(", motor_status_=")
+                << motor_status_ << TAS_FLASHSTR(", step_count=")
                 << step_count_copy;
   }
 }

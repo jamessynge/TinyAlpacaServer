@@ -113,7 +113,7 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
         return WriteResponse::AscomParameterMissingErrorResponse(
             request, Literals::State(), out);
       }
-      TAS_VLOG(1) << FLASHSTR("request.state=") << request.state;
+      TAS_VLOG(1) << TAS_FLASHSTR("request.state=") << request.state;
       return WriteResponse::StatusResponse(
           request, SetSwitch(request.id, request.state), out);
 
@@ -123,7 +123,7 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
         return WriteResponse::AscomParameterMissingErrorResponse(
             request, Literals::Value(), out);
       }
-      TAS_VLOG(1) << FLASHSTR("request.value=") << request.value;
+      TAS_VLOG(1) << TAS_FLASHSTR("request.value=") << request.value;
       if (request.value < GetMinSwitchValue(request.id) ||
           GetMaxSwitchValue(request.id) < request.value) {
         return WriteResponse::AscomParameterInvalidErrorResponse(
@@ -144,7 +144,7 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
 bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
                                               Print& out, bool& handler_ret) {
   if (request.have_id) {
-    TAS_VLOG(1) << FLASHSTR("request.id=") << request.id;
+    TAS_VLOG(1) << TAS_FLASHSTR("request.id=") << request.id;
     TAS_DCHECK_LE(0, GetMaxSwitch());
     TAS_DCHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
     if (0 <= request.id && request.id < GetMaxSwitch()) {

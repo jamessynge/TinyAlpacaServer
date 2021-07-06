@@ -3,6 +3,7 @@
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/inline_literal.h"
 
 namespace alpaca {
 namespace test {
@@ -34,20 +35,25 @@ TEST(LogSinkTest, InsertIntoTemporary) {
 TEST(CheckSinkDeathTest, CreateAndDelete) {
   PrintToStdString out;
   EXPECT_DEATH(
-      { CheckSink sink(out, FLASHSTR("foo.cc"), 123, FLASHSTR("prefix1")); },
+      {
+        CheckSink sink(out, TAS_FLASHSTR("foo.cc"), 123,
+                       TAS_FLASHSTR("prefix1"));
+      },
       "TAS_CHECK FAILED: foo.cc:123] prefix1");
 }
 
 TEST(CheckSinkDeathTest, NoFileName) {
   PrintToStdString out;
-  EXPECT_DEATH({ CheckSink sink(out, nullptr, 123, FLASHSTR("prefix2")); },
+  EXPECT_DEATH({ CheckSink sink(out, nullptr, 123, TAS_FLASHSTR("prefix2")); },
                "TAS_CHECK FAILED: prefix2");
 }
 
 TEST(CheckSinkDeathTest, NoLineNumber) {
   PrintToStdString out;
   EXPECT_DEATH(
-      { CheckSink sink(out, FLASHSTR("foo.cc"), 0, FLASHSTR("prefix3")); },
+      {
+        CheckSink sink(out, TAS_FLASHSTR("foo.cc"), 0, TAS_FLASHSTR("prefix3"));
+      },
       "TAS_CHECK FAILED: foo.cc] prefix3");
 }
 
@@ -55,7 +61,8 @@ TEST(CheckSinkDeathTest, InsertIntoNonTemporary) {
   PrintToStdString out;
   EXPECT_DEATH(
       {
-        CheckSink sink(out, FLASHSTR("foo/bar.cc"), 234, FLASHSTR("Prefix4"));
+        CheckSink sink(out, TAS_FLASHSTR("foo/bar.cc"), 234,
+                       TAS_FLASHSTR("Prefix4"));
         sink << "abc";
       },
       "TAS_CHECK FAILED: bar.cc:234] Prefix4");
@@ -65,7 +72,8 @@ TEST(CheckSinkDeathTest, InsertIntoTemporary) {
   PrintToStdString out;
   EXPECT_DEATH(
       {
-        CheckSink(out, FLASHSTR("foo/bar/baz.h"), 321, FLASHSTR("message"))
+        CheckSink(out, TAS_FLASHSTR("foo/bar/baz.h"), 321,
+                  TAS_FLASHSTR("message"))
             << "abc";
       },
       "TAS_CHECK FAILED: baz.h:321] message");

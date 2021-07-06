@@ -17,12 +17,13 @@ ServerConnection::ServerConnection(RequestListener& request_listener)
     : request_listener_(request_listener),
       request_decoder_(request_),
       sock_num_(MAX_SOCK_NUM) {
-  TAS_VLOG(4) << FLASHSTR("ServerConnection @ ") << this << FLASHSTR(" ctor");
+  TAS_VLOG(4) << TAS_FLASHSTR("ServerConnection @ ") << this
+              << TAS_FLASHSTR(" ctor");
 }
 
 void ServerConnection::OnConnect(Connection& connection) {
-  TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
-              << FLASHSTR(" ->::OnConnect ") << connection.sock_num();
+  TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
+              << TAS_FLASHSTR(" ->::OnConnect ") << connection.sock_num();
   TAS_DCHECK(!has_socket());
   sock_num_ = connection.sock_num();
   request_decoder_.Reset();
@@ -31,8 +32,8 @@ void ServerConnection::OnConnect(Connection& connection) {
 }
 
 void ServerConnection::OnCanRead(Connection& connection) {
-  TAS_VLOG(5) << FLASHSTR("ServerConnection @ ") << this
-              << FLASHSTR(" ->::OnCanRead ") << FLASHSTR("socket ")
+  TAS_VLOG(5) << TAS_FLASHSTR("ServerConnection @ ") << this
+              << TAS_FLASHSTR(" ->::OnCanRead ") << TAS_FLASHSTR("socket ")
               << connection.sock_num();
   TAS_DCHECK_EQ(sock_num(), connection.sock_num());
   TAS_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
@@ -84,9 +85,9 @@ void ServerConnection::OnCanRead(Connection& connection) {
       return;
     }
 
-    TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
-                << FLASHSTR(" ->::OnCanRead ") << FLASHSTR("status_code: ")
-                << status_code;
+    TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
+                << TAS_FLASHSTR(" ->::OnCanRead ")
+                << TAS_FLASHSTR("status_code: ") << status_code;
 
     bool close_connection = false;
     if (status_code == EHttpStatusCode::kHttpOk) {
@@ -105,9 +106,9 @@ void ServerConnection::OnCanRead(Connection& connection) {
     // If we've returned an error, then we also close the connection so that
     // we don't require finding the end of a corrupt input request.
     if (close_connection) {
-      TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
-                  << FLASHSTR(" ->::OnCanRead ")
-                  << FLASHSTR("closing connection");
+      TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
+                  << TAS_FLASHSTR(" ->::OnCanRead ")
+                  << TAS_FLASHSTR("closing connection");
 
       connection.close();
       sock_num_ = MAX_SOCK_NUM;
@@ -119,8 +120,9 @@ void ServerConnection::OnCanRead(Connection& connection) {
 }
 
 void ServerConnection::OnHalfClosed(Connection& connection) {
-  TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
-              << FLASHSTR(" ->::OnHalfClosed socket ") << connection.sock_num();
+  TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
+              << TAS_FLASHSTR(" ->::OnHalfClosed socket ")
+              << connection.sock_num();
   TAS_DCHECK_EQ(sock_num(), connection.sock_num());
 
   if (!between_requests_) {
@@ -133,8 +135,8 @@ void ServerConnection::OnHalfClosed(Connection& connection) {
 }
 
 void ServerConnection::OnDisconnect() {
-  TAS_VLOG(2) << FLASHSTR("ServerConnection @ ") << this
-              << FLASHSTR(" ->::OnDisconnect, sock_num_=") << sock_num_;
+  TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
+              << TAS_FLASHSTR(" ->::OnDisconnect, sock_num_=") << sock_num_;
   TAS_DCHECK(has_socket());
   sock_num_ = MAX_SOCK_NUM;
 }

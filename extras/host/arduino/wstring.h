@@ -12,7 +12,7 @@ class __FlashStringHelper;
 
 // It turns out that absl/meta/type_traits.h uses the symbol F in a template
 // definition, and the arduino definition interferes. Commenting out here; see
-// FLASHSTR in platform.h for an alternative solution.
+// TAS_FLASHSTR in platform.h for an alternative solution.
 //
 // #define F(string_literal) \
 //   (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))

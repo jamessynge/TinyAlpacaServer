@@ -34,47 +34,47 @@ void setup() {  // NOLINT
   Serial.println('p');
 
 #ifdef TAS_LOG_EXPERIMENT_DO_LOG
-  TAS_VLOG(1) << FLASHSTR("Serial is ready");
+  TAS_VLOG(1) << TAS_FLASHSTR("Serial is ready");
 
   if (true)
-    TAS_VLOG(1) << FLASHSTR("TAS_VLOG in if branch");
+    TAS_VLOG(1) << TAS_FLASHSTR("TAS_VLOG in if branch");
   else {  // NOLINT: Checking the if behavior.
-    TAS_VLOG(1) << FLASHSTR("TAS_VLOG should NOT be reached");
+    TAS_VLOG(1) << TAS_FLASHSTR("TAS_VLOG should NOT be reached");
   }
 
   if (false) {
   } else  // NOLINT: Checking the else behavior.
-    TAS_VLOG(1) << FLASHSTR("TAS_VLOG in else branch");
+    TAS_VLOG(1) << TAS_FLASHSTR("TAS_VLOG in else branch");
 
-  TAS_VLOG(99) << FLASHSTR("TAS_VLOG(99) should be disabled");
+  TAS_VLOG(99) << TAS_FLASHSTR("TAS_VLOG(99) should be disabled");
 #endif
 
 #ifdef TAS_LOG_EXPERIMENT_DO_CHECK
-  TAS_CHECK(true) << FLASHSTR("TAS_CHECK should NOT fail");
+  TAS_CHECK(true) << TAS_FLASHSTR("TAS_CHECK should NOT fail");
 
   if (true)
-    TAS_CHECK(true) << FLASHSTR("TAS_CHECK should NOT fail");
+    TAS_CHECK(true) << TAS_FLASHSTR("TAS_CHECK should NOT fail");
   else if (false)
-    TAS_CHECK(false) << FLASHSTR("TAS_CHECK should NOT be reached.");
+    TAS_CHECK(false) << TAS_FLASHSTR("TAS_CHECK should NOT be reached.");
 
   if (false) {
-    TAS_CHECK(false) << FLASHSTR("TAS_CHECK should NOT be reached.");
+    TAS_CHECK(false) << TAS_FLASHSTR("TAS_CHECK should NOT be reached.");
   } else  // NOLINT: Checking the else behavior.
-    TAS_CHECK(true) << FLASHSTR("TAS_CHECK should NOT fail");
+    TAS_CHECK(true) << TAS_FLASHSTR("TAS_CHECK should NOT fail");
 #endif
 
 #ifdef TAS_LOG_EXPERIMENT_DO_DCHECK
-  TAS_DCHECK(true) << FLASHSTR("TAS_DCHECK should NOT fail");
+  TAS_DCHECK(true) << TAS_FLASHSTR("TAS_DCHECK should NOT fail");
 
   if (true)
-    TAS_DCHECK(true) << FLASHSTR("TAS_DCHECK should NOT fail");
+    TAS_DCHECK(true) << TAS_FLASHSTR("TAS_DCHECK should NOT fail");
   else if (false)
-    TAS_DCHECK(false) << FLASHSTR("TAS_DCHECK should NOT be reached.");
+    TAS_DCHECK(false) << TAS_FLASHSTR("TAS_DCHECK should NOT be reached.");
 
   if (false) {
-    TAS_DCHECK(false) << FLASHSTR("TAS_DCHECK should NOT be reached.");
+    TAS_DCHECK(false) << TAS_FLASHSTR("TAS_DCHECK should NOT be reached.");
   } else  // NOLINT: Checking the else behavior.
-    TAS_DCHECK(true) << FLASHSTR("TAS_DCHECK should NOT fail");
+    TAS_DCHECK(true) << TAS_FLASHSTR("TAS_DCHECK should NOT fail");
 #endif
 
   // Using char's to avoid having a string copied from PROGMEM to RAM.

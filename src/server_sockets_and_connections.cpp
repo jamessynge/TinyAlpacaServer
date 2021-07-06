@@ -16,24 +16,25 @@ ServerSocketsAndConnections::ServerSocketsAndConnections(
 }
 
 bool ServerSocketsAndConnections::Initialize() {
-  TAS_VLOG(2) << FLASHSTR("ServerSocketsAndConnections::Initialize");
+  TAS_VLOG(2) << TAS_FLASHSTR("ServerSocketsAndConnections::Initialize");
   uint8_t count = 0;
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
     if (GetServerSocketAndConnection(ndx)->Initialize()) {
       ++count;
     }
   }
-  TAS_VLOG(2) << FLASHSTR("Initialized ") << count << FLASHSTR(" of ")
-              << kNumSockets << FLASHSTR(" ServerSocketAndConnection objects");
+  TAS_VLOG(2) << TAS_FLASHSTR("Initialized ") << count << TAS_FLASHSTR(" of ")
+              << kNumSockets
+              << TAS_FLASHSTR(" ServerSocketAndConnection objects");
   return count != kNumSockets;
 }
 
 void ServerSocketsAndConnections::PerformIO() {
-  TAS_VLOG(6) << FLASHSTR("ServerSocketsAndConnections::PerformIO entry");
+  TAS_VLOG(6) << TAS_FLASHSTR("ServerSocketsAndConnections::PerformIO entry");
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
     GetServerSocketAndConnection(ndx)->PerformIO();
   }
-  TAS_VLOG(6) << FLASHSTR("ServerSocketsAndConnections::PerformIO exit");
+  TAS_VLOG(6) << TAS_FLASHSTR("ServerSocketsAndConnections::PerformIO exit");
 }
 
 ServerSocketAndConnection*
