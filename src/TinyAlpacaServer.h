@@ -27,6 +27,7 @@
 #include "device_types/switch/multi_switch_adapter.h"  // IWYU pragma: export
 #include "device_types/switch/switch_adapter.h"        // IWYU pragma: export
 #include "device_types/switch/switch_interface.h"      // IWYU pragma: export
+#include "device_types/switch/toggle_switch_base.h"    // IWYU pragma: export
 #include "extra_parameters.h"                          // IWYU pragma: export
 #include "http_response_header.h"                      // IWYU pragma: export
 #include "json_response.h"                             // IWYU pragma: export
@@ -45,6 +46,7 @@
 #include "utils/array.h"                               // IWYU pragma: export
 #include "utils/array_view.h"                          // IWYU pragma: export
 #include "utils/avr_timer_counter.h"                   // IWYU pragma: export
+#include "utils/basename.h"                            // IWYU pragma: export
 #include "utils/connection.h"                          // IWYU pragma: export
 #include "utils/counting_print.h"                      // IWYU pragma: export
 #include "utils/eeprom_io.h"                           // IWYU pragma: export
