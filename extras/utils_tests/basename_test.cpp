@@ -47,36 +47,16 @@ using ::alpaca::tas_basename::BasenameStorage;
 
 TEST(BasenameStorageTest, RawProgmemString) {
   using Hello = BasenameStorage<'h', 'e', 'l', 'l', 'o'>;
-  {
-    auto printable = Hello::MakePrintable();
-    EXPECT_EQ(printable.size(), 5);
-
-    PrintToStdString out;
-    EXPECT_EQ(printable.printTo(out), 5);
-    EXPECT_EQ(out.str(), "hello");
-  }
-  {
-    PrintToStdString out;
-    EXPECT_EQ(out.print(Hello::FlashStringHelper()), 5);
-    EXPECT_EQ(out.str(), "hello");
-  }
+  PrintToStdString out;
+  EXPECT_EQ(out.print(Hello::FlashStringHelper()), 5);
+  EXPECT_EQ(out.str(), "hello");
 }
 
 TEST(BasenameStorageTest, TASLIT16_String) {
   using Hello = BasenameStorage<TASLIT16(, "Hello!")>;
-  {
-    auto printable = Hello::MakePrintable();
-    EXPECT_EQ(printable.size(), 16);
-
-    PrintToStdString out;
-    EXPECT_EQ(printable.printTo(out), 16);
-    EXPECT_EQ(out.str(), std::string_view("Hello!\0\0\0\0\0\0\0\0\0\0", 16));
-  }
-  {
-    PrintToStdString out;
-    EXPECT_EQ(out.print(Hello::FlashStringHelper()), 6);
-    EXPECT_EQ(out.str(), "Hello!");
-  }
+  PrintToStdString out;
+  EXPECT_EQ(out.print(Hello::FlashStringHelper()), 6);
+  EXPECT_EQ(out.str(), "Hello!");
 }
 }  // namespace
 }  // namespace test

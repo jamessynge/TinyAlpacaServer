@@ -22,6 +22,8 @@
 // This is based on inline_literal.h in the same directory as this header, which
 // in turn is based on https://github.com/irrequietus/typestring, by George
 // Makrydakis <george@irrequietus.eu>.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/inline_literal.h"
 #include "utils/platform.h"
@@ -31,10 +33,6 @@ namespace tas_basename {
 
 template <char... C>
 struct BasenameStorage final {
-  static PrintableProgmemString MakePrintable() {
-    return PrintableProgmemString(kData, sizeof...(C));
-  }
-
   static constexpr const __FlashStringHelper* FlashStringHelper() {
     return reinterpret_cast<const __FlashStringHelper*>(kData);
   }
@@ -49,30 +47,34 @@ struct BasenameStorage final {
 template <char... C>
 constexpr char const BasenameStorage<C...>::kData[sizeof...(C) + 1] AVR_PROGMEM;
 
-// Type deduction related templates from typestring.hh. They have the effect of
-// determining the length of the string literal by detecting the NUL that
-// terminates the literal. This means that they would not work with a literal
-// that has an embedded NUL in it.
-
+// When basename_only has a single parameter, the return type has the same type
+// as that parameter.
 template <char... X>
 auto basename_only(BasenameStorage<X...>)  // as is...
     -> BasenameStorage<X...>;
 
-template <char... X, char... Y>
-auto basename_only(BasenameStorage<X...>, BasenameStorage<'\0'>,
-                   BasenameStorage<Y>...) -> BasenameStorage<X...>;
-
+// Keep only the characters after the slash.
 template <char... X, char... Y>
 auto basename_only(BasenameStorage<X...>, BasenameStorage<'/'>,
                    BasenameStorage<Y>...)
     -> decltype(basename_only(BasenameStorage<Y>()...));
 
+// Keep only the characters before the NUL.
+template <char... X, char... Y>
+auto basename_only(BasenameStorage<X...>, BasenameStorage<'\0'>,
+                   BasenameStorage<Y>...) -> BasenameStorage<X...>;
+
+// For any other character A, append it to the template parameter pack X, then
+// consider what to do with the characters following A.
 template <char A, char... X, char... Y>
 auto basename_only(BasenameStorage<X...>, BasenameStorage<A>,
                    BasenameStorage<Y>...)
     -> decltype(basename_only(BasenameStorage<X..., A>(),
                               BasenameStorage<Y>()...));
 
+// repack_basename is the "entry point"; it is used to split the output of
+// TASLITnnn into nnn separate chars, and to then use basename_only to find the
+// rightmost '/' and the leftmost NUL.
 template <char... C>
 auto repack_basename(BasenameStorage<C...>)
     -> decltype(basename_only(BasenameStorage<C>()...));
@@ -80,11 +82,33 @@ auto repack_basename(BasenameStorage<C...>)
 }  // namespace tas_basename
 }  // namespace alpaca
 
-// If your paths are longer than 255 characters, change TASLIT256 below to
-// TASLIT512 (or even add TASLIT1024, if necessary).
-#define TAS_BASENAME_TYPE(path_literal)             \
-  decltype(::alpaca::tas_basename::repack_basename( \
-      ::alpaca::tas_basename::BasenameStorage<TASLIT16(, path_literal)>()))
+// If your paths are longer than 127 characters, change TASLIT128 below to
+// TASLIT256, TASLIT512 or even add TASLIT1024, if necessary.
+//
+// NOTE: This is horribly slow when compiled with avr-gcc and TASLIT256. To
+// avoid this, the macro TAS_BASENAME_LITnnn is defined differently for AVR and
+// non-AVR. The longest path I've seen on my laptop is around 120 characters, so
+// I'm risking using TASLIT128.
+//
+// TODO(jamessynge): Come up with a way to speed this up, such as a recursive,
+// divide-and-conquer strategy, which should result in lots of the same type
+// being evaluated, rather than lots of unique types.
+//
+// TODO(jamessynge): Come up with a way to generate a static_assert or
+// substitution failure in the event that the path_literal is longer than the
+// TASLITnnn allows for. For example, a template function whose return type is a
+// class template with a value that is the length of the path_literal.
+
+#ifdef ARDUINO
+#define TAS_BASENAME_LITnnn(n, x) TASLIT128(n, x)
+#else
+#define TAS_BASENAME_LITnnn(n, x) TASLIT256(n, x)
+#endif
+
+#define TAS_BASENAME_TYPE(path_literal)                            \
+  decltype(::alpaca::tas_basename::repack_basename(                \
+      ::alpaca::tas_basename::BasenameStorage<TAS_BASENAME_LITnnn( \
+          , path_literal)>()))
 
 #define TAS_BASENAME(path_literal) \
   (TAS_BASENAME_TYPE(path_literal)::FlashStringHelper())
