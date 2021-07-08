@@ -228,9 +228,9 @@ void Addresses::println(const char* prefix) const {
 
 size_t Addresses::printTo(Print& p) const {
   size_t result = p.print(kName);
-  result += p.print(TASLIT(": MAC="));
+  result += p.print(TAS_FLASHSTR(": MAC="));
   result += p.print(mac);
-  result += p.print(TASLIT(", IP="));
+  result += p.print(TAS_FLASHSTR(", IP="));
   result += p.print(ip);
   return result;
 }

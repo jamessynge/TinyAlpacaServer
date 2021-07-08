@@ -38,7 +38,7 @@ enum class ClockPrescaling : uint8_t {
 };
 
 size_t PrintValueTo(ClockPrescaling v, Print& out);
-PrintableProgmemString ToPrintableProgmemString(ClockPrescaling v);
+const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v);
 
 enum class FastPwmCompareOutputMode : uint8_t {
   kDisabled = 0b00,
@@ -47,7 +47,7 @@ enum class FastPwmCompareOutputMode : uint8_t {
 };
 
 size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out);
-PrintableProgmemString ToPrintableProgmemString(FastPwmCompareOutputMode v);
+const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v);
 
 enum class TimerCounterChannel {
   A,
@@ -56,7 +56,7 @@ enum class TimerCounterChannel {
 };
 
 size_t PrintValueTo(TimerCounterChannel v, Print& out);
-PrintableProgmemString ToPrintableProgmemString(TimerCounterChannel v);
+const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v);
 
 ////////////////////////////////////////////////////////////////////////////////
 

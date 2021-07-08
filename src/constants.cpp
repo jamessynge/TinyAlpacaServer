@@ -8,449 +8,449 @@
 namespace alpaca {
 
 size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("RequestDecoderStatus"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("RequestDecoderStatus"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpStatusCode v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EHttpStatusCode"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpStatusCode"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpMethod v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EHttpMethod"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpMethod"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EApiGroup v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EApiGroup"), static_cast<uint32_t>(v),
-                                 out);
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EApiGroup"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EAlpacaApi v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EAlpacaApi"), static_cast<uint32_t>(v),
-                                 out);
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EAlpacaApi"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EManagementMethod v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EManagementMethod"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EManagementMethod"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceType v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EDeviceType"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EDeviceType"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceMethod v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EDeviceMethod"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EDeviceMethod"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EParameter v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EParameter"), static_cast<uint32_t>(v),
-                                 out);
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EParameter"),
+                                 static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(ESensorName v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("ESensorName"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ESensorName"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpHeader v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EHttpHeader"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpHeader"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EContentType v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("EContentType"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EContentType"),
                                  static_cast<uint32_t>(v), out);
 }
 
-PrintableProgmemString ToPrintableProgmemString(RequestDecoderStatus v) {
+const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
   switch (v) {
     case RequestDecoderStatus::kReset:
-      return TASLIT("Reset");
+      return TAS_FLASHSTR("Reset");
     case RequestDecoderStatus::kDecoding:
-      return TASLIT("Decoding");
+      return TAS_FLASHSTR("Decoding");
     case RequestDecoderStatus::kDecoded:
-      return TASLIT("Decoded");
+      return TAS_FLASHSTR("Decoded");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EHttpStatusCode v) {
+const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
   switch (v) {
     case EHttpStatusCode::kContinueDecoding:
-      return TASLIT("ContinueDecoding");
+      return TAS_FLASHSTR("ContinueDecoding");
     case EHttpStatusCode::kNeedMoreInput:
-      return TASLIT("NeedMoreInput");
+      return TAS_FLASHSTR("NeedMoreInput");
     case EHttpStatusCode::kHttpOk:
-      return TASLIT("HttpOk");
+      return TAS_FLASHSTR("HttpOk");
     case EHttpStatusCode::kHttpBadRequest:
-      return TASLIT("HttpBadRequest");
+      return TAS_FLASHSTR("HttpBadRequest");
     case EHttpStatusCode::kHttpMethodNotAllowed:
-      return TASLIT("HttpMethodNotAllowed");
+      return TAS_FLASHSTR("HttpMethodNotAllowed");
     case EHttpStatusCode::kHttpNotAcceptable:
-      return TASLIT("HttpNotAcceptable");
+      return TAS_FLASHSTR("HttpNotAcceptable");
     case EHttpStatusCode::kHttpLengthRequired:
-      return TASLIT("HttpLengthRequired");
+      return TAS_FLASHSTR("HttpLengthRequired");
     case EHttpStatusCode::kHttpPayloadTooLarge:
-      return TASLIT("HttpPayloadTooLarge");
+      return TAS_FLASHSTR("HttpPayloadTooLarge");
     case EHttpStatusCode::kHttpUnsupportedMediaType:
-      return TASLIT("HttpUnsupportedMediaType");
+      return TAS_FLASHSTR("HttpUnsupportedMediaType");
     case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-      return TASLIT("HttpRequestHeaderFieldsTooLarge");
+      return TAS_FLASHSTR("HttpRequestHeaderFieldsTooLarge");
     case EHttpStatusCode::kHttpInternalServerError:
-      return TASLIT("HttpInternalServerError");
+      return TAS_FLASHSTR("HttpInternalServerError");
     case EHttpStatusCode::kHttpMethodNotImplemented:
-      return TASLIT("HttpMethodNotImplemented");
+      return TAS_FLASHSTR("HttpMethodNotImplemented");
     case EHttpStatusCode::kHttpVersionNotSupported:
-      return TASLIT("HttpVersionNotSupported");
+      return TAS_FLASHSTR("HttpVersionNotSupported");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EHttpMethod v) {
+const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
   switch (v) {
     case EHttpMethod::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EHttpMethod::GET:
-      return TASLIT("GET");
+      return TAS_FLASHSTR("GET");
     case EHttpMethod::PUT:
-      return TASLIT("PUT");
+      return TAS_FLASHSTR("PUT");
     case EHttpMethod::HEAD:
-      return TASLIT("HEAD");
+      return TAS_FLASHSTR("HEAD");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EApiGroup v) {
+const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
   switch (v) {
     case EApiGroup::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EApiGroup::kDevice:
-      return TASLIT("Device");
+      return TAS_FLASHSTR("Device");
     case EApiGroup::kManagement:
-      return TASLIT("Management");
+      return TAS_FLASHSTR("Management");
     case EApiGroup::kSetup:
-      return TASLIT("Setup");
+      return TAS_FLASHSTR("Setup");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EAlpacaApi v) {
+const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
   switch (v) {
     case EAlpacaApi::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EAlpacaApi::kDeviceApi:
-      return TASLIT("DeviceApi");
+      return TAS_FLASHSTR("DeviceApi");
     case EAlpacaApi::kDeviceSetup:
-      return TASLIT("DeviceSetup");
+      return TAS_FLASHSTR("DeviceSetup");
     case EAlpacaApi::kManagementApiVersions:
-      return TASLIT("ManagementApiVersions");
+      return TAS_FLASHSTR("ManagementApiVersions");
     case EAlpacaApi::kManagementDescription:
-      return TASLIT("ManagementDescription");
+      return TAS_FLASHSTR("ManagementDescription");
     case EAlpacaApi::kManagementConfiguredDevices:
-      return TASLIT("ManagementConfiguredDevices");
+      return TAS_FLASHSTR("ManagementConfiguredDevices");
     case EAlpacaApi::kServerSetup:
-      return TASLIT("ServerSetup");
+      return TAS_FLASHSTR("ServerSetup");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EManagementMethod v) {
+const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
   switch (v) {
     case EManagementMethod::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EManagementMethod::kDescription:
-      return TASLIT("Description");
+      return TAS_FLASHSTR("Description");
     case EManagementMethod::kConfiguredDevices:
-      return TASLIT("ConfiguredDevices");
+      return TAS_FLASHSTR("ConfiguredDevices");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EDeviceType v) {
+const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
   switch (v) {
     case EDeviceType::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EDeviceType::kCamera:
-      return TASLIT("Camera");
+      return TAS_FLASHSTR("Camera");
     case EDeviceType::kCoverCalibrator:
-      return TASLIT("CoverCalibrator");
+      return TAS_FLASHSTR("CoverCalibrator");
     case EDeviceType::kDome:
-      return TASLIT("Dome");
+      return TAS_FLASHSTR("Dome");
     case EDeviceType::kFilterWheel:
-      return TASLIT("FilterWheel");
+      return TAS_FLASHSTR("FilterWheel");
     case EDeviceType::kFocuser:
-      return TASLIT("Focuser");
+      return TAS_FLASHSTR("Focuser");
     case EDeviceType::kObservingConditions:
-      return TASLIT("ObservingConditions");
+      return TAS_FLASHSTR("ObservingConditions");
     case EDeviceType::kRotator:
-      return TASLIT("Rotator");
+      return TAS_FLASHSTR("Rotator");
     case EDeviceType::kSafetyMonitor:
-      return TASLIT("SafetyMonitor");
+      return TAS_FLASHSTR("SafetyMonitor");
     case EDeviceType::kSwitch:
-      return TASLIT("Switch");
+      return TAS_FLASHSTR("Switch");
     case EDeviceType::kTelescope:
-      return TASLIT("Telescope");
+      return TAS_FLASHSTR("Telescope");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EDeviceMethod v) {
+const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
   switch (v) {
     case EDeviceMethod::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EDeviceMethod::kSetup:
-      return TASLIT("Setup");
+      return TAS_FLASHSTR("Setup");
     case EDeviceMethod::kAction:
-      return TASLIT("Action");
+      return TAS_FLASHSTR("Action");
     case EDeviceMethod::kCommandBlind:
-      return TASLIT("CommandBlind");
+      return TAS_FLASHSTR("CommandBlind");
     case EDeviceMethod::kCommandBool:
-      return TASLIT("CommandBool");
+      return TAS_FLASHSTR("CommandBool");
     case EDeviceMethod::kCommandString:
-      return TASLIT("CommandString");
+      return TAS_FLASHSTR("CommandString");
     case EDeviceMethod::kConnected:
-      return TASLIT("Connected");
+      return TAS_FLASHSTR("Connected");
     case EDeviceMethod::kDescription:
-      return TASLIT("Description");
+      return TAS_FLASHSTR("Description");
     case EDeviceMethod::kDriverInfo:
-      return TASLIT("DriverInfo");
+      return TAS_FLASHSTR("DriverInfo");
     case EDeviceMethod::kDriverVersion:
-      return TASLIT("DriverVersion");
+      return TAS_FLASHSTR("DriverVersion");
     case EDeviceMethod::kInterfaceVersion:
-      return TASLIT("InterfaceVersion");
+      return TAS_FLASHSTR("InterfaceVersion");
     case EDeviceMethod::kName:
-      return TASLIT("Name");
+      return TAS_FLASHSTR("Name");
     case EDeviceMethod::kSupportedActions:
-      return TASLIT("SupportedActions");
+      return TAS_FLASHSTR("SupportedActions");
     case EDeviceMethod::kBrightness:
-      return TASLIT("Brightness");
+      return TAS_FLASHSTR("Brightness");
     case EDeviceMethod::kCalibratorState:
-      return TASLIT("CalibratorState");
+      return TAS_FLASHSTR("CalibratorState");
     case EDeviceMethod::kCoverState:
-      return TASLIT("CoverState");
+      return TAS_FLASHSTR("CoverState");
     case EDeviceMethod::kMaxBrightness:
-      return TASLIT("MaxBrightness");
+      return TAS_FLASHSTR("MaxBrightness");
     case EDeviceMethod::kCalibratorOff:
-      return TASLIT("CalibratorOff");
+      return TAS_FLASHSTR("CalibratorOff");
     case EDeviceMethod::kCalibratorOn:
-      return TASLIT("CalibratorOn");
+      return TAS_FLASHSTR("CalibratorOn");
     case EDeviceMethod::kCloseCover:
-      return TASLIT("CloseCover");
+      return TAS_FLASHSTR("CloseCover");
     case EDeviceMethod::kHaltCover:
-      return TASLIT("HaltCover");
+      return TAS_FLASHSTR("HaltCover");
     case EDeviceMethod::kOpenCover:
-      return TASLIT("OpenCover");
+      return TAS_FLASHSTR("OpenCover");
     case EDeviceMethod::kAveragePeriod:
-      return TASLIT("AveragePeriod");
+      return TAS_FLASHSTR("AveragePeriod");
     case EDeviceMethod::kCloudCover:
-      return TASLIT("CloudCover");
+      return TAS_FLASHSTR("CloudCover");
     case EDeviceMethod::kDewPoint:
-      return TASLIT("DewPoint");
+      return TAS_FLASHSTR("DewPoint");
     case EDeviceMethod::kHumidity:
-      return TASLIT("Humidity");
+      return TAS_FLASHSTR("Humidity");
     case EDeviceMethod::kPressure:
-      return TASLIT("Pressure");
+      return TAS_FLASHSTR("Pressure");
     case EDeviceMethod::kRainRate:
-      return TASLIT("RainRate");
+      return TAS_FLASHSTR("RainRate");
     case EDeviceMethod::kRefresh:
-      return TASLIT("Refresh");
+      return TAS_FLASHSTR("Refresh");
     case EDeviceMethod::kSensorDescription:
-      return TASLIT("SensorDescription");
+      return TAS_FLASHSTR("SensorDescription");
     case EDeviceMethod::kSkyBrightness:
-      return TASLIT("SkyBrightness");
+      return TAS_FLASHSTR("SkyBrightness");
     case EDeviceMethod::kSkyQuality:
-      return TASLIT("SkyQuality");
+      return TAS_FLASHSTR("SkyQuality");
     case EDeviceMethod::kSkyTemperature:
-      return TASLIT("SkyTemperature");
+      return TAS_FLASHSTR("SkyTemperature");
     case EDeviceMethod::kStarFullWidthHalfMax:
-      return TASLIT("StarFullWidthHalfMax");
+      return TAS_FLASHSTR("StarFullWidthHalfMax");
     case EDeviceMethod::kTemperature:
-      return TASLIT("Temperature");
+      return TAS_FLASHSTR("Temperature");
     case EDeviceMethod::kTimeSinceLastUpdate:
-      return TASLIT("TimeSinceLastUpdate");
+      return TAS_FLASHSTR("TimeSinceLastUpdate");
     case EDeviceMethod::kWindDirection:
-      return TASLIT("WindDirection");
+      return TAS_FLASHSTR("WindDirection");
     case EDeviceMethod::kWindGust:
-      return TASLIT("WindGust");
+      return TAS_FLASHSTR("WindGust");
     case EDeviceMethod::kWindSpeed:
-      return TASLIT("WindSpeed");
+      return TAS_FLASHSTR("WindSpeed");
     case EDeviceMethod::kIsSafe:
-      return TASLIT("IsSafe");
+      return TAS_FLASHSTR("IsSafe");
     case EDeviceMethod::kMaxSwitch:
-      return TASLIT("MaxSwitch");
+      return TAS_FLASHSTR("MaxSwitch");
     case EDeviceMethod::kCanWrite:
-      return TASLIT("CanWrite");
+      return TAS_FLASHSTR("CanWrite");
     case EDeviceMethod::kGetSwitch:
-      return TASLIT("GetSwitch");
+      return TAS_FLASHSTR("GetSwitch");
     case EDeviceMethod::kGetSwitchDescription:
-      return TASLIT("GetSwitchDescription");
+      return TAS_FLASHSTR("GetSwitchDescription");
     case EDeviceMethod::kGetSwitchName:
-      return TASLIT("GetSwitchName");
+      return TAS_FLASHSTR("GetSwitchName");
     case EDeviceMethod::kGetSwitchValue:
-      return TASLIT("GetSwitchValue");
+      return TAS_FLASHSTR("GetSwitchValue");
     case EDeviceMethod::kMinSwitchValue:
-      return TASLIT("MinSwitchValue");
+      return TAS_FLASHSTR("MinSwitchValue");
     case EDeviceMethod::kMaxSwitchValue:
-      return TASLIT("MaxSwitchValue");
+      return TAS_FLASHSTR("MaxSwitchValue");
     case EDeviceMethod::kSetSwitch:
-      return TASLIT("SetSwitch");
+      return TAS_FLASHSTR("SetSwitch");
     case EDeviceMethod::kSetSwitchName:
-      return TASLIT("SetSwitchName");
+      return TAS_FLASHSTR("SetSwitchName");
     case EDeviceMethod::kSetSwitchValue:
-      return TASLIT("SetSwitchValue");
+      return TAS_FLASHSTR("SetSwitchValue");
     case EDeviceMethod::kSwitchStep:
-      return TASLIT("SwitchStep");
+      return TAS_FLASHSTR("SwitchStep");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EParameter v) {
+const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
   switch (v) {
     case EParameter::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EParameter::kAction:
-      return TASLIT("Action");
+      return TAS_FLASHSTR("Action");
     case EParameter::kClientID:
-      return TASLIT("ClientID");
+      return TAS_FLASHSTR("ClientID");
     case EParameter::kClientTransactionID:
-      return TASLIT("ClientTransactionID");
+      return TAS_FLASHSTR("ClientTransactionID");
     case EParameter::kCommand:
-      return TASLIT("Command");
+      return TAS_FLASHSTR("Command");
     case EParameter::kConnected:
-      return TASLIT("Connected");
+      return TAS_FLASHSTR("Connected");
     case EParameter::kParameters:
-      return TASLIT("Parameters");
+      return TAS_FLASHSTR("Parameters");
     case EParameter::kRaw:
-      return TASLIT("Raw");
+      return TAS_FLASHSTR("Raw");
     case EParameter::kBrightness:
-      return TASLIT("Brightness");
+      return TAS_FLASHSTR("Brightness");
     case EParameter::kSensorName:
-      return TASLIT("SensorName");
+      return TAS_FLASHSTR("SensorName");
     case EParameter::kId:
-      return TASLIT("Id");
+      return TAS_FLASHSTR("Id");
     case EParameter::kName:
-      return TASLIT("Name");
+      return TAS_FLASHSTR("Name");
     case EParameter::kState:
-      return TASLIT("State");
+      return TAS_FLASHSTR("State");
     case EParameter::kValue:
-      return TASLIT("Value");
+      return TAS_FLASHSTR("Value");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(ESensorName v) {
+const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
   switch (v) {
     case ESensorName::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case ESensorName::kCloudCover:
-      return TASLIT("CloudCover");
+      return TAS_FLASHSTR("CloudCover");
     case ESensorName::kDewPoint:
-      return TASLIT("DewPoint");
+      return TAS_FLASHSTR("DewPoint");
     case ESensorName::kHumidity:
-      return TASLIT("Humidity");
+      return TAS_FLASHSTR("Humidity");
     case ESensorName::kPressure:
-      return TASLIT("Pressure");
+      return TAS_FLASHSTR("Pressure");
     case ESensorName::kRainRate:
-      return TASLIT("RainRate");
+      return TAS_FLASHSTR("RainRate");
     case ESensorName::kSkyBrightness:
-      return TASLIT("SkyBrightness");
+      return TAS_FLASHSTR("SkyBrightness");
     case ESensorName::kSkyQuality:
-      return TASLIT("SkyQuality");
+      return TAS_FLASHSTR("SkyQuality");
     case ESensorName::kSkyTemperature:
-      return TASLIT("SkyTemperature");
+      return TAS_FLASHSTR("SkyTemperature");
     case ESensorName::kStarFullWidthHalfMax:
-      return TASLIT("StarFullWidthHalfMax");
+      return TAS_FLASHSTR("StarFullWidthHalfMax");
     case ESensorName::kTemperature:
-      return TASLIT("Temperature");
+      return TAS_FLASHSTR("Temperature");
     case ESensorName::kWindDirection:
-      return TASLIT("WindDirection");
+      return TAS_FLASHSTR("WindDirection");
     case ESensorName::kWindGust:
-      return TASLIT("WindGust");
+      return TAS_FLASHSTR("WindGust");
     case ESensorName::kWindSpeed:
-      return TASLIT("WindSpeed");
+      return TAS_FLASHSTR("WindSpeed");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EHttpHeader v) {
+const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
   switch (v) {
     case EHttpHeader::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case EHttpHeader::kHttpAccept:
-      return TASLIT("HttpAccept");
+      return TAS_FLASHSTR("HttpAccept");
     case EHttpHeader::kHttpContentLength:
-      return TASLIT("HttpContentLength");
+      return TAS_FLASHSTR("HttpContentLength");
     case EHttpHeader::kHttpContentType:
-      return TASLIT("HttpContentType");
+      return TAS_FLASHSTR("HttpContentType");
     case EHttpHeader::kHttpContentEncoding:
-      return TASLIT("HttpContentEncoding");
+      return TAS_FLASHSTR("HttpContentEncoding");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(EContentType v) {
+const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
   switch (v) {
     case EContentType::kApplicationJson:
-      return TASLIT("application/json");
+      return TAS_FLASHSTR("application/json");
     case EContentType::kTextPlain:
-      return TASLIT("text/plain");
+      return TAS_FLASHSTR("text/plain");
     case EContentType::kTextHtml:
-      return TASLIT("text/html");
+      return TAS_FLASHSTR("text/html");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
 #if TAS_HOST_TARGET

@@ -13,7 +13,7 @@ namespace alpaca {
 
 // Utility function supporting the printing of enumerator names, in this case
 // handling an enum value that is not a defined enumerator.
-size_t PrintUnknownEnumValueTo(PrintableProgmemString name, uint32_t v,
+size_t PrintUnknownEnumValueTo(const __FlashStringHelper* name, uint32_t v,
                                Print& out);
 
 }  // namespace alpaca

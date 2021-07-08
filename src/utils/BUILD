@@ -253,7 +253,8 @@ cc_library(
     srcs = ["print_misc.cc"],
     hdrs = ["print_misc.h"],
     deps = [
-        ":literal",
+        ":counting_print",
+        ":inline_literal",
         ":platform",
         ":printable_progmem_string",
     ],

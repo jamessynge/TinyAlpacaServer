@@ -7,57 +7,57 @@
 
 namespace alpaca {
 
-PrintableProgmemString ToPrintableProgmemString(ECalibratorStatus v) {
+const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
   switch (v) {
     case ECalibratorStatus::kNotPresent:
-      return TASLIT("NotPresent");
+      return TAS_FLASHSTR("NotPresent");
     case ECalibratorStatus::kOff:
-      return TASLIT("Off");
+      return TAS_FLASHSTR("Off");
     case ECalibratorStatus::kNotReady:
-      return TASLIT("NotReady");
+      return TAS_FLASHSTR("NotReady");
     case ECalibratorStatus::kReady:
-      return TASLIT("Ready");
+      return TAS_FLASHSTR("Ready");
     case ECalibratorStatus::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case ECalibratorStatus::kError:
-      return TASLIT("Error");
+      return TAS_FLASHSTR("Error");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
 size_t PrintValueTo(ECalibratorStatus v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("ECalibratorStatus"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ECalibratorStatus"),
                                  static_cast<uint32_t>(v), out);
 }
 
-PrintableProgmemString ToPrintableProgmemString(ECoverStatus v) {
+const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
   switch (v) {
     case ECoverStatus::kNotPresent:
-      return TASLIT("NotPresent");
+      return TAS_FLASHSTR("NotPresent");
     case ECoverStatus::kClosed:
-      return TASLIT("Closed");
+      return TAS_FLASHSTR("Closed");
     case ECoverStatus::kMoving:
-      return TASLIT("Moving");
+      return TAS_FLASHSTR("Moving");
     case ECoverStatus::kOpen:
-      return TASLIT("Open");
+      return TAS_FLASHSTR("Open");
     case ECoverStatus::kUnknown:
-      return TASLIT("Unknown");
+      return TAS_FLASHSTR("Unknown");
     case ECoverStatus::kError:
-      return TASLIT("Error");
+      return TAS_FLASHSTR("Error");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
 size_t PrintValueTo(ECoverStatus v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("ECoverStatus"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ECoverStatus"),
                                  static_cast<uint32_t>(v), out);
 }
 

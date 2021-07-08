@@ -13,21 +13,8 @@ constexpr uint8_t kSDcardSelectPin = 4;
 // static
 void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
   // Make sure that the SD Card interface is not the selected SPI device.
-#if kSDcardSelectPin != 4
   pinMode(kSDcardSelectPin, OUTPUT);
   digitalWrite(kSDcardSelectPin, HIGH);
-#else
-  TAS_VLOG(1) << TAS_FLASHSTR("SetupW5500 applying fix for pin ")
-              << kSDcardSelectPin
-              << TAS_FLASHSTR(", replacing with PE7 (pin 9 of ATmega2560)");
-
-  // Set PE7 (Port E, bit 7) to output HIGH. As described in section 13.2.3 of
-  // the ATmega2560 datasheet, we can't transition directly from tri-state to
-  // output HIGH, so we swap the order of setting the bits, as suggested in the
-  // datasheet.
-  bitSet(PORTE, PE7);  // Set to output high.
-  bitSet(DDRE, DDE7);  // Set data direction to output.
-#endif
 
   // Configure Ethernet3's EthernetClass instance with the pins used to access
   // the W5500.
@@ -53,11 +40,6 @@ bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
   Addresses addresses;
   addresses.loadOrGenAndSave(oui_prefix);
 
-  Serial.print(TASLIT("MAC: "));
-  Serial.println(addresses.mac);
-  Serial.print(TASLIT("Default IP: "));
-  Serial.println(addresses.ip);
-
   if (Ethernet.begin(addresses.mac.mac)) {
     // Wonderful news, we were able to get an IP address via DHCP.
     using_dhcp_ = true;
@@ -68,10 +50,11 @@ bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
     Ethernet.macAddress(mac.mac);
     if (!(mac == addresses.mac)) {
       // Oops, this isn't the right board to run this sketch.
-      Serial.println(TASLIT("Found no hardware"));
+      LogSink() << TAS_FLASHSTR("Found no network hardware");
       return false;
     }
-    Serial.println(TASLIT("No DHCP"));
+
+    LogSink() << TAS_FLASHSTR("No DHCP, using default IP ") << addresses.ip;
 
     // No DHCP server responded with a lease on an IP address, so we'll
     // fallback to using our randomly generated IP.
@@ -110,16 +93,11 @@ int IpDevice::MaintainDhcpLease() {
 void IpDevice::PrintNetworkAddresses() {
   alpaca::MacAddress mac;
   Ethernet.macAddress(mac.mac);
-  Serial.print(TASLIT("MAC: "));
-  Serial.println(mac);
-  Serial.print(TASLIT("IP: "));
-  Serial.println(Ethernet.localIP());
-  Serial.print(TASLIT("Subnet: "));
-  Serial.println(Ethernet.subnetMask());
-  Serial.print(TASLIT("Gateway: "));
-  Serial.println(Ethernet.gatewayIP());
-  Serial.print(TASLIT("DNS: "));
-  Serial.println(Ethernet.dnsServerIP());
+  LogSink() << TAS_FLASHSTR("MAC: ") << mac;
+  LogSink() << TAS_FLASHSTR("IP: ") << Ethernet.localIP();
+  LogSink() << TAS_FLASHSTR("Subnet: ") << Ethernet.subnetMask();
+  LogSink() << TAS_FLASHSTR("Gateway: ") << Ethernet.gatewayIP();
+  LogSink() << TAS_FLASHSTR("DNS: ") << Ethernet.dnsServerIP();
 }
 
 }  // namespace alpaca

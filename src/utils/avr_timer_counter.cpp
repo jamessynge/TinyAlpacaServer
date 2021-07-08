@@ -11,74 +11,74 @@
 namespace alpaca {
 
 size_t PrintValueTo(ClockPrescaling v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("ClockPrescaling"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ClockPrescaling"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("FastPwmCompareOutputMode"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("FastPwmCompareOutputMode"),
                                  static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(TimerCounterChannel v, Print& out) {
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TASLIT("TimerCounterChannel"),
+  return PrintUnknownEnumValueTo(TAS_FLASHSTR("TimerCounterChannel"),
                                  static_cast<uint32_t>(v), out);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PrintableProgmemString ToPrintableProgmemString(ClockPrescaling v) {
+const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
   switch (v) {
     case ClockPrescaling::kDisabled:
-      return TASLIT("Disabled");
+      return TAS_FLASHSTR("Disabled");
     case ClockPrescaling::kDivideBy1:
-      return TASLIT("DivideBy1");
+      return TAS_FLASHSTR("DivideBy1");
     case ClockPrescaling::kDivideBy8:
-      return TASLIT("DivideBy8");
+      return TAS_FLASHSTR("DivideBy8");
     case ClockPrescaling::kDivideBy64:
-      return TASLIT("DivideBy64");
+      return TAS_FLASHSTR("DivideBy64");
     case ClockPrescaling::kDivideBy256:
-      return TASLIT("DivideBy256");
+      return TAS_FLASHSTR("DivideBy256");
     case ClockPrescaling::kDivideBy1024:
-      return TASLIT("DivideBy1024");
+      return TAS_FLASHSTR("DivideBy1024");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(FastPwmCompareOutputMode v) {
+const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
   switch (v) {
     case FastPwmCompareOutputMode::kDisabled:
-      return TASLIT("Disabled");
+      return TAS_FLASHSTR("Disabled");
     case FastPwmCompareOutputMode::kNonInvertingMode:
-      return TASLIT("NonInvertingMode");
+      return TAS_FLASHSTR("NonInvertingMode");
     case FastPwmCompareOutputMode::kInvertingMode:
-      return TASLIT("InvertingMode");
+      return TAS_FLASHSTR("InvertingMode");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
-PrintableProgmemString ToPrintableProgmemString(TimerCounterChannel v) {
+const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
   switch (v) {
     case TimerCounterChannel::A:
-      return TASLIT("A");
+      return TAS_FLASHSTR("A");
     case TimerCounterChannel::B:
-      return TASLIT("B");
+      return TAS_FLASHSTR("B");
     case TimerCounterChannel::C:
-      return TASLIT("C");
+      return TAS_FLASHSTR("C");
   }
-  return PrintableProgmemString();
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

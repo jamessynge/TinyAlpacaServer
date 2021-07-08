@@ -299,18 +299,18 @@ enum class EContentType : uint8_t {
   TASENUMERATOR(kTextHtml, "text/html"),
 };
 
-PrintableProgmemString ToPrintableProgmemString(RequestDecoderStatus v);
-PrintableProgmemString ToPrintableProgmemString(EHttpStatusCode v);
-PrintableProgmemString ToPrintableProgmemString(EHttpMethod v);
-PrintableProgmemString ToPrintableProgmemString(EApiGroup v);
-PrintableProgmemString ToPrintableProgmemString(EAlpacaApi v);
-PrintableProgmemString ToPrintableProgmemString(EManagementMethod v);
-PrintableProgmemString ToPrintableProgmemString(EDeviceType v);
-PrintableProgmemString ToPrintableProgmemString(EDeviceMethod v);
-PrintableProgmemString ToPrintableProgmemString(EParameter v);
-PrintableProgmemString ToPrintableProgmemString(ESensorName v);
-PrintableProgmemString ToPrintableProgmemString(EHttpHeader v);
-PrintableProgmemString ToPrintableProgmemString(EContentType v);
+const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v);
+const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v);
+const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v);
+const __FlashStringHelper* ToFlashStringHelper(EApiGroup v);
+const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v);
+const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v);
+const __FlashStringHelper* ToFlashStringHelper(EDeviceType v);
+const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v);
+const __FlashStringHelper* ToFlashStringHelper(EParameter v);
+const __FlashStringHelper* ToFlashStringHelper(ESensorName v);
+const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v);
+const __FlashStringHelper* ToFlashStringHelper(EContentType v);
 
 size_t PrintValueTo(RequestDecoderStatus v, Print& out);
 size_t PrintValueTo(EHttpStatusCode v, Print& out);

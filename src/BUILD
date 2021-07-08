@@ -390,6 +390,7 @@ cc_library(
         ":server_description",
         ":server_sockets_and_connections",
         "//src/device_types:device_impl_base",
+        "//src/utils:any_printable",
         "//src/utils:array_view",
         "//src/utils:counting_print",
         "//src/utils:json_encoder",

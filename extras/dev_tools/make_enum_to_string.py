@@ -204,7 +204,7 @@ def process_file(file_path: str):
   print()
   for enum_def in enum_definitions:
     name = enum_def['name']
-    print(f'PrintableProgmemString ToPrintableProgmemString({name} v);')
+    print(f'const __FlashStringHelper* ToFlashStringHelper({name} v);')
   print()
   print('#if TAS_HOST_TARGET')
   print('// Support for debug logging of enums.')
@@ -222,12 +222,12 @@ def process_file(file_path: str):
     name = enum_def['name']
     print(f"""
 size_t PrintValueTo({name} v, Print& out) {{
-  auto printable = ToPrintableProgmemString(v);
-  if (printable.size() > 0) {{
-    return printable.printTo(out);
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {{
+    return out.print(flash_string);
   }}
   return PrintUnknownEnumValueTo(
-        TASLIT("{name}"), static_cast<uint32_t>(v), out);
+        TAS_FLASHSTR("{name}"), static_cast<uint32_t>(v), out);
 }}""")
   print()
   print()
@@ -237,18 +237,18 @@ size_t PrintValueTo({name} v, Print& out) {{
     enumerators = enum_def['enumerators']
     print(
         f"""
-PrintableProgmemString ToPrintableProgmemString({name} v) {{
+const __FlashStringHelper* ToFlashStringHelper({name} v) {{
   switch (v) {{""",
         end='')
     for enumerator, dq_string in enumerators:
       print(
           f"""
     case {name}::{enumerator}:
-      return TASLIT({dq_string});""",
+      return TAS_FLASHSTR({dq_string});""",
           end='')
     print(r"""
   }
-  return PrintableProgmemString();
+  return nullptr;
 }""")
   print()
 

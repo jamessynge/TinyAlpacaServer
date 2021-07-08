@@ -20,7 +20,7 @@ enum class ECalibratorStatus : ECalibratorStatus_UnderlyingType {
   kUnknown = 4,  // The calibrator state is unknown
   kError = 5,    // The calibrator encountered an error when changing state
 };
-PrintableProgmemString ToPrintableProgmemString(ECalibratorStatus v);
+const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v);
 size_t PrintValueTo(ECalibratorStatus v, Print& out);
 
 // CoverStatus Enumeration - Describes the state of a telescope cover.
@@ -35,7 +35,7 @@ enum class ECoverStatus : ECoverStatus_UnderlyingType {
   kUnknown = 4,  // The state of the cover is unknown
   kError = 5,    // The device encountered an error when changing state
 };
-PrintableProgmemString ToPrintableProgmemString(ECoverStatus v);
+const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v);
 size_t PrintValueTo(ECoverStatus v, Print& out);
 
 }  // namespace alpaca

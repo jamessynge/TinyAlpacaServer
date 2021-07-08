@@ -102,7 +102,7 @@ CheckSink::~CheckSink() {
 }
 
 void CheckSink::Announce(Print& out) const {
-  out.print(TASLIT("TAS_CHECK FAILED: "));
+  out.print(TAS_FLASHSTR("TAS_CHECK FAILED: "));
   PrintLocation(out);
   out.print(expression_message_);
 }

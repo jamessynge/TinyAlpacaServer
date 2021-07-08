@@ -176,7 +176,7 @@ I'm currently manually defining these by:
 
     Unlike the above macros, this defines a full specialization of the variadic
     class template `ProgmemStringStorage`. The template declares a static
-    function MakePrintable that returnes a PrintableProgmemString string. The
+    function MakePrintable that returns a PrintableProgmemString string. The
     storage class has a static array holding the characters of the string,
     without a terminating NUL. One advantage of TASLIT over TAS_DEFINE_LITERAL
     is that the compiler and linker should collapse multiple occurrences of
@@ -184,14 +184,25 @@ I'm currently manually defining these by:
     uses some fancy compile time type deduction to determine the length of the
     string, and this slows compilation.
 
-After building up the facilities described above, I learned that the macro
-`PSTR(value)` (from AVR libc's pgmspace.h) will (supposedly) have the effect of
-storing a string in PROGMEM only.
+1.  Using the `TAS_FLASHSTR(value)` macro inline in expressions, such as:
 
-TODO: Test this claim.
+    ```
+    TAS_CHECK(false) << TAS_FLASHSTR("api group (") << group
+                     << TAS_FLASHSTR(") is not device or setup");
+    ```
 
-Further, it appears that the Arduino developers built on this by defining the
-macro `F(value)` in WString.h which performs a typecast on a `PSTR(value)`:
+    `TAS_FLASHSTR` shares much in common with TASLIT, but the return type is
+    `const __FlashStringHelper*`, the type defined by Arduino to denote a string
+    stored in flash memory, which (on Harvard architecture processors) can't be
+    treated as a regular string. In general, it appears that `TAS_FLASHSTR` is
+    the most convenient of these macros.
+
+After building up the facilities described above (not including TAS_FLASHSTR), I
+learned that the macro `PSTR(value)` (from AVR libc's pgmspace.h) will
+(supposedly) have the effect of storing a string in PROGMEM only. Further, the
+developers built on this by defining the macro `F(value)` in WString.h which
+performs a typecast on a `PSTR(value)` to give it the type `const
+__FlashStringHelper*`.
 
 ```
 class __FlashStringHelper;
@@ -201,6 +212,12 @@ class __FlashStringHelper;
 This is good for printing a string, but not for comparing it with a
 `StringView`. Further, it doesn't capture the string length at compile time, so
 it must be rediscovered each time.
+
+When trying to use `F(value)` and `PSTR(value)`, I discovered that they do what
+they say, but don't collapse multiple occurrences of a string into one. Hence
+`TAS_FLASHSTR(value)` is preferred over `F(value)` if you just want to output a
+string, and `TASLIT(value)` is preferred if you also want to know the length
+without search the string for the terminating NUL.
 
 ## Improvement Priorities
 

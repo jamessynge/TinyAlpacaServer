@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "http_response_header.h"
 #include "literals.h"
+#include "utils/any_printable.h"
 #include "utils/array_view.h"
 #include "utils/counting_print.h"
 #include "utils/json_encoder.h"
@@ -86,13 +87,14 @@ bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
                                              Print& out) {
   TAS_VLOG(3) << TAS_FLASHSTR("HandleServerSetup");
 
-  auto body = TASLIT(
+  auto body = TAS_FLASHSTR(
       "<html><body>"
       "<h1>Tiny Alpaca Server</h1>\n"
       "No setup\n"
       "</body></html>");
 
-  return WriteResponse::OkResponse(request, EContentType::kTextHtml, body, out,
+  return WriteResponse::OkResponse(request, EContentType::kTextHtml,
+                                   AnyPrintable(body), out,
                                    /*append_http_newline=*/true);
 }
 
