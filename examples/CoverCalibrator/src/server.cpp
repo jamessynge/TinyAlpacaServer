@@ -124,9 +124,9 @@ void setup() {
 
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(char*): ") << sizeof(char*);
-  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(short): ") << sizeof(short);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(short): ") << sizeof(short);  // NOLINT
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(int): ") << sizeof(int);
-  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(long): ") << sizeof(long);
+  TAS_VLOG(1) << TAS_FLASHSTR("sizeof(long): ") << sizeof(long);  // NOLINT
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(float): ") << sizeof(float);
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(double): ") << sizeof(double);
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(&setup): ") << sizeof(&setup);

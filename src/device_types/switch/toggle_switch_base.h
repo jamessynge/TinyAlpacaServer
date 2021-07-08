@@ -5,6 +5,8 @@
 // single switch device with only two states (i.e. a simple toggle switch); it
 // implements just those methods that treat the switch value as a double,
 // mapping them to a boolean.
+//
+// Author: james.synge@gmail.com
 
 #include "device_types/switch/switch_interface.h"
 #include "utils/platform.h"

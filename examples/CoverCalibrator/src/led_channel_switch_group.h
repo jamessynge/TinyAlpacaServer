@@ -1,6 +1,13 @@
 #ifndef TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_LED_CHANNEL_SWITCH_GROUP_H_
 #define TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_LED_CHANNEL_SWITCH_GROUP_H_
 
+// Exposes the 4 channels of the AstroMakers CoverCalibrator device via the
+// Alpaca Switch API, enabling each channel to be toggled on or off
+// independently of the brightness setting that is controlled via the Alpaca
+// CoverCalibrator API.
+//
+// Author: james.synge@gmail.com
+
 #include <TinyAlpacaServer.h>
 
 #include "cover_calibrator.h"

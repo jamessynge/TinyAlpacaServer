@@ -26,6 +26,8 @@
 // already supports reading from PROGMEM, this isn't just a copy of
 // typestring.hh. Instead, it contains an adaptation of Makrydakis's approach
 // to this context.
+//
+// Author: james.synge@gmail.com
 
 #include "utils/platform.h"
 #include "utils/printable_progmem_string.h"  // IWYU pragma: export

@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_SWITCH_MULTI_SWITCH_ADAPTER_H_
 
 // Forwards calls to the appropriate SwitchInterface device.
+//
+// Author: james.synge@gmail.com
 
 #include "device_types/switch/switch_adapter.h"
 #include "device_types/switch/switch_interface.h"

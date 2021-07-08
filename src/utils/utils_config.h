@@ -23,7 +23,8 @@ extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
 #else  // !TAS_DO_LOG_EXPERIMENT
 
 #ifdef ARDUINO
-// On Arduino we leave TAS_CHECK enabled, but not TAS_VLOG or TAS_DCHECK.
+// After development, for the embedded target, we *should* leave TAS_CHECK
+// enabled, but not TAS_VLOG or TAS_DCHECK.
 
 #ifndef TAS_ENABLED_VLOG_LEVEL
 #define TAS_ENABLED_VLOG_LEVEL 3

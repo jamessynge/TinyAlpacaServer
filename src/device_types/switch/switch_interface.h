@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_SWITCH_SWITCH_INTERFACE_H_
 
 // Defines the interface that an individual switch must implement.
+//
+// Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
 #include "utils/platform.h"

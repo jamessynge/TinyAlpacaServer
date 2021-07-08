@@ -31,6 +31,8 @@
 // For convenience devices are referred to as boolean if the device can only
 // have two states, and multi-state if it can have more than two values. These
 // are treated the same in the interface definition.
+//
+// Author: james.synge@gmail.com
 
 #include "device_types/device_impl_base.h"
 #include "utils/platform.h"

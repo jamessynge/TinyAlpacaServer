@@ -1,6 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_STRING_VIEW_UTILS_H_
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_STRING_VIEW_UTILS_H_
 
+// Host utilities for working with alpaca::StringView in the context of the C++
+// standard library.
+//
+// Author: james.synge@gmail.com
+
 #include <ostream>
 #include <string>
 #include <string_view>
