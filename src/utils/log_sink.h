@@ -1,13 +1,13 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_LOG_SINK_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_LOG_SINK_H_
 
-// LogSink is used for printing a message (*line* of text) to a Print instance.
+// LogSink is used for printing a message to a Print instance.
 //
-// CheckSink is used for printing a fatal failure error message to a Print
-// instance.
+// CheckSink is used for printing a fatal failure message to a Print instance.
 //
-// VoidSink is used in place of LogSink when logging is disabled at compile
-// time.
+// VoidSink is used in place of LogSink when a logging statement is disabled at
+// compile time (e.g. if the level passed to TAS_VLOG is too high, or if
+// TAS_DCHECK is disabled).
 //
 // Author: james.synge@gmail.com
 
@@ -17,14 +17,31 @@
 
 namespace alpaca {
 
-class LogSink : public OPrintStream {
+class MessageSinkBase : public OPrintStream {
  public:
-  explicit LogSink(Print& out) : OPrintStream(out) {}
-  LogSink() : LogSink(::Serial) {}
+  MessageSinkBase(Print& out, const __FlashStringHelper* file,
+                  uint16_t line_number);
+
+ protected:
+  // Prints the location (e.g. "filename.ext:line_number] ") to out, if file_ is
+  // not null. Omits ":line_number" if line_number_ is zero.
+  void PrintLocation(Print& out) const;
+
+ private:
+  const __FlashStringHelper* const file_;
+  const uint16_t line_number_;
+};
+
+class LogSink final : public MessageSinkBase {
+ public:
+  LogSink(Print& out, const __FlashStringHelper* file, uint16_t line_number);
+  LogSink(const __FlashStringHelper* file, uint16_t line_number);
+  explicit LogSink(Print& out);
+  LogSink();
   ~LogSink();
 };
 
-class CheckSink : public OPrintStream {
+class CheckSink : public MessageSinkBase {
  public:
   CheckSink(Print& out, const __FlashStringHelper* file, uint16_t line_number,
             const __FlashStringHelper* expression_message);
@@ -35,9 +52,7 @@ class CheckSink : public OPrintStream {
  private:
   void Announce(Print& out) const;
 
-  const __FlashStringHelper* const file_;
   const __FlashStringHelper* const expression_message_;
-  const uint16_t line_number_;
 };
 
 class VoidSink {

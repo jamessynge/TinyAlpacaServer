@@ -15,12 +15,16 @@
 //
 // TAS_VLOG(level) << val1 << val2 << val3;
 //
-// Will emit a line of text with the string representations of val1, val2,
-// and val3 concatenated together, and terminated by a newline, if level is
-// less than or equal to the value of TAS_ENABLED_VLOG_LEVEL; if the level
-// is greater than the value of TAS_ENABLED_VLOG_LEVEL, or if it is undefined,
-// then no message is emitted, and generally speaking the statement will be
-// omitted from the compiled binary.
+// If level is less than or equal to the value of TAS_ENABLED_VLOG_LEVEL,
+// TAS_VLOG will print a line of text to the debug log sink (e.g. to Serial on
+// Arduino); the text will start with the location of the statement (e.g.
+// "file.cpp:123] "), followed by the string representations of val1, val2, and
+// val3 concatenated together, and terminated by a newline.
+//
+// If the level is greater than the value of TAS_ENABLED_VLOG_LEVEL, or if
+// TAS_ENABLED_VLOG_LEVEL is undefined, then no message is emitted, and if the
+// compiler and linker are working as expected, the entire logging statement
+// will be omitted from the compiled binary.
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -79,16 +83,17 @@
 #include "utils/log_sink.h"
 #include "utils/utils_config.h"
 
-#define THE_VOID_SINK ::alpaca::VoidSink()
+#define TAS_VOID_SINK ::alpaca::VoidSink()
 
 #if defined(TAS_ENABLED_VLOG_LEVEL) && TAS_ENABLED_VLOG_LEVEL > 0
 
-#define TAS_VLOG(level)              \
-  switch (0)                         \
-  default:                           \
-    (TAS_ENABLED_VLOG_LEVEL < level) \
-        ? (void)0                    \
-        : ::alpaca::LogSinkVoidify() && ::alpaca::LogSink()
+#define TAS_VLOG(level)                 \
+  switch (0)                            \
+  default:                              \
+    (TAS_ENABLED_VLOG_LEVEL < level)    \
+        ? (void)0                       \
+        : ::alpaca::LogSinkVoidify() && \
+              ::alpaca::LogSink(TAS_BASENAME(__FILE__), __LINE__)
 
 #define TAS_IS_VLOG_ON(level) ((level) >= TAS_ENABLED_VLOG_LEVEL)
 
@@ -101,12 +106,12 @@ extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
 #define TAS_VLOG(level) \
   switch (0)            \
   default:              \
-    (true) ? (void)0 : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+    (true) ? (void)0 : ::alpaca::LogSinkVoidify() && TAS_VOID_SINK
 
 #define TAS_IS_VLOG_ON(level) (false)
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-extern void [[TAS_VLOG_uses_THE_VOID_SINK]] SomeFuncA();
+extern void [[TAS_VLOG_uses_TAS_VOID_SINK]] SomeFuncA();
 #endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 
 #endif
@@ -136,7 +141,7 @@ extern void [[TAS_ENABLE_CHECK_is_defined]] SomeFuncB();
   switch (0)                                     \
   default:                                       \
     ((expression) || true) ? (void)0             \
-                           : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+                           : ::alpaca::LogSinkVoidify() && TAS_VOID_SINK
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_ENABLE_CHECK_is_NOT_defined]] SomeFuncB();
@@ -180,7 +185,7 @@ extern void [[TAS_ENABLE_DCHECK_is_defined]] SomeFuncC();
   switch (0)                                      \
   default:                                        \
     (true || (expression)) ? (void)0              \
-                           : ::alpaca::LogSinkVoidify() && THE_VOID_SINK
+                           : ::alpaca::LogSinkVoidify() && TAS_VOID_SINK
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_ENABLE_DCHECK_is_NOT_defined]] SomeFuncC();
