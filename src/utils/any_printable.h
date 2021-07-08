@@ -24,6 +24,7 @@ class AnyPrintable : public Printable {
     kLiteral,
     kStringView,
     kPrintable,
+    kFlashStringHelper,
     kChar,
     kInteger,
     kUnsignedInteger,
@@ -35,9 +36,10 @@ class AnyPrintable : public Printable {
   AnyPrintable();
   // For values that are clearly strings, we allow implicit conversion to
   // AnyPrintable.
-  AnyPrintable(Literal value);                 // NOLINT
-  AnyPrintable(StringView value);              // NOLINT
-  AnyPrintable(PrintableProgmemString value);  // NOLINT
+  AnyPrintable(Literal value);                     // NOLINT
+  AnyPrintable(StringView value);                  // NOLINT
+  AnyPrintable(PrintableProgmemString value);      // NOLINT
+  AnyPrintable(const __FlashStringHelper* value);  // NOLINT
   // To avoid implicit conversions of values that aren't (weren't) necessarily
   // strings, we require the conversion to be explicit.
   explicit AnyPrintable(Printable& value);
@@ -65,6 +67,7 @@ class AnyPrintable : public Printable {
   union {
     Literal literal_;
     StringView view_;
+    const __FlashStringHelper* flash_string_helper_;
     char char_;
     int32_t signed_;
     uint32_t unsigned_;

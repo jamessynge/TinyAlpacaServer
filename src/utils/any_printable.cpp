@@ -14,6 +14,9 @@ AnyPrintable::AnyPrintable(PrintableProgmemString value)
     : type_(AnyPrintable::kLiteral),
       literal_(value.progmem_data(), value.size()) {}
 
+AnyPrintable::AnyPrintable(const __FlashStringHelper* value)
+    : type_(AnyPrintable::kFlashStringHelper), flash_string_helper_(value) {}
+
 AnyPrintable::AnyPrintable(Printable& value)
     : type_(AnyPrintable::kPrintable), printable_(&value) {}
 
@@ -57,6 +60,9 @@ AnyPrintable& AnyPrintable::operator=(const AnyPrintable& other) {
     case kPrintable:
       printable_ = other.printable_;
       break;
+    case kFlashStringHelper:
+      flash_string_helper_ = other.flash_string_helper_;
+      break;
     case kChar:
       char_ = other.char_;
       break;
@@ -90,6 +96,8 @@ size_t AnyPrintable::printTo(Print& out) const {
       return view_.printTo(out);
     case kPrintable:
       return printable_->printTo(out);
+    case kFlashStringHelper:
+      return out.print(flash_string_helper_);
     case kChar:
       return out.print(char_);
     case kInteger:

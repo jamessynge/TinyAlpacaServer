@@ -7,6 +7,7 @@ cc_test(
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src/utils:any_printable",
+        "//src/utils:inline_literal",
     ],
 )
 

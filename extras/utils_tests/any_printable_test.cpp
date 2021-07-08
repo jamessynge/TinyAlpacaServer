@@ -1,10 +1,13 @@
 #include "utils/any_printable.h"
 
+#include <cstring>
 #include <string>
+#include <string_view>
 
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/inline_literal.h"
 
 namespace alpaca {
 namespace test {
@@ -91,6 +94,22 @@ TEST(AnyPrintableTest, StringLiterals) {
   VerifyStringLiteralPrinting("");
   VerifyStringLiteralPrinting(" ");
   VerifyStringLiteralPrinting("some literal text");
+}
+
+void VerifyFlashStringPrinting(const __FlashStringHelper* str,
+                               const std::string expected) {
+  EXPECT_EQ(std::strlen(reinterpret_cast<const char*>(str)), expected.size());
+  EXPECT_EQ(PrintValueViaAnyPrintable(str), expected);
+}
+
+#define VERIFY_FLASH_STRING_PRINTING(string_literal)      \
+  VerifyFlashStringPrinting(TAS_FLASHSTR(string_literal), \
+                            std::string(string_literal))
+
+TEST(AnyPrintableTest, FlashStrings) {
+  VERIFY_FLASH_STRING_PRINTING("");
+  VERIFY_FLASH_STRING_PRINTING(" ");
+  VERIFY_FLASH_STRING_PRINTING("some literal text");
 }
 
 TEST(AnyPrintableTest, PrintableReference) {
