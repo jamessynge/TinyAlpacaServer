@@ -37,18 +37,10 @@ namespace alpaca {
 namespace progmem_data {
 template <char... C>
 struct ProgmemStringStorage final {
-  static PrintableProgmemString MakePrintable() {
-    return PrintableProgmemString(kData, sizeof...(C));
-  }
-
-  static constexpr const __FlashStringHelper* FlashStringHelper() {
-    return reinterpret_cast<const __FlashStringHelper*>(kData);
-  }
-
-  // We add a trailing NUL here so that we can return kData from
-  // FlashStringHelper() above; Arduino's Print::print(const
-  // __FlashStringHelper*) needs the string to be NUL terminated so that it
-  // knows when it has found the end of the string.
+  // We add a trailing NUL here so that we can interpret kData as a
+  // __FlashStringHelper instance (see TAS_FLASHSTR for how we do that);
+  // Arduino's Print::print(const __FlashStringHelper*) needs the string to be
+  // NUL terminated so that it knows when it has found the end of the string.
   static constexpr char const kData[sizeof...(C) + 1] AVR_PROGMEM = {C..., 0};
 };
 
@@ -56,31 +48,48 @@ template <char... C>
 constexpr char const
     ProgmemStringStorage<C...>::kData[sizeof...(C) + 1] AVR_PROGMEM;
 
+template <class PSS>
+PrintableProgmemString MakePrintable() {
+  return PrintableProgmemString(PSS::kData, (sizeof PSS::kData) - 1);
+}
+
 // Type deduction related templates from typestring.hh. They have the effect of
 // determining the length of the string literal by detecting the NUL that
 // terminates the literal. This means that they would not work with a literal
 // that has an embedded NUL in it.
 
+// When typoke has a single parameter, the return type has the same type as that
+// parameter.
 template <char... X>
 auto typoke(ProgmemStringStorage<X...>)  // as is...
     -> ProgmemStringStorage<X...>;
 
+// Keep only the characters before the NUL.
 template <char... X, char... Y>
 auto typoke(ProgmemStringStorage<X...>, ProgmemStringStorage<'\0'>,
             ProgmemStringStorage<Y>...) -> ProgmemStringStorage<X...>;
 
+// For any other character A, append it to the template parameter pack X, then
+// consider what to do with the characters following A.
 template <char A, char... X, char... Y>
 auto typoke(ProgmemStringStorage<X...>, ProgmemStringStorage<A>,
             ProgmemStringStorage<Y>...)
     -> decltype(typoke(ProgmemStringStorage<X..., A>(),
                        ProgmemStringStorage<Y>()...));
 
+// typeek is the "entry point"; it is used to split the output of TASLITnnn into
+// nnn separate chars, and to then use typoke to find the rightmost '/' and the
+// leftmost NUL.
 template <char... C>
 auto typeek(ProgmemStringStorage<C...>)
     -> decltype(typoke(ProgmemStringStorage<C>()...));
 
-// Get the Nth char from a string of length M. These are used to produce the
-// parameter pack
+// Get the Nth char from a string literal of length M, where that length
+// includes the trailing NUL at index M-1. This is used to produce the comma
+// separated lists of chars that make up a literal string. If N is > M, the
+// trailing NUL is returned; as a result, TASLIT16(, "Hello") becomes:
+//
+//   'H','e','l','l','o','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'
 template <int N, int M>
 constexpr char GetNthCharOfM(char const (&c)[M]) {
   return c[N < M ? N : M - 1];
@@ -124,14 +133,15 @@ constexpr char GetNthCharOfM(char const (&c)[M]) {
 // If your string literals have more than 127 characters (not including the
 // trailing NUL), replace TASLIT128 with TASLIT256 or TASLIT512, as necessary.
 
-#define TASLIT(x)                                             \
-  (decltype(::alpaca::progmem_data::typeek(                   \
-      ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128( \
-          , x)>()))::MakePrintable())
+#define TASLIT(x)                              \
+  (::alpaca::progmem_data::MakePrintable<      \
+      decltype(::alpaca::progmem_data::typeek( \
+          ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128(, x)>()))>())
 
-#define TAS_FLASHSTR(x)                                       \
-  (decltype(::alpaca::progmem_data::typeek(                   \
-      ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128( \
-          , x)>()))::FlashStringHelper())
+#define TAS_FLASHSTR(x)                                           \
+  (reinterpret_cast<const __FlashStringHelper*>(                  \
+      decltype(::alpaca::progmem_data::typeek(                    \
+          ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128( \
+              , x)>()))::kData))
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_INLINE_LITERAL_H_
