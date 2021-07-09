@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Convert bare strings in logging statements into FLASHSTR macro invocations.
-"""
+"""Convert bare strings in logging statements into FLASHSTR macro invocations."""
 
 import sys
 import typing

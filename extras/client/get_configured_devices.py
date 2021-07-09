@@ -10,9 +10,8 @@ import alpaca_http_client
 
 def main(argv: List[str]) -> None:
   if len(argv) not in [1, 2]:
-    raise ValueError(
-        'Expects one arg, the base of the URL, '
-        'and optionally the number of requests')
+    raise ValueError('Expects one arg, the base of the URL, '
+                     'and optionally the number of requests')
 
   url_base = argv[0]
   request_count = int(argv[1]) if len(argv) > 1 else 100

@@ -63,13 +63,10 @@ class AlpacaClient(object):
     self.url_base = url_base
     self.mgmt_url_base = f'{url_base}/management'
     self.device_url_base = f'{url_base}/api/v1'
-    self.client_id = int_value_or_default(
-        'client_id',
-        client_id,
-        random.randint(1, 65535))
+    self.client_id = int_value_or_default('client_id', client_id,
+                                          random.randint(1, 65535))
     self.next_client_transaction_id = int_value_or_default(
-        'initial_client_transaction_id',
-        initial_client_transaction_id,
+        'initial_client_transaction_id', initial_client_transaction_id,
         random.randint(1, 1000000))
     self.session = requests.session()
 
