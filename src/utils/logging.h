@@ -95,7 +95,7 @@
         : ::alpaca::LogSinkVoidify() && \
               ::alpaca::LogSink(TAS_BASENAME(__FILE__), __LINE__)
 
-#define TAS_IS_VLOG_ON(level) ((level) >= TAS_ENABLED_VLOG_LEVEL)
+#define TAS_IS_VLOG_ON(level) (TAS_ENABLED_VLOG_LEVEL >= (level))
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
