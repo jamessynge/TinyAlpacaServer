@@ -44,7 +44,7 @@ int PlatformEthernet::FindUnusedSocket() {
 
 bool PlatformEthernet::InitializeTcpListenerSocket(uint8_t sock_num,
                                                    uint16_t tcp_port) {
-  TAS_VLOG(2) << TAS_FLASHSTR("PlatformEthernet::InitializeTcpListenerSocket(")
+  TAS_VLOG(3) << TAS_FLASHSTR("PlatformEthernet::InitializeTcpListenerSocket(")
               << sock_num << TAS_FLASHSTR(", ") << tcp_port
               << TAS_FLASHSTR(") _server_port is ")
               << EthernetClass::_server_port[sock_num];
@@ -56,7 +56,7 @@ bool PlatformEthernet::InitializeTcpListenerSocket(uint8_t sock_num,
                                                                tcp_port);
 #else   // !TAS_HAS_PLATFORM_ETHERNET_INTERFACE
   EthernetClient client(sock_num);
-  TAS_VLOG(2) << TAS_FLASHSTR("Socket status: ") << client.status();
+  TAS_VLOG(4) << TAS_FLASHSTR("Socket status: ") << client.status();
   if (client.status() == SnSR::CLOSED) {
     if (EthernetClass::_server_port[sock_num] == tcp_port ||
         EthernetClass::_server_port[sock_num] == 0) {

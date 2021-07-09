@@ -85,12 +85,11 @@ void ServerConnection::OnCanRead(Connection& connection) {
       return;
     }
 
-    TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
-                << TAS_FLASHSTR(" ->::OnCanRead ")
-                << TAS_FLASHSTR("status_code: ") << status_code;
-
     bool close_connection = false;
     if (status_code == EHttpStatusCode::kHttpOk) {
+      TAS_VLOG(4) << TAS_FLASHSTR("ServerConnection @ ") << this
+                  << TAS_FLASHSTR(" ->::OnCanRead ")
+                  << TAS_FLASHSTR("status_code: ") << status_code;
       if (input_buffer_size_ == 0) {
         between_requests_ = true;
       }
@@ -98,6 +97,9 @@ void ServerConnection::OnCanRead(Connection& connection) {
         close_connection = true;
       }
     } else {
+      TAS_VLOG(3) << TAS_FLASHSTR("ServerConnection @ ") << this
+                  << TAS_FLASHSTR(" ->::OnCanRead ")
+                  << TAS_FLASHSTR("status_code: ") << status_code;
       request_listener_.OnRequestDecodingError(request_, status_code,
                                                connection);
       close_connection = true;
@@ -106,7 +108,7 @@ void ServerConnection::OnCanRead(Connection& connection) {
     // If we've returned an error, then we also close the connection so that
     // we don't require finding the end of a corrupt input request.
     if (close_connection) {
-      TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
+      TAS_VLOG(3) << TAS_FLASHSTR("ServerConnection @ ") << this
                   << TAS_FLASHSTR(" ->::OnCanRead ")
                   << TAS_FLASHSTR("closing connection");
 
@@ -120,15 +122,20 @@ void ServerConnection::OnCanRead(Connection& connection) {
 }
 
 void ServerConnection::OnHalfClosed(Connection& connection) {
-  TAS_VLOG(2) << TAS_FLASHSTR("ServerConnection @ ") << this
-              << TAS_FLASHSTR(" ->::OnHalfClosed socket ")
-              << connection.sock_num();
   TAS_DCHECK_EQ(sock_num(), connection.sock_num());
 
   if (!between_requests_) {
     // We've read some data but haven't been able to decode a complete request.
+    TAS_VLOG(3) << TAS_FLASHSTR("ServerConnection @ ") << this
+                << TAS_FLASHSTR(" ->::OnHalfClosed socket ")
+                << connection.sock_num()
+                << " between_requests_=" << between_requests_;
     request_listener_.OnRequestDecodingError(
         request_, EHttpStatusCode::kHttpBadRequest, connection);
+  } else {
+    TAS_VLOG(4) << TAS_FLASHSTR("ServerConnection @ ") << this
+                << TAS_FLASHSTR(" ->::OnHalfClosed socket ")
+                << connection.sock_num();
   }
   connection.close();
   sock_num_ = MAX_SOCK_NUM;
