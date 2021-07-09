@@ -89,17 +89,10 @@ void announceAddresses() {
   Serial.println();
 }
 
-void announceFailure(const char* message) {
-  while (true) {
-    Serial.println(message);
-    delay(1000);
-  }
-}
-
 }  // namespace
 
 void setup() {
-  // Initialize networking.
+  TAS_VLOG(1) << TAS_FLASHSTR("Initializing networking");
   Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::SetupW5500();
 
@@ -108,10 +101,11 @@ void setup() {
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
   alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
-  if (!ip_device.InitializeNetworking(&oui_prefix)) {
-    announceFailure("Unable to initialize networking!");
-  }
+  TAS_CHECK(ip_device.InitializeNetworking(&oui_prefix))
+      << TAS_FLASHSTR("Unable to initialize networking!");
   announceAddresses();
+
+  // Initialize Tiny Alpaca Server, which will initialize TCP listeners.
   tiny_alpaca_server.Initialize();
 
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
