@@ -99,14 +99,6 @@ void announceFailure(const char* message) {
 }  // namespace
 
 void setup() {
-  // *Attempt* to learn why the microcontroller started/restarted executing the
-  // sketch. To learn more, see:
-  //   https://forum.arduino.cc/t/how-to-distinguish-between-reset-and-real-power-loss/239738
-  const auto mcusr = MCUSR;
-  // Clear all MCUSR registers immediately for 'next use'
-  MCUSR = 0;
-
-  //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
   Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::SetupW5500();
@@ -130,7 +122,14 @@ void setup() {
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(float): ") << sizeof(float);
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(double): ") << sizeof(double);
   TAS_VLOG(1) << TAS_FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
+}
 
+void loop() {
+  ip_device.MaintainDhcpLease();
+  tiny_alpaca_server.PerformIO();
+}
+
+void logMCUStatusRegister(uint8_t mcusr) {
   TAS_VLOG(1) << TAS_FLASHSTR("MCUSR: ") << alpaca::BaseHex << mcusr;
   if (mcusr & _BV(JTRF)) {
     // JTAG Reset
@@ -152,11 +151,6 @@ void setup() {
     // Power On Reset
     TAS_VLOG(1) << TAS_FLASHSTR("Power-on") << TASLIT(" reset occured");
   }
-}
-
-void loop() {
-  ip_device.MaintainDhcpLease();
-  tiny_alpaca_server.PerformIO();
 }
 
 }  // namespace astro_makers

@@ -8,10 +8,13 @@
 //
 // Author: james.synge@gmail.com
 
+#include <Arduino.h>
+
 namespace astro_makers {
 
 void setup();
 void loop();
+void logMCUStatusRegister(uint8_t mcusr);
 
 }  // namespace astro_makers
 
