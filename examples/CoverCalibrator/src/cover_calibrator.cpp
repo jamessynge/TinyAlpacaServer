@@ -26,12 +26,12 @@ CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
       led4_(TimerCounterChannel::A, kLedChannel4EnabledPin),
       cover_() {}
 
-#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)                \
-  TAS_VLOG(level) << TAS_FLASHSTR(name)                                       \
-                  << (enableable_by_pin.IsEnabled() ? IsEnabled()             \
-                                                    : IsNotEnabled())         \
-                  << TAS_FLASHSTR("; digitalRead(")                           \
-                  << enableable_by_pin.enabled_pin() << TAS_FLASHSTR(") -> ") \
+#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)             \
+  TAS_VLOG(level) << TAS_FLASHSTR(name)                                    \
+                  << (enableable_by_pin.IsEnabled() ? IsEnabled()          \
+                                                    : IsNotEnabled())      \
+                  << TAS_FLASHSTR("; digitalRead(")                        \
+                  << enableable_by_pin.enabled_pin() << TAS_FLASHSTR(")=") \
                   << enableable_by_pin.ReadPin()
 
 void CoverCalibrator::Initialize() {
@@ -130,7 +130,7 @@ Status CoverCalibrator::SetCalibratorOff() {
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
-  TAS_VLOG(1) << TAS_FLASHSTR("SetLedChannelEnabled(") << channel
+  TAS_VLOG(4) << TAS_FLASHSTR("SetLedChannelEnabled(") << channel
               << TAS_FLASHSTR(", ") << enabled
               << TAS_FLASHSTR(") ENTER, brightness_ = ") << brightness_
               << TAS_FLASHSTR(", enabled_led_channels_ = ") << alpaca::BaseHex
@@ -147,7 +147,7 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
     }
   }
 
-  TAS_VLOG(1) << TAS_FLASHSTR(
+  TAS_VLOG(4) << TAS_FLASHSTR(
                      "SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
               << channel << TAS_FLASHSTR(") = ")
               << GetLedChannelEnabled(channel)

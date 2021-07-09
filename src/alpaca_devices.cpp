@@ -42,9 +42,9 @@ bool AlpacaDevices::Initialize() {
       DeviceInterface* const device2 = devices_[j];
       if (device1 == device2) {
         TAS_DCHECK_NE(device1, device2)
-            << TAS_FLASHSTR("Device appears twice in the list of devices: ")
-            << TAS_FLASHSTR("type=") << device1->device_type()
-            << TAS_FLASHSTR(", number=") << device1->device_number()
+            << TAS_FLASHSTR("Device appears twice in the list of devices:")
+            << TAS_FLASHSTR(" device_type=") << device1->device_type()
+            << TAS_FLASHSTR(", device_number=") << device1->device_number()
             << TAS_FLASHSTR(", name=")
             << HexEscaped(device1->device_info().name);
         result = false;  // TAS_DCHECK may be disabled.
@@ -71,8 +71,8 @@ bool AlpacaDevices::Initialize() {
           device2->device_info().config_id) {
         // Someday we'll generate a UUID from the device type and config_id,
         // so they need to be distinct.
-        TAS_DCHECK(false) << TAS_FLASHSTR("Devices [") << i << TAS_FLASHSTR("] and [")
-                          << j
+        TAS_DCHECK(false) << TAS_FLASHSTR("Devices [") << i
+                          << TAS_FLASHSTR("] and [") << j
                           << TAS_FLASHSTR("] have the same type and config_id");
         result = false;  // TAS_DCHECK may be disabled.
       }
@@ -113,13 +113,17 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
     if (request.device_type == device->device_type() &&
         request.device_number == device->device_number()) {
       const auto result = DispatchDeviceRequest(request, *device, out);
-      TAS_VLOG(3) << TAS_FLASHSTR("DispatchDeviceRequest result=") << result;
+      if (!result) {
+        TAS_VLOG(3) << TAS_FLASHSTR("DispatchDeviceRequest: ")
+                    << TAS_FLASHSTR("result=") << result;
+      }
       return result;
     }
   }
 
-  TAS_VLOG(3) << TAS_FLASHSTR("AlpacaDevices::DispatchDeviceRequest:")
-              << TAS_FLASHSTR(" Found no Device API Handler for api=")
+  TAS_VLOG(2) << TAS_FLASHSTR("AlpacaDevices::")
+              << TAS_FLASHSTR("DispatchDeviceRequest: ")
+              << TAS_FLASHSTR("Found no Device API Handler for api=")
               << request.api << TAS_FLASHSTR(" device_type=")
               << request.device_type << TAS_FLASHSTR(", device_number=")
               << request.device_number;
@@ -134,8 +138,8 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
                                           DeviceInterface& device, Print& out) {
   TAS_VLOG(3) << TAS_FLASHSTR("AlpacaDevices::DispatchDeviceRequest: ")
-              << request.device_type << TAS_FLASHSTR("/")
-              << request.device_number << TAS_FLASHSTR("/")
+              << request.device_type << '/'    // TAS_FLASHSTR("/")
+              << request.device_number << '/'  // TAS_FLASHSTR("/")
               << request.device_method << TAS_FLASHSTR(", client txn id=")
               << request.client_transaction_id;
   if (request.api == EAlpacaApi::kDeviceApi) {

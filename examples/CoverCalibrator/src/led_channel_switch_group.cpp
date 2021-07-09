@@ -23,9 +23,9 @@ bool LedChannelSwitchGroup::HandleGetSwitchDescription(
   TAS_DCHECK_LT(switch_id, GetMaxSwitch());
   return WriteResponse::PrintableStringResponse(
       request,
-      PrintableCat(TASLIT("Enables Cover-Calibrator LED Channel #"),
+      PrintableCat(TAS_FLASHSTR("Enables Cover-Calibrator LED Channel #"),
                    AnyPrintable(switch_id),
-                   TASLIT(", if hardware is available")),
+                   TAS_FLASHSTR(", if hardware is available")),
       out);
 }
 
@@ -70,16 +70,14 @@ double LedChannelSwitchGroup::GetSwitchStep(uint16_t switch_id) { return 1; }
 
 Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id, bool state) {
   if (!GetCanWrite(switch_id)) {
-    TAS_VLOG(1) << TAS_FLASHSTR("Can NOT write switch #") << switch_id;
+    TAS_VLOG(2) << TAS_FLASHSTR("Can NOT write switch #") << switch_id;
     return ErrorCodes::NotImplemented();
   } else if (cover_calibrator_.SetLedChannelEnabled(switch_id, state) !=
              state) {
     TAS_VLOG(1) << TAS_FLASHSTR("Failed to set channel ") << switch_id
                 << TAS_FLASHSTR(" to state ") << state;
-    TAS_DCHECK(false) << TAS_FLASHSTR("Failed to set channel ") << switch_id
-                      << TAS_FLASHSTR(" to state ") << state;
   } else {
-    TAS_VLOG(1) << TAS_FLASHSTR("Switch #") << switch_id
+    TAS_VLOG(4) << TAS_FLASHSTR("Switch #") << switch_id
                 << TAS_FLASHSTR(" now set to ") << state;
   }
   return OkStatus();
