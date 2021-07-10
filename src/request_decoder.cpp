@@ -931,7 +931,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 #if TAS_ENABLE_DEBUGGING
     const auto buffer_size_before_decode = buffer.size();
     auto old_decode_function = decode_function;
-    TAS_VLOG(2) << decode_function << TAS_FLASHSTR("(") << HexEscaped(buffer)
+    TAS_VLOG(2) << decode_function << ' ' << HexEscaped(buffer)
                 << TAS_FLASHSTR(" (") << static_cast<size_t>(buffer.size())
                 << TAS_FLASHSTR(" chars))");
 #endif
@@ -942,11 +942,13 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     TAS_CHECK_LE(buffer.size(), buffer_size_before_decode);
     auto consumed_chars = buffer_size_before_decode - buffer.size();
 
-    TAS_VLOG(3) << TAS_FLASHSTR("decode_function returned ") << status
-                << TAS_FLASHSTR(", consumed ") << consumed_chars
-                << TAS_FLASHSTR(" characters, decode function ")
-                << (old_decode_function == decode_function ? TASLIT("unchanged")
-                                                           : TASLIT("changed"));
+    TAS_VLOG(3) << TAS_FLASHSTR("decode_function ") << TAS_FLASHSTR("returned ")
+                << status << TAS_FLASHSTR(", consumed ") << consumed_chars
+                << TAS_FLASHSTR(" characters, ")
+                << TAS_FLASHSTR("decode_function ")
+                << (old_decode_function == decode_function
+                        ? TAS_FLASHSTR("unchanged")
+                        : TAS_FLASHSTR("changed"));
 
     if (status == EHttpStatusCode::kContinueDecoding) {
       // This is a check on the currently expected behavior; none of the current
@@ -1007,7 +1009,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
     const auto buffer_size_before_decode = buffer.size();
 #if TAS_ENABLE_DEBUGGING
     const auto old_decode_function = decode_function;
-    TAS_VLOG(2) << decode_function << TAS_FLASHSTR("(") << HexEscaped(buffer)
+    TAS_VLOG(2) << decode_function << ' ' << HexEscaped(buffer)
                 << TAS_FLASHSTR(" (") << (buffer.size() + 0)
                 << TAS_FLASHSTR(" chars))");
 #endif
@@ -1016,11 +1018,13 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
     const auto consumed_chars = buffer_size_before_decode - buffer.size();
 
 #if TAS_ENABLE_DEBUGGING
-    TAS_VLOG(3) << TAS_FLASHSTR("decode_function returned ") << status
-                << TAS_FLASHSTR(", consumed ") << consumed_chars
-                << TAS_FLASHSTR(" characters, decode function ")
-                << (old_decode_function == decode_function ? TASLIT("unchanged")
-                                                           : TASLIT("changed"));
+    TAS_VLOG(3) << TAS_FLASHSTR("decode_function ") << TAS_FLASHSTR("returned ")
+                << status << TAS_FLASHSTR(", consumed ") << consumed_chars
+                << TAS_FLASHSTR(" characters, ")
+                << TAS_FLASHSTR("decode_function ")
+                << (old_decode_function == decode_function
+                        ? TAS_FLASHSTR("unchanged")
+                        : TAS_FLASHSTR("changed"));
     TAS_CHECK_LE(buffer.size(), buffer_size_before_decode);
     TAS_CHECK_LE(consumed_chars, remaining_content_length);
     if (decode_function == old_decode_function) {
@@ -1062,8 +1066,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
 
 EHttpStatusCode RequestDecoderState::SetDecodeFunction(
     const DecodeFunction func) {
-  TAS_VLOG(3) << TAS_FLASHSTR("SetDecodeFunction(") << func
-              << TAS_FLASHSTR(")");
+  TAS_VLOG(3) << TAS_FLASHSTR("SetDecodeFunction(") << func << ')';
   TAS_CHECK_NE(decode_function, nullptr);
   TAS_CHECK_NE(decode_function, func);
   decode_function = func;

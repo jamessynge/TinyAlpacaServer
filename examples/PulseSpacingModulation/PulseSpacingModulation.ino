@@ -170,7 +170,7 @@ void AdjustTimerPeriod(uint32_t period_ns) {
 void StartTimer5(uint32_t period_ns) {
   DisableTimer5();
 
-  TAS_VLOG(5) << TAS_FLASHSTR("StartTimer5(") << period_ns << TAS_FLASHSTR(")");
+  TAS_VLOG(5) << TAS_FLASHSTR("StartTimer5(") << period_ns << ')';
   delay(20);
 
   AdjustTimerPeriod(period_ns);
@@ -191,7 +191,7 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
 
   TAS_VLOG(1) << TAS_FLASHSTR("StartMoving(") << new_movement_mode
               << TAS_FLASHSTR(", ") << limit_switch_pin << TAS_FLASHSTR(", ")
-              << steps_per_second << TAS_FLASHSTR(")");
+              << steps_per_second << ')';
   delay(20);
 
   limit_pin = limit_switch_pin;
@@ -302,8 +302,7 @@ void loop() {
                   << TAS_FLASHSTR(", elapsed_us=") << elapsed_us
                   << TAS_FLASHSTR(", elapsed_s=") << elapsed_s
                   << TAS_FLASHSTR(", steps/s=") << steps_per_s
-                  << TAS_FLASHSTR(", % target steps/s=") << pct_target
-                  << TAS_FLASHSTR("\n");
+                  << TAS_FLASHSTR(", % target steps/s=") << pct_target << '\n';
     }
     start_timer_micros = 0;
     stop_timer_micros = 0;

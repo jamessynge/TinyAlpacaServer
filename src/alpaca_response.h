@@ -165,9 +165,10 @@ struct WriteResponse {
   // Writes an HTTP error response with a text body to out. Returns false.
   static bool HttpErrorResponse(EHttpStatusCode status_code,
                                 const Printable& body, Print& out);
-  static bool HttpErrorResponse(EHttpStatusCode status_code, Literal body,
-                                Print& out) {
-    return HttpErrorResponse(status_code, AnyPrintable(body), out);
+  static bool HttpErrorResponse(EHttpStatusCode status_code,
+                                const AnyPrintable& body, Print& out) {
+    return HttpErrorResponse(status_code, static_cast<const Printable&>(body),
+                             out);
   }
 };
 

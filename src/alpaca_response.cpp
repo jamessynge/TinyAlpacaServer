@@ -224,7 +224,7 @@ bool WriteResponse::AscomActionNotImplementedResponse(
 bool WriteResponse::AscomParameterMissingErrorResponse(
     const AlpacaRequest& request, Literal parameter_name, Print& out) {
   auto error_message =
-      PrintableCat(TASLIT("Missing parameter: "), parameter_name);
+      PrintableCat(TAS_FLASHSTR("Missing parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
                             out);
 }
@@ -232,7 +232,7 @@ bool WriteResponse::AscomParameterMissingErrorResponse(
 bool WriteResponse::AscomParameterInvalidErrorResponse(
     const AlpacaRequest& request, Literal parameter_name, Print& out) {
   auto error_message =
-      PrintableCat(TASLIT("Invalid parameter: "), parameter_name);
+      PrintableCat(TAS_FLASHSTR("Invalid parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kInvalidValue, error_message,
                             out);
 }
