@@ -33,8 +33,8 @@
 #include "utils/printable_progmem_string.h"  // IWYU pragma: export
 
 namespace alpaca {
-
 namespace progmem_data {
+
 template <char... C>
 struct ProgmemStringStorage final {
   // We add a trailing NUL here so that we can interpret kData as a
@@ -130,7 +130,13 @@ constexpr char GetNthCharOfM(char const (&c)[M]) {
 /* 2^9 = 512 */
 #define TASLIT512(n, x) TASLIT256(n##0, x), TASLIT256(n##1, x)
 
-// If your string literals have more than 127 characters (not including the
+/* 2^10 = 1024 */
+// WARNING: 1024 is too long in practice, clang gives up on my workstation,
+// avr-gcc probably crashes my laptop.
+#define TASLIT1024(n, x) \
+  TASLIT256(n##0, x), TASLIT256(n##1, x), TASLIT256(n##2, x), TASLIT256(n##4, x)
+
+// If your string literals have more than 128 characters (not including the
 // trailing NUL), replace TASLIT128 with TASLIT256 or TASLIT512, as necessary.
 
 #define TASLIT(x)                              \
