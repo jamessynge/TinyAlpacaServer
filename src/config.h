@@ -21,13 +21,13 @@
 // Number of bytes for storage of incoming request bytes. This needs to be 1
 // byte larger than the largest item that we will need to be able to match,
 // where that extra byte is necessary to detect the end of that item.
-#define SERVER_CONNECTION_INPUT_BUFFER_SIZE 34
+#define SERVER_CONNECTION_INPUT_BUFFER_SIZE 128
 
 // This isn't fully fleshed out, but the basics are there for storing the
 // parameter enum and short string value of parameter types that are defined
 // and have token entries in kRecognizedParameters passed
 #define TAS_ENABLE_EXTRA_REQUEST_PARAMETERS 1
 #define TAS_MAX_EXTRA_REQUEST_PARAMETERS 2
-#define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 34
+#define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 128
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONFIG_H_

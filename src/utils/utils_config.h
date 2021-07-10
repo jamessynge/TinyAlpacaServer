@@ -34,13 +34,13 @@ extern void [[TAS_DO_LOG_EXPERIMENT_is_defined]] UtilsFunc();
 #define TAS_ENABLE_CHECK
 #endif  // !TAS_ENABLE_CHECK
 
-// #ifdef TAS_ENABLE_DCHECK
-// #undef TAS_ENABLE_DCHECK
-// #endif  // TAS_ENABLE_DCHECK
+#ifdef TAS_ENABLE_DCHECK
+#undef TAS_ENABLE_DCHECK
+#endif  // TAS_ENABLE_DCHECK
 
-#ifndef TAS_ENABLE_DCHECK
-#define TAS_ENABLE_DCHECK
-#endif  // !TAS_ENABLE_DCHECK
+// #ifndef TAS_ENABLE_DCHECK
+// #define TAS_ENABLE_DCHECK
+// #endif  // !TAS_ENABLE_DCHECK
 
 #else  // !ARDUINO
 

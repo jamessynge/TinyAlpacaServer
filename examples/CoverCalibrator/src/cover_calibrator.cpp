@@ -46,6 +46,7 @@ void CoverCalibrator::Initialize() {
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
 
+  calibrator_on_ = false;
   brightness_ = 0;
   enabled_led_channels_ = 0xf;  // ALL.
 
@@ -79,7 +80,7 @@ StatusOr<int32_t> CoverCalibrator::GetBrightness() {
 StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
   if (IsCalibratorHardwareEnabled()) {
     // We treat 0 as turning off the calibrator. Not sure if that is right.
-    if (brightness_ == 0) {
+    if (!calibrator_on_) {
       return ECalibratorStatus::kOff;
     } else {
       return ECalibratorStatus::kReady;
@@ -92,15 +93,14 @@ StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
 StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() { return kMaxBrightness; }
 
 Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
-  if (brightness == 0) {
-    return SetCalibratorOff();
-  }
+
   if (!IsCalibratorHardwareEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
   if (brightness > kMaxBrightness) {
     return alpaca::ErrorCodes::InvalidValue();
   }
+  calibrator_on_ = true;
   brightness_ = brightness;
   if (GetLedChannelEnabled(0)) {
     led1_.set_pulse_count(brightness_);
@@ -126,6 +126,7 @@ Status CoverCalibrator::SetCalibratorOff() {
   led3_.set_pulse_count(0);
   led4_.set_pulse_count(0);
   brightness_ = 0;
+  calibrator_on_ = false;
   return alpaca::OkStatus();
 }
 
