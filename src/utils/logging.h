@@ -2,10 +2,11 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_LOGGING_H_
 
 // Logging and assert-like utility macros for Tiny Alpaca Server. These are
-// inspired by the Google Logging Library, but are not identical. The features
-// available are controlled by defining, or not, the macro TAS_ENABLE_CHECK, and
-// by the value of TAS_ENABLED_VLOG_LEVEL (undefined or defined to an integer in
-// the range 1 through 9).
+// inspired by the Google Logging Library (https://github.com/google/glog), but
+// are not identical. The features available are controlled by defining, or not,
+// the macro TAS_ENABLE_CHECK and TAS_ENABLE_CHECK, and by the value of the
+// macro TAS_ENABLED_VLOG_LEVEL (undefined or defined to an integer in the range
+// 1 through 9).
 //
 // Author: james.synge@gmail.com
 //
@@ -95,7 +96,7 @@
         : ::alpaca::LogSinkVoidify() && \
               ::alpaca::LogSink(TAS_BASENAME(__FILE__), __LINE__)
 
-#define TAS_IS_VLOG_ON(level) (TAS_ENABLED_VLOG_LEVEL >= (level))
+#define TAS_VLOG_IS_ON(level) (TAS_ENABLED_VLOG_LEVEL >= (level))
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
@@ -103,12 +104,18 @@ extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
 
 #else
 
+#ifdef TAS_ENABLED_VLOG_LEVEL
+#if TAS_ENABLED_VLOG_LEVEL < 0 || 9 < TAS_ENABLED_VLOG_LEVEL
+#error "TAS_ENABLED_VLOG_LEVEL is out of range"
+#endif
+#endif  // TAS_ENABLED_VLOG_LEVEL
+
 #define TAS_VLOG(level) \
   switch (0)            \
   default:              \
     (true) ? (void)0 : ::alpaca::LogSinkVoidify() && TAS_VOID_SINK
 
-#define TAS_IS_VLOG_ON(level) (false)
+#define TAS_VLOG_IS_ON(level) (false)
 
 #ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 extern void [[TAS_VLOG_uses_TAS_VOID_SINK]] SomeFuncA();

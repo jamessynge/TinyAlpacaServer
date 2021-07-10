@@ -83,7 +83,7 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   bitWrite(TIFR5, TOV5, 1);
   interrupts();
 
-  if (TAS_IS_VLOG_ON(4)) {
+  if (TAS_VLOG_IS_ON(4)) {
     TAS_VLOG(4) << alpaca::BaseHex << TAS_FLASHSTR("StartTimer5 TCCR5A: ")
                 << TCCR5A << TAS_FLASHSTR(", TCCR5B: ") << TCCR5B;
     TAS_VLOG(4) << TAS_FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
@@ -242,7 +242,7 @@ void Cover::StartMoving(int direction_pin_value) {
   StartTimer5(kStepsPerSecond);
   delay(1);
 
-  if (TAS_IS_VLOG_ON(1)) {
+  if (TAS_VLOG_IS_ON(1)) {
     noInterrupts();
     uint32_t step_count_copy = step_count_;
     interrupts();
