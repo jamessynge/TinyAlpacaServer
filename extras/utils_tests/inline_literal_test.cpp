@@ -21,7 +21,7 @@ TEST(InlineLiteralTest, RawProgmemString) {
 }
 
 TEST(InlineLiteralTest, TASLIT16_String) {
-  using Type = ProgmemStringStorage<TASLIT16(, "Hello!")>;
+  using Type = ProgmemStringStorage<_TAS_EXPAND_16(, "Hello!")>;
   auto printable = alpaca::progmem_data::MakePrintable<Type>();
   EXPECT_EQ(printable.size(), 16);
   PrintToStdString out;

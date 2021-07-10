@@ -82,13 +82,13 @@ auto repack_basename(BasenameStorage<C...>)
 }  // namespace tas_basename
 }  // namespace alpaca
 
-// If your paths are longer than 127 characters, change TASLIT128 below to
-// TASLIT256, TASLIT512 or even add TASLIT1024, if necessary.
+// If your paths are longer than 127 characters, change _TAS_EXPAND_128 below to
+// _TAS_EXPAND_256, _TAS_EXPAND_512 or even add _TAS_EXPAND_1024, if necessary.
 //
-// NOTE: This is horribly slow when compiled with avr-gcc and TASLIT256. To
-// avoid this, the macro TAS_BASENAME_LITnnn is defined differently for AVR and
-// non-AVR. The longest path I've seen on my laptop is around 120 characters, so
-// I'm risking using TASLIT128.
+// NOTE: This is horribly slow when compiled with avr-gcc and _TAS_EXPAND_256.
+// To avoid this, the macro TAS_BASENAME_LITnnn is defined differently for AVR
+// and non-AVR. The longest path I've seen on my laptop is around 120
+// characters, so I'm risking using _TAS_EXPAND_128.
 //
 // TODO(jamessynge): Come up with a way to speed this up, such as a recursive,
 // divide-and-conquer strategy, which should result in lots of the same type
@@ -100,9 +100,9 @@ auto repack_basename(BasenameStorage<C...>)
 // class template with a value that is the length of the path_literal.
 
 #ifdef ARDUINO
-#define TAS_BASENAME_LITnnn(n, x) TASLIT128(n, x)
+#define TAS_BASENAME_LITnnn(n, x) _TAS_EXPAND_128(n, x)
 #else
-#define TAS_BASENAME_LITnnn(n, x) TASLIT256(n, x)
+#define TAS_BASENAME_LITnnn(n, x) _TAS_EXPAND_256(n, x)
 #endif
 
 #define TAS_BASENAME_TYPE(path_literal)                            \

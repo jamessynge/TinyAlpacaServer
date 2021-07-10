@@ -87,7 +87,7 @@ auto typeek(ProgmemStringStorage<C...>)
 // Get the Nth char from a string literal of length M, where that length
 // includes the trailing NUL at index M-1. This is used to produce the comma
 // separated lists of chars that make up a literal string. If N is > M, the
-// trailing NUL is returned; as a result, TASLIT16(, "Hello") becomes:
+// trailing NUL is returned; as a result, _TAS_EXPAND_16(, "Hello") becomes:
 //
 //   'H','e','l','l','o','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'
 template <int N, int M>
@@ -98,56 +98,66 @@ constexpr char GetNthCharOfM(char const (&c)[M]) {
 }  // namespace progmem_data
 }  // namespace alpaca
 
-#define TASLIT_N_M(n, m, x) ::alpaca::progmem_data::GetNthCharOfM<0x##n##m>(x)
+#define _TAS_GET_NTH_CHAR(n, x) ::alpaca::progmem_data::GetNthCharOfM<0x##n>(x)
 
 /* 2^4 = 16 */
-#define TASLIT16(n, x)                                               \
-  TASLIT_N_M(n, 0, x), TASLIT_N_M(n, 1, x), TASLIT_N_M(n, 2, x),     \
-      TASLIT_N_M(n, 3, x), TASLIT_N_M(n, 4, x), TASLIT_N_M(n, 5, x), \
-      TASLIT_N_M(n, 6, x), TASLIT_N_M(n, 7, x), TASLIT_N_M(n, 8, x), \
-      TASLIT_N_M(n, 9, x), TASLIT_N_M(n, A, x), TASLIT_N_M(n, B, x), \
-      TASLIT_N_M(n, C, x), TASLIT_N_M(n, D, x), TASLIT_N_M(n, E, x), \
-      TASLIT_N_M(n, F, x)
+#define _TAS_EXPAND_16(n, x)                                  \
+  _TAS_GET_NTH_CHAR(n##0, x), _TAS_GET_NTH_CHAR(n##1, x),     \
+      _TAS_GET_NTH_CHAR(n##2, x), _TAS_GET_NTH_CHAR(n##3, x), \
+      _TAS_GET_NTH_CHAR(n##4, x), _TAS_GET_NTH_CHAR(n##5, x), \
+      _TAS_GET_NTH_CHAR(n##6, x), _TAS_GET_NTH_CHAR(n##7, x), \
+      _TAS_GET_NTH_CHAR(n##8, x), _TAS_GET_NTH_CHAR(n##9, x), \
+      _TAS_GET_NTH_CHAR(n##A, x), _TAS_GET_NTH_CHAR(n##B, x), \
+      _TAS_GET_NTH_CHAR(n##C, x), _TAS_GET_NTH_CHAR(n##D, x), \
+      _TAS_GET_NTH_CHAR(n##E, x), _TAS_GET_NTH_CHAR(n##F, x)
 
 /* 2^6 = 64 */
-#define TASLIT64(n, x) \
-  TASLIT16(n##0, x), TASLIT16(n##1, x), TASLIT16(n##2, x), TASLIT16(n##3, x)
+#define _TAS_EXPAND_64(n, x)                                                 \
+  _TAS_EXPAND_16(n##0, x), _TAS_EXPAND_16(n##1, x), _TAS_EXPAND_16(n##2, x), \
+      _TAS_EXPAND_16(n##3, x)
 
 /* 2^7 = 128 */
-#define TASLIT128(n, x)                                                       \
-  TASLIT16(n##0, x), TASLIT16(n##1, x), TASLIT16(n##2, x), TASLIT16(n##3, x), \
-      TASLIT16(n##4, x), TASLIT16(n##5, x), TASLIT16(n##6, x),                \
-      TASLIT16(n##7, x)
+#define _TAS_EXPAND_128(n, x)                                                \
+  _TAS_EXPAND_16(n##0, x), _TAS_EXPAND_16(n##1, x), _TAS_EXPAND_16(n##2, x), \
+      _TAS_EXPAND_16(n##3, x), _TAS_EXPAND_16(n##4, x),                      \
+      _TAS_EXPAND_16(n##5, x), _TAS_EXPAND_16(n##6, x),                      \
+      _TAS_EXPAND_16(n##7, x)
 
 /* 2^8 = 256 */
-#define TASLIT256(n, x)                                                       \
-  TASLIT16(n##0, x), TASLIT16(n##1, x), TASLIT16(n##2, x), TASLIT16(n##3, x), \
-      TASLIT16(n##4, x), TASLIT16(n##5, x), TASLIT16(n##6, x),                \
-      TASLIT16(n##7, x), TASLIT16(n##8, x), TASLIT16(n##9, x),                \
-      TASLIT16(n##A, x), TASLIT16(n##B, x), TASLIT16(n##C, x),                \
-      TASLIT16(n##D, x), TASLIT16(n##E, x), TASLIT16(n##F, x)
+#define _TAS_EXPAND_256(n, x)                                                \
+  _TAS_EXPAND_16(n##0, x), _TAS_EXPAND_16(n##1, x), _TAS_EXPAND_16(n##2, x), \
+      _TAS_EXPAND_16(n##3, x), _TAS_EXPAND_16(n##4, x),                      \
+      _TAS_EXPAND_16(n##5, x), _TAS_EXPAND_16(n##6, x),                      \
+      _TAS_EXPAND_16(n##7, x), _TAS_EXPAND_16(n##8, x),                      \
+      _TAS_EXPAND_16(n##9, x), _TAS_EXPAND_16(n##A, x),                      \
+      _TAS_EXPAND_16(n##B, x), _TAS_EXPAND_16(n##C, x),                      \
+      _TAS_EXPAND_16(n##D, x), _TAS_EXPAND_16(n##E, x),                      \
+      _TAS_EXPAND_16(n##F, x)
 
 /* 2^9 = 512 */
-#define TASLIT512(n, x) TASLIT256(n##0, x), TASLIT256(n##1, x)
+#define _TAS_EXPAND_512(n, x) _TAS_EXPAND_256(n##0, x), _TAS_EXPAND_256(n##1, x)
 
 /* 2^10 = 1024 */
 // WARNING: 1024 is too long in practice, clang gives up on my workstation,
 // avr-gcc probably crashes my laptop.
-#define TASLIT1024(n, x) \
-  TASLIT256(n##0, x), TASLIT256(n##1, x), TASLIT256(n##2, x), TASLIT256(n##4, x)
+#define _TAS_EXPAND_1024(n, x)                        \
+  _TAS_EXPAND_256(n##0, x), _TAS_EXPAND_256(n##1, x), \
+      _TAS_EXPAND_256(n##2, x), _TAS_EXPAND_256(n##4, x)
 
 // If your string literals have more than 128 characters (not including the
-// trailing NUL), replace TASLIT128 with TASLIT256 or TASLIT512, as necessary.
+// trailing NUL), replace _TAS_EXPAND_128 with _TAS_EXPAND_256 or
+// _TAS_EXPAND_512, as necessary.
 
-#define TASLIT(x)                              \
-  (::alpaca::progmem_data::MakePrintable<      \
-      decltype(::alpaca::progmem_data::typeek( \
-          ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128(, x)>()))>())
+#define TASLIT(x)                                                       \
+  (::alpaca::progmem_data::MakePrintable<                               \
+      decltype(::alpaca::progmem_data::typeek(                          \
+          ::alpaca::progmem_data::ProgmemStringStorage<_TAS_EXPAND_128( \
+              , x)>()))>())
 
-#define TAS_FLASHSTR(x)                                           \
-  (reinterpret_cast<const __FlashStringHelper*>(                  \
-      decltype(::alpaca::progmem_data::typeek(                    \
-          ::alpaca::progmem_data::ProgmemStringStorage<TASLIT128( \
+#define TAS_FLASHSTR(x)                                                 \
+  (reinterpret_cast<const __FlashStringHelper*>(                        \
+      decltype(::alpaca::progmem_data::typeek(                          \
+          ::alpaca::progmem_data::ProgmemStringStorage<_TAS_EXPAND_128( \
               , x)>()))::kData))
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_INLINE_LITERAL_H_

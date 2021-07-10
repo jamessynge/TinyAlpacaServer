@@ -65,7 +65,7 @@ auto ProvideStorage(LiteralStringPack<C...>) -> ProgmemStringStorage<C...>;
 
 #define _TAS_KEEP_LITERAL_BEFORE_NUL_64(x)                     \
   decltype(::alpaca::progmem_data::ExpandLiteralKeepBeforeNUL( \
-      ::alpaca::progmem_data::LiteralStringPack<TASLIT64(, x)>()))
+      ::alpaca::progmem_data::LiteralStringPack<_TAS_EXPAND_64(, x)>()))
 
 #define _TASLIT_TYPE_64(x)                         \
   decltype(::alpaca::progmem_data::ProvideStorage( \
@@ -78,7 +78,7 @@ auto ProvideStorage(LiteralStringPack<C...>) -> ProgmemStringStorage<C...>;
 
 #define _TAS_KEEP_LITERAL_BEFORE_NUL_128(x)                    \
   decltype(::alpaca::progmem_data::ExpandLiteralKeepBeforeNUL( \
-      ::alpaca::progmem_data::LiteralStringPack<TASLIT128(, x)>()))
+      ::alpaca::progmem_data::LiteralStringPack<_TAS_EXPAND_128(, x)>()))
 
 #define _TASLIT_TYPE_128(x)                        \
   decltype(::alpaca::progmem_data::ProvideStorage( \
@@ -91,7 +91,7 @@ auto ProvideStorage(LiteralStringPack<C...>) -> ProgmemStringStorage<C...>;
 
 #define _TAS_KEEP_LITERAL_BEFORE_NUL_256(x)                    \
   decltype(::alpaca::progmem_data::ExpandLiteralKeepBeforeNUL( \
-      ::alpaca::progmem_data::LiteralStringPack<TASLIT256(, x)>()))
+      ::alpaca::progmem_data::LiteralStringPack<_TAS_EXPAND_256(, x)>()))
 
 #define _TASLIT_TYPE_256(x)                        \
   decltype(::alpaca::progmem_data::ProvideStorage( \
@@ -104,7 +104,7 @@ auto ProvideStorage(LiteralStringPack<C...>) -> ProgmemStringStorage<C...>;
 
 #define _TAS_KEEP_LITERAL_BEFORE_NUL_512(x)                    \
   decltype(::alpaca::progmem_data::ExpandLiteralKeepBeforeNUL( \
-      ::alpaca::progmem_data::LiteralStringPack<TASLIT512(, x)>()))
+      ::alpaca::progmem_data::LiteralStringPack<_TAS_EXPAND_512(, x)>()))
 
 #define _TASLIT_TYPE_512(x)                        \
   decltype(::alpaca::progmem_data::ProvideStorage( \
@@ -117,7 +117,7 @@ auto ProvideStorage(LiteralStringPack<C...>) -> ProgmemStringStorage<C...>;
 
 #define _TAS_KEEP_LITERAL_BEFORE_NUL_1024(x)                   \
   decltype(::alpaca::progmem_data::ExpandLiteralKeepBeforeNUL( \
-      ::alpaca::progmem_data::LiteralStringPack<TASLIT1024(, x)>()))
+      ::alpaca::progmem_data::LiteralStringPack<_TAS_EXPAND_1024(, x)>()))
 
 #define _TASLIT_TYPE_1024(x)                       \
   decltype(::alpaca::progmem_data::ProvideStorage( \
@@ -142,7 +142,7 @@ TEST(InlineLiteralTest, RawProgmemString) {
 }
 
 TEST(InlineLiteralTest, TASLIT16_String) {
-  using Type = ProgmemStringStorage<TASLIT16(, "Hello!")>;
+  using Type = ProgmemStringStorage<_TAS_EXPAND_16(, "Hello!")>;
   auto printable = alpaca::progmem_data::MakePrintable<Type>();
   EXPECT_EQ(printable.size(), 16);
   PrintToStdString out;

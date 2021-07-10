@@ -53,7 +53,7 @@ TEST(BasenameStorageTest, RawProgmemString) {
 }
 
 TEST(BasenameStorageTest, TASLIT16_String) {
-  using Hello = BasenameStorage<TASLIT16(, "Hello!")>;
+  using Hello = BasenameStorage<_TAS_EXPAND_16(, "Hello!")>;
   PrintToStdString out;
   EXPECT_EQ(out.print(Hello::FlashStringHelper()), 6);
   EXPECT_EQ(out.str(), "Hello!");
