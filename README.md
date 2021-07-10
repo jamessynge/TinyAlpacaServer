@@ -312,9 +312,6 @@ without search the string for the terminating NUL.
     those enums to build PROGMEM tables of allowed tokens for use when decoding
     the path.
 
-*   MAYBE: Write a tool for converting uses of bare literal strings into TASLIT
-    or similar macro invocations.
-
 *   Add the ability to produce a UniqueID for a device instance based on
     multiple factors, including at least DeviceInterface::GetUniqueBytes,
     device_type and config_id and MAC address. Alternatively, we might use the
@@ -333,6 +330,9 @@ without search the string for the terminating NUL.
 *   To eliminate RAM consumed for alpaca::DeviceInfo objects, change the
     internal API for locating those to instead pass in a stack allocated
     DeviceInfo to be filled in when the info is needed.
+
+*   DONE: Write a tool for converting uses of bare literal strings into TASLIT
+    or similar macro invocations.
 
 ### Generate Device-Type Specific Code
 

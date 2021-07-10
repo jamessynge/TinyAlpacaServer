@@ -113,7 +113,7 @@ between the `configureddevices` response and the contents of the SDcard.
 
 ### Serving Static Assets
 
-TODO(jamessynge): Add support for serving static assets (files) from the the
-SDcard. In particular, all paths under /setup and /assets should come from the
-SDcard. Non-normalized paths should be rejected (e.g. those with `//`, `/../`,
-or `/./`).
+TODO(jamessynge): Add support for serving static assets (files) from the SDcard.
+In particular, all paths under /setup and /assets should come from the SDcard.
+Non-normalized paths should be rejected (e.g. those with `//`, `/../`, or
+`/./`).
