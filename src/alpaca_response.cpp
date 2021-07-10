@@ -233,7 +233,7 @@ bool WriteResponse::AscomParameterInvalidErrorResponse(
     const AlpacaRequest& request, Literal parameter_name, Print& out) {
   auto error_message =
       PrintableCat(TASLIT("Invalid parameter: "), parameter_name);
-  return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
+  return AscomErrorResponse(request, ErrorCodes::kInvalidValue, error_message,
                             out);
 }
 

@@ -73,7 +73,7 @@ bool MatchCommonDeviceMethod(const StringView& view, EDeviceMethod& match) {
 
 namespace {
 bool MatchCoverCalibratorMethod(const StringView& view, EDeviceMethod& match) {
-  MATCH_ONE_LITERAL_EXACTLY(brightness, EDeviceMethod::kAveragePeriod);
+  MATCH_ONE_LITERAL_EXACTLY(brightness, EDeviceMethod::kBrightness);
   MATCH_ONE_LITERAL_EXACTLY(calibratoroff, EDeviceMethod::kCalibratorOff);
   MATCH_ONE_LITERAL_EXACTLY(calibratoron, EDeviceMethod::kCalibratorOn);
   MATCH_ONE_LITERAL_EXACTLY(calibratorstate, EDeviceMethod::kCalibratorState);

@@ -74,6 +74,7 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
 
   Cover cover_;
 
+  bool calibrator_on_;
   uint16_t brightness_;
   uint8_t enabled_led_channels_;
 };
