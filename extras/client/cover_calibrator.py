@@ -4,7 +4,7 @@
 import datetime
 import random
 import sys
-from typing import List, Sequence
+from typing import Iterable, List, Sequence
 
 import alpaca_http_client
 
@@ -103,10 +103,10 @@ def sweep_brightness(cover_calibrator: alpaca_http_client.CoverCalibrator,
 
 def sweep_led_channel(led_switches: alpaca_http_client.Switch, led_channel: int,
                       cover_calibrator: alpaca_http_client.CoverCalibrator,
-                      brightnesses: List[int]) -> None:
+                      brightnesses: Iterable[int]) -> None:
   for n in range(4):
     led_switches.put_setswitch(n, led_channel == n)
-  sweep_brightness(cover_calibrator, brightnesses)
+  sweep_brightness(cover_calibrator, list(brightnesses))
 
 
 def main(argv: Sequence[str]) -> None:

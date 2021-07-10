@@ -167,7 +167,7 @@ TEST(MatchLiteralsTest, MatchCoverCalibratorMethod) {
 
   // Tests of the Device API, as opposed to the Setup API.
   DeviceMethodTestCases test_cases = {
-      {"brightness", EDeviceMethod::kAveragePeriod},
+      {"brightness", EDeviceMethod::kBrightness},
       {"calibratoroff", EDeviceMethod::kCalibratorOff},
       {"calibratoron", EDeviceMethod::kCalibratorOn},
       {"calibratorstate", EDeviceMethod::kCalibratorState},

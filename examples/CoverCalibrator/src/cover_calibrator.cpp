@@ -78,22 +78,18 @@ StatusOr<int32_t> CoverCalibrator::GetBrightness() {
 // Returns the state of the calibration device, or kUnknown if not overridden
 // by a subclass.
 StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
-  if (IsCalibratorHardwareEnabled()) {
-    // We treat 0 as turning off the calibrator. Not sure if that is right.
-    if (!calibrator_on_) {
-      return ECalibratorStatus::kOff;
-    } else {
-      return ECalibratorStatus::kReady;
-    }
-  } else {
+  if (!IsCalibratorHardwareEnabled()) {
     return ECalibratorStatus::kNotPresent;
+  } else if (!calibrator_on_) {
+    return ECalibratorStatus::kOff;
+  } else {
+    return ECalibratorStatus::kReady;
   }
 }
 
 StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() { return kMaxBrightness; }
 
 Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
-
   if (!IsCalibratorHardwareEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
