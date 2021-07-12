@@ -38,29 +38,29 @@ class ErrorCodes {
   static constexpr uint32_t kInvalidWhileSlaved = 1033;
   static Status InvalidWhileSlaved();
 
+  // Reserved error code (0x40A, 1034) related to settings.
+  static constexpr uint32_t kSettingsProviderError = 0x40A;
+  static Status SettingsProviderError();
+
   // Reserved error code(0x40B, 1035) to indicate that the requested operation
   // can not be undertaken at this time.
   static constexpr uint32_t kInvalidOperation = 1035;
   static Status InvalidOperation();
 
-  // Reserved error code (0x40C) to indicate that the requested action is
+  // Reserved error code (0x40C, 1036) to indicate that the requested action is
   // not implemented in this driver.
   static constexpr uint32_t kActionNotImplemented = 1036;
   static Status ActionNotImplemented();
 
-  //   // Reserved error code (0x40D) to indicate that the requested item is not
-  //   // present in the ASCOM cache.
-  //   static constexpr uint32_t kNotInCacheException = 0x40D;
-  //   static Status NotInCacheException();
+  // Reserved error code (0x40D, 1037) to indicate that the requested item is
+  // not present in the ASCOM cache.
+  static constexpr uint32_t kNotInCacheException = 0x40D;
+  static Status NotInCacheException();
 
-  //   // Reserved error code (0x40A) related to settings.
-  //   static constexpr uint32_t kSettingsProviderError = 0x40A;
-  //   static Status SettingsProviderError();
-
-  //   // Reserved 'catch-all' error code (0x4FF) used when nothing else was
-  //   // specified.
-  //   static constexpr uint32_t kUnspecifiedError = 0x4FF;
-  //   static Status UnspecifiedError();
+  // Reserved 'catch-all' error code (0x4FF, 1279) used when nothing else was
+  // specified.
+  static constexpr uint32_t kUnspecifiedError = 0x4FF;
+  static Status UnspecifiedError();
 };
 
 }  // namespace alpaca

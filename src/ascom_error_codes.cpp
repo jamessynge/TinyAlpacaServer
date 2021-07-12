@@ -1,3 +1,6 @@
+// Error codes defined by ASCOM.
+// See: https://ascom-standards.org/Help/Developer/html/T_ASCOM_ErrorCodes.htm
+
 #include "ascom_error_codes.h"
 
 #include "literals.h"
@@ -28,6 +31,10 @@ Status ErrorCodes::InvalidWhileSlaved() {
   return Status(kInvalidWhileSlaved, Literals::ErrorInvalidWhileSlaved());
 }
 
+Status ErrorCodes::SettingsProviderError() {
+  return Status(0x40A, Literals::ErrorSettingsProviderError());
+}
+
 Status ErrorCodes::InvalidOperation() {
   return Status(kInvalidOperation, Literals::InvalidOperation());
 }
@@ -36,16 +43,12 @@ Status ErrorCodes::ActionNotImplemented() {
   return Status(kActionNotImplemented, Literals::ErrorActionNotImplemented());
 }
 
-// Status ErrorCodes::NotInCacheException() {
-//   return Status(0x40D, Literals::ErrorNotInCacheException());
-// }
+Status ErrorCodes::NotInCacheException() {
+  return Status(kNotInCacheException, Literals::ErrorNotInCacheException());
+}
 
-// Status ErrorCodes::SettingsProviderError() {
-//   return Status(0x40A, Literals::ErrorSettingsProviderError());
-// }
-
-// Status ErrorCodes::UnspecifiedError() {
-//   return Status(0x4FF, Literals::ErrorUnspecifiedError());
-// }
+Status ErrorCodes::UnspecifiedError() {
+  return Status(kUnspecifiedError, Literals::ErrorUnspecifiedError());
+}
 
 }  // namespace alpaca

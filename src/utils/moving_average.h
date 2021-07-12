@@ -38,8 +38,8 @@ class MovingAverage {
 
  private:
   // The moving average value over the period. Note that we treat this as the
-  // moving average over the average_period, even when we've only has one
-  // reading recorded.
+  // moving average over the average_period, even when we only have one reading
+  // recorded.
   double average_value_;
 
   // Time of the most recent call to RecordNewValue.
