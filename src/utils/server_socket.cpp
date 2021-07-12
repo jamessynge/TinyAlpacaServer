@@ -283,15 +283,17 @@ void ServerSocket::PerformIO() {
       break;
 
     default:
-      TAS_VLOG(3) << TAS_FLASHSTR("Socket ") << sock_num_ << BaseHex
-                  << TAS_FLASHSTR(" has undocumented status ") << status
-                  << TAS_FLASHSTR(", past_status is ") << past_status;
-      // Noticed that status sometimes equals 0x11 after LISTEN, but 0x11 is
-      // not a documented value. Choosing to ignore that transition.
-      if (past_status == SnSR::LISTEN && status == 0x11) {
-        last_status_ = past_status;
-      }
-      // CloseHardwareSocket();
+      // I noticed that status sometimes equals 0x11 after LISTEN, but 0x11 is
+      // not a documented value. I asked on the WIZnet developer forum, and got
+      // this response:
+      //
+      //   You can ignore it except for the state values specified in the
+      //   datasheet. All status values are not disclosed due to company policy.
+      //
+      // Therefore, I'm restoring last_status_ to the value it had prior to this
+      // undocumented status. Note that this works in this spot, but there are
+      // other areas in the code where it will cause a problem. Sigh.
+      last_status_ = past_status;
       break;
   }
 }
