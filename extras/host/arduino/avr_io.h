@@ -45,15 +45,11 @@ DEFINE_AVR_16_BIT_TIMER_COUNTER_REGISTERS_AND_FIELDS(3);
 DEFINE_AVR_16_BIT_TIMER_COUNTER_REGISTERS_AND_FIELDS(4);
 DEFINE_AVR_16_BIT_TIMER_COUNTER_REGISTERS_AND_FIELDS(5);
 
-#define DEFINE_AVR_GPIO_PORT_FIELDS(port, register) \
-  constexpr uint8_t register##port##7 = 7;          \
-  constexpr uint8_t register##port##6 = 6;          \
-  constexpr uint8_t register##port##5 = 5;          \
-  constexpr uint8_t register##port##4 = 4;          \
-  constexpr uint8_t register##port##3 = 3;          \
-  constexpr uint8_t register##port##2 = 2;          \
-  constexpr uint8_t register##port##1 = 1;          \
-  constexpr uint8_t register##port##0 = 0
+#define DEFINE_AVR_GPIO_PORT_FIELDS(port, register)               \
+  constexpr uint8_t register##port##7 = 7, register##port##6 = 6, \
+                    register##port##5 = 5, register##port##4 = 4, \
+                    register##port##3 = 3, register##port##2 = 2, \
+                    register##port##1 = 1, register##port##0 = 0
 
 #define DEFINE_AVR_GPIO_PORT_REGISTERS_AND_FIELDS(port)                      \
   AVR_IO_REGISTER_LINKAGE volatile uint8_t PIN##port, DDR##port, PORT##port; \
@@ -92,6 +88,9 @@ constexpr uint8_t PORF = 0;
 #define PIN_A13 (67)
 #define PIN_A14 (68)
 #define PIN_A15 (69)
+
+#define PIN_WIRE_SDA (20)
+#define PIN_WIRE_SCL (21)
 
 #define NOT_AN_INTERRUPT 0xff
 
