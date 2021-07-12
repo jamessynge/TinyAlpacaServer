@@ -4,6 +4,8 @@
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "literals.h"
+#include "utils/logging.h"
+#include "utils/status.h"
 
 namespace alpaca {
 
@@ -92,7 +94,13 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
 }
 
 StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
-  return average_period_;
+  if (MaxAveragePeriod() == 0) {
+    return 0;
+  } else {
+    TAS_DCHECK(false) << TAS_FLASHSTR(
+        "GetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
+    return ErrorCodes::ActionNotImplemented();
+  }
 }
 StatusOr<double> ObservingConditionsAdapter::GetCloudCover() {
   return ErrorCodes::ActionNotImplemented();
@@ -161,25 +169,36 @@ bool ObservingConditionsAdapter::HandlePutRequest(const AlpacaRequest& request,
 
 bool ObservingConditionsAdapter::HandlePutAveragePeriod(
     const AlpacaRequest& request, Print& out) {
-  // TODO(jamessynge): Get Value parameter from request. This method
-  // should look like the following:
-  //
-  // ASSIGN_OR_RETURN(double hours,
-  //                  GetParameter(request, EParameter::kAveragePeriod));
-  // return WriteResponse::AscomErrorResponse(request, SetAveragePeriod(hours),
-  //                                          out);
+  // Requires the AveragePeriod parameter.
+  if (!request.have_average_period) {
+    return WriteResponse::AscomParameterMissingErrorResponse(
+        request, Literals::AveragePeriod(), out);
+  }
+  if (request.average_period < 0 ||
+      MaxAveragePeriod() < request.average_period) {
+    return WriteResponse::AscomParameterInvalidErrorResponse(
+        request, Literals::AveragePeriod(), out);
+  }
+  return WriteResponse::StatusResponse(
+      request, SetAveragePeriod(request.average_period), out);
+}
 
-  return WriteResponse::AscomNotImplementedResponse(request, out);
+double ObservingConditionsAdapter::MaxAveragePeriod() const { return 0; }
+
+Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
+  if (MaxAveragePeriod() == 0) {
+    TAS_DCHECK_EQ(hours, 0);
+    return OkStatus();
+  } else {
+    TAS_DCHECK(false) << TAS_FLASHSTR(
+        "SetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
+    return ErrorCodes::ActionNotImplemented();
+  }
 }
 
 bool ObservingConditionsAdapter::HandlePutRefresh(const AlpacaRequest& request,
                                                   Print& out) {
   return WriteResponse::StatusResponse(request, Refresh(), out);
-}
-
-Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
-  average_period_ = hours;
-  return OkStatus();
 }
 
 Status ObservingConditionsAdapter::Refresh() {

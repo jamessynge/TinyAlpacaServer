@@ -8,6 +8,7 @@
 
 #include "device_types/device_impl_base.h"
 #include "utils/platform.h"
+#include "utils/status.h"
 #include "utils/status_or.h"
 
 namespace alpaca {
@@ -48,7 +49,8 @@ class ObservingConditionsAdapter : public DeviceImplBase {
   // - NOT reduced to sea level.
   virtual StatusOr<double> GetPressure();
 
-  // Returns the rain rate (mm/hour) at the observatory.
+  // Returns the rain rate (mm/hour) at the observatory. For more info, see:
+  // https://ascom-standards.org/Help/Developer/html/P_ASCOM_DeviceInterface_IObservingConditions_RainRate.htm
   virtual StatusOr<double> GetRainRate();
 
   // Returns the description of the named sensor, or an error if not known.
@@ -114,21 +116,21 @@ class ObservingConditionsAdapter : public DeviceImplBase {
 
   //////////////////////////////////////////////////////////////////////////////
   // Handlers for the core of the above methods.
+
   // Records the period (hours) over which the caller wants sensor data to be
   // averaged. Returns OK if the implementation can perform averaging over the
-  // period, else an error.
+  // period, else an error. The default implementation returns an error if the
+  // value is not 0 (i.e. no averaging is supported by default).
   virtual Status SetAveragePeriod(double hours);
+
+  // Returns the maximum supported average period, which is used by
+  // HandlePutAveragePeriod to validate the hours parameter prior to passing it
+  // to SetAveragePeriod. The default implementation returns 0. The returned
+  // value must not be less than zero.
+  virtual double MaxAveragePeriod() const;
 
   // Refreshes sensor values from hardware.
   virtual Status Refresh();
-
- protected:
-  double average_period() const { return average_period_; }
-
- private:
-  // The period (hours) over which to average some of the sensor data (i.e.
-  // temperature but not wind gust).
-  double average_period_;
 };
 
 }  // namespace alpaca

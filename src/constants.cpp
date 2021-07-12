@@ -387,6 +387,8 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
       return TAS_FLASHSTR("State");
     case EParameter::kValue:
       return TAS_FLASHSTR("Value");
+    case EParameter::kAveragePeriod:
+      return TAS_FLASHSTR("AveragePeriod");
   }
   return nullptr;
 }
@@ -728,6 +730,8 @@ std::ostream& operator<<(std::ostream& os, EParameter v) {
       return os << "State";
     case EParameter::kValue:
       return os << "Value";
+    case EParameter::kAveragePeriod:
+      return os << "AveragePeriod";
   }
   return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
 }

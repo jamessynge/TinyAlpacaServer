@@ -377,6 +377,7 @@ TEST(MatchLiteralsDeathTest, MatchDeviceMethodWrongApiGroup) {
 TEST(MatchLiteralsTest, MatchParameter) {
   const std::vector<std::pair<std::string, EParameter>> test_cases = {
       {"Action", EParameter::kAction},
+      {"AveragePeriod", EParameter::kAveragePeriod},
       {"Brightness", EParameter::kBrightness},
       {"ClientId", EParameter::kClientID},
       {"ClientTransactionId", EParameter::kClientTransactionID},

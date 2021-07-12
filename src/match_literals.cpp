@@ -200,6 +200,8 @@ bool MatchParameter(const StringView& view, EParameter& match) {
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(SensorName, EParameter::kSensorName);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(State, EParameter::kState);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Value, EParameter::kValue);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(AveragePeriod,
+                                       EParameter::kAveragePeriod);
 
   return false;
 }

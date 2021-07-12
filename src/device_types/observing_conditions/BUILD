@@ -10,7 +10,9 @@ cc_library(
         "//src:constants",
         "//src:literals",
         "//src/device_types:device_impl_base",
+        "//src/utils:logging",
         "//src/utils:platform",
+        "//src/utils:status",
         "//src/utils:status_or",
     ],
 )

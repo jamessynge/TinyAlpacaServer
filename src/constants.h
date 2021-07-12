@@ -244,8 +244,11 @@ enum class EParameter : EParameter_UnderlyingType {
   kParameters,
   kRaw,
 
-  // ObservingConditions parameters.
+  // Calibrator parameters.
   kBrightness,
+
+  // ObservingConditions parameters.
+  kAveragePeriod,
   kSensorName,
 
   // Switch parameters.

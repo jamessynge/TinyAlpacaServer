@@ -82,6 +82,12 @@ struct AlpacaRequest {
     have_value = true;
   }
 
+  void set_average_period(double v) {
+    TAS_DCHECK(!have_average_period);
+    average_period = v;
+    have_average_period = true;
+  }
+
   // From the HTTP method and path:
   EHttpMethod http_method;
   EApiGroup api_group;
@@ -107,6 +113,7 @@ struct AlpacaRequest {
   int32_t id;  // Switch id.
   bool state;
   double value;
+  double average_period;
 
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know
@@ -124,6 +131,7 @@ struct AlpacaRequest {
   unsigned int have_id : 1;
   unsigned int have_state : 1;
   unsigned int have_value : 1;
+  unsigned int have_average_period : 1;
 
   unsigned int do_close : 1;  // Set to true if client requests it.
 

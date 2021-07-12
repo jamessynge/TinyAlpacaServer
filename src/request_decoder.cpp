@@ -502,6 +502,14 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
     } else {
       state.request.set_value(d);
     }
+  } else if (state.current_parameter == EParameter::kAveragePeriod) {
+    double d;
+    bool converted_ok = value.to_double(d);
+    if (state.request.have_average_period || !converted_ok) {
+      status = ReportExtraParameter(state, value);
+    } else {
+      state.request.set_average_period(d);
+    }
   } else if (state.current_parameter == EParameter::kConnected) {
     if (CaseEqual(value, Literals::False()) && !state.request.have_connected) {
       state.request.set_connected(false);
