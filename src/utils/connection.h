@@ -16,6 +16,9 @@ namespace alpaca {
 // whether it has been closed.
 class Connection : public Stream {
  public:
+  // Returns the number of readable bytes. If not connected, returns -1.
+  int available() override = 0;
+
   // Close the connection (fully, not half-closed).
   virtual void close() = 0;
 
