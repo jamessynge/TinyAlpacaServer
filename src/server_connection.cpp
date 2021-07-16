@@ -57,7 +57,7 @@ void ServerConnection::OnCanRead(Connection& connection) {
 
     StringView view(input_buffer_, input_buffer_size_);
     const bool buffer_is_full = input_buffer_size_ == sizeof input_buffer_;
-    const bool at_end = PlatformEthernet::IsClientDone(connection.sock_num());
+    const bool at_end = connection.peer_half_closed();
 
     EHttpStatusCode status_code =
         request_decoder_.DecodeBuffer(view, buffer_is_full, at_end);

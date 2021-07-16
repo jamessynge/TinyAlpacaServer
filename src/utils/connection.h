@@ -25,6 +25,13 @@ class Connection : public Stream {
   // Returns true if the connection is either readable or writeable.
   virtual bool connected() const = 0;
 
+  // Returns true if the peer (e.g. client of the server) half-closed its
+  // connection for writing (e.g. by calling shutdown(fd, SHUT_WR), but is
+  // waiting for us to write. This is apparently now an unlikely state because
+  // clients won't typically close until they've read the full response. See
+  // https://www.excentis.com/blog/tcp-half-close-cool-feature-now-broken.
+  virtual bool peer_half_closed() const = 0;
+
   // Reads up to 'size' bytes into buf, stopping early if there are no more
   // bytes available to read from the connection. Returns the number of bytes
   // read. The default implementation uses `int Stream::read()` to read one byte

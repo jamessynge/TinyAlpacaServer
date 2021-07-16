@@ -15,8 +15,11 @@ namespace test {
 
 class StringIoConnection : public Connection {
  public:
-  StringIoConnection(uint8_t sock_num, std::string_view input)
-      : input_(input), is_open_(true), sock_num_(sock_num) {}
+  StringIoConnection(uint8_t sock_num, std::string_view input, bool half_closed)
+      : input_(input),
+        is_open_(true),
+        half_closed_(half_closed),
+        sock_num_(sock_num) {}
 
   int available() override { return is_open_ ? input_.size() : -1; }
 
@@ -77,6 +80,10 @@ class StringIoConnection : public Connection {
 
   bool connected() const override { return is_open_; }
 
+  bool peer_half_closed() const override {
+    return is_open_ && input_.empty() && half_closed_;
+  }
+
   uint8_t sock_num() const override { return sock_num_; }
 
   std::string_view remaining_input() const { return input_; }
@@ -87,6 +94,7 @@ class StringIoConnection : public Connection {
   std::string_view input_;
   std::string output_;
   bool is_open_;
+  bool half_closed_;
   const uint8_t sock_num_;
 };
 

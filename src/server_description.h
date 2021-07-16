@@ -24,16 +24,16 @@ struct ServerDescription {
   void AddTo(JsonObjectEncoder& object_encoder) const;
 
   // The device or server's overall name.
-  const Literal server_name;
+  Literal server_name;
 
   // The manufacturer's name.
-  const Literal manufacturer;
+  Literal manufacturer;
 
   // The device or server's version number.
-  const Literal manufacturer_version;
+  Literal manufacturer_version;
 
   // The device or server's location.
-  const Literal location;
+  Literal location;
 
 #if 0
   // TODO(jamessynge): Implement support for recording the server's physical

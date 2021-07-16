@@ -55,23 +55,39 @@ class TestTinyAlpacaServer : public TinyAlpacaServerBase {
   TestTinyAlpacaServer(const ServerDescription& server_description,
                        ArrayView<DeviceInterface*> devices);
 
+  template <size_t N>
+  TestTinyAlpacaServer(const ServerDescription& server_description,
+                       DeviceInterface* (&devices)[N])
+      : TestTinyAlpacaServer(server_description,
+                             ArrayView<DeviceInterface*>(devices, N)) {}
+
   // These dispatch to the appropriate methods of the ServerConnection.
 
   // Announces that a connection has been established, with input being the
   // characters available for reading (assumed to be bytes for our purposes).
-  // Returns the bytes of input that weren't read, the output produced while
-  // handling the connect event, and whether the connection was closed.
-  ConnectionResult AnnounceConnect(std::string_view input);
+  // If repeat_until_stable is true and there is input remaining to read,
+  // calls ServerConnection::OnCanRead until as long as the ServerConnection
+  // keeps consuming input. If peer_half_closed, then
+  // Connection::peer_half_closed() will be true once the input has all been
+  // read. Returns the bytes of input that weren't read, the output produced
+  // while handling the connect event, and whether the connection was closed.
+  ConnectionResult AnnounceConnect(std::string_view input,
+                                   bool repeat_until_stable = true,
+                                   bool peer_half_closed = false);
 
   // Announces that there may be more to read from the connection, and that the
-  // callee can also write to the connection. The parameter and return value are
-  // the same as for AnnounceConnect.
-  ConnectionResult AnnounceCanRead(std::string_view input);
+  // callee can also write to the connection. The parameters and return value
+  // are the same as for AnnounceConnect.
+  ConnectionResult AnnounceCanRead(std::string_view input,
+                                   bool repeat_until_stable = true,
+                                   bool peer_half_closed = false);
 
   // Announces that the callee can write to the connection, which is half-closed
   // (i.e. simulating that the client has half-closed, but is waiting for a
-  // response). Returns the return type is the same as for the above.
-  ConnectionResult AnnounceHalfClosed();
+  // response). If repeat_until_stable is true, then calls
+  // ServerConnection::OnHalfClosed until the ServerConnection stops writing
+  // more output. Returns the return type is the same as for the above.
+  ConnectionResult AnnounceHalfClosed(bool repeat_until_stable = true);
 
   // Announces that a previously open connection has been completely closed.
   void AnnounceOnDisconnect();

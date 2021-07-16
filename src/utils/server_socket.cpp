@@ -59,6 +59,10 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
 
   bool connected() const override { return client_.connected(); }
 
+  bool peer_half_closed() const override {
+    return PlatformEthernet::StatusIsHalfOpen(sock_num());
+  }
+
   uint8_t sock_num() const override { return client_.getSocketNumber(); }
 
  protected:

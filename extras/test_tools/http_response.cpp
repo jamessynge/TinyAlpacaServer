@@ -1,5 +1,7 @@
 #include "extras/test_tools/http_response.h"
 
+#include <string.h>
+
 #include <string>
 
 #include "absl/strings/str_split.h"
@@ -19,6 +21,40 @@ std::string TrimWhitespace(std::string str) {
 
   return str.substr(start, length);
 }
+
+// Consider adding support for determining whether a particular header's value
+// is a comma separated list, of which I know these headers:
+//
+//  Content-Encoding
+//  Transfer-Encoding
+//  TE
+//  Accept
+//  Accept-Charset
+//  Accept-Encoding
+//  Accept-Language
+//  Trailer
+//  Via
+//  Connection
+//  Upgrade
+//  Content-Language
+//  Vary
+//  Allow
+//  If-Match
+//  If-None-Match
+//  Accept-Ranges
+//  Cache-Control
+//  Pragma
+//  Warning
+//  WWW-Authenticate
+//  Proxy-Authenticate
+//
+// A comma-separated list can be split into multiple header lines at the commas,
+// i.e. replacing the comma with "\r\nHeader-Name:", and these are to be
+// re-combined into a single list for processing.
+//
+// In addition, the Set-Cookie header is special in that it too allows multiple
+// headers, but not as a comma separated list; each Set-Cookie header line deals
+// with a single cookie.
 
 }  // namespace
 
@@ -79,6 +115,36 @@ absl::StatusOr<HttpResponse> HttpResponse::Make(std::string response) {
   }
 
   return hr;
+}
+
+std::vector<std::string> HttpResponse::GetHeaderValues(
+    const std::string& name) const {
+  auto range = headers.equal_range(name);
+  std::vector<std::string> values;
+  for (auto iter = range.first; iter != range.second; ++iter) {
+    values.push_back(iter->second);
+  }
+  return values;
+}
+
+bool HttpResponse::HasHeader(const std::string& name) const {
+  return headers.find(name) != headers.end();
+}
+
+bool HttpResponse::HasHeaderValue(const std::string& name,
+                                  const std::string& value) const {
+  auto range = headers.equal_range(name);
+  for (auto iter = range.first; iter != range.second; ++iter) {
+    if (iter->second == value) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HttpResponse::CaseInsensitiveLess::operator()(
+    const std::string& lhs, const std::string& rhs) const {
+  return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
 }
 
 }  // namespace test

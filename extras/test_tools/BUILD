@@ -158,34 +158,6 @@ cc_library(
 
 cc_library(
     name = "test_tiny_alpaca_server",
-    hdrs = ["test_tiny_alpaca_server.h"],
-    deps = [
-        ":mock_device_interface",
-        ":mock_switch_group",
-        ":print_to_std_string",
-        "//absl/strings",
-        "//googletest:gunit_headers",
-        "//src:alpaca_devices",
-        "//src:alpaca_discovery_server",
-        "//src:alpaca_response",
-        "//src:constants",
-        "//src:literals",
-        "//src:request_listener",
-        "//src:server_connection",
-        "//src:server_description",
-        "//src:server_sockets_and_connections",
-        "//src:tiny_alpaca_server",
-        "//src/device_types:device_impl_base",
-        "//src/utils:array_view",
-        "//src/utils:platform",
-        "//src/utils:platform_ethernet",
-        "//src/utils:status",
-        "//src/utils:string_view",
-    ],
-)
-
-cc_library(
-    name = "test_tiny_alpaca_server_cc",
     testonly = True,
     srcs = ["test_tiny_alpaca_server.cc"],
     hdrs = ["test_tiny_alpaca_server.h"],

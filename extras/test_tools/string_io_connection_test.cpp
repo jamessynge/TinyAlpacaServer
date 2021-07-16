@@ -7,16 +7,17 @@ namespace test {
 namespace {
 
 TEST(StringIoConnectionTest, DoNothing) {
-  StringIoConnection conn(3, "");
+  StringIoConnection conn(3, "", false);
   EXPECT_TRUE(conn.connected());
   EXPECT_EQ(conn.sock_num(), 3);
   EXPECT_EQ(conn.available(), 0);
   EXPECT_EQ(conn.remaining_input(), "");
   EXPECT_EQ(conn.output(), "");
+  EXPECT_FALSE(conn.peer_half_closed());
 }
 
 TEST(StringIoConnectionTest, WriteAndReadAndClose) {
-  StringIoConnection conn(1, "DEFG");
+  StringIoConnection conn(1, "DEFG", false);
 
   EXPECT_EQ(conn.print("ab"), 2);
   EXPECT_EQ(conn.print("cd"), 2);
@@ -46,7 +47,7 @@ TEST(StringIoConnectionTest, WriteAndReadAndClose) {
 }
 
 TEST(StringIoConnectionTest, ReadAll) {
-  StringIoConnection conn(1, "DEFG");
+  StringIoConnection conn(1, "DEFG", false);
 
   EXPECT_EQ(conn.available(), 4);
   uint8_t buf[10] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
@@ -57,6 +58,22 @@ TEST(StringIoConnectionTest, ReadAll) {
   EXPECT_EQ(buf[3], 'G');
   EXPECT_EQ(buf[4], ' ');
   EXPECT_EQ(conn.available(), 0);
+  EXPECT_FALSE(conn.peer_half_closed());
+}
+
+TEST(StringIoConnectionTest, ReadAllHalfClosed) {
+  StringIoConnection conn(1, "DEFG", true);
+
+  EXPECT_EQ(conn.available(), 4);
+  uint8_t buf[10] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+  EXPECT_EQ(conn.read(buf, 10), 4);
+  EXPECT_EQ(buf[0], 'D');
+  EXPECT_EQ(buf[1], 'E');
+  EXPECT_EQ(buf[2], 'F');
+  EXPECT_EQ(buf[3], 'G');
+  EXPECT_EQ(buf[4], ' ');
+  EXPECT_EQ(conn.available(), 0);
+  EXPECT_TRUE(conn.peer_half_closed());
 }
 
 }  // namespace
