@@ -11,11 +11,6 @@ cc_library(
         "//extras/host/arduino",
         "//extras/host/mlx90614",
         "//src:TinyAlpacaServer",
-        "//src:ascom_error_codes",
-        "//src/device_types/observing_conditions:observing_conditions_adapter",
-        "//src/utils:logging",
-        "//src/utils:moving_average",
-        "//src/utils:status",
     ],
 )
 
