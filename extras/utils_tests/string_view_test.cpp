@@ -2,7 +2,8 @@
 
 // Author: james.synge@gmail.com
 
-#include <cstdint>
+#include <stdint.h>
+
 #include <string>
 #include <string_view>
 #include <utility>

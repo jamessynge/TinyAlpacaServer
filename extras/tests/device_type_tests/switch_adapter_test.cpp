@@ -432,7 +432,6 @@ TEST_F(SwitchGroupTest, SetSwitchValue) {
   PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
   const std::string response = out.str();
-  std::cout << response;
   VerifyResponseIsGood(response);
   EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
 }

@@ -1,7 +1,8 @@
 #include "extras/host/arduino/print.h"
 
+#include <stdint.h>
+
 #include <bitset>
-#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <limits>

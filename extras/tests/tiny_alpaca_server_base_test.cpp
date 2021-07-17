@@ -5,8 +5,6 @@
 #include <memory>
 #include <string>
 
-// TODO Remove excessive headers.
-
 #include "absl/strings/numbers.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"

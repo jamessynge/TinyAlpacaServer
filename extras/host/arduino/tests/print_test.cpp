@@ -1,6 +1,7 @@
 #include "extras/host/arduino/print.h"
 
-#include <cstdint>
+#include <stdint.h>
+
 #include <limits>
 #include <sstream>
 

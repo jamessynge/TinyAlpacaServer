@@ -4,8 +4,6 @@
 // This provides just enough of WString.h (from Arduino) for my needs when
 // testing on host.
 
-#include "extras/host/arduino/pgmspace.h"
-
 // There is no actual definition of class __FlashStringHelper, it is just used
 // to provide a distinct type for a pointer to a char array stored in flash.
 class __FlashStringHelper;

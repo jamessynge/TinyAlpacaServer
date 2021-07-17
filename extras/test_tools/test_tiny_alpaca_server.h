@@ -9,8 +9,6 @@
 #include <iostream>
 #include <string>
 
-// TODO Remove excessive headers.
-
 #include "absl/strings/str_cat.h"
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"

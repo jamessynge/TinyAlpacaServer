@@ -5,13 +5,13 @@
 #include <asm-generic/ioctls.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <stdint.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include <algorithm>
 #include <cerrno>
-#include <cstdint>
 #include <cstring>
 #include <limits>
 #include <map>

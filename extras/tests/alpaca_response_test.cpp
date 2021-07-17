@@ -1,7 +1,6 @@
 #include "alpaca_response.h"
 
 #include <string_view>
-#include <utility>
 #include <vector>
 
 #include "absl/strings/str_cat.h"
@@ -11,7 +10,6 @@
 #include "extras/test_tools/json_test_utils.h"
 #include "extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/sample_printable.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "literals.h"
 #include "utils/any_printable.h"

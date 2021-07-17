@@ -1,17 +1,13 @@
 #include "alpaca_devices.h"
 
 #include "alpaca_response.h"
-#include "ascom_error_codes.h"
 #include "constants.h"
-#include "json_response.h"
 #include "literals.h"
-#include "utils/any_printable.h"
-#include "utils/array_view.h"
 #include "utils/hex_escape.h"
+#include "utils/inline_literal.h"
 #include "utils/json_encoder.h"
 #include "utils/logging.h"
 #include "utils/platform_ethernet.h"
-#include "utils/string_view.h"
 
 namespace alpaca {
 

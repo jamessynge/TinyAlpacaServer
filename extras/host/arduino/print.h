@@ -6,8 +6,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <stdint.h>
+
 #include <cstddef>
-#include <cstdint>
 #include <ostream>
 
 #include "extras/host/arduino/wstring.h"

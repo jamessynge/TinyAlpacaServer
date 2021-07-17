@@ -13,8 +13,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <stdint.h>
+
 #include <cstddef>
-#include <cstdint>
 
 #define PROGMEM
 #define PGM_P const char*

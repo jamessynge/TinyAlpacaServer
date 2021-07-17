@@ -1,6 +1,6 @@
 #include "utils/server_socket.h"
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "extras/test_tools/mock_socket_listener.h"
 #include "extras/test_tools/print_to_std_string.h"

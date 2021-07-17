@@ -4,8 +4,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <stdint.h>
+
 #include <cmath>
-#include <cstdint>
 #include <functional>
 #include <limits>
 #include <string>

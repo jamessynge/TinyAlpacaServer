@@ -8,6 +8,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include "alpaca_request.h"
+#include "device_interface.h"
 #include "device_types/device_impl_base.h"
 #include "json_response.h"
 #include "request_listener.h"

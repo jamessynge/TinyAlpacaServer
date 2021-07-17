@@ -1,10 +1,10 @@
 #include "utils/moving_average.h"
 
 #include <math.h>
+#include <stdint.h>
 
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 
 #include "absl/random/random.h"
