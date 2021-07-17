@@ -39,7 +39,7 @@ TEST(DeviceInfoTest, Output) {
   PrintToStdString out;
   JsonPropertySourceAdapter<DeviceInfo> adapter(kDeviceInfo);
   JsonObjectEncoder::Encode(adapter, out);
-  EXPECT_EQ(out.str(), R"({"Name": "AbcDeviceName", )"
+  EXPECT_EQ(out.str(), R"({"DeviceName": "AbcDeviceName", )"
                        R"("DeviceType": "Camera", )"
                        R"("DeviceNumber": 312, )"
                        R"("UniqueID": "123456"})");

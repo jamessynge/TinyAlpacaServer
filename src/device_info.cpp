@@ -7,7 +7,7 @@
 namespace alpaca {
 
 void DeviceInfo::AddTo(JsonObjectEncoder& object_encoder) const {
-  object_encoder.AddStringProperty(Literals::Name(), name);
+  object_encoder.AddStringProperty(Literals::DeviceName(), name);
 
   // TODO(jamessynge): Check on the case requirements of the device type's name.
   object_encoder.AddStringProperty(Literals::DeviceType(),

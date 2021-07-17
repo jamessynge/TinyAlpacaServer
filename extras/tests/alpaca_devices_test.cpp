@@ -1,5 +1,7 @@
 #include "alpaca_devices.h"
 
+#include <string>
+
 #include "absl/strings/str_cat.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
@@ -96,7 +98,7 @@ class AlpacaDevicesTest : public testing::Test {
       .interface_version = 1,
   };
   const std::string kConfiguredDeviceCamera0 =
-      R"({"Name": "Camera Name", "DeviceType": "Camera", )"
+      R"({"DeviceName": "Camera Name", "DeviceType": "Camera", )"
       R"("DeviceNumber": 0, "UniqueID": "Camera Unique Id"})";
 
   const alpaca::DeviceInfo mock_camera22_info_{
@@ -111,7 +113,7 @@ class AlpacaDevicesTest : public testing::Test {
       .interface_version = 1,
   };
   const std::string kConfiguredDeviceCamera22 =
-      R"({"Name": "Camera22 Name", "DeviceType": "Camera", )"
+      R"({"DeviceName": "Camera22 Name", "DeviceType": "Camera", )"
       R"("DeviceNumber": 22, "UniqueID": "Camera22 Unique Id"})";
 
   const alpaca::DeviceInfo mock_observing_conditions1_info_{
@@ -126,7 +128,7 @@ class AlpacaDevicesTest : public testing::Test {
       .interface_version = 1,
   };
   const std::string kConfiguredDeviceObservingConditions1 =
-      R"({"Name": "Weather", "DeviceType": "ObservingConditions", )"
+      R"({"DeviceName": "Weather", "DeviceType": "ObservingConditions", )"
       R"("DeviceNumber": 1, "UniqueID": "Weather UUID"})";
 
   NiceMock<MockDeviceInterface> mock_camera0_;
