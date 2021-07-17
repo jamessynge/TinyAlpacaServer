@@ -96,9 +96,14 @@ TEST_F(TinyAlpacaServerBaseTest, EmptyConnection) {
 TEST_F(TinyAlpacaServerBaseTest, Setup) {
   EXPECT_TRUE(server_.Initialize());
 
-  const std::string full_request(
-      "GET /setup HTTP/1.1\r\n"
-      "\r\n");
+  // We include two unsupported (ignored) headers, including one with a very
+  // large value, to verify that they are ignored, including skipping over a
+  // header value that is too long to fit into the decoder's input buffer.
+  const auto full_request =
+      absl::StrCat("GET /setup HTTP/1.1\r\n",  // Line break......
+                   "Host: example.com\r\n",    // Line break
+                   "Foo-Bar-Baz:", std::string(10000, '0'), "\r\n",  //
+                   "\r\n");
 
   auto result = server_.AnnounceConnect("");
   EXPECT_THAT(result.remaining_input, IsEmpty());
@@ -124,13 +129,13 @@ TEST_F(TinyAlpacaServerBaseTest, Setup) {
   EXPECT_THAT(response.body_and_beyond, StartsWith("<html>"));
 }
 
-TEST_F(TinyAlpacaServerBaseTest, HeadersTooLarge) {
+TEST_F(TinyAlpacaServerBaseTest, KnownHeaderTooLarge) {
   EXPECT_TRUE(server_.Initialize());
 
   const auto full_request =
       absl::StrCat("GET /setup HTTP/1.1\r\n",  // Line break
                    "Host: example.com\r\n",    // Line break
-                   "Authorization:", std::string(1000, 'x'),
+                   "Content-Length:", std::string(1000, '0'),
                    "\r\n",  // Line break
                    "\r\n");
 
@@ -147,7 +152,7 @@ TEST_F(TinyAlpacaServerBaseTest, HeadersTooLarge) {
 
   // Then decode the rest of the request.
   result = server_.AnnounceCanRead(full_request.substr(4));
-  EXPECT_THAT(result.remaining_input, StartsWith("xxx"));
+  EXPECT_THAT(result.remaining_input, StartsWith("000"));
   EXPECT_FALSE(result.output.empty());
   EXPECT_TRUE(result.connection_closed);
 

@@ -230,24 +230,7 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
   TAS_VLOG(1) << TAS_FLASHSTR("DecodeHeaderValue trimmed value: ")
               << HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
-  if (state.current_header == EHttpHeader::kHttpAccept) {
-    // Not tracking whether there are multiple accept headers.
-    //
-    // This is not a very complete comparison (i.e. would also match
-    // "xxapplication/json+xyz"), but probably sufficient for our purpose.
-    // TODO(jamessynge): Deal with the fact that the literal string permanently
-    // occupies RAM.
-    if (!value.contains(StringView("application/json"))) {
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      if (state.listener) {
-        // We're taking the status from the listener, even if it is
-        // kContinueDecoding, because it isn't a problem for this server if we
-        // produce a JSON result that the client didn't desire to receive.
-        status = state.listener->OnExtraHeader(EHttpHeader::kHttpAccept, value);
-      }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-    }
-  } else if (state.current_header == EHttpHeader::kHttpContentLength) {
+  if (state.current_header == EHttpHeader::kContentLength) {
     uint32_t content_length = 0;
     const bool converted_ok = value.to_uint32(content_length);
     if (state.found_content_length || !converted_ok ||
@@ -279,7 +262,7 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
       state.remaining_content_length = content_length;
       state.found_content_length = true;
     }
-  } else if (state.current_header == EHttpHeader::kHttpContentType) {
+  } else if (state.current_header == EHttpHeader::kContentType) {
     // Note that the syntax for the Content-Type header is more complex than
     // allowed for here; after the media-type there may be a semi-colon and some
     // additional details (charset and boundary).
@@ -296,6 +279,10 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
       }
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     }
+  } else if (state.current_header == EHttpHeader::kConnection) {
+    if (CaseEqual(Literals::close(), value)) {
+      state.request.do_close = true;
+    }
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   } else if (state.current_header == EHttpHeader::kUnknown) {
     if (state.listener) {
@@ -311,18 +298,35 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
   return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderLineEnd, status);
 }
 
+// We've determined that we don't need to examine the value of this header, so
+// we just skip forward to the end of the line. This allows us to skip past
+// large headers (e.g. User-Agent) whose value we don't care about.
+EHttpStatusCode SkipHeaderValue(RequestDecoderState& state, StringView& view) {
+  while (!view.empty()) {
+    if (view.starts_with('\r')) {
+      return state.SetDecodeFunction(DecodeHeaderLineEnd);
+    }
+    view.remove_prefix(1);
+  }
+  return EHttpStatusCode::kNeedMoreInput;
+}
+
 EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
                                   const StringView& matched_text,
                                   StringView& view) {
   state.current_header = EHttpHeader::kUnknown;
   if (!MatchHttpHeader(matched_text, state.current_header)) {
-    EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
+    EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
     if (state.listener) {
       status = state.listener->OnUnknownHeaderName(matched_text);
     }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+    // TODO(jamessynge): Define a better API for handling LONG header values,
+    // i.e. those which can not be buffered on an Arduino, such as Accept.
     return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderValue, status);
+#else
+    return state.SetDecodeFunction(SkipHeaderValue);
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   }
   return state.SetDecodeFunction(DecodeHeaderValue);
 }
@@ -850,6 +854,7 @@ size_t PrintValueTo(DecodeFunction decode_function, Print& out) {
   OUTPUT_METHOD_NAME(DecodeParamValue);
   OUTPUT_METHOD_NAME(MatchHttpVersion);
   OUTPUT_METHOD_NAME(MatchStartOfPath);
+  OUTPUT_METHOD_NAME(SkipHeaderValue);
 
 #undef OUTPUT_METHOD_NAME
 
@@ -961,9 +966,10 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     if (status == EHttpStatusCode::kContinueDecoding) {
       // This is a check on the currently expected behavior; none of the current
       // decode functions represents a loop all by itself, which isn't handled
-      // inside the decode function; i.e. none of them extract some data, then
-      // return kContinueDecoding without also calling SetDecodeFunction to
-      // specify the next (different) function to handle the decoding.
+      // inside the decode function; i.e. none of them remove some, but not all,
+      // of the input from buffer, and then return kContinueDecoding without
+      // also calling SetDecodeFunction to specify the next (different) function
+      // to handle the decoding.
       TAS_CHECK_NE(old_decode_function, decode_function) << TAS_FLASHSTR(
           "Should have changed the decode function");  // COV_NF_LINE
     }
@@ -1036,6 +1042,12 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
     TAS_CHECK_LE(buffer.size(), buffer_size_before_decode);
     TAS_CHECK_LE(consumed_chars, remaining_content_length);
     if (decode_function == old_decode_function) {
+      // This is a check on the currently expected behavior; none of the current
+      // decode functions represents a loop all by itself, which isn't handled
+      // inside the decode function; i.e. none of them remove some, but not all,
+      // of the input from buffer, and then return kContinueDecoding without
+      // also calling SetDecodeFunction to specify the next (different) function
+      // to handle the decoding.
       TAS_CHECK_NE(status, EHttpStatusCode::kContinueDecoding);
     }
     if (buffer_size_before_decode == 0) {

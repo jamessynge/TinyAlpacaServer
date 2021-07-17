@@ -450,11 +450,11 @@ TEST(MatchLiteralsTest, MatchSensorName) {
 
 TEST(MatchLiteralsTest, EHttpHeader) {
   const std::vector<std::pair<std::string, EHttpHeader>> test_cases = {
-      {"Accept", EHttpHeader::kHttpAccept},
-      {"Content-Encoding", EHttpHeader::kHttpContentEncoding},
-      {"Content-LENGTH", EHttpHeader::kHttpContentLength},
-      {"content-type", EHttpHeader::kHttpContentType},
+      {"Content-LENGTH", EHttpHeader::kContentLength},
+      {"content-type", EHttpHeader::kContentType},
+      {"Date", EHttpHeader::kDate},
       {"", EHttpHeader::kUnknown},
+      {"Accept", EHttpHeader::kUnknown},
   };
   const EHttpHeader kBogusEnum = static_cast<EHttpHeader>(0xff);
   for (const auto [text, expected_enum] : test_cases) {

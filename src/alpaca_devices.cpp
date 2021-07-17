@@ -138,10 +138,8 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
                                           DeviceInterface& device, Print& out) {
   TAS_VLOG(3) << TAS_FLASHSTR("AlpacaDevices::DispatchDeviceRequest: ")
-              << request.device_type << '/'    // TAS_FLASHSTR("/")
-              << request.device_number << '/'  // TAS_FLASHSTR("/")
-              << request.device_method << TAS_FLASHSTR(", client txn id=")
-              << request.client_transaction_id;
+              << request.device_type << '/' << request.device_number << '/'
+              << request.device_method;
   if (request.api == EAlpacaApi::kDeviceApi) {
     return device.HandleDeviceApiRequest(request, out);
   } else if (request.api == EAlpacaApi::kDeviceSetup) {

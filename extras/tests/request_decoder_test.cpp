@@ -880,9 +880,11 @@ TEST(RequestDecoderTest, DetectsParameterValueIsTooLong) {
 }
 
 TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
-  // Leading whitespace can be removed from a value one character at a time, but
-  // trailing whitespace requires buffer space for the entire value and all of
-  // the trailing whitespace and a non-value character (i.e. '\r') at the end.
+  // For header names that are known, the decoder requires that the longest
+  // value fits into the input buffer; that includes any trailing whitespace
+  // because some values are allowed to have embedded whitespace, so the decoder
+  // must find a '\r' in order to determine that the end of the value is in the
+  // input buffer.
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
   RequestDecoder decoder(alpaca_request, &listener);
@@ -892,44 +894,72 @@ TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
     long_whitespace += "\t ";
   }
 
-  for (int max_size = 20; max_size <= kDecodeBufferSize; ++max_size) {
-    const auto max_size_str = absl::StrCat(max_size);
-    std::string long_value = absl::StrCat(max_size_str, long_whitespace);
-    long_value.erase(max_size, std::string::npos);
-    DCHECK_EQ(long_value.size(), max_size);
-    const std::string ok_value = long_value.substr(0, max_size - 1);
-
+  for (int max_size = 1; max_size <= kDecodeBufferSize - 1; ++max_size) {
+    const std::string ok_value(max_size, '0');
     std::string ok_request =
         absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
-                     "Some-Name:", long_whitespace, ok_value, "\r\n\r\n");
+                     "Content-Length:", long_whitespace, ok_value, "\r\n\r\n");
 
     alpaca_request.client_id = kResetClientId;
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-    EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Some-Name")));
-    EXPECT_CALL(listener, OnUnknownHeaderValue(Eq(max_size_str)));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request),
               EHttpStatusCode::kHttpOk);
     EXPECT_EQ(alpaca_request.client_id, kResetClientId);
     EXPECT_THAT(ok_request, IsEmpty());
 
     std::string long_request =
         absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
-                     "Some-Name:", long_whitespace, long_value, "\r\n\r\n");
+                     "Content-Length:", long_whitespace, ok_value,
+                     long_whitespace, "\r\n\r\n");
 
     alpaca_request.client_id = kResetClientId;
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-    EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Some-Name")));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request, max_size),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request),
               EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
     EXPECT_EQ(alpaca_request.client_id, kResetClientId);
-    EXPECT_THAT(long_request, StartsWith(long_value));
+    EXPECT_THAT(long_request, StartsWith(ok_value));
   }
+
+  // If the value fills the decode buffer, then the decoder can't tell whether
+  // it has the whole value, or if it is even longer.
+  const std::string long_value(kDecodeBufferSize, '0');
+  std::string long_request =
+      absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
+                   "Content-Length:", long_whitespace, long_value, "\r\n\r\n");
+
+  alpaca_request.client_id = kResetClientId;
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request),
+            EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
+  EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+  EXPECT_THAT(long_request, StartsWith(long_value));
+}
+
+TEST(RequestDecoderTest, SkipsValueOfUnknownHeader) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, &listener);
+
+  std::string ok_request =
+      absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
+                   "Foo-Bar-Baz:", std::string(kDecodeBufferSize + 1, ' '),
+                   std::string(kDecodeBufferSize + 1, 'X'),
+                   std::string(kDecodeBufferSize + 1, ' '), "\r\n\r\n");
+
+  alpaca_request.client_id = kResetClientId;
+
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+  EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Foo-Bar-Baz")));
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
+            EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
+  EXPECT_THAT(ok_request, StartsWith("X"));
+#else
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request),
+            EHttpStatusCode::kHttpOk);
+  EXPECT_THAT(ok_request, IsEmpty());
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+
+  EXPECT_EQ(alpaca_request.client_id, kResetClientId);
 }
 
 TEST(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
@@ -1274,13 +1304,12 @@ TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedAndUnknownHeaders) {
 
   const std::string full_request(
       "GET /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
-      "Content-Encoding: gzip\r\n"
+      "Date: today\r\n"
       "Accept-Encoding: deflate\r\n"
       "\r\n");
 
   // OK if the listener says "continue decoding".
-  EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
+  EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kDate, Eq("today")))
       .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
       .WillOnce(Return(EHttpStatusCode::kContinueDecoding));

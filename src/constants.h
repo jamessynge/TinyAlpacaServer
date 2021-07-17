@@ -284,15 +284,17 @@ using EHttpHeader_UnderlyingType = uint8_t;
 enum class EHttpHeader : EHttpHeader_UnderlyingType {
   kUnknown,
 
-  // TODO(jamessynge): Consider adding header names for transfer-encoding, etc.
-  // so that we can reject PUT requests which contain a body that is encoded
-  // in a form we can't decode.
-  kHttpAccept,
-  kHttpContentLength,
-  kHttpContentType,
+  kConnection,
+  TASENUMERATOR(kContentLength, "Content-Length"),
+  TASENUMERATOR(kContentType, "Content-Type"),
 
-  // Added to enable testing of RequestDecoderListener::OnExtraHeader.
-  kHttpContentEncoding,
+  // Date is used in tests as an example of a header whose name we know but for
+  // which there is not built-in decoding, therefore it may be handled by
+  // RequestDecoderListener::OnExtraHeader. Since this isn't a header that a
+  // client should send to a server, it is a good choice because we won't need
+  // try to fit the entire value of a Date header's value into buffers for
+  // passing to RequestDecoder because we won't receive it.
+  TASENUMERATOR(kDate, "Date"),
 };
 
 // This is used for generating responses, not for input.
@@ -302,18 +304,7 @@ enum class EContentType : uint8_t {
   TASENUMERATOR(kTextHtml, "text/html"),
 };
 
-const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v);
-const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v);
-const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v);
-const __FlashStringHelper* ToFlashStringHelper(EApiGroup v);
-const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v);
-const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v);
-const __FlashStringHelper* ToFlashStringHelper(EDeviceType v);
-const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v);
-const __FlashStringHelper* ToFlashStringHelper(EParameter v);
-const __FlashStringHelper* ToFlashStringHelper(ESensorName v);
-const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v);
-const __FlashStringHelper* ToFlashStringHelper(EContentType v);
+#undef TASENUMERATOR
 
 size_t PrintValueTo(RequestDecoderStatus v, Print& out);
 size_t PrintValueTo(EHttpStatusCode v, Print& out);
@@ -327,6 +318,19 @@ size_t PrintValueTo(EParameter v, Print& out);
 size_t PrintValueTo(ESensorName v, Print& out);
 size_t PrintValueTo(EHttpHeader v, Print& out);
 size_t PrintValueTo(EContentType v, Print& out);
+
+const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v);
+const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v);
+const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v);
+const __FlashStringHelper* ToFlashStringHelper(EApiGroup v);
+const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v);
+const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v);
+const __FlashStringHelper* ToFlashStringHelper(EDeviceType v);
+const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v);
+const __FlashStringHelper* ToFlashStringHelper(EParameter v);
+const __FlashStringHelper* ToFlashStringHelper(ESensorName v);
+const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v);
+const __FlashStringHelper* ToFlashStringHelper(EContentType v);
 
 #if TAS_HOST_TARGET
 // Support for debug logging of enums.
@@ -343,8 +347,7 @@ std::ostream& operator<<(std::ostream& os, ESensorName v);
 std::ostream& operator<<(std::ostream& os, EHttpHeader v);
 std::ostream& operator<<(std::ostream& os, EContentType v);
 #endif  // TAS_HOST_TARGET
-}  // namespace alpaca
 
-#undef TASENUMERATOR
+}  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONSTANTS_H_

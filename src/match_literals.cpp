@@ -228,17 +228,15 @@ bool MatchSensorName(const StringView& view, ESensorName& match) {
 }
 
 bool MatchHttpHeader(const StringView& view, EHttpHeader& match) {
-  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(HttpAccept, EHttpHeader::kHttpAccept);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Connection, EHttpHeader::kConnection);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(HttpContentLength,
-                                       EHttpHeader::kHttpContentLength);
+                                       EHttpHeader::kContentLength);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(HttpContentType,
-                                       EHttpHeader::kHttpContentType);
+                                       EHttpHeader::kContentType);
 
-  // Content-Encoding is used in tests as an example of a header we know
-  // the name of, but don't have built-in handling for the value. It isn't
-  // clear whether this is generally useful.
-  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(HttpContentEncoding,
-                                       EHttpHeader::kHttpContentEncoding);
+  // Date is used in tests as an example of a header whose name we know but for
+  // which there is not built-in decoding.
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Date, EHttpHeader::kDate);
   return false;
 }
 

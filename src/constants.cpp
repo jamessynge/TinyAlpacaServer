@@ -377,6 +377,8 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
       return TAS_FLASHSTR("Raw");
     case EParameter::kBrightness:
       return TAS_FLASHSTR("Brightness");
+    case EParameter::kAveragePeriod:
+      return TAS_FLASHSTR("AveragePeriod");
     case EParameter::kSensorName:
       return TAS_FLASHSTR("SensorName");
     case EParameter::kId:
@@ -387,8 +389,6 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
       return TAS_FLASHSTR("State");
     case EParameter::kValue:
       return TAS_FLASHSTR("Value");
-    case EParameter::kAveragePeriod:
-      return TAS_FLASHSTR("AveragePeriod");
   }
   return nullptr;
 }
@@ -431,14 +431,14 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
   switch (v) {
     case EHttpHeader::kUnknown:
       return TAS_FLASHSTR("Unknown");
-    case EHttpHeader::kHttpAccept:
-      return TAS_FLASHSTR("HttpAccept");
-    case EHttpHeader::kHttpContentLength:
-      return TAS_FLASHSTR("HttpContentLength");
-    case EHttpHeader::kHttpContentType:
-      return TAS_FLASHSTR("HttpContentType");
-    case EHttpHeader::kHttpContentEncoding:
-      return TAS_FLASHSTR("HttpContentEncoding");
+    case EHttpHeader::kConnection:
+      return TAS_FLASHSTR("Connection");
+    case EHttpHeader::kContentLength:
+      return TAS_FLASHSTR("Content-Length");
+    case EHttpHeader::kContentType:
+      return TAS_FLASHSTR("Content-Type");
+    case EHttpHeader::kDate:
+      return TAS_FLASHSTR("Date");
   }
   return nullptr;
 }
@@ -720,6 +720,8 @@ std::ostream& operator<<(std::ostream& os, EParameter v) {
       return os << "Raw";
     case EParameter::kBrightness:
       return os << "Brightness";
+    case EParameter::kAveragePeriod:
+      return os << "AveragePeriod";
     case EParameter::kSensorName:
       return os << "SensorName";
     case EParameter::kId:
@@ -730,8 +732,6 @@ std::ostream& operator<<(std::ostream& os, EParameter v) {
       return os << "State";
     case EParameter::kValue:
       return os << "Value";
-    case EParameter::kAveragePeriod:
-      return os << "AveragePeriod";
   }
   return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
 }
@@ -774,14 +774,14 @@ std::ostream& operator<<(std::ostream& os, EHttpHeader v) {
   switch (v) {
     case EHttpHeader::kUnknown:
       return os << "Unknown";
-    case EHttpHeader::kHttpAccept:
-      return os << "HttpAccept";
-    case EHttpHeader::kHttpContentLength:
-      return os << "HttpContentLength";
-    case EHttpHeader::kHttpContentType:
-      return os << "HttpContentType";
-    case EHttpHeader::kHttpContentEncoding:
-      return os << "HttpContentEncoding";
+    case EHttpHeader::kConnection:
+      return os << "Connection";
+    case EHttpHeader::kContentLength:
+      return os << "Content-Length";
+    case EHttpHeader::kContentType:
+      return os << "Content-Type";
+    case EHttpHeader::kDate:
+      return os << "Date";
   }
   return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
 }
