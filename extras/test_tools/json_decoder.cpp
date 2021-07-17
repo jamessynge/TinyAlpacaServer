@@ -1,15 +1,18 @@
 #include "extras/test_tools/json_decoder.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>  // NOLINT(build/c++11)
 
 #include "absl/status/status.h"
 #include "absl/strings/charconv.h"
+#include "absl/strings/escaping.h"
 #include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
 #include "googletest/gmock.h"
+#include "googletest/gtest.h"
 #include "logging.h"
 #include "util/task/status_macros.h"
 
@@ -214,6 +217,7 @@ absl::StatusOr<JsonValue> ParseValue(std::string_view& str) {
 
 }  // namespace
 
+JsonValue::JsonValue() : value_(Undefined{}) {}
 JsonValue::JsonValue(nullptr_t) : value_(nullptr) {}
 JsonValue::JsonValue(bool v) : value_(v) {}
 JsonValue::JsonValue(double v) : value_(v) {}
@@ -259,6 +263,28 @@ const JsonArray& JsonValue::as_array() const {
   return *std::get<kArray>(value_);
 }
 
+bool JsonValue::HasKey(const std::string& key) const {
+  return type() == kObject && as_object().HasKey(key);
+}
+
+JsonValue JsonValue::GetValue(const std::string& key) const {
+  if (type() == kObject) {
+    return as_object().GetValue(key);
+  }
+  return JsonValue();
+}
+
+bool JsonValue::HasIndex(size_t index) const {
+  return type() == kArray && as_array().size() > index;
+}
+
+JsonValue JsonValue::GetElement(size_t index) const {
+  if (type() == kArray && as_array().size() > index) {
+    return as_array()[index];
+  }
+  return JsonValue();
+}
+
 bool operator==(const JsonValue& jv, nullptr_t) {
   return jv.type() == JsonValue::kNull;
 }
@@ -299,6 +325,8 @@ bool operator==(const JsonValue& a, const JsonValue& b) {
     return false;
   }
   switch (a.type()) {
+    case JsonValue::kUnset:
+      return true;
     case JsonValue::kNull:
       return true;
     case JsonValue::kBool:
@@ -311,6 +339,54 @@ bool operator==(const JsonValue& a, const JsonValue& b) {
       return a.as_object() == b.as_object();
     case JsonValue::kArray:
       return a.as_array() == b.as_array();
+  }
+}
+
+std::ostream& operator<<(std::ostream& os, const JsonValue& jv) {
+  os << "{type: ";
+
+  switch (jv.type()) {
+    case JsonValue::kUnset:
+      return os << "Unset}";
+
+    case JsonValue::kNull:
+      return os << "Null}";
+
+    case JsonValue::kBool:
+      os << "Bool, value: ";
+      if (jv.as_bool()) {
+        return os << "true}";
+      } else {
+        return os << "false}";
+      }
+
+    case JsonValue::kNumber:
+      return os << "Number, value: " << jv.as_number() << "}";
+
+    case JsonValue::kString:
+      return os << "String, value: \"" << absl::CHexEscape(jv.as_string())
+                << "\"}";
+
+    case JsonValue::kObject:
+      return os << "Object, value: " << ::testing::PrintToString(jv.as_object())
+                << "}";
+
+    case JsonValue::kArray:
+      return os << "Array, value: " << ::testing::PrintToString(jv.as_array())
+                << "}";
+  }
+}
+
+bool JsonObject::HasKey(const std::string& key) const {
+  return find(key) != end();
+}
+
+JsonValue JsonObject::GetValue(const std::string& key) const {
+  auto iter = find(key);
+  if (iter == end()) {
+    return JsonValue();
+  } else {
+    return iter->second;
   }
 }
 

@@ -35,6 +35,7 @@ cc_library(
         "//absl/strings",
         "//core:logging",
         "//googletest:gunit_headers",
+        "//src/utils:logging",
         "//util/task:status",
     ],
 )

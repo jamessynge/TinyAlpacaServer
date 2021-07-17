@@ -15,6 +15,14 @@ using ::testing::UnorderedElementsAre;
 
 #define WHITESPACE " \n\r\t"
 
+TEST(JsonDecoderTest, Unset) {
+  JsonValue value;
+  EXPECT_EQ(value.type(), JsonValue::kUnset);
+  EXPECT_TRUE(value.is_unset());
+  EXPECT_EQ(value, JsonValue());
+  EXPECT_NE(value, JsonValue(nullptr));
+}
+
 TEST(JsonDecoderTest, Null) {
   ASSERT_OK_AND_ASSIGN(auto value,
                        JsonValue::Parse(WHITESPACE "null" WHITESPACE));

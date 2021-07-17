@@ -6,6 +6,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -13,6 +14,7 @@
 #include <vector>
 
 #include "absl/status/statusor.h"
+#include "utils/logging.h"
 
 namespace alpaca {
 namespace test {
@@ -28,6 +30,9 @@ class JsonObject : public JsonObjectBase {
 
   template <typename T>
   JsonObject& Add(std::string_view key, T t);
+
+  bool HasKey(const std::string& key) const;
+  JsonValue GetValue(const std::string& key) const;
 };
 
 class JsonArray : public JsonArrayBase {
@@ -43,7 +48,8 @@ class JsonValue {
   // This order must match the order of types in the variant value_'s
   // declaration.
   enum EType {
-    kNull = 0,
+    kUnset = 0,  // This instance does NOT contain a value.
+    kNull,
     kBool,
     kNumber,
     kString,
@@ -51,6 +57,7 @@ class JsonValue {
     kArray,
   };
 
+  JsonValue();  // Has no value.
   explicit JsonValue(nullptr_t);
   explicit JsonValue(bool);
   explicit JsonValue(double);
@@ -69,6 +76,13 @@ class JsonValue {
 
   // Returns the type of value stored.
   EType type() const;
+  bool is_unset() const { return type() == kUnset; }
+  bool is_null() const { return type() == kNull; }
+  bool is_bool() const { return type() == kBool; }
+  bool is_number() const { return type() == kNumber; }
+  bool is_string() const { return type() == kString; }
+  bool is_object() const { return type() == kObject; }
+  bool is_array() const { return type() == kArray; }
 
   // The as_X methods will raise an exception if the wrong method is called, so
   // be sure to use type() first.
@@ -78,16 +92,43 @@ class JsonValue {
   const JsonObject& as_object() const;
   const JsonArray& as_array() const;
 
+  // The following methods allow for tests to be written without too much
+  // disassembly of the JSON object/arrays that a payload may contain. These
+  // would not be suitable for a production JSON application.
+
+  // If this value is an object, returns true iff the object has the specified
+  // key; else returns false.
+  bool HasKey(const std::string& key) const;
+
+  // If this value is an object, returns the value of the specified key. Returns
+  // a JsonValue of type kUnset if this value is not an object or does not
+  // have the key.
+  JsonValue GetValue(const std::string& key) const;
+
+  // Returns true this value is an array with the specified index, else returns
+  // false.
+  bool HasIndex(size_t index) const;
+
+  // If this value is an array and the array's size is greater than index,
+  // returns the value of the specified index in the array; otherwise returns a
+  // JsonValue of type kUnset.
+  JsonValue GetElement(size_t index) const;
+
+  friend std::ostream& operator<<(std::ostream& os, const JsonValue& jv);
+
  private:
+  struct Undefined {};
+
   // This order must match the order in EType
-  std::variant<void*, bool, double, std::string, std::shared_ptr<JsonObject>,
-               std::shared_ptr<JsonArray>>
+  std::variant<Undefined, nullptr_t, bool, double, std::string,
+               std::shared_ptr<JsonObject>, std::shared_ptr<JsonArray>>
       value_;
 };
 
 template <typename T>
 JsonObject& JsonObject::Add(std::string_view key, T t) {
   JsonValue value(t);
+  TAS_CHECK(value.type() != JsonValue::kUnset);
   insert_or_assign(std::string(key), value);
   return *this;
 }
@@ -95,6 +136,7 @@ JsonObject& JsonObject::Add(std::string_view key, T t) {
 template <typename T>
 JsonArray& JsonArray::Add(T t) {
   JsonValue value(t);
+  TAS_CHECK(value.type() != JsonValue::kUnset);
   push_back(value);
   return *this;
 }
