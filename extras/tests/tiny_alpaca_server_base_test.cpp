@@ -42,24 +42,8 @@ namespace test {
 namespace {
 
 using ::alpaca::ServerDescription;
-using ::testing::AnyNumber;
-using ::testing::Contains;
-using ::testing::ContainsRegex;
-using ::testing::ElementsAre;
-using ::testing::EndsWith;
-using ::testing::Eq;
-using ::testing::HasSubstr;
-using ::testing::InSequence;
 using ::testing::IsEmpty;
-using ::testing::Mock;
-using ::testing::NiceMock;
-using ::testing::Not;
-using ::testing::Ref;
-using ::testing::Return;
-using ::testing::ReturnRef;
-using ::testing::SizeIs;
 using ::testing::StartsWith;
-using ::testing::StrictMock;
 
 constexpr int kDeviceNumber = 87405;
 constexpr int kClientId = 91240;
@@ -155,15 +139,51 @@ TEST_F(TinyAlpacaServerBaseTest, HeadersTooLarge) {
   EXPECT_THAT(result.output, IsEmpty());
   EXPECT_FALSE(result.connection_closed);
 
-  result = server_.AnnounceCanRead("");
+  // Decode just the HTTP method first.
+  result = server_.AnnounceCanRead(full_request.substr(0, 4));
   EXPECT_THAT(result.remaining_input, IsEmpty());
   EXPECT_THAT(result.output, IsEmpty());
   EXPECT_FALSE(result.connection_closed);
 
-  result = server_.AnnounceCanRead(full_request);
-  EXPECT_FALSE(result.remaining_input.empty());
+  // Then decode the rest of the request.
+  result = server_.AnnounceCanRead(full_request.substr(4));
+  EXPECT_THAT(result.remaining_input, StartsWith("xxx"));
   EXPECT_FALSE(result.output.empty());
   EXPECT_TRUE(result.connection_closed);
+
+  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(result.output));
+  EXPECT_EQ(response.http_version, "HTTP/1.1");
+  EXPECT_EQ(response.status_code, 431);
+  EXPECT_EQ(response.status_message, "Request Header Fields Too Large");
+  EXPECT_THAT(response.body_and_beyond, IsEmpty());
+}
+
+TEST_F(TinyAlpacaServerBaseTest, ConfiguredDevices) {
+  EXPECT_TRUE(server_.Initialize());
+
+  const std::string full_request(
+      "GET /management/v1/configureddevices HTTP/1.1\r\n"
+      "\r\n");
+
+  auto result = server_.AnnounceConnect(full_request);
+  EXPECT_THAT(result.remaining_input, IsEmpty());
+  EXPECT_FALSE(result.output.empty());
+  EXPECT_FALSE(result.connection_closed);
+
+  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(result.output));
+  EXPECT_EQ(response.http_version, "HTTP/1.1");
+  EXPECT_EQ(response.status_code, 200);
+  EXPECT_EQ(response.status_message, "OK");
+  ASSERT_TRUE(response.json_value.has_value());
+
+  auto json_body = response.json_value.value();
+  ASSERT_TRUE(json_body.GetValue("ServerTransactionID").is_number());
+  ASSERT_FALSE(json_body.HasKey("ClientTransactionID"));
+  ASSERT_FALSE(json_body.HasKey("ErrorNumber"));
+  ASSERT_FALSE(json_body.HasKey("ErrorMessage"));
+  ASSERT_TRUE(json_body.GetValue("Value").is_array());
+  auto value_array = json_body.GetValue("Value");
+  ASSERT_THAT(value_array.as_array(), IsEmpty());
 }
 
 }  // namespace

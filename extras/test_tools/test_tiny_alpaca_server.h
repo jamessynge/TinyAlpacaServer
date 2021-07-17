@@ -20,6 +20,7 @@
 #include "extras/test_tools/mock_device_interface.h"
 #include "extras/test_tools/mock_switch_group.h"
 #include "extras/test_tools/print_to_std_string.h"
+#include "extras/test_tools/string_io_connection.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "literals.h"
@@ -40,7 +41,7 @@ namespace test {
 struct ConnectionResult {
   // Input remaining after processing. For AnnounceHalfClosed, this is always
   // empty.
-  std::string_view remaining_input;
+  std::string remaining_input;
 
   // Output produced during processing.
   std::string output;
@@ -93,6 +94,8 @@ class TestTinyAlpacaServer : public TinyAlpacaServerBase {
   void AnnounceOnDisconnect();
 
  private:
+  void RepeatedlyAnnounceCanRead(StringIoConnection& conn);
+
   ServerConnection server_connection_;
   uint8_t sock_num_;
 };

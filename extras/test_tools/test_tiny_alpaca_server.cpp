@@ -1,5 +1,7 @@
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 
+#include <string>
+
 #include "extras/test_tools/string_io_connection.h"
 #include "utils/logging.h"
 
@@ -20,17 +22,12 @@ ConnectionResult TestTinyAlpacaServer::AnnounceConnect(std::string_view input,
   StringIoConnection conn(sock_num_, input, peer_half_closed);
   server_connection_.OnConnect(conn);
   if (repeat_until_stable) {
-    while (conn.connected() && !conn.remaining_input().empty()) {
-      const auto start_size = conn.remaining_input().size();
-      server_connection_.OnCanRead(conn);
-      if (conn.remaining_input().size() == start_size) {
-        break;
-      }
-    }
+    RepeatedlyAnnounceCanRead(conn);
   }
-  return ConnectionResult{.remaining_input = conn.remaining_input(),
-                          .output = conn.output(),
-                          .connection_closed = !conn.connected()};
+  return ConnectionResult{
+      .remaining_input = std::string(conn.remaining_input()),
+      .output = conn.output(),
+      .connection_closed = !conn.connected()};
 }
 
 ConnectionResult TestTinyAlpacaServer::AnnounceCanRead(std::string_view input,
@@ -43,17 +40,22 @@ ConnectionResult TestTinyAlpacaServer::AnnounceCanRead(std::string_view input,
   StringIoConnection conn(sock_num_, input, peer_half_closed);
   server_connection_.OnCanRead(conn);
   if (repeat_until_stable) {
-    while (conn.connected() && !conn.remaining_input().empty()) {
-      const auto start_size = conn.remaining_input().size();
-      server_connection_.OnCanRead(conn);
-      if (conn.remaining_input().size() == start_size) {
-        break;
-      }
+    RepeatedlyAnnounceCanRead(conn);
+  }
+  return ConnectionResult{
+      .remaining_input = std::string(conn.remaining_input()),
+      .output = conn.output(),
+      .connection_closed = !conn.connected()};
+}
+
+void TestTinyAlpacaServer::RepeatedlyAnnounceCanRead(StringIoConnection& conn) {
+  while (conn.connected() && !conn.remaining_input().empty()) {
+    const auto start_size = conn.remaining_input().size();
+    server_connection_.OnCanRead(conn);
+    if (conn.remaining_input().size() == start_size) {
+      break;
     }
   }
-  return ConnectionResult{.remaining_input = conn.remaining_input(),
-                          .output = conn.output(),
-                          .connection_closed = !conn.connected()};
 }
 
 ConnectionResult TestTinyAlpacaServer::AnnounceHalfClosed(
