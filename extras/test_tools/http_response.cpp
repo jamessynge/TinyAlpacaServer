@@ -2,9 +2,15 @@
 
 #include <string.h>
 
+#include <charconv>
+#include <cstdlib>
 #include <string>
+#include <string_view>
 
+#include "absl/status/status.h"
+#include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"
+#include "util/task/status_macros.h"
 
 namespace alpaca {
 namespace test {
@@ -20,6 +26,17 @@ std::string TrimWhitespace(std::string str) {
   const auto length = last - start + 1;
 
   return str.substr(start, length);
+}
+
+template <typename T>
+absl::StatusOr<T> StringToNumber(std::string_view str) {
+  T value;
+  auto fc_result = std::from_chars(str.data(), str.data() + str.size(), value);
+  if (fc_result.ec != std::errc()) {
+    return absl::InvalidArgumentError(
+        absl::StrCat("Expected a number, not ", str));
+  }
+  return value;
 }
 
 // Consider adding support for determining whether a particular header's value
@@ -65,10 +82,10 @@ absl::StatusOr<HttpResponse> HttpResponse::Make(std::string response) {
   const std::vector<std::string> headers_and_body = absl::StrSplit(
       response, absl::MaxSplits("\r\n\r\n", 1), absl::AllowEmpty());
   if (headers_and_body.size() != 2) {
-    return absl::FailedPreconditionError("End of headers not found");
+    return absl::InvalidArgumentError("End of headers not found");
   }
   if (headers_and_body[0].empty()) {
-    return absl::FailedPreconditionError("Headers not found");
+    return absl::InvalidArgumentError("Headers not found");
   }
   hr.body_and_beyond = headers_and_body[1];
 
@@ -76,21 +93,21 @@ absl::StatusOr<HttpResponse> HttpResponse::Make(std::string response) {
   const std::vector<std::string> status_and_headers = absl::StrSplit(
       headers_and_body[0], absl::MaxSplits("\r\n", 1), absl::AllowEmpty());
   if (status_and_headers.empty() || status_and_headers.size() > 2) {
-    return absl::FailedPreconditionError("End of status line not found");
+    return absl::InvalidArgumentError("End of status line not found");
   }
 
   // Split the status line into the version, status code and optional message.
   const std::vector<std::string> status_parts = absl::StrSplit(
       status_and_headers[0], absl::MaxSplits(' ', 2), absl::AllowEmpty());
   if (status_parts.size() < 2 || status_parts.size() > 3) {
-    return absl::FailedPreconditionError("Unable to split status line: " +
-                                         status_and_headers[0]);
+    return absl::InvalidArgumentError("Unable to split status line: " +
+                                      status_and_headers[0]);
   }
 
   hr.http_version = status_parts[0];
 
   if (!absl::SimpleAtoi(status_parts[1], &hr.status_code)) {
-    return absl::FailedPreconditionError(
+    return absl::InvalidArgumentError(
         "Unable to parse status code as an integer: " + status_parts[1]);
   }
 
@@ -106,13 +123,32 @@ absl::StatusOr<HttpResponse> HttpResponse::Make(std::string response) {
       const std::vector<std::string> name_value = absl::StrSplit(
           header_line, absl::MaxSplits(':', 1), absl::AllowEmpty());
       if (name_value.size() != 2) {
-        return absl::FailedPreconditionError("Unable to split header line: " +
-                                             header_line);
+        return absl::InvalidArgumentError("Unable to split header line: " +
+                                          header_line);
       }
       hr.headers.insert(
           std::make_pair(name_value[0], TrimWhitespace(name_value[1])));
     }
   }
+
+  if (!hr.HasHeaderValue("Content-Type", "application/json")) {
+    return hr;
+  }
+
+  // Try decoding the body as JSON. If we fail, then it is an error on decoding
+  // the whole response.
+  ASSIGN_OR_RETURN(size_t content_length, hr.GetContentLength());
+  if (content_length > hr.body_and_beyond.size()) {
+    return absl::InvalidArgumentError(absl::StrCat(
+        "Content-Length is ", content_length,
+        ", but body_and_beyond.size() is only ", hr.body_and_beyond.size()));
+  }
+
+  std::string json_text = hr.body_and_beyond.substr(0, content_length);
+  hr.body_and_beyond = hr.body_and_beyond.substr(content_length);
+
+  ASSIGN_OR_RETURN(auto json_value, JsonValue::Parse(json_text));
+  hr.json_value = json_value;
 
   return hr;
 }
@@ -125,6 +161,18 @@ std::vector<std::string> HttpResponse::GetHeaderValues(
     values.push_back(iter->second);
   }
   return values;
+}
+
+absl::StatusOr<std::string> HttpResponse::GetSoleHeaderValue(
+    const std::string& name) const {
+  auto values = GetHeaderValues(name);
+  if (values.empty()) {
+    return absl::NotFoundError(absl::StrCat("Header '", name, "' not found"));
+  } else if (values.size() > 1) {
+    return absl::InvalidArgumentError(
+        absl::StrCat("More than one '", name, "' header found"));
+  }
+  return values[0];
 }
 
 bool HttpResponse::HasHeader(const std::string& name) const {
@@ -140,6 +188,11 @@ bool HttpResponse::HasHeaderValue(const std::string& name,
     }
   }
   return false;
+}
+
+absl::StatusOr<size_t> HttpResponse::GetContentLength() const {
+  ASSIGN_OR_RETURN(auto str, GetSoleHeaderValue("Content-Length"));
+  return StringToNumber<size_t>(str);
 }
 
 bool HttpResponse::CaseInsensitiveLess::operator()(

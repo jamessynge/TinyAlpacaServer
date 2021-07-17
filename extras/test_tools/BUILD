@@ -11,8 +11,11 @@ cc_library(
     srcs = ["http_response.cc"],
     hdrs = ["http_response.h"],
     deps = [
+        ":json_decoder",
+        "//absl/status",
         "//absl/status:statusor",
         "//absl/strings",
+        "//util/task:status",
     ],
 )
 
@@ -21,6 +24,7 @@ cc_test(
     srcs = ["http_response_test.cc"],
     deps = [
         ":http_response",
+        "//absl/status",
         "//googletest:gunit_main",
     ],
 )

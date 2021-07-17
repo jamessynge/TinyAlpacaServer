@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "absl/status/statusor.h"
+#include "extras/test_tools/json_decoder.h"
 
 namespace alpaca {
 namespace test {
@@ -23,8 +24,18 @@ struct HttpResponse {
   static absl::StatusOr<HttpResponse> Make(std::string response);
 
   std::vector<std::string> GetHeaderValues(const std::string& name) const;
+  absl::StatusOr<std::string> GetSoleHeaderValue(const std::string& name) const;
   bool HasHeader(const std::string& name) const;
   bool HasHeaderValue(const std::string& name, const std::string& value) const;
+
+  // Decodes the Content-Length header as a size_t. Returns a NotFoundError if
+  // there isn't a Content-Length header; returns an InvalidArgumentError if the
+  // value of the Content-Length header can't be decoded as a size_t.
+  absl::StatusOr<size_t> GetContentLength() const;
+
+  // Returns the Content-Type header's value, if a single such header is
+  // present. Returns NotFoundError if there isn't a Content-Type header.
+  absl::StatusOr<std::string> GetContentType() const;
 
   std::string http_version;
   int status_code;
@@ -34,6 +45,13 @@ struct HttpResponse {
   // Everything after the headers, whether it is exactly the required size for
   // the body, or more or less for some reason.
   std::string body_and_beyond;
+
+  // If the Content-Type is application/json, and the body_and_beyond.size() is
+  // at least Content-Length, and that decodes as JSON, then the decoded
+  // JsonValue is stored here, and the Content-Length is removed from
+  // body_and_beyond. If the body should be decoded as JSON, but is ill-formed,
+  // then Make (above) will return an error.
+  std::optional<JsonValue> json_value;
 };
 
 }  // namespace test

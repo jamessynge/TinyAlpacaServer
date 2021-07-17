@@ -1,5 +1,8 @@
 #include "extras/test_tools/http_response.h"
 
+#include <optional>
+
+#include "absl/status/status.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
@@ -8,6 +11,7 @@ namespace test {
 namespace {
 
 using ::testing::IsEmpty;
+using ::testing::Optional;
 using ::testing::Pair;
 using ::testing::UnorderedElementsAre;
 
@@ -48,6 +52,50 @@ TEST(HttpResponseTest, Full) {
                                    Pair("Set-Cookie", "a = b"),
                                    Pair("Set-Cookie", "c=d")));
   EXPECT_EQ(hr.body_and_beyond, "Some body.");
+  EXPECT_EQ(hr.json_value, std::nullopt);
+}
+
+TEST(HttpResponseTest, EmptyJsonObject) {
+  ASSERT_OK_AND_ASSIGN(auto hr,
+                       HttpResponse::Make("HTTP/1.1 200 OK\r\n"
+                                          "Content-Type: application/json \r\n"
+                                          "Content-Length: 2\r\n"
+                                          "\r\n"
+                                          "{}  "));
+  EXPECT_EQ(hr.http_version, "HTTP/1.1");
+  EXPECT_EQ(hr.status_code, 200);
+  EXPECT_EQ(hr.status_message, "OK");
+  EXPECT_THAT(hr.headers,
+              UnorderedElementsAre(Pair("Content-Type", "application/json"),
+                                   Pair("Content-Length", "2")));
+  EXPECT_EQ(hr.body_and_beyond, "  ");
+  EXPECT_THAT(hr.json_value, Optional(JsonValue(JsonObject())));
+}
+
+TEST(HttpResponseTest, TruncatedJsonResponse) {
+  auto status_or = HttpResponse::Make(
+      "HTTP/1.1 200 OK\r\n"
+      "Content-Type: application/json \r\n"
+      "Content-Length: 2\r\n"
+      "\r\n"
+      "{");
+
+  ASSERT_FALSE(status_or.ok());
+  ASSERT_TRUE(absl::IsInvalidArgument(status_or.status()))
+      << status_or.status();
+}
+
+TEST(HttpResponseTest, CorruptJsonResponse) {
+  auto status_or = HttpResponse::Make(
+      "HTTP/1.1 200 OK\r\n"
+      "Content-Type: application/json \r\n"
+      "Content-Length: 2\r\n"
+      "\r\n"
+      "{]");
+
+  ASSERT_FALSE(status_or.ok());
+  ASSERT_TRUE(absl::IsInvalidArgument(status_or.status()))
+      << status_or.status();
 }
 
 }  // namespace
