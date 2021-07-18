@@ -155,6 +155,16 @@ inline bool operator==(std::string_view s, const JsonValue& jv) {
   return jv == s;
 }
 
+bool operator==(const JsonValue& jv, const JsonArray& v);
+inline bool operator==(const JsonArray& v, const JsonValue& jv) {
+  return jv == v;
+}
+
+bool operator==(const JsonValue& jv, const JsonObject& v);
+inline bool operator==(const JsonObject& v, const JsonValue& jv) {
+  return jv == v;
+}
+
 bool operator==(const JsonValue& a, const JsonValue& b);
 inline bool operator!=(const JsonValue& a, const JsonValue& b) {
   return !(a == b);

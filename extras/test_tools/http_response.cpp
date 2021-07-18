@@ -147,8 +147,7 @@ absl::StatusOr<HttpResponse> HttpResponse::Make(std::string response) {
   std::string json_text = hr.body_and_beyond.substr(0, content_length);
   hr.body_and_beyond = hr.body_and_beyond.substr(content_length);
 
-  ASSIGN_OR_RETURN(auto json_value, JsonValue::Parse(json_text));
-  hr.json_value = json_value;
+  ASSIGN_OR_RETURN(hr.json_value, JsonValue::Parse(json_text));
 
   return hr;
 }
@@ -193,11 +192,6 @@ bool HttpResponse::HasHeaderValue(const std::string& name,
 absl::StatusOr<size_t> HttpResponse::GetContentLength() const {
   ASSIGN_OR_RETURN(auto str, GetSoleHeaderValue("Content-Length"));
   return StringToNumber<size_t>(str);
-}
-
-bool HttpResponse::CaseInsensitiveLess::operator()(
-    const std::string& lhs, const std::string& rhs) const {
-  return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
 }
 
 }  // namespace test

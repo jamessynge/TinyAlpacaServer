@@ -177,9 +177,9 @@ TEST_F(TinyAlpacaServerBaseTest, ConfiguredDevices) {
   EXPECT_EQ(response.http_version, "HTTP/1.1");
   EXPECT_EQ(response.status_code, 200);
   EXPECT_EQ(response.status_message, "OK");
-  ASSERT_TRUE(response.json_value.has_value());
+  ASSERT_FALSE(response.json_value.is_unset());
 
-  auto json_body = response.json_value.value();
+  auto json_body = response.json_value;
   ASSERT_TRUE(json_body.GetValue("ServerTransactionID").is_number());
   ASSERT_FALSE(json_body.HasKey("ClientTransactionID"));
   ASSERT_FALSE(json_body.HasKey("ErrorNumber"));

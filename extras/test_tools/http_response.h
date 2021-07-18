@@ -9,16 +9,13 @@
 #include <vector>
 
 #include "absl/status/statusor.h"
+#include "extras/test_tools/case_insensitive_less.h"
 #include "extras/test_tools/json_decoder.h"
 
 namespace alpaca {
 namespace test {
 
 struct HttpResponse {
-  struct CaseInsensitiveLess {
-    bool operator()(const std::string& lhs, const std::string& rhs) const;
-  };
-
   // Returns an HttpResponse based on the provided string, if it can be parsed
   // as such, else returns an error.
   static absl::StatusOr<HttpResponse> Make(std::string response);
@@ -51,7 +48,7 @@ struct HttpResponse {
   // JsonValue is stored here, and the Content-Length is removed from
   // body_and_beyond. If the body should be decoded as JSON, but is ill-formed,
   // then Make (above) will return an error.
-  std::optional<JsonValue> json_value;
+  JsonValue json_value;
 };
 
 }  // namespace test

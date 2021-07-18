@@ -128,5 +128,4 @@ cc_library(
 cc_library(
     name = "wstring",
     hdrs = ["wstring.h"],
-    deps = [":pgmspace"],
 )

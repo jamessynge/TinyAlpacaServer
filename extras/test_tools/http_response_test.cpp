@@ -52,7 +52,7 @@ TEST(HttpResponseTest, Full) {
                                    Pair("Set-Cookie", "a = b"),
                                    Pair("Set-Cookie", "c=d")));
   EXPECT_EQ(hr.body_and_beyond, "Some body.");
-  EXPECT_EQ(hr.json_value, std::nullopt);
+  EXPECT_EQ(hr.json_value, JsonValue());  // Unset
 }
 
 TEST(HttpResponseTest, EmptyJsonObject) {
@@ -69,7 +69,7 @@ TEST(HttpResponseTest, EmptyJsonObject) {
               UnorderedElementsAre(Pair("Content-Type", "application/json"),
                                    Pair("Content-Length", "2")));
   EXPECT_EQ(hr.body_and_beyond, "  ");
-  EXPECT_THAT(hr.json_value, Optional(JsonValue(JsonObject())));
+  EXPECT_EQ(hr.json_value, JsonObject());
 }
 
 TEST(HttpResponseTest, TruncatedJsonResponse) {

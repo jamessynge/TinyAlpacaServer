@@ -1,9 +1,26 @@
 # Libraries intended to simplify the task of writing tests of Tiny Alpaca Server.
 
 cc_library(
+    name = "case_insensitive_less",
+    srcs = ["case_insensitive_less.cc"],
+    hdrs = ["case_insensitive_less.h"],
+)
+
+cc_library(
     name = "fake_platform_ethernet",
     hdrs = ["fake_platform_ethernet.h"],
     deps = ["//src/utils:platform_ethernet"],
+)
+
+cc_library(
+    name = "http_request",
+    srcs = ["http_request.cc"],
+    hdrs = ["http_request.h"],
+    deps = [
+        ":case_insensitive_less",
+        "//absl/strings",
+        "//core:logging",
+    ],
 )
 
 cc_library(
@@ -11,6 +28,7 @@ cc_library(
     srcs = ["http_response.cc"],
     hdrs = ["http_response.h"],
     deps = [
+        ":case_insensitive_less",
         ":json_decoder",
         "//absl/status",
         "//absl/status:statusor",

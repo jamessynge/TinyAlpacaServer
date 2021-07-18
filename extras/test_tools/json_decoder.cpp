@@ -320,6 +320,14 @@ bool operator==(const JsonValue& jv, std::string_view s) {
   return jv.type() == JsonValue::kString && jv.as_string() == s;
 }
 
+bool operator==(const JsonValue& jv, const JsonArray& v) {
+  return jv.type() == JsonValue::kArray && jv.as_array() == v;
+}
+
+bool operator==(const JsonValue& jv, const JsonObject& v) {
+  return jv.type() == JsonValue::kObject && jv.as_object() == v;
+}
+
 bool operator==(const JsonValue& a, const JsonValue& b) {
   if (a.type() != b.type()) {
     return false;
