@@ -51,7 +51,10 @@ class JsonValue {
     kUnset = 0,  // This instance does NOT contain a value.
     kNull,
     kBool,
-    kNumber,
+    kInteger,  // Not a proper JSON type, but useful given that many of the
+               // expected numbers are integers rather than floating point
+               // numbers.
+    kDouble,   // A floating point number.
     kString,
     kObject,
     kArray,
@@ -60,8 +63,9 @@ class JsonValue {
   JsonValue();  // Has no value.
   explicit JsonValue(nullptr_t);
   explicit JsonValue(bool);
-  explicit JsonValue(double);
+  explicit JsonValue(int64_t);
   explicit JsonValue(int);  // NOLINT
+  explicit JsonValue(double);
   explicit JsonValue(const std::string&);
   explicit JsonValue(std::string_view);
   explicit JsonValue(const char*);
@@ -79,7 +83,8 @@ class JsonValue {
   bool is_unset() const { return type() == kUnset; }
   bool is_null() const { return type() == kNull; }
   bool is_bool() const { return type() == kBool; }
-  bool is_number() const { return type() == kNumber; }
+  bool is_integer() const { return type() == kInteger; }
+  bool is_double() const { return type() == kDouble; }
   bool is_string() const { return type() == kString; }
   bool is_object() const { return type() == kObject; }
   bool is_array() const { return type() == kArray; }
@@ -87,7 +92,8 @@ class JsonValue {
   // The as_X methods will raise an exception if the wrong method is called, so
   // be sure to use type() first.
   bool as_bool() const;
-  double as_number() const;
+  int64_t as_integer() const;
+  double as_double() const;
   const std::string& as_string() const;
   const JsonObject& as_object() const;
   const JsonArray& as_array() const;
@@ -114,16 +120,20 @@ class JsonValue {
   // JsonValue of type kUnset.
   JsonValue GetElement(size_t index) const;
 
-  friend std::ostream& operator<<(std::ostream& os, const JsonValue& jv);
+  size_t size() const;
+
+  std::string ToDebugString() const;
 
  private:
   struct Undefined {};
 
   // This order must match the order in EType
-  std::variant<Undefined, nullptr_t, bool, double, std::string,
+  std::variant<Undefined, nullptr_t, bool, int64_t, double, std::string,
                std::shared_ptr<JsonObject>, std::shared_ptr<JsonArray>>
       value_;
 };
+
+std::ostream& operator<<(std::ostream& os, const JsonValue& jv);
 
 template <typename T>
 JsonObject& JsonObject::Add(std::string_view key, T t) {
@@ -142,30 +152,23 @@ JsonArray& JsonArray::Add(T t) {
 }
 
 bool operator==(const JsonValue& jv, nullptr_t);
-inline bool operator==(nullptr_t, const JsonValue& jv) { return jv == nullptr; }
-
-bool operator==(const JsonValue& jv, bool b);
-inline bool operator==(bool b, const JsonValue& jv) { return jv == b; }
-
-bool operator==(const JsonValue& jv, double d);
-inline bool operator==(double d, const JsonValue& jv) { return jv == d; }
-
-bool operator==(const JsonValue& jv, std::string_view s);
-inline bool operator==(std::string_view s, const JsonValue& jv) {
-  return jv == s;
+bool operator==(const JsonValue& jv, bool v);
+bool operator==(const JsonValue& jv, int v);
+bool operator==(const JsonValue& jv, int64_t v);
+bool operator==(const JsonValue& jv, double v);
+bool operator==(const JsonValue& jv, std::string_view v);
+inline bool operator==(const JsonValue& jv, const char* v) {
+  return jv == std::string_view(v);
 }
-
 bool operator==(const JsonValue& jv, const JsonArray& v);
-inline bool operator==(const JsonArray& v, const JsonValue& jv) {
-  return jv == v;
-}
-
 bool operator==(const JsonValue& jv, const JsonObject& v);
-inline bool operator==(const JsonObject& v, const JsonValue& jv) {
-  return jv == v;
+bool operator==(const JsonValue& a, const JsonValue& b);
+
+template <typename T>
+bool operator==(T a, const JsonValue& b) {
+  return b == a;
 }
 
-bool operator==(const JsonValue& a, const JsonValue& b);
 inline bool operator!=(const JsonValue& a, const JsonValue& b) {
   return !(a == b);
 }

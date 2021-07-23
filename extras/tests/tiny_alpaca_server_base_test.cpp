@@ -180,7 +180,7 @@ TEST_F(TinyAlpacaServerBaseTest, ConfiguredDevices) {
   ASSERT_FALSE(response.json_value.is_unset());
 
   auto json_body = response.json_value;
-  ASSERT_TRUE(json_body.GetValue("ServerTransactionID").is_number());
+  ASSERT_TRUE(json_body.GetValue("ServerTransactionID").is_integer());
   ASSERT_FALSE(json_body.HasKey("ClientTransactionID"));
   ASSERT_FALSE(json_body.HasKey("ErrorNumber"));
   ASSERT_FALSE(json_body.HasKey("ErrorMessage"));

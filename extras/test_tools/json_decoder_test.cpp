@@ -26,10 +26,13 @@ TEST(JsonDecoderTest, Unset) {
 TEST(JsonDecoderTest, Null) {
   ASSERT_OK_AND_ASSIGN(auto value,
                        JsonValue::Parse(WHITESPACE "null" WHITESPACE));
-  ASSERT_EQ(value.type(), JsonValue::kNull);
+  EXPECT_EQ(value.type(), JsonValue::kNull);
 
-  ASSERT_EQ(value, JsonValue(nullptr));
-  ASSERT_EQ(JsonValue(nullptr), value);
+  EXPECT_EQ(value, JsonValue(nullptr));
+  EXPECT_EQ(JsonValue(nullptr), value);
+
+  EXPECT_EQ(value, nullptr);
+  EXPECT_EQ(nullptr, value);
 
   EXPECT_NE(value, JsonValue(false));
   EXPECT_NE(JsonValue(""), value);
@@ -63,12 +66,42 @@ TEST(JsonDecoderTest, False) {
   EXPECT_NE(value, true);
 }
 
-TEST(JsonDecoderTest, Zero) {
+TEST(JsonDecoderTest, IntegerZero) {
+  ASSERT_OK_AND_ASSIGN(auto value,
+                       JsonValue::Parse(WHITESPACE "-0" WHITESPACE));
+  ASSERT_EQ(value.type(), JsonValue::kInteger);
+
+  EXPECT_EQ(value.as_integer(), -0);
+  EXPECT_EQ(value, JsonValue(-0));
+  EXPECT_EQ(JsonValue(-0), value);
+
+  // Because twos complement doesn't have an explicit representation for -0, we
+  // expect that it is identical to +0.
+  EXPECT_EQ(value, JsonValue(0));
+  EXPECT_EQ(JsonValue(0), value);
+
+  EXPECT_NE(value, JsonValue(nullptr));
+  EXPECT_NE(value, 0.0000000001);
+  EXPECT_NE(value, -0.0000000001);
+}
+
+TEST(JsonDecoderTest, IntegerMinusOne) {
+  ASSERT_OK_AND_ASSIGN(auto value,
+                       JsonValue::Parse(WHITESPACE "-1" WHITESPACE));
+  ASSERT_EQ(value.type(), JsonValue::kInteger);
+
+  EXPECT_EQ(-1, value.as_integer());
+  EXPECT_EQ(value.as_integer(), -1);
+  EXPECT_EQ(value, JsonValue(-1));
+  EXPECT_EQ(JsonValue(-1), value);
+}
+
+TEST(JsonDecoderTest, DoubleZero) {
   ASSERT_OK_AND_ASSIGN(auto value,
                        JsonValue::Parse(WHITESPACE "-0.0E+0" WHITESPACE));
-  ASSERT_EQ(value.type(), JsonValue::kNumber);
+  ASSERT_EQ(value.type(), JsonValue::kDouble);
 
-  EXPECT_EQ(value.as_number(), -0.0);
+  EXPECT_EQ(value.as_double(), -0.0);
   EXPECT_EQ(value, JsonValue(-0.0));
   EXPECT_EQ(JsonValue(-0.0), value);
 
@@ -81,13 +114,13 @@ TEST(JsonDecoderTest, Zero) {
   EXPECT_NE(value, -0.0000000001);
 }
 
-TEST(JsonDecoderTest, One) {
+TEST(JsonDecoderTest, DoubleOne) {
   ASSERT_OK_AND_ASSIGN(auto value,
                        JsonValue::Parse(WHITESPACE "1.0e-0" WHITESPACE));
-  ASSERT_EQ(value.type(), JsonValue::kNumber);
+  ASSERT_EQ(value.type(), JsonValue::kDouble);
 
-  EXPECT_EQ(1.0, value.as_number());
-  EXPECT_EQ(value.as_number(), 1.0);
+  EXPECT_EQ(1.0, value.as_double());
+  EXPECT_EQ(value.as_double(), 1.0);
   EXPECT_EQ(value, JsonValue(1.0));
   EXPECT_EQ(JsonValue(1.0), value);
 }
@@ -140,7 +173,7 @@ TEST(JsonDecoderTest, ObjectWithMultipleEntries) {
   ASSERT_OK_AND_ASSIGN(
       auto value,
       JsonValue::Parse(
-          R"({"a":null,"b":true,"c":false,"d":-0,"e":"","f":{},"g":[]})"));
+          R"({"a":null,"b":true,"c":false,"d":-0.0,"e":"","f":{},"g":[9]})"));
   ASSERT_EQ(value.type(), JsonValue::kObject);
 
   JsonValue expected(JsonObject()
@@ -150,7 +183,7 @@ TEST(JsonDecoderTest, ObjectWithMultipleEntries) {
                          .Add("d", -0.0)
                          .Add("e", "")
                          .Add("f", JsonObject())
-                         .Add("g", JsonArray()));
+                         .Add("g", JsonArray().Add(9)));
 
   EXPECT_EQ(value, expected);
 }

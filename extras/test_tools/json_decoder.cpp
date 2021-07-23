@@ -1,7 +1,11 @@
 #include "extras/test_tools/json_decoder.h"
 
+#include <sys/types.h>
+
+#include <charconv>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <system_error>  // NOLINT(build/c++11)
@@ -143,6 +147,8 @@ absl::StatusOr<JsonValue> ParseFalse(std::string_view& str) {
 absl::StatusOr<JsonValue> ParseNumber(std::string_view& str) {
   RETURN_IF_ERROR(SkipInteriorWhitespace(str))
       << "Expected a number, not end-of-input.";
+
+  // First decode as a floating-point number.
   double value;
   auto fc_result = absl::from_chars(str.data(), str.data() + str.size(), value);
   if (fc_result.ec != std::errc()) {
@@ -151,8 +157,25 @@ absl::StatusOr<JsonValue> ParseNumber(std::string_view& str) {
   CHECK_GT(fc_result.ptr, str.data());
   auto size = fc_result.ptr - str.data();
   CHECK_LE(size, str.size());
+  JsonValue result(value);
+
+  // Just in case it is an integer (in the Alpaca setting, this is actually the
+  // most common case), try decoding the exact same string as an integer.
+  std::string_view num_str = str.substr(0, size);
+  if (num_str.find_first_of(".eE") == std::string_view::npos) {
+    // Looks to be an integer.
+    int64_t integer;
+    auto integer_fc_result =
+        std::from_chars(str.data(), str.data() + str.size(), integer);
+    if (integer_fc_result.ec == std::errc() &&
+        integer_fc_result.ptr == fc_result.ptr) {
+      // Yup, can be decoded as an integer.
+      result = JsonValue(integer);
+    }
+  }
+
   str.remove_prefix(size);
-  return JsonValue(value);
+  return result;
 }
 
 absl::StatusOr<JsonValue> ParseObject(std::string_view& str) {
@@ -220,8 +243,9 @@ absl::StatusOr<JsonValue> ParseValue(std::string_view& str) {
 JsonValue::JsonValue() : value_(Undefined{}) {}
 JsonValue::JsonValue(nullptr_t) : value_(nullptr) {}
 JsonValue::JsonValue(bool v) : value_(v) {}
+JsonValue::JsonValue(int64_t v) : value_(v) {}
+JsonValue::JsonValue(int v) : value_(static_cast<int64_t>(v)) {}
 JsonValue::JsonValue(double v) : value_(v) {}
-JsonValue::JsonValue(int v) : value_(static_cast<double>(v)) {}
 JsonValue::JsonValue(const std::string& v) : value_(v) {}
 JsonValue::JsonValue(std::string_view v) : value_(std::string(v)) {}
 JsonValue::JsonValue(const char* v) : value_(std::string(v)) {}
@@ -249,7 +273,9 @@ JsonValue::EType JsonValue::type() const {
 
 bool JsonValue::as_bool() const { return std::get<kBool>(value_); }
 
-double JsonValue::as_number() const { return std::get<kNumber>(value_); }
+int64_t JsonValue::as_integer() const { return std::get<kInteger>(value_); }
+
+double JsonValue::as_double() const { return std::get<kDouble>(value_); }
 
 const std::string& JsonValue::as_string() const {
   return std::get<kString>(value_);
@@ -285,19 +311,93 @@ JsonValue JsonValue::GetElement(size_t index) const {
   return JsonValue();
 }
 
+size_t JsonValue::size() const {
+  switch (type()) {
+    case JsonValue::kString:
+      return as_string().size();
+    case JsonValue::kObject:
+      return as_object().size();
+    case JsonValue::kArray:
+      return as_array().size();
+    default:
+      LOG(FATAL) << ToDebugString();
+  }
+}
+
+std::string JsonValue::ToDebugString() const {
+  std::ostringstream oss;
+  oss << *this;
+  return oss.str();
+}
+
+std::ostream& operator<<(std::ostream& os, const JsonValue& jv) {
+  os << "{type: ";
+
+  switch (jv.type()) {
+    case JsonValue::kUnset:
+      return os << "Unset}";
+
+    case JsonValue::kNull:
+      return os << "Null}";
+
+    case JsonValue::kBool:
+      os << "Bool, value: ";
+      if (jv.as_bool()) {
+        return os << "true}";
+      } else {
+        return os << "false}";
+      }
+
+    case JsonValue::kInteger:
+      return os << "Integer, value: " << jv.as_integer() << "}";
+
+    case JsonValue::kDouble:
+      return os << "Double, value: " << jv.as_double() << "}";
+
+    case JsonValue::kString:
+      return os << "String, value: \"" << absl::CHexEscape(jv.as_string())
+                << "\"}";
+
+    case JsonValue::kObject:
+      return os << "Object, value: " << ::testing::PrintToString(jv.as_object())
+                << "}";
+
+    case JsonValue::kArray:
+      return os << "Array, value: " << ::testing::PrintToString(jv.as_array())
+                << "}";
+  }
+}
+
 bool operator==(const JsonValue& jv, nullptr_t) {
   return jv.type() == JsonValue::kNull;
 }
 
-bool operator==(const JsonValue& jv, bool b) {
-  return jv.type() == JsonValue::kBool && jv.as_bool() == b;
+bool operator==(const JsonValue& jv, const bool v) {
+  return jv.type() == JsonValue::kBool && jv.as_bool() == v;
 }
 
-bool operator==(const JsonValue& jv, double d) {
-  if (jv.type() != JsonValue::kNumber) {
+bool operator==(const JsonValue& jv, const int v) {
+  return jv == static_cast<int64_t>(v);
+}
+
+bool operator==(const JsonValue& jv, const int64_t v) {
+  if (jv.type() == JsonValue::kInteger) {
+    return jv.as_integer() == v;
+  }
+  if (jv.type() == JsonValue::kDouble) {
+    return jv.as_double() == v;
+  }
+  return false;
+}
+
+bool operator==(const JsonValue& jv, const double v) {
+  if (jv.type() != JsonValue::kDouble) {
+    if (jv.type() == JsonValue::kInteger) {
+      return jv.as_integer() == v;
+    }
     return false;
   }
-  double a = jv.as_number(), b = d;
+  double a = jv.as_double(), b = v;
   if (a == b) {
     return true;
   }
@@ -316,8 +416,8 @@ bool operator==(const JsonValue& jv, double d) {
   return false;
 }
 
-bool operator==(const JsonValue& jv, std::string_view s) {
-  return jv.type() == JsonValue::kString && jv.as_string() == s;
+bool operator==(const JsonValue& jv, const std::string_view v) {
+  return jv.type() == JsonValue::kString && jv.as_string() == v;
 }
 
 bool operator==(const JsonValue& jv, const JsonArray& v) {
@@ -339,49 +439,18 @@ bool operator==(const JsonValue& a, const JsonValue& b) {
       return true;
     case JsonValue::kBool:
       return a.as_bool() == b.as_bool();
-    case JsonValue::kNumber:
-      return a == b.as_number();
+    case JsonValue::kInteger:
+      return a.as_integer() == b.as_integer();
+    case JsonValue::kDouble:
+      // Using the operator==(JsonValue, double) above as it handles dealing
+      // with essentially equal values.
+      return a == b.as_double();
     case JsonValue::kString:
       return a.as_string() == b.as_string();
     case JsonValue::kObject:
       return a.as_object() == b.as_object();
     case JsonValue::kArray:
       return a.as_array() == b.as_array();
-  }
-}
-
-std::ostream& operator<<(std::ostream& os, const JsonValue& jv) {
-  os << "{type: ";
-
-  switch (jv.type()) {
-    case JsonValue::kUnset:
-      return os << "Unset}";
-
-    case JsonValue::kNull:
-      return os << "Null}";
-
-    case JsonValue::kBool:
-      os << "Bool, value: ";
-      if (jv.as_bool()) {
-        return os << "true}";
-      } else {
-        return os << "false}";
-      }
-
-    case JsonValue::kNumber:
-      return os << "Number, value: " << jv.as_number() << "}";
-
-    case JsonValue::kString:
-      return os << "String, value: \"" << absl::CHexEscape(jv.as_string())
-                << "\"}";
-
-    case JsonValue::kObject:
-      return os << "Object, value: " << ::testing::PrintToString(jv.as_object())
-                << "}";
-
-    case JsonValue::kArray:
-      return os << "Array, value: " << ::testing::PrintToString(jv.as_array())
-                << "}";
   }
 }
 
