@@ -23,6 +23,8 @@ namespace alpaca {
 namespace test {
 
 struct ConnectionResult {
+  std::string ToDebugString() const;
+
   // Input remaining after processing. For AnnounceHalfClosed, this is always
   // empty.
   std::string remaining_input;
@@ -75,13 +77,28 @@ class TestTinyAlpacaServer : public TinyAlpacaServerBase {
   ConnectionResult AnnounceHalfClosed(bool repeat_until_stable = true);
 
   // Announces that a previously open connection has been completely closed.
-  void AnnounceOnDisconnect();
+  void AnnounceDisconnect();
+
+  // Based on the above methods, should the connection be considered open by the
+  // client?
+  bool connection_is_open() const { return connection_is_open_; }
+
+  // Based on the above methods, should the connection be considered writeable
+  // by the client?
+  bool connection_is_writeable() const { return connection_is_writeable_; }
 
  private:
   void RepeatedlyAnnounceCanRead(StringIoConnection& conn);
+  void RepeatedlyAnnounceHalfClosed(StringIoConnection& conn);
+  void MaybeHalfClose(StringIoConnection& conn, bool peer_half_closed);
 
   ServerConnection server_connection_;
   uint8_t sock_num_;
+
+  // These are based on the Announce calls that have been made, and on whether
+  // the ServerConnection closed the passed in connection.
+  bool connection_is_open_{false};
+  bool connection_is_writeable_{false};  // Client can write.
 };
 
 }  // namespace test

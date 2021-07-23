@@ -8,11 +8,12 @@ cc_test(
     srcs = ["observing_conditions_adapter_test.cc"],
     deps = [
         "//absl/strings",
+        "//extras/test_tools:decode_and_dispatch_test_base",
         "//extras/test_tools:http_request",
         "//extras/test_tools:http_response",
         "//extras/test_tools:json_decoder",
         "//extras/test_tools:mock_device_interface",
-        "//extras/test_tools:mock_switch_group",
+        "//extras/test_tools:mock_observing_conditions",
         "//extras/test_tools:print_to_std_string",
         "//extras/test_tools:sample_printable",
         "//extras/test_tools:test_tiny_alpaca_server",

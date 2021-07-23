@@ -7,6 +7,45 @@ cc_library(
 )
 
 cc_library(
+    name = "decode_and_dispatch_test_base",
+    testonly = True,
+    srcs = ["decode_and_dispatch_test_base.cc"],
+    hdrs = ["decode_and_dispatch_test_base.h"],
+    deps = [
+        ":http_request",
+        ":http_response",
+        ":json_decoder",
+        ":mock_device_interface",
+        ":mock_switch_group",
+        ":print_to_std_string",
+        ":sample_printable",
+        ":test_tiny_alpaca_server",
+        "//absl/status",
+        "//absl/strings",
+        "//googletest:gunit_headers",
+        "//src:alpaca_devices",
+        "//src:alpaca_discovery_server",
+        "//src:alpaca_response",
+        "//src:constants",
+        "//src:device_interface",
+        "//src:literals",
+        "//src:request_listener",
+        "//src:server_connection",
+        "//src:server_description",
+        "//src:server_sockets_and_connections",
+        "//src:tiny_alpaca_server",
+        "//src/device_types:device_impl_base",
+        "//src/utils:array_view",
+        "//src/utils:logging",
+        "//src/utils:platform",
+        "//src/utils:platform_ethernet",
+        "//src/utils:status",
+        "//src/utils:string_view",
+        "//util/task:status",
+    ],
+)
+
+cc_library(
     name = "fake_platform_ethernet",
     hdrs = ["fake_platform_ethernet.h"],
     deps = ["//src/utils:platform_ethernet"],
@@ -118,6 +157,18 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_observing_conditions",
+    hdrs = ["mock_observing_conditions.h"],
+    deps = [
+        "//googletest:gunit_headers",
+        "//src:device_info",
+        "//src/device_types/observing_conditions:observing_conditions_adapter",
+        "//src/utils:status",
+        "//src/utils:status_or",
+    ],
+)
+
+cc_library(
     name = "mock_request_decoder_listener",
     hdrs = ["mock_request_decoder_listener.h"],
     deps = [
@@ -203,6 +254,7 @@ cc_library(
     hdrs = ["test_tiny_alpaca_server.h"],
     deps = [
         ":string_io_connection",
+        "//absl/strings",
         "//extras/host/ethernet3:ethernet_config",
         "//src:device_interface",
         "//src:server_connection",

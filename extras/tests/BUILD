@@ -129,7 +129,6 @@ cc_test(
 
 cc_test(
     name = "request_decoder_test",
-    timeout = "short",
     srcs = ["request_decoder_test.cc"],
     deps = [
         "//absl/flags:flag",
@@ -166,6 +165,8 @@ cc_test(
     srcs = ["tiny_alpaca_server_base_test.cc"],
     deps = [
         "//absl/strings",
+        "//extras/test_tools:decode_and_dispatch_test_base",
+        "//extras/test_tools:http_request",
         "//extras/test_tools:http_response",
         "//extras/test_tools:mock_device_interface",
         "//extras/test_tools:mock_switch_group",

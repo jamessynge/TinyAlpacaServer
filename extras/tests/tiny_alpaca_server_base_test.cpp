@@ -15,6 +15,8 @@
 #include "device_info.h"
 #include "device_interface.h"
 #include "device_types/device_impl_base.h"
+#include "extras/test_tools/decode_and_dispatch_test_base.h"
+#include "extras/test_tools/http_request.h"
 #include "extras/test_tools/http_response.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "extras/test_tools/mock_switch_group.h"
@@ -42,58 +44,58 @@ namespace {
 using ::alpaca::ServerDescription;
 using ::testing::IsEmpty;
 using ::testing::StartsWith;
+using ::testing::status::IsOkAndHolds;
 
 constexpr int kDeviceNumber = 87405;
 constexpr int kClientId = 91240;
 constexpr int kClientTransactionId = 42050;
 constexpr int kServerTransactionId = 54981;
 
-TAS_DEFINE_LITERAL(ServerName, "OurServer");
-TAS_DEFINE_LITERAL(Manufacturer, "Us");
-TAS_DEFINE_LITERAL(ManufacturerVersion, "0.0.1");
-TAS_DEFINE_LITERAL(DeviceLocation, "Right Here");
+#define kServerName "Device-less Server"
+#define kManufacturer "No One"
+#define kManufacturerVersion "0.0.0"
+#define kDeviceLocation "No Where"
 
-class TinyAlpacaServerBaseTest : public testing::Test {
+TAS_DEFINE_LITERAL(ServerName, kServerName);
+TAS_DEFINE_LITERAL(Manufacturer, kManufacturer);
+TAS_DEFINE_LITERAL(ManufacturerVersion, kManufacturerVersion);
+TAS_DEFINE_LITERAL(DeviceLocation, kDeviceLocation);
+
+class TinyAlpacaServerBaseExplicitLifecycleTest
+    : public DecodeAndDispatchTestBase {
  protected:
-  TinyAlpacaServerBaseTest()
-      : server_description_({.server_name = ServerName(),
-                             .manufacturer = Manufacturer(),
-                             .manufacturer_version = ManufacturerVersion(),
-                             .location = DeviceLocation()}),
-        server_(server_description_, ArrayView<DeviceInterface*>()) {}
-  void SetUp() override {}
+  void SetUp() override {
+    // NOT calling base class.
+  }
 
-  ServerDescription server_description_;
-  TestTinyAlpacaServer server_;
+  ArrayView<DeviceInterface*> GetDeviceInterfaces() override { return {}; }
+  std::string_view GetDeviceTypeName() override { return ""; }
 };
 
-TEST_F(TinyAlpacaServerBaseTest, InitializeAndMaintain) {
-  EXPECT_TRUE(server_.Initialize());
-  server_.MaintainDevices();
+TEST_F(TinyAlpacaServerBaseExplicitLifecycleTest, CreateInitializeAndMaintain) {
+  server_description_.server_name = ServerName();
+  server_description_.manufacturer = Manufacturer();
+  server_description_.manufacturer_version = ManufacturerVersion();
+  server_description_.location = DeviceLocation();
+  server_ = CreateServer();
+  EXPECT_TRUE(server_->Initialize());
+  server_->MaintainDevices();
+  server_->MaintainDevices();
 }
 
-TEST_F(TinyAlpacaServerBaseTest, EmptyConnection) {
-  EXPECT_TRUE(server_.Initialize());
+class TinyAlpacaServerBaseTest : public DecodeAndDispatchTestBase {
+ protected:
+  ArrayView<DeviceInterface*> GetDeviceInterfaces() override { return {}; }
 
-  auto result = server_.AnnounceConnect("");
-  EXPECT_THAT(result.remaining_input, IsEmpty());
-  EXPECT_THAT(result.output, IsEmpty());
-  EXPECT_FALSE(result.connection_closed);
+  std::string_view GetDeviceTypeName() override { return ""; }
+};
 
-  result = server_.AnnounceCanRead("");
-  EXPECT_THAT(result.remaining_input, IsEmpty());
-  EXPECT_THAT(result.output, IsEmpty());
-  EXPECT_FALSE(result.connection_closed);
-
-  result = server_.AnnounceHalfClosed();
-  EXPECT_THAT(result.remaining_input, IsEmpty());
-  EXPECT_THAT(result.output, IsEmpty());
-  EXPECT_TRUE(result.connection_closed);
+TEST_F(TinyAlpacaServerBaseTest, OpenAndCloseConnection) {
+  // We send no data, which should be OK.
+  EXPECT_THAT(RoundTripSoleRequest(""), IsOkAndHolds(""));
 }
 
 TEST_F(TinyAlpacaServerBaseTest, Setup) {
-  EXPECT_TRUE(server_.Initialize());
-
   // We include two unsupported (ignored) headers, including one with a very
   // large value, to verify that they are ignored, including skipping over a
   // header value that is too long to fit into the decoder's input buffer.
@@ -102,23 +104,8 @@ TEST_F(TinyAlpacaServerBaseTest, Setup) {
                    "Host: example.com\r\n",    // Line break
                    "Foo-Bar-Baz:", std::string(10000, '0'), "\r\n",  //
                    "\r\n");
-
-  auto result = server_.AnnounceConnect("");
-  EXPECT_THAT(result.remaining_input, IsEmpty());
-  EXPECT_THAT(result.output, IsEmpty());
-  EXPECT_FALSE(result.connection_closed);
-
-  result = server_.AnnounceCanRead("");
-  EXPECT_THAT(result.remaining_input, IsEmpty());
-  EXPECT_THAT(result.output, IsEmpty());
-  EXPECT_FALSE(result.connection_closed);
-
-  result = server_.AnnounceCanRead(full_request);
-  EXPECT_THAT(result.remaining_input, IsEmpty());
-  EXPECT_FALSE(result.output.empty());
-  EXPECT_FALSE(result.connection_closed);
-
-  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(result.output));
+  ASSERT_OK_AND_ASSIGN(auto response_str, RoundTripSoleRequest(full_request));
+  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(response_str));
   EXPECT_EQ(response.http_version, "HTTP/1.1");
   EXPECT_EQ(response.status_code, 200);
   EXPECT_EQ(response.status_message, "OK");
@@ -128,8 +115,6 @@ TEST_F(TinyAlpacaServerBaseTest, Setup) {
 }
 
 TEST_F(TinyAlpacaServerBaseTest, KnownHeaderTooLarge) {
-  EXPECT_TRUE(server_.Initialize());
-
   const auto full_request =
       absl::StrCat("GET /setup HTTP/1.1\r\n",  // Line break
                    "Host: example.com\r\n",    // Line break
@@ -137,20 +122,20 @@ TEST_F(TinyAlpacaServerBaseTest, KnownHeaderTooLarge) {
                    "\r\n",  // Line break
                    "\r\n");
 
-  auto result = server_.AnnounceConnect("");
+  auto result = server_->AnnounceConnect("");
   EXPECT_THAT(result.remaining_input, IsEmpty());
   EXPECT_THAT(result.output, IsEmpty());
   EXPECT_FALSE(result.connection_closed);
 
   // Decode just the HTTP method first.
-  result = server_.AnnounceCanRead(full_request.substr(0, 4));
+  result = server_->AnnounceCanRead(full_request.substr(0, 4));
   EXPECT_THAT(result.remaining_input, IsEmpty());
   EXPECT_THAT(result.output, IsEmpty());
   EXPECT_FALSE(result.connection_closed);
 
   // Then decode the rest of the request.
-  result = server_.AnnounceCanRead(full_request.substr(4));
-  EXPECT_THAT(result.remaining_input, StartsWith("000"));
+  result = server_->AnnounceCanRead(full_request.substr(4));
+  EXPECT_THAT(result.remaining_input, StartsWith("000000000000000"));
   EXPECT_FALSE(result.output.empty());
   EXPECT_TRUE(result.connection_closed);
 
@@ -161,32 +146,15 @@ TEST_F(TinyAlpacaServerBaseTest, KnownHeaderTooLarge) {
   EXPECT_THAT(response.body_and_beyond, IsEmpty());
 }
 
-TEST_F(TinyAlpacaServerBaseTest, ConfiguredDevices) {
-  EXPECT_TRUE(server_.Initialize());
-
-  const std::string full_request(
-      "GET /management/v1/configureddevices HTTP/1.1\r\n"
-      "\r\n");
-
-  auto result = server_.AnnounceConnect(full_request);
-  EXPECT_THAT(result.remaining_input, IsEmpty());
-  EXPECT_FALSE(result.output.empty());
-  EXPECT_FALSE(result.connection_closed);
-
-  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(result.output));
-  EXPECT_EQ(response.http_version, "HTTP/1.1");
-  EXPECT_EQ(response.status_code, 200);
-  EXPECT_EQ(response.status_message, "OK");
-  ASSERT_FALSE(response.json_value.is_unset());
-
-  auto json_body = response.json_value;
-  ASSERT_TRUE(json_body.GetValue("ServerTransactionID").is_integer());
-  ASSERT_FALSE(json_body.HasKey("ClientTransactionID"));
-  ASSERT_FALSE(json_body.HasKey("ErrorNumber"));
-  ASSERT_FALSE(json_body.HasKey("ErrorMessage"));
-  ASSERT_TRUE(json_body.GetValue("Value").is_array());
-  auto value_array = json_body.GetValue("Value");
-  ASSERT_THAT(value_array.as_array(), IsEmpty());
+TEST_F(TinyAlpacaServerBaseTest, NoConfiguredDevices) {
+  HttpRequest request("/management/v1/configureddevices");
+  ASSERT_OK_AND_ASSIGN(auto response_str,
+                       RoundTripSoleRequest(request.ToString()));
+  // There aren't any devices, so the response should be OK, but the Value array
+  // should be empty.
+  ASSERT_OK_AND_ASSIGN(auto configured_devices_jv_array,
+                       ValidateArrayValueResponse(request, response_str));
+  ASSERT_THAT(configured_devices_jv_array.as_array(), IsEmpty());
 }
 
 }  // namespace
