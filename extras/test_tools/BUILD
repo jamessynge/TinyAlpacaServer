@@ -18,8 +18,9 @@ cc_library(
     hdrs = ["http_request.h"],
     deps = [
         ":case_insensitive_less",
+        "//absl/status",
+        "//absl/status:statusor",
         "//absl/strings",
-        "//core:logging",
     ],
 )
 

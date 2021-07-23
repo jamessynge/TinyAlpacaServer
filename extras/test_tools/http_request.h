@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 
+#include "absl/status/statusor.h"
 #include "extras/test_tools/case_insensitive_less.h"
 
 namespace alpaca {
@@ -35,6 +36,8 @@ struct HttpRequest {
   void AddCommonParameters();
   void AddParameterIfUnset(const std::string& name, const std::string& value);
   void SetParameter(const std::string& name, const std::string& value);
+  bool HasParameter(const std::string& name) const;
+  absl::StatusOr<std::string> GetParameter(const std::string& name) const;
 
   // Produces the string to be send to the server.
   std::string ToString();

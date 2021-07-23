@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 
+#include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 
@@ -108,6 +109,19 @@ void HttpRequest::SetParameter(const std::string& name,
   parameters.insert_or_assign(name, value);
 }
 
+bool HttpRequest::HasParameter(const std::string& name) const {
+  return parameters.find(name) != parameters.end();
+}
+
+absl::StatusOr<std::string> HttpRequest::GetParameter(
+    const std::string& name) const {
+  auto iter = parameters.find(name);
+  if (iter == parameters.end()) {
+    return absl::NotFoundError(name);
+  }
+  return iter->second;
+}
+
 // Produces the string to be send to the server.
 std::string HttpRequest::ToString() {
   const char EOL[] = "\r\n";
@@ -134,7 +148,7 @@ std::string HttpRequest::ToString() {
     }
   }
   absl::StrAppend(&result, EOL);
-  if (method == "PUT" && !parameters_string.empty()) {
+  if (method == "PUT") {
     result.append(parameters_string);
   }
   return result;
