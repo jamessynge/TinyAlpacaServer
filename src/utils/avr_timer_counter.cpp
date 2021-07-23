@@ -1,3 +1,7 @@
+#ifndef AVR_TIMER_COUNTER_ENABLE_TAS_VLOG
+#define TAS_DISABLE_VLOG
+#endif
+
 #include "utils/avr_timer_counter.h"
 
 #include "utils/counting_print.h"

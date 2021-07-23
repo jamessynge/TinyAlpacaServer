@@ -258,6 +258,8 @@ TEST(TC16ClockAndTicksTest, FromSystemClockCycles_67107840) {
 }
 
 // Verifies that ~all possible values that can be represented are in order.
+// Note that if the preprocessor macro AVR_TIMER_COUNTER_ENABLE_TAS_VLOG is
+// defined, then this will be VERY slow; the test case may timeout.
 TEST(TC16ClockAndTicksTest, CountUpSystemClockCycles) {
   TC16ClockAndTicks last_ct;
   uint32_t cycles = 1;
