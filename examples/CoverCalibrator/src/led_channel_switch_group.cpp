@@ -39,7 +39,7 @@ bool LedChannelSwitchGroup::HandleGetSwitchName(const AlpacaRequest& request,
 bool LedChannelSwitchGroup::HandleSetSwitchName(const AlpacaRequest& request,
                                                 uint16_t switch_id,
                                                 Print& out) {
-  return WriteResponse::AscomNotImplementedResponse(request, out);
+  return WriteResponse::AscomMethodNotImplementedResponse(request, out);
 }
 
 bool LedChannelSwitchGroup::GetCanWrite(uint16_t switch_id) {

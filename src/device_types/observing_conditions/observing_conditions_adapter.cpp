@@ -98,55 +98,55 @@ StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
   } else {
     TAS_DCHECK(false) << TAS_FLASHSTR(
         "GetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
-    return ErrorCodes::ActionNotImplemented();
+    return ErrorCodes::NotImplemented();
   }
 }
 StatusOr<double> ObservingConditionsAdapter::GetCloudCover() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetDewPoint() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetHumidity() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetPressure() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetRainRate() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<Literal> ObservingConditionsAdapter::GetSensorDescription(
     ESensorName sensor_name) {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetSkyBrightness() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetSkyQuality() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetSkyTemperature() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetStarFWHM() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetTemperature() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetTimeSinceLastUpdate(
     ESensorName sensor_name) {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetWindDirection() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetWindGust() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetWindSpeed() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +191,7 @@ Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
   } else {
     TAS_DCHECK(false) << TAS_FLASHSTR(
         "SetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
-    return ErrorCodes::ActionNotImplemented();
+    return ErrorCodes::NotImplemented();
   }
 }
 
@@ -201,7 +201,7 @@ bool ObservingConditionsAdapter::HandlePutRefresh(const AlpacaRequest& request,
 }
 
 Status ObservingConditionsAdapter::Refresh() {
-  return ErrorCodes::ActionNotImplemented();
+  return ErrorCodes::NotImplemented();
 }
 
 }  // namespace alpaca

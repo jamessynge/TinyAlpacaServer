@@ -154,9 +154,18 @@ struct WriteResponse {
                                                  Literal parameter_name,
                                                  Print& out);
 
-  // Write an ASCOM Method Not Implemented error response.
-  static bool AscomNotImplementedResponse(const AlpacaRequest& request,
-                                          Print& out);
+  // Write an Alpaca Not Implemented error response, indicating that the
+  // specified Alpaca method is not implemented.
+  static bool AscomMethodNotImplementedResponse(const AlpacaRequest& request,
+                                                const AnyPrintable& method_name,
+                                                Print& out);
+  static bool AscomMethodNotImplementedResponse(const AlpacaRequest& request,
+                                                EDeviceMethod method,
+                                                Print& out);
+
+  // As above, but the method is determined from the request.
+  static bool AscomMethodNotImplementedResponse(const AlpacaRequest& request,
+                                                Print& out);
 
   // Write an ASCOM Action Not Implemented error response.
   static bool AscomActionNotImplementedResponse(const AlpacaRequest& request,

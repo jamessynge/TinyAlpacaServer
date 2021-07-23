@@ -109,7 +109,7 @@ bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
           request, device_info_.supported_actions, out);
 
     default:
-      return WriteResponse::AscomNotImplementedResponse(request, out);
+      return WriteResponse::AscomMethodNotImplementedResponse(request, out);
   }
 }
 
@@ -132,7 +132,7 @@ bool DeviceImplBase::HandlePutRequest(const AlpacaRequest& request,
       return HandlePutConnected(request, out);
 
     default:
-      return WriteResponse::AscomNotImplementedResponse(request, out);
+      return WriteResponse::AscomMethodNotImplementedResponse(request, out);
   }
 }
 
@@ -141,25 +141,24 @@ bool DeviceImplBase::HandlePutAction(const AlpacaRequest& request, Print& out) {
   // rather than ActionNotImplemented, which we return when there are some valid
   // actions, but the specified action name is not supported.
   if (device_info_.supported_actions.size == 0) {
-    return WriteResponse::AscomNotImplementedResponse(request, out);
+    return WriteResponse::AscomMethodNotImplementedResponse(request, out);
   }
-  return WriteResponse::AscomErrorResponse(
-      request, ErrorCodes::ActionNotImplemented(), out);
+  return WriteResponse::AscomActionNotImplementedResponse(request, out);
 }
 
 bool DeviceImplBase::HandlePutCommandBlind(const AlpacaRequest& request,
                                            Print& out) {
-  return WriteResponse::AscomNotImplementedResponse(request, out);
+  return WriteResponse::AscomMethodNotImplementedResponse(request, out);
 }
 
 bool DeviceImplBase::HandlePutCommandBool(const AlpacaRequest& request,
                                           Print& out) {
-  return WriteResponse::AscomNotImplementedResponse(request, out);
+  return WriteResponse::AscomMethodNotImplementedResponse(request, out);
 }
 
 bool DeviceImplBase::HandlePutCommandString(const AlpacaRequest& request,
                                             Print& out) {
-  return WriteResponse::AscomNotImplementedResponse(request, out);
+  return WriteResponse::AscomMethodNotImplementedResponse(request, out);
 }
 
 bool DeviceImplBase::HandlePutConnected(const AlpacaRequest& request,

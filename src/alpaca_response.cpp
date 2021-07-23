@@ -207,20 +207,43 @@ bool WriteResponse::AscomErrorResponse(AlpacaRequest request,
 
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        Status error_status, Print& out) {
+  if (error_status.code() == ErrorCodes::kNotImplemented) {
+    return AscomMethodNotImplementedResponse(request, out);
+  }
   return AscomErrorResponse(request, error_status.code(),
                             AnyPrintable(error_status.message()), out);
 }
 
-bool WriteResponse::AscomNotImplementedResponse(const AlpacaRequest& request,
-                                                Print& out) {
-  return AscomErrorResponse(request, ErrorCodes::NotImplemented(), out);
+bool WriteResponse::AscomMethodNotImplementedResponse(
+    const AlpacaRequest& request, const AnyPrintable& method_name, Print& out) {
+  auto error_message = PrintableCat(
+      TAS_FLASHSTR("Alpaca method not implemented: "), method_name);
+  return AscomErrorResponse(request, ErrorCodes::kNotImplemented, error_message,
+                            out);
+}
+
+bool WriteResponse::AscomMethodNotImplementedResponse(
+    const AlpacaRequest& request, EDeviceMethod method, Print& out) {
+  AnyPrintable name(ToFlashStringHelper(method));
+  return AscomMethodNotImplementedResponse(request, name, out);
+}
+
+bool WriteResponse::AscomMethodNotImplementedResponse(
+    const AlpacaRequest& request, Print& out) {
+  TAS_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
+             request.api == EAlpacaApi::kDeviceSetup);
+  if (request.api == EAlpacaApi::kDeviceSetup) {
+    return AscomMethodNotImplementedResponse(request, Literals::setup(), out);
+  } else {
+    return AscomMethodNotImplementedResponse(request, request.device_method,
+                                             out);
+  }
 }
 
 bool WriteResponse::AscomActionNotImplementedResponse(
     const AlpacaRequest& request, Print& out) {
   return AscomErrorResponse(request, ErrorCodes::ActionNotImplemented(), out);
 }
-
 bool WriteResponse::AscomParameterMissingErrorResponse(
     const AlpacaRequest& request, Literal parameter_name, Print& out) {
   auto error_message =
