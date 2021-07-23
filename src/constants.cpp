@@ -315,8 +315,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
       return TAS_FLASHSTR("SkyQuality");
     case EDeviceMethod::kSkyTemperature:
       return TAS_FLASHSTR("SkyTemperature");
-    case EDeviceMethod::kStarFullWidthHalfMax:
-      return TAS_FLASHSTR("StarFullWidthHalfMax");
+    case EDeviceMethod::kStarFWHM:
+      return TAS_FLASHSTR("StarFWHM");
     case EDeviceMethod::kTemperature:
       return TAS_FLASHSTR("Temperature");
     case EDeviceMethod::kTimeSinceLastUpdate:
@@ -413,8 +413,8 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
       return TAS_FLASHSTR("SkyQuality");
     case ESensorName::kSkyTemperature:
       return TAS_FLASHSTR("SkyTemperature");
-    case ESensorName::kStarFullWidthHalfMax:
-      return TAS_FLASHSTR("StarFullWidthHalfMax");
+    case ESensorName::kStarFWHM:
+      return TAS_FLASHSTR("StarFWHM");
     case ESensorName::kTemperature:
       return TAS_FLASHSTR("Temperature");
     case ESensorName::kWindDirection:
@@ -658,8 +658,8 @@ std::ostream& operator<<(std::ostream& os, EDeviceMethod v) {
       return os << "SkyQuality";
     case EDeviceMethod::kSkyTemperature:
       return os << "SkyTemperature";
-    case EDeviceMethod::kStarFullWidthHalfMax:
-      return os << "StarFullWidthHalfMax";
+    case EDeviceMethod::kStarFWHM:
+      return os << "StarFWHM";
     case EDeviceMethod::kTemperature:
       return os << "Temperature";
     case EDeviceMethod::kTimeSinceLastUpdate:
@@ -756,8 +756,8 @@ std::ostream& operator<<(std::ostream& os, ESensorName v) {
       return os << "SkyQuality";
     case ESensorName::kSkyTemperature:
       return os << "SkyTemperature";
-    case ESensorName::kStarFullWidthHalfMax:
-      return os << "StarFullWidthHalfMax";
+    case ESensorName::kStarFWHM:
+      return os << "StarFWHM";
     case ESensorName::kTemperature:
       return os << "Temperature";
     case ESensorName::kWindDirection:

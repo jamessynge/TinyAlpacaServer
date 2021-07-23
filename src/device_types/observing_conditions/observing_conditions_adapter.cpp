@@ -60,9 +60,8 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
       return WriteResponse::StatusOrDoubleResponse(request, GetSkyTemperature(),
                                                    out);
 
-    case EDeviceMethod::kStarFullWidthHalfMax:
-      return WriteResponse::StatusOrDoubleResponse(
-          request, GetStarFullWidthHalfMax(), out);
+    case EDeviceMethod::kStarFWHM:
+      return WriteResponse::StatusOrDoubleResponse(request, GetStarFWHM(), out);
 
     case EDeviceMethod::kTemperature:
       return WriteResponse::StatusOrDoubleResponse(request, GetTemperature(),
@@ -130,7 +129,7 @@ StatusOr<double> ObservingConditionsAdapter::GetSkyQuality() {
 StatusOr<double> ObservingConditionsAdapter::GetSkyTemperature() {
   return ErrorCodes::ActionNotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetStarFullWidthHalfMax() {
+StatusOr<double> ObservingConditionsAdapter::GetStarFWHM() {
   return ErrorCodes::ActionNotImplemented();
 }
 StatusOr<double> ObservingConditionsAdapter::GetTemperature() {

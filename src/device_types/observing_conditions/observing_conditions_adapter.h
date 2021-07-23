@@ -69,7 +69,7 @@ class ObservingConditionsAdapter : public DeviceImplBase {
 
   // Returns the seeing at the observatory measured as star full width half
   // maximum (FWHM) in arc secs.
-  virtual StatusOr<double> GetStarFullWidthHalfMax();
+  virtual StatusOr<double> GetStarFWHM();
 
   // Returns the temperature(°C) at the observatory.
   virtual StatusOr<double> GetTemperature();

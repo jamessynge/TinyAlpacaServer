@@ -99,8 +99,7 @@ bool MatchObservingConditionsMethod(const StringView& view,
   MATCH_ONE_LITERAL_EXACTLY(skybrightness, EDeviceMethod::kSkyBrightness);
   MATCH_ONE_LITERAL_EXACTLY(skyquality, EDeviceMethod::kSkyQuality);
   MATCH_ONE_LITERAL_EXACTLY(skytemperature, EDeviceMethod::kSkyTemperature);
-  MATCH_ONE_LITERAL_EXACTLY(starfullwidthhalfmax,
-                            EDeviceMethod::kStarFullWidthHalfMax);
+  MATCH_ONE_LITERAL_EXACTLY(starfwhm, EDeviceMethod::kStarFWHM);
   MATCH_ONE_LITERAL_EXACTLY(temperature, EDeviceMethod::kTemperature);
   MATCH_ONE_LITERAL_EXACTLY(timesincelastupdate,
                             EDeviceMethod::kTimeSinceLastUpdate);
@@ -217,8 +216,7 @@ bool MatchSensorName(const StringView& view, ESensorName& match) {
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(skyquality, ESensorName::kSkyQuality);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(skytemperature,
                                        ESensorName::kSkyTemperature);
-  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(starfullwidthhalfmax,
-                                       ESensorName::kStarFullWidthHalfMax);
+  MATCH_ONE_LITERAL_CASE_INSENSITIVELY(starfwhm, ESensorName::kStarFWHM);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(temperature, ESensorName::kTemperature);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(winddirection,
                                        ESensorName::kWindDirection);
