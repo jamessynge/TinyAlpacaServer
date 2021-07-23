@@ -53,9 +53,14 @@ template <char... X>
 auto basename_only(BasenameStorage<X...>)  // as is...
     -> BasenameStorage<X...>;
 
-// Keep only the characters after the slash.
+// Keep only the characters after the slash (forward for Linux, backwards for
+// Windows).
 template <char... X, char... Y>
 auto basename_only(BasenameStorage<X...>, BasenameStorage<'/'>,
+                   BasenameStorage<Y>...)
+    -> decltype(basename_only(BasenameStorage<Y>()...));
+template <char... X, char... Y>
+auto basename_only(BasenameStorage<X...>, BasenameStorage<'\\'>,
                    BasenameStorage<Y>...)
     -> decltype(basename_only(BasenameStorage<Y>()...));
 
