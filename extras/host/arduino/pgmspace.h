@@ -6,7 +6,7 @@
 //
 // Note that so far this only provides the "near pointer" functions, i.e. for
 // 16-bit addresses within the first 64KB of the flash. If necessary, support
-// for far pointers (uint32, of which 24 mean something) can be added.
+// for far pointers (uint32_t I think, of which 24 mean something) can be added.
 //
 // The argument names have been selected to match the documentation here:
 // https://www.nongnu.org/avr-libc/user-manual/group__avr__pgmspace.html

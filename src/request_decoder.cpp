@@ -25,6 +25,7 @@
 #include "literals.h"
 #include "match_literals.h"
 #include "utils/hex_escape.h"
+#include "utils/inline_literal.h"
 #include "utils/logging.h"
 #include "utils/string_compare.h"
 
@@ -434,6 +435,8 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
 
 EHttpStatusCode ReportExtraParameter(RequestDecoderState& state,
                                      StringView value) {
+  TAS_VLOG(3) << TAS_FLASHSTR("ReportExtraParameter ")
+              << state.current_parameter << TAS_FLASHSTR(" = ") << value;
   EHttpStatusCode status = EHttpStatusCode::kHttpBadRequest;
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   if (state.listener) {

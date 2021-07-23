@@ -58,7 +58,6 @@ cc_library(
         ":logging",
         ":platform",
         ":print_misc",
-        ":printable_progmem_string",
         ":stream_to_print",
         "//src/utils/traits:print_to_trait",
         "//src/utils/traits:type_traits",
@@ -357,6 +356,7 @@ cc_library(
     ],
     deps = [
         ":hex_escape",
+        ":inline_literal",
         ":logging",
         ":o_print_stream",
         ":platform",

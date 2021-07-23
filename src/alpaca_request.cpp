@@ -24,6 +24,8 @@ void AlpacaRequest::Reset() {
   have_id = false;
   have_state = false;
   have_value = false;
+  have_average_period = false;
+
   do_close = false;
 
   // Theoretically we don't need to clear the following fields because they

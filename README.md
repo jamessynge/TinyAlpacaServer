@@ -273,6 +273,10 @@ without search the string for the terminating NUL.
     parameters. To save RAM, these might be instantiated dynamically when a
     request of the approriate type arrives.
 
+*   MAYBE: Read the entirety of well-formed but unsupported requests (e.g. with
+    parameters or headers that are too large), so that we don't *have* to close
+    the connection, which will make testing easier.
+
 *   Collapse `Literal` and `PrintableProgmemString` into a single class, or at
     least into layered classes, i.e. `ProgmemString` for just the core feature
     of holding a pointer to a PROGMEM string and its length, and `LiteralView`

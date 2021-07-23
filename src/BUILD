@@ -292,6 +292,7 @@ cc_library(
         ":match_literals",
         ":request_decoder_listener",
         "//src/utils:hex_escape",
+        "//src/utils:inline_literal",
         "//src/utils:logging",
         "//src/utils:platform",
         "//src/utils:string_compare",

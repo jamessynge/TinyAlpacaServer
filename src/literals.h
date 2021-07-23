@@ -24,7 +24,7 @@ namespace alpaca {
 #define TAS_DEFINE_BUILTIN_LITERAL(name, literal) static Literal name();
 
 struct Literals {
-#include "literals.inc"
+#include "literals.inc"  // IWYU pragma: export
 };
 
 #undef TAS_DEFINE_BUILTIN_LITERAL
