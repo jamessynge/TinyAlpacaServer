@@ -1,6 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_ETHERNET_CLIENT_H_
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_ETHERNET_CLIENT_H_
 
+#include <stdint.h>
+
+#include <cstddef>
+
+#include "extras/host/arduino/ip_address.h"
 #include "extras/host/ethernet3/ethernet_client.h"
 #include "googletest/gmock.h"
 

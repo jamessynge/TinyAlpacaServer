@@ -4,6 +4,8 @@
 // Provides a trivial parsing of HTTP responses. There is no validation that the
 // strings make sense, only that the delimiters are in the right places.
 
+#include <stddef.h>
+
 #include <map>
 #include <string>
 #include <vector>

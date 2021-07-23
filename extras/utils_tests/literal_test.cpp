@@ -1,10 +1,9 @@
 #include "utils/literal.h"
 
 #include <cstring>
+#include <iosfwd>
+#include <string>
 
-#include "absl/strings/ascii.h"
-#include "absl/strings/case.h"
-#include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
 #include "extras/test_tools/literal_utils.h"
 #include "extras/test_tools/print_to_std_string.h"
@@ -12,6 +11,8 @@
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/hex_escape.h"
+#include "utils/o_print_stream.h"
+#include "utils/platform.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"
 

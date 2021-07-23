@@ -1,13 +1,8 @@
 #include "utils/json_encoder.h"
 
-// Tests of JsonObjectEncoder and JsonArrayEncoder.
-//
-// Author: james.synge@gmail.com
-
 #include <stdint.h>
 
 #include <cmath>
-#include <functional>
 #include <limits>
 #include <string>
 
@@ -17,7 +12,12 @@
 #include "extras/test_tools/sample_printable.h"
 #include "googletest/gtest.h"
 #include "logging.h"
-#include "utils/counting_print.h"
+#include "utils/literal.h"
+#include "utils/string_view.h"
+
+// Tests of JsonObjectEncoder and JsonArrayEncoder.
+//
+// Author: james.synge@gmail.com
 
 namespace alpaca {
 namespace test {

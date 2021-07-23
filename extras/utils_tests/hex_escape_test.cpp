@@ -1,8 +1,11 @@
 #include "utils/hex_escape.h"
 
+#include <stddef.h>
+
 #include <cstdio>
+#include <set>
+#include <string>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 #include "extras/test_tools/print_to_std_string.h"

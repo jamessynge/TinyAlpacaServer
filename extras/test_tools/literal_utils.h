@@ -6,6 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include <ostream>
+
 #include "utils/literal.h"
 
 namespace alpaca {

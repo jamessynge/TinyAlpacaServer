@@ -5,8 +5,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include "constants.h"
 #include "googletest/gmock.h"
 #include "request_decoder_listener.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace test {

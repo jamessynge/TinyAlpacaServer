@@ -1,16 +1,21 @@
 #include "alpaca_devices.h"
 
+#include <cstdint>
 #include <string>
 
 #include "absl/strings/str_cat.h"
-#include "ascom_error_codes.h"
+#include "alpaca_request.h"
 #include "constants.h"
+#include "device_info.h"
 #include "device_interface.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
-#include "utils/json_encoder_helpers.h"
+#include "logging.h"
+#include "utils/array_view.h"
+#include "utils/inline_literal.h"
+#include "utils/literal.h"
 
 namespace alpaca {
 namespace test {

@@ -1,9 +1,12 @@
 #include "device_info.h"
 
+#include "constants.h"
 #include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/inline_literal.h"
+#include "utils/json_encoder.h"
 #include "utils/json_encoder_helpers.h"
+#include "utils/literal.h"
 
 // Defining everything outside of the alpaca namespace as is expected for a real
 // device.

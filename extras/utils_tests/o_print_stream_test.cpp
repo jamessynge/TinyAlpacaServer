@@ -1,8 +1,11 @@
 #include "utils/o_print_stream.h"
 
+#include <stdint.h>
+
+#include <string_view>
+
 #include "extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/sample_printable.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
 
 namespace alpaca {

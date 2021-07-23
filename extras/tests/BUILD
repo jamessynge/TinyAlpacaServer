@@ -7,14 +7,18 @@ cc_test(
     srcs = ["alpaca_devices_test.cc"],
     deps = [
         "//absl/strings",
+        "//core:logging",
         "//extras/test_tools:mock_device_interface",
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src:alpaca_devices",
-        "//src:ascom_error_codes",
+        "//src:alpaca_request",
         "//src:constants",
+        "//src:device_info",
         "//src:device_interface",
-        "//src/utils:json_encoder_helpers",
+        "//src/utils:array_view",
+        "//src/utils:inline_literal",
+        "//src/utils:literal",
     ],
 )
 
@@ -27,13 +31,16 @@ cc_test(
         "//extras/test_tools:print_to_std_string",
         "//extras/test_tools:sample_printable",
         "//googletest:gunit_main",
+        "//src:alpaca_request",
         "//src:alpaca_response",
         "//src:ascom_error_codes",
         "//src:constants",
         "//src:literals",
         "//src/utils:any_printable",
         "//src/utils:array_view",
+        "//src/utils:json_encoder",
         "//src/utils:literal",
+        "//src/utils:status_or",
     ],
 )
 
@@ -41,9 +48,11 @@ cc_test(
     name = "config_test",
     srcs = ["config_test.cc"],
     deps = [
+        "//core:logging",
         "//googletest:gunit_main",
         "//src:config",
         "//src/utils:platform",
+        "//src/utils:utils_config",
     ],
 )
 
@@ -53,8 +62,12 @@ cc_test(
     deps = [
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
+        "//src:constants",
         "//src:device_info",
+        "//src/utils:inline_literal",
+        "//src/utils:json_encoder",
         "//src/utils:json_encoder_helpers",
+        "//src/utils:literal",
     ],
 )
 
@@ -68,6 +81,7 @@ cc_test(
         "//src:constants",
         "//src:http_response_header",
         "//src:literals",
+        "//src/utils:literal",
     ],
 )
 
@@ -78,8 +92,11 @@ cc_test(
         "//extras/test_tools:json_test_utils",
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
+        "//src:alpaca_request",
         "//src:json_response",
         "//src/utils:any_printable",
+        "//src/utils:json_encoder",
+        "//src/utils:string_view",
     ],
 )
 
@@ -90,6 +107,7 @@ cc_test(
         "//extras/test_tools:string_view_utils",
         "//googletest:gunit_main",
         "//src:literals",
+        "//src/utils:literal",
         "//src/utils:string_compare",
         "//src/utils:string_view",
     ],
@@ -100,12 +118,12 @@ cc_test(
     srcs = ["match_literals_test.cc"],
     deps = [
         "//absl/strings",
-        "//extras/test_tools:print_to_std_string",
+        "//core:logging",
         "//extras/test_tools:string_view_utils",
         "//googletest:gunit_main",
         "//src:constants",
         "//src:match_literals",
-        "//src/utils:logging",
+        "//src/utils:string_view",
     ],
 )
 
@@ -120,9 +138,12 @@ cc_test(
         "//extras/test_tools:mock_request_decoder_listener",
         "//googletest:gunit_main",
         "//src:alpaca_request",
+        "//src:config",
         "//src:constants",
+        "//src:extra_parameters",
         "//src:request_decoder",
         "//src:request_decoder_listener",
+        "//src/utils:platform",
         "//src/utils:string_view",
     ],
 )
@@ -134,7 +155,9 @@ cc_test(
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src:server_description",
+        "//src/utils:json_encoder",
         "//src/utils:json_encoder_helpers",
+        "//src/utils:literal",
     ],
 )
 

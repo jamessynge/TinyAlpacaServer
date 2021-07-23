@@ -5,6 +5,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include <stddef.h>
+
 #include <string>
 
 #include "extras/host/arduino/print.h"

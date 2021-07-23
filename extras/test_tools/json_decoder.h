@@ -4,6 +4,8 @@
 // A trivial JSON decoder, intended only to support testing whether the
 // responses from Tiny Alpaca Server are correct.
 
+#include <stdint.h>
+
 #include <cstddef>
 #include <memory>
 #include <ostream>
@@ -85,6 +87,7 @@ class JsonValue {
   bool is_bool() const { return type() == kBool; }
   bool is_integer() const { return type() == kInteger; }
   bool is_double() const { return type() == kDouble; }
+  bool is_number() const { return is_integer() || is_double(); }
   bool is_string() const { return type() == kString; }
   bool is_object() const { return type() == kObject; }
   bool is_array() const { return type() == kArray; }

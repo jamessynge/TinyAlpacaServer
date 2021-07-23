@@ -1,7 +1,10 @@
 #include "literals.h"
 
+#include <string>
+
 #include "extras/test_tools/string_view_utils.h"
 #include "googletest/gtest.h"
+#include "utils/literal.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"
 

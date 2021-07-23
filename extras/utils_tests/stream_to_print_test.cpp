@@ -1,9 +1,14 @@
 #include "utils/stream_to_print.h"
 
+#include <stdint.h>
+
+#include <string_view>
+
+#include "extras/host/arduino/print.h"
 #include "extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/sample_printable.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/o_print_stream.h"
 
 namespace alpaca {
 namespace test {

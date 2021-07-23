@@ -1,7 +1,10 @@
 #include "utils/status_or.h"
 
-#include "googletest/gmock.h"
+#include <stdint.h>
+
 #include "googletest/gtest.h"
+#include "utils/literal.h"
+#include "utils/status.h"
 #include "utils/string_view.h"
 
 namespace alpaca {

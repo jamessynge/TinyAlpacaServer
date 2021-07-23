@@ -1,12 +1,12 @@
 #include "utils/avr_timer_counter.h"
 
-#include <ostream>
+#include <stdint.h>
 
 #include "absl/time/time.h"
+#include "extras/host/arduino/arduino.h"
 #include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
-#include "utils/o_print_stream.h"
+#include "logging.h"
 
 namespace alpaca {
 

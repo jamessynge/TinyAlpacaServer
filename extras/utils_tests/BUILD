@@ -4,10 +4,13 @@ cc_test(
     name = "any_printable_test",
     srcs = ["any_printable_test.cc"],
     deps = [
+        "//extras/host/arduino:print",
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src/utils:any_printable",
         "//src/utils:inline_literal",
+        "//src/utils:literal",
+        "//src/utils:string_view",
     ],
 )
 
@@ -34,10 +37,11 @@ cc_test(
     srcs = ["avr_timer_counter_test.cc"],
     deps = [
         "//absl/time",
+        "//core:logging",
+        "//extras/host/arduino",
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src/utils:avr_timer_counter",
-        "//src/utils:o_print_stream",
     ],
 )
 
@@ -48,6 +52,7 @@ cc_test(
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src/utils:basename",
+        "//src/utils:inline_literal",
     ],
 )
 
@@ -98,7 +103,6 @@ cc_test(
     name = "is_integral_test",
     srcs = ["is_integral_test.cc"],
     deps = [
-        "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src/utils/traits:type_traits",
     ],
@@ -114,8 +118,9 @@ cc_test(
         "//extras/test_tools:print_to_std_string",
         "//extras/test_tools:sample_printable",
         "//googletest:gunit_main",
-        "//src/utils:counting_print",
         "//src/utils:json_encoder",
+        "//src/utils:literal",
+        "//src/utils:string_view",
     ],
 )
 
@@ -130,6 +135,8 @@ cc_test(
         "//googletest:gunit_main",
         "//src/utils:hex_escape",
         "//src/utils:literal",
+        "//src/utils:o_print_stream",
+        "//src/utils:platform",
         "//src/utils:string_compare",
         "//src/utils:string_view",
     ],
@@ -143,6 +150,7 @@ cc_test(
         "//googletest:gunit_main",
         "//src/utils:inline_literal",
         "//src/utils:log_sink",
+        "//src/utils:o_print_stream",
     ],
 )
 
@@ -153,7 +161,7 @@ cc_test(
         "//absl/random",
         "//absl/random:distributions",
         "//absl/time",
-        "//extras/test_tools:print_to_std_string",
+        "//core:logging",
         "//googletest:gunit_main",
         "//src/utils:moving_average",
     ],
@@ -189,10 +197,8 @@ cc_test(
     srcs = ["server_socket_test.cc"],
     deps = [
         "//extras/test_tools:mock_socket_listener",
-        "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src/utils:server_socket",
-        "//src/utils:socket_listener",
     ],
 )
 
@@ -201,6 +207,8 @@ cc_test(
     srcs = ["status_or_test.cc"],
     deps = [
         "//googletest:gunit_main",
+        "//src/utils:literal",
+        "//src/utils:status",
         "//src/utils:status_or",
         "//src/utils:string_view",
     ],
@@ -211,6 +219,7 @@ cc_test(
     srcs = ["status_test.cc"],
     deps = [
         "//googletest:gunit_main",
+        "//src/utils:literal",
         "//src/utils:status",
     ],
 )
@@ -219,9 +228,11 @@ cc_test(
     name = "stream_to_print_test",
     srcs = ["stream_to_print_test.cc"],
     deps = [
+        "//extras/host/arduino:print",
         "//extras/test_tools:print_to_std_string",
         "//extras/test_tools:sample_printable",
         "//googletest:gunit_main",
+        "//src/utils:o_print_stream",
         "//src/utils:stream_to_print",
     ],
 )
@@ -230,11 +241,9 @@ cc_test(
     name = "string_view_test",
     srcs = ["string_view_test.cc"],
     deps = [
-        "//absl/strings",
         "//core:logging",
         "//extras/test_tools:string_view_utils",
         "//googletest:gunit_main",
-        "//src:config",
         "//src/utils:string_view",
     ],
 )

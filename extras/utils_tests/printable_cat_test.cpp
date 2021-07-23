@@ -1,10 +1,7 @@
 #include "utils/printable_cat.h"
 
-#include <string>
-
 #include "absl/strings/str_cat.h"
 #include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/any_printable.h"
 #include "utils/literal.h"

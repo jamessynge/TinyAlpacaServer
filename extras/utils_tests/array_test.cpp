@@ -1,5 +1,7 @@
 #include "utils/array.h"
 
+#include <stdint.h>
+
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 

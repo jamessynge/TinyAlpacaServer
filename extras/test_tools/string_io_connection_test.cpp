@@ -1,5 +1,7 @@
 #include "extras/test_tools/string_io_connection.h"
 
+#include <stdint.h>
+
 #include "googletest/gtest.h"
 
 namespace alpaca {

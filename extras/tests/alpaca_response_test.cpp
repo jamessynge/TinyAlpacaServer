@@ -1,10 +1,14 @@
 #include "alpaca_response.h"
 
+#include <stdint.h>
+
+#include <string>
 #include <string_view>
 #include <vector>
 
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
+#include "alpaca_request.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "extras/test_tools/json_test_utils.h"
@@ -14,7 +18,9 @@
 #include "literals.h"
 #include "utils/any_printable.h"
 #include "utils/array_view.h"
+#include "utils/json_encoder.h"
 #include "utils/literal.h"
+#include "utils/status_or.h"
 
 namespace alpaca {
 namespace test {

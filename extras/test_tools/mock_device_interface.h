@@ -1,6 +1,13 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_DEVICE_INTERFACE_H_
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_DEVICE_INTERFACE_H_
 
+#include <stdint.h>
+
+#include <cstddef>
+
+#include "alpaca_request.h"
+#include "constants.h"
+#include "device_info.h"
 #include "device_interface.h"
 #include "googletest/gmock.h"
 

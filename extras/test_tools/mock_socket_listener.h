@@ -2,6 +2,7 @@
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_SOCKET_LISTENER_H_
 
 #include "googletest/gmock.h"
+#include "utils/connection.h"
 #include "utils/socket_listener.h"
 
 namespace alpaca {

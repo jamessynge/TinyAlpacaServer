@@ -1,9 +1,18 @@
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 
 #include <string>
+#include <string_view>
 
+#include "device_interface.h"
+#include "extras/host/ethernet3/ethernet_config.h"
 #include "extras/test_tools/string_io_connection.h"
+#include "server_connection.h"
+#include "server_description.h"
+#include "tiny_alpaca_server.h"
+#include "utils/array_view.h"
+#include "utils/inline_literal.h"
 #include "utils/logging.h"
+#include "utils/o_print_stream.h"
 
 namespace alpaca {
 namespace test {

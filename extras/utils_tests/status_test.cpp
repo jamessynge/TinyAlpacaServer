@@ -1,6 +1,9 @@
 #include "utils/status.h"
 
+#include <stdint.h>
+
 #include "googletest/gtest.h"
+#include "utils/literal.h"
 
 namespace alpaca {
 namespace test {

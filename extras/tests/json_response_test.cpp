@@ -1,10 +1,14 @@
 #include "json_response.h"
 
+#include <stdint.h>
+
+#include "alpaca_request.h"
 #include "extras/test_tools/json_test_utils.h"
 #include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/any_printable.h"
+#include "utils/json_encoder.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace test {

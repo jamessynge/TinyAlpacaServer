@@ -1,19 +1,19 @@
 #include "utils/moving_average.h"
 
 #include <math.h>
-#include <stdint.h>
+#include <stdlib.h>
 
 #include <algorithm>
 #include <cstddef>
 #include <memory>
+#include <vector>
 
 #include "absl/random/random.h"
 #include "absl/random/uniform_real_distribution.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
-#include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "logging.h"
 
 namespace alpaca {
 namespace test {

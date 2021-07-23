@@ -4,7 +4,10 @@
 // Implements alpaca::Connection for testing, reading from a string_view,
 // writing to a string.
 
-#include <algorithm>
+#include <stddef.h>
+#include <stdint.h>
+
+#include <cstring>
 #include <string>
 #include <string_view>
 

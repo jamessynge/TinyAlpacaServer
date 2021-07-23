@@ -6,6 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include <stddef.h>
+
 #include <functional>
 #include <utility>
 

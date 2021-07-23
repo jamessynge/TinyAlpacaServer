@@ -1,8 +1,9 @@
 #include "config.h"
 
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "logging.h"
 #include "utils/platform.h"
+#include "utils/utils_config.h"
 
 namespace alpaca {
 namespace test {

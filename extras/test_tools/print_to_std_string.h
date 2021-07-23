@@ -11,6 +11,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <sstream>
 #include <string>
 

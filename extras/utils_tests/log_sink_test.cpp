@@ -1,9 +1,9 @@
 #include "utils/log_sink.h"
 
 #include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/inline_literal.h"
+#include "utils/o_print_stream.h"
 
 namespace alpaca {
 namespace test {

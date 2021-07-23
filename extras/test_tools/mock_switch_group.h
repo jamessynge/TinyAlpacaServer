@@ -4,9 +4,13 @@
 // Mock version of a SwitchAdapter subclass, where only the pure virtual methods
 // of SwitchAdapter are mocked.
 
+#include <stdint.h>
+
+#include "device_info.h"
 #include "device_types/switch/switch_adapter.h"
-#include "extras/test_tools/mock_device_interface.h"
 #include "googletest/gmock.h"
+#include "utils/status.h"
+#include "utils/status_or.h"
 
 namespace alpaca {
 namespace test {

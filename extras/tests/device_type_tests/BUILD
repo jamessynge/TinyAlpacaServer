@@ -44,12 +44,16 @@ cc_test(
     srcs = ["switch_adapter_test.cc"],
     deps = [
         "//absl/strings",
-        "//extras/test_tools:mock_device_interface",
         "//extras/test_tools:mock_switch_group",
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
+        "//src:alpaca_request",
         "//src:constants",
+        "//src:device_info",
         "//src/device_types/switch:switch_adapter",
+        "//src/utils:inline_literal",
+        "//src/utils:literal",
         "//src/utils:status",
+        "//src/utils:status_or",
     ],
 )

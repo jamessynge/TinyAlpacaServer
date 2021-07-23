@@ -1,10 +1,9 @@
-#include "request_decoder.h"
-
 // Tests of RequestDecoder, AlpacaRequest and RequestDecoderListener.
 //
 // Author: james.synge@gmail.com
 
-#include <algorithm>
+#include "request_decoder.h"
+
 #include <cstddef>
 #include <string>
 #include <tuple>
@@ -16,12 +15,15 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "alpaca_request.h"
+#include "config.h"
 #include "constants.h"
+#include "extra_parameters.h"
 #include "extras/test_tools/mock_request_decoder_listener.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "logging.h"
 #include "request_decoder_listener.h"
+#include "utils/platform.h"
 #include "utils/string_view.h"
 
 ABSL_DECLARE_FLAG(int, v);

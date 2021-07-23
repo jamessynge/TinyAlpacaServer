@@ -1,6 +1,7 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_REQUEST_LISTENER_H_
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_REQUEST_LISTENER_H_
 
+#include "constants.h"
 #include "googletest/gmock.h"
 #include "request_listener.h"
 
@@ -11,7 +12,7 @@ class MockRequestListener : public RequestListener {
  public:
   MOCK_METHOD(void, OnStartDecoding, (struct AlpacaRequest &), (override));
 
-  MOCK_METHOD(_Bool, OnRequestDecoded, (struct AlpacaRequest &, class Print &),
+  MOCK_METHOD(bool, OnRequestDecoded, (struct AlpacaRequest &, class Print &),
               (override));
 
   MOCK_METHOD(void, OnRequestDecodingError,

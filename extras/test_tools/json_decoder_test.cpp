@@ -1,7 +1,11 @@
 #include "extras/test_tools/json_decoder.h"
 
+#include <type_traits>
+
+#include "absl/status/statusor.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "util/task/status_macros.h"
 
 namespace alpaca {
 namespace test {

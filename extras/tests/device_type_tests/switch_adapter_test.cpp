@@ -1,16 +1,21 @@
 #include "device_types/switch/switch_adapter.h"
 
-#include <iostream>
+#include <stdint.h>
+
 #include <string>
 
 #include "absl/strings/str_cat.h"
+#include "alpaca_request.h"
 #include "constants.h"
-#include "extras/test_tools/mock_device_interface.h"
+#include "device_info.h"
 #include "extras/test_tools/mock_switch_group.h"
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/inline_literal.h"
+#include "utils/literal.h"
 #include "utils/status.h"
+#include "utils/status_or.h"
 
 namespace alpaca {
 namespace test {

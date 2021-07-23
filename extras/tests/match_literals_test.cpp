@@ -7,11 +7,10 @@
 #include "absl/strings/ascii.h"
 #include "absl/strings/escaping.h"
 #include "constants.h"
-#include "extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/string_view_utils.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
-#include "utils/logging.h"
+#include "logging.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace test {

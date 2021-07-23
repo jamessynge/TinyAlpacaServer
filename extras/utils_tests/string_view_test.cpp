@@ -2,15 +2,13 @@
 
 // Author: james.synge@gmail.com
 
-#include <stdint.h>
+#include <limits.h>
 
+#include <cstdint>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <vector>
 
-#include "absl/strings/numbers.h"
-#include "config.h"
 #include "extras/test_tools/string_view_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"

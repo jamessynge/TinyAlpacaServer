@@ -1,10 +1,13 @@
 #include "extras/test_tools/http_response.h"
 
-#include <optional>
+#include <type_traits>
 
 #include "absl/status/status.h"
+#include "absl/status/statusor.h"
+#include "extras/test_tools/json_decoder.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "util/task/status_macros.h"
 
 namespace alpaca {
 namespace test {

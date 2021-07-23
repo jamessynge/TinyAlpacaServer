@@ -6,32 +6,18 @@
 // TinyAlpacaServer, but skipping dealing with PlatformEthernet, for which I
 // don't yet have a fake implemented.
 
-#include <iostream>
-#include <string>
+#include <stddef.h>
+#include <stdint.h>
 
-#include "absl/strings/str_cat.h"
-#include "alpaca_devices.h"
-#include "alpaca_discovery_server.h"
-#include "alpaca_response.h"
-#include "constants.h"
-#include "device_types/device_impl_base.h"
-#include "extras/test_tools/mock_device_interface.h"
-#include "extras/test_tools/mock_switch_group.h"
-#include "extras/test_tools/print_to_std_string.h"
+#include <string>
+#include <string_view>
+
+#include "device_interface.h"
 #include "extras/test_tools/string_io_connection.h"
-#include "googletest/gmock.h"
-#include "googletest/gtest.h"
-#include "literals.h"
-#include "request_listener.h"
 #include "server_connection.h"
 #include "server_description.h"
-#include "server_sockets_and_connections.h"
 #include "tiny_alpaca_server.h"
 #include "utils/array_view.h"
-#include "utils/platform.h"
-#include "utils/platform_ethernet.h"
-#include "utils/status.h"
-#include "utils/string_view.h"
 
 namespace alpaca {
 namespace test {

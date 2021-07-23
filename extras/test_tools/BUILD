@@ -43,8 +43,11 @@ cc_test(
     srcs = ["http_response_test.cc"],
     deps = [
         ":http_response",
+        ":json_decoder",
         "//absl/status",
+        "//absl/status:statusor",
         "//googletest:gunit_main",
+        "//util/task:status",
     ],
 )
 
@@ -68,7 +71,9 @@ cc_test(
     srcs = ["json_decoder_test.cc"],
     deps = [
         ":json_decoder",
+        "//absl/status:statusor",
         "//googletest:gunit_main",
+        "//util/task:status",
     ],
 )
 
@@ -77,6 +82,7 @@ cc_library(
     srcs = ["json_test_utils.cc"],
     hdrs = ["json_test_utils.h"],
     deps = [
+        "//extras/host/arduino:print",
         "//src/utils:any_printable",
         "//src/utils:json_encoder",
         "//src/utils:platform",
@@ -94,6 +100,9 @@ cc_library(
     hdrs = ["mock_device_interface.h"],
     deps = [
         "//googletest:gunit_headers",
+        "//src:alpaca_request",
+        "//src:constants",
+        "//src:device_info",
         "//src:device_interface",
     ],
 )
@@ -102,6 +111,7 @@ cc_library(
     name = "mock_ethernet_client",
     hdrs = ["mock_ethernet_client.h"],
     deps = [
+        "//extras/host/arduino:ip_address",
         "//extras/host/ethernet3:ethernet_client",
         "//googletest:gunit_headers",
     ],
@@ -112,7 +122,9 @@ cc_library(
     hdrs = ["mock_request_decoder_listener.h"],
     deps = [
         "//googletest:gunit_headers",
+        "//src:constants",
         "//src:request_decoder_listener",
+        "//src/utils:string_view",
     ],
 )
 
@@ -121,6 +133,7 @@ cc_library(
     hdrs = ["mock_request_listener.h"],
     deps = [
         "//googletest:gunit_headers",
+        "//src:constants",
         "//src:request_listener",
     ],
 )
@@ -130,6 +143,7 @@ cc_library(
     hdrs = ["mock_socket_listener.h"],
     deps = [
         "//googletest:gunit_headers",
+        "//src/utils:connection",
         "//src/utils:socket_listener",
     ],
 )
@@ -138,9 +152,11 @@ cc_library(
     name = "mock_switch_group",
     hdrs = ["mock_switch_group.h"],
     deps = [
-        ":mock_device_interface",
         "//googletest:gunit_headers",
+        "//src:device_info",
         "//src/device_types/switch:switch_adapter",
+        "//src/utils:status",
+        "//src/utils:status_or",
     ],
 )
 
@@ -186,28 +202,15 @@ cc_library(
     srcs = ["test_tiny_alpaca_server.cc"],
     hdrs = ["test_tiny_alpaca_server.h"],
     deps = [
-        ":mock_device_interface",
-        ":mock_switch_group",
-        ":print_to_std_string",
         ":string_io_connection",
-        "//absl/strings",
-        "//googletest:gunit_headers",
-        "//src:alpaca_devices",
-        "//src:alpaca_discovery_server",
-        "//src:alpaca_response",
-        "//src:constants",
-        "//src:literals",
-        "//src:request_listener",
+        "//extras/host/ethernet3:ethernet_config",
+        "//src:device_interface",
         "//src:server_connection",
         "//src:server_description",
-        "//src:server_sockets_and_connections",
         "//src:tiny_alpaca_server",
-        "//src/device_types:device_impl_base",
         "//src/utils:array_view",
+        "//src/utils:inline_literal",
         "//src/utils:logging",
-        "//src/utils:platform",
-        "//src/utils:platform_ethernet",
-        "//src/utils:status",
-        "//src/utils:string_view",
+        "//src/utils:o_print_stream",
     ],
 )

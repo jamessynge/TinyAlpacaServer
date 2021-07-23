@@ -1,13 +1,18 @@
 #include "utils/any_printable.h"
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <cstring>
 #include <string>
-#include <string_view>
 
+#include "extras/host/arduino/print.h"
 #include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/inline_literal.h"
+#include "utils/literal.h"
+#include "utils/string_view.h"
 
 namespace alpaca {
 namespace test {

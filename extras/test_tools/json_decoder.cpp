@@ -1,21 +1,24 @@
 #include "extras/test_tools/json_decoder.h"
 
-#include <sys/types.h>
+#include <stddef.h>
 
 #include <charconv>
+#include <cmath>
+#include <cstdint>
 #include <memory>
-#include <optional>
-#include <sstream>
 #include <string>
 #include <string_view>
-#include <system_error>  // NOLINT(build/c++11)
+#include <type_traits>
+#include <unordered_map>
+#include <variant>
+#include <vector>
 
 #include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "absl/strings/charconv.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "logging.h"
 #include "util/task/status_macros.h"

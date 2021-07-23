@@ -1,10 +1,8 @@
 #include "utils/basename.h"
 
-#include <string_view>
-
 #include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
+#include "utils/inline_literal.h"
 
 namespace alpaca {
 

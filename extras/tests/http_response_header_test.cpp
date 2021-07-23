@@ -3,9 +3,9 @@
 #include "absl/strings/str_cat.h"
 #include "constants.h"
 #include "extras/test_tools/print_to_std_string.h"
-#include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "literals.h"
+#include "utils/literal.h"
 
 namespace alpaca {
 namespace test {
