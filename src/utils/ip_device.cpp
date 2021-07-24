@@ -2,12 +2,34 @@
 
 #include "utils/inline_literal.h"
 #include "utils/logging.h"
+#include "utils/platform_ethernet.h"
+#include "utils/traits/set_dhcp_trait.h"
 
 namespace alpaca {
 namespace {
 constexpr uint8_t kW5500ChipSelectPin = 10;
 constexpr uint8_t kW5500ResetPin = 7;
 constexpr uint8_t kSDcardSelectPin = 4;
+
+// T is a class with a setDhcp function.
+template <typename T>
+void MaybeSetDhcp(T& ethernet, true_type /*has_set_dhcp*/) {
+  // We allocate a DhcpClass at file scope so that it isn't dynamically
+  // allocated at setup time (i.e. so we're in better control of memory
+  // consumption).
+  static ::DhcpClass dhcp;
+  ethernet.setDhcp(&dhcp);
+}
+
+// Type T does NOT have a setDhcp method.
+template <typename T>
+void MaybeSetDhcp(T& ethernet, false_type /*!has_set_dhcp*/) {}
+
+template <typename T>
+void MaybeSetDhcp(T& ethernet) {
+  MaybeSetDhcp(ethernet, has_set_dhcp<T>{});
+}
+
 }  // namespace
 
 // static
@@ -34,6 +56,8 @@ void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
 }
 
 bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
+  MaybeSetDhcp(Ethernet);
+
   // Load the addresses saved to EEPROM, if they were previously saved. If
   // they were not successfully loaded, then generate them and save them into
   // the EEPROM.

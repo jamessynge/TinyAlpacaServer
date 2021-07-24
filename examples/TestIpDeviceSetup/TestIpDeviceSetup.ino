@@ -2,7 +2,6 @@
 #include <Ethernet3.h>
 #include <TinyAlpacaServer.h>
 
-DhcpClass dhcp;
 alpaca::IpDevice ip_device;
 
 void announceFailure(const char* message) {
@@ -29,7 +28,6 @@ void setup() {
 
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
-  Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::SetupW5500();
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards

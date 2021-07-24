@@ -68,7 +68,6 @@ static Dht22Handler dht_handler;  // NOLINT
 static DeviceInterface* kDevices[] = {&dht_handler};
 
 static constexpr uint16_t kHttpPort = 80;
-static DhcpClass dhcp;
 static alpaca::IpDevice ip_device;
 static alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
     kHttpPort, kServerDescription, kDevices);
@@ -102,7 +101,6 @@ void setup() {
 
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
-  Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the

@@ -132,6 +132,7 @@ cc_library(
         ":logging",
         ":platform",
         ":platform_ethernet",
+        "//src/utils/traits:set_dhcp_trait",
     ],
 )
 

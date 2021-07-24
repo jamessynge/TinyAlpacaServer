@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
-DhcpClass dhcp;
 static alpaca::IpDevice ip_device;
 static alpaca::TinyAlpacaDiscoveryServer discovery_server(80);  // NOLINT
 
@@ -29,7 +28,6 @@ void setup() {
 
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
-  Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the

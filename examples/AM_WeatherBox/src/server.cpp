@@ -55,10 +55,6 @@ alpaca::DeviceInterface* kDevices[] = {&weather_box};
 alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
     /*tcp_port=*/80, kServerDescription, kDevices);
 
-// We allocate a DhcpClass at file scope so that it isn't dynamically allocated
-// at setup time (i.e. so we're in better control of memory consumption).
-::DhcpClass dhcp;
-
 alpaca::IpDevice ip_device;
 
 void announceAddresses() {
@@ -71,7 +67,6 @@ void announceAddresses() {
 
 void setup() {
   alpaca::LogSink() << TAS_FLASHSTR("Initializing networking");
-  Ethernet.setDhcp(&dhcp);
   alpaca::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the
