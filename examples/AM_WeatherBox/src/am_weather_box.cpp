@@ -16,7 +16,13 @@ using ::alpaca::OkStatus;
 using ::alpaca::Status;
 using ::alpaca::StatusOr;
 
-constexpr uint32_t kReadIntervalMillis = 10 * 1000;
+#if defined(TAS_ENABLED_VLOG_LEVEL) && TAS_ENABLED_VLOG_LEVEL >= 3
+#define READ_INTERVAL_SECS 3
+#else
+#define READ_INTERVAL_SECS 15
+#endif
+
+constexpr uint32_t kReadIntervalMillis = READ_INTERVAL_SECS * 1000;
 
 TAS_DEFINE_LITERAL(MLX90614Description, "MLX90614 Infrared Thermometer");
 TAS_DEFINE_LITERAL(RG11Description, "Hydreon RG11 Rain Sensor");
@@ -45,6 +51,9 @@ void AMWeatherBox::MaintainDevice() {
   if ((now - last_read_time_) >= kReadIntervalMillis) {
     if (DoReadIrTemps()) {
       last_read_time_ = now;
+      TAS_VLOG(3) << "SkyTemp: " << GetSkyTemperature().value()
+                  << ", Ambient: " << GetTemperature().value()
+                  << ", Rain Detected: " << GetRainRate().value();
     }
   }
 }

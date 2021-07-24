@@ -88,6 +88,7 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
+  alpaca::LogSink() << ServerName();
   alpaca::LogSink() << TAS_FLASHSTR("Initializing networking");
   alpaca::Mega2560Eth::SetupW5500();
 
