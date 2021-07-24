@@ -51,9 +51,12 @@ void AMWeatherBox::MaintainDevice() {
   if ((now - last_read_time_) >= kReadIntervalMillis) {
     if (DoReadIrTemps()) {
       last_read_time_ = now;
-      TAS_VLOG(3) << "SkyTemp: " << GetSkyTemperature().value()
-                  << ", Ambient: " << GetTemperature().value()
-                  << ", Rain Detected: " << GetRainRate().value();
+      TAS_VLOG(3) << TAS_FLASHSTR("Sky: ") << GetSkyTemperature().value()
+                  << TAS_FLASHSTR("\xE2\x84\x83, Ambient: ")
+                  << GetTemperature().value()
+                  << TAS_FLASHSTR("\xE2\x84\x83, Rain Detected: ")
+                  << (GetRainRate().value() == 0 ? Literals::False()
+                                                 : Literals::True());
     }
   }
 }
