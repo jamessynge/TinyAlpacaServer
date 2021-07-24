@@ -2,8 +2,7 @@
 
 #include <Arduino.h>
 #include <SparkFunMLX90614.h>
-
-#include <cstdint>
+#include <TinyAlpacaServer.h>
 
 #include "constants.h"
 
