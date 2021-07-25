@@ -8,6 +8,7 @@ Note that I've chosen to omit support for IPv6 because I don't need it for
 testing Tiny Alpaca Server.
 """
 
+import dataclasses
 import json
 import pprint
 import queue
@@ -16,7 +17,6 @@ import threading
 import time
 from typing import Callable, Dict, Generator, List
 
-import dataclasses
 # You can install it with:
 #      pip install netifaces
 import netifaces

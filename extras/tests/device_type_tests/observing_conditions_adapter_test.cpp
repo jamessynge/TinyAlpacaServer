@@ -41,27 +41,12 @@ namespace alpaca {
 namespace test {
 namespace {
 
-using ::alpaca::ServerDescription;
-using ::testing::AnyNumber;
-using ::testing::Contains;
-using ::testing::ContainsRegex;
-using ::testing::ElementsAre;
-using ::testing::EndsWith;
-using ::testing::Eq;
 using ::testing::HasSubstr;
-using ::testing::InSequence;
 using ::testing::IsEmpty;
-using ::testing::Mock;
-using ::testing::NiceMock;
-using ::testing::Not;
-using ::testing::Optional;
 using ::testing::Pair;
-using ::testing::Ref;
 using ::testing::Return;
-using ::testing::ReturnRef;
 using ::testing::SizeIs;
 using ::testing::StartsWith;
-using ::testing::StrictMock;
 using ::testing::UnorderedElementsAre;
 using ::testing::status::IsOkAndHolds;
 

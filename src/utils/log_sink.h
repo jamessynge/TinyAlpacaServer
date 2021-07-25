@@ -11,7 +11,6 @@
 //
 // Author: james.synge@gmail.com
 
-#include "utils/inline_literal.h"
 #include "utils/o_print_stream.h"
 #include "utils/platform.h"
 

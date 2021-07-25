@@ -193,6 +193,24 @@ cc_test(
 )
 
 cc_test(
+    name = "progmem_string_view_test",
+    srcs = ["progmem_string_view_test.cc"],
+    deps = [
+        "//absl/strings",
+        "//extras/test_tools:print_to_std_string",
+        "//extras/test_tools:progmem_string_view_utils",
+        "//extras/test_tools:string_view_utils",
+        "//googletest:gunit_main",
+        "//src/utils:hex_escape",
+        "//src/utils:o_print_stream",
+        "//src/utils:platform",
+        "//src/utils:progmem_string_view",
+        "//src/utils:string_compare",
+        "//src/utils:string_view",
+    ],
+)
+
+cc_test(
     name = "server_socket_test",
     srcs = ["server_socket_test.cc"],
     deps = [

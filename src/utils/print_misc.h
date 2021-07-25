@@ -7,7 +7,6 @@
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"
-#include "utils/printable_progmem_string.h"
 
 namespace alpaca {
 

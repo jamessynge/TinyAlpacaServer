@@ -58,7 +58,7 @@ cc_library(
         "//src/utils:platform_ethernet",
         "//src/utils:print_misc",
         "//src/utils:printable_cat",
-        "//src/utils:printable_progmem_string",
+        "//src/utils:progmem_string_view",
         "//src/utils:server_socket",
         "//src/utils:socket_listener",
         "//src/utils:status",
@@ -175,7 +175,6 @@ cc_library(
         "//src/utils:inline_literal",
         "//src/utils:platform",
         "//src/utils:print_misc",
-        "//src/utils:printable_progmem_string",
     ],
 )
 
@@ -252,16 +251,6 @@ cc_library(
     textual_hdrs = ["literals.inc"],
     deps = [
         "//src/utils:literal",
-        "//src/utils:platform",
-    ],
-)
-
-cc_library(
-    name = "log_experiment",
-    hdrs = ["LogExperiment.h"],
-    deps = [
-        "//src/utils:inline_literal",
-        "//src/utils:logging",
         "//src/utils:platform",
     ],
 )

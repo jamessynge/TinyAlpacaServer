@@ -24,6 +24,7 @@ cc_library(
     deps = [
         ":literal",
         ":platform",
+        ":progmem_string_view",
         ":string_view",
     ],
 )
@@ -118,7 +119,7 @@ cc_library(
     copts = ["-std=c++11"],
     deps = [
         ":platform",
-        ":printable_progmem_string",
+        ":progmem_string_view",
     ],
 )
 
@@ -169,7 +170,7 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
-        ":printable_progmem_string",
+        ":progmem_string_view",
         "//src/utils/traits:print_to_trait",
     ],
 )
@@ -179,7 +180,6 @@ cc_library(
     srcs = ["log_sink.cc"],
     hdrs = ["log_sink.h"],
     deps = [
-        ":inline_literal",
         ":o_print_stream",
         ":platform",
         "//base:logging_extensions",
@@ -255,7 +255,6 @@ cc_library(
         ":counting_print",
         ":inline_literal",
         ":platform",
-        ":printable_progmem_string",
     ],
 )
 
@@ -272,11 +271,12 @@ cc_library(
 )
 
 cc_library(
-    name = "printable_progmem_string",
-    srcs = ["printable_progmem_string.cc"],
-    hdrs = ["printable_progmem_string.h"],
+    name = "progmem_string_view",
+    srcs = ["progmem_string_view.cc"],
+    hdrs = ["progmem_string_view.h"],
     deps = [
         ":platform",
+        "//src/utils/traits:print_to_trait",
     ],
 )
 
@@ -343,6 +343,7 @@ cc_library(
     deps = [
         ":literal",
         ":platform",
+        ":progmem_string_view",
         ":string_view",
     ],
 )

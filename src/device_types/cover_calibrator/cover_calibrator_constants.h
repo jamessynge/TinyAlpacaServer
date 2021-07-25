@@ -4,7 +4,6 @@
 // ASCOM constants specified in the Cover Calibrator device API.
 
 #include "utils/platform.h"
-#include "utils/printable_progmem_string.h"
 
 namespace alpaca {
 

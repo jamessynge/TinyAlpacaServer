@@ -20,7 +20,6 @@
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"
-#include "utils/printable_progmem_string.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>  // pragma: keep standard include

@@ -28,14 +28,6 @@ pytype_strict_binary(
 )
 
 pytype_strict_binary(
-    name = "make_literals_inc",
-    srcs = ["make_literals_inc.py"],
-    python_version = "PY3",
-    srcs_version = "PY3",
-    deps = [":tokenize_cpp_lib"],
-)
-
-pytype_strict_binary(
     name = "swagger_yaml",
     srcs = ["swagger_yaml.py"],
     python_version = "PY3",

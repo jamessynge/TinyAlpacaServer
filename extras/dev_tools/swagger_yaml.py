@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Simple tool to read Swagger YAML files (i.e. API definitions)."""
 
+import dataclasses
 import os
 import sys
 import typing
 from typing import Any, Dict, List, Sequence
 
-import dataclasses
 import requests
 
 # Spec = Dict[str, Union['Spec', str, int, List['Spec']]]

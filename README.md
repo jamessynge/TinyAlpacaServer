@@ -176,8 +176,8 @@ I'm currently manually defining these by:
 
     Unlike the above macros, this defines a full specialization of the variadic
     class template `ProgmemStringStorage`. The template declares a static
-    function MakePrintable that returns a PrintableProgmemString string. The
-    storage class has a static array holding the characters of the string,
+    function MakeProgmemStringView that returns a ProgmemStringView instance.
+    The storage class has a static array holding the characters of the string,
     without a terminating NUL. One advantage of TASLIT over TAS_DEFINE_LITERAL
     is that the compiler and linker should collapse multiple occurrences of
     TASLIT(x) with the same value of x. A downside of using TASLIT is that it
@@ -277,11 +277,11 @@ without search the string for the terminating NUL.
     parameters or headers that are too large), so that we don't *have* to close
     the connection, which will make testing easier.
 
-*   Collapse `Literal` and `PrintableProgmemString` into a single class, or at
-    least into layered classes, i.e. `ProgmemString` for just the core feature
-    of holding a pointer to a PROGMEM string and its length, and `LiteralView`
-    with facilities like those in `Literal` and `StringView`, including the
-    printTo function, but probably without inheritance from `Printable`.
+*   Collapse `Literal` and `ProgmemStringView` into a single class, or at least
+    into layered classes, i.e. `ProgmemString` for just the core feature of
+    holding a pointer to a PROGMEM string and its length, and `LiteralView` with
+    facilities like those in `Literal` and `StringView`, including the printTo
+    function, but probably without inheritance from `Printable`.
 
 *   Support copying literal strings into stack variables for temporary needs.
     For example, use a template class with a field of type char[N], where N is

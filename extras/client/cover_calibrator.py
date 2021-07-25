@@ -79,13 +79,13 @@ def sweep_brightness(cover_calibrator: alpaca_http_client.CoverCalibrator,
                      brightnesses: List[int]) -> None:
   """Set the brightness to each brightness, then reverse order, then turn off.
 
-    Generally assumed that the brightnesses rise from low to high, so this has
-    the effect of gradually increasing the brightness, then lowering it back
-    down before turning it off.
+  Generally assumed that the brightnesses rise from low to high, so this has
+  the effect of gradually increasing the brightness, then lowering it back
+  down before turning it off.
 
-    Args:
-      cover_calibrator: The Cover Calibrator device.
-      brightnesses: The list of brightness values.
+  Args:
+    cover_calibrator: The Cover Calibrator device.
+    brightnesses: The list of brightness values.
   """
   start = datetime.datetime.now()
   for brightness in brightnesses:

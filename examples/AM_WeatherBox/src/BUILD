@@ -11,7 +11,6 @@ cc_library(
         "//extras/host/arduino",
         "//extras/host/mlx90614",
         "//src:TinyAlpacaServer",
-        "//src:ascom_error_codes",
     ],
 )
 

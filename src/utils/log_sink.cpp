@@ -1,6 +1,5 @@
 #include "utils/log_sink.h"
 
-#include "utils/inline_literal.h"
 #include "utils/platform.h"
 
 #ifndef ARDUINO
@@ -102,7 +101,10 @@ CheckSink::~CheckSink() {
 }
 
 void CheckSink::Announce(Print& out) const {
-  out.print(TAS_FLASHSTR("TAS_CHECK FAILED: "));
+  // Note that we don't use TAS_FLASHSTR here, or elsewhere in this file to
+  // avoid a cycle of dependencies involving log_sink, inline_literal and
+  // progmem_string_view.
+  out.print(FLASHSTR("TAS_CHECK FAILED: "));
   PrintLocation(out);
   out.print(expression_message_);
 }

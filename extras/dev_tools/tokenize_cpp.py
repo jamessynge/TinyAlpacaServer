@@ -11,12 +11,11 @@ A Token instance tells us the kind of token found, the source text for the token
 and the position (character index within the file).
 """
 
+import dataclasses
 import enum
 import re
 import sys
 from typing import Generator, List, Match, Optional, Sequence, Tuple, Union
-
-import dataclasses
 
 
 class EToken(enum.Enum):

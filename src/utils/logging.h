@@ -98,10 +98,6 @@
 
 #define TAS_VLOG_IS_ON(level) (TAS_ENABLED_VLOG_LEVEL >= (level))
 
-#ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
-#endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-
 #else
 
 #ifdef TAS_ENABLED_VLOG_LEVEL
@@ -116,10 +112,6 @@ extern void [[TAS_ENABLED_VLOG_LEVEL_is(TAS_ENABLED_VLOG_LEVEL)]] SomeFuncA();
     (true) ? (void)0 : ::alpaca::LogSinkVoidify() && TAS_VOID_SINK
 
 #define TAS_VLOG_IS_ON(level) (false)
-
-#ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-extern void [[TAS_VLOG_uses_TAS_VOID_SINK]] SomeFuncA();
-#endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 
 #endif
 
@@ -138,10 +130,6 @@ extern void [[TAS_VLOG_uses_TAS_VOID_SINK]] SomeFuncA();
                        ::alpaca::CheckSink(TAS_BASENAME(__FILE__), __LINE__, \
                                            TAS_FLASHSTR(message))
 
-#ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-extern void [[TAS_ENABLE_CHECK_is_defined]] SomeFuncB();
-#endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-
 #else  // !TAS_ENABLE_CHECK
 
 #define TAS_CHECK_INTERNAL_(expression, message) \
@@ -149,10 +137,6 @@ extern void [[TAS_ENABLE_CHECK_is_defined]] SomeFuncB();
   default:                                       \
     ((expression) || true) ? (void)0             \
                            : ::alpaca::LogSinkVoidify() && TAS_VOID_SINK
-
-#ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-extern void [[TAS_ENABLE_CHECK_is_NOT_defined]] SomeFuncB();
-#endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 
 #endif  // TAS_ENABLE_CHECK
 
@@ -178,10 +162,6 @@ extern void [[TAS_ENABLE_CHECK_is_NOT_defined]] SomeFuncB();
                        ::alpaca::CheckSink(TAS_BASENAME(__FILE__), __LINE__, \
                                            TAS_FLASHSTR(message))
 
-#ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-extern void [[TAS_ENABLE_DCHECK_is_defined]] SomeFuncC();
-#endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-
 #else
 
 #ifdef TAS_ENABLE_DCHECK
@@ -193,10 +173,6 @@ extern void [[TAS_ENABLE_DCHECK_is_defined]] SomeFuncC();
   default:                                        \
     (true || (expression)) ? (void)0              \
                            : ::alpaca::LogSinkVoidify() && TAS_VOID_SINK
-
-#ifdef TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
-extern void [[TAS_ENABLE_DCHECK_is_NOT_defined]] SomeFuncC();
-#endif  // TAS_LOG_EXPERIMENT_DO_ANNOUNCE_BRANCH
 
 #endif
 

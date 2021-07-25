@@ -12,7 +12,7 @@ using ::alpaca::progmem_data::ProgmemStringStorage;
 
 TEST(InlineLiteralTest, RawProgmemString) {
   using Type = ProgmemStringStorage<'H', 'E', 'L', 'L', 'O'>;
-  auto printable = alpaca::progmem_data::MakePrintable<Type>();
+  auto printable = alpaca::progmem_data::MakeProgmemStringView<Type>();
   EXPECT_EQ(printable.size(), 5);
   PrintToStdString out;
   EXPECT_EQ(printable.printTo(out), 5);
@@ -21,7 +21,7 @@ TEST(InlineLiteralTest, RawProgmemString) {
 
 TEST(InlineLiteralTest, TASLIT16_String) {
   using Type = ProgmemStringStorage<_TAS_EXPAND_16(, "Hello!")>;
-  auto printable = alpaca::progmem_data::MakePrintable<Type>();
+  auto printable = alpaca::progmem_data::MakeProgmemStringView<Type>();
   EXPECT_EQ(printable.size(), 16);
   PrintToStdString out;
   EXPECT_EQ(printable.printTo(out), 16);

@@ -5,14 +5,14 @@ namespace alpaca {
 AnyPrintable::AnyPrintable() : type_(AnyPrintable::kEmpty), signed_(0) {}
 
 AnyPrintable::AnyPrintable(Literal value)
-    : type_(AnyPrintable::kLiteral), literal_(value) {}
+    : type_(AnyPrintable::kProgmemStringView),
+      psv_(value.begin(), value.size()) {}
 
 AnyPrintable::AnyPrintable(StringView value)
     : type_(AnyPrintable::kStringView), view_(value) {}
 
-AnyPrintable::AnyPrintable(PrintableProgmemString value)
-    : type_(AnyPrintable::kLiteral),
-      literal_(value.progmem_data(), value.size()) {}
+AnyPrintable::AnyPrintable(ProgmemStringView value)
+    : type_(AnyPrintable::kProgmemStringView), psv_(value) {}
 
 AnyPrintable::AnyPrintable(const __FlashStringHelper* value)
     : type_(AnyPrintable::kFlashStringHelper), flash_string_helper_(value) {}
@@ -51,8 +51,8 @@ AnyPrintable& AnyPrintable::operator=(const AnyPrintable& other) {
   switch (type_) {
     case kEmpty:
       break;
-    case kLiteral:
-      literal_ = other.literal_;
+    case kProgmemStringView:
+      psv_ = other.psv_;
       break;
     case kStringView:
       view_ = other.view_;
@@ -90,8 +90,8 @@ size_t AnyPrintable::printTo(Print& out) const {
       // compiler/coverage analysis doesn't "believe" that type_ might not have
       // an invalid value.
       break;
-    case kLiteral:
-      return literal_.printTo(out);
+    case kProgmemStringView:
+      return psv_.printTo(out);
     case kStringView:
       return view_.printTo(out);
     case kPrintable:

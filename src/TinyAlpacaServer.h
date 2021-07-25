@@ -64,7 +64,7 @@
 #include "utils/platform_ethernet.h"                   // IWYU pragma: export
 #include "utils/print_misc.h"                          // IWYU pragma: export
 #include "utils/printable_cat.h"                       // IWYU pragma: export
-#include "utils/printable_progmem_string.h"            // IWYU pragma: export
+#include "utils/progmem_string_view.h"                 // IWYU pragma: export
 #include "utils/server_socket.h"                       // IWYU pragma: export
 #include "utils/socket_listener.h"                     // IWYU pragma: export
 #include "utils/status.h"                              // IWYU pragma: export

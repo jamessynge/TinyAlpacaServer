@@ -15,7 +15,7 @@
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"
-#include "utils/printable_progmem_string.h"
+#include "utils/progmem_string_view.h"
 
 namespace alpaca {
 
@@ -49,8 +49,8 @@ class Literal {
   constexpr Literal(PGM_P ptr, size_type length) : ptr_(ptr), size_(length) {}
 
   // Construct with a TASLIT string.
-  constexpr Literal(const PrintableProgmemString& s)  // NOLINT
-      : ptr_(s.progmem_data()), size_(s.size()) {}
+  constexpr Literal(const ProgmemStringView& s)  // NOLINT
+      : ptr_(s.begin()), size_(s.size()) {}
 
   // Copy constructor and assignment operator.
   TAS_CONSTEXPR_FUNC Literal(const Literal&) = default;

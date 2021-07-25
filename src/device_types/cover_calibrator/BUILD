@@ -24,6 +24,5 @@ cc_library(
         "//src/utils:inline_literal",
         "//src/utils:platform",
         "//src/utils:print_misc",
-        "//src/utils:printable_progmem_string",
     ],
 )

@@ -221,6 +221,12 @@ cc_library(
 )
 
 cc_library(
+    name = "progmem_string_view_utils",
+    hdrs = ["progmem_string_view_utils.h"],
+    deps = ["//src/utils:progmem_string_view"],
+)
+
+cc_library(
     name = "sample_printable",
     hdrs = ["sample_printable.h"],
     deps = ["//extras/host/arduino:print"],

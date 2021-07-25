@@ -14,6 +14,7 @@
 
 #include "utils/literal.h"
 #include "utils/platform.h"
+#include "utils/progmem_string_view.h"
 #include "utils/string_view.h"
 
 namespace alpaca {
@@ -21,7 +22,7 @@ namespace alpaca {
 class AnyPrintable : public Printable {
   enum EFragmentType {
     kEmpty,
-    kLiteral,
+    kProgmemStringView,
     kStringView,
     kPrintable,
     kFlashStringHelper,
@@ -38,7 +39,7 @@ class AnyPrintable : public Printable {
   // AnyPrintable.
   AnyPrintable(Literal value);                     // NOLINT
   AnyPrintable(StringView value);                  // NOLINT
-  AnyPrintable(PrintableProgmemString value);      // NOLINT
+  AnyPrintable(ProgmemStringView value);           // NOLINT
   AnyPrintable(const __FlashStringHelper* value);  // NOLINT
   // To avoid implicit conversions of values that aren't (weren't) necessarily
   // strings, we require the conversion to be explicit.
@@ -65,7 +66,7 @@ class AnyPrintable : public Printable {
  private:
   EFragmentType type_;
   union {
-    Literal literal_;
+    ProgmemStringView psv_;
     StringView view_;
     const __FlashStringHelper* flash_string_helper_;
     char char_;

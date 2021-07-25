@@ -38,7 +38,7 @@
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"
-#include "utils/printable_progmem_string.h"  // IWYU pragma: export
+#include "utils/progmem_string_view.h"  // IWYU pragma: export
 
 namespace alpaca {
 namespace progmem_data {
@@ -57,8 +57,8 @@ constexpr char const
     ProgmemStringStorage<C...>::kData[sizeof...(C) + 1] AVR_PROGMEM;
 
 template <class PSS>
-PrintableProgmemString MakePrintable() {
-  return PrintableProgmemString(PSS::kData, (sizeof PSS::kData) - 1);
+ProgmemStringView MakeProgmemStringView() {
+  return ProgmemStringView(PSS::kData, (sizeof PSS::kData) - 1);
 }
 
 // Type deduction related templates from typestring.hh. They have the effect of
@@ -157,7 +157,7 @@ constexpr char GetNthCharOfM(char const (&c)[M]) {
 // _TAS_EXPAND_512, as necessary.
 
 #define TASLIT(x)                                                       \
-  (::alpaca::progmem_data::MakePrintable<                               \
+  (::alpaca::progmem_data::MakeProgmemStringView<                       \
       decltype(::alpaca::progmem_data::typeek(                          \
           ::alpaca::progmem_data::ProgmemStringStorage<_TAS_EXPAND_128( \
               , x)>()))>())

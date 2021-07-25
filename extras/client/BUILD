@@ -29,6 +29,14 @@ pytype_strict_library(
 )
 
 pytype_strict_binary(
+    name = "am_weather_box",
+    srcs = ["am_weather_box.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [":alpaca_http_client_lib"],
+)
+
+pytype_strict_binary(
     name = "cover_calibrator",
     srcs = ["cover_calibrator.py"],
     python_version = "PY3",
