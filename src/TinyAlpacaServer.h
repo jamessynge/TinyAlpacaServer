@@ -74,6 +74,7 @@
 #include "utils/string_view.h"                         // IWYU pragma: export
 #include "utils/tiny_string.h"                         // IWYU pragma: export
 #include "utils/traits/print_to_trait.h"               // IWYU pragma: export
+#include "utils/traits/set_dhcp_trait.h"               // IWYU pragma: export
 #include "utils/traits/type_traits.h"                  // IWYU pragma: export
 #include "utils/utils_config.h"                        // IWYU pragma: export
 

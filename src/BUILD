@@ -69,6 +69,7 @@ cc_library(
         "//src/utils:tiny_string",
         "//src/utils:utils_config",
         "//src/utils/traits:print_to_trait",
+        "//src/utils/traits:set_dhcp_trait",
         "//src/utils/traits:type_traits",
     ],
 )
