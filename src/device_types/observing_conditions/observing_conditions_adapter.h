@@ -6,6 +6,7 @@
 //
 // Author: james.synge@gmail.com
 
+#include "constants.h"
 #include "device_types/device_impl_base.h"
 #include "utils/platform.h"
 #include "utils/status.h"
@@ -131,6 +132,18 @@ class ObservingConditionsAdapter : public DeviceImplBase {
 
   // Refreshes sensor values from hardware.
   virtual Status Refresh();
+
+  // If the result is OK, the write a DoubleResponse, else write the specified
+  // sensor error.
+  static bool WriteDoubleOrSensorErrorResponse(const AlpacaRequest& request,
+                                               ESensorName sensor_name,
+                                               StatusOr<double> result,
+                                               Print& out);
+
+  // Write a Not Implemented error with the name of the sensor.
+  static bool WriteSensorNotImpementedResponse(const AlpacaRequest& request,
+                                               ESensorName sensor_name,
+                                               Print& out);
 };
 
 }  // namespace alpaca

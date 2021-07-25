@@ -460,7 +460,7 @@ TEST_F(ObservingConditionsAdapterTest,
       ValidateJsonResponseHasError(req, response_str, kMethodNotImplemented));
   auto error_message_jv = response.json_value.GetValue("ErrorMessage");
   ASSERT_EQ(error_message_jv.type(), JsonValue::kString);
-  EXPECT_THAT(error_message_jv.as_string(), HasSubstr("TimeSinceLastUpdate"));
+  EXPECT_THAT(error_message_jv.as_string(), HasSubstr("Temperature"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

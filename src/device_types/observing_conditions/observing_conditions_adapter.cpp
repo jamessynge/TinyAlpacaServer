@@ -3,8 +3,11 @@
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
+#include "device_types/cover_calibrator/cover_calibrator_constants.h"
 #include "literals.h"
+#include "utils/inline_literal.h"
 #include "utils/logging.h"
+#include "utils/printable_cat.h"
 #include "utils/status.h"
 
 namespace alpaca {
@@ -24,20 +27,24 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
                                                    out);
 
     case EDeviceMethod::kCloudCover:
-      return WriteResponse::StatusOrDoubleResponse(request, GetCloudCover(),
-                                                   out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kCloudCover,
+                                              GetCloudCover(), out);
 
     case EDeviceMethod::kDewPoint:
-      return WriteResponse::StatusOrDoubleResponse(request, GetDewPoint(), out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kDewPoint,
+                                              GetDewPoint(), out);
 
     case EDeviceMethod::kHumidity:
-      return WriteResponse::StatusOrDoubleResponse(request, GetHumidity(), out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kHumidity,
+                                              GetHumidity(), out);
 
     case EDeviceMethod::kPressure:
-      return WriteResponse::StatusOrDoubleResponse(request, GetPressure(), out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kPressure,
+                                              GetPressure(), out);
 
     case EDeviceMethod::kRainRate:
-      return WriteResponse::StatusOrDoubleResponse(request, GetRainRate(), out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kRainRate,
+                                              GetRainRate(), out);
 
     case EDeviceMethod::kSensorDescription:
       // Requires a sensor name.
@@ -49,23 +56,24 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
           request, GetSensorDescription(request.sensor_name), out);
 
     case EDeviceMethod::kSkyBrightness:
-      return WriteResponse::StatusOrDoubleResponse(request, GetSkyBrightness(),
-                                                   out);
+      return WriteDoubleOrSensorErrorResponse(
+          request, ESensorName::kSkyBrightness, GetSkyBrightness(), out);
 
     case EDeviceMethod::kSkyQuality:
-      return WriteResponse::StatusOrDoubleResponse(request, GetSkyQuality(),
-                                                   out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kSkyQuality,
+                                              GetSkyQuality(), out);
 
     case EDeviceMethod::kSkyTemperature:
-      return WriteResponse::StatusOrDoubleResponse(request, GetSkyTemperature(),
-                                                   out);
+      return WriteDoubleOrSensorErrorResponse(
+          request, ESensorName::kSkyTemperature, GetSkyTemperature(), out);
 
     case EDeviceMethod::kStarFWHM:
-      return WriteResponse::StatusOrDoubleResponse(request, GetStarFWHM(), out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kStarFWHM,
+                                              GetStarFWHM(), out);
 
     case EDeviceMethod::kTemperature:
-      return WriteResponse::StatusOrDoubleResponse(request, GetTemperature(),
-                                                   out);
+      return WriteDoubleOrSensorErrorResponse(
+          request, ESensorName::kTemperature, GetTemperature(), out);
 
     case EDeviceMethod::kTimeSinceLastUpdate:
       // Requires a sensor name.
@@ -73,19 +81,21 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
         return WriteResponse::AscomParameterMissingErrorResponse(
             request, Literals::SensorName(), out);
       }
-      return WriteResponse::StatusOrDoubleResponse(
-          request, GetTimeSinceLastUpdate(request.sensor_name), out);
+      return WriteDoubleOrSensorErrorResponse(
+          request, request.sensor_name,
+          GetTimeSinceLastUpdate(request.sensor_name), out);
 
     case EDeviceMethod::kWindDirection:
-      return WriteResponse::StatusOrDoubleResponse(request, GetWindDirection(),
-                                                   out);
+      return WriteDoubleOrSensorErrorResponse(
+          request, ESensorName::kWindDirection, GetWindDirection(), out);
 
     case EDeviceMethod::kWindGust:
-      return WriteResponse::StatusOrDoubleResponse(request, GetWindGust(), out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kWindGust,
+                                              GetWindGust(), out);
 
     case EDeviceMethod::kWindSpeed:
-      return WriteResponse::StatusOrDoubleResponse(request, GetWindSpeed(),
-                                                   out);
+      return WriteDoubleOrSensorErrorResponse(request, ESensorName::kWindSpeed,
+                                              GetWindSpeed(), out);
 
     default:
       return DeviceImplBase::HandleGetRequest(request, out);
@@ -97,7 +107,8 @@ StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
     return 0;
   } else {
     TAS_DCHECK(false) << TAS_FLASHSTR(
-        "GetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
+        "GetAveragePeriod should be overridden given that MaxAveragePeriod is "
+        "not 0, but it has not been.");
     return ErrorCodes::NotImplemented();
   }
 }
@@ -202,6 +213,26 @@ bool ObservingConditionsAdapter::HandlePutRefresh(const AlpacaRequest& request,
 
 Status ObservingConditionsAdapter::Refresh() {
   return ErrorCodes::NotImplemented();
+}
+
+bool ObservingConditionsAdapter::WriteDoubleOrSensorErrorResponse(
+    const AlpacaRequest& request, ESensorName sensor_name,
+    StatusOr<double> result, Print& out) {
+  if (result.ok()) {
+    return WriteResponse::DoubleResponse(request, result.value(), out);
+  } else if (result.status().code() == ErrorCodes::kNotImplemented) {
+    return WriteSensorNotImpementedResponse(request, sensor_name, out);
+  } else {
+    return WriteResponse::StatusResponse(request, result.status(), out);
+  }
+}
+
+bool ObservingConditionsAdapter::WriteSensorNotImpementedResponse(
+    const AlpacaRequest& request, ESensorName sensor_name, Print& out) {
+  auto error_message = PrintableCat(TAS_FLASHSTR("Sensor not implemented: "),
+                                    ToFlashStringHelper(sensor_name));
+  return WriteResponse::AscomErrorResponse(request, ErrorCodes::kNotImplemented,
+                                           error_message, out);
 }
 
 }  // namespace alpaca

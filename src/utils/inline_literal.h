@@ -27,6 +27,14 @@
 // typestring.hh. Instead, it contains an adaptation of Makrydakis's approach
 // to this context.
 //
+// TODO(jamessynge): Come up with a way for TASLIT and TAS_FLASHSTR to fail if
+// the string is too long, i.e. if the NUL terminator is not found. This will
+// allow me to reduce the maximum size string that is supported by default
+// (probably 32, maybe 64), and to instead require that TASLITnnn and
+// TAS_FLASHSTRnnn are used when the string is known to be too long. This is
+// likely to greatly improve compile times because the type deduction clearly
+// has a very bad impact on the speed of compiling (at least with avr-gcc).
+//
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"

@@ -11,6 +11,7 @@ namespace {
 
 using ::alpaca::ErrorCodes;
 using ::alpaca::ESensorName;
+using ::alpaca::Literals;
 using ::alpaca::ObservingConditionsAdapter;
 using ::alpaca::OkStatus;
 using ::alpaca::Status;
