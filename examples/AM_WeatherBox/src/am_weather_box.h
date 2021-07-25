@@ -26,11 +26,13 @@ class AMWeatherBox : public alpaca::ObservingConditionsAdapter {
       alpaca::ESensorName sensor_name) override;
   alpaca::Status SetAveragePeriod(double hours) override;
   alpaca::Status Refresh() override;
+  alpaca::StatusOr<double> GetTimeSinceLastUpdate(
+      alpaca::ESensorName sensor_name) override;
 
  private:
-  bool DoReadIrTemps();
+  bool IsIrThermInitialized();
 
-  bool ir_therm_ready_;
+  bool ir_therm_initialized_;
   uint32_t last_read_time_;
 };
 

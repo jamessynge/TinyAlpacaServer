@@ -1,7 +1,7 @@
 #include "am_weather_box.h"
 
+#include <Adafruit_MLX90614.h>
 #include <Arduino.h>
-#include <SparkFunMLX90614.h>
 #include <TinyAlpacaServer.h>
 
 #include "constants.h"
@@ -18,7 +18,7 @@ using ::alpaca::Status;
 using ::alpaca::StatusOr;
 
 #if defined(TAS_ENABLED_VLOG_LEVEL) && TAS_ENABLED_VLOG_LEVEL >= 3
-#define READ_INTERVAL_SECS 3
+#define READ_INTERVAL_SECS 1
 #else
 #define READ_INTERVAL_SECS 15
 #endif
@@ -28,45 +28,48 @@ constexpr uint32_t kReadIntervalMillis = READ_INTERVAL_SECS * 1000;
 TAS_DEFINE_LITERAL(MLX90614Description, "MLX90614 Infrared Thermometer");
 TAS_DEFINE_LITERAL(RG11Description, "Hydreon RG11 Rain Sensor");
 
-IRTherm ir_therm;
+Adafruit_MLX90614 ir_therm;
 
 }  // namespace
 
 AMWeatherBox::AMWeatherBox(const alpaca::DeviceInfo& device_info)
-    : ObservingConditionsAdapter(device_info),
-      ir_therm_ready_(false),
-      last_read_time_(0) {}
+    : ObservingConditionsAdapter(device_info), ir_therm_initialized_(false) {}
 
 void AMWeatherBox::Initialize() {
   ObservingConditionsAdapter::Initialize();
   pinMode(kRg11SensorPin, kRg11SensorPinMode);
-  if (DoReadIrTemps()) {
+  if (IsIrThermInitialized()) {
     last_read_time_ = millis();
+    TAS_VLOG(1) << TAS_FLASHSTR("MLX90614 is ready");
   } else {
-    TAS_VLOG(1) << TAS_FLASHSTR("MLX90614 not present or ready!");
+    TAS_VLOG(1) << TAS_FLASHSTR("MLX90614 is not present or ready!");
   }
 }
 
 void AMWeatherBox::MaintainDevice() {
   auto now = millis();
   if ((now - last_read_time_) >= kReadIntervalMillis) {
-    if (DoReadIrTemps()) {
-      last_read_time_ = now;
+    last_read_time_ = now;
+    if (IsIrThermInitialized()) {
       TAS_VLOG(3) << TAS_FLASHSTR("Sky: ") << GetSkyTemperature().value()
                   << TAS_FLASHSTR("\xE2\x84\x83, Ambient: ")
                   << GetTemperature().value()
                   << TAS_FLASHSTR("\xE2\x84\x83, Rain Detected: ")
                   << (GetRainRate().value() == 0 ? Literals::False()
                                                  : Literals::True());
+    } else {
+      TAS_VLOG(3) << TAS_FLASHSTR("Rain Detected: ")
+                  << (GetRainRate().value() == 0 ? Literals::False()
+                                                 : Literals::True());
     }
   }
 }
 
-bool AMWeatherBox::DoReadIrTemps() {
-  if (ir_therm_ready_ || ir_therm.begin()) {
-    ir_therm_ready_ = ir_therm.read();
+bool AMWeatherBox::IsIrThermInitialized() {
+  if (!ir_therm_initialized_) {
+    ir_therm_initialized_ = ir_therm.begin();
   }
-  return ir_therm_ready_;
+  return ir_therm_initialized_;
 }
 
 StatusOr<double> AMWeatherBox::GetAveragePeriod() { return 0; }
@@ -81,8 +84,8 @@ Status AMWeatherBox::SetAveragePeriod(double hours) {
 }
 
 StatusOr<double> AMWeatherBox::GetSkyTemperature() {
-  if (ir_therm_ready_) {
-    return ir_therm.object();
+  if (IsIrThermInitialized()) {
+    return ir_therm.readObjectTempC();
   }
   return ErrorCodes::NotConnected();
 }
@@ -96,8 +99,8 @@ StatusOr<double> AMWeatherBox::GetRainRate() {
 }
 
 StatusOr<double> AMWeatherBox::GetTemperature() {
-  if (ir_therm_ready_) {
-    return ir_therm.ambient();
+  if (IsIrThermInitialized()) {
+    return ir_therm.readAmbientTempC();
   }
   return ErrorCodes::NotConnected();
 }
@@ -114,13 +117,29 @@ StatusOr<alpaca::Literal> AMWeatherBox::GetSensorDescription(
   return ErrorCodes::InvalidValue();
 }
 
-Status AMWeatherBox::Refresh() {
-  auto now = millis();
-  if (DoReadIrTemps()) {
-    last_read_time_ = now;
-    return OkStatus();
+Status AMWeatherBox::Refresh() { return OkStatus(); }
+
+StatusOr<double> AMWeatherBox::GetTimeSinceLastUpdate(ESensorName sensor_name) {
+  // TODO(jamessynge): Make sure that sensor name can be the empty string. The
+  // spec says:
+  //
+  //    If an empty string is supplied as the PropertyName, the driver must
+  //    return the time since the most recent update of any sensor.
+  switch (sensor_name) {
+    case ESensorName::kSkyTemperature:
+    case ESensorName::kTemperature:
+      if (IsIrThermInitialized()) {
+        return 0.0;
+      }
+      break;
+
+    case ESensorName::kRainRate:
+      return 0.0;
+
+    default:
+      break;
   }
-  return ErrorCodes::NotConnected();
+  return ErrorCodes::NotImplemented();
 }
 
 }  // namespace astro_makers
