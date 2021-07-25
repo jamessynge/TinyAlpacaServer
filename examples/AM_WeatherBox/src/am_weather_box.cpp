@@ -120,11 +120,6 @@ StatusOr<alpaca::Literal> AMWeatherBox::GetSensorDescription(
 Status AMWeatherBox::Refresh() { return OkStatus(); }
 
 StatusOr<double> AMWeatherBox::GetTimeSinceLastUpdate(ESensorName sensor_name) {
-  // TODO(jamessynge): Make sure that sensor name can be the empty string. The
-  // spec says:
-  //
-  //    If an empty string is supplied as the PropertyName, the driver must
-  //    return the time since the most recent update of any sensor.
   switch (sensor_name) {
     case ESensorName::kSkyTemperature:
     case ESensorName::kTemperature:

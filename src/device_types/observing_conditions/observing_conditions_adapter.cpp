@@ -77,6 +77,15 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
 
     case EDeviceMethod::kTimeSinceLastUpdate:
       // Requires a sensor name.
+      //
+      // TODO(jamessynge): Make sure that sensor name can be the empty string.
+      // The spec says:
+      //
+      //    If an empty string is supplied as the PropertyName, the driver must
+      //    return the time since the most recent update of any sensor.
+      //
+      // This could be accomodated in the adapter by adding a
+      // GetTimeSinceLastUpdate() method that takes no argument,
       if (request.sensor_name == ESensorName::kUnknown) {
         return WriteResponse::AscomParameterMissingErrorResponse(
             request, Literals::SensorName(), out);
