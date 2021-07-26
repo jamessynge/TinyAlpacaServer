@@ -8,6 +8,7 @@ pytype_strict_binary(
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
+        ":install_advice",
         "//third_party/py/dataclasses",
         "//third_party/py/netifaces",
     ],
@@ -18,14 +19,20 @@ pytype_strict_binary(
     srcs = ["alpaca_http_client.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = ["//third_party/py/requests"],
+    deps = [
+        ":install_advice",
+        "//third_party/py/requests",
+    ],
 )
 
 pytype_strict_library(
     name = "alpaca_http_client_lib",
     srcs = ["alpaca_http_client.py"],
     srcs_version = "PY3",
-    deps = ["//third_party/py/requests"],
+    deps = [
+        ":install_advice",
+        "//third_party/py/requests",
+    ],
 )
 
 pytype_strict_binary(
@@ -58,6 +65,12 @@ pytype_strict_binary(
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [":alpaca_http_client_lib"],
+)
+
+pytype_strict_library(
+    name = "install_advice",
+    srcs = ["install_advice.py"],
+    srcs_version = "PY3",
 )
 
 pytype_strict_binary(

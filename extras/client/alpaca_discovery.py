@@ -17,18 +17,24 @@ import threading
 import time
 from typing import Callable, Dict, Generator, List
 
-# You can install it with:
-#      pip install netifaces
-import netifaces
+import install_advice
+
+try:
+  import netifaces  # pylint: disable=g-import-not-at-top
+except ImportError:
+  install_advice.install_advice('netifaces')
+# build_cleaner doesn't find imports that aren't at the top level, so we repeat
+# the import here.
+import netifaces  # pylint: disable=g-import-not-at-top,g-bad-import-order
 
 # Daniel VanNoord selected UDP port 32227 for the Alpaca Discovery protocol, but
-# there it is not assigned to the protocol, so may change some day. An Alpaca
-# Server can confirm that the packet is intended for it by looking for the
-# string 'alpacadiscovery1' as the entire body of the UDP packet it receives at
-# that port, and an Alpaca Discovery client can confirm that a response is from
-# an Alpaca Server by checking that the response body can be parsed as JSON and
-# has a property 'alpacaport' whose value is an integer that can be a TCP port
-# number (e.g. 1 to 65535).
+# that port is not officially assigned to the protocol, so it may change some
+# day. An Alpaca Server can confirm that the packet is intended for it by
+# looking for the string 'alpacadiscovery1' as the entire body of the UDP packet
+# it receives at that port, and an Alpaca Discovery client can confirm that a
+# response is from an Alpaca Server by checking that the response body can be
+# parsed as JSON and has a property 'alpacaport' whose value is an integer that
+# can be a TCP port number (e.g. 1 to 65535).
 ALPACA_DISCOVERY_PORT = 32227
 DISCOVERY_REQUEST_BODY = 'alpacadiscovery1'
 ALPACA_SERVER_PORT_PROPERTY = 'alpacaport'

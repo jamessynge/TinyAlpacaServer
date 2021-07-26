@@ -6,7 +6,15 @@ import random
 import sys
 from typing import Dict, Optional, Sequence, Union
 
-import requests
+import install_advice
+
+try:
+  import requests  # pylint: disable=g-import-not-at-top
+except ImportError:
+  install_advice.install_advice('requests')
+# build_cleaner doesn't find imports that aren't at the top level, so we repeat
+# the import here.
+import requests  # pylint: disable=g-import-not-at-top,g-bad-import-order
 
 GET = 'GET'
 OPTIONS = 'OPTIONS'
