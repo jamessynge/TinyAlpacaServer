@@ -1,34 +1,27 @@
+// TODO(jamessynge): Ethernet.init should take the chip select pin as an arg,
+// and should call W5500::init so that we can then do a softReset call.
+// TODO(jamessynge): EthernetClass should use millis() and a static var
+// to decide whether it has been long enough since power-up or hard-reset so
+// that we can rely on the chip being ready to work.
+// TODO(jamessynge): Add some means of testing whether there is an Ethernet
+// cable attached. In the not, or in the event that DHCP doesn't work, we may
+// want to keep trying to initialize the networking from the main loop, at least
+// until we see some traffic.
+
 #include "utils/ip_device.h"
 
 #include "utils/inline_literal.h"
 #include "utils/logging.h"
 #include "utils/platform_ethernet.h"
-#include "utils/traits/set_dhcp_trait.h"
 
 namespace alpaca {
 namespace {
+
 constexpr uint8_t kW5500ChipSelectPin = 10;
 constexpr uint8_t kW5500ResetPin = 7;
 constexpr uint8_t kSDcardSelectPin = 4;
 
-// T is a class with a setDhcp function.
-template <typename T>
-void MaybeSetDhcp(T& ethernet, true_type /*has_set_dhcp*/) {
-  // We allocate a DhcpClass at file scope so that it isn't dynamically
-  // allocated at setup time (i.e. so we're in better control of memory
-  // consumption).
-  static ::DhcpClass dhcp;
-  ethernet.setDhcp(&dhcp);
-}
-
-// Type T does NOT have a setDhcp method.
-template <typename T>
-void MaybeSetDhcp(T& ethernet, false_type /*!has_set_dhcp*/) {}
-
-template <typename T>
-void MaybeSetDhcp(T& ethernet) {
-  MaybeSetDhcp(ethernet, has_set_dhcp<T>{});
-}
+static ::DhcpClass dhcp;
 
 }  // namespace
 
@@ -56,25 +49,42 @@ void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
 }
 
 bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
-  MaybeSetDhcp(Ethernet);
-
   // Load the addresses saved to EEPROM, if they were previously saved. If
   // they were not successfully loaded, then generate them and save them into
   // the EEPROM.
   Addresses addresses;
   addresses.loadOrGenAndSave(oui_prefix);
 
-  if (Ethernet.begin(addresses.mac.mac)) {
+  // If unable to get an address using DHCP, try again with a softReset between
+  // the two attempts.
+  Ethernet.setDhcp(&dhcp);
+  using_dhcp_ = Ethernet.begin(addresses.mac.mac);
+  if (!using_dhcp_) {
+    TAS_VLOG(2) << TAS_FLASHSTR("Failed to get an address using DHCP");
+    // TODO(jamessynge): First check whether there is an Ethernet cable
+    // attached; if not, then we don't benefit from a retry. Instead, we can
+    // check whether a cable is attached later in the main loop. This may
+    // require splitting TinyAlpacaServer::initialize into two parts: one for
+    // the networking hardware, repeated as necessary, and another (once only)
+    // for the Alpaca devices.
+    Ethernet.softreset();
+    using_dhcp_ = Ethernet.begin(addresses.mac.mac);
+    if (!using_dhcp_) {
+      TAS_VLOG(2) << TAS_FLASHSTR("Failed to get an address using DHCP")
+                  << TAS_FLASHSTR(" after a soft reset.");
+    }
+  }
+
+  if (using_dhcp_) {
     // Wonderful news, we were able to get an IP address via DHCP.
-    using_dhcp_ = true;
   } else {
-    // No DHCP server responded with a lease on an IP address.
-    // Is there hardware?
+    // Is there hardware? If there is, we should be able to read our MAC address
+    // back from the chip.
     MacAddress mac;
     Ethernet.macAddress(mac.mac);
     if (!(mac == addresses.mac)) {
       // Oops, this isn't the right board to run this sketch.
-      LogSink() << TAS_FLASHSTR("Found no network hardware");
+      LogSink() << TAS_FLASHSTR("Found no networking hardware");
       return false;
     }
 

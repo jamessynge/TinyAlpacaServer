@@ -4,12 +4,12 @@
 import random
 import sys
 import time
-from typing import Sequence
+from typing import List
 
 import alpaca_http_client
 
 
-def main(argv: Sequence[str]) -> None:
+def main(argv: List[str]) -> None:
   if not argv:
     client = alpaca_http_client.AlpacaHttpClient.find_first_server(
         client_id=random.randint(0, 10),

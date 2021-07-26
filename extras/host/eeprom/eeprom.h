@@ -2,9 +2,9 @@
 #define TINY_ALPACA_SERVER_EXTRAS_HOST_EEPROM_EEPROM_H_
 
 // A totally fake version of Arduino's EEPROM. Just stores in RAM, no
-// persistence.
-//
-// IFF we really wanted to, we could use mmap to read and write from a file.
+// persistence. IFF we really wanted to, we could use mmap to read and write
+// from a file, and thus provide persistence from run to run... which would
+// complicate testing.
 
 #include <stdint.h>
 
