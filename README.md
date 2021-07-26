@@ -25,7 +25,9 @@ chip
 which is present on the
 [Robotdyn MEGA 2560 ETH with POE](https://robotdyn.com/catalogsearch/result/?q=GR-00000039),
 a board compatible with the Arduino Mega 2560, but with built in Ethernet,
-including Power-over-Ethernet.
+including Power-over-Ethernet. I've permanently forked Ethernet3 as Ethernet5500
+in order to allow for fixing some API flaws that Ethernet3 inherited from the
+Ethernet2.
 
 ## Status
 

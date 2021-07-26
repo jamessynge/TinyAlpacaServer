@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Ethernet3.h>
+#include <Ethernet5500.h>
 #include <TinyAlpacaServer.h>
 
 alpaca::IpDevice ip_device;

@@ -1,4 +1,4 @@
-#include "extras/host/ethernet3/host_sockets.h"
+#include "extras/host/ethernet5500/host_sockets.h"
 
 #include <asm-generic/errno-base.h>
 #include <asm-generic/errno.h>
@@ -17,7 +17,7 @@
 #include <map>
 #include <memory>
 
-#include "extras/host/ethernet3/w5500.h"
+#include "extras/host/ethernet5500/w5500.h"
 #include "logging.h"
 #include "utils/logging.h"
 

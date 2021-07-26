@@ -1,5 +1,6 @@
-# A fake host version of sstaub's Ethernet3 for the WIZ5500, just enough for
-# running Tiny Alpaca Server on a *nix compatible host (i.e. with the usual
+# A fake host version of the Ethernet5500 Arduino Library, itself forked
+# from sstaub's Ethernet3 for the WIZ5500. Has just enough for compiling
+# and testing Tiny Alpaca Server on Linux host (i.e. a host with the usual
 # socket APIs).
 
 cc_library(
@@ -8,8 +9,8 @@ cc_library(
 )
 
 cc_library(
-    name = "ethernet3",
-    hdrs = ["ethernet3.h"],
+    name = "ethernet5500",
+    hdrs = ["ethernet5500.h"],
     deps = [
         ":dhcp_class",
         ":ethernet_class",

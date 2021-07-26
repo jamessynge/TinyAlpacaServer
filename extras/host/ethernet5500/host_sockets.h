@@ -1,17 +1,17 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_HOST_SOCKETS_H_
-#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_HOST_SOCKETS_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_HOST_SOCKETS_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_HOST_SOCKETS_H_
 
 // Methods to hide the differences between the Berkley Socket API (on Linux) and
 // the API exposed by the various Ethernet libraries for Arduino.
 //
 // Author: james.synge@gmail.com
 
-// TODO(jamessynge): Consider implementing Ethernet3/src/utility/socket.* using
-// the *nix Socket API, along with relevant portions of utility/w5500.* needed
-// by EthernetClient, then using Ethernet3/src/EthernetClient.* (approximately)
-// as is.
+// TODO(jamessynge): Consider implementing Ethernet5500/src/utility/socket.*
+// using the *nix Socket API, along with relevant portions of utility/w5500.*
+// needed by EthernetClient, then using Ethernet5500/src/EthernetClient.*
+// (approximately) as is.
 
-#include "extras/host/ethernet3/ethernet_config.h"
+#include "extras/host/ethernet5500/ethernet_config.h"
 
 namespace alpaca {
 struct HostSockets {
@@ -56,4 +56,4 @@ struct HostSockets {
 };
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_HOST_SOCKETS_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_HOST_SOCKETS_H_

@@ -1,8 +1,8 @@
-#include "extras/host/ethernet3/ethernet_client.h"
+#include "extras/host/ethernet5500/ethernet_client.h"
 
-#include "extras/host/ethernet3/ethernet_config.h"
-#include "extras/host/ethernet3/host_sockets.h"
-#include "extras/host/ethernet3/w5500.h"
+#include "extras/host/ethernet5500/ethernet_config.h"
+#include "extras/host/ethernet5500/host_sockets.h"
+#include "extras/host/ethernet5500/w5500.h"
 
 EthernetClient::EthernetClient(uint8_t sock) : sock_(sock) {}
 
@@ -18,8 +18,8 @@ uint8_t EthernetClient::status() {
 size_t EthernetClient::write(uint8_t) { return 0; }
 
 // Write 'size' bytes from the buffer to the stream, returns the number
-// written. Note that Ethernet3 takes a blocking approach, looping until there
-// are 'size' bytes in the TX buffers available (with 'size' capped to the
+// written. Note that Ethernet5500 takes a blocking approach, looping until
+// there are 'size' bytes in the TX buffers available (with 'size' capped to the
 // maximum send size allowed).
 size_t EthernetClient::write(const uint8_t *buf, size_t size) { return 0; }
 

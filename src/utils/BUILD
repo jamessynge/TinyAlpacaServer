@@ -241,8 +241,8 @@ cc_library(
         ":platform",
         "//extras/host/arduino:client",
         "//extras/host/arduino:ip_address",
-        "//extras/host/ethernet3",
-        "//extras/host/ethernet3:host_sockets",
+        "//extras/host/ethernet5500",
+        "//extras/host/ethernet5500:host_sockets",
     ],
 )
 

@@ -151,7 +151,7 @@ cc_library(
     hdrs = ["mock_ethernet_client.h"],
     deps = [
         "//extras/host/arduino:ip_address",
-        "//extras/host/ethernet3:ethernet_client",
+        "//extras/host/ethernet5500:ethernet_client",
         "//googletest:gunit_headers",
     ],
 )
@@ -261,7 +261,7 @@ cc_library(
     deps = [
         ":string_io_connection",
         "//absl/strings",
-        "//extras/host/ethernet3:ethernet_config",
+        "//extras/host/ethernet5500:ethernet_config",
         "//src:device_interface",
         "//src:server_connection",
         "//src:server_description",

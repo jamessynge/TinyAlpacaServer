@@ -1,4 +1,4 @@
-# Notes on WIZ5500 and the sstaub/Ethernet3 library.
+# Notes on WIZ5500 and the Ethernet5500 library.
 
 EthernetClient may be either client or server, seems unnecessary. Eliminating
 the client portion could save us memory.
@@ -19,8 +19,8 @@ One register block per socket.
     Socket n Status Register (i.e. which protocol)
 
 Should introduce scoped enumerations with underlying type uint8_t, instead of
-using the approach in Ethernet3, where there are classes for each of these
-collections of values.
+using the approach in Ethernet5500 (inherited from Ethernet3), where there are
+classes for each of these collections of values.
 
 ## TODO
 

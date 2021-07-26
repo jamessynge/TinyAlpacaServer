@@ -1,6 +1,6 @@
-#include "extras/host/ethernet3/ethernet_class.h"
+#include "extras/host/ethernet5500/ethernet_class.h"
 
-#include "extras/host/ethernet3/ethernet_config.h"
+#include "extras/host/ethernet5500/ethernet_config.h"
 
 EthernetClass Ethernet;  // NOLINT
 

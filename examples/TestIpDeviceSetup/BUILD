@@ -6,7 +6,7 @@ cc_binary(
     deps = [
         "//extras/host/arduino",
         "//extras/host/arduino:arduino_main",
-        "//extras/host/ethernet3",
+        "//extras/host/ethernet5500",
         "//src:TinyAlpacaServer",
     ],
 )

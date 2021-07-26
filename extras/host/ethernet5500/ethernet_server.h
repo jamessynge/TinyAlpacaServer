@@ -1,11 +1,11 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_SERVER_H_
-#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_SERVER_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_SERVER_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_SERVER_H_
 
 // Just enough of EthernetServer for Tiny Alpaca Server to compile on host,
 // maybe to be a TCP server.
 
-#include "extras/host/ethernet3/ethernet_client.h"
-#include "extras/host/ethernet3/ethernet_config.h"
+#include "extras/host/ethernet5500/ethernet_client.h"
+#include "extras/host/ethernet5500/ethernet_config.h"
 
 class EthernetServer {
  public:
@@ -25,4 +25,4 @@ class EthernetServer {
   uint16_t port_;
 };
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_SERVER_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_SERVER_H_

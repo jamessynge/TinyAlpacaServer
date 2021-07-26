@@ -7,7 +7,7 @@
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 #include "device_interface.h"
-#include "extras/host/ethernet3/ethernet_config.h"
+#include "extras/host/ethernet5500/ethernet_config.h"
 #include "extras/test_tools/string_io_connection.h"
 #include "server_connection.h"
 #include "server_description.h"

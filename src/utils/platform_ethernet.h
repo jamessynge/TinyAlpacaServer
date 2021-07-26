@@ -10,7 +10,7 @@
 #ifdef ARDUINO
 
 #include <Client.h>          // IWYU pragma: export
-#include <Ethernet3.h>       // IWYU pragma: export
+#include <Ethernet5500.h>    // IWYU pragma: export
 #include <IPAddress.h>       // IWYU pragma: export
 #include <Stream.h>          // IWYU pragma: export
 #include <utility/socket.h>  // IWYU pragma: export
@@ -21,10 +21,10 @@
 
 #elif TAS_HOST_TARGET
 
-#include "extras/host/arduino/client.h"          // IWYU pragma : export
-#include "extras/host/arduino/ip_address.h"      // IWYU pragma : export
-#include "extras/host/ethernet3/ethernet3.h"     // IWYU pragma: export
-#include "extras/host/ethernet3/host_sockets.h"  // IWYU pragma: export
+#include "extras/host/arduino/client.h"             // IWYU pragma : export
+#include "extras/host/arduino/ip_address.h"         // IWYU pragma : export
+#include "extras/host/ethernet5500/ethernet5500.h"  // IWYU pragma: export
+#include "extras/host/ethernet5500/host_sockets.h"  // IWYU pragma: export
 
 #endif  // ARDUINO
 

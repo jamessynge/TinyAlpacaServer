@@ -1,12 +1,12 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_CLASS_H_
-#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_CLASS_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_CLASS_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_CLASS_H_
 
 // Just enough of EthernetClass for Tiny Alpaca Server to compile on host, maybe
 // to be a TCP server.
 
 #include "extras/host/arduino/ip_address.h"  // IWYU pragma: export
-#include "extras/host/ethernet3/dhcp_class.h"
-#include "extras/host/ethernet3/ethernet_config.h"
+#include "extras/host/ethernet5500/dhcp_class.h"
+#include "extras/host/ethernet5500/ethernet_config.h"
 
 #define DHCP_CHECK_NONE (0)
 #define DHCP_CHECK_RENEW_FAIL (1)
@@ -16,8 +16,6 @@
 
 class EthernetClass {
  public:
-  // TODO(jamessynge): Modify EthernetClass upstream so that 'new' is not used
-  // to allocate a DhcpInstance. See https://github.com/sstaub/Ethernet3/pull/40
   EthernetClass();
 
   // Initialize W5500 with fewer sockets but more RX/TX Buffer space per socket.
@@ -87,4 +85,4 @@ class EthernetClass {
 
 extern EthernetClass Ethernet;
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_CLASS_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_CLASS_H_

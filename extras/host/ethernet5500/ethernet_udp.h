@@ -1,12 +1,12 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_UDP_H_
-#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_UDP_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_UDP_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_UDP_H_
 
-// Incomplete declaration/implementation of Ethernet3's EthernetUDP class.
+// Incomplete declaration/implementation of Ethernet5500's EthernetUDP class.
 
 #include "extras/host/arduino/ip_address.h"
 #include "extras/host/arduino/stream.h"
-#include "extras/host/ethernet3/ethernet_client.h"
-#include "extras/host/ethernet3/ethernet_config.h"
+#include "extras/host/ethernet5500/ethernet_client.h"
+#include "extras/host/ethernet5500/ethernet_config.h"
 
 class EthernetUDP : public Stream {
  public:
@@ -75,4 +75,4 @@ class EthernetUDP : public Stream {
   virtual void remoteMAC(uint8_t* mac) {}
 };
 
-#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_ETHERNET_UDP_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_ETHERNET_UDP_H_

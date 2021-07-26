@@ -31,12 +31,15 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
   }
 
   void close() override {
-    // The Ethernet3 library's EthernetClient::stop method bakes in a limit of 1
-    // second for closing a connection, and spins in a loop waiting until the
-    // connection closed, with a delay of 1 millisecond per loop. We avoid this
-    // here by NOT delegating to the stop method. Instead we start the close
-    // with a DISCONNECT operation (i.e. sending a FIN packet to the peer).
-    // PerformIO below will complete the close at some time in the future.
+    // The Ethernet5500 library's EthernetClient::stop method bakes in a limit
+    // of 1 second for closing a connection, and spins in a loop waiting until
+    // the connection closed, with a delay of 1 millisecond per loop. We avoid
+    // this here by NOT delegating to the stop method. Instead we start the
+    // close with a DISCONNECT operation (i.e. sending a FIN packet to the
+    // peer). PerformIO below will complete the close at some time in the
+    // future.
+    // TODO(jamessynge): Now that I've forked Ethernet3 'permanently' as
+    // Ethernet5500, think about how to fix the issues with stop.
     auto socket_number = sock_num();
     auto status = PlatformEthernet::SocketStatus(socket_number);
     TAS_VLOG(2) << TAS_FLASHSTR("TcpServerConnection::close, sock_num=")

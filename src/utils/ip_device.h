@@ -35,7 +35,7 @@ class IpDevice {
   bool InitializeNetworking(const OuiPrefix* oui_prefix = nullptr);
 
   // Ensures that the DHCP lease (if there is one) is maintained. Returns a
-  // DHCP_CHECK_* value; definitions in Ethernet3's Dhcp.h.
+  // DHCP_CHECK_* value; definitions in Ethernet5500's Dhcp.h.
   int MaintainDhcpLease();
 
   static void PrintNetworkAddresses();

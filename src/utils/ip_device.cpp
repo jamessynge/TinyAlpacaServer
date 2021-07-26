@@ -31,8 +31,8 @@ void Mega2560Eth::SetupW5500(uint8_t max_sock_num) {
   pinMode(kSDcardSelectPin, OUTPUT);
   digitalWrite(kSDcardSelectPin, HIGH);
 
-  // Configure Ethernet3's EthernetClass instance with the pins used to access
-  // the W5500.
+  // Configure Ethernet5500's EthernetClass instance with the pins used to
+  // access the WIZnet W5500.
   Ethernet.setRstPin(kW5500ResetPin);
   Ethernet.setCsPin(kW5500ChipSelectPin);
 

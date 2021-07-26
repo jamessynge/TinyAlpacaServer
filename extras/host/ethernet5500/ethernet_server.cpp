@@ -1,10 +1,10 @@
-#include "extras/host/ethernet3/ethernet_server.h"
+#include "extras/host/ethernet5500/ethernet_server.h"
 
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
-#include "extras/host/ethernet3/ethernet_class.h"
-#include "extras/host/ethernet3/host_sockets.h"
-#include "extras/host/ethernet3/w5500.h"
+#include "extras/host/ethernet5500/ethernet_class.h"
+#include "extras/host/ethernet5500/host_sockets.h"
+#include "extras/host/ethernet5500/w5500.h"
 #include "logging.h"
 
 EthernetServer::EthernetServer(uint16_t port) : port_(port) {}

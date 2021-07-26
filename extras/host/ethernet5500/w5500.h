@@ -1,7 +1,7 @@
-#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_W5500_H_
-#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_W5500_H_
+#ifndef TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_W5500_H_
+#define TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_W5500_H_
 
-// Some portions of Ethernet3/src/utility/w5500.h for the purpose of faking
+// Some portions of Ethernet5500/src/utility/w5500.h for the purpose of faking
 // the interface exposed by the Wiznet 5500 network chip.
 
 #include "extras/host/arduino/int_types.h"
@@ -71,4 +71,4 @@ class IPPROTO {
   static const uint8_t ND = 77;    // NOLINT
   static const uint8_t RAW = 255;  // NOLINT
 };
-#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET3_W5500_H_
+#endif  // TINY_ALPACA_SERVER_EXTRAS_HOST_ETHERNET5500_W5500_H_
