@@ -16,7 +16,6 @@
 #include "logging.h"
 
 namespace {
-constexpr char kHexDigits[] = "0123456789ABCDEF";
 
 template <typename T>
 size_t printIntegerWithBaseTo(T value, const int base, Print& out) {
@@ -48,6 +47,7 @@ size_t printIntegerWithBaseTo(T value, const int base, Print& out) {
   DCHECK_GT(strlen(p), 0) << "\nvalue=" << value << ", base=" << base;
   return out.write(p);
 }
+
 }  // namespace
 
 Printable::~Printable() {}

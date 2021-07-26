@@ -81,8 +81,8 @@ class ProgmemStringView {
   bool CopyTo(char* out, size_type size);
 
   // Support for iterating.
-  PGM_P begin() const { return ptr_; }
-  PGM_P end() const { return ptr_ + size_; }
+  constexpr PGM_P begin() const { return ptr_; }
+  constexpr PGM_P end() const { return ptr_ + size_; }
 
   // Returns the character the the specified position ([0..size_)) within the
   // string.
