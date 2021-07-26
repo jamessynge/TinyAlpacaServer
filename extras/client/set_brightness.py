@@ -17,12 +17,13 @@ def main(argv: Sequence[str]) -> None:
   device_number = int(argv[1])
   brightness = int(argv[2])
 
-  client = alpaca_http_client.AlpacaClient(
+  client = alpaca_http_client.AlpacaHttpClient(
       url_base,
       client_id=random.randint(0, 10),
       initial_client_transaction_id=random.randint(10, 20))
 
-  cover_calibrator = alpaca_http_client.CoverCalibrator(client, device_number)
+  cover_calibrator = alpaca_http_client.HttpCoverCalibrator(
+      client, device_number)
   response = cover_calibrator.put_calibratoron(brightness)
   print(response.content)
   client.session.close()

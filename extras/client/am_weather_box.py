@@ -10,24 +10,34 @@ import alpaca_http_client
 
 
 def main(argv: Sequence[str]) -> None:
-  if len(argv) != 2:
+  if not argv:
+    client = alpaca_http_client.AlpacaHttpClient.find_first_server(
+        client_id=random.randint(0, 10),
+        initial_client_transaction_id=random.randint(10, 20))
+    if not client:
+      print('Found no servers!', file=sys.stderr)
+      sys.exit(1)
+  else:
+    client = alpaca_http_client.AlpacaHttpClient(
+        argv.pop(0),
+        client_id=random.randint(0, 10),
+        initial_client_transaction_id=random.randint(10, 20))
+
+  if not argv:
+    device_number = 1
+  else:
+    device_number = int(argv.pop(0))
+
+  if argv:
     raise ValueError(
-        'Expects two args, the base of the URL and the device number')
-
-  url_base = argv[0]
-  device_number = int(argv[1])
-
-  client = alpaca_http_client.AlpacaClient(
-      url_base,
-      client_id=random.randint(0, 10),
-      initial_client_transaction_id=random.randint(10, 20))
+        'Expects at most two args, the base of the URL and the device number')
 
   try:
     print('get_apiversions', client.get_apiversions().text)
     print('get_description', client.get_description().text)
     print('get_configureddevices', client.get_configureddevices().text)
 
-    observing_conditions = alpaca_http_client.ObservingConditions(
+    observing_conditions = alpaca_http_client.HttpObservingConditions(
         client, device_number)
 
     while True:

@@ -4,8 +4,9 @@
 import enum
 import random
 import sys
-from typing import Dict, Optional, Sequence, Union
+from typing import Dict, Optional, Sequence, Union, Type, TypeVar
 
+import alpaca_discovery
 import install_advice
 
 try:
@@ -20,6 +21,8 @@ GET = 'GET'
 OPTIONS = 'OPTIONS'
 POST = 'POST'
 PUT = 'PUT'
+
+_T = TypeVar('_T')
 
 
 class EDeviceType(enum.Enum):
@@ -61,7 +64,7 @@ def int_value_or_default(name: str,
     return value
 
 
-class AlpacaClient(object):
+class AlpacaHttpClient(object):
   """Device independent Alpaca client, for communicating with one server."""
 
   def __init__(self,
@@ -77,6 +80,24 @@ class AlpacaClient(object):
         'initial_client_transaction_id', initial_client_transaction_id,
         random.randint(1, 1000000))
     self.session = requests.session()
+
+  @classmethod
+  def find_first_server(
+      cls: Type[_T],
+      max_discovery_time: float = 5.0,
+      client_id: Optional[int] = None,
+      initial_client_transaction_id: Optional[int] = None) -> Optional[_T]:
+    """Return a client for the first Alpaca server discovered, or None."""
+    print('Searching for Alpaca servers using the discovery protocol...')
+    dr = alpaca_discovery.find_first_server(max_wait_time=max_discovery_time)
+    if dr is None:
+      return None
+    url_base = f'http://{dr.addr}:{dr.get_port()}'
+    print('Found a server at {url_base}')
+    return cls(
+        url_base=url_base,
+        client_id=client_id,
+        initial_client_transaction_id=initial_client_transaction_id)
 
   def gen_standard_params(self, increment_transaction=True) -> Dict[str, str]:
     result = dict(
@@ -122,11 +143,11 @@ class AlpacaClient(object):
     return self.send(req)
 
 
-class DeviceBase(object):
+class HttpDeviceBase(object):
   """Base class of device type specific clients."""
 
   def __init__(self,
-               client: AlpacaClient,
+               client: AlpacaHttpClient,
                device_type: str,
                device_number: int,
                name: str = '',
@@ -202,10 +223,10 @@ class DeviceBase(object):
     return self._get('supportedactions')
 
 
-class CoverCalibrator(DeviceBase):
-  """Makes HTTP requests to a CoverCalibrator device."""
+class HttpCoverCalibrator(HttpDeviceBase):
+  """Makes CoverCalibrator HTTP requests, returns HTTP responses."""
 
-  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+  def __init__(self, client: AlpacaHttpClient, device_number: int, **kwargs):
     super().__init__(client, 'covercalibrator', device_number, **kwargs)
 
   def get_brightness(self) -> requests.Response:
@@ -236,10 +257,10 @@ class CoverCalibrator(DeviceBase):
     return self._put('opencover')
 
 
-class ObservingConditions(DeviceBase):
-  """Makes HTTP requests to an ObservingConditions device."""
+class HttpObservingConditions(HttpDeviceBase):
+  """Makes ObservingConditions HTTP requests, returns HTTP responses."""
 
-  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+  def __init__(self, client: AlpacaHttpClient, device_number: int, **kwargs):
     super().__init__(client, 'observingconditions', device_number, **kwargs)
 
   def get_averageperiod(self) -> requests.Response:
@@ -297,20 +318,20 @@ class ObservingConditions(DeviceBase):
     return self._put('refresh')
 
 
-class SafetyMonitor(DeviceBase):
-  """Makes HTTP requests to an SafetyMonitor device."""
+class HttpSafetyMonitor(HttpDeviceBase):
+  """Makes SafetyMonitor HTTP requests, returns HTTP responses."""
 
-  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+  def __init__(self, client: AlpacaHttpClient, device_number: int, **kwargs):
     super().__init__(client, 'safetymonitor', device_number, **kwargs)
 
   def get_issafe(self) -> requests.Response:
     return self._get('issafe')
 
 
-class Switch(DeviceBase):
-  """Makes HTTP requests to a Switch device."""
+class HttpSwitch(HttpDeviceBase):
+  """Makes Switch HTTP requests, returns HTTP responses."""
 
-  def __init__(self, client: AlpacaClient, device_number: int, **kwargs):
+  def __init__(self, client: AlpacaHttpClient, device_number: int, **kwargs):
     super().__init__(client, 'switch', device_number, **kwargs)
 
   def get_maxswitch(self) -> requests.Response:
@@ -352,14 +373,17 @@ class Switch(DeviceBase):
 
 
 def main(argv: Sequence[str]) -> None:
-  # mgmt_server = 'https://private-d6fe6-ascom.apiary-mock.com/ascom'
-  # device_api_server = 'https://virtserver.swaggerhub.com/ASCOMInitiative'
-  if len(argv) != 1:
-    raise ValueError('Expects one arg, the base of the URL')
+  if not argv:
+    client = AlpacaHttpClient.find_first_server()
+    if not client:
+      print('Found no servers!', file=sys.stderr)
+      sys.exit(1)
+  else:
+    if len(argv) != 1:
+      raise ValueError('Expects one arg, the base of the URL')
+    url_base = argv[0]
+    client = AlpacaHttpClient(url_base)
 
-  url_base = argv[0]
-
-  client = AlpacaClient(url_base)
   print('get_apiversions', client.get_apiversions())
   print('get_description', client.get_description())
   print('get_configureddevices', client.get_configureddevices())

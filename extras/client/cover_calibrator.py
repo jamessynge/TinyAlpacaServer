@@ -4,7 +4,7 @@
 import datetime
 import random
 import sys
-from typing import Iterable, List, Sequence
+from typing import Iterable, List
 
 import alpaca_http_client
 
@@ -12,36 +12,38 @@ MOVING_SLEEP_TIME = 1
 
 
 def get_cover_state(
-    cover_calibrator: alpaca_http_client.CoverCalibrator) -> int:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> int:
   resp = cover_calibrator.get_coverstate()
   return resp.json()['Value']
 
 
-def is_present(cover_calibrator: alpaca_http_client.CoverCalibrator) -> bool:
+def is_present(
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
   return get_cover_state(cover_calibrator) in (1, 2, 3, 4)
 
 
-def is_closed(cover_calibrator: alpaca_http_client.CoverCalibrator) -> bool:
+def is_closed(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
   return get_cover_state(cover_calibrator) == 1
 
 
-def is_moving(cover_calibrator: alpaca_http_client.CoverCalibrator) -> bool:
+def is_moving(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
   return get_cover_state(cover_calibrator) == 2
 
 
-def is_open(cover_calibrator: alpaca_http_client.CoverCalibrator) -> bool:
+def is_open(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
   return get_cover_state(cover_calibrator) == 3
 
 
 def get_cover_state_after_moving(
-    cover_calibrator: alpaca_http_client.CoverCalibrator) -> int:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> int:
   while True:
     state = get_cover_state(cover_calibrator)
     if state != 2:
       return state
 
 
-def close_cover(cover_calibrator: alpaca_http_client.CoverCalibrator) -> None:
+def close_cover(
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> None:
   """Close the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
@@ -58,7 +60,8 @@ def close_cover(cover_calibrator: alpaca_http_client.CoverCalibrator) -> None:
     print('Failed to close, cover state is', state)
 
 
-def open_cover(cover_calibrator: alpaca_http_client.CoverCalibrator) -> None:
+def open_cover(
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> None:
   """Open the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
@@ -75,7 +78,7 @@ def open_cover(cover_calibrator: alpaca_http_client.CoverCalibrator) -> None:
     print('Failed to open, cover state is', state)
 
 
-def sweep_brightness(cover_calibrator: alpaca_http_client.CoverCalibrator,
+def sweep_brightness(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
                      brightnesses: List[int]) -> None:
   """Set the brightness to each brightness, then reverse order, then turn off.
 
@@ -101,30 +104,43 @@ def sweep_brightness(cover_calibrator: alpaca_http_client.CoverCalibrator,
   print('Request duration', elapsed / (1 + 2 * len(brightnesses)))
 
 
-def sweep_led_channel(led_switches: alpaca_http_client.Switch, led_channel: int,
-                      cover_calibrator: alpaca_http_client.CoverCalibrator,
+def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
+                      led_channel: int,
+                      cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
                       brightnesses: Iterable[int]) -> None:
   for n in range(4):
     led_switches.put_setswitch(n, led_channel == n)
   sweep_brightness(cover_calibrator, list(brightnesses))
 
 
-def main(argv: Sequence[str]) -> None:
-  if len(argv) != 2:
-    raise ValueError(
-        'Expects two args, the base of the URL and the device number')
+def main(argv: List[str]) -> None:
+  if not argv:
+    client = alpaca_http_client.AlpacaHttpClient.find_first_server(
+        client_id=random.randint(0, 10),
+        initial_client_transaction_id=random.randint(10, 20))
+    if not client:
+      print('Found no servers!', file=sys.stderr)
+      sys.exit(1)
+  else:
+    client = alpaca_http_client.AlpacaHttpClient(
+        argv.pop(0),
+        client_id=random.randint(0, 10),
+        initial_client_transaction_id=random.randint(10, 20))
 
-  url_base = argv[0]
-  device_number = int(argv[1])
+  if not argv:
+    calibrator_device_number = 1
+  else:
+    calibrator_device_number = int(argv.pop(0))
 
-  client = alpaca_http_client.AlpacaClient(
-      url_base,
-      client_id=random.randint(0, 10),
-      initial_client_transaction_id=random.randint(10, 20))
+  if not argv:
+    switch_device_number = calibrator_device_number
+  else:
+    switch_device_number = int(argv.pop(0))
 
   try:
-    cover_calibrator = alpaca_http_client.CoverCalibrator(client, device_number)
-    led_switches = alpaca_http_client.Switch(client, device_number)
+    cover_calibrator = alpaca_http_client.HttpCoverCalibrator(
+        client, calibrator_device_number)
+    led_switches = alpaca_http_client.HttpSwitch(client, switch_device_number)
 
     while True:
       print('get_apiversions', client.get_apiversions())

@@ -16,7 +16,7 @@ def main(argv: List[str]) -> None:
   url_base = argv[0]
   request_count = int(argv[1]) if len(argv) > 1 else 100
 
-  client = alpaca_http_client.AlpacaClient(
+  client = alpaca_http_client.AlpacaHttpClient(
       url_base,
       client_id=random.randint(0, 10),
       initial_client_transaction_id=1)

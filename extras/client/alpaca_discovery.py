@@ -6,6 +6,9 @@ sending the UDP discovery message.
 
 Note that I've chosen to omit support for IPv6 because I don't need it for
 testing Tiny Alpaca Server.
+
+TODO(jamessynge): Figure out why the discovery threads seem to end before the
+maximum wait time specified.
 """
 
 import dataclasses
@@ -13,9 +16,10 @@ import json
 import pprint
 import queue
 import socket
+import sys
 import threading
 import time
-from typing import Callable, Dict, Generator, List
+from typing import Callable, Dict, Generator, List, Optional
 
 import install_advice
 
@@ -60,7 +64,7 @@ class DiscoverySource:
     try:
       sock.bind((self.src_address, 0))  # listen to any on a temporary port
     except:
-      print('failure to bind')
+      print(f'failure to bind {self}', file=sys.stderr, flush=True)
       sock.close()
       raise
     # sock.setblocking(0)
@@ -68,7 +72,7 @@ class DiscoverySource:
 
   def send_discovery_packet(self, sock: socket.socket):
     action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
-    print('%s from %s to %s' % (action, self.src_address, self.dst_address))
+    print(f'{action} from {self.src_address} to {self.dst_address}', flush=True)
     sock.sendto(
         DISCOVERY_REQUEST_BODY.encode(encoding='ascii'),
         (self.dst_address, ALPACA_DISCOVERY_PORT))
@@ -158,8 +162,7 @@ class Discoverer(object):
     """Yields DiscoveryResponses after sending from the source address."""
     sock = self.source.create_bound_udp_socket()
     q = queue.Queue(maxsize=1000)
-    kw = dict(sock=sock, max_wait_time=max_wait_time, response_queue=q)
-    t = threading.Thread(target=receiver, kwargs=kw)
+    t = threading.Thread(target=receiver, args=(sock, max_wait_time, q))
     t.start()
     iota = max(0.001, min(0.05, max_wait_time / 100.0))
     time.sleep(iota)
@@ -178,14 +181,18 @@ class Discoverer(object):
       data_bytes, addr = q.get(block=False)
       yield DiscoveryResponse(
           source=self.source, data_bytes=data_bytes, addr=addr)
-    print(f'Collected {count} responses for source {self.source.get_name()}')
+    print(
+        f'Collected {count} responses for source {self.source.get_name()}',
+        flush=True)
 
 
-def perform_discovery(sources: List[DiscoverySource],
-                      discovery_response_handler: Callable[[DiscoveryResponse],
+def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
+                      sources: Optional[List[DiscoverySource]] = None,
                       max_wait_time: float = 5.0):
   """Sends a discovery packet from all sources, passes results to handler."""
+  if sources is None:
+    sources = list(generate_discovery_sources())
   discoverers = [Discoverer(source) for source in sources]
   q = queue.Queue(maxsize=1000)
   threads = [
@@ -193,26 +200,37 @@ def perform_discovery(sources: List[DiscoverySource],
       for d in discoverers
   ]
   while threads:
-    alive_threads = []
-    for t in threads:
-      if t.is_alive():
-        alive_threads.append(t)
-      else:
-        print('Thread %r is done' % t.name)
-        t.join()
-    threads = alive_threads
+    if not threads[0].is_alive():
+      t = threads.pop(0)
+      print('Thread %r is done' % t.name, flush=True)
+      t.join()
     while not q.empty():
       dr = q.get(block=False)
       discovery_response_handler(dr)
+    time.sleep(0.01)
+
+
+def find_first_server(
+    max_wait_time: float = 5.0) -> Optional[DiscoveryResponse]:
+  """Return the first server to respond within max_wait_time, else None."""
+  result = None
+
+  def discovery_response_handler(dr: DiscoveryResponse) -> None:
+    nonlocal result
+    if result is not None:
+      return
+    result = dr
+
+  perform_discovery(discovery_response_handler, max_wait_time=max_wait_time)
+  return result
 
 
 def main():
-  sources = list(generate_discovery_sources())
 
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
     pprint.pprint(dr)
 
-  perform_discovery(sources, discovery_response_handler)
+  perform_discovery(discovery_response_handler)
 
 
 if __name__ == '__main__':
