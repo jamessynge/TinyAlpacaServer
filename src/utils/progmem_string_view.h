@@ -1,13 +1,18 @@
 #ifndef TINY_ALPACA_SERVER_SRC_UTILS_PROGMEM_STRING_VIEW_H_
 #define TINY_ALPACA_SERVER_SRC_UTILS_PROGMEM_STRING_VIEW_H_
 
-// ProgmemStringView is like StringView, but for a string stored in PROGMEM
-// rather than in RAM. This avoids the need to copy it into RAM, saving lots of
-// RAM vs. strings that aren't (somehow) annotated for storage only in PROGMEM.
-// This is motivated by the Harvard Architecture of the AVR chips used in
-// Arduinos, where program and data memory (i.e. PROGMEM and RAM) are in
-// separate address spaces. Thus we can't directly access strings stored in
-// PROGMEM.
+// ProgmemStringView is like StringView, but for a view of a string stored in
+// program memory (aka PROGMEM), rather than in read-write memory (aka RAM). On
+// microcontrollers, this typically means flash memory.
+//
+// But why do we need a separate type for a view on a read-only string? Because
+// AVR microcontrollers have multiple address spaces, meaning that we can't tell
+// from the value of an address whether it is in RAM or Flash, or EEPROM for
+// that matter; we need to know also which space it is in. This multiple address
+// spaces design is known as Harvard Architecture.
+//
+// So, ProgmemStringView has support for using alternate instructions (via AVR
+// Libc's progmem library) to access tye characters in a string.
 //
 // NOTE: So far I've written this using PGM_P pointers, which, IIUC, are limited
 // to the first 64KB of flash. I don't know what guarantees there are about the
