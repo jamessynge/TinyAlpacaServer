@@ -43,24 +43,16 @@
 
 using ::alpaca::DeviceInterface;
 
-// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-// TODO(jamessynge): Add support for storing much of this in EEPROM or on an
-// SD Card.
-TAS_DEFINE_LITERAL(ServerName,
-                   "Our Spiffy Weather Box, based on Tiny Alpaca Server");
-TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
-TAS_DEFINE_LITERAL(ManufacturerVersion,
-                   "9099c8af5796a80137ce334713a67a718fd0cd3f");
-TAS_DEFINE_LITERAL(DeviceLocation, "Mittleman Observatory, Westford, MA");
-
 // For responding to /management/v1/description.
 // Note that this is using C++ 20's designated initializers, which shouldn't be
 // available for Arduino, which claims to use C++ 11, but it works.
-constexpr alpaca::ServerDescription kServerDescription{
-    .server_name = ServerName(),
-    .manufacturer = Manufacturer(),
-    .manufacturer_version = ManufacturerVersion(),
-    .location = DeviceLocation(),
+const alpaca::ServerDescription kServerDescription{
+    .server_name =
+        TAS_FLASHSTR("Our Spiffy Weather Box, based on Tiny Alpaca Server"),
+    .manufacturer = TAS_FLASHSTR("Friends of AAVSO & ATMoB"),
+    .manufacturer_version =
+        TAS_FLASHSTR("9099c8af5796a80137ce334713a67a718fd0cd3f"),
+    .location = TAS_FLASHSTR("Mittleman Observatory, Westford, MA"),
 };
 
 static Dht22Handler dht_handler;  // NOLINT

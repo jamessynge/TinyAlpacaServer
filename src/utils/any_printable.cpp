@@ -11,6 +11,10 @@ AnyPrintable::AnyPrintable(Literal value)
 AnyPrintable::AnyPrintable(StringView value)
     : type_(AnyPrintable::kStringView), view_(value) {}
 
+AnyPrintable::AnyPrintable(ProgmemString value)
+    : type_(AnyPrintable::kFlashStringHelper),
+      flash_string_helper_(value.ToFlashStringHelper()) {}
+
 AnyPrintable::AnyPrintable(ProgmemStringView value)
     : type_(AnyPrintable::kProgmemStringView), psv_(value) {}
 

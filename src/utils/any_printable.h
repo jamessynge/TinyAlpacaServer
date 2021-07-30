@@ -14,6 +14,7 @@
 
 #include "utils/literal.h"
 #include "utils/platform.h"
+#include "utils/progmem_string.h"
 #include "utils/progmem_string_view.h"
 #include "utils/string_view.h"
 
@@ -39,6 +40,7 @@ class AnyPrintable : public Printable {
   // AnyPrintable.
   AnyPrintable(Literal value);                     // NOLINT
   AnyPrintable(StringView value);                  // NOLINT
+  AnyPrintable(ProgmemString value);               // NOLINT
   AnyPrintable(ProgmemStringView value);           // NOLINT
   AnyPrintable(const __FlashStringHelper* value);  // NOLINT
   // To avoid implicit conversions of values that aren't (weren't) necessarily

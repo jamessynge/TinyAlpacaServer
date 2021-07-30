@@ -6,7 +6,7 @@
 
 #include "absl/strings/string_view.h"
 
-uint8_t pgm_read_byte(const uint8_t* ptr) { return *ptr; }
+uint8_t pgm_read_byte_near(const uint8_t* ptr) { return *ptr; }
 
 uint32_t pgm_read_dword_far(const uint32_t* ptr) { return *ptr; }
 

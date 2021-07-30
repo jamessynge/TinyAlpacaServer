@@ -56,10 +56,13 @@ constexpr int kServerTransactionId = 54981;
 #define kManufacturerVersion "0.0.0"
 #define kDeviceLocation "No Where"
 
-TAS_DEFINE_LITERAL(ServerName, kServerName);
-TAS_DEFINE_LITERAL(Manufacturer, kManufacturer);
-TAS_DEFINE_LITERAL(ManufacturerVersion, kManufacturerVersion);
-TAS_DEFINE_LITERAL(DeviceLocation, kDeviceLocation);
+const ServerDescription kServerDescription  // NOLINT
+    {
+        .server_name = TAS_FLASHSTR(kServerName),
+        .manufacturer = TAS_FLASHSTR(kManufacturer),
+        .manufacturer_version = TAS_FLASHSTR(kManufacturerVersion),
+        .location = TAS_FLASHSTR(kDeviceLocation),
+    };
 
 class TinyAlpacaServerBaseExplicitLifecycleTest
     : public DecodeAndDispatchTestBase {
@@ -68,15 +71,15 @@ class TinyAlpacaServerBaseExplicitLifecycleTest
     // NOT calling base class.
   }
 
+  const ServerDescription& GetServerDescription() override {
+    return kServerDescription;
+  }
+
   ArrayView<DeviceInterface*> GetDeviceInterfaces() override { return {}; }
   std::string_view GetDeviceTypeName() override { return ""; }
 };
 
 TEST_F(TinyAlpacaServerBaseExplicitLifecycleTest, CreateInitializeAndMaintain) {
-  server_description_.server_name = ServerName();
-  server_description_.manufacturer = Manufacturer();
-  server_description_.manufacturer_version = ManufacturerVersion();
-  server_description_.location = DeviceLocation();
   server_ = CreateServer();
   EXPECT_TRUE(server_->Initialize());
   server_->MaintainDevices();

@@ -5,13 +5,6 @@
 
 #include "am_weather_box.h"
 
-// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-TAS_DEFINE_LITERAL(
-    ServerName, "AstroMakers Weather Box Server, based on Tiny Alpaca Server");
-TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
-TAS_DEFINE_LITERAL(ManufacturerVersion, "0.1");
-TAS_DEFINE_LITERAL(DeviceLocation, "Earth Bound");
-
 namespace astro_makers {
 namespace {
 using ::alpaca::DeviceInfo;
@@ -21,33 +14,29 @@ using ::alpaca::LiteralArray;
 // No extra actions.
 const auto kSupportedActions = LiteralArray();
 
-TAS_DEFINE_LITERAL(GithubRepoLink,
-                   "https://github/jamessynge/TinyAlpacaServer");
-TAS_DEFINE_LITERAL(DriverVersion, "0.1");
-
-TAS_DEFINE_LITERAL(WeatherBoxName, "AM_WeatherBox");
-TAS_DEFINE_LITERAL(WeatherBoxDescription, "AstroMakers Weather Box");
-TAS_DEFINE_LITERAL(WeatherBoxUniqueId, "7bc0548a-fbc7-4e77-8f66-a0a21854ff48");
-
 const DeviceInfo kAMWeatherBoxDeviceInfo{
     .device_type = EDeviceType::kObservingConditions,
     .device_number = 1,
-    .name = WeatherBoxName(),
-    .unique_id = WeatherBoxUniqueId(),
-    .description = WeatherBoxDescription(),
-    .driver_info = GithubRepoLink(),
-    .driver_version = DriverVersion(),
+    .name = TAS_FLASHSTR("AM_WeatherBox"),
+    // TODO(jamessynge): Replace this UUID with a value that feeds into a UUID
+    // generator, along with the MAC address, and EDeviceType of the device.
+    .unique_id = TAS_FLASHSTR("7bc0548a-fbc7-4e77-8f66-a0a21854ff48"),
+    .description = TAS_FLASHSTR("AstroMakers Weather Box"),
+    .driver_info = TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+    .driver_version = TAS_FLASHSTR("0.1"),
     .supported_actions = kSupportedActions,
     .interface_version = 1,
 };
 
 AMWeatherBox weather_box(kAMWeatherBoxDeviceInfo);  // NOLINT
 
-constexpr alpaca::ServerDescription kServerDescription{
-    .server_name = ServerName(),
-    .manufacturer = Manufacturer(),
-    .manufacturer_version = ManufacturerVersion(),
-    .location = DeviceLocation(),
+// For responding to /management/v1/description
+const alpaca::ServerDescription kServerDescription{
+    .server_name = TAS_FLASHSTR(
+        "AstroMakers Weather Box Server, based on Tiny Alpaca Server"),
+    .manufacturer = TAS_FLASHSTR("Friends of AAVSO & ATMoB"),
+    .manufacturer_version = TAS_FLASHSTR("0.1"),
+    .location = TAS_FLASHSTR("Earth Bound"),
 };
 
 alpaca::DeviceInterface* kDevices[] = {&weather_box};
@@ -66,7 +55,7 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
-  alpaca::LogSink() << ServerName();
+  alpaca::LogSink() << kServerDescription.server_name;
   alpaca::LogSink() << TAS_FLASHSTR("Initializing networking");
   alpaca::Mega2560Eth::SetupW5500();
 

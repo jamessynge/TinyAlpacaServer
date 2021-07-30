@@ -9,6 +9,8 @@
 #include "utils/any_printable.h"
 #include "utils/array_view.h"
 #include "utils/platform.h"
+#include "utils/progmem_string.h"
+#include "utils/progmem_string_view.h"
 
 namespace alpaca {
 

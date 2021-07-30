@@ -24,6 +24,7 @@ cc_library(
     deps = [
         ":literal",
         ":platform",
+        ":progmem_string",
         ":progmem_string_view",
         ":string_view",
     ],
@@ -147,6 +148,8 @@ cc_library(
         ":literal",
         ":o_print_stream",
         ":platform",
+        ":progmem_string",
+        ":progmem_string_view",
     ],
 )
 
@@ -169,6 +172,7 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
+        ":progmem_string",
         ":progmem_string_view",
         "//src/utils/traits:print_to_trait",
     ],
@@ -265,6 +269,18 @@ cc_library(
         ":any_printable",
         ":array",
         ":array_view",
+        ":platform",
+    ],
+)
+
+cc_library(
+    name = "progmem_string",
+    srcs = [
+        "progmem_string.cc",
+    ],
+    hdrs = ["progmem_string.h"],
+    deps = [
+        ":inline_literal",
         ":platform",
     ],
 )

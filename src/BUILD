@@ -187,6 +187,7 @@ cc_library(
         "//src/utils:json_encoder",
         "//src/utils:literal",
         "//src/utils:platform",
+        "//src/utils:progmem_string",
         "//src/utils:string_view",
     ],
 )
@@ -338,8 +339,8 @@ cc_library(
     deps = [
         ":literals",
         "//src/utils:json_encoder",
-        "//src/utils:literal",
         "//src/utils:platform",
+        "//src/utils:progmem_string",
         "//src/utils:string_view",
     ],
 )

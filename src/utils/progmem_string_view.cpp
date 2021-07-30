@@ -8,8 +8,8 @@
 namespace alpaca {
 namespace {
 // Returns the char at the specified location in PROGMEM.
-inline char pgm_read_char(PGM_P ptr) {
-  auto byte = pgm_read_byte(reinterpret_cast<const uint8_t*>(ptr));
+inline char pgm_read_char_near(PGM_P ptr) {
+  auto byte = pgm_read_byte_near(reinterpret_cast<const uint8_t*>(ptr));
   return static_cast<char>(byte);
 }
 }  // namespace
@@ -107,7 +107,7 @@ bool ProgmemStringView::CopyTo(char* out, size_type size) {
 }
 
 char ProgmemStringView::at(size_type pos) const {
-  return pgm_read_char(ptr_ + pos);
+  return pgm_read_char_near(ptr_ + pos);
 }
 
 }  // namespace alpaca

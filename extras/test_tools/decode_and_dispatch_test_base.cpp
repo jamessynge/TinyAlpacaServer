@@ -25,10 +25,13 @@ constexpr char kServerTransactionIDName[] = "ServerTransactionID";
 constexpr char kErrorNumberName[] = "ErrorNumber";
 constexpr char kErrorMessageName[] = "ErrorMessage";
 
-TAS_DEFINE_LITERAL(ServerName, "OurServer");
-TAS_DEFINE_LITERAL(Manufacturer, "Us");
-TAS_DEFINE_LITERAL(ManufacturerVersion, "0.0.1");
-TAS_DEFINE_LITERAL(DeviceLocation, "Right Here");
+const ServerDescription kServerDescription  // NOLINT
+    {
+        .server_name = TAS_FLASHSTR("OurServer"),
+        .manufacturer = TAS_FLASHSTR("Us"),
+        .manufacturer_version = TAS_FLASHSTR("0.0.1"),
+        .location = TAS_FLASHSTR("Right Here"),
+    };
 
 #define RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(json_value, json_type)             \
   if ((json_value.type()) == (json_type))                                      \
@@ -49,7 +52,6 @@ void DecodeAndDispatchTestBase::AddDeviceInterface(
 }
 
 void DecodeAndDispatchTestBase::SetUp() {
-  FillServerDescription(server_description_);
   server_ = CreateServer();
   if (InitializeServerAutomatically()) {
     EXPECT_TRUE(server_->Initialize());
@@ -57,17 +59,13 @@ void DecodeAndDispatchTestBase::SetUp() {
   }
 }
 
-void DecodeAndDispatchTestBase::FillServerDescription(
-    ServerDescription& description) {
-  description.server_name = ServerName();
-  description.manufacturer = Manufacturer();
-  description.manufacturer_version = ManufacturerVersion();
-  description.location = DeviceLocation();
+const ServerDescription& DecodeAndDispatchTestBase::GetServerDescription() {
+  return kServerDescription;
 }
 
 std::unique_ptr<TestTinyAlpacaServer>
 DecodeAndDispatchTestBase::CreateServer() {
-  return std::make_unique<TestTinyAlpacaServer>(server_description_,
+  return std::make_unique<TestTinyAlpacaServer>(GetServerDescription(),
                                                 GetDeviceInterfaces());
 }
 

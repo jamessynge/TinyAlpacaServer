@@ -6,18 +6,17 @@
 #include "utils/json_encoder_helpers.h"
 #include "utils/literal.h"
 
-// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-TAS_DEFINE_LITERAL(ServerName, "HAL 9000");
-TAS_DEFINE_LITERAL(Manufacturer, "HAL Laboratories, Urbana, Illinois");
-TAS_DEFINE_LITERAL(ManufacturerVersion, "9000.0");
-TAS_DEFINE_LITERAL(DeviceLocation, "Jupiter Orbit");
+#define kServerName "HAL 9000"
+#define kManufacturer "HAL Laboratories, Urbana, Illinois"
+#define kManufacturerVersion "9000.0"
+#define kDeviceLocation "Jupiter Orbit"
 
 // For responding to /management/v1/description
-constexpr alpaca::ServerDescription kServerDescription{
-    .server_name = ServerName(),
-    .manufacturer = Manufacturer(),
-    .manufacturer_version = ManufacturerVersion(),
-    .location = DeviceLocation(),
+const alpaca::ServerDescription kServerDescription{
+    .server_name = TAS_FLASHSTR(kServerName),
+    .manufacturer = TAS_FLASHSTR(kManufacturer),
+    .manufacturer_version = TAS_FLASHSTR(kManufacturerVersion),
+    .location = TAS_FLASHSTR(kDeviceLocation),
 };
 
 namespace alpaca {

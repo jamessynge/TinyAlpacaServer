@@ -60,8 +60,8 @@ class DecodeAndDispatchTestBase : public testing::Test {
   // instance.
   void SetUp() override;
 
-  // Fills the provided description.
-  virtual void FillServerDescription(ServerDescription& description);
+  // Get the description of the server.
+  virtual const ServerDescription& GetServerDescription();
 
   // Creates the test server; calls GetDeviceInterfaces to get the set of
   // supported devices.
@@ -158,7 +158,6 @@ class DecodeAndDispatchTestBase : public testing::Test {
   absl::StatusOr<std::vector<int64_t>> ValidateIntArrayResponse(
       const HttpRequest& request, const std::string& response_string);
 
-  ServerDescription server_description_;
   std::unique_ptr<TestTinyAlpacaServer> server_;
   uint32_t last_server_transaction_id_ = 0;
   int last_client_transaction_id_ = 0;

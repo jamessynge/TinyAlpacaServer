@@ -9,24 +9,19 @@ using ::alpaca::StatusOr;
 // Just one simple device, used to report Observing Conditions.
 static Dht22Device dht22;
 
-// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-TAS_DEFINE_LITERAL(DHT22Name, "DHT22");
-TAS_DEFINE_LITERAL(DHT22Description, "DHT22 Humidity and Temperature Sensor");
-TAS_DEFINE_LITERAL(DHT22DriverInfo, "https://github/aavso/...");
-TAS_DEFINE_LITERAL(DHT22DriverVersion, "0.1");
-TAS_DEFINE_LITERAL(DHT22UniqueId, "1c702f50-8987-4baa-926b-a2f13f389d2d");
-
 // No extra actions.
 const auto kSupportedActions = alpaca::LiteralArray({});
+
+#define DEVICE_DESCRIPTION "DHT22 Humidity and Temperature Sensor"
 
 const alpaca::DeviceInfo kDht22DeviceInfo{
     .device_type = alpaca::EDeviceType::kObservingConditions,
     .device_number = 1,
-    .name = DHT22Name(),
-    .unique_id = DHT22UniqueId(),
-    .description = DHT22Description(),
-    .driver_info = DHT22DriverInfo(),
-    .driver_version = DHT22DriverVersion(),
+    .name = TAS_FLASHSTR("DHT22"),
+    .unique_id = TAS_FLASHSTR("0.1"),
+    .description = TAS_FLASHSTR(DEVICE_DESCRIPTION),
+    .driver_info = TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+    .driver_version = TAS_FLASHSTR("0.1"),
     .supported_actions = kSupportedActions,
     .interface_version = 1,
 };
@@ -49,7 +44,7 @@ StatusOr<Literal> Dht22Handler::GetSensorDescription(
     alpaca::ESensorName sensor_name) {
   if (sensor_name == alpaca::ESensorName::kHumidity ||
       sensor_name == alpaca::ESensorName::kTemperature) {
-    return DHT22Description();
+    return Literal(TASLIT(DEVICE_DESCRIPTION));
   }
   return alpaca::ErrorCodes::InvalidValue();
 }

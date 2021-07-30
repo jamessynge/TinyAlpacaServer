@@ -128,7 +128,7 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
   // says we should return Bad Request rather than Not Found or another such
   // error for an understandable Alpaca path which is for a non-existent device.
   return WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpBadRequest,
-                                          TASLIT("Unknown device"), out);
+                                          TAS_FLASHSTR("Unknown device"), out);
 }
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,

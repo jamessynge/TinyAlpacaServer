@@ -13,6 +13,7 @@
 #include "utils/json_encoder.h"
 #include "utils/literal.h"
 #include "utils/platform.h"
+#include "utils/progmem_string.h"
 #include "utils/string_view.h"
 
 namespace alpaca {
@@ -37,26 +38,26 @@ struct DeviceInfo {
   // A short name for this device that a user would expect to see in a list of
   // available devices. Returned in the ConfiguredDevicesResponse and in the
   // response to the /name method of the device API.
-  Literal name;
+  ProgmemString name;
 
   // A string representation of a random value that uniquely identifies this
   // ASCOM device; the random value should have a minimum of 48bits of
   // randomness. Where possible a UUID / GUID should be used, but this is not
   // mandatory. Returned in the ConfiguredDevicesResponse.
-  Literal unique_id;
+  ProgmemString unique_id;
 
   // The description of the device. Returned in response to the /description
   // method of the device API.
-  Literal description;
+  ProgmemString description;
 
   // The description of the device driver. Returned in response to the
   // /driverinfo method of the device API.
-  Literal driver_info;
+  ProgmemString driver_info;
 
   // The driver version (a string containing only the major and minor version of
   // the driver). Returned in response to the /driverversion method of the
   // device API.
-  Literal driver_version;
+  ProgmemString driver_version;
 
   // The list of device-specific action names that the device supports. This is
   // returned in the response to the /supportedactions method of the device API.

@@ -15,6 +15,7 @@
 // Author: james.synge@gmail.com
 
 #include "utils/platform.h"
+#include "utils/progmem_string.h"
 #include "utils/progmem_string_view.h"
 
 namespace alpaca {

@@ -81,11 +81,11 @@ class SwitchGroupTest : public testing::Test {
   const alpaca::DeviceInfo device_info_{
       .device_type = alpaca::EDeviceType::kSwitch,
       .device_number = kDeviceNumber,
-      .name = TASLIT("Switch Name"),
-      .unique_id = TASLIT("Switch Unique Id"),
-      .description = TASLIT("Switch Description"),
-      .driver_info = TASLIT("Switch Driver Info"),
-      .driver_version = TASLIT("Switch Driver Version"),
+      .name = TAS_FLASHSTR("Switch Name"),
+      .unique_id = TAS_FLASHSTR("Switch Unique Id"),
+      .description = TAS_FLASHSTR("Switch Description"),
+      .driver_info = TAS_FLASHSTR("Switch Driver Info"),
+      .driver_version = TAS_FLASHSTR("Switch Driver Version"),
       .supported_actions = {},
       .interface_version = 1,
   };

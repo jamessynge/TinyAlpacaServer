@@ -7,8 +7,8 @@
 // Author: james.synge@gmail.com
 
 #include "utils/json_encoder.h"
-#include "utils/literal.h"
 #include "utils/platform.h"
+#include "utils/progmem_string.h"
 #include "utils/string_view.h"
 
 namespace alpaca {
@@ -24,16 +24,16 @@ struct ServerDescription {
   void AddTo(JsonObjectEncoder& object_encoder) const;
 
   // The device or server's overall name.
-  Literal server_name;
+  ProgmemString server_name;
 
   // The manufacturer's name.
-  Literal manufacturer;
+  ProgmemString manufacturer;
 
   // The device or server's version number.
-  Literal manufacturer_version;
+  ProgmemString manufacturer_version;
 
   // The device or server's location.
-  Literal location;
+  ProgmemString location;
 
 #if 0
   // TODO(jamessynge): Implement support for recording the server's physical

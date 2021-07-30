@@ -7,7 +7,7 @@ namespace alpaca {
 namespace {
 // Returns the char at the specified location in PROGMEM.
 inline char pgm_read_char(PGM_P ptr) {
-  auto byte = pgm_read_byte(reinterpret_cast<const uint8_t*>(ptr));
+  auto byte = pgm_read_byte_near(reinterpret_cast<const uint8_t*>(ptr));
   return static_cast<char>(byte);
 }
 }  // namespace

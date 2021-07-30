@@ -7,12 +7,11 @@
 #include "led_channel_switch_group.h"
 
 // Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-TAS_DEFINE_LITERAL(
-    ServerName,
-    "AstroMakers Cover Calibrator Server, based on Tiny Alpaca Server");
-TAS_DEFINE_LITERAL(Manufacturer, "Friends of AAVSO & ATMoB");
-TAS_DEFINE_LITERAL(ManufacturerVersion, "0.1");
-TAS_DEFINE_LITERAL(DeviceLocation, "Earth Bound");
+#define kServerName \
+  "AstroMakers Cover Calibrator Server, based on Tiny Alpaca Server"
+#define kManufacturer "Friends of AAVSO & ATMoB"
+#define kManufacturerVersion "0.1"
+#define kDeviceLocation "Earth Bound"
 
 namespace astro_makers {
 namespace {
@@ -23,54 +22,47 @@ using ::alpaca::LiteralArray;
 // No extra actions.
 const auto kSupportedActions = LiteralArray();
 
-TAS_DEFINE_LITERAL(GithubRepoLink,
-                   "https://github/jamessynge/TinyAlpacaServer");
-TAS_DEFINE_LITERAL(DriverVersion, "0.1");
-
-TAS_DEFINE_LITERAL(CovCalName, "Cover-Calibrator");
-TAS_DEFINE_LITERAL(CovCalDescription, "AstroMakers Cover Calibrator");
-TAS_DEFINE_LITERAL(CovCalUniqueId, "856cac35-7685-4a70-9bbf-be2b00f80af5");
-
-const DeviceInfo kCoverCalibratorDeviceInfo{
-    .device_type = EDeviceType::kCoverCalibrator,
-    .device_number = 1,
-    .name = CovCalName(),
-    .unique_id = CovCalUniqueId(),
-    .description = CovCalDescription(),
-    .driver_info = GithubRepoLink(),
-    .driver_version = DriverVersion(),
-    .supported_actions = kSupportedActions,
-    .interface_version = 1,
-};
+const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
+    {
+        .device_type = EDeviceType::kCoverCalibrator,
+        .device_number = 1,
+        .name = TAS_FLASHSTR("Cover-Calibrator"),
+        .unique_id = TAS_FLASHSTR("856cac35-7685-4a70-9bbf-be2b00f80af5"),
+        .description = TAS_FLASHSTR("AstroMakers Cover Calibrator"),
+        .driver_info =
+            TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+        .driver_version = TAS_FLASHSTR("0.1"),
+        .supported_actions = kSupportedActions,
+        .interface_version = 1,
+    };
 
 CoverCalibrator cover_calibrator(kCoverCalibratorDeviceInfo);  // NOLINT
 
-TAS_DEFINE_LITERAL(LedSwitchesName, "Cover-Calibrator LED Channel Switches");
-TAS_DEFINE_LITERAL(LedSwitchesDescription,
-                   "AstroMakers Cover Calibrator Extension");
-TAS_DEFINE_LITERAL(LedSwitchesUniqueId, "491c450a-0d1d-4f2b-9d28-5878e968e9df");
-
-const DeviceInfo kLedSwitchesDeviceInfo{
-    .device_type = EDeviceType::kSwitch,
-    .device_number = 1,
-    .name = LedSwitchesName(),
-    .unique_id = LedSwitchesUniqueId(),
-    .description = LedSwitchesDescription(),
-    .driver_info = GithubRepoLink(),
-    .driver_version = DriverVersion(),
-    .supported_actions = kSupportedActions,
-    .interface_version = 1,
-};
+const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
+    {
+        .device_type = EDeviceType::kSwitch,
+        .device_number = 1,
+        .name = TAS_FLASHSTR("Cover-Calibrator LED Channel Switches"),
+        .unique_id = TAS_FLASHSTR("491c450a-0d1d-4f2b-9d28-5878e968e9df"),
+        .description = TAS_FLASHSTR("AstroMakers Cover Calibrator Extension"),
+        .driver_info =
+            TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+        .driver_version = TAS_FLASHSTR("0.1"),
+        .supported_actions = kSupportedActions,
+        .interface_version = 1,
+    };
 
 LedChannelSwitchGroup led_switches(  // NOLINT
     kLedSwitchesDeviceInfo, cover_calibrator);
 
-constexpr alpaca::ServerDescription kServerDescription{
-    .server_name = ServerName(),
-    .manufacturer = Manufacturer(),
-    .manufacturer_version = ManufacturerVersion(),
-    .location = DeviceLocation(),
-};
+// For responding to /management/v1/description
+const alpaca::ServerDescription kServerDescription  // NOLINT
+    {
+        .server_name = TAS_FLASHSTR_128(kServerName),
+        .manufacturer = TAS_FLASHSTR(kManufacturer),
+        .manufacturer_version = TAS_FLASHSTR(kManufacturerVersion),
+        .location = TAS_FLASHSTR(kDeviceLocation),
+    };
 
 alpaca::DeviceInterface* kDevices[] = {&cover_calibrator, &led_switches};
 
@@ -88,7 +80,7 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
-  alpaca::LogSink() << ServerName();
+  alpaca::LogSink() << kServerDescription.server_name;
   alpaca::LogSink() << TAS_FLASHSTR("Initializing networking");
   alpaca::Mega2560Eth::SetupW5500();
 
@@ -117,6 +109,32 @@ void setup() {
 void loop() {
   ip_device.MaintainDhcpLease();
   tiny_alpaca_server.PerformIO();
+}
+
+void logMCUStatusRegister(uint8_t mcusr) {
+  alpaca::LogSink() << TAS_FLASHSTR("MCUSR: ") << alpaca::BaseHex << mcusr;
+  if (TAS_VLOG_IS_ON(1)) {
+    if (mcusr & _BV(JTRF)) {
+      // JTAG Reset
+      TAS_VLOG(1) << TAS_FLASHSTR("JTAG") << TAS_FLASHSTR(" reset occured");
+    }
+    if (mcusr & _BV(WDRF)) {
+      // Watchdog Reset
+      TAS_VLOG(1) << TAS_FLASHSTR("Watchdog") << TAS_FLASHSTR(" reset occured");
+    }
+    if (mcusr & _BV(BORF)) {
+      // Brownout Reset
+      TAS_VLOG(1) << TAS_FLASHSTR("Brownout") << TAS_FLASHSTR(" reset occured");
+    }
+    if (mcusr & _BV(EXTRF)) {
+      // Reset button or otherwise some software reset
+      TAS_VLOG(1) << TAS_FLASHSTR("External") << TAS_FLASHSTR(" reset occured");
+    }
+    if (mcusr & _BV(PORF)) {
+      // Power On Reset
+      TAS_VLOG(1) << TAS_FLASHSTR("Power-on") << TAS_FLASHSTR(" reset occured");
+    }
+  }
 }
 
 }  // namespace astro_makers
