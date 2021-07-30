@@ -15,12 +15,16 @@ TEST(TasBasenameTest, NoSlash) {
   EXPECT_EQ(out.str(), "foo.bar.baz");
 }
 
-TEST(TasBasenameTest, LeadingSlashOnly) {
-  // The templates would have to be more complex to remove the leading slash
-  // if it is the only slash.
+TEST(TasBasenameTest, LeadingSlash) {
   PrintToStdString out;
   out.print(TAS_BASENAME("/bar.baz"));
-  EXPECT_EQ(out.str(), "/bar.baz");
+  EXPECT_EQ(out.str(), "bar.baz");
+}
+
+TEST(TasBasenameTest, LeadingSlashes) {
+  PrintToStdString out;
+  out.print(TAS_BASENAME("//bar.baz"));
+  EXPECT_EQ(out.str(), "bar.baz");
 }
 
 TEST(TasBasenameTest, MiddleSlash) {
@@ -29,10 +33,10 @@ TEST(TasBasenameTest, MiddleSlash) {
   EXPECT_EQ(out.str(), "bar.baz");
 }
 
-TEST(TasBasenameTest, LeadingAndMiddleSlash) {
+TEST(TasBasenameTest, LeadingAndMiddleSlashes) {
   PrintToStdString out;
-  out.print(TAS_BASENAME("/foo/bar.baz"));
-  EXPECT_EQ(out.str(), "bar.baz");
+  out.print(TAS_BASENAME("//foo//bar/baz.cc"));
+  EXPECT_EQ(out.str(), "baz.cc");
 }
 
 TEST(TasBasenameTest, TrailingSlash) {
@@ -41,21 +45,22 @@ TEST(TasBasenameTest, TrailingSlash) {
   EXPECT_EQ(out.str(), "");
 }
 
-using ::alpaca::tas_basename::BasenameStorage;
+// using ::alpaca::tas_basename::BasenameStorage;
 
-TEST(BasenameStorageTest, RawProgmemString) {
-  using Hello = BasenameStorage<'h', 'e', 'l', 'l', 'o'>;
-  PrintToStdString out;
-  EXPECT_EQ(out.print(Hello::FlashStringHelper()), 5);
-  EXPECT_EQ(out.str(), "hello");
-}
+// TEST(BasenameStorageTest, RawProgmemString) {
+//   using Hello = BasenameStorage<'h', 'e', 'l', 'l', 'o'>;
+//   PrintToStdString out;
+//   EXPECT_EQ(out.print(Hello::FlashStringHelper()), 5);
+//   EXPECT_EQ(out.str(), "hello");
+// }
 
-TEST(BasenameStorageTest, TASLIT16_String) {
-  using Hello = BasenameStorage<_TAS_EXPAND_16(, "Hello!")>;
-  PrintToStdString out;
-  EXPECT_EQ(out.print(Hello::FlashStringHelper()), 6);
-  EXPECT_EQ(out.str(), "Hello!");
-}
+// TEST(BasenameStorageTest, TASLIT16_String) {
+//   using Hello = BasenameStorage<_TAS_EXPAND_16(, "Hello!")>;
+//   PrintToStdString out;
+//   EXPECT_EQ(out.print(Hello::FlashStringHelper()), 6);
+//   EXPECT_EQ(out.str(), "Hello!");
+// }
+
 }  // namespace
 }  // namespace test
 }  // namespace alpaca

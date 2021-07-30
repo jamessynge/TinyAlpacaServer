@@ -160,7 +160,7 @@
     (expression) ? (void)0                                                   \
                  : ::alpaca::LogSinkVoidify() &&                             \
                        ::alpaca::CheckSink(TAS_BASENAME(__FILE__), __LINE__, \
-                                           TAS_FLASHSTR(message))
+                                           TAS_FLASHSTR_128(message))
 
 #else
 

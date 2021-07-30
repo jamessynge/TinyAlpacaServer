@@ -80,34 +80,15 @@ cc_test(
 )
 
 cc_test(
-    name = "inline_literal2_test",
-    srcs = ["inline_literal2_test.cc"],
-    deps = [
-        "//extras/test_tools:print_to_std_string",
-        "//googletest:gunit_main",
-        "//src/utils:inline_literal",
-    ],
-)
-
-cc_test(
-    name = "inline_literal3_test",
-    srcs = ["inline_literal3_test.cc"],
-    deps = [
-        "//extras/test_tools:print_to_std_string",
-        "//googletest:gunit_main",
-        "//src/utils:literal",
-        "//src/utils:o_print_stream",
-        "//src/utils:progmem_string_view",
-    ],
-)
-
-cc_test(
     name = "inline_literal_test",
     srcs = ["inline_literal_test.cc"],
     deps = [
         "//extras/test_tools:print_to_std_string",
         "//googletest:gunit_main",
         "//src/utils:inline_literal",
+        "//src/utils:literal",
+        "//src/utils:o_print_stream",
+        "//src/utils:progmem_string_view",
     ],
 )
 

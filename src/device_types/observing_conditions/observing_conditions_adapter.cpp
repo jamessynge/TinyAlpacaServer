@@ -115,7 +115,7 @@ StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
   if (MaxAveragePeriod() == 0) {
     return 0;
   } else {
-    TAS_DCHECK(false) << TAS_FLASHSTR(
+    TAS_DCHECK(false) << TAS_FLASHSTR_128(
         "GetAveragePeriod should be overridden given that MaxAveragePeriod is "
         "not 0, but it has not been.");
     return ErrorCodes::NotImplemented();
@@ -209,7 +209,7 @@ Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
     TAS_DCHECK_EQ(hours, 0);
     return OkStatus();
   } else {
-    TAS_DCHECK(false) << TAS_FLASHSTR(
+    TAS_DCHECK(false) << TAS_FLASHSTR_128(
         "SetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
     return ErrorCodes::NotImplemented();
   }

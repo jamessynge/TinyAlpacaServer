@@ -17,7 +17,7 @@ void MovingAverage::RecordNewValue(double new_value, uint32_t current_time,
   if (has_average_value()) {
     uint32_t time_step = current_time - last_update_time_;
     if (time_step == 0) {
-      TAS_VLOG(1) << TAS_FLASHSTR(
+      TAS_VLOG(1) << TAS_FLASHSTR_128(
           "MovingAverage::RecordNewValue called too quickly, current_time "
           "hasn't advanced beyond last_update_time_");
       return;

@@ -880,7 +880,7 @@ RequestDecoderState::RequestDecoderState(AlpacaRequest& request,
 }
 
 void RequestDecoderState::Reset() {
-  TAS_VLOG(1) << TAS_FLASHSTR(
+  TAS_VLOG(1) << TAS_FLASHSTR_128(
       "Reset ################################################################");
   decode_function = DecodeHttpMethod;
   request.Reset();
@@ -922,7 +922,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
 
   if (buffer_is_full && status == EHttpStatusCode::kNeedMoreInput &&
       start_size == buffer.size()) {
-    TAS_VLOG(1) << TAS_FLASHSTR(
+    TAS_VLOG(1) << TAS_FLASHSTR_128(
         "Need more input, but buffer is already full "
         "(has no room for additional input).");
     status = EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge;

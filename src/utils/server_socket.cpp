@@ -237,10 +237,8 @@ void ServerSocket::PerformIO() {
             << TAS_FLASHSTR(" while handling CLOSE_WAIT");
         AnnounceConnected();
       } else {
-        TAS_DCHECK(past_status == SnSR::ESTABLISHED ||
-                   past_status == SnSR::CLOSE_WAIT)
-            << STATUS_IS_UNEXPECTED_MESSAGE("ESTABLISHED or CLOSE_WAIT",
-                                            past_status, status);
+        TAS_DCHECK(was_open) << STATUS_IS_UNEXPECTED_MESSAGE(
+            "ESTABLISHED or CLOSE_WAIT", past_status, status);
         HandleCloseWait();
       }
       break;
