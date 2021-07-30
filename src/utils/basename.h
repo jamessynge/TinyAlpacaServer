@@ -2,10 +2,15 @@
 #define TINY_ALPACA_SERVER_SRC_UTILS_BASENAME_H_
 
 // Provides macros for storing the basename of a file path in the program text,
-// i.e. the part after the final slash. For example, storing the string "foo.cc"
-// if __FILE__ is used as the path, and __FILE__ equals "/baz/bar/foo.cc". There
-// is one exception: if the original path has a single slash in it, and the
-// slash is at the start of the path, then the slash is retained.
+// i.e. the part after the final slash. For example, the __FILE__ macro has a
+// string value equal to either of these:
+//
+//      /baz/bar/foo.cc
+//      C:\baz\bar\foo.cc
+//
+// then TAS_BASENAME(__FILE__) will be equivalent to TAS_FLASHSTR("foo.cc").
+// This is used by TAS_VLOG, TAS_CHECK, etc., to capture the file name where
+// those macros are used, i.e. the location from which a message is logged.
 //
 // If compiled with avr-gcc for the AVR line of processors, the linker will
 // collapse multiple occurrences of the same string literal into a single array
@@ -36,122 +41,14 @@ namespace progmem_data {
 // that the string literal (usually __FILE__) is too long (>= nnn).
 class SourceFilePathIsTooLong;
 
-//
-
-//
-
-//
-
-//
-
-// template <char... C>
-// struct BasenameStorage final {
-//   static constexpr const __FlashStringHelper* FlashStringHelper() {
-//     return reinterpret_cast<const __FlashStringHelper*>(kData);
-//   }
-
-//   // We add a trailing NUL here so that we can return kData from
-//   // FlashStringHelper() above; Arduino's Print::print(const
-//   // __FlashStringHelper*) needs the string to be NUL terminated so that it
-//   // knows when it has found the end of the string.
-//   static constexpr char const kData[sizeof...(C) + 1] AVR_PROGMEM = {C...,
-//   0};
-// };
-
-// template <char... C>
-// constexpr char const BasenameStorage<C...>::kData[sizeof...(C) + 1]
-// AVR_PROGMEM;
-
-// // When basename_only has a single parameter, the return type has the same
-// type
-// // as that parameter.
-// template <char... X>
-// auto basename_only(BasenameStorage<X...>)  // as is...
-//     -> BasenameStorage<X...>;
-
-// // Keep only the characters after the slash (forward for Linux, backwards for
-// // Windows).
-// template <char... X, char... Y>
-// auto basename_only(BasenameStorage<X...>, BasenameStorage<'/'>,
-//                    BasenameStorage<Y>...)
-//     -> decltype(basename_only(BasenameStorage<Y>()...));
-// template <char... X, char... Y>
-// auto basename_only(BasenameStorage<X...>, BasenameStorage<'\\'>,
-//                    BasenameStorage<Y>...)
-//     -> decltype(basename_only(BasenameStorage<Y>()...));
-
-// // Keep only the characters before the NUL.
-// template <char... X, char... Y>
-// auto basename_only(BasenameStorage<X...>, BasenameStorage<'\0'>,
-//                    BasenameStorage<Y>...) -> BasenameStorage<X...>;
-
-// // For any other character A, append it to the template parameter pack X,
-// then
-// // consider what to do with the characters following A.
-// template <char A, char... X, char... Y>
-// auto basename_only(BasenameStorage<X...>, BasenameStorage<A>,
-//                    BasenameStorage<Y>...)
-//     -> decltype(basename_only(BasenameStorage<X..., A>(),
-//                               BasenameStorage<Y>()...));
-
-// // repack_basename is the "entry point"; it is used to split the output of
-// // TASLITnnn into nnn separate chars, and to then use basename_only to find
-// the
-// // rightmost '/' and the leftmost NUL.
-// template <char... C>
-// auto repack_basename(BasenameStorage<C...>)
-//     -> decltype(basename_only(BasenameStorage<C>()...));
-// //
-
-//
-
-// If your paths are longer than 127 characters, change _TAS_EXPAND_128 below to
-// _TAS_EXPAND_256, _TAS_EXPAND_512 or even add _TAS_EXPAND_150 to get a good
-// trade-off between being long enough and not being too slow to compile.
-//
-// NOTE: This is horribly slow when compiled with avr-gcc and _TAS_EXPAND_256.
-// To avoid this, the macro TAS_BASENAME_LITnnn is defined differently for AVR
-// and non-AVR. The longest path I've seen on my laptop is around 120
-// characters, so I'm risking using _TAS_EXPAND_128.
-//
-// TODO(jamessynge): Come up with a way to speed this up, such as a recursive,
-// divide-and-conquer strategy, which should result in lots of the same type
-// being evaluated, rather than lots of unique types.
-
-// #ifdef ARDUINO
-// #define TAS_BASENAME_LITnnn(n, x) _TAS_EXPAND_128(n, x)
-// #else
-// #define TAS_BASENAME_LITnnn(n, x) _TAS_EXPAND_256(n, x)
-// #endif
-
-// #define TAS_BASENAME_TYPE(path_literal)                            \
-//   decltype(::alpaca::progmem_data::repack_basename(                \
-//       ::alpaca::progmem_data::BasenameStorage<TAS_BASENAME_LITnnn( \
-//           , path_literal)>()))
-
-// #define _TAS_BASENAME_OLD_(path_literal) \
-//   (TAS_BASENAME_TYPE(path_literal)::FlashStringHelper())
-
-// //
-
-//
-
-//
-
-//
-
-//
-
-//
-
 // BasenameStrPack is used instead of ProgmemStrData when we're searching for
-// the terminating NUL or forward slash so that we don't have to worry about the
+// slashes and the terminating NUL, so that we don't have to worry about the
 // compiler spending time examining the definition of ProgmemStrData, which is a
 // slightly more complex class template than is BasenameStrPack. Furthermore,
 // the first template parameter is a bool indicating whether the terminating NUL
-// has been located. This helps us generate a compile error if the string is
+// has been found. This helps us generate a compile error if the string is
 // longer than the template parameter pack expansion allowed for.
-template <bool T, char... C>
+template <bool NulFound, char... C>
 struct BasenameStrPack final {};
 
 // When KeepBasenameOnly has a single parameter, the return type has the same

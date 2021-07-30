@@ -106,20 +106,6 @@ constexpr Array<T, 4> MakeArray(T a, T b, T c, T d) {
   return {a, b, c, d};
 }
 
-// Struggling to make these work in a useful fashion.
-// template <typename T, size_t SIZE>
-// ArrayView<T> ToArrayView(Array<T, SIZE>& array) {
-//   return ArrayView<T>(array.data(), SIZE);
-// }
-// template <typename T, size_t SIZE>
-// ArrayView<const T> ToArrayView(const Array<T, SIZE>& array) {
-//   return ArrayView<T>(array.data(), SIZE);
-// }
-// template <typename T, size_t SIZE>
-// ArrayView<const T> ToArrayView(const Array<const T, SIZE>& array) {
-//   return ArrayView<T>(array.data(), SIZE);
-// }
-
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_ARRAY_H_

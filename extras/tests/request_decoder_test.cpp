@@ -179,11 +179,6 @@ size_t GetNumExtraParameters(const AlpacaRequest& request) {
 #endif
 }
 
-// This was used for debugging an error in the test fixture.
-// TEST(RequestDecoderTest, Splitter) {
-//   SplitEveryN("01234567890123456789012345678901234567890123456", 23);
-// }
-
 TEST(RequestDecoderTest, LogSizes) {
   LOG(INFO) << "sizeof(AlpacaRequest) " << sizeof(AlpacaRequest);
   LOG(INFO) << "sizeof(RequestDecoderListener) "
@@ -1506,7 +1501,6 @@ TEST(RequestDecoderTest, SwitchRequests) {
       EXPECT_TRUE(alpaca_request.have_id);
       EXPECT_TRUE(alpaca_request.have_state);
       EXPECT_FALSE(alpaca_request.have_value);
-      // EXPECT_FALSE(alpaca_request.have_name);  // Not supported yet.
       EXPECT_EQ(alpaca_request.client_id, 7);
       EXPECT_EQ(alpaca_request.client_transaction_id, 8);
       EXPECT_EQ(alpaca_request.id, 9);
@@ -1550,7 +1544,6 @@ TEST(RequestDecoderTest, SwitchRequests) {
       EXPECT_TRUE(alpaca_request.have_id);
       EXPECT_TRUE(alpaca_request.have_value);
       EXPECT_FALSE(alpaca_request.have_state);
-      // EXPECT_FALSE(alpaca_request.have_name);  // Not supported yet.
       EXPECT_EQ(alpaca_request.client_id, 7);
       EXPECT_EQ(alpaca_request.client_transaction_id, 9);
       EXPECT_EQ(alpaca_request.id, 0);

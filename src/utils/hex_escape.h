@@ -58,46 +58,6 @@ inline HexEscapedPrintable<T> HexEscaped(const T& like_printable) {
   return HexEscapedPrintable<T>(like_printable);
 }
 
-// template <typename T>
-// class HexEncodedInteger : public Printable {
-//  public:
-//   explicit HexEncodedInteger(T value) : value_(value) {}
-
-//   size_t printTo(Print& out) const override { out.print(value_, 16); }
-
-//  private:
-//   const T value_;
-// };
-
-// template <>
-// inline HexEscapedPrintable HexEscaped(const Printable& printable) {
-//   return HexEscapedPrintable(printable);
-// }
-
-// inline HexEncodedInteger HexEncoded(uint8_t value) {
-//   return HexEncodedInteger(value);
-// }
-
-// inline HexEncodedInteger HexEncoded(int8_t value) {
-//   return HexEncodedInteger(static_cast<uint32_t>(value));
-// }
-
-// inline HexEncodedInteger HexEncoded(uint16_t value) {
-//   return HexEncodedInteger(value);
-// }
-
-// inline HexEncodedInteger HexEncoded(int16_t value) {
-//   return HexEncodedInteger(static_cast<uint32_t>(value));
-// }
-
-// inline HexEncodedInteger HexEncoded(uint32_t value) {
-//   return HexEncodedInteger(value);
-// }
-
-// inline HexEncodedInteger HexEncoded(int32_t value) {
-//   return HexEncodedInteger(static_cast<uint32_t>(value));
-// }
-
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_HEX_ESCAPE_H_

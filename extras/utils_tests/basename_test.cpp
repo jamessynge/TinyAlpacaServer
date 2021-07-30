@@ -45,22 +45,6 @@ TEST(TasBasenameTest, TrailingSlash) {
   EXPECT_EQ(out.str(), "");
 }
 
-// using ::alpaca::tas_basename::BasenameStorage;
-
-// TEST(BasenameStorageTest, RawProgmemString) {
-//   using Hello = BasenameStorage<'h', 'e', 'l', 'l', 'o'>;
-//   PrintToStdString out;
-//   EXPECT_EQ(out.print(Hello::FlashStringHelper()), 5);
-//   EXPECT_EQ(out.str(), "hello");
-// }
-
-// TEST(BasenameStorageTest, TASLIT16_String) {
-//   using Hello = BasenameStorage<_TAS_EXPAND_16(, "Hello!")>;
-//   PrintToStdString out;
-//   EXPECT_EQ(out.print(Hello::FlashStringHelper()), 6);
-//   EXPECT_EQ(out.str(), "Hello!");
-// }
-
 }  // namespace
 }  // namespace test
 }  // namespace alpaca

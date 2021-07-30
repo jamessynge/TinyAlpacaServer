@@ -60,13 +60,12 @@ TEST(ProgmemStringViewTest, LowerComparison) {
   EXPECT_TRUE(CaseEqual(psv, kMixedView));
   EXPECT_TRUE(CaseEqual(psv, kUpperView));
 
-  // Equal to kLowerStr if we lower-case the literal, but not equal to the
-  // other variants.
+  // Equal to kLowerStr if we lower-case the ProgmemStringView, but not equal to
+  // the other variants.
   EXPECT_TRUE(LoweredEqual(psv, view));
-  // literal.lowered_equal(kLowerView);
-  // EXPECT_FALSE(literal.lowered_equal(kMixedView));
-  // EXPECT_FALSE(literal.lowered_equal(kUpperView));
-  // EXPECT_FALSE(literal.lowered_equal(""));
+  EXPECT_TRUE(LoweredEqual(psv, kLowerView));
+  EXPECT_FALSE(LoweredEqual(psv, kMixedView));
+  EXPECT_FALSE(LoweredEqual(psv, kUpperView));
 
   // Not case-insensitively equal to an empty string, nor to prefixes of itself.
   EXPECT_FALSE(CaseEqual(psv, StringView()));
@@ -108,6 +107,13 @@ TEST(ProgmemStringViewTest, MixedComparison) {
   EXPECT_FALSE(CaseEqual(psv, kMixedView.prefix(1)));
   EXPECT_FALSE(CaseEqual(psv, kMixedView.prefix(kMixedView.size() - 1)));
 
+  // Equal to kLowerStr if we lower-case the ProgmemStringView, but not equal to
+  // the other variants.
+  EXPECT_FALSE(LoweredEqual(psv, view));
+  EXPECT_TRUE(LoweredEqual(psv, kLowerView));
+  EXPECT_FALSE(LoweredEqual(psv, kMixedView));
+  EXPECT_FALSE(LoweredEqual(psv, kUpperView));
+
   // at() will return the appropriate character.
   EXPECT_EQ(psv.at(0), 'S');
   EXPECT_EQ(psv.at(psv.size() - 1), '.');
@@ -140,6 +146,13 @@ TEST(ProgmemStringViewTest, UpperComparison) {
   EXPECT_FALSE(CaseEqual(psv, StringView("")));
   EXPECT_FALSE(CaseEqual(psv, kUpperView.prefix(1)));
   EXPECT_FALSE(CaseEqual(psv, kUpperView.prefix(kUpperView.size() - 1)));
+
+  // Equal to kLowerStr if we lower-case the ProgmemStringView, but not equal to
+  // the other variants.
+  EXPECT_FALSE(LoweredEqual(psv, view));
+  EXPECT_TRUE(LoweredEqual(psv, kLowerView));
+  EXPECT_FALSE(LoweredEqual(psv, kMixedView));
+  EXPECT_FALSE(LoweredEqual(psv, kUpperView));
 
   // at() will return the appropriate character.
   EXPECT_EQ(psv.at(0), 'S');

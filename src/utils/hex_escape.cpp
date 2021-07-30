@@ -57,23 +57,4 @@ size_t PrintHexEscaped::write(const uint8_t* buffer, size_t size) {
   return count;
 }
 
-// size_t HexEscapedInteger::printTo(Print& out) const {
-//   char buffer[16];
-//   char* p = buffer + sizeof buffer;
-//   *(--p) = '\0';  // NUL terminate the string.
-//   auto value = value_;
-//   *(--p) = kHexDigits[value & 0xf];
-//   value >>= 4;
-//   while (value != 0) {
-//     TAS_CHECK_GT(p, buffer);
-//     *(--p) = kHexDigits[value & 0xf];
-//     value >>= 4;
-//   }
-//   TAS_CHECK_GT(p, buffer);
-//   *(--p) = 'x';
-//   TAS_CHECK_GT(p, buffer);
-//   *(--p) = '0';
-//   return out.write(p);
-// }
-
 }  // namespace alpaca
