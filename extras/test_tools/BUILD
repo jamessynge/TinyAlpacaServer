@@ -1,12 +1,6 @@
 # Libraries intended to simplify the task of writing tests of Tiny Alpaca Server.
 
 cc_library(
-    name = "case_insensitive_less",
-    srcs = ["case_insensitive_less.cc"],
-    hdrs = ["case_insensitive_less.h"],
-)
-
-cc_library(
     name = "decode_and_dispatch_test_base",
     testonly = True,
     srcs = ["decode_and_dispatch_test_base.cc"],
@@ -17,11 +11,11 @@ cc_library(
         ":json_decoder",
         ":mock_device_interface",
         ":mock_switch_group",
-        ":print_to_std_string",
-        ":sample_printable",
         ":test_tiny_alpaca_server",
         "//absl/status",
         "//absl/strings",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:print_to_std_string",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:sample_printable",
         "//googletest:gunit_headers",
         "//src:alpaca_devices",
         "//src:alpaca_discovery_server",
@@ -56,10 +50,10 @@ cc_library(
     srcs = ["http_request.cc"],
     hdrs = ["http_request.h"],
     deps = [
-        ":case_insensitive_less",
         "//absl/status",
         "//absl/status:statusor",
         "//absl/strings",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:case_insensitive_less",
     ],
 )
 
@@ -68,11 +62,11 @@ cc_library(
     srcs = ["http_response.cc"],
     hdrs = ["http_response.h"],
     deps = [
-        ":case_insensitive_less",
         ":json_decoder",
         "//absl/status",
         "//absl/status:statusor",
         "//absl/strings",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:case_insensitive_less",
         "//util/task:status",
     ],
 )
@@ -121,7 +115,7 @@ cc_library(
     srcs = ["json_test_utils.cc"],
     hdrs = ["json_test_utils.h"],
     deps = [
-        "//extras/host/arduino:print",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino:print",
         "//src/utils:any_printable",
         "//src/utils:json_encoder",
         "//src/utils:platform",
@@ -143,16 +137,6 @@ cc_library(
         "//src:constants",
         "//src:device_info",
         "//src:device_interface",
-    ],
-)
-
-cc_library(
-    name = "mock_ethernet_client",
-    hdrs = ["mock_ethernet_client.h"],
-    deps = [
-        "//extras/host/arduino:ip_address",
-        "//extras/host/ethernet5500:ethernet_client",
-        "//googletest:gunit_headers",
     ],
 )
 
@@ -212,10 +196,10 @@ cc_library(
 )
 
 cc_library(
-    name = "print_to_std_string",
-    hdrs = ["print_to_std_string.h"],
+    name = "print_value_to_std_string",
+    hdrs = ["print_value_to_std_string.h"],
     deps = [
-        "//extras/host/arduino:print",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:print_to_std_string",
         "//src/utils:o_print_stream",
     ],
 )
@@ -224,12 +208,6 @@ cc_library(
     name = "progmem_string_view_utils",
     hdrs = ["progmem_string_view_utils.h"],
     deps = ["//src/utils:progmem_string_view"],
-)
-
-cc_library(
-    name = "sample_printable",
-    hdrs = ["sample_printable.h"],
-    deps = ["//extras/host/arduino:print"],
 )
 
 cc_library(
@@ -261,7 +239,7 @@ cc_library(
     deps = [
         ":string_io_connection",
         "//absl/strings",
-        "//extras/host/ethernet5500:ethernet_config",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/host/ethernet5500:ethernet_config",
         "//src:device_interface",
         "//src:server_connection",
         "//src:server_description",

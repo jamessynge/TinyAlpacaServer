@@ -4,7 +4,7 @@
 
 #ifndef ARDUINO
 #include "base/logging_extensions.h"
-#include "extras/test_tools/print_to_std_string.h"  // pragma: keep extras include
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"  // pragma: keep extras include
 #include "logging.h"
 #endif  // !ARDUINO
 
@@ -94,7 +94,7 @@ CheckSink::~CheckSink() {
   }
 #else   // !ARDUINO
   FlushLogFiles(base_logging::INFO);
-  PrintToStdString ptss;
+  hostuino::PrintToStdString ptss;
   Announce(ptss);
   CHECK(false) << ptss.str();
 #endif  // ARDUINO

@@ -1,6 +1,6 @@
 #include "utils/log_sink.h"
 
-#include "extras/test_tools/print_to_std_string.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
 #include "googletest/gtest.h"
 #include "utils/inline_literal.h"
 #include "utils/o_print_stream.h"
@@ -10,7 +10,7 @@ namespace test {
 namespace {
 
 TEST(LogSinkTest, CreateAndDelete) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   { LogSink sink(out); }
   // Prints out a newline to end the message. So far there isn't a message
   // prefix (i.e. no time or location).
@@ -18,7 +18,7 @@ TEST(LogSinkTest, CreateAndDelete) {
 }
 
 TEST(LogSinkTest, InsertIntoNonTemporary) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   {
     LogSink sink(out);
     sink << "abc";
@@ -27,13 +27,13 @@ TEST(LogSinkTest, InsertIntoNonTemporary) {
 }
 
 TEST(LogSinkTest, InsertIntoTemporary) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   LogSink(out) << "abc";
   EXPECT_EQ(out.str(), "abc\n");
 }
 
 TEST(CheckSinkDeathTest, CreateAndDelete) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_DEATH(
       {
         CheckSink sink(out, TAS_FLASHSTR("foo.cc"), 123,
@@ -43,13 +43,13 @@ TEST(CheckSinkDeathTest, CreateAndDelete) {
 }
 
 TEST(CheckSinkDeathTest, NoFileName) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_DEATH({ CheckSink sink(out, nullptr, 123, TAS_FLASHSTR("prefix2")); },
                "TAS_CHECK FAILED: prefix2");
 }
 
 TEST(CheckSinkDeathTest, NoLineNumber) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_DEATH(
       {
         CheckSink sink(out, TAS_FLASHSTR("foo.cc"), 0, TAS_FLASHSTR("prefix3"));
@@ -58,7 +58,7 @@ TEST(CheckSinkDeathTest, NoLineNumber) {
 }
 
 TEST(CheckSinkDeathTest, InsertIntoNonTemporary) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_DEATH(
       {
         CheckSink sink(out, TAS_FLASHSTR("foo/bar.cc"), 234,
@@ -69,7 +69,7 @@ TEST(CheckSinkDeathTest, InsertIntoNonTemporary) {
 }
 
 TEST(CheckSinkDeathTest, InsertIntoTemporary) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_DEATH(
       {
         CheckSink(out, TAS_FLASHSTR("foo/bar/baz.h"), 321,

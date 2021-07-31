@@ -8,8 +8,8 @@
 #include "constants.h"
 #include "device_info.h"
 #include "device_interface.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/mock_device_interface.h"
-#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "logging.h"
@@ -44,7 +44,7 @@ TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
     request.api = EAlpacaApi::kManagementConfiguredDevices;
     request.set_server_transaction_id(123);
 
-    PrintToStdString out;
+    hostuino::PrintToStdString out;
     EXPECT_TRUE(devices.HandleManagementConfiguredDevices(request, out));
     EXPECT_THAT(out.str(), StartsWith("HTTP/1.1 200 OK"));
     EXPECT_THAT(out.str(), Not(HasSubstr("Connection: close")));
@@ -61,7 +61,7 @@ TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
     request.device_number = 0;
     request.device_method = EDeviceMethod::kConnected;
 
-    PrintToStdString out;
+    hostuino::PrintToStdString out;
     EXPECT_FALSE(devices.DispatchDeviceRequest(request, out));
     EXPECT_THAT(out.str(), StartsWith("HTTP/1.1 400 Bad Request"));
     EXPECT_THAT(out.str(), HasSubstr("Connection: close"));
@@ -175,7 +175,7 @@ TEST_F(AlpacaDevicesTest, OneConfiguredDevice) {
   request.api_group = EApiGroup::kManagement;
   request.api = EAlpacaApi::kManagementConfiguredDevices;
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_TRUE(devices.HandleManagementConfiguredDevices(request, out));
   VLOG(1) << "out:\n\n" << out.str() << "\n\n";
 
@@ -202,7 +202,7 @@ TEST_F(AlpacaDevicesTest, ThreeConfiguredDevices) {
   request.api_group = EApiGroup::kManagement;
   request.api = EAlpacaApi::kManagementConfiguredDevices;
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_TRUE(alpaca_devices_.HandleManagementConfiguredDevices(request, out));
   VLOG(1) << "out:\n\n" << out.str() << "\n\n";
 
@@ -229,7 +229,7 @@ TEST_F(AlpacaDevicesTest, SetupUnknownDevice) {
   request.device_number = 99999999;
   request.device_method = EDeviceMethod::kConnected;
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_FALSE(alpaca_devices_.DispatchDeviceRequest(request, out));
   EXPECT_THAT(out.str(), StartsWith("HTTP/1.1 400 Bad Request"));
   EXPECT_THAT(out.str(), HasSubstr("Connection: close"));
@@ -246,7 +246,7 @@ TEST_F(AlpacaDevicesTest, DispatchDeviceRequest) {
   request.device_type = EDeviceType::kCamera;
   request.device_number = 22;
   request.device_method = EDeviceMethod::kConnected;
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
 
   EXPECT_CALL(mock_camera22_, HandleDeviceApiRequest(Ref(request), Ref(out)))
       .WillOnce(Return(true));

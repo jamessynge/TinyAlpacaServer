@@ -5,7 +5,7 @@
 #include <string>
 
 #include "absl/strings/string_view.h"
-#include "extras/test_tools/print_to_std_string.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/progmem_string_view_utils.h"
 #include "extras/test_tools/string_view_utils.h"
 #include "googletest/gmock.h"
@@ -185,7 +185,7 @@ TEST(ProgmemStringViewTest, Copy) {
 
 TEST(ProgmemStringViewTest, PrintTo) {
   ProgmemStringView psv(kMixedStr);
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_EQ(psv.printTo(out), psv.size());
   EXPECT_EQ(out.str(), kMixedStr);
 }
@@ -193,7 +193,7 @@ TEST(ProgmemStringViewTest, PrintTo) {
 TEST(ProgmemStringViewTest, StreamMixed) {
   ProgmemStringView psv(kMixedStr);
 
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << psv;
   EXPECT_EQ(p2ss.str(), kMixedStr);
@@ -206,7 +206,7 @@ TEST(ProgmemStringViewTest, StreamMixed) {
 TEST(ProgmemStringViewTest, StreamUpper) {
   ProgmemStringView psv(kUpperStr);
 
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << psv;
   EXPECT_EQ(p2ss.str(), kUpperStr);
@@ -218,7 +218,7 @@ TEST(ProgmemStringViewTest, StreamUpper) {
 
 TEST(ProgmemStringViewTest, StreamHexEscaped) {
   ProgmemStringView psv(kLowerStr);
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << HexEscaped(psv);
   EXPECT_EQ(p2ss.str(), kLowerHexEscaped);

@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 #include "alpaca_request.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/json_test_utils.h"
-#include "extras/test_tools/print_to_std_string.h"
 #include "googletest/gtest.h"
 #include "utils/any_printable.h"
 #include "utils/json_encoder.h"
@@ -25,7 +25,7 @@ TEST(JsonMethodResponseTest, AllFields) {
 
   JsonMethodResponse response(request, error_number, error_message);
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(),
             R"({"ClientTransactionID": 789, )"
@@ -41,7 +41,7 @@ TEST(JsonMethodResponseTest, NoError) {
 
   JsonMethodResponse response(request);
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"ClientTransactionID": 789, )"
                        R"("ServerTransactionID": 123})");
@@ -54,7 +54,7 @@ TEST(JsonArrayResponseTest, Empty) {
   request.set_server_transaction_id(0);
   JsonArrayResponse response(request, elements);
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [], )"
                        R"("ServerTransactionID": 0})");
@@ -69,7 +69,7 @@ TEST(JsonArrayResponseTest, Mixed) {
   AlpacaRequest request;
   JsonArrayResponse response(request, elements);
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [false, -1, ")"
                        "\\r\\n"
@@ -80,7 +80,7 @@ TEST(JsonBoolResponseTest, True) {
   AlpacaRequest request;
   JsonBoolResponse response(request, true);
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": true})");
 }
@@ -91,7 +91,7 @@ TEST(JsonBoolResponseTest, False) {
   request.set_server_transaction_id(3);
   JsonBoolResponse response(request, false);
 
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": false, )"
                        R"("ClientTransactionID": 2, )"

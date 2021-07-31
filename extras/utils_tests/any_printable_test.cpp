@@ -6,8 +6,8 @@
 #include <cstring>
 #include <string>
 
-#include "extras/host/arduino/print.h"
-#include "extras/test_tools/print_to_std_string.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/print.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
 #include "utils/inline_literal.h"
@@ -31,14 +31,14 @@ TEST(AnyPrintableTest, PrintableNegativeCompilation) {
 #endif
 
 std::string AnyPrintableToString(const AnyPrintable& any_printable) {
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   const size_t count = out.print(any_printable);
   const std::string result = out.str();
   EXPECT_EQ(count, result.size());
   // Test copying.
   {
     AnyPrintable copy = any_printable;
-    PrintToStdString out2;
+    hostuino::PrintToStdString out2;
     EXPECT_EQ(out2.print(copy), count);
     EXPECT_EQ(out2.str(), result);
   }

@@ -13,7 +13,7 @@ cc_library(
     hdrs = ["cover.h"],
     deps = [
         ":constants",
-        "//extras/host/arduino",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino",
         "//src:TinyAlpacaServer",
     ],
 )
@@ -25,7 +25,7 @@ cc_library(
     deps = [
         ":constants",
         ":cover",
-        "//extras/host/arduino",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino",
         "//src:TinyAlpacaServer",
     ],
 )
@@ -47,7 +47,7 @@ cc_library(
     deps = [
         ":cover_calibrator",
         ":led_channel_switch_group",
-        "//extras/host/arduino",
+        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino",
         "//src:TinyAlpacaServer",
     ],
 )

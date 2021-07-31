@@ -7,9 +7,9 @@
 #include <string>
 
 #include "absl/strings/str_cat.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/sample_printable.h"
 #include "extras/test_tools/json_test_utils.h"
-#include "extras/test_tools/print_to_std_string.h"
-#include "extras/test_tools/sample_printable.h"
 #include "googletest/gtest.h"
 #include "logging.h"
 #include "utils/literal.h"
@@ -30,7 +30,7 @@ class JsonEncodersTest : public testing::Test {
     ElementSourceFunctionAdapter source(func);
     // Confirm that we print the expected characters.
     {
-      PrintToStdString out;
+      hostuino::PrintToStdString out;
       JsonArrayEncoder::Encode(source, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();
@@ -44,7 +44,7 @@ class JsonEncodersTest : public testing::Test {
     PropertySourceFunctionAdapter source(func);
     // Confirm that we print the expected characters.
     {
-      PrintToStdString out;
+      hostuino::PrintToStdString out;
       JsonObjectEncoder::Encode(source, out);
       ASSERT_EQ(out.str(), expected);
       DVLOG(1) << "Output: " << out.str();
@@ -72,7 +72,7 @@ TEST_F(JsonEncodersTest, ObjectWithStringValues) {
   constexpr char kWithQuotesAndBackslashesStr[] =
       "with \" quotes and \\ backslashes";
   const Literal kWithQuotesAndBackslashes(kWithQuotesAndBackslashesStr);
-  const SamplePrintable kPrintableValue("with controls \r\n");
+  const hostuino::SamplePrintable kPrintableValue("with controls \r\n");
 
   auto func = [&](JsonObjectEncoder& object_encoder) {
     object_encoder.AddStringProperty(StringView("empty"), StringView());
@@ -214,7 +214,7 @@ TEST_F(JsonEncodersTest, ArrayOfEmptyStructures) {
 TEST_F(JsonEncodersTest, ArrayOfMixedValueTypes) {
   constexpr char kSomeTextStr[] = "some text \r\n with escaping characters";
   const Literal kSomeText(kSomeTextStr);
-  const SamplePrintable kPrintableValue("just printable");
+  const hostuino::SamplePrintable kPrintableValue("just printable");
 
   auto func = [&](JsonArrayEncoder& array_encoder) {
     array_encoder.AddBooleanElement(false);

@@ -6,7 +6,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "extras/host/arduino/arduino.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/arduino.h"
 
 namespace astro_makers {
 

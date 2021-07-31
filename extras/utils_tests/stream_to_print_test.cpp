@@ -4,9 +4,9 @@
 
 #include <string_view>
 
-#include "extras/host/arduino/print.h"
-#include "extras/test_tools/print_to_std_string.h"
-#include "extras/test_tools/sample_printable.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/print.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/sample_printable.h"
 #include "googletest/gtest.h"
 #include "utils/o_print_stream.h"
 
@@ -16,7 +16,7 @@ namespace {
 
 template <typename T>
 void VerifyStreamToPrint(const T value, std::string_view expected) {
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   p2ss << value;
   EXPECT_EQ(p2ss.str(), expected) << "Value: " << value;
 }
@@ -54,43 +54,43 @@ TEST(StreamToPrintTest, BuiltInTypes) {
 }
 
 TEST(StreamToPrintTest, StringLiteral) {
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   p2ss << "abc";
   EXPECT_EQ(p2ss.str(), "abc");
 }
 
 TEST(StreamToPrintTest, Printable) {
-  SamplePrintable value("abc");
+  hostuino::SamplePrintable value("abc");
   {
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     p2ss << value;
     EXPECT_EQ(p2ss.str(), "abc");
   }
   {
     auto& value_ref = value;
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     p2ss << value_ref;
     EXPECT_EQ(p2ss.str(), "abc");
   }
 }
 
 TEST(StreamToPrintTest, ConstPrintable) {
-  const SamplePrintable value("abc");
+  const hostuino::SamplePrintable value("abc");
   {
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     p2ss << value;
     EXPECT_EQ(p2ss.str(), "abc");
   }
   {
     auto& value_ref = value;
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     p2ss << value_ref;
     EXPECT_EQ(p2ss.str(), "abc");
   }
 }
 
 TEST(StreamToPrintTest, ChangeBase) {
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   p2ss << 127 << " " << BaseHex << 127 << ' ' << BaseDec << -123;
   EXPECT_EQ(p2ss.str(), "127 0x7F -123");
 }

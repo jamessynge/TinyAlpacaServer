@@ -9,7 +9,6 @@ pytype_strict_binary(
     srcs_version = "PY3",
     deps = [
         ":install_advice",
-        "//third_party/py/dataclasses",
         "//third_party/py/netifaces",
     ],
 )
@@ -20,7 +19,6 @@ pytype_strict_library(
     srcs_version = "PY3",
     deps = [
         ":install_advice",
-        "//third_party/py/dataclasses",
         "//third_party/py/netifaces",
     ],
 )

@@ -5,8 +5,8 @@
 #include <string>
 
 #include "absl/strings/string_view.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/literal_utils.h"
-#include "extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/string_view_utils.h"
 #include "googletest/gmock.h"
 #include "googletest/gtest.h"
@@ -163,7 +163,7 @@ TEST(LiteralTest, Copy) {
 
 TEST(LiteralTest, PrintTo) {
   Literal literal(kMixedStr);
-  PrintToStdString out;
+  hostuino::PrintToStdString out;
   EXPECT_EQ(literal.printTo(out), literal.size());
   EXPECT_EQ(out.str(), kMixedStr);
 }
@@ -171,7 +171,7 @@ TEST(LiteralTest, PrintTo) {
 TEST(LiteralTest, StreamMixed) {
   Literal literal(kMixedStr);
 
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << literal;
   EXPECT_EQ(p2ss.str(), kMixedStr);
@@ -184,7 +184,7 @@ TEST(LiteralTest, StreamMixed) {
 TEST(LiteralTest, StreamUpper) {
   Literal literal(kUpperStr);
 
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << literal;
   EXPECT_EQ(p2ss.str(), kUpperStr);
@@ -196,7 +196,7 @@ TEST(LiteralTest, StreamUpper) {
 
 TEST(LiteralTest, StreamHexEscaped) {
   Literal literal(kLowerStr);
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << HexEscaped(literal);
   EXPECT_EQ(p2ss.str(), kLowerHexEscaped);

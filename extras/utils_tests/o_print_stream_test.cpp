@@ -4,8 +4,8 @@
 
 #include <string_view>
 
-#include "extras/test_tools/print_to_std_string.h"
-#include "extras/test_tools/sample_printable.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
+#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/sample_printable.h"
 #include "googletest/gtest.h"
 
 namespace alpaca {
@@ -14,7 +14,7 @@ namespace {
 
 template <typename T>
 void VerifyOPrintStream(const T value, std::string_view expected) {
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << value;
   EXPECT_EQ(p2ss.str(), expected) << "Value: " << value;
@@ -53,23 +53,23 @@ TEST(OPrintStreamTest, BuiltInTypes) {
 }
 
 TEST(OPrintStreamTest, StringLiteral) {
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << "abc";
   EXPECT_EQ(p2ss.str(), "abc");
 }
 
 TEST(OPrintStreamTest, Printable) {
-  SamplePrintable value("abc");
+  hostuino::SamplePrintable value("abc");
   {
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value;
     EXPECT_EQ(p2ss.str(), "abc");
   }
   {
     auto& value_ref = value;
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value_ref;
     EXPECT_EQ(p2ss.str(), "abc");
@@ -77,16 +77,16 @@ TEST(OPrintStreamTest, Printable) {
 }
 
 TEST(OPrintStreamTest, ConstPrintable) {
-  const SamplePrintable value("abc");
+  const hostuino::SamplePrintable value("abc");
   {
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value;
     EXPECT_EQ(p2ss.str(), "abc");
   }
   {
     auto& value_ref = value;
-    PrintToStdString p2ss;
+    hostuino::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value_ref;
     EXPECT_EQ(p2ss.str(), "abc");
@@ -94,7 +94,7 @@ TEST(OPrintStreamTest, ConstPrintable) {
 }
 
 TEST(OPrintStreamTest, ChangeBase) {
-  PrintToStdString p2ss;
+  hostuino::PrintToStdString p2ss;
   OPrintStream out(p2ss);
 
   out << 127 << " " << BaseHex << 127 << ' ' << BaseTwo << 127;

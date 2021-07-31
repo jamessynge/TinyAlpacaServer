@@ -32,10 +32,7 @@ pytype_strict_binary(
     srcs = ["swagger_yaml.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [
-        "//third_party/py/dataclasses",
-        "//third_party/py/requests",
-    ],
+    deps = ["//third_party/py/requests"],
 )
 
 pytype_strict_binary(
@@ -43,14 +40,12 @@ pytype_strict_binary(
     srcs = ["tokenize_cpp.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = ["//third_party/py/dataclasses"],
 )
 
 pytype_strict_library(
     name = "tokenize_cpp_lib",
     srcs = ["tokenize_cpp.py"],
     srcs_version = "PY3",
-    deps = ["//third_party/py/dataclasses"],
 )
 
 py_strict_test(
