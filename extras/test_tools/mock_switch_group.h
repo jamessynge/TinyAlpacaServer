@@ -8,7 +8,7 @@
 
 #include "device_info.h"
 #include "device_types/switch/switch_adapter.h"
-#include "googletest/gmock.h"
+#include "gmock/gmock.h"
 #include "utils/status.h"
 #include "utils/status_or.h"
 

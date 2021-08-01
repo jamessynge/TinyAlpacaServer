@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
 #include "utils/traits/type_traits.h"
 
 namespace alpaca {

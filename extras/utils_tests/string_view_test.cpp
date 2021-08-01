@@ -10,9 +10,9 @@
 #include <vector>
 
 #include "extras/test_tools/string_view_utils.h"
-#include "googletest/gmock.h"
-#include "googletest/gtest.h"
-#include "logging.h"
+#include "glog/logging.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 namespace alpaca {
 namespace test {

@@ -6,7 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/arduino.h"
+#include <Arduino.h>
+
 #include "extras/futures/pwm_led.h"
 #include "utils/platform.h"
 

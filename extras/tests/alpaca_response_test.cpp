@@ -11,12 +11,12 @@
 #include "alpaca_request.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/sample_printable.h"
 #include "extras/test_tools/json_test_utils.h"
 #include "extras/test_tools/print_value_to_std_string.h"
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
 #include "literals.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "mcucore/extrastest_tools/sample_printable.h"
 #include "utils/any_printable.h"
 #include "utils/array_view.h"
 #include "utils/json_encoder.h"
@@ -27,8 +27,8 @@ namespace alpaca {
 namespace test {
 namespace {
 
-using ::hostuino::PrintToStdString;
-using ::hostuino::SamplePrintable;
+using ::mcucore::test::PrintToStdString;
+using ::mcucore::test::SamplePrintable;
 
 constexpr char kEOL[] = "\r\n";
 constexpr bool kDoNotClose = false;

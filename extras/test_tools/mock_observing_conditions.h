@@ -9,7 +9,7 @@
 
 #include "device_info.h"
 #include "device_types/observing_conditions/observing_conditions_adapter.h"
-#include "googletest/gmock.h"
+#include "gmock/gmock.h"
 #include "utils/status.h"
 #include "utils/status_or.h"
 

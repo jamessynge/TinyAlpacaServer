@@ -3,6 +3,6 @@ cc_library(
     srcs = ["AM_WeatherBox.ino.cc"],
     deps = [
         "//examples/AM_WeatherBox/src:server",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino",
+        "//mcucore/extras/host/arduino",
     ],
 )

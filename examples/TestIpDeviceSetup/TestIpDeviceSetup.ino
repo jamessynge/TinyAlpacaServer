@@ -1,6 +1,7 @@
 #include <Arduino.h>
-#include <Ethernet5500.h>
 #include <TinyAlpacaServer.h>
+
+#include "mcucore/extrashost/ethernet5500/ethernet5500.h"
 
 alpaca::IpDevice ip_device;
 
@@ -20,7 +21,7 @@ void announceAddresses() {
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
   // read.
-  Serial.begin(57600);
+  Serial.begin(115200);
   // Wait for serial port to connect, or at least some minimum amount of time
   // (TBD), else the initial output gets lost.
   while (!Serial) {

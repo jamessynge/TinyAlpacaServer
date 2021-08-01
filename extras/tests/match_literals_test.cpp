@@ -8,8 +8,8 @@
 #include "absl/strings/escaping.h"
 #include "constants.h"
 #include "extras/test_tools/string_view_utils.h"
-#include "googletest/gtest.h"
-#include "logging.h"
+#include "glog/logging.h"
+#include "gtest/gtest.h"
 #include "utils/string_view.h"
 
 namespace alpaca {

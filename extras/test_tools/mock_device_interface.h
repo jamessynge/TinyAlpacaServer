@@ -9,7 +9,7 @@
 #include "constants.h"
 #include "device_info.h"
 #include "device_interface.h"
-#include "googletest/gmock.h"
+#include "gmock/gmock.h"
 
 namespace alpaca {
 namespace test {

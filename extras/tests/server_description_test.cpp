@@ -1,7 +1,7 @@
 #include "server_description.h"
 
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "utils/json_encoder.h"
 #include "utils/json_encoder_helpers.h"
 #include "utils/literal.h"
@@ -24,7 +24,7 @@ namespace test {
 namespace {
 
 TEST(ServerDescriptionTest, Output) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   JsonPropertySourceAdapter<ServerDescription> adapter(kServerDescription);
   JsonObjectEncoder::Encode(adapter, out);
   EXPECT_EQ(out.str(),

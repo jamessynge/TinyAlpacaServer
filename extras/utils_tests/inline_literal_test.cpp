@@ -2,8 +2,8 @@
 
 #include <string_view>
 
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "utils/literal.h"
 #include "utils/o_print_stream.h"
 #include "utils/progmem_string_view.h"
@@ -17,7 +17,7 @@ TEST(InlineLiteralTest, ExplicitProgmemStrData) {
   using Type = ProgmemStrData<'H', 'E', 'L', 'L', 'O'>;
   auto printable = alpaca::progmem_data::MakeProgmemStringView<Type>();
   EXPECT_EQ(printable.size(), 5);
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(printable.printTo(out), 5);
   EXPECT_EQ(out.str(), "HELLO");
 }
@@ -26,7 +26,7 @@ TEST(InlineLiteralTest, EmptyProgmemStrData) {
   using Type = ProgmemStrData<>;
   auto printable = alpaca::progmem_data::MakeProgmemStringView<Type>();
   EXPECT_EQ(printable.size(), 0);
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(printable.printTo(out), 0);
   EXPECT_EQ(out.str(), "");
 }
@@ -37,25 +37,25 @@ TEST(InlineLiteralTest, TasExpand16) {
   using Type = ProgmemStrData<_TAS_EXPAND_16(, "Hello!")>;
   auto printable = alpaca::progmem_data::MakeProgmemStringView<Type>();
   EXPECT_EQ(printable.size(), 16);
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(printable.printTo(out), 16);
   EXPECT_EQ(out.str(), std::string_view("Hello!\0\0\0\0\0\0\0\0\0\0", 16));
 }
 
 TEST(InlineLiteralTest, PrintTasFlashstr) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(out.print(TAS_FLASHSTR("Echo, echo, echo, echo, echo")), 28);
   EXPECT_EQ(out.str(), "Echo, echo, echo, echo, echo");
 }
 
 TEST(InlineLiteralTest, PrintEmptyTasFlashstr) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(out.print(TAS_FLASHSTR("")), 0);
   EXPECT_EQ(out.str(), "");
 }
 
 TEST(InlineLiteralTest, StreamTasFlashstr) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   OPrintStream strm(out);
   strm << TAS_FLASHSTR("foo, Bar, BAZ");
   EXPECT_EQ(out.str(), "foo, Bar, BAZ");
@@ -64,20 +64,20 @@ TEST(InlineLiteralTest, StreamTasFlashstr) {
 TEST(InlineLiteralTest, LeadingNUL) {
   using Type = _TAS_PSD_TYPE_128("\0abc");
   EXPECT_EQ(1, sizeof(Type::kData));
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(out.print(TAS_FLASHSTR_128("\0abc")), 0);
   EXPECT_EQ(out.str(), "");
 }
 
 TEST(InlineLiteralTest, TasPsvPrintTo) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(TAS_PSV("Hey There").printTo(out), 9);
   EXPECT_EQ(out.str(), "Hey There");
   EXPECT_EQ(TAS_PSV("Hey There").size(), 9);
 }
 
 TEST(InlineLiteralTest, StreamTasPsv) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   OPrintStream strm(out);
   strm << TAS_PSV("Hey There");
   EXPECT_EQ(out.str(), "Hey There");
@@ -86,7 +86,7 @@ TEST(InlineLiteralTest, StreamTasPsv) {
 TEST(InlineLiteralTest, TasPsvToProgmemStringView) {
   ProgmemStringView progmem_string_view = TAS_PSV("Hey There");
   EXPECT_EQ(progmem_string_view.size(), 9);
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(progmem_string_view.printTo(out), 9);
   EXPECT_EQ(out.str(), "Hey There");
 }
@@ -94,13 +94,13 @@ TEST(InlineLiteralTest, TasPsvToProgmemStringView) {
 TEST(InlineLiteralTest, TasPsvToLiteral) {
   Literal literal = TAS_PSV("Hey There!");
   EXPECT_EQ(literal.size(), 10);
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_EQ(literal.printTo(out), 10);
   EXPECT_EQ(out.str(), "Hey There!");
 }
 
 TEST(InlineLiteralTest, StreamTasLit) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   OPrintStream strm(out);
   strm << TASLIT("Echo, echo, etc");
   EXPECT_EQ(out.str(), "Echo, echo, etc");
@@ -137,7 +137,7 @@ TEST(InlineLiteralTest, StreamTasLit) {
   TEST(InlineLiteralTest, Literal##len##Fits##max) {  \
     using Type = _TAS_PSD_TYPE_##max(x);              \
     EXPECT_EQ(len + 1, sizeof(Type::kData));          \
-    hostuino::PrintToStdString out;                   \
+    mcucore::test::PrintToStdString out;              \
     EXPECT_EQ(out.print(TAS_FLASHSTR_##max(x)), len); \
     EXPECT_EQ(out.str(), x);                          \
   }

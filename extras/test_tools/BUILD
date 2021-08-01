@@ -14,9 +14,9 @@ cc_library(
         ":test_tiny_alpaca_server",
         "//absl/status",
         "//absl/strings",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:print_to_std_string",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:sample_printable",
         "//googletest:gunit_headers",
+        "//mcucore/extras/test_tools:print_to_std_string",
+        "//mcucore/extras/test_tools:sample_printable",
         "//src:alpaca_devices",
         "//src:alpaca_discovery_server",
         "//src:alpaca_response",
@@ -53,7 +53,7 @@ cc_library(
         "//absl/status",
         "//absl/status:statusor",
         "//absl/strings",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:case_insensitive_less",
+        "//mcucore/extras/test_tools:case_insensitive_less",
     ],
 )
 
@@ -66,7 +66,7 @@ cc_library(
         "//absl/status",
         "//absl/status:statusor",
         "//absl/strings",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:case_insensitive_less",
+        "//mcucore/extras/test_tools:case_insensitive_less",
         "//util/task:status",
     ],
 )
@@ -92,7 +92,7 @@ cc_library(
         "//absl/status",
         "//absl/status:statusor",
         "//absl/strings",
-        "//core:logging",
+        "//glog:logging",
         "//googletest:gunit_headers",
         "//src/utils:logging",
         "//util/task:status",
@@ -115,7 +115,7 @@ cc_library(
     srcs = ["json_test_utils.cc"],
     hdrs = ["json_test_utils.h"],
     deps = [
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino:print",
+        "//mcucore/extras/host/arduino:print",
         "//src/utils:any_printable",
         "//src/utils:json_encoder",
         "//src/utils:platform",
@@ -199,7 +199,7 @@ cc_library(
     name = "print_value_to_std_string",
     hdrs = ["print_value_to_std_string.h"],
     deps = [
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:print_to_std_string",
+        "//mcucore/extras/test_tools:print_to_std_string",
         "//src/utils:o_print_stream",
     ],
 )
@@ -239,7 +239,7 @@ cc_library(
     deps = [
         ":string_io_connection",
         "//absl/strings",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/ethernet5500:ethernet_config",
+        "//mcucore/extras/host/ethernet5500:ethernet_config",
         "//src:device_interface",
         "//src:server_connection",
         "//src:server_description",

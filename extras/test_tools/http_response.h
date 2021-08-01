@@ -11,8 +11,8 @@
 #include <vector>
 
 #include "absl/status/statusor.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/case_insensitive_less.h"
 #include "extras/test_tools/json_decoder.h"
+#include "mcucore/extrastest_tools/case_insensitive_less.h"
 
 namespace alpaca {
 namespace test {
@@ -39,7 +39,7 @@ struct HttpResponse {
   std::string http_version;
   int status_code;
   std::string status_message;
-  std::multimap<std::string, std::string, hostuino::CaseInsensitiveLess>
+  std::multimap<std::string, std::string, mcucore::test::CaseInsensitiveLess>
       headers;
 
   // Everything after the headers, whether it is exactly the required size for

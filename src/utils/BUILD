@@ -186,8 +186,8 @@ cc_library(
         ":o_print_stream",
         ":platform",
         "//base:logging_extensions",
-        "//core:logging",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:print_to_std_string",
+        "//glog:logging",
+        "//mcucore/extras/test_tools:print_to_std_string",
     ],
 )
 
@@ -228,11 +228,11 @@ cc_library(
     deps = [
         ":utils_config",
         "//absl/base:core_headers",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino:pgmspace",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino:print",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino:stream",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/eeprom",
+        "//mcucore/extras/host/arduino",
+        "//mcucore/extras/host/arduino:pgmspace",
+        "//mcucore/extras/host/arduino:print",
+        "//mcucore/extras/host/arduino:stream",
+        "//mcucore/extras/host/eeprom",
     ],
 )
 
@@ -243,10 +243,10 @@ cc_library(
     deps = [
         ":logging",
         ":platform",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino:client",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino:ip_address",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/ethernet5500",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/ethernet5500:host_sockets",
+        "//mcucore/extras/host/arduino:client",
+        "//mcucore/extras/host/arduino:ip_address",
+        "//mcucore/extras/host/ethernet5500",
+        "//mcucore/extras/host/ethernet5500:host_sockets",
     ],
 )
 

@@ -12,8 +12,8 @@
 #include "absl/random/uniform_real_distribution.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
-#include "googletest/gtest.h"
-#include "logging.h"
+#include "glog/logging.h"
+#include "gtest/gtest.h"
 
 namespace alpaca {
 namespace test {

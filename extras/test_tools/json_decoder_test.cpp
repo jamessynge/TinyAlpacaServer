@@ -3,8 +3,8 @@
 #include <type_traits>
 
 #include "absl/status/statusor.h"
-#include "googletest/gmock.h"
-#include "googletest/gtest.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 #include "util/task/status_macros.h"
 
 namespace alpaca {

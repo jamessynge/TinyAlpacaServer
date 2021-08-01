@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
 
 namespace alpaca {
 namespace test {

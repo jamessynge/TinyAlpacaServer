@@ -2,9 +2,9 @@
 
 #include "absl/strings/str_cat.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
 #include "literals.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "utils/literal.h"
 
 namespace alpaca {
@@ -20,7 +20,7 @@ TEST(HttpResponseHeaderTest, Json) {
   hrh.content_type = EContentType::kApplicationJson;
   hrh.content_length = 65535;
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   hrh.printTo(out);
   EXPECT_EQ(
       out.str(),
@@ -36,7 +36,7 @@ TEST(HttpResponseHeaderTest, Error) {
   hrh.content_type = EContentType::kTextPlain;
   hrh.content_length = 123;
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   hrh.printTo(out);
   EXPECT_EQ(
       out.str(),

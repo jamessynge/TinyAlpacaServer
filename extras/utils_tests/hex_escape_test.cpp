@@ -8,10 +8,10 @@
 #include <string_view>
 #include <vector>
 
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/sample_printable.h"
-#include "googletest/gmock.h"
-#include "googletest/gtest.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "mcucore/extrastest_tools/sample_printable.h"
 #include "util/gtl/map_util.h"
 #include "utils/literal.h"
 #include "utils/string_view.h"
@@ -20,8 +20,8 @@ namespace alpaca {
 namespace test {
 namespace {
 
-using ::hostuino::PrintToStdString;
-using ::hostuino::SamplePrintable;
+using ::mcucore::test::PrintToStdString;
+using ::mcucore::test::SamplePrintable;
 using ::testing::Contains;
 using ::testing::IsEmpty;
 using ::testing::Not;

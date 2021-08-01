@@ -1,7 +1,7 @@
 #include "config.h"
 
-#include "googletest/gtest.h"
-#include "logging.h"
+#include "glog/logging.h"
+#include "gtest/gtest.h"
 #include "utils/platform.h"
 #include "utils/utils_config.h"
 

@@ -17,14 +17,14 @@
 #include <sstream>
 #include <string>
 
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "utils/o_print_stream.h"
 
 namespace alpaca {
 
 template <class T>
 std::string PrintValueToStdString(const T& t) {
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   OPrintStream strm(out);
   strm << t;
   return out.str();

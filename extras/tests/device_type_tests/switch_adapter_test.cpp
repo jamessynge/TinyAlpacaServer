@@ -8,10 +8,10 @@
 #include "alpaca_request.h"
 #include "constants.h"
 #include "device_info.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
 #include "extras/test_tools/mock_switch_group.h"
-#include "googletest/gmock.h"
-#include "googletest/gtest.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "utils/inline_literal.h"
 #include "utils/literal.h"
 #include "utils/status.h"
@@ -98,7 +98,7 @@ TEST_F(SwitchGroupTest, MaxSwitch) {
   EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(9));
 
   request_.device_method = EDeviceMethod::kMaxSwitch;
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   EXPECT_TRUE(switch_group_.HandleGetRequest(request_, out));
   const std::string response = out.str();
 
@@ -125,7 +125,7 @@ TEST_F(SwitchGroupTest, DetectsMissingSwitchId) {
        }) {
     request_.device_method = device_method;
 
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -139,7 +139,7 @@ TEST_F(SwitchGroupTest, DetectsMissingSwitchId) {
        }) {
     request_.device_method = device_method;
 
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandlePutRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -167,7 +167,7 @@ TEST_F(SwitchGroupTest, DetectsSwitchIdTooHigh) {
            EDeviceMethod::kSwitchStep,
        }) {
     request_.device_method = device_method;
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -180,7 +180,7 @@ TEST_F(SwitchGroupTest, DetectsSwitchIdTooHigh) {
            EDeviceMethod::kSetSwitchValue,
        }) {
     request_.device_method = device_method;
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandlePutRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -196,7 +196,7 @@ TEST_F(SwitchGroupTest, CanWrite) {
   EXPECT_CALL(switch_group_, GetCanWrite(2)).WillOnce(Return(false));
 
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseIsGood(response);
@@ -209,7 +209,7 @@ TEST_F(SwitchGroupTest, CanWrite) {
   EXPECT_CALL(switch_group_, GetCanWrite(3)).WillOnce(Return(true));
 
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseIsGood(response);
@@ -225,7 +225,7 @@ TEST_F(SwitchGroupTest, GetSwitch) {
   EXPECT_CALL(switch_group_, GetSwitch(0)).WillOnce(Return(false));
 
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseIsGood(response);
@@ -238,7 +238,7 @@ TEST_F(SwitchGroupTest, GetSwitch) {
   EXPECT_CALL(switch_group_, GetSwitch(8)).WillOnce(Return(true));
 
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseIsGood(response);
@@ -255,7 +255,7 @@ TEST_F(SwitchGroupTest, GetSwitch) {
   EXPECT_CALL(switch_group_, GetSwitch(1)).WillOnce(Return(status));
 
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -273,7 +273,7 @@ TEST_F(SwitchGroupTest, GetSwitchValue) {
   EXPECT_CALL(switch_group_, GetSwitchValue(0)).WillOnce(Return(123.4));
 
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseIsGood(response);
@@ -287,7 +287,7 @@ TEST_F(SwitchGroupTest, GetSwitchValue) {
   EXPECT_CALL(switch_group_, GetSwitchValue(0)).WillOnce(Return(status));
 
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -304,7 +304,7 @@ TEST_F(SwitchGroupTest, GetMinSwitchValue) {
   request_.set_id(0);
   EXPECT_CALL(switch_group_, GetMinSwitchValue(0)).WillOnce(Return(1.23));
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   switch_group_.HandleGetRequest(request_, out);
   const std::string response = out.str();
   VerifyResponseIsGood(response);
@@ -318,7 +318,7 @@ TEST_F(SwitchGroupTest, GetMaxSwitchValue) {
   request_.set_id(0);
   EXPECT_CALL(switch_group_, GetMaxSwitchValue(0)).WillOnce(Return(1000.001));
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   switch_group_.HandleGetRequest(request_, out);
   const std::string response = out.str();
   VerifyResponseIsGood(response);
@@ -332,7 +332,7 @@ TEST_F(SwitchGroupTest, GetSwitchStep) {
   request_.set_id(0);
   EXPECT_CALL(switch_group_, GetSwitchStep(0)).WillOnce(Return(1));
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   switch_group_.HandleGetRequest(request_, out);
   const std::string response = out.str();
   VerifyResponseIsGood(response);
@@ -347,7 +347,7 @@ TEST_F(SwitchGroupTest, SetSwitch_MissingState) {
   request_.set_value(1.23);  // Should be ignored.
   EXPECT_CALL(switch_group_, SetSwitch).Times(0);
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
   const std::string response = out.str();
   VerifyResponseHasError(response);
@@ -365,7 +365,7 @@ TEST_F(SwitchGroupTest, SetSwitch) {
   request_.set_state(false);
   EXPECT_CALL(switch_group_, SetSwitch(0, false)).WillOnce(Return(OkStatus()));
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
   const std::string response = out.str();
   VerifyResponseIsGood(response);
@@ -380,7 +380,7 @@ TEST_F(SwitchGroupTest, SetSwitchValue_MissingValue) {
   request_.set_state(false);  // Should be ignored.
   EXPECT_CALL(switch_group_, SetSwitchValue).Times(0);
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
   const std::string response = out.str();
   VerifyResponseHasError(response);
@@ -399,7 +399,7 @@ TEST_F(SwitchGroupTest, SetSwitchValue_InvalidValue) {
   request_.set_id(0);
   request_.set_value(1.001);
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandlePutRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -413,7 +413,7 @@ TEST_F(SwitchGroupTest, SetSwitchValue_InvalidValue) {
   request_.set_id(0);
   request_.set_value(-0.001);
   {
-    hostuino::PrintToStdString out;
+    mcucore::test::PrintToStdString out;
     switch_group_.HandlePutRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
@@ -434,7 +434,7 @@ TEST_F(SwitchGroupTest, SetSwitchValue) {
   EXPECT_CALL(switch_group_, SetSwitchValue(0, 1.23))
       .WillOnce(Return(OkStatus()));
 
-  hostuino::PrintToStdString out;
+  mcucore::test::PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
   const std::string response = out.str();
   VerifyResponseIsGood(response);

@@ -7,7 +7,7 @@
 #include <string>
 
 #include "absl/status/statusor.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/case_insensitive_less.h"
+#include "mcucore/extrastest_tools/case_insensitive_less.h"
 
 namespace alpaca {
 namespace test {
@@ -45,8 +45,10 @@ struct HttpRequest {
   std::string method = "GET";
   std::string path;
   std::string version = "HTTP/1.1";
-  std::map<std::string, std::string, hostuino::CaseInsensitiveLess> headers;
-  std::map<std::string, std::string, hostuino::CaseInsensitiveLess> parameters;
+  std::map<std::string, std::string, mcucore::test::CaseInsensitiveLess>
+      headers;
+  std::map<std::string, std::string, mcucore::test::CaseInsensitiveLess>
+      parameters;
 };
 
 }  // namespace test

@@ -2,7 +2,7 @@
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_REQUEST_LISTENER_H_
 
 #include "constants.h"
-#include "googletest/gmock.h"
+#include "gmock/gmock.h"
 #include "request_listener.h"
 
 namespace alpaca {

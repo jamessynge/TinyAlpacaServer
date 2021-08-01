@@ -41,12 +41,13 @@ using MicrosT = unsigned long;  // NOLINT
 #define TAS_ENABLE_DEBUGGING 1
 #endif  // NDEBUG
 
+#include <Arduino.h>  // IWYU pragma: export
+
 #include "absl/base/attributes.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/arduino.h"  // IWYU pragma: export
-#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/pgmspace.h"  // IWYU pragma: export
-#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/print.h"  // IWYU pragma: export
-#include "experimental/users/jamessynge/arduino/hostuino/extras/host/arduino/stream.h"  // IWYU pragma: export
-#include "experimental/users/jamessynge/arduino/hostuino/extras/host/eeprom/eeprom.h"  // IWYU pragma: export
+#include "mcucore/extrashost/arduino/pgmspace.h"  // IWYU pragma: export
+#include "mcucore/extrashost/arduino/print.h"     // IWYU pragma: export
+#include "mcucore/extrashost/arduino/stream.h"    // IWYU pragma: export
+#include "mcucore/extrashost/eeprom/eeprom.h"     // IWYU pragma: export
 
 #define AVR_PROGMEM
 

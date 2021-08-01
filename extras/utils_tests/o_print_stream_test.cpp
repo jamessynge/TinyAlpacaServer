@@ -4,9 +4,9 @@
 
 #include <string_view>
 
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/sample_printable.h"
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "mcucore/extrastest_tools/sample_printable.h"
 
 namespace alpaca {
 namespace test {
@@ -14,7 +14,7 @@ namespace {
 
 template <typename T>
 void VerifyOPrintStream(const T value, std::string_view expected) {
-  hostuino::PrintToStdString p2ss;
+  mcucore::test::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << value;
   EXPECT_EQ(p2ss.str(), expected) << "Value: " << value;
@@ -53,23 +53,23 @@ TEST(OPrintStreamTest, BuiltInTypes) {
 }
 
 TEST(OPrintStreamTest, StringLiteral) {
-  hostuino::PrintToStdString p2ss;
+  mcucore::test::PrintToStdString p2ss;
   OPrintStream out(p2ss);
   out << "abc";
   EXPECT_EQ(p2ss.str(), "abc");
 }
 
 TEST(OPrintStreamTest, Printable) {
-  hostuino::SamplePrintable value("abc");
+  mcucore::test::SamplePrintable value("abc");
   {
-    hostuino::PrintToStdString p2ss;
+    mcucore::test::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value;
     EXPECT_EQ(p2ss.str(), "abc");
   }
   {
     auto& value_ref = value;
-    hostuino::PrintToStdString p2ss;
+    mcucore::test::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value_ref;
     EXPECT_EQ(p2ss.str(), "abc");
@@ -77,16 +77,16 @@ TEST(OPrintStreamTest, Printable) {
 }
 
 TEST(OPrintStreamTest, ConstPrintable) {
-  const hostuino::SamplePrintable value("abc");
+  const mcucore::test::SamplePrintable value("abc");
   {
-    hostuino::PrintToStdString p2ss;
+    mcucore::test::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value;
     EXPECT_EQ(p2ss.str(), "abc");
   }
   {
     auto& value_ref = value;
-    hostuino::PrintToStdString p2ss;
+    mcucore::test::PrintToStdString p2ss;
     OPrintStream out(p2ss);
     out << value_ref;
     EXPECT_EQ(p2ss.str(), "abc");
@@ -94,7 +94,7 @@ TEST(OPrintStreamTest, ConstPrintable) {
 }
 
 TEST(OPrintStreamTest, ChangeBase) {
-  hostuino::PrintToStdString p2ss;
+  mcucore::test::PrintToStdString p2ss;
   OPrintStream out(p2ss);
 
   out << 127 << " " << BaseHex << 127 << ' ' << BaseTwo << 127;

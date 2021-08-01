@@ -8,8 +8,8 @@ cc_library(
     hdrs = ["am_weather_box.h"],
     deps = [
         ":constants",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/mlx90614",
+        "//mcucore/extras/host/arduino",
+        "//mcucore/extras/host/mlx90614",
         "//src:TinyAlpacaServer",
     ],
 )
@@ -17,7 +17,7 @@ cc_library(
 cc_library(
     name = "constants",
     hdrs = ["constants.h"],
-    deps = ["//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino"],
+    deps = ["//mcucore/extras/host/arduino"],
 )
 
 cc_library(
@@ -26,7 +26,7 @@ cc_library(
     hdrs = ["server.h"],
     deps = [
         ":am_weather_box",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/host/arduino",
+        "//mcucore/extras/host/arduino",
         "//src:TinyAlpacaServer",
     ],
 )

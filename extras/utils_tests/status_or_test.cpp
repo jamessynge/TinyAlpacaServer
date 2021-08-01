@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
 #include "utils/literal.h"
 #include "utils/status.h"
 #include "utils/string_view.h"

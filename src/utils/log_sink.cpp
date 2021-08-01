@@ -4,9 +4,9 @@
 
 #ifndef ARDUINO
 #include "base/logging_extensions.h"
-#include "experimental/users/jamessynge/arduino/hostuino/extras/test_tools/print_to_std_string.h"  // pragma: keep extras include
-#include "logging.h"
-#endif  // !ARDUINO
+#include "glog/logging.h"
+#include "mcucore/extrastest_tools/print_to_std_string.h"  // pragma: keep extras include
+#endif                                                     // !ARDUINO
 
 #ifdef ARDUINO
 #define DEFAULT_SINK_OUT ::Serial
@@ -94,7 +94,7 @@ CheckSink::~CheckSink() {
   }
 #else   // !ARDUINO
   FlushLogFiles(base_logging::INFO);
-  hostuino::PrintToStdString ptss;
+  mcucore::test::PrintToStdString ptss;
   Announce(ptss);
   CHECK(false) << ptss.str();
 #endif  // ARDUINO

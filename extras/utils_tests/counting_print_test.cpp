@@ -4,7 +4,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
 
 namespace alpaca {
 namespace test {

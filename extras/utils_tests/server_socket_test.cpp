@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include "extras/test_tools/mock_socket_listener.h"
-#include "googletest/gtest.h"
+#include "gtest/gtest.h"
 
 namespace alpaca {
 namespace test {

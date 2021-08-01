@@ -8,8 +8,6 @@ cc_test(
     srcs = ["observing_conditions_adapter_test.cc"],
     deps = [
         "//absl/strings",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:print_to_std_string",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:sample_printable",
         "//extras/test_tools:decode_and_dispatch_test_base",
         "//extras/test_tools:http_request",
         "//extras/test_tools:http_response",
@@ -18,6 +16,8 @@ cc_test(
         "//extras/test_tools:mock_observing_conditions",
         "//extras/test_tools:test_tiny_alpaca_server",
         "//googletest:gunit_main",
+        "//mcucore/extras/test_tools:print_to_std_string",
+        "//mcucore/extras/test_tools:sample_printable",
         "//src:alpaca_devices",
         "//src:alpaca_discovery_server",
         "//src:alpaca_response",
@@ -45,9 +45,9 @@ cc_test(
     srcs = ["switch_adapter_test.cc"],
     deps = [
         "//absl/strings",
-        "//experimental/users/jamessynge/arduino/hostuino/extras/test_tools:print_to_std_string",
         "//extras/test_tools:mock_switch_group",
         "//googletest:gunit_main",
+        "//mcucore/extras/test_tools:print_to_std_string",
         "//src:alpaca_request",
         "//src:constants",
         "//src:device_info",

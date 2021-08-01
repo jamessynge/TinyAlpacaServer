@@ -160,7 +160,7 @@ void setup() {
   // read. Note that the baud rate is meaningful on boards that do true serial,
   // while those microcontrollers with builtin USB likely don't rate limit
   // because there isn't a need.
-  Serial.begin(57600);
+  Serial.begin(115200);
 
   // Wait for serial port to connect, or at least some minimum amount of time
   // (TBD), else the initial output gets lost. Note that this isn't true for all

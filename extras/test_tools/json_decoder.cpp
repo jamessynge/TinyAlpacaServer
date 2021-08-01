@@ -19,8 +19,8 @@
 #include "absl/strings/escaping.h"
 #include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
-#include "googletest/gtest.h"
-#include "logging.h"
+#include "glog/logging.h"
+#include "gtest/gtest.h"
 #include "util/task/status_macros.h"
 
 namespace alpaca {

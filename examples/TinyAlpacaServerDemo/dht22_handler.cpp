@@ -1,6 +1,6 @@
-#include "dht22_handler.h"
+#include "src/dht22_handler.h"
 
-#include "pretend_devices.h"
+#include "src/pretend_devices.h"
 
 using ::alpaca::Literal;
 using ::alpaca::ObservingConditionsAdapter;

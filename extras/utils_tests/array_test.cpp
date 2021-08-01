@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#include "googletest/gmock.h"
-#include "googletest/gtest.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 namespace alpaca {
 namespace test {
