@@ -1,8 +1,8 @@
 #include "utils/server_socket.h"
 
-#include "utils/logging.h"
-#include "utils/o_print_stream.h"
-#include "utils/platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {

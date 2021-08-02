@@ -9,7 +9,7 @@
 // Author: james.synge@gmail.com
 
 #include "device_types/switch/switch_interface.h"
-#include "utils/platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 
 namespace alpaca {
 

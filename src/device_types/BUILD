@@ -8,6 +8,8 @@ cc_library(
     srcs = ["device_impl_base.cc"],
     hdrs = ["device_impl_base.h"],
     deps = [
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
         "//src:alpaca_request",
         "//src:alpaca_response",
         "//src:ascom_error_codes",
@@ -18,8 +20,6 @@ cc_library(
         "//src:literals",
         "//src/utils:counting_print",
         "//src/utils:json_encoder",
-        "//src/utils:o_print_stream",
-        "//src/utils:platform",
         "//src/utils:status",
         "//src/utils:status_or",
     ],

@@ -17,13 +17,13 @@
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "extra_parameters.h"
 #include "extras/test_tools/mock_request_decoder_listener.h"
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "request_decoder_listener.h"
-#include "utils/platform.h"
 #include "utils/string_view.h"
 
 ABSL_DECLARE_FLAG(int, v);

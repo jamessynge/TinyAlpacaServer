@@ -1,9 +1,9 @@
 #include "device_interface.h"
 
 #include "device_info.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/json_encoder.h"
 #include "utils/json_encoder_helpers.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

@@ -9,11 +9,11 @@ cc_library(
     deps = [
         ":eeprom_io",
         ":hex_escape",
-        ":inline_literal",
-        ":logging",
-        ":o_print_stream",
-        ":platform",
         ":platform_ethernet",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
     ],
 )
 
@@ -23,10 +23,10 @@ cc_library(
     hdrs = ["any_printable.h"],
     deps = [
         ":literal",
-        ":platform",
-        ":progmem_string",
-        ":progmem_string_view",
         ":string_view",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string",
+        "//mcucore/src:progmem_string_view",
     ],
 )
 
@@ -35,8 +35,8 @@ cc_library(
     hdrs = ["array.h"],
     deps = [
         ":array_view",
-        ":logging",
-        ":platform",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -44,9 +44,9 @@ cc_library(
     name = "array_view",
     hdrs = ["array_view.h"],
     deps = [
-        ":logging",
-        ":platform",
-        "//src/utils/traits:type_traits",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:type_traits",
     ],
 )
 
@@ -56,22 +56,13 @@ cc_library(
     hdrs = ["avr_timer_counter.h"],
     deps = [
         ":counting_print",
-        ":inline_literal",
-        ":logging",
-        ":platform",
         ":print_misc",
         ":stream_to_print",
-        "//src/utils/traits:print_to_trait",
-        "//src/utils/traits:type_traits",
-    ],
-)
-
-cc_library(
-    name = "basename",
-    hdrs = ["basename.h"],
-    deps = [
-        ":inline_literal",
-        ":platform",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:print_to_trait",
+        "//mcucore/src:type_traits",
     ],
 )
 
@@ -80,8 +71,8 @@ cc_library(
     srcs = ["connection.cc"],
     hdrs = ["connection.h"],
     deps = [
-        ":logging",
         ":platform_ethernet",
+        "//mcucore/src:logging",
     ],
 )
 
@@ -89,7 +80,7 @@ cc_library(
     name = "counting_print",
     srcs = ["counting_print.cc"],
     hdrs = ["counting_print.h"],
-    deps = [":platform"],
+    deps = ["//mcucore/src:mcucore_platform"],
 )
 
 cc_library(
@@ -98,9 +89,9 @@ cc_library(
     hdrs = ["eeprom_io.h"],
     deps = [
         ":hex_escape",
-        ":logging",
-        ":o_print_stream",
-        ":platform",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
     ],
 )
 
@@ -109,18 +100,8 @@ cc_library(
     srcs = ["hex_escape.cc"],
     hdrs = ["hex_escape.h"],
     deps = [
-        ":logging",
-        ":platform",
-    ],
-)
-
-cc_library(
-    name = "inline_literal",
-    hdrs = ["inline_literal.h"],
-    copts = ["-std=c++11"],
-    deps = [
-        ":platform",
-        ":progmem_string_view",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -130,10 +111,10 @@ cc_library(
     hdrs = ["ip_device.h"],
     deps = [
         ":addresses",
-        ":inline_literal",
-        ":logging",
-        ":platform",
         ":platform_ethernet",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -146,10 +127,10 @@ cc_library(
         ":array_view",
         ":counting_print",
         ":literal",
-        ":o_print_stream",
-        ":platform",
-        ":progmem_string",
-        ":progmem_string_view",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
+        "//mcucore/src:progmem_string",
+        "//mcucore/src:progmem_string_view",
     ],
 )
 
@@ -160,8 +141,8 @@ cc_library(
     deps = [
         ":counting_print",
         ":json_encoder",
-        ":logging",
-        ":platform",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -170,34 +151,11 @@ cc_library(
     srcs = ["literal.cc"],
     hdrs = ["literal.h"],
     deps = [
-        ":logging",
-        ":platform",
-        ":progmem_string",
-        ":progmem_string_view",
-        "//src/utils/traits:print_to_trait",
-    ],
-)
-
-cc_library(
-    name = "log_sink",
-    srcs = ["log_sink.cc"],
-    hdrs = ["log_sink.h"],
-    deps = [
-        ":o_print_stream",
-        ":platform",
-        "//base:logging_extensions",
-        "//glog:logging",
-        "//mcucore/extras/test_tools:print_to_std_string",
-    ],
-)
-
-cc_library(
-    name = "logging",
-    hdrs = ["logging.h"],
-    deps = [
-        ":basename",
-        ":log_sink",
-        ":utils_config",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:print_to_trait",
+        "//mcucore/src:progmem_string",
+        "//mcucore/src:progmem_string_view",
     ],
 )
 
@@ -206,33 +164,9 @@ cc_library(
     srcs = ["moving_average.cc"],
     hdrs = ["moving_average.h"],
     deps = [
-        ":inline_literal",
-        ":logging",
-        ":platform",
-    ],
-)
-
-cc_library(
-    name = "o_print_stream",
-    hdrs = ["o_print_stream.h"],
-    deps = [
-        ":platform",
-        "//src/utils/traits:print_to_trait",
-        "//src/utils/traits:type_traits",
-    ],
-)
-
-cc_library(
-    name = "platform",
-    hdrs = ["platform.h"],
-    deps = [
-        ":utils_config",
-        "//absl/base:core_headers",
-        "//mcucore/extras/host/arduino",
-        "//mcucore/extras/host/arduino:pgmspace",
-        "//mcucore/extras/host/arduino:print",
-        "//mcucore/extras/host/arduino:stream",
-        "//mcucore/extras/host/eeprom",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -241,12 +175,12 @@ cc_library(
     srcs = ["platform_ethernet.cc"],
     hdrs = ["platform_ethernet.h"],
     deps = [
-        ":logging",
-        ":platform",
         "//mcucore/extras/host/arduino:client",
         "//mcucore/extras/host/arduino:ip_address",
         "//mcucore/extras/host/ethernet5500",
         "//mcucore/extras/host/ethernet5500:host_sockets",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -256,8 +190,8 @@ cc_library(
     hdrs = ["print_misc.h"],
     deps = [
         ":counting_print",
-        ":inline_literal",
-        ":platform",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -269,29 +203,7 @@ cc_library(
         ":any_printable",
         ":array",
         ":array_view",
-        ":platform",
-    ],
-)
-
-cc_library(
-    name = "progmem_string",
-    srcs = [
-        "progmem_string.cc",
-    ],
-    hdrs = ["progmem_string.h"],
-    deps = [
-        ":inline_literal",
-        ":platform",
-    ],
-)
-
-cc_library(
-    name = "progmem_string_view",
-    srcs = ["progmem_string_view.cc"],
-    hdrs = ["progmem_string_view.h"],
-    deps = [
-        ":platform",
-        "//src/utils/traits:print_to_trait",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -301,11 +213,11 @@ cc_library(
     hdrs = ["server_socket.h"],
     deps = [
         ":connection",
-        ":logging",
-        ":o_print_stream",
-        ":platform",
         ":platform_ethernet",
         ":socket_listener",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
     ],
 )
 
@@ -314,7 +226,7 @@ cc_library(
     hdrs = ["socket_listener.h"],
     deps = [
         ":connection",
-        ":platform",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -325,10 +237,10 @@ cc_library(
     deps = [
         ":counting_print",
         ":hex_escape",
-        ":inline_literal",
         ":literal",
-        ":o_print_stream",
-        ":platform",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
     ],
 )
 
@@ -336,9 +248,9 @@ cc_library(
     name = "status_or",
     hdrs = ["status_or.h"],
     deps = [
-        ":logging",
-        ":platform",
         ":status",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -346,8 +258,8 @@ cc_library(
     name = "stream_to_print",
     hdrs = ["stream_to_print.h"],
     deps = [
-        ":o_print_stream",
-        ":platform",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
     ],
 )
 
@@ -357,9 +269,9 @@ cc_library(
     hdrs = ["string_compare.h"],
     deps = [
         ":literal",
-        ":platform",
-        ":progmem_string_view",
         ":string_view",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string_view",
     ],
 )
 
@@ -373,11 +285,11 @@ cc_library(
     ],
     deps = [
         ":hex_escape",
-        ":inline_literal",
-        ":logging",
-        ":o_print_stream",
-        ":platform",
-        "//src/utils/traits:print_to_trait",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
+        "//mcucore/src:print_to_trait",
     ],
 )
 
@@ -385,12 +297,7 @@ cc_library(
     name = "tiny_string",
     hdrs = ["tiny_string.h"],
     deps = [
-        ":logging",
-        ":platform",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
     ],
-)
-
-cc_library(
-    name = "utils_config",
-    hdrs = ["utils_config.h"],
 )

@@ -8,8 +8,8 @@
 
 #include "config.h"
 #include "constants.h"
-#include "utils/logging.h"
-#include "utils/platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/string_view.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS

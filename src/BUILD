@@ -27,6 +27,7 @@ cc_library(
         ":server_socket_and_connection",
         ":server_sockets_and_connections",
         ":tiny_alpaca_server",
+        "//mcucore/src:McuCore",
         "//src/device_types:device_impl_base",
         "//src/device_types/cover_calibrator:cover_calibrator_adapter",
         "//src/device_types/cover_calibrator:cover_calibrator_constants",
@@ -40,25 +41,18 @@ cc_library(
         "//src/utils:array",
         "//src/utils:array_view",
         "//src/utils:avr_timer_counter",
-        "//src/utils:basename",
         "//src/utils:connection",
         "//src/utils:counting_print",
         "//src/utils:eeprom_io",
         "//src/utils:hex_escape",
-        "//src/utils:inline_literal",
         "//src/utils:ip_device",
         "//src/utils:json_encoder",
         "//src/utils:json_encoder_helpers",
         "//src/utils:literal",
-        "//src/utils:log_sink",
-        "//src/utils:logging",
         "//src/utils:moving_average",
-        "//src/utils:o_print_stream",
-        "//src/utils:platform",
         "//src/utils:platform_ethernet",
         "//src/utils:print_misc",
         "//src/utils:printable_cat",
-        "//src/utils:progmem_string_view",
         "//src/utils:server_socket",
         "//src/utils:socket_listener",
         "//src/utils:status",
@@ -67,9 +61,6 @@ cc_library(
         "//src/utils:string_compare",
         "//src/utils:string_view",
         "//src/utils:tiny_string",
-        "//src/utils:utils_config",
-        "//src/utils/traits:print_to_trait",
-        "//src/utils/traits:type_traits",
     ],
 )
 
@@ -86,13 +77,13 @@ cc_library(
         ":literals",
         ":request_listener",
         ":server_description",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
         "//src/device_types:device_impl_base",
         "//src/utils:array_view",
         "//src/utils:hex_escape",
-        "//src/utils:inline_literal",
         "//src/utils:json_encoder",
-        "//src/utils:logging",
-        "//src/utils:platform",
         "//src/utils:platform_ethernet",
     ],
 )
@@ -102,10 +93,10 @@ cc_library(
     srcs = ["alpaca_discovery_server.cc"],
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
         "//src/utils:hex_escape",
         "//src/utils:literal",
-        "//src/utils:o_print_stream",
-        "//src/utils:platform",
         "//src/utils:platform_ethernet",
         "//src/utils:string_compare",
         "//src/utils:string_view",
@@ -120,8 +111,8 @@ cc_library(
         ":config",
         ":constants",
         ":extra_parameters",
-        "//src/utils:logging",
-        "//src/utils:platform",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:string_view",
     ],
 )
@@ -137,12 +128,12 @@ cc_library(
         ":http_response_header",
         ":json_response",
         ":literals",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:any_printable",
         "//src/utils:array_view",
         "//src/utils:counting_print",
         "//src/utils:json_encoder",
         "//src/utils:json_encoder_helpers",
-        "//src/utils:platform",
         "//src/utils:printable_cat",
         "//src/utils:status_or",
     ],
@@ -154,7 +145,7 @@ cc_library(
     hdrs = ["ascom_error_codes.h"],
     deps = [
         ":literals",
-        "//src/utils:platform",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:status",
     ],
 )
@@ -171,8 +162,8 @@ cc_library(
     srcs = ["constants.cc"],
     hdrs = ["constants.h"],
     deps = [
-        "//src/utils:inline_literal",
-        "//src/utils:platform",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:print_misc",
     ],
 )
@@ -184,10 +175,10 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string",
         "//src/utils:json_encoder",
         "//src/utils:literal",
-        "//src/utils:platform",
-        "//src/utils:progmem_string",
         "//src/utils:string_view",
     ],
 )
@@ -200,10 +191,10 @@ cc_library(
         ":alpaca_request",
         ":device_info",
         ":json_response",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:array_view",
         "//src/utils:json_encoder",
         "//src/utils:json_encoder_helpers",
-        "//src/utils:platform",
     ],
 )
 
@@ -213,7 +204,7 @@ cc_library(
     deps = [
         ":config",
         ":constants",
-        "//src/utils:platform",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:string_view",
         "//src/utils:tiny_string",
     ],
@@ -226,8 +217,8 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:literal",
-        "//src/utils:platform",
     ],
 )
 
@@ -237,9 +228,9 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":literals",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:any_printable",
         "//src/utils:json_encoder",
-        "//src/utils:platform",
         "//src/utils:string_view",
     ],
 )
@@ -250,8 +241,8 @@ cc_library(
     hdrs = ["literals.h"],
     textual_hdrs = ["literals.inc"],
     deps = [
+        "//mcucore/src:mcucore_platform",
         "//src/utils:literal",
-        "//src/utils:platform",
     ],
 )
 
@@ -262,9 +253,9 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
+        "//mcucore/src:logging",
         "//src/utils:array_view",
         "//src/utils:literal",
-        "//src/utils:logging",
         "//src/utils:string_compare",
         "//src/utils:string_view",
     ],
@@ -281,10 +272,10 @@ cc_library(
         ":literals",
         ":match_literals",
         ":request_decoder_listener",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:hex_escape",
-        "//src/utils:inline_literal",
-        "//src/utils:logging",
-        "//src/utils:platform",
         "//src/utils:string_compare",
         "//src/utils:string_view",
     ],
@@ -296,9 +287,9 @@ cc_library(
     hdrs = ["request_decoder_listener.h"],
     deps = [
         ":constants",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:hex_escape",
-        "//src/utils:logging",
-        "//src/utils:platform",
         "//src/utils:string_view",
     ],
 )
@@ -309,7 +300,7 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":constants",
-        "//src/utils:platform",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -325,7 +316,7 @@ cc_library(
         ":literals",
         ":request_decoder",
         ":request_listener",
-        "//src/utils:platform",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:platform_ethernet",
         "//src/utils:socket_listener",
         "//src/utils:string_view",
@@ -338,9 +329,9 @@ cc_library(
     hdrs = ["server_description.h"],
     deps = [
         ":literals",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string",
         "//src/utils:json_encoder",
-        "//src/utils:platform",
-        "//src/utils:progmem_string",
         "//src/utils:string_view",
     ],
 )
@@ -351,7 +342,7 @@ cc_library(
     hdrs = ["server_socket_and_connection.h"],
     deps = [
         ":server_connection",
-        "//src/utils:platform",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:server_socket",
     ],
 )
@@ -363,7 +354,7 @@ cc_library(
     deps = [
         ":request_listener",
         ":server_socket_and_connection",
-        "//src/utils:platform",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 
@@ -380,13 +371,13 @@ cc_library(
         ":literals",
         ":server_description",
         ":server_sockets_and_connections",
+        "//mcucore/src:mcucore_platform",
         "//src/device_types:device_impl_base",
         "//src/utils:any_printable",
         "//src/utils:array_view",
         "//src/utils:counting_print",
         "//src/utils:json_encoder",
         "//src/utils:json_encoder_helpers",
-        "//src/utils:platform",
         "//src/utils:printable_cat",
     ],
 )

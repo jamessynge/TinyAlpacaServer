@@ -4,11 +4,11 @@
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "device_info.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "http_response_header.h"
 #include "literals.h"
 #include "utils/counting_print.h"
 #include "utils/json_encoder.h"
-#include "utils/o_print_stream.h"
 #include "utils/status.h"
 
 namespace alpaca {

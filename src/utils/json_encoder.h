@@ -6,11 +6,11 @@
 //
 // Author: james.synge@gmail.com
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string_view.h"
 #include "utils/any_printable.h"
 #include "utils/array_view.h"
-#include "utils/platform.h"
-#include "utils/progmem_string.h"
-#include "utils/progmem_string_view.h"
 
 namespace alpaca {
 

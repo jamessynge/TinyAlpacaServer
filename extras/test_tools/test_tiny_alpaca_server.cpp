@@ -7,15 +7,15 @@
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 #include "device_interface.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "extras/test_tools/string_io_connection.h"
 #include "mcucore/extrashost/ethernet5500/ethernet_config.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"
 #include "utils/array_view.h"
-#include "utils/inline_literal.h"
-#include "utils/logging.h"
-#include "utils/o_print_stream.h"
 
 namespace alpaca {
 namespace test {

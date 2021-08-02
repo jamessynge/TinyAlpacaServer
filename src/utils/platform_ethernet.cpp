@@ -1,6 +1,6 @@
 #include "utils/platform_ethernet.h"
 
-#include "utils/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 
 namespace alpaca {
 #if TAS_HAS_PLATFORM_ETHERNET_INTERFACE

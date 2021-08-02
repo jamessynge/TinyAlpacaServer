@@ -1,7 +1,6 @@
 #include <Arduino.h>
+#include <Ethernet5500.h>
 #include <TinyAlpacaServer.h>
-
-#include "mcucore/extrashost/ethernet5500/ethernet5500.h"
 
 alpaca::IpDevice ip_device;
 

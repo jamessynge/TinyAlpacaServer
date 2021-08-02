@@ -5,7 +5,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "utils/platform.h"  // IWYU pragma: export
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"  // IWYU pragma: export
 
 #ifdef ARDUINO
 
@@ -21,10 +21,10 @@
 
 #elif TAS_HOST_TARGET
 
-#include <IPAddress.h>  // IWYU pragma : export
+#include <Client.h>        // IWYU pragma : export
+#include <Ethernet5500.h>  // IWYU pragma: export
+#include <IPAddress.h>     // IWYU pragma : export
 
-#include "mcucore/extrashost/arduino/client.h"  // IWYU pragma : export
-#include "mcucore/extrashost/ethernet5500/ethernet5500.h"  // IWYU pragma: export
 #include "mcucore/extrashost/ethernet5500/host_sockets.h"  // IWYU pragma: export
 
 #endif  // ARDUINO

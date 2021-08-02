@@ -26,9 +26,9 @@
 
 #include "alpaca_request.h"
 #include "device_info.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "json_response.h"
 #include "utils/array_view.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

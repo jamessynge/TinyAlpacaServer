@@ -22,11 +22,11 @@
 
 #include "config.h"
 #include "constants.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 #include "literals.h"
 #include "match_literals.h"
 #include "utils/hex_escape.h"
-#include "utils/inline_literal.h"
-#include "utils/logging.h"
 #include "utils/string_compare.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified

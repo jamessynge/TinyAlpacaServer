@@ -11,9 +11,9 @@
 #include <functional>
 #include <utility>
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/any_printable.h"
 #include "utils/json_encoder.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 namespace test {

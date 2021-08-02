@@ -6,6 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>  // IWYU pragma: export
+
 // TODO(jamessynge): Reduce this list to just the necessary headers. This will
 // probably be helped along by splitting this huge library into several smaller
 // ones (e.g. much of src/utils could be moved to a generic Arduino helpers
@@ -46,25 +48,18 @@
 #include "utils/array.h"                               // IWYU pragma: export
 #include "utils/array_view.h"                          // IWYU pragma: export
 #include "utils/avr_timer_counter.h"                   // IWYU pragma: export
-#include "utils/basename.h"                            // IWYU pragma: export
 #include "utils/connection.h"                          // IWYU pragma: export
 #include "utils/counting_print.h"                      // IWYU pragma: export
 #include "utils/eeprom_io.h"                           // IWYU pragma: export
 #include "utils/hex_escape.h"                          // IWYU pragma: export
-#include "utils/inline_literal.h"                      // IWYU pragma: export
 #include "utils/ip_device.h"                           // IWYU pragma: export
 #include "utils/json_encoder.h"                        // IWYU pragma: export
 #include "utils/json_encoder_helpers.h"                // IWYU pragma: export
 #include "utils/literal.h"                             // IWYU pragma: export
-#include "utils/log_sink.h"                            // IWYU pragma: export
-#include "utils/logging.h"                             // IWYU pragma: export
 #include "utils/moving_average.h"                      // IWYU pragma: export
-#include "utils/o_print_stream.h"                      // IWYU pragma: export
-#include "utils/platform.h"                            // IWYU pragma: export
 #include "utils/platform_ethernet.h"                   // IWYU pragma: export
 #include "utils/print_misc.h"                          // IWYU pragma: export
 #include "utils/printable_cat.h"                       // IWYU pragma: export
-#include "utils/progmem_string_view.h"                 // IWYU pragma: export
 #include "utils/server_socket.h"                       // IWYU pragma: export
 #include "utils/socket_listener.h"                     // IWYU pragma: export
 #include "utils/status.h"                              // IWYU pragma: export
@@ -73,8 +68,5 @@
 #include "utils/string_compare.h"                      // IWYU pragma: export
 #include "utils/string_view.h"                         // IWYU pragma: export
 #include "utils/tiny_string.h"                         // IWYU pragma: export
-#include "utils/traits/print_to_trait.h"               // IWYU pragma: export
-#include "utils/traits/type_traits.h"                  // IWYU pragma: export
-#include "utils/utils_config.h"                        // IWYU pragma: export
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_

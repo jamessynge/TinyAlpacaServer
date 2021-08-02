@@ -11,13 +11,13 @@ cc_test(
         "//glog:logging",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
+        "//mcucore/src:inline_literal",
         "//src:alpaca_devices",
         "//src:alpaca_request",
         "//src:constants",
         "//src:device_info",
         "//src:device_interface",
         "//src/utils:array_view",
-        "//src/utils:inline_literal",
         "//src/utils:literal",
     ],
 )
@@ -46,26 +46,14 @@ cc_test(
 )
 
 cc_test(
-    name = "config_test",
-    srcs = ["config_test.cc"],
-    deps = [
-        "//glog:logging",
-        "//googletest:gunit_main",
-        "//src:config",
-        "//src/utils:platform",
-        "//src/utils:utils_config",
-    ],
-)
-
-cc_test(
     name = "device_info_test",
     srcs = ["device_info_test.cc"],
     deps = [
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
+        "//mcucore/src:inline_literal",
         "//src:constants",
         "//src:device_info",
-        "//src/utils:inline_literal",
         "//src/utils:json_encoder",
         "//src/utils:json_encoder_helpers",
         "//src/utils:literal",
@@ -137,13 +125,13 @@ cc_test(
         "//extras/test_tools:mock_request_decoder_listener",
         "//glog:logging",
         "//googletest:gunit_main",
+        "//mcucore/src:mcucore_platform",
         "//src:alpaca_request",
         "//src:config",
         "//src:constants",
         "//src:extra_parameters",
         "//src:request_decoder",
         "//src:request_decoder_listener",
-        "//src/utils:platform",
         "//src/utils:string_view",
     ],
 )
@@ -175,6 +163,7 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/extras/test_tools:sample_printable",
+        "//mcucore/src:mcucore_platform",
         "//src:alpaca_devices",
         "//src:alpaca_discovery_server",
         "//src:alpaca_response",
@@ -189,7 +178,6 @@ cc_test(
         "//src:tiny_alpaca_server",
         "//src/device_types:device_impl_base",
         "//src/utils:array_view",
-        "//src/utils:platform",
         "//src/utils:platform_ethernet",
         "//src/utils:status",
         "//src/utils:string_view",

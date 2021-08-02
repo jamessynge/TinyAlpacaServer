@@ -4,9 +4,9 @@
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 #include "literals.h"
-#include "utils/inline_literal.h"
-#include "utils/logging.h"
 #include "utils/printable_cat.h"
 #include "utils/status.h"
 

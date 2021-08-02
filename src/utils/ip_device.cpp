@@ -10,8 +10,8 @@
 
 #include "utils/ip_device.h"
 
-#include "utils/inline_literal.h"
-#include "utils/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {

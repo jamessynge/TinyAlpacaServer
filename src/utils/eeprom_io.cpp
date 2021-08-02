@@ -1,8 +1,8 @@
 #include "utils/eeprom_io.h"
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "utils/hex_escape.h"
-#include "utils/logging.h"
-#include "utils/o_print_stream.h"
 
 namespace alpaca {
 namespace {

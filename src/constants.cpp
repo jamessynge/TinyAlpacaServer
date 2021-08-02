@@ -2,7 +2,7 @@
 
 // GENERATED FILE. See make_enum_to_string.py
 
-#include "utils/inline_literal.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
 #include "utils/print_misc.h"
 
 namespace alpaca {

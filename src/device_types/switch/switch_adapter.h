@@ -35,7 +35,7 @@
 // Author: james.synge@gmail.com
 
 #include "device_types/device_impl_base.h"
-#include "utils/platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/status_or.h"
 
 namespace alpaca {

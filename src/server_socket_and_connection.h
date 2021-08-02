@@ -6,8 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "server_connection.h"
-#include "utils/platform.h"
 #include "utils/server_socket.h"
 
 namespace alpaca {

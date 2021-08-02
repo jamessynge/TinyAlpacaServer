@@ -34,8 +34,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/connection.h"
-#include "utils/platform.h"
 #include "utils/socket_listener.h"
 
 namespace alpaca {

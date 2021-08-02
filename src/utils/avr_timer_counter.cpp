@@ -4,13 +4,13 @@
 
 #include "utils/avr_timer_counter.h"
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/print_to_trait.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/type_traits.h"
 #include "utils/counting_print.h"
-#include "utils/inline_literal.h"
-#include "utils/logging.h"
 #include "utils/print_misc.h"
 #include "utils/stream_to_print.h"
-#include "utils/traits/print_to_trait.h"
-#include "utils/traits/type_traits.h"
 
 namespace alpaca {
 

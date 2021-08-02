@@ -1,6 +1,6 @@
 #include "utils/connection.h"
 
-#include "utils/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 
 namespace alpaca {
 

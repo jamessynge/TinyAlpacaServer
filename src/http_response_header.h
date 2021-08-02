@@ -9,8 +9,8 @@
 // Author: james.synge@gmail.com
 
 #include "constants.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/literal.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

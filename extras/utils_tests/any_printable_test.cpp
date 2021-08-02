@@ -6,11 +6,11 @@
 #include <cstring>
 #include <string>
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extrashost/arduino/print.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "utils/inline_literal.h"
 #include "utils/literal.h"
 #include "utils/string_view.h"
 

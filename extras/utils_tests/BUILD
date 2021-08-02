@@ -7,8 +7,8 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/host/arduino:print",
         "//mcucore/extras/test_tools:print_to_std_string",
+        "//mcucore/src:inline_literal",
         "//src/utils:any_printable",
-        "//src/utils:inline_literal",
         "//src/utils:literal",
         "//src/utils:string_view",
     ],
@@ -47,17 +47,6 @@ cc_test(
 )
 
 cc_test(
-    name = "basename_test",
-    srcs = ["basename_test.cc"],
-    deps = [
-        "//googletest:gunit_main",
-        "//mcucore/extras/test_tools:print_to_std_string",
-        "//src/utils:basename",
-        "//src/utils:inline_literal",
-    ],
-)
-
-cc_test(
     name = "counting_print_test",
     srcs = ["counting_print_test.cc"],
     deps = [
@@ -81,24 +70,11 @@ cc_test(
 )
 
 cc_test(
-    name = "inline_literal_test",
-    srcs = ["inline_literal_test.cc"],
-    deps = [
-        "//googletest:gunit_main",
-        "//mcucore/extras/test_tools:print_to_std_string",
-        "//src/utils:inline_literal",
-        "//src/utils:literal",
-        "//src/utils:o_print_stream",
-        "//src/utils:progmem_string_view",
-    ],
-)
-
-cc_test(
     name = "is_integral_test",
     srcs = ["is_integral_test.cc"],
     deps = [
         "//googletest:gunit_main",
-        "//src/utils/traits:type_traits",
+        "//mcucore/src:type_traits",
     ],
 )
 
@@ -127,24 +103,12 @@ cc_test(
         "//extras/test_tools:string_view_utils",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src:o_print_stream",
         "//src/utils:hex_escape",
         "//src/utils:literal",
-        "//src/utils:o_print_stream",
-        "//src/utils:platform",
         "//src/utils:string_compare",
         "//src/utils:string_view",
-    ],
-)
-
-cc_test(
-    name = "log_sink_test",
-    srcs = ["log_sink_test.cc"],
-    deps = [
-        "//googletest:gunit_main",
-        "//mcucore/extras/test_tools:print_to_std_string",
-        "//src/utils:inline_literal",
-        "//src/utils:log_sink",
-        "//src/utils:o_print_stream",
     ],
 )
 
@@ -162,17 +126,6 @@ cc_test(
 )
 
 cc_test(
-    name = "o_print_stream_test",
-    srcs = ["o_print_stream_test.cc"],
-    deps = [
-        "//googletest:gunit_main",
-        "//mcucore/extras/test_tools:print_to_std_string",
-        "//mcucore/extras/test_tools:sample_printable",
-        "//src/utils:o_print_stream",
-    ],
-)
-
-cc_test(
     name = "printable_cat_test",
     srcs = ["printable_cat_test.cc"],
     deps = [
@@ -182,24 +135,6 @@ cc_test(
         "//src/utils:any_printable",
         "//src/utils:literal",
         "//src/utils:printable_cat",
-        "//src/utils:string_view",
-    ],
-)
-
-cc_test(
-    name = "progmem_string_view_test",
-    srcs = ["progmem_string_view_test.cc"],
-    deps = [
-        "//absl/strings",
-        "//extras/test_tools:progmem_string_view_utils",
-        "//extras/test_tools:string_view_utils",
-        "//googletest:gunit_main",
-        "//mcucore/extras/test_tools:print_to_std_string",
-        "//src/utils:hex_escape",
-        "//src/utils:o_print_stream",
-        "//src/utils:platform",
-        "//src/utils:progmem_string_view",
-        "//src/utils:string_compare",
         "//src/utils:string_view",
     ],
 )
@@ -244,7 +179,7 @@ cc_test(
         "//mcucore/extras/host/arduino:print",
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/extras/test_tools:sample_printable",
-        "//src/utils:o_print_stream",
+        "//mcucore/src:o_print_stream",
         "//src/utils:stream_to_print",
     ],
 )

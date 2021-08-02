@@ -8,8 +8,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include "utils/logging.h"
-#include "utils/platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 
 namespace alpaca {
 

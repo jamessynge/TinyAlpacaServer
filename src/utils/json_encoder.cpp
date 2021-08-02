@@ -4,9 +4,9 @@
 
 #include <math.h>
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "utils/counting_print.h"
 #include "utils/literal.h"
-#include "utils/o_print_stream.h"
 
 namespace alpaca {
 namespace {

@@ -7,10 +7,10 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "literals.h"
 #include "utils/any_printable.h"
 #include "utils/json_encoder.h"
-#include "utils/platform.h"
 #include "utils/string_view.h"
 
 namespace alpaca {

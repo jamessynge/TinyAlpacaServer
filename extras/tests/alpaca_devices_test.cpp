@@ -8,13 +8,13 @@
 #include "constants.h"
 #include "device_info.h"
 #include "device_interface.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "utils/array_view.h"
-#include "utils/inline_literal.h"
 #include "utils/literal.h"
 
 namespace alpaca {

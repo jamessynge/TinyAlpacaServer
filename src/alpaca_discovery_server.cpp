@@ -1,8 +1,8 @@
 #include "alpaca_discovery_server.h"
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "utils/hex_escape.h"
 #include "utils/literal.h"
-#include "utils/o_print_stream.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"
 

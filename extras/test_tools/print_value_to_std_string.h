@@ -17,8 +17,8 @@
 #include <sstream>
 #include <string>
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "utils/o_print_stream.h"
 
 namespace alpaca {
 

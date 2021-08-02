@@ -17,6 +17,8 @@ cc_library(
         "//googletest:gunit_headers",
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/extras/test_tools:sample_printable",
+        "//mcucore/src:logging",
+        "//mcucore/src:mcucore_platform",
         "//src:alpaca_devices",
         "//src:alpaca_discovery_server",
         "//src:alpaca_response",
@@ -30,8 +32,6 @@ cc_library(
         "//src:tiny_alpaca_server",
         "//src/device_types:device_impl_base",
         "//src/utils:array_view",
-        "//src/utils:logging",
-        "//src/utils:platform",
         "//src/utils:platform_ethernet",
         "//src/utils:status",
         "//src/utils:string_view",
@@ -94,7 +94,7 @@ cc_library(
         "//absl/strings",
         "//glog:logging",
         "//googletest:gunit_headers",
-        "//src/utils:logging",
+        "//mcucore/src:logging",
         "//util/task:status",
     ],
 )
@@ -116,9 +116,9 @@ cc_library(
     hdrs = ["json_test_utils.h"],
     deps = [
         "//mcucore/extras/host/arduino:print",
+        "//mcucore/src:mcucore_platform",
         "//src/utils:any_printable",
         "//src/utils:json_encoder",
-        "//src/utils:platform",
     ],
 )
 
@@ -200,14 +200,14 @@ cc_library(
     hdrs = ["print_value_to_std_string.h"],
     deps = [
         "//mcucore/extras/test_tools:print_to_std_string",
-        "//src/utils:o_print_stream",
+        "//mcucore/src:o_print_stream",
     ],
 )
 
 cc_library(
     name = "progmem_string_view_utils",
     hdrs = ["progmem_string_view_utils.h"],
-    deps = ["//src/utils:progmem_string_view"],
+    deps = ["//mcucore/src:progmem_string_view"],
 )
 
 cc_library(
@@ -240,13 +240,13 @@ cc_library(
         ":string_io_connection",
         "//absl/strings",
         "//mcucore/extras/host/ethernet5500:ethernet_config",
+        "//mcucore/src:inline_literal",
+        "//mcucore/src:logging",
+        "//mcucore/src:o_print_stream",
         "//src:device_interface",
         "//src:server_connection",
         "//src:server_description",
         "//src:tiny_alpaca_server",
         "//src/utils:array_view",
-        "//src/utils:inline_literal",
-        "//src/utils:logging",
-        "//src/utils:o_print_stream",
     ],
 )

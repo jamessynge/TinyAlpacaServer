@@ -1,8 +1,8 @@
 #include "utils/json_encoder_helpers.h"
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/counting_print.h"
-#include "utils/logging.h"
-#include "utils/platform.h"
 
 namespace alpaca {
 

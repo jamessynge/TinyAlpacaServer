@@ -1,10 +1,10 @@
 #include "match_literals.h"
 
 #include "constants.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 #include "literals.h"
 #include "utils/array_view.h"
 #include "utils/literal.h"
-#include "utils/logging.h"
 #include "utils/string_compare.h"
 
 #define MATCH_ONE_LITERAL_EXACTLY(literal_name, enum_value) \

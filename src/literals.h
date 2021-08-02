@@ -9,8 +9,8 @@
 //
 // Author: james.synge@gmail.com
 
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "utils/literal.h"
-#include "utils/platform.h"
 
 #ifdef TAS_DEFINE_BUILTIN_LITERAL
 #undef TAS_DEFINE_BUILTIN_LITERAL

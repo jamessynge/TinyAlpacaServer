@@ -2,11 +2,11 @@
 
 #include "alpaca_response.h"
 #include "constants.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 #include "literals.h"
 #include "utils/hex_escape.h"
-#include "utils/inline_literal.h"
 #include "utils/json_encoder.h"
-#include "utils/logging.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {

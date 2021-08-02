@@ -12,7 +12,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "utils/platform.h"
+#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 
 namespace alpaca {
 
