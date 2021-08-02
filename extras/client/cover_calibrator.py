@@ -158,7 +158,7 @@ def main(argv: List[str]) -> None:
       print('get_configureddevices', client.get_configureddevices())
       for led_channel in range(4):
         sweep_led_channel(led_switches, led_channel, cover_calibrator,
-                          range(1, 10))
+                          range(0, 65535, 2048))
       open_cover(cover_calibrator)
       close_cover(cover_calibrator)
       open_cover(cover_calibrator)
