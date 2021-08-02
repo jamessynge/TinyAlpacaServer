@@ -9,14 +9,38 @@ from typing import List
 import alpaca_http_client
 
 
+def has_observing_conditions(client: alpaca_http_client.AlpacaHttpClient) -> bool:
+  try:
+    resp = client.get_configureddevices()
+    print(f'response:', resp)
+    print(f'headers:', resp.headers)
+    print(f'content:', resp.content)
+    resp_jv = resp.json()
+    print(f'resp_jv:', resp_jv)
+
+    for info in resp_jv['Value']:
+      print(f'info:', info)
+      if info['DeviceType'] == 'ObservingConditions':
+        return True
+  except:
+    pass
+  return False
+
+
+def find_first_observing_conditions_server():
+  clients = alpaca_http_client.AlpacaHttpClient.find_servers(
+      client_id=random.randint(0, 10),
+      initial_client_transaction_id=random.randint(10, 20),
+      server_filter=has_observing_conditions)
+  if clients:
+    return clients[0]
+  print('Found no servers!', file=sys.stderr)
+  sys.exit(1)
+
+
 def main(argv: List[str]) -> None:
   if not argv:
-    client = alpaca_http_client.AlpacaHttpClient.find_first_server(
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
-    if not client:
-      print('Found no servers!', file=sys.stderr)
-      sys.exit(1)
+    client = find_first_observing_conditions_server()
   else:
     client = alpaca_http_client.AlpacaHttpClient(
         argv.pop(0),

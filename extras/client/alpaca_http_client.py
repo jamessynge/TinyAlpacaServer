@@ -112,13 +112,15 @@ class AlpacaHttpClient(object):
     def discovery_response_handler(
         dr: alpaca_discovery.DiscoveryResponse) -> None:
       url_base = f'http://{dr.get_alpaca_server_addr()}'
-      print('Found a server at {url_base}')
+      print(f'Found a server at {url_base}')
       client = cls(
           url_base=url_base,
           client_id=client_id,
           initial_client_transaction_id=initial_client_transaction_id)
-      if server_filter and server_filter(client):
+      if not server_filter or server_filter(client):
         results.append(client)
+      else:
+        print('Not accepted by server_filter')
 
     alpaca_discovery.perform_discovery(
         discovery_response_handler, max_wait_time=max_discovery_time)

@@ -112,25 +112,38 @@ def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
     led_switches.put_setswitch(n, led_channel == n)
   sweep_brightness(cover_calibrator, list(brightnesses))
 
+def has_cover_calibrator(client: alpaca_http_client.AlpacaHttpClient) -> bool:
+  try:
+    resp = client.get_configureddevices()
+    print(f'response:', resp)
+    print(f'headers:', resp.headers)
+    print(f'content:', resp.content)
+    resp_jv = resp.json()
+    print(f'resp_jv:', resp_jv)
+
+    for info in resp_jv['Value']:
+      print(f'info:', info)
+      if info['DeviceType'] == 'CoverCalibrator':
+        return True
+  except:
+    pass
+  return False
+
 
 def find_first_cover_calibrator_server():
-  for client in  alpaca_http_client.AlpacaHttpClient.find_servers(
+  clients = alpaca_http_client.AlpacaHttpClient.find_servers(
       client_id=random.randint(0, 10),
-      initial_client_transaction_id=random.randint(10, 20)):
-    client.get_configureddevices()
-  if not client:
-    print('Found no servers!', file=sys.stderr)
-    sys.exit(1)
+      initial_client_transaction_id=random.randint(10, 20),
+      server_filter=has_cover_calibrator)
+  if clients:
+    return clients[0]
+  print('Found no servers!', file=sys.stderr)
+  sys.exit(1)
 
 
 def main(argv: List[str]) -> None:
   if not argv:
-    client = alpaca_http_client.AlpacaHttpClient.find_first_server(
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
-    if not client:
-      print('Found no servers!', file=sys.stderr)
-      sys.exit(1)
+    client = find_first_cover_calibrator_server()
   else:
     client = alpaca_http_client.AlpacaHttpClient(
         argv.pop(0),
