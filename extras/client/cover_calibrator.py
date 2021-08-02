@@ -113,6 +113,16 @@ def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
   sweep_brightness(cover_calibrator, list(brightnesses))
 
 
+def find_first_cover_calibrator_server():
+  for client in  alpaca_http_client.AlpacaHttpClient.find_servers(
+      client_id=random.randint(0, 10),
+      initial_client_transaction_id=random.randint(10, 20)):
+    client.get_configureddevices()
+  if not client:
+    print('Found no servers!', file=sys.stderr)
+    sys.exit(1)
+
+
 def main(argv: List[str]) -> None:
   if not argv:
     client = alpaca_http_client.AlpacaHttpClient.find_first_server(

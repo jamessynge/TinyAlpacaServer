@@ -4,7 +4,7 @@
 import enum
 import random
 import sys
-from typing import Dict, Optional, Sequence, Union, Type, TypeVar
+from typing import Dict, List, Optional, Sequence, Union, Type, TypeVar
 
 import alpaca_discovery
 import install_advice
@@ -92,12 +92,37 @@ class AlpacaHttpClient(object):
     dr = alpaca_discovery.find_first_server(max_wait_time=max_discovery_time)
     if dr is None:
       return None
-    url_base = f'http://{dr.addr}:{dr.get_port()}'
+    url_base = f'http://{dr.get_alpaca_server_addr()}'
     print('Found a server at {url_base}')
     return cls(
         url_base=url_base,
         client_id=client_id,
         initial_client_transaction_id=initial_client_transaction_id)
+
+  @classmethod
+  def find_servers(cls: Type[_T],
+                   max_discovery_time: float = 5.0,
+                   client_id: Optional[int] = None,
+                   initial_client_transaction_id: Optional[int] = None,
+                   server_filter=None) -> List[_T]:
+    """Return a client for the first Alpaca server discovered, or None."""
+    print('Searching for Alpaca servers using the discovery protocol...')
+    results: List[_T] = []
+
+    def discovery_response_handler(
+        dr: alpaca_discovery.DiscoveryResponse) -> None:
+      url_base = f'http://{dr.get_alpaca_server_addr()}'
+      print('Found a server at {url_base}')
+      client = cls(
+          url_base=url_base,
+          client_id=client_id,
+          initial_client_transaction_id=initial_client_transaction_id)
+      if server_filter and server_filter(client):
+        results.append(client)
+
+    alpaca_discovery.perform_discovery(
+        discovery_response_handler, max_wait_time=max_discovery_time)
+    return results
 
   def gen_standard_params(self, increment_transaction=True) -> Dict[str, str]:
     result = dict(

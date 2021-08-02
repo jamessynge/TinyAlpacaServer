@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Makes HTTP requests to Alpaca servers, returns HTTP responses."""
+"""Makes HTTP requests to Alpaca servers, returns HTTP responses.
+
+Usage: get_api_versions.py [request_count [server_addr[:port]]]
+
+
+"""
 
 import random
 import sys

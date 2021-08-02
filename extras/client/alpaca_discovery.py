@@ -82,7 +82,11 @@ class DiscoverySource:
 class DiscoveryResponse:
   source: DiscoverySource
   data_bytes: bytes
-  addr: str
+  recvfrom_addr: str
+  recvfrom_port: int  # The discovery port.
+
+  def get_alpaca_server_addr(self) -> str:
+    return f'{self.recvfrom_addr}:{self.get_port()}'
 
   def get_port(self) -> int:
     data_str = str(self.data_bytes, 'ascii')
@@ -134,7 +138,8 @@ def receiver(sock: socket.socket, max_wait_time: float,
       data_bytes, addr = sock.recvfrom(1024)
     except socket.timeout:
       return
-    response_queue.put((data_bytes, addr))
+    # For AF_INET sockets, addr is a pair, (host, port).
+    response_queue.put((data_bytes, addr[0], addr[1]))
 
 
 class Discoverer(object):
@@ -170,17 +175,23 @@ class Discoverer(object):
     count = 0
     while t.is_alive():
       try:
-        data_bytes, addr = q.get(block=True, timeout=iota)
+        data_bytes, addr, port = q.get(block=True, timeout=iota)
       except queue.Empty:
         continue
       yield DiscoveryResponse(
-          source=self.source, data_bytes=data_bytes, addr=addr)
+          source=self.source,
+          data_bytes=data_bytes,
+          recvfrom_addr=addr,
+          recvfrom_port=port)
       count += 1
     t.join()
     while not q.empty():
-      data_bytes, addr = q.get(block=False)
+      data_bytes, addr, port = q.get(block=False)
       yield DiscoveryResponse(
-          source=self.source, data_bytes=data_bytes, addr=addr)
+          source=self.source,
+          data_bytes=data_bytes,
+          recvfrom_addr=addr,
+          recvfrom_port=port)
     print(
         f'Collected {count} responses for source {self.source.get_name()}',
         flush=True)
@@ -189,7 +200,7 @@ class Discoverer(object):
 def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
                       sources: Optional[List[DiscoverySource]] = None,
-                      max_wait_time: float = 5.0):
+                      max_wait_time: float = 5.0) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
   if sources is None:
     sources = list(generate_discovery_sources())
