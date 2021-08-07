@@ -7,8 +7,8 @@ sending the UDP discovery message.
 Note that I've chosen to omit support for IPv6 because I don't need it for
 testing Tiny Alpaca Server.
 
-TODO(jamessynge): Figure out why the discovery threads seem to end before the
-maximum wait time specified.
+TODO(jamessynge): Figure out if I can NOT use netifaces to get the network
+interface information.
 """
 
 import dataclasses
@@ -70,9 +70,18 @@ class DiscoverySource:
     # sock.setblocking(0)
     return sock
 
-  def send_discovery_packet(self, sock: socket.socket):
-    action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
-    print(f'{action} from {self.src_address} to {self.dst_address}', flush=True)
+  def send_discovery_packet(self, sock: socket.socket, verbose=False):
+    """Writes an Alpaca Discovery UDP Packet to sock."""
+    if verbose:
+      action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
+      # Appending a \n explicitly because multiple threads will output strings,
+      # and I've found that the default end value is output as a separate
+      # operation that can come after the "Collected..." string from another
+      # thread.
+      print(
+          f'{action} from {self.src_address} to {self.dst_address}\n',
+          flush=True,
+          end='')
     sock.sendto(
         DISCOVERY_REQUEST_BODY.encode(encoding='ascii'),
         (self.dst_address, ALPACA_DISCOVERY_PORT))
@@ -80,6 +89,8 @@ class DiscoverySource:
 
 @dataclasses.dataclass
 class DiscoveryResponse:
+  """Represents an Alpaca Discovery Protocol Response from an Alpaca Server."""
+
   source: DiscoverySource
   data_bytes: bytes
   recvfrom_addr: str
@@ -150,11 +161,13 @@ class Discoverer(object):
 
   def perform_discovery(self,
                         response_queue: queue.Queue,
-                        max_wait_time: float = 5.0) -> threading.Thread:
+                        max_wait_time: float = 5.0,
+                        verbose=False) -> threading.Thread:
     """Returns a thread which writes DiscoveryResponses to response_queue."""
 
     def worker():
-      for r in self.generate_responses(max_wait_time=max_wait_time):
+      for r in self.generate_responses(
+          max_wait_time=max_wait_time, verbose=verbose):
         response_queue.put(r)
 
     t = threading.Thread(target=worker, name=self.source.get_name())
@@ -163,7 +176,8 @@ class Discoverer(object):
 
   def generate_responses(
       self,
-      max_wait_time: float = 5.0) -> Generator[DiscoveryResponse, None, None]:
+      max_wait_time: float = 5.0,
+      verbose=False) -> Generator[DiscoveryResponse, None, None]:
     """Yields DiscoveryResponses after sending from the source address."""
     sock = self.source.create_bound_udp_socket()
     q = queue.Queue(maxsize=1000)
@@ -171,7 +185,7 @@ class Discoverer(object):
     t.start()
     iota = max(0.001, min(0.05, max_wait_time / 100.0))
     time.sleep(iota)
-    self.source.send_discovery_packet(sock)
+    self.source.send_discovery_packet(sock, verbose=verbose)
     count = 0
     while t.is_alive():
       try:
@@ -192,22 +206,30 @@ class Discoverer(object):
           data_bytes=data_bytes,
           recvfrom_addr=addr,
           recvfrom_port=port)
-    print(
-        f'Collected {count} responses for source {self.source.get_name()}',
-        flush=True)
+    if verbose:
+      # Appending a \n explicitly because multiple threads will output strings,
+      # and I've found that the default end value is output as a separate
+      # operation that can come after the "Collected..." string from another
+      # thread.
+      print(
+          f'Collected {count} responses for source {self.source.get_name()}\n',
+          flush=True,
+          end='')
 
 
 def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
                       sources: Optional[List[DiscoverySource]] = None,
-                      max_wait_time: float = 5.0) -> None:
+                      max_wait_time: float = 5.0,
+                      verbose=False) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
   if sources is None:
     sources = list(generate_discovery_sources())
   discoverers = [Discoverer(source) for source in sources]
   q = queue.Queue(maxsize=1000)
   threads = [
-      d.perform_discovery(response_queue=q, max_wait_time=max_wait_time)
+      d.perform_discovery(
+          response_queue=q, max_wait_time=max_wait_time, verbose=verbose)
       for d in discoverers
   ]
   while threads:
@@ -221,8 +243,8 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
     time.sleep(0.01)
 
 
-def find_first_server(
-    max_wait_time: float = 5.0) -> Optional[DiscoveryResponse]:
+def find_first_server(max_wait_time: float = 5.0,
+                      verbose=False) -> Optional[DiscoveryResponse]:
   """Return the first server to respond within max_wait_time, else None."""
   result = None
 
@@ -232,7 +254,8 @@ def find_first_server(
       return
     result = dr
 
-  perform_discovery(discovery_response_handler, max_wait_time=max_wait_time)
+  perform_discovery(
+      discovery_response_handler, max_wait_time=max_wait_time, verbose=verbose)
   return result
 
 
@@ -241,7 +264,7 @@ def main():
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
     pprint.pprint(dr)
 
-  perform_discovery(discovery_response_handler)
+  perform_discovery(discovery_response_handler, verbose=True)
 
 
 if __name__ == '__main__':

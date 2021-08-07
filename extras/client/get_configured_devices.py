@@ -4,39 +4,40 @@
 Usage: get_configured_devices.py [request_count [server_addr[:port]]]
 """
 
-import random
-import sys
-from typing import List
+import argparse
 
 import alpaca_http_client
 
 
-def main(argv: List[str]) -> None:
-  if not argv:
-    request_count = 1
-  else:
-    request_count = int(argv.pop(0))
+def main() -> None:
+  parser = argparse.ArgumentParser(description='Get configured devices.')
+  parser.add_argument(
+      '--url_base',
+      '--url',
+      help=('Base of URL before /management/. If not specified, '
+            'Alpaca Discovery is used to find Alpaca Servers.'))
 
-  if not argv:
-    client = alpaca_http_client.AlpacaHttpClient.find_first_server(
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
-    if not client:
-      print('Found no servers!', file=sys.stderr)
-      sys.exit(1)
-  else:
-    client = alpaca_http_client.AlpacaHttpClient(
-        argv.pop(0),
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
+  args = parser.parse_args()
 
-  try:
-    for _ in range(request_count):
-      client.get_configureddevices()
-  except KeyboardInterrupt:
-    pass
-  client.session.close()
+  print(args)
+
+  if args.url_base:
+    servers = [alpaca_http_client.AlpacaHttpClient(args.url_base)]
+  else:
+    servers = alpaca_http_client.find_servers()
+
+  print(f'Found {len(servers)} Alpaca servers')
+
+  for server in servers:
+    print()
+    print(f'URL base: {server.url_base}')
+    for cd in server.configured_devices():
+      print(f'      Type: {cd.device_type}')
+      print(f'         #: {cd.device_number}')
+      print(f'      Name: {cd.device_name}')
+      print(f'  UniqueID: {cd.device_name}')
+      print(flush=True)
 
 
 if __name__ == '__main__':
-  main(sys.argv[1:])
+  main()

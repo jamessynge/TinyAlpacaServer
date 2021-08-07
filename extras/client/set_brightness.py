@@ -1,38 +1,42 @@
 #!/usr/bin/env python3
 """Makes HTTP requests to Alpaca servers, returns HTTP responses.
 
-Usage: get_api_versions.py [request_count [server_addr[:port]]]
-
-
+Usage: set_brightness.py brightness [request_count [server_addr[:port]]]
 """
 
-import random
-import sys
-from typing import Sequence
+import argparse
 
 import alpaca_http_client
 
 
-def main(argv: Sequence[str]) -> None:
-  if len(argv) != 3:
-    raise ValueError('Expects three args, the base of the URL, '
-                     'the device number and the brightness')
+def main() -> None:
+  parser = argparse.ArgumentParser(
+      description='Set Cover Calibrator brightness.')
+  parser.add_argument(
+      '--url_base',
+      '--url',
+      help=('Base of URL before /api/v1. If not specified, Alpaca Discovery is '
+            'used to find an Alpaca Server with a Cover Calibrator device.'))
+  parser.add_argument(
+      '--device_number',
+      type=int,
+      help=('Device number to affect. Defaults to the sole '
+            'Cover Calibrator device (there must not be multiple).'))
+  parser.add_argument('brightness', type=int, help=('The brightness value.'))
 
-  url_base = argv[0]
-  device_number = int(argv[1])
-  brightness = int(argv[2])
+  args = parser.parse_args()
 
-  client = alpaca_http_client.AlpacaHttpClient(
-      url_base,
-      client_id=random.randint(0, 10),
-      initial_client_transaction_id=random.randint(10, 20))
+  print(args)
 
-  cover_calibrator = alpaca_http_client.HttpCoverCalibrator(
-      client, device_number)
-  response = cover_calibrator.put_calibratoron(brightness)
+  servers = ([alpaca_http_client.AlpacaHttpClient(args.url_base)]
+             if args.url_base else [])
+
+  device = alpaca_http_client.HttpCoverCalibrator.find_first_device(
+      servers=servers, device_number=args.device_number)
+
+  response = device.put_calibratoron(args.brightness)
   print(response.content)
-  client.session.close()
 
 
 if __name__ == '__main__':
-  main(sys.argv[1:])
+  main()
