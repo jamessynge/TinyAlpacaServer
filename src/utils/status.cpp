@@ -1,8 +1,8 @@
 #include "utils/status.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
+#include "inline_literal.h"
+#include "mcucore_platform.h"
+#include "o_print_stream.h"
 #include "utils/counting_print.h"
 #include "utils/hex_escape.h"
 

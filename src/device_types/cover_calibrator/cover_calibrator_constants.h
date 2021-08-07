@@ -3,7 +3,7 @@
 
 // ASCOM constants specified in the Cover Calibrator device API.
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 
 namespace alpaca {
 

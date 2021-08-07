@@ -6,13 +6,13 @@ cc_library(
     hdrs = ["cover_calibrator_adapter.h"],
     deps = [
         ":cover_calibrator_constants",
+        "//TinyAlpacaServer/src:alpaca_response",
+        "//TinyAlpacaServer/src:ascom_error_codes",
+        "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:literals",
+        "//TinyAlpacaServer/src/device_types:device_impl_base",
+        "//TinyAlpacaServer/src/utils:status_or",
         "//mcucore/src:mcucore_platform",
-        "//src:alpaca_response",
-        "//src:ascom_error_codes",
-        "//src:constants",
-        "//src:literals",
-        "//src/device_types:device_impl_base",
-        "//src/utils:status_or",
     ],
 )
 
@@ -21,8 +21,8 @@ cc_library(
     srcs = ["cover_calibrator_constants.cc"],
     hdrs = ["cover_calibrator_constants.h"],
     deps = [
+        "//TinyAlpacaServer/src/utils:print_misc",
         "//mcucore/src:inline_literal",
         "//mcucore/src:mcucore_platform",
-        "//src/utils:print_misc",
     ],
 )

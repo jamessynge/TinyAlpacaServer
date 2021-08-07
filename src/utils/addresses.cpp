@@ -1,8 +1,8 @@
 #include "utils/addresses.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
+#include "inline_literal.h"
+#include "logging.h"
+#include "o_print_stream.h"
 #include "utils/hex_escape.h"
 
 namespace alpaca {

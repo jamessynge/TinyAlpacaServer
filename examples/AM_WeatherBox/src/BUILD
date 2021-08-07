@@ -8,9 +8,9 @@ cc_library(
     hdrs = ["am_weather_box.h"],
     deps = [
         ":constants",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/extras/host/mlx90614",
-        "//src:TinyAlpacaServer",
     ],
 )
 
@@ -26,7 +26,7 @@ cc_library(
     hdrs = ["server.h"],
     deps = [
         ":am_weather_box",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
-        "//src:TinyAlpacaServer",
     ],
 )

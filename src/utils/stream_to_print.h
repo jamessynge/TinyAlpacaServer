@@ -10,8 +10,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
+#include "mcucore_platform.h"
+#include "o_print_stream.h"
 
 template <typename T>
 alpaca::OPrintStream operator<<(Print& out, const T& value) {

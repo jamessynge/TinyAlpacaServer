@@ -1,7 +1,7 @@
 #include <stdint.h>
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/type_traits.h"
 #include "gtest/gtest.h"
+#include "type_traits.h"
 
 namespace alpaca {
 namespace test {

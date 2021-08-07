@@ -17,7 +17,7 @@
 #include "ascom_error_codes.h"
 #include "device_info.h"
 #include "device_interface.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/status.h"
 #include "utils/status_or.h"
 

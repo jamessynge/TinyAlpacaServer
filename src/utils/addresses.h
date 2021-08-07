@@ -5,7 +5,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/eeprom_io.h"
 #include "utils/platform_ethernet.h"
 

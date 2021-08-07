@@ -7,14 +7,14 @@ cc_library(
     deps = [
         ":switch_adapter",
         ":switch_interface",
+        "//TinyAlpacaServer/src:alpaca_response",
+        "//TinyAlpacaServer/src:ascom_error_codes",
+        "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:literals",
+        "//TinyAlpacaServer/src/utils:array_view",
+        "//TinyAlpacaServer/src/utils:status_or",
         "//mcucore/src:mcucore_platform",
-        "//src:alpaca_response",
-        "//src:ascom_error_codes",
-        "//src:constants",
-        "//src:device_info",
-        "//src:literals",
-        "//src/utils:array_view",
-        "//src/utils:status_or",
     ],
 )
 
@@ -23,13 +23,13 @@ cc_library(
     srcs = ["switch_adapter.cc"],
     hdrs = ["switch_adapter.h"],
     deps = [
+        "//TinyAlpacaServer/src:alpaca_response",
+        "//TinyAlpacaServer/src:ascom_error_codes",
+        "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:literals",
+        "//TinyAlpacaServer/src/device_types:device_impl_base",
+        "//TinyAlpacaServer/src/utils:status_or",
         "//mcucore/src:mcucore_platform",
-        "//src:alpaca_response",
-        "//src:ascom_error_codes",
-        "//src:constants",
-        "//src:literals",
-        "//src/device_types:device_impl_base",
-        "//src/utils:status_or",
     ],
 )
 
@@ -37,10 +37,10 @@ cc_library(
     name = "switch_interface",
     hdrs = ["switch_interface.h"],
     deps = [
+        "//TinyAlpacaServer/src:alpaca_request",
+        "//TinyAlpacaServer/src/utils:status",
+        "//TinyAlpacaServer/src/utils:status_or",
         "//mcucore/src:mcucore_platform",
-        "//src:alpaca_request",
-        "//src/utils:status",
-        "//src/utils:status_or",
     ],
 )
 

@@ -1,7 +1,7 @@
 #include "utils/print_misc.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "inline_literal.h"
+#include "mcucore_platform.h"
 #include "utils/counting_print.h"
 
 namespace alpaca {

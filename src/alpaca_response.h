@@ -7,7 +7,7 @@
 
 #include "alpaca_request.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/any_printable.h"
 #include "utils/array_view.h"
 #include "utils/json_encoder.h"

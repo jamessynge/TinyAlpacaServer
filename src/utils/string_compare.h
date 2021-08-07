@@ -8,8 +8,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string_view.h"
+#include "mcucore_platform.h"
+#include "progmem_string_view.h"
 #include "utils/literal.h"
 #include "utils/string_view.h"
 

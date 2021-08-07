@@ -4,9 +4,9 @@ cc_binary(
     name = "TestIpDeviceSetup",
     srcs = ["TestIpDeviceSetup.ino.cc"],
     deps = [
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/extras/host/arduino:arduino_main",
         "//mcucore/extras/host/ethernet5500",
-        "//src:TinyAlpacaServer",
     ],
 )

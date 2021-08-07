@@ -21,10 +21,10 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
+#include "inline_literal.h"
+#include "logging.h"
+#include "mcucore_platform.h"
+#include "o_print_stream.h"
 
 namespace alpaca {
 

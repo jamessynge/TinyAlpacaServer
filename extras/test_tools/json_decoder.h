@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "absl/status/statusor.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "logging.h"
 
 namespace alpaca {
 namespace test {

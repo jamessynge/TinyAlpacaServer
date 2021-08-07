@@ -17,12 +17,12 @@
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "extra_parameters.h"
 #include "extras/test_tools/mock_request_decoder_listener.h"
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "mcucore_platform.h"
 #include "request_decoder_listener.h"
 #include "utils/string_view.h"
 

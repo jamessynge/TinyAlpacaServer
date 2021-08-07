@@ -6,9 +6,9 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string_view.h"
+#include "mcucore_platform.h"
+#include "progmem_string.h"
+#include "progmem_string_view.h"
 #include "utils/any_printable.h"
 #include "utils/array_view.h"
 

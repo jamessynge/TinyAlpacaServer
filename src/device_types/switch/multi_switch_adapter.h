@@ -7,7 +7,7 @@
 
 #include "device_types/switch/switch_adapter.h"
 #include "device_types/switch/switch_interface.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/array_view.h"
 #include "utils/status_or.h"
 

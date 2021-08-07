@@ -1,7 +1,7 @@
 #include "utils/literal.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/print_to_trait.h"
+#include "logging.h"
+#include "print_to_trait.h"
 
 namespace alpaca {
 namespace {

@@ -12,7 +12,7 @@
 
 #include "config.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/string_view.h"
 #include "utils/tiny_string.h"
 

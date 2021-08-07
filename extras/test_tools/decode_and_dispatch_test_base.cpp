@@ -5,11 +5,11 @@
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "device_interface.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
 #include "extras/test_tools/http_request.h"
 #include "extras/test_tools/http_response.h"
 #include "extras/test_tools/json_decoder.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
+#include "logging.h"
 #include "util/task/status_macros.h"
 #include "utils/array_view.h"
 

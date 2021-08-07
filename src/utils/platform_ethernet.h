@@ -5,7 +5,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"  // IWYU pragma: export
+#include "mcucore_platform.h"  // IWYU pragma: export
 
 #ifdef ARDUINO
 

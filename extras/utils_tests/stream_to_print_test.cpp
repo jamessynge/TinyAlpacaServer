@@ -4,11 +4,11 @@
 
 #include <string_view>
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "gtest/gtest.h"
 #include "mcucore/extrashost/arduino/print.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "mcucore/extrastest_tools/sample_printable.h"
+#include "o_print_stream.h"
 
 namespace alpaca {
 namespace test {

@@ -5,13 +5,13 @@
 #include <string>
 
 #include "absl/strings/string_view.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "extras/test_tools/literal_utils.h"
 #include "extras/test_tools/string_view_utils.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "mcucore_platform.h"
+#include "o_print_stream.h"
 #include "utils/hex_escape.h"
 #include "utils/string_compare.h"
 #include "utils/string_view.h"

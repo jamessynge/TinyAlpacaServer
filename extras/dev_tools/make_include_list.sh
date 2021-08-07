@@ -22,7 +22,7 @@ G4_PATH="$(which g4)"
 if [[ -n "${G4_PATH}" && -x "${G4_PATH}" ]]
 then
   cd "$(g4 g4d)/"
-  SEARCH_PAT="experimental/users/jamessynge/arduino/tas/src"
+  SEARCH_PAT="src"
 else
   SEARCH_PAT="*"
 fi

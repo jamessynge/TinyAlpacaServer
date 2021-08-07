@@ -8,7 +8,7 @@
 
 #include <ostream>
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string_view.h"
+#include "progmem_string_view.h"
 
 namespace alpaca {
 

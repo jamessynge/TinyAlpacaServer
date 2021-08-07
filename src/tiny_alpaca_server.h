@@ -21,7 +21,7 @@
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "server_description.h"
 #include "server_sockets_and_connections.h"
 #include "utils/array_view.h"

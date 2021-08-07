@@ -6,7 +6,7 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/status.h"
 #include "utils/status_or.h"
 

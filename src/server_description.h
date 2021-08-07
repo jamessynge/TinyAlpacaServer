@@ -6,8 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string.h"
+#include "mcucore_platform.h"
+#include "progmem_string.h"
 #include "utils/json_encoder.h"
 #include "utils/string_view.h"
 

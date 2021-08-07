@@ -3,7 +3,7 @@
 // Author: james.synge@gmail.com
 
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "logging.h"
 #include "utils/hex_escape.h"
 #include "utils/string_view.h"
 

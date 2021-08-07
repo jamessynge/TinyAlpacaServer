@@ -5,9 +5,9 @@ cc_binary(
     srcs = ["TinyAlpacaServerDemo.ino.cc"],
     deps = [
         ":dht22_handler",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/extras/host/arduino:arduino_main",
-        "//src:TinyAlpacaServer",
     ],
 )
 
@@ -17,7 +17,7 @@ cc_library(
     hdrs = ["dht22_handler.h"],
     deps = [
         ":pretend_devices",
-        "//src:TinyAlpacaServer",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
     ],
 )
 

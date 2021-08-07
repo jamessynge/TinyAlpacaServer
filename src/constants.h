@@ -19,7 +19,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>  // pragma: keep standard include

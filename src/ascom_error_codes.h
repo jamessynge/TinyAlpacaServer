@@ -4,7 +4,7 @@
 // Error codes defined by ASCOM.
 // See: https://ascom-standards.org/Help/Developer/html/T_ASCOM_ErrorCodes.htm
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/status.h"
 
 namespace alpaca {

@@ -12,6 +12,22 @@ cc_library(
         ":mock_device_interface",
         ":mock_switch_group",
         ":test_tiny_alpaca_server",
+        "//TinyAlpacaServer/src:alpaca_devices",
+        "//TinyAlpacaServer/src:alpaca_discovery_server",
+        "//TinyAlpacaServer/src:alpaca_response",
+        "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:device_interface",
+        "//TinyAlpacaServer/src:literals",
+        "//TinyAlpacaServer/src:request_listener",
+        "//TinyAlpacaServer/src:server_connection",
+        "//TinyAlpacaServer/src:server_description",
+        "//TinyAlpacaServer/src:server_sockets_and_connections",
+        "//TinyAlpacaServer/src:tiny_alpaca_server",
+        "//TinyAlpacaServer/src/device_types:device_impl_base",
+        "//TinyAlpacaServer/src/utils:array_view",
+        "//TinyAlpacaServer/src/utils:platform_ethernet",
+        "//TinyAlpacaServer/src/utils:status",
+        "//TinyAlpacaServer/src/utils:string_view",
         "//absl/status",
         "//absl/strings",
         "//googletest:gunit_headers",
@@ -19,22 +35,6 @@ cc_library(
         "//mcucore/extras/test_tools:sample_printable",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//src:alpaca_devices",
-        "//src:alpaca_discovery_server",
-        "//src:alpaca_response",
-        "//src:constants",
-        "//src:device_interface",
-        "//src:literals",
-        "//src:request_listener",
-        "//src:server_connection",
-        "//src:server_description",
-        "//src:server_sockets_and_connections",
-        "//src:tiny_alpaca_server",
-        "//src/device_types:device_impl_base",
-        "//src/utils:array_view",
-        "//src/utils:platform_ethernet",
-        "//src/utils:status",
-        "//src/utils:string_view",
         "//util/task:status",
     ],
 )
@@ -42,7 +42,7 @@ cc_library(
 cc_library(
     name = "fake_platform_ethernet",
     hdrs = ["fake_platform_ethernet.h"],
-    deps = ["//src/utils:platform_ethernet"],
+    deps = ["//TinyAlpacaServer/src/utils:platform_ethernet"],
 )
 
 cc_library(
@@ -115,28 +115,28 @@ cc_library(
     srcs = ["json_test_utils.cc"],
     hdrs = ["json_test_utils.h"],
     deps = [
+        "//TinyAlpacaServer/src/utils:any_printable",
+        "//TinyAlpacaServer/src/utils:json_encoder",
         "//mcucore/extras/host/arduino:print",
         "//mcucore/src:mcucore_platform",
-        "//src/utils:any_printable",
-        "//src/utils:json_encoder",
     ],
 )
 
 cc_library(
     name = "literal_utils",
     hdrs = ["literal_utils.h"],
-    deps = ["//src/utils:literal"],
+    deps = ["//TinyAlpacaServer/src/utils:literal"],
 )
 
 cc_library(
     name = "mock_device_interface",
     hdrs = ["mock_device_interface.h"],
     deps = [
+        "//TinyAlpacaServer/src:alpaca_request",
+        "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:device_interface",
         "//googletest:gunit_headers",
-        "//src:alpaca_request",
-        "//src:constants",
-        "//src:device_info",
-        "//src:device_interface",
     ],
 )
 
@@ -144,11 +144,11 @@ cc_library(
     name = "mock_observing_conditions",
     hdrs = ["mock_observing_conditions.h"],
     deps = [
+        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src/device_types/observing_conditions:observing_conditions_adapter",
+        "//TinyAlpacaServer/src/utils:status",
+        "//TinyAlpacaServer/src/utils:status_or",
         "//googletest:gunit_headers",
-        "//src:device_info",
-        "//src/device_types/observing_conditions:observing_conditions_adapter",
-        "//src/utils:status",
-        "//src/utils:status_or",
     ],
 )
 
@@ -156,10 +156,10 @@ cc_library(
     name = "mock_request_decoder_listener",
     hdrs = ["mock_request_decoder_listener.h"],
     deps = [
+        "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:request_decoder_listener",
+        "//TinyAlpacaServer/src/utils:string_view",
         "//googletest:gunit_headers",
-        "//src:constants",
-        "//src:request_decoder_listener",
-        "//src/utils:string_view",
     ],
 )
 
@@ -167,9 +167,9 @@ cc_library(
     name = "mock_request_listener",
     hdrs = ["mock_request_listener.h"],
     deps = [
+        "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:request_listener",
         "//googletest:gunit_headers",
-        "//src:constants",
-        "//src:request_listener",
     ],
 )
 
@@ -177,9 +177,9 @@ cc_library(
     name = "mock_socket_listener",
     hdrs = ["mock_socket_listener.h"],
     deps = [
+        "//TinyAlpacaServer/src/utils:connection",
+        "//TinyAlpacaServer/src/utils:socket_listener",
         "//googletest:gunit_headers",
-        "//src/utils:connection",
-        "//src/utils:socket_listener",
     ],
 )
 
@@ -187,11 +187,11 @@ cc_library(
     name = "mock_switch_group",
     hdrs = ["mock_switch_group.h"],
     deps = [
+        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
+        "//TinyAlpacaServer/src/utils:status",
+        "//TinyAlpacaServer/src/utils:status_or",
         "//googletest:gunit_headers",
-        "//src:device_info",
-        "//src/device_types/switch:switch_adapter",
-        "//src/utils:status",
-        "//src/utils:status_or",
     ],
 )
 
@@ -213,7 +213,7 @@ cc_library(
 cc_library(
     name = "string_io_connection",
     hdrs = ["string_io_connection.h"],
-    deps = ["//src/utils:connection"],
+    deps = ["//TinyAlpacaServer/src/utils:connection"],
 )
 
 cc_test(
@@ -228,7 +228,7 @@ cc_test(
 cc_library(
     name = "string_view_utils",
     hdrs = ["string_view_utils.h"],
-    deps = ["//src/utils:string_view"],
+    deps = ["//TinyAlpacaServer/src/utils:string_view"],
 )
 
 cc_library(
@@ -238,15 +238,15 @@ cc_library(
     hdrs = ["test_tiny_alpaca_server.h"],
     deps = [
         ":string_io_connection",
+        "//TinyAlpacaServer/src:device_interface",
+        "//TinyAlpacaServer/src:server_connection",
+        "//TinyAlpacaServer/src:server_description",
+        "//TinyAlpacaServer/src:tiny_alpaca_server",
+        "//TinyAlpacaServer/src/utils:array_view",
         "//absl/strings",
         "//mcucore/extras/host/ethernet5500:ethernet_config",
         "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:o_print_stream",
-        "//src:device_interface",
-        "//src:server_connection",
-        "//src:server_description",
-        "//src:tiny_alpaca_server",
-        "//src/utils:array_view",
     ],
 )

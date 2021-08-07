@@ -7,9 +7,9 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/type_traits.h"
+#include "logging.h"
+#include "mcucore_platform.h"
+#include "type_traits.h"
 
 namespace alpaca {
 

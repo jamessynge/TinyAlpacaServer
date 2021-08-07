@@ -1,8 +1,8 @@
 #include "device_info.h"
 
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
 #include "gtest/gtest.h"
+#include "inline_literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "utils/json_encoder.h"
 #include "utils/json_encoder_helpers.h"

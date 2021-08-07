@@ -9,7 +9,7 @@
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "request_decoder_listener.h"
 #include "utils/string_view.h"
 

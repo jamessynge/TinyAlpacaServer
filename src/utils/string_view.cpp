@@ -1,6 +1,6 @@
 #include "utils/string_view.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/print_to_trait.h"
+#include "print_to_trait.h"
 #include "utils/hex_escape.h"
 
 namespace alpaca {
