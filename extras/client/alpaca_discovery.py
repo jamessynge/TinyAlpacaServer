@@ -142,9 +142,9 @@ def generate_discovery_sources() -> Generator[DiscoverySource, None, None]:
           dst_is_broadcast=False)
 
 
-def receiver(sock: socket.socket, max_wait_time: float,
+def receiver(sock: socket.socket, max_discovery_secs: float,
              response_queue: queue.Queue) -> None:
-  sock.settimeout(max_wait_time)
+  sock.settimeout(max_discovery_secs)
   while True:
     try:
       data_bytes, addr = sock.recvfrom(1024)
@@ -162,13 +162,13 @@ class Discoverer(object):
 
   def perform_discovery(self,
                         response_queue: queue.Queue,
-                        max_wait_time: float = 5.0,
+                        max_discovery_secs: float = 5.0,
                         verbose=False) -> threading.Thread:
     """Returns a thread which writes DiscoveryResponses to response_queue."""
 
     def worker():
       for r in self.generate_responses(
-          max_wait_time=max_wait_time, verbose=verbose):
+          max_discovery_secs=max_discovery_secs, verbose=verbose):
         response_queue.put(r)
 
     t = threading.Thread(target=worker, name=self.source.get_name())
@@ -177,14 +177,14 @@ class Discoverer(object):
 
   def generate_responses(
       self,
-      max_wait_time: float = 5.0,
+      max_discovery_secs: float = 5.0,
       verbose=False) -> Generator[DiscoveryResponse, None, None]:
     """Yields DiscoveryResponses after sending from the source address."""
     sock = self.source.create_bound_udp_socket()
     q = queue.Queue(maxsize=1000)
-    t = threading.Thread(target=receiver, args=(sock, max_wait_time, q))
+    t = threading.Thread(target=receiver, args=(sock, max_discovery_secs, q))
     t.start()
-    iota = max(0.001, min(0.05, max_wait_time / 100.0))
+    iota = max(0.001, min(0.05, max_discovery_secs / 100.0))
     time.sleep(iota)
     self.source.send_discovery_packet(sock, verbose=verbose)
     count = 0
@@ -221,7 +221,7 @@ class Discoverer(object):
 def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
                       sources: Optional[List[DiscoverySource]] = None,
-                      max_wait_time: float = 5.0,
+                      max_discovery_secs: float = 5.0,
                       verbose=False) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
   if sources is None:
@@ -230,8 +230,9 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
   q = queue.Queue(maxsize=1000)
   threads = [
       d.perform_discovery(
-          response_queue=q, max_wait_time=max_wait_time, verbose=verbose)
-      for d in discoverers
+          response_queue=q,
+          max_discovery_secs=max_discovery_secs,
+          verbose=verbose) for d in discoverers
   ]
   start_secs = time.time()
   while threads:
@@ -248,13 +249,15 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
   if verbose:
     elapsed_secs = end_secs - start_secs
     print(f'perform_discovery: elapsed_secs={elapsed_secs}')
-    if elapsed_secs < max_wait_time:
-      print(f'perform_discovery: ended {max_wait_time - elapsed_secs}s early')
+    if elapsed_secs < max_discovery_secs:
+      print(
+          f'perform_discovery: ended {max_discovery_secs - elapsed_secs}s early'
+      )
 
 
-def find_first_server(max_wait_time: float = 5.0,
+def find_first_server(max_discovery_secs: float = 5.0,
                       verbose=False) -> Optional[DiscoveryResponse]:
-  """Return the first server to respond within max_wait_time, else None."""
+  """Return the first server to respond within max_discovery_secs, else None."""
   result = None
 
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
@@ -264,7 +267,9 @@ def find_first_server(max_wait_time: float = 5.0,
     result = dr
 
   perform_discovery(
-      discovery_response_handler, max_wait_time=max_wait_time, verbose=verbose)
+      discovery_response_handler,
+      max_discovery_secs=max_discovery_secs,
+      verbose=verbose)
   return result
 
 
@@ -272,11 +277,11 @@ def make_discovery_parser() -> argparse.ArgumentParser:
   """Returns a parser for discovery operations."""
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument(
-      '--discovery_wait_time',
-      metavar='max_wait_time',
+      '--max_discovery_secs',
+      metavar='SECONDS',
       type=float,
       default=10.0,
-      help='Time to wait for Alpaca Discovery responses.')
+      help='Time to wait (seconds) for Alpaca Discovery responses.')
   parser.add_argument(
       '--verbose',
       '-v',

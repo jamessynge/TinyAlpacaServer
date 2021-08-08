@@ -237,12 +237,14 @@ def make_composite_server_filter(
 def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
                  url_base: Optional[str] = None,
                  device_number: Optional[int] = None,
-                 device_type: Optional[EDeviceType] = None,
+                 device_type: Optional[Union[str, EDeviceType]] = None,
                  server_filter: Optional[ServerFilterFunc] = None,
-                 max_discovery_time: float = 10.0,
                  min_required_devices=0,
-                 verbose=False) -> List[AlpacaHttpClient]:
+                 verbose=False,
+                 **kwargs) -> List[AlpacaHttpClient]:
   """Returns clients for the Alpaca servers discovered."""
+  if isinstance(device_type, str):
+    device_type: EDeviceType = EDeviceType(device_type)
   the_filter = make_composite_server_filter(
       server_filter=server_filter,
       configured_device_filter=make_configured_device_filter(
@@ -272,7 +274,7 @@ def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
       results.append(client)
 
   alpaca_discovery.perform_discovery(
-      discovery_response_handler, max_wait_time=max_discovery_time)
+      discovery_response_handler, verbose=verbose, **kwargs)
   if len(results) < min_required_devices:
     sys.stdout.flush()
     print('Found no servers!', file=sys.stderr, flush=True)
@@ -577,6 +579,7 @@ def make_url_base_parser(
   parser.add_argument(
       '--url_base',
       '--url',
+      metavar='URL_OR_ADDRESS',
       required=required,
       type=to_url_base,
       help=''.join(parts))
@@ -588,7 +591,7 @@ def make_device_type_parser(required: bool = False) -> argparse.ArgumentParser:
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument(
       '--device_type',
-      choices=sorted(EDeviceType.__members__.keys()),
+      choices=sorted(map(lambda x: x.lower(), EDeviceType.__members__.keys())),
       required=required,
       help='Type of device to find or use.')
   return parser
@@ -619,11 +622,13 @@ def make_device_limits_parser(
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument(
       '--min_required_devices',
+      metavar='MIN',
       type=int,
       default=min_required_devices,
       help='Minimum number of devices that must be found')
   parser.add_argument(
       '--max_allowed_devices',
+      metavar='MAX',
       type=int,
       default=max_allowed_devices,
       help='Maximum number of devices allowed to be found.')
