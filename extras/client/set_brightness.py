@@ -5,6 +5,7 @@ Usage: set_brightness.py brightness [request_count [server_addr[:port]]]
 """
 
 import argparse
+import sys
 from typing import List
 
 import alpaca_discovery
@@ -27,6 +28,10 @@ def main() -> None:
   del cli_kwargs['brightness']
   devices: List[alpaca_http_client.HttpCoverCalibrator] = (
       alpaca_http_client.HttpCoverCalibrator.find_devices(**cli_kwargs))
+
+  if not devices:
+    print('Found no Cover Calibrator devices!')
+    sys.exit(1)
 
   for device in devices:
     print(f'Setting brightness of server {device.client.url_base} cover '
