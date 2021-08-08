@@ -45,6 +45,7 @@ DISCOVERY_REQUEST_BODY = 'alpacadiscovery1'
 ALPACA_SERVER_PORT_PROPERTY = 'alpacaport'
 DEFAULT_DISCOVERY_SECS = 2.0
 
+
 @dataclasses.dataclass
 class DiscoverySource:
   """Addresses from and to which to send ASCOM Alpaca discovery packets."""

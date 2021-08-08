@@ -710,7 +710,7 @@ def main() -> None:
     print()
 
     configured_devices = client.configured_devices()
-    print('Server has {len(configured_devices)} configured '
+    print(f'Server has {len(configured_devices)} configured '
           f'devices{"" if len(configured_devices) == 1 else "s"}')
     for cd in configured_devices:
       print()
