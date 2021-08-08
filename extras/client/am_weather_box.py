@@ -27,7 +27,7 @@ def main() -> None:
     precipitation = ('RAINING'
                      if device.get_rainrate().json()['Value'] > 0 else 'dry')
 
-    print(f'Sky: {sky:>+5.1}    Ambient: {temp:>+5.1}    {precipitation}')
+    print(f'Sky: {sky:>+5.1f}    Ambient: {temp:>+5.1f}    {precipitation}')
 
     time.sleep(3)
 

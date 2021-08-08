@@ -272,9 +272,9 @@ def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
     if verbose:
       print(f'Found a server at {url_base}')
     client = cls(url_base=url_base)
-    if server_filter and not server_filter(client):
+    if not the_filter(client):
       if verbose:
-        print('Not accepted by server_filter')
+        print('Not accepted by the filter(s)')
     else:
       results.append(client)
 
