@@ -8,7 +8,7 @@ import random
 import sys
 import threading
 import time
-from typing import Callable, Dict, List, Optional, Sequence, Union, Type, TypeVar
+from typing import Callable, Dict, List, Optional, Union, Type, TypeVar
 
 import alpaca_discovery
 import install_advice
@@ -205,6 +205,11 @@ class AlpacaHttpClient(object):
     if device_filter is None:
       return self._configured_devices
     return [cd for cd in self._configured_devices if device_filter(cd)]
+
+  def description(self) -> str:
+    resp = self.get_description()
+    resp_jv = resp.json()
+    return resp_jv['Value']
 
 
 ServerFilterFunc = Callable[[AlpacaHttpClient], bool]
@@ -677,19 +682,37 @@ def create_http_device(client: AlpacaHttpClient,
   return cls.create_from_configured_device(client, configured_device)
 
 
-def main(argv: Sequence[str]) -> None:
-  if not argv:
-    client = find_servers(min_required_devices=1)[0]
-  else:
-    if len(argv) != 1:
-      raise ValueError('Expects one arg, the base of the URL')
-    url_base = argv[0]
-    client = AlpacaHttpClient(url_base)
+def main() -> None:
+  parser = argparse.ArgumentParser(
+      description='Describe Alpaca Servers.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          make_url_base_parser(),
+          make_device_number_parser(),
+          make_device_type_parser(),
+          make_device_limits_parser(),
+      ])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
+  clients: List[AlpacaHttpClient] = find_servers(**cli_kwargs)
 
-  print('get_apiversions', client.get_apiversions())
-  print('get_description', client.get_description())
-  print('get_configureddevices', client.get_configureddevices())
+  print(f'Found {len(clients)} Alpaca server{"" if len(clients) == 1 else "s"}')
+
+  for client in clients:
+    print()
+    print(f'Alpaca Server {client.url_base} supports API versions: '
+          f'{client.apiversions()!r}')
+    print(f'Server description: {client.description()}')
+    configured_devices = client.configured_devices()
+    print('Server has {len(configured_devices)} configured '
+          f'devices{"" if len(configured_devices) == 1 else "s"}')
+    for cd in configured_devices:
+      print()
+      print(f'  Device #: {cd.device_number}')
+      print(f'      Type: {cd.device_type.name}')
+      print(f'      Name: {cd.device_name}')
+      print(f'  UniqueID: {cd.unique_id}', flush=True)
 
 
 if __name__ == '__main__':
-  main(sys.argv[1:])
+  main()

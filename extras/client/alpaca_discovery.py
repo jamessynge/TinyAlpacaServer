@@ -228,12 +228,13 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
     sources = list(generate_discovery_sources())
   discoverers = [Discoverer(source) for source in sources]
   q = queue.Queue(maxsize=1000)
-  threads = [
-      d.perform_discovery(
-          response_queue=q,
-          max_discovery_secs=max_discovery_secs,
-          verbose=verbose) for d in discoverers
-  ]
+  threads = []
+  for d in discoverers:
+    threads.append(
+        d.perform_discovery(
+            response_queue=q,
+            max_discovery_secs=max_discovery_secs,
+            verbose=verbose))
   start_secs = time.time()
   while threads:
     if not threads[0].is_alive():
