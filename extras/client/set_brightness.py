@@ -24,6 +24,7 @@ def main() -> None:
 
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
+  del cli_kwargs['brightness']
   devices: List[alpaca_http_client.HttpCoverCalibrator] = (
       alpaca_http_client.HttpCoverCalibrator.find_devices(**cli_kwargs))
 
