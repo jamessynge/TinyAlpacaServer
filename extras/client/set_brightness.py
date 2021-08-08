@@ -5,37 +5,33 @@ Usage: set_brightness.py brightness [request_count [server_addr[:port]]]
 """
 
 import argparse
+from typing import List
 
+import alpaca_discovery
 import alpaca_http_client
 
 
 def main() -> None:
   parser = argparse.ArgumentParser(
-      description='Set Cover Calibrator brightness.')
-  parser.add_argument(
-      '--url_base',
-      '--url',
-      help=('Base of URL before /api/v1. If not specified, Alpaca Discovery is '
-            'used to find an Alpaca Server with a Cover Calibrator device.'))
-  parser.add_argument(
-      '--device_number',
-      type=int,
-      help=('Device number to affect. Defaults to the sole '
-            'Cover Calibrator device (there must not be multiple).'))
+      description='Set Cover Calibrator brightness.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          alpaca_http_client.make_url_base_parser(),
+          alpaca_http_client.make_device_number_parser(),
+          alpaca_http_client.make_device_limits_parser(),
+      ])
   parser.add_argument('brightness', type=int, help=('The brightness value.'))
 
-  args = parser.parse_args()
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
+  devices: List[alpaca_http_client.HttpCoverCalibrator] = (
+      alpaca_http_client.HttpCoverCalibrator.find_devices(**cli_kwargs))
 
-  print(args)
-
-  servers = ([alpaca_http_client.AlpacaHttpClient(args.url_base)]
-             if args.url_base else [])
-
-  device = alpaca_http_client.HttpCoverCalibrator.find_first_device(
-      servers=servers, device_number=args.device_number)
-
-  response = device.put_calibratoron(args.brightness)
-  print(response.content)
+  for device in devices:
+    print(f'Setting brightness of server {device.client.url_base} cover '
+          f'calibrator device {device.device_number}')
+    response = device.put_calibratoron(cli_args.brightness)
+    print(response.content)
 
 
 if __name__ == '__main__':

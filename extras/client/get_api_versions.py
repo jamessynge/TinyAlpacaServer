@@ -6,28 +6,24 @@ Usage: get_api_versions.py [request_count [server_addr[:port]]]
 
 import argparse
 
+import alpaca_discovery
 import alpaca_http_client
 
 
 def main() -> None:
   parser = argparse.ArgumentParser(
-      description='Get supported Alpaca API versions.')
-  parser.add_argument(
-      '--url_base',
-      '--url',
-      help=('Base of URL before /management/. If not specified, '
-            'Alpaca Discovery is used to find Alpaca Servers.'))
+      description='Get supported Alpaca API versions.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          alpaca_http_client.make_url_base_parser(),
+          alpaca_http_client.make_device_number_parser(),
+          alpaca_http_client.make_device_type_parser(),
+      ])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
+  servers = alpaca_http_client.find_servers(**cli_kwargs)
 
-  args = parser.parse_args()
-
-  print(args)
-
-  if args.url_base:
-    servers = [alpaca_http_client.AlpacaHttpClient(args.url_base)]
-  else:
-    servers = alpaca_http_client.find_servers()
-
-  print(f'Found {len(servers)} Alpaca servers')
+  print(f'Found {len(servers)} Alpaca server{"" if len(servers) == 1 else "s"}')
 
   for server in servers:
     print()

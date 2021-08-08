@@ -4,28 +4,22 @@
 import argparse
 import time
 
+import alpaca_discovery
 import alpaca_http_client
 
 
 def main() -> None:
-  parser = argparse.ArgumentParser(description='Get configured devices.')
-  parser.add_argument(
-      '--url_base',
-      '--url',
-      help=('Base of URL before /api/v1/. If not specified, Alpaca Discovery '
-            'is used to find an Alpaca Server with an Observing Conditions '
-            'device.'))
-
-  args = parser.parse_args()
-
-  print(args)
-
-  servers = []
-  if args.url_base:
-    servers.append(alpaca_http_client.AlpacaHttpClient(args.url_base))
-
+  parser = argparse.ArgumentParser(
+      description='Get configured devices.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          alpaca_http_client.make_url_base_parser(),
+          alpaca_http_client.make_device_number_parser(),
+      ])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
   device = alpaca_http_client.HttpObservingConditions.find_sole_device(
-      servers=servers)
+      **cli_kwargs)
 
   while True:
     sky = device.get_skytemperature().json()['Value']

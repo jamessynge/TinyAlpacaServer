@@ -11,6 +11,7 @@ TODO(jamessynge): Figure out if I can NOT use netifaces to get the network
 interface information.
 """
 
+import argparse
 import dataclasses
 import json
 import pprint
@@ -232,15 +233,23 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
           response_queue=q, max_wait_time=max_wait_time, verbose=verbose)
       for d in discoverers
   ]
+  start_secs = time.time()
   while threads:
     if not threads[0].is_alive():
       t = threads.pop(0)
-      print('Thread %r is done' % t.name, flush=True)
+      if verbose:
+        print('Thread %r is done' % t.name, flush=True)
       t.join()
     while not q.empty():
       dr = q.get(block=False)
       discovery_response_handler(dr)
     time.sleep(0.01)
+  end_secs = time.time()
+  if verbose:
+    elapsed_secs = end_secs - start_secs
+    print(f'perform_discovery: elapsed_secs={elapsed_secs}')
+    if elapsed_secs < max_wait_time:
+      print(f'perform_discovery: ended {max_wait_time - elapsed_secs}s early')
 
 
 def find_first_server(max_wait_time: float = 5.0,
@@ -259,12 +268,33 @@ def find_first_server(max_wait_time: float = 5.0,
   return result
 
 
+def make_discovery_parser() -> argparse.ArgumentParser:
+  """Returns a parser for discovery operations."""
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument(
+      '--discovery_wait_time',
+      metavar='max_wait_time',
+      type=float,
+      default=10.0,
+      help='Time to wait for Alpaca Discovery responses.')
+  parser.add_argument(
+      '--verbose',
+      '-v',
+      action='store_true',
+      help='Print more messages about what the program is doing.')
+  return parser
+
+
 def main():
+  parser = argparse.ArgumentParser(
+      description='Find Alpaca servers.', parents=[make_discovery_parser()])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
 
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
     pprint.pprint(dr)
 
-  perform_discovery(discovery_response_handler, verbose=True)
+  perform_discovery(discovery_response_handler, **cli_kwargs)
 
 
 if __name__ == '__main__':

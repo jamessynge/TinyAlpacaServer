@@ -14,6 +14,7 @@ import argparse
 import time
 from typing import Iterable, List
 
+import alpaca_discovery
 import alpaca_http_client
 
 MOVING_SLEEP_TIME = 1
@@ -124,35 +125,22 @@ def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
 
 def main() -> None:
   parser = argparse.ArgumentParser(
-      description='Set Cover Calibrator brightness.')
-  parser.add_argument(
-      '--url_base',
-      '--url',
-      help=('Base of URL before /api/v1. If not specified, Alpaca Discovery is '
-            'used to find an Alpaca Server with a Cover Calibrator device.'))
-  parser.add_argument(
-      '--device_number',
-      type=int,
-      help=('Device number to affect. Defaults to the sole '
-            'Cover Calibrator device (there must not be multiple).'))
-  parser.add_argument('brightness', type=int, help=('The brightness value.'))
-
-  args = parser.parse_args()
-
-  print(args)
-
-  servers = ([alpaca_http_client.AlpacaHttpClient(args.url_base)]
-             if args.url_base else [])
+      description='Set Cover Calibrator brightness.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          alpaca_http_client.make_url_base_parser(),
+          alpaca_http_client.make_device_number_parser(),
+      ])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
 
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
-      alpaca_http_client.HttpCoverCalibrator.find_first_device(
-          servers=servers, device_number=args.device_number))
+      alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs))
 
   led_switches: alpaca_http_client.HttpSwitch = (
       alpaca_http_client.HttpSwitch.find_first_device(
           servers=[cover_calibrator.client],
-          device_number=cover_calibrator.device_number
-          ))
+          device_number=cover_calibrator.device_number))
 
   try:
     while True:
