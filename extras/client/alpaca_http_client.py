@@ -701,7 +701,14 @@ def main() -> None:
     print()
     print(f'Alpaca Server {client.url_base} supports API versions: '
           f'{client.apiversions()!r}')
-    print(f'Server description: {client.description()}')
+    desc = client.description()
+    print('Using API v1, server description:')
+    print(f'        Name: {desc["ServerName"]}')
+    print(f'Manufacturer: {desc["Manufacturer"]}')
+    print(f'     Version: {desc["ManufacturerVersion"]}')
+    print(f'    Location: {desc["Location"]}')
+    print()
+
     configured_devices = client.configured_devices()
     print('Server has {len(configured_devices)} configured '
           f'devices{"" if len(configured_devices) == 1 else "s"}')
