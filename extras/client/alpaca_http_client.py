@@ -690,7 +690,6 @@ def main() -> None:
           make_url_base_parser(),
           make_device_number_parser(),
           make_device_type_parser(),
-          make_device_limits_parser(),
       ])
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
