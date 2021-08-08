@@ -43,7 +43,7 @@ import netifaces  # pylint: disable=g-import-not-at-top,g-bad-import-order
 ALPACA_DISCOVERY_PORT = 32227
 DISCOVERY_REQUEST_BODY = 'alpacadiscovery1'
 ALPACA_SERVER_PORT_PROPERTY = 'alpacaport'
-
+DEFAULT_DISCOVERY_SECS = 2.0
 
 @dataclasses.dataclass
 class DiscoverySource:
@@ -162,7 +162,7 @@ class Discoverer(object):
 
   def perform_discovery(self,
                         response_queue: queue.Queue,
-                        max_discovery_secs: float = 5.0,
+                        max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
                         verbose=False) -> threading.Thread:
     """Returns a thread which writes DiscoveryResponses to response_queue."""
 
@@ -177,7 +177,7 @@ class Discoverer(object):
 
   def generate_responses(
       self,
-      max_discovery_secs: float = 5.0,
+      max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
       verbose=False) -> Generator[DiscoveryResponse, None, None]:
     """Yields DiscoveryResponses after sending from the source address."""
     sock = self.source.create_bound_udp_socket()
@@ -221,10 +221,12 @@ class Discoverer(object):
 def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
                       sources: Optional[List[DiscoverySource]] = None,
-                      max_discovery_secs: float = 5.0,
+                      max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
                       verbose=False) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
   if sources is None:
+    if verbose:
+      print('Finding network interfaces to use for discovery.')
     sources = list(generate_discovery_sources())
   discoverers = [Discoverer(source) for source in sources]
   q = queue.Queue(maxsize=1000)
@@ -256,7 +258,7 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
       )
 
 
-def find_first_server(max_discovery_secs: float = 5.0,
+def find_first_server(max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
                       verbose=False) -> Optional[DiscoveryResponse]:
   """Return the first server to respond within max_discovery_secs, else None."""
   result = None
@@ -281,7 +283,7 @@ def make_discovery_parser() -> argparse.ArgumentParser:
       '--max_discovery_secs',
       metavar='SECONDS',
       type=float,
-      default=10.0,
+      default=DEFAULT_DISCOVERY_SECS,
       help='Time to wait (seconds) for Alpaca Discovery responses.')
   parser.add_argument(
       '--verbose',
