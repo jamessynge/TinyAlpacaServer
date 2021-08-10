@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
-using alpaca::Literal;
+using mcucore::Literal;
 
 constexpr char buffer1[] AVR_PROGMEM = "abc";
 
-constexpr Literal literal(buffer1);
+constexpr mcucore::Literal literal(buffer1);
 
 void setup() {
   // Setup serial, wait for it to be ready so that our logging messages can be
@@ -391,7 +391,7 @@ void loop() {
   Serial.println();
 
   Serial.print("JSON escaped literal: ");
-  alpaca::PrintJsonEscapedStringTo(alpaca::AnyPrintable(literal), Serial);
+  alpaca::PrintJsonEscapedStringTo(mcucore::AnyPrintable(literal), Serial);
   Serial.println();
   Serial.println();
 }

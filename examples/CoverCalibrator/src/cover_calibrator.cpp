@@ -9,9 +9,9 @@ namespace {
 using ::alpaca::ECalibratorStatus;
 using ::alpaca::ECoverStatus;
 using ::alpaca::ErrorCodes;
-using ::alpaca::Status;
-using ::alpaca::StatusOr;
 using ::alpaca::TimerCounterChannel;
+using ::mcucore::Status;
+using ::mcucore::StatusOr;
 
 TAS_DEFINE_LITERAL(IsNotEnabled, " is not enabled");
 TAS_DEFINE_LITERAL(IsEnabled, " is enabled");
@@ -68,7 +68,7 @@ void CoverCalibrator::Initialize() {
 // if there are LED channels that are present (according to the hardware pins)..
 // This does not take into account whether any of the LED is enabled by the
 // switch feature.
-StatusOr<int32_t> CoverCalibrator::GetBrightness() {
+mcucore::StatusOr<int32_t> CoverCalibrator::GetBrightness() {
   if (IsCalibratorHardwareEnabled()) {
     return brightness_;
   }
@@ -77,7 +77,7 @@ StatusOr<int32_t> CoverCalibrator::GetBrightness() {
 
 // Returns the state of the calibration device, or kUnknown if not overridden
 // by a subclass.
-StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
+mcucore::StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
   if (!IsCalibratorHardwareEnabled()) {
     return ECalibratorStatus::kNotPresent;
   } else if (!calibrator_on_) {
@@ -87,9 +87,11 @@ StatusOr<ECalibratorStatus> CoverCalibrator::GetCalibratorState() {
   }
 }
 
-StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() { return kMaxBrightness; }
+mcucore::StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() {
+  return kMaxBrightness;
+}
 
-Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
+mcucore::Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
   if (!IsCalibratorHardwareEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
@@ -110,10 +112,10 @@ Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
   if (GetLedChannelEnabled(3)) {
     led4_.set_pulse_count(brightness_);
   }
-  return alpaca::OkStatus();
+  return mcucore::OkStatus();
 }
 
-Status CoverCalibrator::SetCalibratorOff() {
+mcucore::Status CoverCalibrator::SetCalibratorOff() {
   if (!IsCalibratorHardwareEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   }
@@ -123,14 +125,14 @@ Status CoverCalibrator::SetCalibratorOff() {
   led4_.set_pulse_count(0);
   brightness_ = 0;
   calibrator_on_ = false;
-  return alpaca::OkStatus();
+  return mcucore::OkStatus();
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
   TAS_VLOG(4) << TAS_FLASHSTR("SetLedChannelEnabled(") << channel
               << TAS_FLASHSTR(", ") << enabled
               << TAS_FLASHSTR(") ENTER, brightness_ = ") << brightness_
-              << TAS_FLASHSTR(", enabled_led_channels_ = ") << alpaca::BaseHex
+              << TAS_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;
 
   if (0 <= channel && channel < 4) {
@@ -148,7 +150,7 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
                      "SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
               << channel << TAS_FLASHSTR(") = ")
               << GetLedChannelEnabled(channel)
-              << TAS_FLASHSTR(", enabled_led_channels_ = ") << alpaca::BaseHex
+              << TAS_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;
   return GetLedChannelEnabled(channel);
 }
@@ -177,11 +179,11 @@ bool CoverCalibrator::GetLedChannelHardwareEnabled(int channel) const {
   return false;
 }
 
-StatusOr<alpaca::ECoverStatus> CoverCalibrator::GetCoverState() {
+mcucore::StatusOr<alpaca::ECoverStatus> CoverCalibrator::GetCoverState() {
   return cover_.GetCoverStatus();
 }
 
-Status CoverCalibrator::MoveCover(bool open) {
+mcucore::Status CoverCalibrator::MoveCover(bool open) {
   if (!cover_.IsEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   } else if (open) {
@@ -189,16 +191,16 @@ Status CoverCalibrator::MoveCover(bool open) {
   } else {
     cover_.Close();
   }
-  return alpaca::OkStatus();
+  return mcucore::OkStatus();
 }
 
-Status CoverCalibrator::HaltCoverMotion() {
+mcucore::Status CoverCalibrator::HaltCoverMotion() {
   if (!cover_.IsEnabled()) {
     return alpaca::ErrorCodes::NotImplemented();
   } else {
     cover_.Halt();
   }
-  return alpaca::OkStatus();
+  return mcucore::OkStatus();
 }
 
 }  // namespace astro_makers

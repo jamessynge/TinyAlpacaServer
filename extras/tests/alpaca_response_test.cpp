@@ -9,25 +9,27 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "alpaca_request.h"
+#include "any_printable.h"
+#include "array_view.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
-#include "extras/test_tools/json_test_utils.h"
-#include "extras/test_tools/print_value_to_std_string.h"
 #include "gtest/gtest.h"
+#include "json_encoder.h"
+#include "literal.h"
 #include "literals.h"
+#include "mcucore/extrastest_tools/json_test_utils.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "mcucore/extrastest_tools/print_value_to_std_string.h"
 #include "mcucore/extrastest_tools/sample_printable.h"
-#include "utils/any_printable.h"
-#include "utils/array_view.h"
-#include "utils/json_encoder.h"
-#include "utils/literal.h"
-#include "utils/status_or.h"
+#include "status_or.h"
 
 namespace alpaca {
 namespace test {
 namespace {
 
+using ::mcucore::MakeArrayView;
 using ::mcucore::test::PrintToStdString;
+using ::mcucore::test::PropertySourceFunctionAdapter;
 using ::mcucore::test::SamplePrintable;
 
 constexpr char kEOL[] = "\r\n";
@@ -97,7 +99,8 @@ std::string MakeExpectedIntResponse(int value, bool do_close = kDoNotClose,
 TEST(AlpacaResponseTest, OkWithEmptyJsonObject) {
   AlpacaRequest request;
   request.http_method = EHttpMethod::PUT;
-  PropertySourceFunctionAdapter source([](JsonObjectEncoder& encoder) {});
+  PropertySourceFunctionAdapter source(
+      [](mcucore::JsonObjectEncoder& encoder) {});
   PrintToStdString out;
   EXPECT_TRUE(WriteResponse::OkJsonResponse(request, source, out));
   const auto expected_body = absl::StrCat("{}", kEOL);
@@ -123,7 +126,7 @@ TEST(AlpacaResponseTest, StatusOrBoolResponse) {
     AlpacaRequest request;
     PrintToStdString out;
     EXPECT_TRUE(WriteResponse::StatusOrBoolResponse(
-        request, StatusOr<bool>(false), out));
+        request, mcucore::StatusOr<bool>(false), out));
     EXPECT_EQ(out.str(), MakeExpectedBoolResponse(false, kDoNotClose, -1));
   }
   {
@@ -140,7 +143,7 @@ TEST(AlpacaResponseTest, StatusOrBoolResponse) {
     request.do_close = true;
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrBoolResponse(
-        request, StatusOr<bool>(true), out));
+        request, mcucore::StatusOr<bool>(true), out));
     EXPECT_EQ(out.str(), MakeExpectedBoolResponse(true, kDoClose));
   }
   {
@@ -155,8 +158,8 @@ TEST(AlpacaResponseTest, StatusOrBoolResponse) {
         R"({"ClientTransactionID": 432, "ServerTransactionID": 321, )",
         R"("ErrorNumber": )", ErrorCodes::kInvalidWhileSlaved,
         R"(, "ErrorMessage": ")",
-        PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()), R"("})",
-        kEOL);
+        mcucore::PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
+        R"("})", kEOL);
     const std::string expected_response =
         MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
     EXPECT_EQ(out.str(), expected_response);
@@ -170,7 +173,7 @@ TEST(AlpacaResponseTest, StatusOrDoubleResponse) {
     request.do_close = true;
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrDoubleResponse(
-        request, StatusOr<double>(45.5), out));
+        request, mcucore::StatusOr<double>(45.5), out));
     EXPECT_EQ(out.str(), MakeExpectedDoubleResponse(45.5, kDoClose, 7));
   }
   {
@@ -181,11 +184,11 @@ TEST(AlpacaResponseTest, StatusOrDoubleResponse) {
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrDoubleResponse(
         request, ErrorCodes::InvalidWhileSlaved(), out));
-    const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
-                     ErrorCodes::kInvalidWhileSlaved, R"(, "ErrorMessage": ")",
-                     PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
-                     R"("})", kEOL);
+    const std::string expected_body = absl::StrCat(
+        R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
+        ErrorCodes::kInvalidWhileSlaved, R"(, "ErrorMessage": ")",
+        mcucore::PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
+        R"("})", kEOL);
     const std::string expected_response =
         MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
     EXPECT_EQ(out.str(), expected_response);
@@ -199,7 +202,7 @@ TEST(AlpacaResponseTest, StatusOrFloatResponse) {
     request.do_close = false;
     PrintToStdString out;
     EXPECT_TRUE(WriteResponse::StatusOrFloatResponse(
-        request, StatusOr<float>(45.5), out));
+        request, mcucore::StatusOr<float>(45.5), out));
     EXPECT_EQ(out.str(), MakeExpectedDoubleResponse(45.5, kDoNotClose, 7));
   }
   {
@@ -209,11 +212,11 @@ TEST(AlpacaResponseTest, StatusOrFloatResponse) {
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrFloatResponse(
         request, ErrorCodes::InvalidWhileSlaved(), out));
-    const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
-                     ErrorCodes::kInvalidWhileSlaved, R"(, "ErrorMessage": ")",
-                     PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
-                     R"("})", kEOL);
+    const std::string expected_body = absl::StrCat(
+        R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
+        ErrorCodes::kInvalidWhileSlaved, R"(, "ErrorMessage": ")",
+        mcucore::PrintValueToStdString(Literals::ErrorInvalidWhileSlaved()),
+        R"("})", kEOL);
     const std::string expected_response =
         MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
     EXPECT_EQ(out.str(), expected_response);
@@ -227,7 +230,7 @@ TEST(AlpacaResponseTest, StatusOrUIntResponse) {
     request.do_close = false;
     PrintToStdString out;
     EXPECT_TRUE(WriteResponse::StatusOrUIntResponse(
-        request, StatusOr<uint32_t>(45), out));
+        request, mcucore::StatusOr<uint32_t>(45), out));
     EXPECT_EQ(out.str(), MakeExpectedIntResponse(45, kDoNotClose, 7));
   }
   {
@@ -237,11 +240,11 @@ TEST(AlpacaResponseTest, StatusOrUIntResponse) {
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrUIntResponse(
         request, ErrorCodes::InvalidWhileParked(), out));
-    const std::string expected_body =
-        absl::StrCat(R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
-                     ErrorCodes::kInvalidWhileParked, R"(, "ErrorMessage": ")",
-                     PrintValueToStdString(Literals::ErrorInvalidWhileParked()),
-                     R"("})", kEOL);
+    const std::string expected_body = absl::StrCat(
+        R"({"ServerTransactionID": 3,)", R"( "ErrorNumber": )",
+        ErrorCodes::kInvalidWhileParked, R"(, "ErrorMessage": ")",
+        mcucore::PrintValueToStdString(Literals::ErrorInvalidWhileParked()),
+        R"("})", kEOL);
     const std::string expected_response =
         MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
     EXPECT_EQ(out.str(), expected_response);
@@ -255,7 +258,7 @@ TEST(AlpacaResponseTest, StatusOrIntResponse) {
     request.do_close = true;
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrIntResponse(
-        request, StatusOr<int32_t>(-45), out));
+        request, mcucore::StatusOr<int32_t>(-45), out));
     EXPECT_EQ(out.str(), MakeExpectedIntResponse(-45, kDoClose, 5));
   }
   {
@@ -265,11 +268,11 @@ TEST(AlpacaResponseTest, StatusOrIntResponse) {
     PrintToStdString out;
     EXPECT_FALSE(WriteResponse::StatusOrIntResponse(
         request, ErrorCodes::InvalidWhileParked(), out));
-    const std::string expected_body =
-        absl::StrCat(R"({"ClientTransactionID": 5,)", R"( "ErrorNumber": )",
-                     ErrorCodes::kInvalidWhileParked, R"(, "ErrorMessage": ")",
-                     PrintValueToStdString(Literals::ErrorInvalidWhileParked()),
-                     R"("})", kEOL);
+    const std::string expected_body = absl::StrCat(
+        R"({"ClientTransactionID": 5,)", R"( "ErrorNumber": )",
+        ErrorCodes::kInvalidWhileParked, R"(, "ErrorMessage": ")",
+        mcucore::PrintValueToStdString(Literals::ErrorInvalidWhileParked()),
+        R"("})", kEOL);
     const std::string expected_response =
         MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
     EXPECT_EQ(out.str(), expected_response);
@@ -281,8 +284,8 @@ TEST(AlpacaResponseTest, AnyPrintableStringResponse) {
   AlpacaRequest request;
   request.set_server_transaction_id(2);
   PrintToStdString out;
-  EXPECT_TRUE(WriteResponse::AnyPrintableStringResponse(request,
-                                                        AnyPrintable(sp), out));
+  EXPECT_TRUE(WriteResponse::AnyPrintableStringResponse(
+      request, mcucore::AnyPrintable(sp), out));
   EXPECT_EQ(out.str(), MakeExpectedResponse(R"("***")", kDoNotClose, 2));
 }
 
@@ -292,7 +295,8 @@ TEST(AlpacaResponseTest, StatusOrLiteralResponse) {
     request.set_server_transaction_id(1);
     PrintToStdString out;
     EXPECT_TRUE(WriteResponse::StatusOrLiteralResponse(
-        request, StatusOr<Literal>(Literals::DeviceType()), out));
+        request, mcucore::StatusOr<mcucore::Literal>(Literals::DeviceType()),
+        out));
     EXPECT_EQ(out.str(),
               MakeExpectedResponse(R"("DeviceType")", kDoNotClose, 1));
   }
@@ -304,7 +308,7 @@ TEST(AlpacaResponseTest, StatusOrLiteralResponse) {
     EXPECT_FALSE(WriteResponse::StatusOrLiteralResponse(
         request, ErrorCodes::InvalidWhileParked(), out));
     const auto error_message =
-        PrintValueToStdString(Literals::ErrorInvalidWhileParked());
+        mcucore::PrintValueToStdString(Literals::ErrorInvalidWhileParked());
     const std::string expected_body = absl::StrCat(
         R"({"ClientTransactionID": 100, "ServerTransactionID": 4,)",
         R"( "ErrorNumber": )", ErrorCodes::kInvalidWhileParked,
@@ -316,9 +320,9 @@ TEST(AlpacaResponseTest, StatusOrLiteralResponse) {
 }
 
 TEST(AlpacaResponseTest, LiteralArrayResponse) {
-  const Literal kLiterals[] = {Literals::DeviceType(),
-                               Literals::ManufacturerVersion()};
-  LiteralArray value(kLiterals);
+  const mcucore::Literal kLiterals[] = {Literals::DeviceType(),
+                                        Literals::ManufacturerVersion()};
+  mcucore::LiteralArray value(kLiterals);
 
   // Note that we're NOT setting the server transaction id here, nor error
   // number.
@@ -349,11 +353,11 @@ TEST(AlpacaResponseTest, AscomActionNotImplementedResponse) {
   request.set_server_transaction_id(1);
   PrintToStdString out;
   EXPECT_FALSE(WriteResponse::AscomActionNotImplementedResponse(request, out));
-  const std::string expected_body =
-      absl::StrCat(R"({"ServerTransactionID": 1,)", R"( "ErrorNumber": )",
-                   ErrorCodes::kActionNotImplemented, R"(, "ErrorMessage": ")",
-                   PrintValueToStdString(Literals::ErrorActionNotImplemented()),
-                   R"("})", kEOL);
+  const std::string expected_body = absl::StrCat(
+      R"({"ServerTransactionID": 1,)", R"( "ErrorNumber": )",
+      ErrorCodes::kActionNotImplemented, R"(, "ErrorMessage": ")",
+      mcucore::PrintValueToStdString(Literals::ErrorActionNotImplemented()),
+      R"("})", kEOL);
   const std::string expected_response =
       MakeExpectedResponseHeader(expected_body, kDoClose) + expected_body;
   EXPECT_EQ(out.str(), expected_response);
@@ -400,7 +404,8 @@ TEST(AlpacaResponseDeathTest, HttpErrorResponse_NotAnError) {
         PrintToStdString out;
         EXPECT_FALSE(WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpOk,
                                                       body, out));
-        auto reason_phrase = "Internal Server Error: Invalid HTTP Status Code";
+        auto reason_phrase =
+            "Internal Server Error: Invalid HTTP mcucore::Status Code";
         const auto expected =                                        // Force
             absl::StrCat("HTTP/1.1 500 ", reason_phrase, kEOL,       // line
                          "Server: TinyAlpacaServer", kEOL,           // wrap
@@ -411,7 +416,7 @@ TEST(AlpacaResponseDeathTest, HttpErrorResponse_NotAnError) {
                          body.str);                                  // here.
         EXPECT_EQ(out.str(), expected);
       },
-      "Status code should be for an error");
+      "mcucore::Status code should be for an error");
 }
 
 TEST(AlpacaResponseDeathTest, HttpErrorResponse_NoReasonCode) {

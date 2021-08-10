@@ -3,7 +3,7 @@
 // GENERATED FILE. See make_enum_to_string.py
 
 #include "inline_literal.h"
-#include "utils/print_misc.h"
+#include "print_misc.h"
 
 namespace alpaca {
 
@@ -12,8 +12,8 @@ size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("RequestDecoderStatus"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("RequestDecoderStatus"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpStatusCode v, Print& out) {
@@ -21,8 +21,8 @@ size_t PrintValueTo(EHttpStatusCode v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpStatusCode"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpStatusCode"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpMethod v, Print& out) {
@@ -30,8 +30,8 @@ size_t PrintValueTo(EHttpMethod v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpMethod"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpMethod"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EApiGroup v, Print& out) {
@@ -39,8 +39,8 @@ size_t PrintValueTo(EApiGroup v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EApiGroup"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EApiGroup"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EAlpacaApi v, Print& out) {
@@ -48,8 +48,8 @@ size_t PrintValueTo(EAlpacaApi v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EAlpacaApi"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EAlpacaApi"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EManagementMethod v, Print& out) {
@@ -57,8 +57,8 @@ size_t PrintValueTo(EManagementMethod v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EManagementMethod"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EManagementMethod"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceType v, Print& out) {
@@ -66,8 +66,8 @@ size_t PrintValueTo(EDeviceType v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EDeviceType"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EDeviceType"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EDeviceMethod v, Print& out) {
@@ -75,8 +75,8 @@ size_t PrintValueTo(EDeviceMethod v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EDeviceMethod"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EDeviceMethod"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EParameter v, Print& out) {
@@ -84,8 +84,8 @@ size_t PrintValueTo(EParameter v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EParameter"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EParameter"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(ESensorName v, Print& out) {
@@ -93,8 +93,8 @@ size_t PrintValueTo(ESensorName v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ESensorName"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("ESensorName"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EHttpHeader v, Print& out) {
@@ -102,8 +102,8 @@ size_t PrintValueTo(EHttpHeader v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpHeader"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EHttpHeader"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(EContentType v, Print& out) {
@@ -111,8 +111,8 @@ size_t PrintValueTo(EContentType v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("EContentType"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("EContentType"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {

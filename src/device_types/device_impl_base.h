@@ -18,8 +18,8 @@
 #include "device_info.h"
 #include "device_interface.h"
 #include "mcucore_platform.h"
-#include "utils/status.h"
-#include "utils/status_or.h"
+#include "status.h"
+#include "status_or.h"
 
 namespace alpaca {
 
@@ -87,7 +87,7 @@ class DeviceImplBase : public DeviceInterface {
   // Is the driver connected to (i.e. able to talk to) the device? By default,
   // we assume the device is connected, and prevent the device from being
   // disconnected. A subclass can override to change this.
-  virtual StatusOr<bool> GetConnected();
+  virtual mcucore::StatusOr<bool> GetConnected();
 
   // Invokes the named device-specific action.
   virtual bool HandlePutAction(const AlpacaRequest& request, Print& out);
@@ -108,12 +108,12 @@ class DeviceImplBase : public DeviceInterface {
 
   // Sets the connected state of the device. Default implementation passes the
   // decoded boolean value of the Connected parameter to SetConnected, and
-  // writes a response based on the returned Status value.
+  // writes a response based on the returned mcucore::Status value.
   virtual bool HandlePutConnected(const AlpacaRequest& request, Print& out);
 
   // Connect to the device if value is true, disconnect if value is false.
   // Default implementation returns an error.
-  virtual Status SetConnected(bool value);
+  virtual mcucore::Status SetConnected(bool value);
 
  private:
   const DeviceInfo& device_info_;

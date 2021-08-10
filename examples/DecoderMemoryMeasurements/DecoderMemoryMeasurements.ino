@@ -8,7 +8,7 @@
 using ::alpaca::AlpacaRequest;
 using ::alpaca::RequestDecoder;
 using ::alpaca::RequestDecoderListener;
-using ::alpaca::StringView;
+using ::mcucore::StringView;
 
 // NOLINTBEGIN
 
@@ -39,7 +39,7 @@ char request_data_buffer[64];
 
 void loop() {
   // Adding buffer_view: no change (because unreferenced?)
-  StringView buffer_view(request_data_buffer, 33);
+  mcucore::StringView buffer_view(request_data_buffer, 33);
 
   // Calling remove_prefix: 2456/247 (unreferenced?)
   buffer_view.remove_prefix(1);

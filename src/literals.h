@@ -4,13 +4,13 @@
 // To avoid wasting RAM on string literals on Arduino's based on Microchip
 // Techonology's AVR microcontrollers, we gather the strings together in
 // literals.inc, and then include that file here to define arrays in PROGMEM for
-// those strings, and to define factory functions for corresponding Literal
-// instances.
+// those strings, and to define factory functions for corresponding
+// mcucore::Literal instances.
 //
 // Author: james.synge@gmail.com
 
+#include "literal.h"
 #include "mcucore_platform.h"
-#include "utils/literal.h"
 
 #ifdef TAS_DEFINE_BUILTIN_LITERAL
 #undef TAS_DEFINE_BUILTIN_LITERAL
@@ -18,10 +18,11 @@
 
 namespace alpaca {
 
-// Define static Literal factory methods in a struct, acting as a nested
-// namespace, but ensuring that each method defined in the source file matches
-// a declaration in the header file.
-#define TAS_DEFINE_BUILTIN_LITERAL(name, literal) static Literal name();
+// Define static mcucore::Literal factory methods in a struct, acting as a
+// nested namespace, but ensuring that each method defined in the source file
+// matches a declaration in the header file.
+#define TAS_DEFINE_BUILTIN_LITERAL(name, literal) \
+  static mcucore::Literal name();
 
 struct Literals {
 #include "literals.inc"  // IWYU pragma: export

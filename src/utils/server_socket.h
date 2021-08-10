@@ -115,8 +115,8 @@ class ServerSocket {
   // bound to this ServerSocket instance.
   uint8_t sock_num_;
 
-  // Status at the end of the last call to Initialize or PerformIO.
-  // Status after a successful Initialize call will be SnSR::LISTEN,
+  // mcucore::Status at the end of the last call to Initialize or PerformIO.
+  // mcucore::Status after a successful Initialize call will be SnSR::LISTEN,
   uint8_t last_status_;
 
   // Object to be called with events.

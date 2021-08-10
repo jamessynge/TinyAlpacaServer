@@ -2,15 +2,15 @@
 
 #include "src/pretend_devices.h"
 
-using ::alpaca::Literal;
 using ::alpaca::ObservingConditionsAdapter;
-using ::alpaca::StatusOr;
+using ::mcucore::Literal;
+using ::mcucore::StatusOr;
 
 // Just one simple device, used to report Observing Conditions.
 static Dht22Device dht22;
 
 // No extra actions.
-const auto kSupportedActions = alpaca::LiteralArray({});
+const auto kSupportedActions = mcucore::LiteralArray({});
 
 #define DEVICE_DESCRIPTION "DHT22 Humidity and Temperature Sensor"
 
@@ -28,23 +28,23 @@ const alpaca::DeviceInfo kDht22DeviceInfo{
 
 Dht22Handler::Dht22Handler() : ObservingConditionsAdapter(kDht22DeviceInfo) {}
 
-StatusOr<double> Dht22Handler::GetHumidity() {
+mcucore::StatusOr<double> Dht22Handler::GetHumidity() {
   return dht22.get_relative_humidity();
 }
 
-StatusOr<double> Dht22Handler::GetTemperature() {
+mcucore::StatusOr<double> Dht22Handler::GetTemperature() {
   return dht22.get_temperature();
 }
 
-StatusOr<bool> Dht22Handler::GetConnected() {
+mcucore::StatusOr<bool> Dht22Handler::GetConnected() {
   return true;  // XXX: Return true if able to talk to the device.
 }
 
-StatusOr<Literal> Dht22Handler::GetSensorDescription(
+mcucore::StatusOr<mcucore::Literal> Dht22Handler::GetSensorDescription(
     alpaca::ESensorName sensor_name) {
   if (sensor_name == alpaca::ESensorName::kHumidity ||
       sensor_name == alpaca::ESensorName::kTemperature) {
-    return Literal(TASLIT(DEVICE_DESCRIPTION));
+    return mcucore::Literal(TASLIT(DEVICE_DESCRIPTION));
   }
   return alpaca::ErrorCodes::InvalidValue();
 }

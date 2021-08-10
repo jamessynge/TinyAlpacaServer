@@ -9,8 +9,8 @@
 // Author: james.synge@gmail.com
 
 #include "constants.h"
+#include "literal.h"
 #include "mcucore_platform.h"
-#include "utils/literal.h"
 
 namespace alpaca {
 
@@ -21,7 +21,7 @@ struct HttpResponseHeader : public Printable {
   size_t printTo(Print& out) const override;
 
   EHttpStatusCode status_code;
-  Literal reason_phrase;
+  mcucore::Literal reason_phrase;
   EContentType content_type;
   uint32_t content_length;
   bool do_close;

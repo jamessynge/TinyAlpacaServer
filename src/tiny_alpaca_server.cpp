@@ -1,21 +1,21 @@
 #include "tiny_alpaca_server.h"
 
 #include "alpaca_response.h"
+#include "any_printable.h"
+#include "array_view.h"
 #include "constants.h"
+#include "counting_print.h"
 #include "http_response_header.h"
+#include "json_encoder.h"
+#include "json_encoder_helpers.h"
 #include "literals.h"
-#include "utils/any_printable.h"
-#include "utils/array_view.h"
-#include "utils/counting_print.h"
-#include "utils/json_encoder.h"
-#include "utils/json_encoder_helpers.h"
-#include "utils/printable_cat.h"
+#include "printable_cat.h"
 
 namespace alpaca {
 
 TinyAlpacaServerBase::TinyAlpacaServerBase(
     const ServerDescription& server_description,
-    ArrayView<DeviceInterface*> devices)
+    mcucore::ArrayView<DeviceInterface*> devices)
     : alpaca_devices_(devices),
       server_description_(server_description),
       server_transaction_id_(0) {}
@@ -63,7 +63,7 @@ void TinyAlpacaServerBase::OnRequestDecodingError(AlpacaRequest& request,
                                                   EHttpStatusCode status,
                                                   Print& out) {
   TAS_VLOG(3) << TAS_FLASHSTR("OnRequestDecodingError: status=") << status;
-  WriteResponse::HttpErrorResponse(status, AnyPrintable(), out);
+  WriteResponse::HttpErrorResponse(status, mcucore::AnyPrintable(), out);
 }
 
 bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
@@ -71,7 +71,8 @@ bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
   TAS_VLOG(3) << TAS_FLASHSTR("HandleManagementApiVersions");
   uint32_t versions[] = {1};
   return WriteResponse::ArrayResponse(
-      request, MakeArrayViewSource(versions, &JsonArrayEncoder::AddUIntElement),
+      request,
+      MakeArrayViewSource(versions, &mcucore::JsonArrayEncoder::AddUIntElement),
       out);
 }
 
@@ -79,7 +80,8 @@ bool TinyAlpacaServerBase::HandleManagementDescription(AlpacaRequest& request,
                                                        Print& out) {
   TAS_VLOG(3) << TAS_FLASHSTR(
       "TinyAlpacaServerBase::HandleManagementDescription");
-  JsonPropertySourceAdapter<ServerDescription> description(server_description_);
+  mcucore::JsonPropertySourceAdapter<ServerDescription> description(
+      server_description_);
   return WriteResponse::ObjectResponse(request, description, out);
 }
 
@@ -94,13 +96,13 @@ bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
       "</body></html>");
 
   return WriteResponse::OkResponse(request, EContentType::kTextHtml,
-                                   AnyPrintable(body), out,
+                                   mcucore::AnyPrintable(body), out,
                                    /*append_http_newline=*/true);
 }
 
 TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
                                    const ServerDescription& server_description,
-                                   ArrayView<DeviceInterface*> devices)
+                                   mcucore::ArrayView<DeviceInterface*> devices)
     : TinyAlpacaServerBase(server_description, devices),
       sockets_(tcp_port, *this),
       discovery_server_(tcp_port) {}

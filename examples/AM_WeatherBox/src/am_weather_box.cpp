@@ -13,9 +13,9 @@ using ::alpaca::ErrorCodes;
 using ::alpaca::ESensorName;
 using ::alpaca::Literals;
 using ::alpaca::ObservingConditionsAdapter;
-using ::alpaca::OkStatus;
-using ::alpaca::Status;
-using ::alpaca::StatusOr;
+using ::mcucore::OkStatus;
+using ::mcucore::Status;
+using ::mcucore::StatusOr;
 
 #if defined(TAS_ENABLED_VLOG_LEVEL) && TAS_ENABLED_VLOG_LEVEL >= 3
 #define READ_INTERVAL_SECS 1
@@ -72,25 +72,25 @@ bool AMWeatherBox::IsIrThermInitialized() {
   return ir_therm_initialized_;
 }
 
-StatusOr<double> AMWeatherBox::GetAveragePeriod() { return 0; }
+mcucore::StatusOr<double> AMWeatherBox::GetAveragePeriod() { return 0; }
 
-Status AMWeatherBox::SetAveragePeriod(double hours) {
+mcucore::Status AMWeatherBox::SetAveragePeriod(double hours) {
   TAS_DCHECK_EQ(hours, 0);  // MaxAveragePeriod should be 0.
   if (hours == 0) {
-    return OkStatus();
+    return mcucore::OkStatus();
   } else {
     return ErrorCodes::InvalidValue();
   }
 }
 
-StatusOr<double> AMWeatherBox::GetSkyTemperature() {
+mcucore::StatusOr<double> AMWeatherBox::GetSkyTemperature() {
   if (IsIrThermInitialized()) {
     return ir_therm.readObjectTempC();
   }
   return ErrorCodes::NotConnected();
 }
 
-StatusOr<double> AMWeatherBox::GetRainRate() {
+mcucore::StatusOr<double> AMWeatherBox::GetRainRate() {
   if (digitalRead(kRg11SensorPin) == kRg11DetectsRain) {
     return 10;
   } else {
@@ -98,14 +98,14 @@ StatusOr<double> AMWeatherBox::GetRainRate() {
   }
 }
 
-StatusOr<double> AMWeatherBox::GetTemperature() {
+mcucore::StatusOr<double> AMWeatherBox::GetTemperature() {
   if (IsIrThermInitialized()) {
     return ir_therm.readAmbientTempC();
   }
   return ErrorCodes::NotConnected();
 }
 
-StatusOr<alpaca::Literal> AMWeatherBox::GetSensorDescription(
+mcucore::StatusOr<mcucore::Literal> AMWeatherBox::GetSensorDescription(
     ESensorName sensor_name) {
   if (sensor_name == ESensorName::kSkyTemperature ||
       sensor_name == ESensorName::kTemperature) {
@@ -117,9 +117,10 @@ StatusOr<alpaca::Literal> AMWeatherBox::GetSensorDescription(
   return ErrorCodes::InvalidValue();
 }
 
-Status AMWeatherBox::Refresh() { return OkStatus(); }
+mcucore::Status AMWeatherBox::Refresh() { return mcucore::OkStatus(); }
 
-StatusOr<double> AMWeatherBox::GetTimeSinceLastUpdate(ESensorName sensor_name) {
+mcucore::StatusOr<double> AMWeatherBox::GetTimeSinceLastUpdate(
+    ESensorName sensor_name) {
   switch (sensor_name) {
     case ESensorName::kSkyTemperature:
     case ESensorName::kTemperature:

@@ -95,7 +95,7 @@ class Token:
   # Source of the token after phase 2 translation.
   src: str
   # Source of the token before phase 2 translation. In general, this is the
-  # same as src, but not if a Raw String Literal with a backslash at the end
+  # same as src, but not if a Raw String mcucore::Literal with a backslash at the end
   # of a line in the string.
   raw_src: str
 
@@ -194,20 +194,20 @@ def find_raw_string_literal_end(file_src: str, m: Match[str]) -> int:
   if not m.group(0).endswith('R"'):
     raise AssertionError(f'Expected start of raw string literal: {m.group()}')
 
-  # We've matched the start of a Raw String Literal. Determine the delimiter,
+  # We've matched the start of a Raw String mcucore::Literal. Determine the delimiter,
   # then search for the end of the string.
   regexp = re.compile(r'[^()\\ \f\n\r\t\v]{0,16}\(')
   m2 = regexp.match(file_src, pos=m.end())
   if not m2:
     raise AssertionError(
-        'Unable to locate opening delimiter of the Raw String Literal '
+        'Unable to locate opening delimiter of the Raw String mcucore::Literal '
         f'starting at {m.start()}: {file_src[m.start():m.start()+32]!r}')
 
   needle = ')' + m2.group()[0:-1] + '"'
   pos1 = file_src.find(needle, m2.end())
   if pos1 < 0:
     raise AssertionError(
-        'Unable to locate closing delimiter of the Raw String Literal '
+        'Unable to locate closing delimiter of the Raw String mcucore::Literal '
         f'starting at {m.start()}: {file_src[m.start():m.start()+32]!r}')
 
   pos2 = pos1 + len(needle)

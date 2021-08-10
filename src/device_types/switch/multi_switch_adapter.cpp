@@ -8,8 +8,9 @@
 
 namespace alpaca {
 
-MultiSwitchAdapter::MultiSwitchAdapter(const DeviceInfo& device_info,
-                                       ArrayView<SwitchInterface*> switches)
+MultiSwitchAdapter::MultiSwitchAdapter(
+    const DeviceInfo& device_info,
+    mcucore::ArrayView<SwitchInterface*> switches)
     : SwitchAdapter(device_info), switches_(switches) {}
 
 SwitchInterface* MultiSwitchAdapter::GetSwitchInterface(
@@ -40,11 +41,12 @@ bool MultiSwitchAdapter::GetCanWrite(uint16_t switch_id) {
   return GetSwitchInterface(switch_id)->GetCanWrite();
 }
 
-StatusOr<bool> MultiSwitchAdapter::GetSwitch(uint16_t switch_id) {
+mcucore::StatusOr<bool> MultiSwitchAdapter::GetSwitch(uint16_t switch_id) {
   return GetSwitchInterface(switch_id)->GetSwitch();
 }
 
-StatusOr<double> MultiSwitchAdapter::GetSwitchValue(uint16_t switch_id) {
+mcucore::StatusOr<double> MultiSwitchAdapter::GetSwitchValue(
+    uint16_t switch_id) {
   return GetSwitchInterface(switch_id)->GetSwitchValue();
 }
 
@@ -60,11 +62,12 @@ double MultiSwitchAdapter::GetSwitchStep(uint16_t switch_id) {
   return GetSwitchInterface(switch_id)->GetSwitchStep();
 }
 
-Status MultiSwitchAdapter::SetSwitch(uint16_t switch_id, bool state) {
+mcucore::Status MultiSwitchAdapter::SetSwitch(uint16_t switch_id, bool state) {
   return GetSwitchInterface(switch_id)->SetSwitch(state);
 }
 
-Status MultiSwitchAdapter::SetSwitchValue(uint16_t switch_id, double value) {
+mcucore::Status MultiSwitchAdapter::SetSwitchValue(uint16_t switch_id,
+                                                   double value) {
   return GetSwitchInterface(switch_id)->SetSwitchValue(value);
 }
 

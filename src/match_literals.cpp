@@ -1,11 +1,11 @@
 #include "match_literals.h"
 
+#include "array_view.h"
 #include "constants.h"
+#include "literal.h"
 #include "literals.h"
 #include "logging.h"
-#include "utils/array_view.h"
-#include "utils/literal.h"
-#include "utils/string_compare.h"
+#include "string_compare.h"
 
 #define MATCH_ONE_LITERAL_EXACTLY(literal_name, enum_value) \
   if (Literals::literal_name() == view) {                   \
@@ -14,35 +14,36 @@
   }
 
 #define MATCH_ONE_LITERAL_CASE_INSENSITIVELY(literal_name, enum_value) \
-  if (CaseEqual(Literals::literal_name(), view)) {                     \
+  if (mcucore::CaseEqual(Literals::literal_name(), view)) {            \
     match = enum_value;                                                \
     return true;                                                       \
   }
 
 namespace alpaca {
 
-bool MatchHttpMethod(const StringView& view, EHttpMethod& match) {
+bool MatchHttpMethod(const mcucore::StringView& view, EHttpMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(GET, EHttpMethod::GET);
   MATCH_ONE_LITERAL_EXACTLY(PUT, EHttpMethod::PUT);
   MATCH_ONE_LITERAL_EXACTLY(HEAD, EHttpMethod::HEAD);
   return false;
 }
 
-bool MatchApiGroup(const StringView& view, EApiGroup& match) {
+bool MatchApiGroup(const mcucore::StringView& view, EApiGroup& match) {
   MATCH_ONE_LITERAL_EXACTLY(api, EApiGroup::kDevice);
   MATCH_ONE_LITERAL_EXACTLY(management, EApiGroup::kManagement);
   MATCH_ONE_LITERAL_EXACTLY(setup, EApiGroup::kSetup);
   return false;
 }
 
-bool MatchManagementMethod(const StringView& view, EManagementMethod& match) {
+bool MatchManagementMethod(const mcucore::StringView& view,
+                           EManagementMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(description, EManagementMethod::kDescription);
   MATCH_ONE_LITERAL_EXACTLY(configureddevices,
                             EManagementMethod::kConfiguredDevices);
   return false;
 }
 
-bool MatchDeviceType(const StringView& view, EDeviceType& match) {
+bool MatchDeviceType(const mcucore::StringView& view, EDeviceType& match) {
   MATCH_ONE_LITERAL_EXACTLY(camera, EDeviceType::kCamera);
   MATCH_ONE_LITERAL_EXACTLY(covercalibrator, EDeviceType::kCoverCalibrator);
   MATCH_ONE_LITERAL_EXACTLY(dome, EDeviceType::kDome);
@@ -59,7 +60,8 @@ bool MatchDeviceType(const StringView& view, EDeviceType& match) {
 
 namespace internal {
 // Exposed for testing.
-bool MatchCommonDeviceMethod(const StringView& view, EDeviceMethod& match) {
+bool MatchCommonDeviceMethod(const mcucore::StringView& view,
+                             EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(connected, EDeviceMethod::kConnected);
   MATCH_ONE_LITERAL_EXACTLY(description, EDeviceMethod::kDescription);
   MATCH_ONE_LITERAL_EXACTLY(driverinfo, EDeviceMethod::kDriverInfo);
@@ -72,7 +74,8 @@ bool MatchCommonDeviceMethod(const StringView& view, EDeviceMethod& match) {
 }  // namespace internal
 
 namespace {
-bool MatchCoverCalibratorMethod(const StringView& view, EDeviceMethod& match) {
+bool MatchCoverCalibratorMethod(const mcucore::StringView& view,
+                                EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(brightness, EDeviceMethod::kBrightness);
   MATCH_ONE_LITERAL_EXACTLY(calibratoroff, EDeviceMethod::kCalibratorOff);
   MATCH_ONE_LITERAL_EXACTLY(calibratoron, EDeviceMethod::kCalibratorOn);
@@ -85,7 +88,7 @@ bool MatchCoverCalibratorMethod(const StringView& view, EDeviceMethod& match) {
   return false;
 }
 
-bool MatchObservingConditionsMethod(const StringView& view,
+bool MatchObservingConditionsMethod(const mcucore::StringView& view,
                                     EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(averageperiod, EDeviceMethod::kAveragePeriod);
   MATCH_ONE_LITERAL_EXACTLY(cloudcover, EDeviceMethod::kCloudCover);
@@ -109,12 +112,13 @@ bool MatchObservingConditionsMethod(const StringView& view,
   return false;
 }
 
-bool MatchSafetyMonitorMethod(const StringView& view, EDeviceMethod& match) {
+bool MatchSafetyMonitorMethod(const mcucore::StringView& view,
+                              EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(issafe, EDeviceMethod::kIsSafe);
   return false;
 }
 
-bool MatchSwitchMethod(const StringView& view, EDeviceMethod& match) {
+bool MatchSwitchMethod(const mcucore::StringView& view, EDeviceMethod& match) {
   MATCH_ONE_LITERAL_EXACTLY(canwrite, EDeviceMethod::kCanWrite);
   MATCH_ONE_LITERAL_EXACTLY(getswitch, EDeviceMethod::kGetSwitch);
   MATCH_ONE_LITERAL_EXACTLY(getswitchdescription,
@@ -134,7 +138,7 @@ bool MatchSwitchMethod(const StringView& view, EDeviceMethod& match) {
 }  // namespace
 
 bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
-                       const StringView& view, EDeviceMethod& match) {
+                       const mcucore::StringView& view, EDeviceMethod& match) {
   if (group == EApiGroup::kDevice) {
     switch (device_type) {
       case EDeviceType::kCoverCalibrator:
@@ -184,7 +188,7 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
   }
 }
 
-bool MatchParameter(const StringView& view, EParameter& match) {
+bool MatchParameter(const mcucore::StringView& view, EParameter& match) {
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(action, EParameter::kAction);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(brightness, EParameter::kBrightness);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(ClientID, EParameter::kClientID);
@@ -205,7 +209,7 @@ bool MatchParameter(const StringView& view, EParameter& match) {
   return false;
 }
 
-bool MatchSensorName(const StringView& view, ESensorName& match) {
+bool MatchSensorName(const mcucore::StringView& view, ESensorName& match) {
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(cloudcover, ESensorName::kCloudCover);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(dewpoint, ESensorName::kDewPoint);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(humidity, ESensorName::kHumidity);
@@ -225,7 +229,7 @@ bool MatchSensorName(const StringView& view, ESensorName& match) {
   return false;
 }
 
-bool MatchHttpHeader(const StringView& view, EHttpHeader& match) {
+bool MatchHttpHeader(const mcucore::StringView& view, EHttpHeader& match) {
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(Connection, EHttpHeader::kConnection);
   MATCH_ONE_LITERAL_CASE_INSENSITIVELY(HttpContentLength,
                                        EHttpHeader::kContentLength);

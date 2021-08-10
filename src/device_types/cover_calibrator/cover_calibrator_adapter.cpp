@@ -40,19 +40,20 @@ bool CoverCalibratorAdapter::HandleGetRequest(const AlpacaRequest& request,
   return DeviceImplBase::HandleGetRequest(request, out);
 }
 
-StatusOr<int32_t> CoverCalibratorAdapter::GetBrightness() {
+mcucore::StatusOr<int32_t> CoverCalibratorAdapter::GetBrightness() {
   return ErrorCodes::ActionNotImplemented();
 }
 
-StatusOr<ECalibratorStatus> CoverCalibratorAdapter::GetCalibratorState() {
+mcucore::StatusOr<ECalibratorStatus>
+CoverCalibratorAdapter::GetCalibratorState() {
   return ECalibratorStatus::kNotPresent;
 }
 
-StatusOr<ECoverStatus> CoverCalibratorAdapter::GetCoverState() {
+mcucore::StatusOr<ECoverStatus> CoverCalibratorAdapter::GetCoverState() {
   return ECoverStatus::kNotPresent;
 }
 
-StatusOr<int32_t> CoverCalibratorAdapter::GetMaxBrightness() {
+mcucore::StatusOr<int32_t> CoverCalibratorAdapter::GetMaxBrightness() {
   // NOTE: This type of fixed value could be a good candidate for recording in a
   // Device-Type specific subclass of DeviceInfo.
   return ErrorCodes::ActionNotImplemented();
@@ -132,19 +133,20 @@ bool CoverCalibratorAdapter::HandlePutOpenCover(const AlpacaRequest& request,
   return WriteResponse::StatusResponse(request, MoveCover(/*open=*/true), out);
 }
 
-Status CoverCalibratorAdapter::SetCalibratorBrightness(uint32_t brightness) {
+mcucore::Status CoverCalibratorAdapter::SetCalibratorBrightness(
+    uint32_t brightness) {
   return ErrorCodes::NotImplemented();
 }
 
-Status CoverCalibratorAdapter::SetCalibratorOff() {
+mcucore::Status CoverCalibratorAdapter::SetCalibratorOff() {
   return ErrorCodes::NotImplemented();
 }
 
-Status CoverCalibratorAdapter::MoveCover(bool open) {
+mcucore::Status CoverCalibratorAdapter::MoveCover(bool open) {
   return ErrorCodes::NotImplemented();
 }
 
-Status CoverCalibratorAdapter::HaltCoverMotion() {
+mcucore::Status CoverCalibratorAdapter::HaltCoverMotion() {
   return ErrorCodes::NotImplemented();
 }
 }  // namespace alpaca

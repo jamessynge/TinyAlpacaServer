@@ -3,13 +3,13 @@
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
+#include "counting_print.h"
 #include "device_info.h"
 #include "http_response_header.h"
+#include "json_encoder.h"
 #include "literals.h"
 #include "o_print_stream.h"
-#include "utils/counting_print.h"
-#include "utils/json_encoder.h"
-#include "utils/status.h"
+#include "status.h"
 
 namespace alpaca {
 namespace {
@@ -19,8 +19,8 @@ class DeviceInfoHtml : public Printable {
   explicit DeviceInfoHtml(const DeviceInfo& info) : info_(info) {}
 
   size_t printTo(Print& out) const override {
-    CountingPrint counter(out);
-    OPrintStream strm(counter);
+    mcucore::CountingPrint counter(out);
+    mcucore::OPrintStream strm(counter);
     strm << TAS_FLASHSTR(
                 "<html><body>"
                 "<h1>Tiny Alpaca Server Device Setup</h1>\n"
@@ -171,8 +171,10 @@ bool DeviceImplBase::HandlePutConnected(const AlpacaRequest& request,
                                        out);
 }
 
-StatusOr<bool> DeviceImplBase::GetConnected() { return true; }
+mcucore::StatusOr<bool> DeviceImplBase::GetConnected() { return true; }
 
-Status DeviceImplBase::SetConnected(bool value) { return OkStatus(); }
+mcucore::Status DeviceImplBase::SetConnected(bool value) {
+  return mcucore::OkStatus();
+}
 
 }  // namespace alpaca

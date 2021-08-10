@@ -29,7 +29,7 @@ including Power-over-Ethernet. I've permanently forked Ethernet3 as Ethernet5500
 in order to allow for fixing some API flaws that Ethernet3 inherited from the
 Ethernet2.
 
-## Status
+## mcucore::Status
 
 The basic server is complete, though the server and device setup methods are
 just stubs (each device implementation will need to provide its own setup
@@ -147,10 +147,11 @@ I'm currently manually defining these by:
 
     These macros define a PROGMEM char array holding the NUL terminated string,
     and a function (e.g. `ClientTransactionID()`) which returns an instance of
-    the Literal class pointing to that string, and also holding a member
-    variable with the length of the string. The macros are actually expanded in
-    multiple contexts: in the file `literals.h` where the function is declared,
-    and in `literals.cc` where the char array and function are defined.
+    the mcucore::Literal class pointing to that string, and also holding a
+    member variable with the length of the string. The macros are actually
+    expanded in multiple contexts: in the file `literals.h` where the function
+    is declared, and in `literals.cc` where the char array and function are
+    defined.
 
     Defining a literal in this file is appropriate if the string will be used in
     multiple files.
@@ -178,13 +179,13 @@ I'm currently manually defining these by:
 
     Unlike the above macros, this defines a full specialization of the variadic
     class template `ProgmemStringStorage`. The template declares a static
-    function MakeProgmemStringView that returns a ProgmemStringView instance.
-    The storage class has a static array holding the characters of the string,
-    without a terminating NUL. One advantage of TASLIT over TAS_DEFINE_LITERAL
-    is that the compiler and linker should collapse multiple occurrences of
-    TASLIT(x) with the same value of x. A downside of using TASLIT is that it
-    uses some fancy compile time type deduction to determine the length of the
-    string, and this slows compilation.
+    function MakeProgmemStringView that returns a mcucore::ProgmemStringView
+    instance. The storage class has a static array holding the characters of the
+    string, without a terminating NUL. One advantage of TASLIT over
+    TAS_DEFINE_LITERAL is that the compiler and linker should collapse multiple
+    occurrences of TASLIT(x) with the same value of x. A downside of using
+    TASLIT is that it uses some fancy compile time type deduction to determine
+    the length of the string, and this slows compilation.
 
 1.  Using the `TAS_FLASHSTR(value)` macro inline in expressions, such as:
 
@@ -212,8 +213,8 @@ class __FlashStringHelper;
 ```
 
 This is good for printing a string, but not for comparing it with a
-`StringView`. Further, it doesn't capture the string length at compile time, so
-it must be rediscovered each time.
+`mcucore::StringView`. Further, it doesn't capture the string length at compile
+time, so it must be rediscovered each time.
 
 When trying to use `F(value)` and `PSTR(value)`, I discovered that they do what
 they say, but don't collapse multiple occurrences of a string into one. Hence
@@ -261,9 +262,9 @@ without search the string for the terminating NUL.
         wrappers for immutable strings (in Flash and RAM, respectively). These
         are aided by `any_printable.*`, `printable_cat.*`, `hex_escape.*`,
         `string_compare.*`, etc.
-    *   Status: `src/utils/status.h` and `src/utils/status_or.h` provide the
-        ability to return an error status code and error message, or a non-error
-        value.
+    *   mcucore::Status: `src/utils/status.h` and `src/utils/status_or.h`
+        provide the ability to return an error status code and error message, or
+        a non-error value.
 
 *   Complete the ExtraParameters feature OR plumb unsupported parameters into
     the DeviceInterface impl of the device type. Without this methods such as
@@ -279,17 +280,18 @@ without search the string for the terminating NUL.
     parameters or headers that are too large), so that we don't *have* to close
     the connection, which will make testing easier.
 
-*   Collapse `Literal` and `ProgmemStringView` into a single class, or at least
-    into layered classes, i.e. `ProgmemString` for just the core feature of
-    holding a pointer to a PROGMEM string and its length, and `LiteralView` with
-    facilities like those in `Literal` and `StringView`, including the printTo
-    function, but probably without inheritance from `Printable`.
+*   Collapse `mcucore::Literal` and `mcucore::ProgmemStringView` into a single
+    class, or at least into layered classes, i.e. `mcucore::ProgmemString` for
+    just the core feature of holding a pointer to a PROGMEM string and its
+    length, and `LiteralView` with facilities like those in `mcucore::Literal`
+    and `mcucore::StringView`, including the printTo function, but probably
+    without inheritance from `Printable`.
 
 *   Support copying literal strings into stack variables for temporary needs.
     For example, use a template class with a field of type char[N], where N is
     the length of the literal (without a terminating NUL), copy the literal into
     the field at construction time, and provide the ability to construct a
-    StringView from it.
+    mcucore::StringView from it.
 
 *   Normalize string comparison support so that we can have fewer types of
     strings or more templated comparison functions.
@@ -377,7 +379,7 @@ device-type specific code. Ideas:
         numeric or boolean value, we would generate a method returning the
         value, with a signature like:
 
-        `StatusOr<T> GetMethodName(const AlpacaRequest& request)`
+        `mcucore::StatusOr<T> GetMethodName(const AlpacaRequest& request)`
 
     *   For each GET request returning another kind of value (e.g. Array of
         Integers or String), the generator would produce a method responsible

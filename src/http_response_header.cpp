@@ -5,7 +5,7 @@
 
 namespace alpaca {
 namespace {
-size_t WriteEolHeaderName(const Literal& name, Print& out) {
+size_t WriteEolHeaderName(const mcucore::Literal& name, Print& out) {
   size_t count = 0;
   count += Literals::HttpEndOfLine().printTo(out);
   count += name.printTo(out);
@@ -19,7 +19,7 @@ HttpResponseHeader::HttpResponseHeader() { Reset(); }
 
 void HttpResponseHeader::Reset() {
   status_code = EHttpStatusCode::kHttpInternalServerError;
-  reason_phrase = Literal();
+  reason_phrase = mcucore::Literal();
   content_type = {};
   content_length = 0;
   do_close = true;

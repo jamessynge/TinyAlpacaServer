@@ -36,30 +36,13 @@ cc_library(
         "//TinyAlpacaServer/src/device_types/switch:switch_interface",
         "//TinyAlpacaServer/src/device_types/switch:toggle_switch_base",
         "//TinyAlpacaServer/src/utils:addresses",
-        "//TinyAlpacaServer/src/utils:any_printable",
-        "//TinyAlpacaServer/src/utils:array",
-        "//TinyAlpacaServer/src/utils:array_view",
         "//TinyAlpacaServer/src/utils:avr_timer_counter",
         "//TinyAlpacaServer/src/utils:connection",
-        "//TinyAlpacaServer/src/utils:counting_print",
-        "//TinyAlpacaServer/src/utils:eeprom_io",
-        "//TinyAlpacaServer/src/utils:hex_escape",
         "//TinyAlpacaServer/src/utils:ip_device",
-        "//TinyAlpacaServer/src/utils:json_encoder",
-        "//TinyAlpacaServer/src/utils:json_encoder_helpers",
-        "//TinyAlpacaServer/src/utils:literal",
         "//TinyAlpacaServer/src/utils:moving_average",
         "//TinyAlpacaServer/src/utils:platform_ethernet",
-        "//TinyAlpacaServer/src/utils:print_misc",
-        "//TinyAlpacaServer/src/utils:printable_cat",
         "//TinyAlpacaServer/src/utils:server_socket",
         "//TinyAlpacaServer/src/utils:socket_listener",
-        "//TinyAlpacaServer/src/utils:status",
-        "//TinyAlpacaServer/src/utils:status_or",
-        "//TinyAlpacaServer/src/utils:stream_to_print",
-        "//TinyAlpacaServer/src/utils:string_compare",
-        "//TinyAlpacaServer/src/utils:string_view",
-        "//TinyAlpacaServer/src/utils:tiny_string",
         "//mcucore/src:McuCore",
     ],
 )
@@ -78,11 +61,11 @@ cc_library(
         ":request_listener",
         ":server_description",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
-        "//TinyAlpacaServer/src/utils:array_view",
-        "//TinyAlpacaServer/src/utils:hex_escape",
-        "//TinyAlpacaServer/src/utils:json_encoder",
         "//TinyAlpacaServer/src/utils:platform_ethernet",
+        "//mcucore/src:array_view",
+        "//mcucore/src:hex_escape",
         "//mcucore/src:inline_literal",
+        "//mcucore/src:json_encoder",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
     ],
@@ -93,13 +76,13 @@ cc_library(
     srcs = ["alpaca_discovery_server.cc"],
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
-        "//TinyAlpacaServer/src/utils:hex_escape",
-        "//TinyAlpacaServer/src/utils:literal",
         "//TinyAlpacaServer/src/utils:platform_ethernet",
-        "//TinyAlpacaServer/src/utils:string_compare",
-        "//TinyAlpacaServer/src/utils:string_view",
+        "//mcucore/src:hex_escape",
+        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:o_print_stream",
+        "//mcucore/src:string_compare",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -111,9 +94,9 @@ cc_library(
         ":config",
         ":constants",
         ":extra_parameters",
-        "//TinyAlpacaServer/src/utils:string_view",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -128,14 +111,14 @@ cc_library(
         ":http_response_header",
         ":json_response",
         ":literals",
-        "//TinyAlpacaServer/src/utils:any_printable",
-        "//TinyAlpacaServer/src/utils:array_view",
-        "//TinyAlpacaServer/src/utils:counting_print",
-        "//TinyAlpacaServer/src/utils:json_encoder",
-        "//TinyAlpacaServer/src/utils:json_encoder_helpers",
-        "//TinyAlpacaServer/src/utils:printable_cat",
-        "//TinyAlpacaServer/src/utils:status_or",
+        "//mcucore/src:any_printable",
+        "//mcucore/src:array_view",
+        "//mcucore/src:counting_print",
+        "//mcucore/src:json_encoder",
+        "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:printable_cat",
+        "//mcucore/src:status_or",
     ],
 )
 
@@ -145,8 +128,8 @@ cc_library(
     hdrs = ["ascom_error_codes.h"],
     deps = [
         ":literals",
-        "//TinyAlpacaServer/src/utils:status",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:status",
     ],
 )
 
@@ -162,9 +145,9 @@ cc_library(
     srcs = ["constants.cc"],
     hdrs = ["constants.h"],
     deps = [
-        "//TinyAlpacaServer/src/utils:print_misc",
         "//mcucore/src:inline_literal",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:print_misc",
     ],
 )
 
@@ -175,11 +158,11 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
-        "//TinyAlpacaServer/src/utils:json_encoder",
-        "//TinyAlpacaServer/src/utils:literal",
-        "//TinyAlpacaServer/src/utils:string_view",
+        "//mcucore/src:json_encoder",
+        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -191,9 +174,9 @@ cc_library(
         ":alpaca_request",
         ":device_info",
         ":json_response",
-        "//TinyAlpacaServer/src/utils:array_view",
-        "//TinyAlpacaServer/src/utils:json_encoder",
-        "//TinyAlpacaServer/src/utils:json_encoder_helpers",
+        "//mcucore/src:array_view",
+        "//mcucore/src:json_encoder",
+        "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
     ],
 )
@@ -204,9 +187,9 @@ cc_library(
     deps = [
         ":config",
         ":constants",
-        "//TinyAlpacaServer/src/utils:string_view",
-        "//TinyAlpacaServer/src/utils:tiny_string",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:string_view",
+        "//mcucore/src:tiny_string",
     ],
 )
 
@@ -217,7 +200,7 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
-        "//TinyAlpacaServer/src/utils:literal",
+        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
     ],
 )
@@ -228,10 +211,10 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":literals",
-        "//TinyAlpacaServer/src/utils:any_printable",
-        "//TinyAlpacaServer/src/utils:json_encoder",
-        "//TinyAlpacaServer/src/utils:string_view",
+        "//mcucore/src:any_printable",
+        "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -241,7 +224,7 @@ cc_library(
     hdrs = ["literals.h"],
     textual_hdrs = ["literals.inc"],
     deps = [
-        "//TinyAlpacaServer/src/utils:literal",
+        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
     ],
 )
@@ -253,11 +236,11 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
-        "//TinyAlpacaServer/src/utils:array_view",
-        "//TinyAlpacaServer/src/utils:literal",
-        "//TinyAlpacaServer/src/utils:string_compare",
-        "//TinyAlpacaServer/src/utils:string_view",
+        "//mcucore/src:array_view",
+        "//mcucore/src:literal",
         "//mcucore/src:logging",
+        "//mcucore/src:string_compare",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -272,12 +255,12 @@ cc_library(
         ":literals",
         ":match_literals",
         ":request_decoder_listener",
-        "//TinyAlpacaServer/src/utils:hex_escape",
-        "//TinyAlpacaServer/src/utils:string_compare",
-        "//TinyAlpacaServer/src/utils:string_view",
+        "//mcucore/src:hex_escape",
         "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:string_compare",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -287,10 +270,10 @@ cc_library(
     hdrs = ["request_decoder_listener.h"],
     deps = [
         ":constants",
-        "//TinyAlpacaServer/src/utils:hex_escape",
-        "//TinyAlpacaServer/src/utils:string_view",
+        "//mcucore/src:hex_escape",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -318,8 +301,8 @@ cc_library(
         ":request_listener",
         "//TinyAlpacaServer/src/utils:platform_ethernet",
         "//TinyAlpacaServer/src/utils:socket_listener",
-        "//TinyAlpacaServer/src/utils:string_view",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -329,10 +312,10 @@ cc_library(
     hdrs = ["server_description.h"],
     deps = [
         ":literals",
-        "//TinyAlpacaServer/src/utils:json_encoder",
-        "//TinyAlpacaServer/src/utils:string_view",
+        "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
+        "//mcucore/src:string_view",
     ],
 )
 
@@ -372,12 +355,12 @@ cc_library(
         ":server_description",
         ":server_sockets_and_connections",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
-        "//TinyAlpacaServer/src/utils:any_printable",
-        "//TinyAlpacaServer/src/utils:array_view",
-        "//TinyAlpacaServer/src/utils:counting_print",
-        "//TinyAlpacaServer/src/utils:json_encoder",
-        "//TinyAlpacaServer/src/utils:json_encoder_helpers",
-        "//TinyAlpacaServer/src/utils:printable_cat",
+        "//mcucore/src:any_printable",
+        "//mcucore/src:array_view",
+        "//mcucore/src:counting_print",
+        "//mcucore/src:json_encoder",
+        "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:printable_cat",
     ],
 )

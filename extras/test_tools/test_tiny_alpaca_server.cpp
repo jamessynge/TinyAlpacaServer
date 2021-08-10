@@ -6,6 +6,7 @@
 
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
+#include "array_view.h"
 #include "device_interface.h"
 #include "extras/test_tools/string_io_connection.h"
 #include "inline_literal.h"
@@ -15,14 +16,13 @@
 #include "server_connection.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"
-#include "utils/array_view.h"
 
 namespace alpaca {
 namespace test {
 
 TestTinyAlpacaServer::TestTinyAlpacaServer(
     const ServerDescription& server_description,
-    ArrayView<DeviceInterface*> devices)
+    mcucore::ArrayView<DeviceInterface*> devices)
     : TinyAlpacaServerBase(server_description, devices),
       server_connection_(*this),
       sock_num_(0) {}

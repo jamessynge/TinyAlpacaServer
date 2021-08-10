@@ -10,10 +10,12 @@ namespace progmem_data {
 #undef TAS_DEFINE_BUILTIN_LITERAL
 }  // namespace progmem_data
 
-// Define static Literal factory methods in a struct, acting as a nested
-// namespace.
-#define TAS_DEFINE_BUILTIN_LITERAL(name, literal) \
-  Literal Literals::name() { return Literal(progmem_data::k##name); }
+// Define static mcucore::Literal factory methods in a struct, acting as a
+// nested namespace.
+#define TAS_DEFINE_BUILTIN_LITERAL(name, literal)   \
+  mcucore::Literal Literals::name() {               \
+    return mcucore::Literal(progmem_data::k##name); \
+  }
 
 #include "literals.inc"
 

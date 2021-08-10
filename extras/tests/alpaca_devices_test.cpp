@@ -5,6 +5,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "alpaca_request.h"
+#include "array_view.h"
 #include "constants.h"
 #include "device_info.h"
 #include "device_interface.h"
@@ -13,14 +14,14 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "inline_literal.h"
+#include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "utils/array_view.h"
-#include "utils/literal.h"
 
 namespace alpaca {
 namespace test {
 namespace {
 
+using ::mcucore::MakeArrayView;
 using ::testing::EndsWith;
 using ::testing::HasSubstr;
 using ::testing::IsEmpty;
@@ -33,7 +34,7 @@ using ::testing::StartsWith;
 
 TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
   DeviceInterface* device_ptrs[] = {nullptr};
-  ArrayView<DeviceInterface*> view(device_ptrs, 0);
+  mcucore::ArrayView<DeviceInterface*> view(device_ptrs, 0);
   AlpacaDevices devices(view);
   EXPECT_TRUE(devices.Initialize());
   devices.MaintainDevices();

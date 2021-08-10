@@ -4,10 +4,10 @@
 #include <stdint.h>
 
 #include "absl/time/time.h"
-#include "extras/test_tools/print_value_to_std_string.h"
 #include "glog/logging.h"
 #include "gtest/gtest.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "mcucore/extrastest_tools/print_value_to_std_string.h"
 
 namespace alpaca {
 
@@ -17,7 +17,7 @@ bool operator==(const TC16ClockAndTicks& a, const TC16ClockAndTicks& b) {
 
 std::ostream& operator<<(std::ostream& out, const TC16ClockAndTicks& v) {
   return out << "{.clock_select = ClockPrescaling::"
-             << PrintValueToStdString(v.clock_select)
+             << mcucore::PrintValueToStdString(v.clock_select)
              << ", .clock_ticks = " << v.clock_ticks
              << ", .seconds = " << v.ToSeconds()
              << ", .system_clock_cycles = " << v.ToSystemClockCycles() << "}";

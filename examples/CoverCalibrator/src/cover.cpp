@@ -70,8 +70,8 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   uint8_t b = (1 << WGM53) | ct.ClockSelectBits();
   uint16_t top = ct.clock_ticks;
 
-  TAS_VLOG(4) << alpaca::BaseHex << TAS_FLASHSTR("a=") << a
-              << TAS_FLASHSTR(", b=") << b << alpaca::BaseDec
+  TAS_VLOG(4) << mcucore::BaseHex << TAS_FLASHSTR("a=") << a
+              << TAS_FLASHSTR(", b=") << b << mcucore::BaseDec
               << TAS_FLASHSTR(", top=") << top;
 
   noInterrupts();
@@ -84,7 +84,7 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   interrupts();
 
   if (TAS_VLOG_IS_ON(4)) {
-    TAS_VLOG(4) << alpaca::BaseHex << TAS_FLASHSTR("StartTimer5 TCCR5A: ")
+    TAS_VLOG(4) << mcucore::BaseHex << TAS_FLASHSTR("StartTimer5 TCCR5A: ")
                 << TCCR5A << TAS_FLASHSTR(", TCCR5B: ") << TCCR5B;
     TAS_VLOG(4) << TAS_FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
                 << TAS_FLASHSTR(", OCR5A: ") << OCR5A
@@ -95,7 +95,7 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
     // the counter, so log the registers again after a millisecond.
 
     delay(1);
-    TAS_VLOG(4) << alpaca::BaseHex << TAS_FLASHSTR("StartTimer5 TCCR5A: ")
+    TAS_VLOG(4) << mcucore::BaseHex << TAS_FLASHSTR("StartTimer5 TCCR5A: ")
                 << TCCR5A << TAS_FLASHSTR(", TCCR5B: ") << TCCR5B;
     TAS_VLOG(4) << TAS_FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
                 << TAS_FLASHSTR(", OCR5A: ") << OCR5A

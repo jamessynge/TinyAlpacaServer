@@ -24,25 +24,25 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   //  void MaintainDevice() override;
 
   // Returns the current calibrator brightness.
-  alpaca::StatusOr<int32_t> GetBrightness() override;
+  mcucore::StatusOr<int32_t> GetBrightness() override;
 
   // Returns the state of the calibration device, or kUnknown if not overridden
   // by a subclass.
-  alpaca::StatusOr<alpaca::ECalibratorStatus> GetCalibratorState() override;
+  mcucore::StatusOr<alpaca::ECalibratorStatus> GetCalibratorState() override;
 
   // Returns the calibrator's maximum Brightness value.
-  alpaca::StatusOr<int32_t> GetMaxBrightness() override;
+  mcucore::StatusOr<int32_t> GetMaxBrightness() override;
 
   // Turns the calibrator lights off immediately.
-  alpaca::Status SetCalibratorOff() override;
+  mcucore::Status SetCalibratorOff() override;
 
   // Sets the calibrator brightness.
-  alpaca::Status SetCalibratorBrightness(uint32_t brightness) override;
+  mcucore::Status SetCalibratorBrightness(uint32_t brightness) override;
 
-  alpaca::StatusOr<alpaca::ECoverStatus> GetCoverState() override;
+  mcucore::StatusOr<alpaca::ECoverStatus> GetCoverState() override;
 
-  alpaca::Status MoveCover(bool open) override;
-  alpaca::Status HaltCoverMotion() override;
+  mcucore::Status MoveCover(bool open) override;
+  mcucore::Status HaltCoverMotion() override;
 
   // Extension API for the AstroMakers Cover Calibrator, which has 4 channels.
 

@@ -1,10 +1,10 @@
 #include "server_description.h"
 
 #include "gtest/gtest.h"
+#include "json_encoder.h"
+#include "json_encoder_helpers.h"
+#include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "utils/json_encoder.h"
-#include "utils/json_encoder_helpers.h"
-#include "utils/literal.h"
 
 #define kServerName "HAL 9000"
 #define kManufacturer "HAL Laboratories, Urbana, Illinois"
@@ -25,8 +25,9 @@ namespace {
 
 TEST(ServerDescriptionTest, Output) {
   mcucore::test::PrintToStdString out;
-  JsonPropertySourceAdapter<ServerDescription> adapter(kServerDescription);
-  JsonObjectEncoder::Encode(adapter, out);
+  mcucore::JsonPropertySourceAdapter<ServerDescription> adapter(
+      kServerDescription);
+  mcucore::JsonObjectEncoder::Encode(adapter, out);
   EXPECT_EQ(out.str(),
             R"({"ServerName": "HAL 9000", )"
             R"("Manufacturer": "HAL Laboratories, Urbana, Illinois", )"

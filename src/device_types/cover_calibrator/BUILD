@@ -11,8 +11,8 @@ cc_library(
         "//TinyAlpacaServer/src:constants",
         "//TinyAlpacaServer/src:literals",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
-        "//TinyAlpacaServer/src/utils:status_or",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:status_or",
     ],
 )
 
@@ -21,8 +21,8 @@ cc_library(
     srcs = ["cover_calibrator_constants.cc"],
     hdrs = ["cover_calibrator_constants.h"],
     deps = [
-        "//TinyAlpacaServer/src/utils:print_misc",
         "//mcucore/src:inline_literal",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:print_misc",
     ],
 )

@@ -8,7 +8,7 @@ import random
 import sys
 import threading
 import time
-from typing import Callable, Dict, List, Optional, Union, Type, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Union, Type, TypeVar
 
 import alpaca_discovery
 import install_advice
@@ -92,12 +92,81 @@ def to_url_base(arg: str) -> str:
   return ''.join([scheme, '://', host, ':', str(port), '/', path]).strip('/')
 
 
+def get_ok_response_json(response: requests.Response) -> Dict[str, Any]:
+  if response.status_code != 200:
+    raise ValueError(f'Response has status {response.status_code}')
+  jv = response.json()
+  if not isinstance(jv, dict):
+    raise ValueError(f'Response body is not a JSON Object: {response.content}')
+
+  absent = object()
+  value = jv.get('ServerTransactionID', absent)
+  if value is absent:
+    raise ValueError(f'Response JSON is missing ServerTransactionID')
+  # Not sure if JSON decoding will produce an integer or a float.
+  if not isinstance(value, int):
+    raise ValueError(f'ServerTransactionID is not an integer: {value}')
+
+  value = jv.get('ErrorNumber', absent)
+  if isinstance(value, int) and value != 0:
+    raise ValueError(f'Response represents an error: {response.content}')
+
+  value = jv.get('ErrorMessage', absent)
+  if isinstance(value, str) and value:
+    raise ValueError(f'Response represents an error: {response.content}')
+
+  return jv
+
+
+def get_ok_response_json_value(response: requests.Response) -> Any:
+  jv = get_ok_response_json(response)
+  if 'Value' not in jv:
+    raise ValueError(
+        f'Response JSON does not contain a Value: {response.content}')
+  return jv['Value']
+
+
+def get_ok_response_json_value_dict(response: requests.Response) -> Dict[str, Any]:
+  value = get_ok_response_json_value(response)
+  if not isinstance(value, dict):
+    raise ValueError(
+        f'Response JSON does not contain a Value object: {response.content}')
+  return value
+
+
+@dataclasses.dataclass
+class ServerDescription:
+  """The fields of an Alpaca Server Description value."""
+  server_name: str
+  manufacturer: str
+  manufacturer_version: str
+  location: str
+
+  @staticmethod
+  def from_response(response: requests.Response) -> 'ServerDescription':
+    value = get_ok_response_json_value_dict(response)
+    return ServerDescription(
+        server_name=value['ServerName'],
+        manufacturer=value['Manufacturer'],
+        manufacturer_version=value['ManufacturerVersion'],
+        location=value['Location'])
+
+
 @dataclasses.dataclass
 class ConfiguredDevice:
+  """The fields of an Alpaca Configured Device value."""
   device_name: str
   device_type: EDeviceType
   device_number: int
   unique_id: str
+
+  @staticmethod
+  def from_dict(cd_dict: Dict[str, Any]) -> 'ConfiguredDevice':
+    return ConfiguredDevice(
+        device_name=cd_dict['DeviceName'],
+        device_type=EDeviceType[cd_dict['DeviceType']],
+        device_number=cd_dict['DeviceNumber'],
+        unique_id=cd_dict['UniqueID'])
 
 
 ConfiguredDeviceFilterFunc = Callable[[ConfiguredDevice], bool]
@@ -195,21 +264,14 @@ class AlpacaHttpClient(object):
       resp_jv = resp.json()
       cds: List[ConfiguredDevice] = []
       for info in resp_jv['Value']:
-        cds.append(
-            ConfiguredDevice(
-                device_name=info['DeviceName'],
-                device_type=EDeviceType[info['DeviceType']],
-                device_number=info['DeviceNumber'],
-                unique_id=info['UniqueID']))
+        cds.append(ConfiguredDevice.from_dict(info))
       self._configured_devices = cds
     if device_filter is None:
       return self._configured_devices
     return [cd for cd in self._configured_devices if device_filter(cd)]
 
-  def description(self) -> str:
-    resp = self.get_description()
-    resp_jv = resp.json()
-    return resp_jv['Value']
+  def description(self) -> ServerDescription:
+    return ServerDescription.from_response(self.get_description())
 
 
 ServerFilterFunc = Callable[[AlpacaHttpClient], bool]
@@ -703,10 +765,10 @@ def main() -> None:
           f'{client.apiversions()!r}')
     desc = client.description()
     print('Using API v1, server description:')
-    print(f'        Name: {desc["ServerName"]}')
-    print(f'Manufacturer: {desc["Manufacturer"]}')
-    print(f'     Version: {desc["ManufacturerVersion"]}')
-    print(f'    Location: {desc["Location"]}')
+    print(f'        Name: {desc.server_name}')
+    print(f'Manufacturer: {desc.manufacturer}')
+    print(f'     Version: {desc.manufacturer_version}')
+    print(f'    Location: {desc.location}')
     print()
 
     configured_devices = client.configured_devices()

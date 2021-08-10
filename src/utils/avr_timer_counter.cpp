@@ -4,13 +4,13 @@
 
 #include "utils/avr_timer_counter.h"
 
+#include "counting_print.h"
 #include "inline_literal.h"
 #include "logging.h"
+#include "print_misc.h"
 #include "print_to_trait.h"
+#include "stream_to_print.h"
 #include "type_traits.h"
-#include "utils/counting_print.h"
-#include "utils/print_misc.h"
-#include "utils/stream_to_print.h"
 
 namespace alpaca {
 
@@ -19,8 +19,8 @@ size_t PrintValueTo(ClockPrescaling v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ClockPrescaling"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("ClockPrescaling"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out) {
@@ -28,8 +28,8 @@ size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("FastPwmCompareOutputMode"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(
+      TAS_FLASHSTR("FastPwmCompareOutputMode"), static_cast<uint32_t>(v), out);
 }
 
 size_t PrintValueTo(TimerCounterChannel v, Print& out) {
@@ -37,8 +37,8 @@ size_t PrintValueTo(TimerCounterChannel v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("TimerCounterChannel"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("TimerCounterChannel"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,8 +212,9 @@ double TC16ClockAndTicks::ToSeconds() const {
 }
 
 size_t TC16ClockAndTicks::printTo(Print& out) const {
-  static_assert(has_print_to<decltype(*this)>{}, "has_print_to should be true");
-  CountingPrint counter(out);
+  static_assert(mcucore::has_print_to<decltype(*this)>{},
+                "mcucore::has_print_to should be true");
+  mcucore::CountingPrint counter(out);
   counter << TAS_FLASHSTR("{.cs=") << clock_select << TAS_FLASHSTR(", .ticks=")
           << clock_ticks << '}';
   return counter.count();

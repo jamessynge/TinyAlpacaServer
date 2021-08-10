@@ -12,9 +12,9 @@ cc_library(
         "//TinyAlpacaServer/src:constants",
         "//TinyAlpacaServer/src:device_info",
         "//TinyAlpacaServer/src:literals",
-        "//TinyAlpacaServer/src/utils:array_view",
-        "//TinyAlpacaServer/src/utils:status_or",
+        "//mcucore/src:array_view",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:status_or",
     ],
 )
 
@@ -28,8 +28,8 @@ cc_library(
         "//TinyAlpacaServer/src:constants",
         "//TinyAlpacaServer/src:literals",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
-        "//TinyAlpacaServer/src/utils:status_or",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:status_or",
     ],
 )
 
@@ -38,9 +38,9 @@ cc_library(
     hdrs = ["switch_interface.h"],
     deps = [
         "//TinyAlpacaServer/src:alpaca_request",
-        "//TinyAlpacaServer/src/utils:status",
-        "//TinyAlpacaServer/src/utils:status_or",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:status",
+        "//mcucore/src:status_or",
     ],
 )
 

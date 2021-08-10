@@ -2,16 +2,16 @@
 
 #include "alpaca_response.h"
 #include "constants.h"
+#include "hex_escape.h"
 #include "inline_literal.h"
+#include "json_encoder.h"
 #include "literals.h"
 #include "logging.h"
-#include "utils/hex_escape.h"
-#include "utils/json_encoder.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
 
-AlpacaDevices::AlpacaDevices(ArrayView<DeviceInterface*> devices)
+AlpacaDevices::AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices)
     : devices_(devices) {}
 
 bool AlpacaDevices::Initialize() {
@@ -42,7 +42,7 @@ bool AlpacaDevices::Initialize() {
             << TAS_FLASHSTR(" device_type=") << device1->device_type()
             << TAS_FLASHSTR(", device_number=") << device1->device_number()
             << TAS_FLASHSTR(", name=")
-            << HexEscaped(device1->device_info().name);
+            << mcucore::HexEscaped(device1->device_info().name);
         result = false;  // TAS_DCHECK may be disabled.
         break;
       }

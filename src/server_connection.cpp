@@ -4,8 +4,8 @@
 #include "constants.h"
 #include "literals.h"
 #include "request_listener.h"
+#include "string_view.h"
 #include "utils/platform_ethernet.h"
-#include "utils/string_view.h"
 
 #if TAS_HOST_TARGET
 #include <string.h>
@@ -55,7 +55,7 @@ void ServerConnection::OnCanRead(Connection& connection) {
       request_listener_.OnStartDecoding(request_);
     }
 
-    StringView view(input_buffer_, input_buffer_size_);
+    mcucore::StringView view(input_buffer_, input_buffer_size_);
     const bool buffer_is_full = input_buffer_size_ == sizeof input_buffer_;
     const bool at_end = connection.peer_half_closed();
 

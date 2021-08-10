@@ -25,10 +25,10 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
+#include "array_view.h"
 #include "device_info.h"
 #include "json_response.h"
 #include "mcucore_platform.h"
-#include "utils/array_view.h"
 
 namespace alpaca {
 
@@ -89,13 +89,13 @@ class DeviceInterface {
 class ConfiguredDevicesResponse : public JsonMethodResponse {
  public:
   ConfiguredDevicesResponse(const AlpacaRequest& request,
-                            ArrayView<DeviceInterface*> devices)
+                            mcucore::ArrayView<DeviceInterface*> devices)
       : JsonMethodResponse(request), devices_(devices) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override;
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override;
 
  private:
-  ArrayView<DeviceInterface*> devices_;
+  mcucore::ArrayView<DeviceInterface*> devices_;
 };
 
 }  // namespace alpaca

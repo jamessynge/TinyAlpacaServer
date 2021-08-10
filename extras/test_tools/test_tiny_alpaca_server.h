@@ -12,12 +12,12 @@
 #include <string>
 #include <string_view>
 
+#include "array_view.h"
 #include "device_interface.h"
 #include "extras/test_tools/string_io_connection.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"
-#include "utils/array_view.h"
 
 namespace alpaca {
 namespace test {
@@ -40,13 +40,14 @@ struct ConnectionResult {
 class TestTinyAlpacaServer : public TinyAlpacaServerBase {
  public:
   TestTinyAlpacaServer(const ServerDescription& server_description,
-                       ArrayView<DeviceInterface*> devices);
+                       mcucore::ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
   TestTinyAlpacaServer(const ServerDescription& server_description,
                        DeviceInterface* (&devices)[N])
       : TestTinyAlpacaServer(server_description,
-                             ArrayView<DeviceInterface*>(devices, N)) {}
+                             mcucore::ArrayView<DeviceInterface*>(devices, N)) {
+  }
 
   // These dispatch to the appropriate methods of the ServerConnection.
 

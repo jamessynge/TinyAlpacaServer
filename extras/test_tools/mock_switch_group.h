@@ -9,8 +9,8 @@
 #include "device_info.h"
 #include "device_types/switch/switch_adapter.h"
 #include "gmock/gmock.h"
-#include "utils/status.h"
-#include "utils/status_or.h"
+#include "status.h"
+#include "status_or.h"
 
 namespace alpaca {
 namespace test {
@@ -36,9 +36,10 @@ class MockSwitchGroup : public SwitchAdapter {
 
   MOCK_METHOD(bool, GetCanWrite, (uint16_t), (override));
 
-  MOCK_METHOD(StatusOr<bool>, GetSwitch, (uint16_t), (override));
+  MOCK_METHOD(mcucore::StatusOr<bool>, GetSwitch, (uint16_t), (override));
 
-  MOCK_METHOD(StatusOr<double>, GetSwitchValue, (uint16_t), (override));
+  MOCK_METHOD(mcucore::StatusOr<double>, GetSwitchValue, (uint16_t),
+              (override));
 
   MOCK_METHOD(double, GetMinSwitchValue, (uint16_t), (override));
 
@@ -46,9 +47,10 @@ class MockSwitchGroup : public SwitchAdapter {
 
   MOCK_METHOD(double, GetSwitchStep, (uint16_t), (override));
 
-  MOCK_METHOD(class Status, SetSwitch, (uint16_t, bool), (override));
+  MOCK_METHOD(class mcucore::Status, SetSwitch, (uint16_t, bool), (override));
 
-  MOCK_METHOD(class Status, SetSwitchValue, (uint16_t, double), (override));
+  MOCK_METHOD(class mcucore::Status, SetSwitchValue, (uint16_t, double),
+              (override));
 };
 
 }  // namespace test

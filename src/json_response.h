@@ -1,22 +1,22 @@
 #ifndef TINY_ALPACA_SERVER_SRC_JSON_RESPONSE_H_
 #define TINY_ALPACA_SERVER_SRC_JSON_RESPONSE_H_
 
-// Implementations of JsonPropertySource for the Alpaca API schemas needed for
-// the device types that I intend to support in the short term.
+// Implementations of mcucore::JsonPropertySource for the Alpaca API schemas
+// needed for the device types that I intend to support in the short term.
 //
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
+#include "any_printable.h"
+#include "json_encoder.h"
 #include "literals.h"
 #include "mcucore_platform.h"
-#include "utils/any_printable.h"
-#include "utils/json_encoder.h"
-#include "utils/string_view.h"
+#include "string_view.h"
 
 namespace alpaca {
 
 // Writes the common portion shared by all Alpaca responses.
-class JsonMethodResponse : public JsonPropertySource {
+class JsonMethodResponse : public mcucore::JsonPropertySource {
  public:
   explicit JsonMethodResponse(const AlpacaRequest& request)
       : request_(request), error_number_(0), error_message_(nullptr) {}
@@ -30,7 +30,7 @@ class JsonMethodResponse : public JsonPropertySource {
   JsonMethodResponse(const JsonMethodResponse&) = delete;
   JsonMethodResponse(JsonMethodResponse&&) = delete;
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     if (request_.have_client_transaction_id) {
       object_encoder.AddUIntProperty(Literals::ClientTransactionID(),
                                      request_.client_transaction_id);
@@ -57,16 +57,16 @@ class JsonMethodResponse : public JsonPropertySource {
 class JsonArrayResponse : public JsonMethodResponse {
  public:
   JsonArrayResponse(const AlpacaRequest& request,
-                    const JsonElementSource& value)
+                    const mcucore::JsonElementSource& value)
       : JsonMethodResponse(request), value_(value) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddArrayProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
  private:
-  const JsonElementSource& value_;
+  const mcucore::JsonElementSource& value_;
 };
 
 class JsonBoolResponse : public JsonMethodResponse {
@@ -74,7 +74,7 @@ class JsonBoolResponse : public JsonMethodResponse {
   JsonBoolResponse(const AlpacaRequest& request, bool value)
       : JsonMethodResponse(request), value_(value) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddBooleanProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
@@ -88,7 +88,7 @@ class JsonDoubleResponse : public JsonMethodResponse {
   JsonDoubleResponse(const AlpacaRequest& request, double value)
       : JsonMethodResponse(request), value_(value) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddDoubleProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
@@ -102,7 +102,7 @@ class JsonFloatResponse : public JsonMethodResponse {
   JsonFloatResponse(const AlpacaRequest& request, float value)
       : JsonMethodResponse(request), value_(value) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddFloatProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
@@ -116,7 +116,7 @@ class JsonUnsignedIntegerResponse : public JsonMethodResponse {
   JsonUnsignedIntegerResponse(const AlpacaRequest& request, uint32_t value)
       : JsonMethodResponse(request), value_(value) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddUIntProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
@@ -130,7 +130,7 @@ class JsonIntegerResponse : public JsonMethodResponse {
   JsonIntegerResponse(const AlpacaRequest& request, int32_t value)
       : JsonMethodResponse(request), value_(value) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddIntProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
@@ -141,35 +141,35 @@ class JsonIntegerResponse : public JsonMethodResponse {
 
 class JsonStringResponse : public JsonMethodResponse {
  public:
-  JsonStringResponse(const AlpacaRequest& request, AnyPrintable value)
+  JsonStringResponse(const AlpacaRequest& request, mcucore::AnyPrintable value)
       : JsonMethodResponse(request), value_(value) {}
-  JsonStringResponse(const AlpacaRequest& request, Literal value)
-      : JsonMethodResponse(request), value_(AnyPrintable(value)) {}
+  JsonStringResponse(const AlpacaRequest& request, mcucore::Literal value)
+      : JsonMethodResponse(request), value_(mcucore::AnyPrintable(value)) {}
   JsonStringResponse(const AlpacaRequest& request, const Printable& value)
-      : JsonMethodResponse(request), value_(AnyPrintable(value)) {}
+      : JsonMethodResponse(request), value_(mcucore::AnyPrintable(value)) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddStringProperty(Literals::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
  private:
-  AnyPrintable value_;
+  mcucore::AnyPrintable value_;
 };
 
 class JsonObjectResponse : public JsonMethodResponse {
  public:
   JsonObjectResponse(const AlpacaRequest& request,
-                     const JsonPropertySource& property_source)
+                     const mcucore::JsonPropertySource& property_source)
       : JsonMethodResponse(request), property_source_(property_source) {}
 
-  void AddTo(JsonObjectEncoder& object_encoder) const override {
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     object_encoder.AddObjectProperty(Literals::Value(), property_source_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
  private:
-  const JsonPropertySource& property_source_;
+  const mcucore::JsonPropertySource& property_source_;
 };
 
 }  // namespace alpaca
