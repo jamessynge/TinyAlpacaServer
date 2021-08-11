@@ -17,14 +17,14 @@
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "extra_parameters.h"
 #include "extras/test_tools/mock_request_decoder_listener.h"
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "mcucore_platform.h"
 #include "request_decoder_listener.h"
-#include "utils/string_view.h"
+#include "string_view.h"
 
 ABSL_DECLARE_FLAG(int, v);
 
@@ -51,7 +51,7 @@ std::vector<std::string> SplitEveryN(const std::string& full_request,
                                      const size_t n) {
   DVLOG(5) << "SplitEveryN " << n
            << ", full_request.size: " << full_request.size();
-  CHECK_LE(n, StringView::kMaxSize);
+  CHECK_LE(n, mcucore::StringView::kMaxSize);
   std::vector<std::string> partition;
   for (size_t pos = 0; pos < full_request.size(); pos += n) {
     DVLOG(6) << "pos: " << pos << ", pos+n: " << pos + n;
@@ -67,8 +67,8 @@ std::vector<std::vector<std::string>> GenerateMultipleRequestPartitions(
              << full_request.size() << "):\n"
              << full_request;
   std::vector<std::vector<std::string>> partitions;
-  size_t n =
-      std::min(static_cast<size_t>(StringView::kMaxSize), full_request.size());
+  size_t n = std::min(static_cast<size_t>(mcucore::StringView::kMaxSize),
+                      full_request.size());
   bool first = true;
   do {
     auto partition = SplitEveryN(full_request, n);
@@ -103,7 +103,7 @@ EHttpStatusCode DecodeBuffer(
     RequestDecoder& decoder, std::string& buffer, const bool at_end,
     const size_t max_decode_buffer_size = kDecodeBufferSize) {
   CHECK_GT(max_decode_buffer_size, 0);
-  CHECK_LE(max_decode_buffer_size, StringView::kMaxSize);
+  CHECK_LE(max_decode_buffer_size, mcucore::StringView::kMaxSize);
 
   while (true) {
     // We deliberately copy into another string, and may append some "garbage",
@@ -113,7 +113,7 @@ EHttpStatusCode DecodeBuffer(
 #if TAS_ENABLE_DEBUGGING
     copy.append("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
 #endif
-    StringView view(copy.data(), initial_size);
+    mcucore::StringView view(copy.data(), initial_size);
 
     const bool was_empty = buffer.empty();
     const bool now_at_end = at_end && initial_size == buffer.size();
@@ -157,7 +157,7 @@ std::tuple<EHttpStatusCode, std::string, std::string> DecodePartitionedRequest(
     const size_t max_decode_buffer_size = kDecodeBufferSize) {
   CHECK_NE(partition.size(), 0);
   CHECK_GT(max_decode_buffer_size, 0);
-  CHECK_LE(max_decode_buffer_size, StringView::kMaxSize);
+  CHECK_LE(max_decode_buffer_size, mcucore::StringView::kMaxSize);
   decoder.Reset();
   std::string buffer;
   for (int ndx = 0; ndx < partition.size(); ++ndx) {
@@ -531,7 +531,7 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
     // EXPECT_TRUE(
     //     alpaca_request.extra_parameters.contains(EParameter::kConnected));
     // EXPECT_EQ(alpaca_request.extra_parameters.find(EParameter::kConnected),
-    //           StringView("abc"));
+    //           mcucore::StringView("abc"));
 #else
     EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
 #endif

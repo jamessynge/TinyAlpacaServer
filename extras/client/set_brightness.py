@@ -1,38 +1,44 @@
 #!/usr/bin/env python3
 """Makes HTTP requests to Alpaca servers, returns HTTP responses.
 
-Usage: get_api_versions.py [request_count [server_addr[:port]]]
-
-
+Usage: set_brightness.py brightness [request_count [server_addr[:port]]]
 """
 
-import random
+import argparse
 import sys
-from typing import Sequence
+from typing import List
 
+import alpaca_discovery
 import alpaca_http_client
 
 
-def main(argv: Sequence[str]) -> None:
-  if len(argv) != 3:
-    raise ValueError('Expects three args, the base of the URL, '
-                     'the device number and the brightness')
+def main() -> None:
+  parser = argparse.ArgumentParser(
+      description='Set Cover Calibrator brightness.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          alpaca_http_client.make_url_base_parser(),
+          alpaca_http_client.make_device_number_parser(),
+          alpaca_http_client.make_device_limits_parser(),
+      ])
+  parser.add_argument('brightness', type=int, help=('The brightness value.'))
 
-  url_base = argv[0]
-  device_number = int(argv[1])
-  brightness = int(argv[2])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
+  del cli_kwargs['brightness']
+  devices: List[alpaca_http_client.HttpCoverCalibrator] = (
+      alpaca_http_client.HttpCoverCalibrator.find_devices(**cli_kwargs))
 
-  client = alpaca_http_client.AlpacaHttpClient(
-      url_base,
-      client_id=random.randint(0, 10),
-      initial_client_transaction_id=random.randint(10, 20))
+  if not devices:
+    print('Found no Cover Calibrator devices!')
+    sys.exit(1)
 
-  cover_calibrator = alpaca_http_client.HttpCoverCalibrator(
-      client, device_number)
-  response = cover_calibrator.put_calibratoron(brightness)
-  print(response.content)
-  client.session.close()
+  for device in devices:
+    print(f'Setting brightness of server {device.client.url_base} cover '
+          f'calibrator device {device.device_number}')
+    response = device.put_calibratoron(cli_args.brightness)
+    print(response.content)
 
 
 if __name__ == '__main__':
-  main(sys.argv[1:])
+  main()

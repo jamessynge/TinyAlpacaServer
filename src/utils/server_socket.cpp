@@ -1,8 +1,8 @@
 #include "utils/server_socket.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
+#include "logging.h"
+#include "mcucore_platform.h"
+#include "o_print_stream.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
@@ -43,8 +43,8 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
     auto socket_number = sock_num();
     auto status = PlatformEthernet::SocketStatus(socket_number);
     TAS_VLOG(2) << TAS_FLASHSTR("TcpServerConnection::close, sock_num=")
-                << socket_number << TAS_FLASHSTR(", status=") << BaseHex
-                << status;
+                << socket_number << TAS_FLASHSTR(", status=")
+                << mcucore::BaseHex << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
       flush();
       status = PlatformEthernet::SocketStatus(socket_number);
@@ -127,16 +127,16 @@ bool ServerSocket::ReleaseSocket() {
   return true;
 }
 
-#define STATUS_IS_UNEXPECTED_MESSAGE(expected_str, some_status,             \
-                                     current_status)                        \
-  BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ")               \
-          << TAS_FLASHSTR(expected_str) << TAS_FLASHSTR(", but is ")        \
-          << BaseHex << some_status << TAS_FLASHSTR("; current status is ") \
-          << current_status
+#define STATUS_IS_UNEXPECTED_MESSAGE(expected_str, some_status,               \
+                                     current_status)                          \
+  mcucore::BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ")        \
+                   << TAS_FLASHSTR(expected_str) << TAS_FLASHSTR(", but is ") \
+                   << mcucore::BaseHex << some_status                         \
+                   << TAS_FLASHSTR("; current status is ") << current_status
 
-#define VERIFY_STATUS_IS(expected_status, some_status)               \
-  TAS_DCHECK_EQ(expected_status, some_status)                        \
-      << BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ") \
+#define VERIFY_STATUS_IS(expected_status, some_status)                        \
+  TAS_DCHECK_EQ(expected_status, some_status)                                 \
+      << mcucore::BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ") \
       << expected_status << TAS_FLASHSTR(", but is ") << some_status
 
 bool ServerSocket::BeginListening() {
@@ -155,7 +155,8 @@ bool ServerSocket::BeginListening() {
     last_status_ = PlatformEthernet::SocketStatus(sock_num_);
     TAS_VLOG(1) << TAS_FLASHSTR("Listening to port ") << tcp_port_
                 << TAS_FLASHSTR(" on socket ") << sock_num_
-                << TAS_FLASHSTR(", last_status is ") << BaseHex << last_status_;
+                << TAS_FLASHSTR(", last_status is ") << mcucore::BaseHex
+                << last_status_;
     VERIFY_STATUS_IS(SnSR::LISTEN, last_status_);
     return true;
   }
@@ -281,7 +282,8 @@ void ServerSocket::PerformIO() {
     case SnSR::IPRAW:
     case SnSR::MACRAW:
     case SnSR::PPPOE:
-      TAS_DCHECK(false) << TAS_FLASHSTR("Socket ") << sock_num_ << BaseHex
+      TAS_DCHECK(false) << TAS_FLASHSTR("Socket ") << sock_num_
+                        << mcucore::BaseHex
                         << TAS_FLASHSTR(" has unexpected status ") << status
                         << TAS_FLASHSTR(", past_status is ") << past_status;
       CloseHardwareSocket();
@@ -352,9 +354,9 @@ void ServerSocket::DetectListenerInitiatedDisconnect() {
               << TAS_FLASHSTR("disconnected=") << disconnect_data_.disconnected;
   if (disconnect_data_.disconnected) {
     auto new_status = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(2) << TAS_FLASHSTR("DetectListenerInitiatedDisconnect") << BaseHex
-                << TAS_FLASHSTR(" last_status=") << last_status_
-                << TAS_FLASHSTR(" new_status=") << new_status;
+    TAS_VLOG(2) << TAS_FLASHSTR("DetectListenerInitiatedDisconnect")
+                << mcucore::BaseHex << TAS_FLASHSTR(" last_status=")
+                << last_status_ << TAS_FLASHSTR(" new_status=") << new_status;
     last_status_ = new_status;
   }
 }
@@ -374,7 +376,8 @@ void ServerSocket::DetectCloseTimeout() {
 
 void ServerSocket::CloseHardwareSocket() {
   TAS_VLOG(2) << TAS_FLASHSTR("CloseHardwareSocket")
-              << TAS_FLASHSTR(" last_status=") << BaseHex << last_status_;
+              << TAS_FLASHSTR(" last_status=") << mcucore::BaseHex
+              << last_status_;
   PlatformEthernet::CloseSocket(sock_num_);
   last_status_ = PlatformEthernet::SocketStatus(sock_num_);
   TAS_DCHECK_EQ(last_status_, SnSR::CLOSED);

@@ -1,14 +1,14 @@
 // This file is not meant to be executed. Instead, it serves as a tool for
 // measuring the program (FLASH) and globals (RAM) storage requirements of
-// producing an HTTP response with a JSON body using JsonObjectEncoder.
+// producing an HTTP response with a JSON body using mcucore::JsonObjectEncoder.
 
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
 
 using ::alpaca::AlpacaRequest;
 using ::alpaca::JsonMethodResponse;
-using ::alpaca::JsonObjectEncoder;
-using ::alpaca::JsonPropertySource;
+using ::mcucore::JsonObjectEncoder;
+using ::mcucore::JsonPropertySource;
 
 // Empty sketch (with or without include of TinyAlpacaServer): 662 program
 // bytes, 9 bytes of ram.
@@ -65,7 +65,7 @@ uint32_t server_transaction_id = 0;
 // Calling this from loop: 3648/298
 uint32_t MeasureCommonJsonResponseSize() {
   JsonMethodResponse source(request);
-  return JsonObjectEncoder::EncodedSize(source);
+  return mcucore::JsonObjectEncoder::EncodedSize(source);
 }
 
 // Calling this from loop: 3860/380
@@ -81,5 +81,5 @@ void PrintCommonHTTPResponse() {
 
   // Adding in the writing of the JSON body: 3962/380
   JsonMethodResponse source(request);
-  JsonObjectEncoder::Encode(source, Serial);
+  mcucore::JsonObjectEncoder::Encode(source, Serial);
 }

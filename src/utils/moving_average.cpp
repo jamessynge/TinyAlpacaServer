@@ -2,9 +2,9 @@
 
 #include <math.h>
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "inline_literal.h"
+#include "logging.h"
+#include "mcucore_platform.h"
 
 namespace alpaca {
 MovingAverage::MovingAverage()

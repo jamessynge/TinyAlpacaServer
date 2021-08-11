@@ -18,15 +18,15 @@ class AMWeatherBox : public alpaca::ObservingConditionsAdapter {
 
   void MaintainDevice() override;
 
-  alpaca::StatusOr<double> GetAveragePeriod() override;
-  alpaca::StatusOr<double> GetRainRate() override;
-  alpaca::StatusOr<double> GetSkyTemperature() override;
-  alpaca::StatusOr<double> GetTemperature() override;
-  alpaca::StatusOr<alpaca::Literal> GetSensorDescription(
+  mcucore::StatusOr<double> GetAveragePeriod() override;
+  mcucore::StatusOr<double> GetRainRate() override;
+  mcucore::StatusOr<double> GetSkyTemperature() override;
+  mcucore::StatusOr<double> GetTemperature() override;
+  mcucore::StatusOr<mcucore::Literal> GetSensorDescription(
       alpaca::ESensorName sensor_name) override;
-  alpaca::Status SetAveragePeriod(double hours) override;
-  alpaca::Status Refresh() override;
-  alpaca::StatusOr<double> GetTimeSinceLastUpdate(
+  mcucore::Status SetAveragePeriod(double hours) override;
+  mcucore::Status Refresh() override;
+  mcucore::StatusOr<double> GetTimeSinceLastUpdate(
       alpaca::ESensorName sensor_name) override;
 
  private:

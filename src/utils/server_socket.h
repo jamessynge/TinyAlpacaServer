@@ -34,7 +34,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "utils/connection.h"
 #include "utils/socket_listener.h"
 
@@ -115,8 +115,8 @@ class ServerSocket {
   // bound to this ServerSocket instance.
   uint8_t sock_num_;
 
-  // Status at the end of the last call to Initialize or PerformIO.
-  // Status after a successful Initialize call will be SnSR::LISTEN,
+  // mcucore::Status at the end of the last call to Initialize or PerformIO.
+  // mcucore::Status after a successful Initialize call will be SnSR::LISTEN,
   uint8_t last_status_;
 
   // Object to be called with events.

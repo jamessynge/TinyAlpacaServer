@@ -17,10 +17,10 @@ namespace astro_makers {
 namespace {
 using ::alpaca::DeviceInfo;
 using ::alpaca::EDeviceType;
-using ::alpaca::LiteralArray;
+using ::mcucore::LiteralArray;
 
 // No extra actions.
-const auto kSupportedActions = LiteralArray();
+const auto kSupportedActions = mcucore::LiteralArray();
 
 const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
     {
@@ -80,8 +80,8 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
-  alpaca::LogSink() << kServerDescription.server_name;
-  alpaca::LogSink() << TAS_FLASHSTR("Initializing networking");
+  mcucore::LogSink() << kServerDescription.server_name;
+  mcucore::LogSink() << TAS_FLASHSTR("Initializing networking");
   alpaca::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the
@@ -112,7 +112,7 @@ void loop() {
 }
 
 void logMCUStatusRegister(uint8_t mcusr) {
-  alpaca::LogSink() << TAS_FLASHSTR("MCUSR: ") << alpaca::BaseHex << mcusr;
+  mcucore::LogSink() << TAS_FLASHSTR("MCUSR: ") << mcucore::BaseHex << mcusr;
   if (TAS_VLOG_IS_ON(1)) {
     if (mcusr & _BV(JTRF)) {
       // JTAG Reset

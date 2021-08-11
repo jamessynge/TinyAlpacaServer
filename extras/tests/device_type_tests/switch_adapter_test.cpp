@@ -8,14 +8,14 @@
 #include "alpaca_request.h"
 #include "constants.h"
 #include "device_info.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
 #include "extras/test_tools/mock_switch_group.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "inline_literal.h"
+#include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "utils/literal.h"
-#include "utils/status.h"
-#include "utils/status_or.h"
+#include "status.h"
+#include "status_or.h"
 
 namespace alpaca {
 namespace test {
@@ -246,8 +246,8 @@ TEST_F(SwitchGroupTest, GetSwitch) {
   }
 
   const char kErrorMessage[] = "Can not get switch as boolean";
-  Literal literal_error_message(kErrorMessage);
-  Status status(123, literal_error_message);
+  mcucore::Literal literal_error_message(kErrorMessage);
+  mcucore::Status status(123, literal_error_message);
 
   InitializeRequest();
   request_.device_method = EDeviceMethod::kGetSwitch;
@@ -281,8 +281,8 @@ TEST_F(SwitchGroupTest, GetSwitchValue) {
   }
 
   const char kErrorMessage[] = "Can not get switch as double";
-  Literal literal_error_message(kErrorMessage);
-  Status status(123, literal_error_message);
+  mcucore::Literal literal_error_message(kErrorMessage);
+  mcucore::Status status(123, literal_error_message);
 
   EXPECT_CALL(switch_group_, GetSwitchValue(0)).WillOnce(Return(status));
 
@@ -363,7 +363,8 @@ TEST_F(SwitchGroupTest, SetSwitch) {
   request_.device_method = EDeviceMethod::kSetSwitch;
   request_.set_id(0);
   request_.set_state(false);
-  EXPECT_CALL(switch_group_, SetSwitch(0, false)).WillOnce(Return(OkStatus()));
+  EXPECT_CALL(switch_group_, SetSwitch(0, false))
+      .WillOnce(Return(mcucore::OkStatus()));
 
   mcucore::test::PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);
@@ -432,7 +433,7 @@ TEST_F(SwitchGroupTest, SetSwitchValue) {
   request_.set_id(0);
   request_.set_value(1.23);
   EXPECT_CALL(switch_group_, SetSwitchValue(0, 1.23))
-      .WillOnce(Return(OkStatus()));
+      .WillOnce(Return(mcucore::OkStatus()));
 
   mcucore::test::PrintToStdString out;
   switch_group_.HandlePutRequest(request_, out);

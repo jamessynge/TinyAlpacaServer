@@ -1,9 +1,9 @@
 
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "utils/print_misc.h"
+#include "inline_literal.h"
+#include "mcucore_platform.h"
+#include "print_misc.h"
 
 namespace alpaca {
 
@@ -30,8 +30,8 @@ size_t PrintValueTo(ECalibratorStatus v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ECalibratorStatus"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("ECalibratorStatus"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
@@ -57,8 +57,8 @@ size_t PrintValueTo(ECoverStatus v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return PrintUnknownEnumValueTo(TAS_FLASHSTR("ECoverStatus"),
-                                 static_cast<uint32_t>(v), out);
+  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("ECoverStatus"),
+                                          static_cast<uint32_t>(v), out);
 }
 
 // Define stuff

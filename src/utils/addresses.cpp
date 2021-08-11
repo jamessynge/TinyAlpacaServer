@@ -1,9 +1,9 @@
 #include "utils/addresses.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
-#include "utils/hex_escape.h"
+#include "hex_escape.h"
+#include "inline_literal.h"
+#include "logging.h"
+#include "o_print_stream.h"
 
 namespace alpaca {
 namespace {
@@ -101,8 +101,8 @@ void MacAddress::generateAddress(const OuiPrefix* oui_prefix) {
       r = toOuiUnicast(r);
     }
     mac[i] = r;
-    TAS_VLOG(4) << TAS_FLASHSTR("mac[") << i << TAS_FLASHSTR("] = ") << BaseHex
-                << (mac[i] + 0);
+    TAS_VLOG(4) << TAS_FLASHSTR("mac[") << i << TAS_FLASHSTR("] = ")
+                << mcucore::BaseHex << (mac[i] + 0);
   }
 }
 
@@ -115,13 +115,13 @@ size_t MacAddress::printTo(Print& p) const {
   return result;
 }
 
-int MacAddress::save(int toAddress, Crc32* crc) const {
-  putBytes(toAddress, &mac[0], 6, crc);
+int MacAddress::save(int toAddress, mcucore::Crc32* crc) const {
+  mcucore::eeprom_io::PutBytes(toAddress, &mac[0], 6, crc);
   return toAddress + 6;
 }
 
-int MacAddress::read(int fromAddress, Crc32* crc) {
-  getBytes(fromAddress, 6, &mac[0], crc);
+int MacAddress::read(int fromAddress, mcucore::Crc32* crc) {
+  mcucore::eeprom_io::GetBytes(fromAddress, 6, &mac[0], crc);
   return fromAddress + 6;
 }
 
@@ -144,7 +144,7 @@ bool MacAddress::operator==(const MacAddress& other) const {
 // are some Arduino libraries where IPAddress also supports IPv6 addresses,
 // for which this code would need updating.
 
-int SaveableIPAddress::save(int toAddress, Crc32* crc) const {
+int SaveableIPAddress::save(int toAddress, mcucore::Crc32* crc) const {
   for (int i = 0; i < 4; ++i) {
     const uint8_t b = (*this)[i];
     EEPROM.update(toAddress++, b);
@@ -155,7 +155,7 @@ int SaveableIPAddress::save(int toAddress, Crc32* crc) const {
   return toAddress;
 }
 
-int SaveableIPAddress::read(int fromAddress, Crc32* crc) {
+int SaveableIPAddress::read(int fromAddress, mcucore::Crc32* crc) {
   for (int i = 0; i < 4; ++i) {
     const uint8_t b = EEPROM.read(fromAddress++);
     (*this)[i] = b;
@@ -187,8 +187,8 @@ void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
 void Addresses::save() const {
   TAS_VLOG(3) << TAS_FLASHSTR("Saving ") << kName;
 
-  int ipAddress = saveName(0, kName);
-  Crc32 crc;
+  int ipAddress = mcucore::eeprom_io::SaveName(0, kName);
+  mcucore::Crc32 crc;
   int macAddress = ip.save(ipAddress, &crc);
   int crcAddress = mac.save(macAddress, &crc);
   crc.put(crcAddress);
@@ -196,11 +196,11 @@ void Addresses::save() const {
 
 bool Addresses::load(const OuiPrefix* oui_prefix) {
   int ipAddress;
-  if (!verifyName(0, kName, &ipAddress)) {
+  if (!mcucore::eeprom_io::VerifyName(0, kName, &ipAddress)) {
     TAS_VLOG(2) << TAS_FLASHSTR("Stored name mismatch");
     return false;
   }
-  Crc32 crc;
+  mcucore::Crc32 crc;
   int macAddress = ip.read(ipAddress, &crc);
   int crcAddress = mac.read(macAddress, &crc);
   if (!crc.verify(crcAddress)) {

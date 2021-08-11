@@ -9,20 +9,20 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
+#include "array_view.h"
 #include "device_interface.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "json_encoder.h"
 #include "json_response.h"
+#include "mcucore_platform.h"
 #include "request_listener.h"
 #include "server_description.h"
-#include "utils/array_view.h"
-#include "utils/json_encoder.h"
 
 namespace alpaca {
 
 class AlpacaDevices {
  public:
-  explicit AlpacaDevices(ArrayView<DeviceInterface*> devices);
+  explicit AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices);
 
   // Prepares the server and device drivers to receive requests. Returns true
   // if able to do so, false otherwise.
@@ -46,7 +46,7 @@ class AlpacaDevices {
   bool DispatchDeviceRequest(AlpacaRequest& request, DeviceInterface& device,
                              Print& out);
 
-  ArrayView<DeviceInterface*> devices_;
+  mcucore::ArrayView<DeviceInterface*> devices_;
 };
 
 }  // namespace alpaca

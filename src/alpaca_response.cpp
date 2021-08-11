@@ -1,32 +1,32 @@
 #include "alpaca_response.h"
 
+#include "any_printable.h"
+#include "array_view.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
+#include "counting_print.h"
 #include "http_response_header.h"
+#include "json_encoder.h"
+#include "json_encoder_helpers.h"
 #include "json_response.h"
 #include "literals.h"
-#include "utils/any_printable.h"
-#include "utils/array_view.h"
-#include "utils/counting_print.h"
-#include "utils/json_encoder.h"
-#include "utils/json_encoder_helpers.h"
-#include "utils/printable_cat.h"
+#include "printable_cat.h"
 
 namespace alpaca {
 namespace {
 
-class LiteralArraySource : public JsonElementSource {
+class LiteralArraySource : public mcucore::JsonElementSource {
  public:
-  explicit LiteralArraySource(const LiteralArray& literals)
+  explicit LiteralArraySource(const mcucore::LiteralArray& literals)
       : literals_(literals) {}
-  void AddTo(JsonArrayEncoder& encoder) const override {
-    for (const Literal& literal : literals_) {
+  void AddTo(mcucore::JsonArrayEncoder& encoder) const override {
+    for (const mcucore::Literal& literal : literals_) {
       encoder.AddStringElement(literal);
     }
   }
 
  private:
-  const LiteralArray& literals_;
+  const mcucore::LiteralArray& literals_;
 };
 
 }  // namespace
@@ -40,7 +40,7 @@ bool WriteResponse::OkResponse(const AlpacaRequest& request,
   hrh.status_code = EHttpStatusCode::kHttpOk;
   hrh.reason_phrase = Literals::OK();
   hrh.content_type = content_type;
-  hrh.content_length = SizeOfPrintable(content_source);
+  hrh.content_length = mcucore::SizeOfPrintable(content_source);
   if (append_http_newline) {
     hrh.content_length += 2;
   }
@@ -56,15 +56,15 @@ bool WriteResponse::OkResponse(const AlpacaRequest& request,
 }
 
 bool WriteResponse::OkJsonResponse(const AlpacaRequest& request,
-                                   const JsonPropertySource& source,
+                                   const mcucore::JsonPropertySource& source,
                                    Print& out) {
-  PrintableJsonObject content_source(source);
+  mcucore::PrintableJsonObject content_source(source);
   return OkResponse(request, EContentType::kApplicationJson, content_source,
                     out, /*append_http_newline=*/true);
 }
 
-bool WriteResponse::StatusResponse(const AlpacaRequest& request, Status status,
-                                   Print& out) {
+bool WriteResponse::StatusResponse(const AlpacaRequest& request,
+                                   mcucore::Status status, Print& out) {
   if (status.ok()) {
     JsonMethodResponse body(request);
     return OkJsonResponse(request, body, out);
@@ -74,13 +74,14 @@ bool WriteResponse::StatusResponse(const AlpacaRequest& request, Status status,
 }
 
 bool WriteResponse::ArrayResponse(const AlpacaRequest& request,
-                                  const JsonElementSource& value, Print& out) {
+                                  const mcucore::JsonElementSource& value,
+                                  Print& out) {
   JsonArrayResponse source(request, value);
   return OkJsonResponse(request, source, out);
 }
 
 bool WriteResponse::ObjectResponse(const AlpacaRequest& request,
-                                   const JsonPropertySource& value,
+                                   const mcucore::JsonPropertySource& value,
                                    Print& out) {
   JsonObjectResponse source(request, value);
   return OkJsonResponse(request, source, out);
@@ -92,9 +93,9 @@ bool WriteResponse::BoolResponse(const AlpacaRequest& request, bool value,
   return OkJsonResponse(request, source, out);
 }
 
-bool WriteResponse::StatusOrBoolResponse(const AlpacaRequest& request,
-                                         StatusOr<bool> status_or_value,
-                                         Print& out) {
+bool WriteResponse::StatusOrBoolResponse(
+    const AlpacaRequest& request, mcucore::StatusOr<bool> status_or_value,
+    Print& out) {
   if (status_or_value.ok()) {
     return BoolResponse(request, status_or_value.value(), out);
   } else {
@@ -108,9 +109,9 @@ bool WriteResponse::DoubleResponse(const AlpacaRequest& request, double value,
   return OkJsonResponse(request, source, out);
 }
 
-bool WriteResponse::StatusOrDoubleResponse(const AlpacaRequest& request,
-                                           StatusOr<double> status_or_value,
-                                           Print& out) {
+bool WriteResponse::StatusOrDoubleResponse(
+    const AlpacaRequest& request, mcucore::StatusOr<double> status_or_value,
+    Print& out) {
   if (status_or_value.ok()) {
     return DoubleResponse(request, status_or_value.value(), out);
   } else {
@@ -124,9 +125,9 @@ bool WriteResponse::FloatResponse(const AlpacaRequest& request, float value,
   return OkJsonResponse(request, source, out);
 }
 
-bool WriteResponse::StatusOrFloatResponse(const AlpacaRequest& request,
-                                          StatusOr<float> status_or_value,
-                                          Print& out) {
+bool WriteResponse::StatusOrFloatResponse(
+    const AlpacaRequest& request, mcucore::StatusOr<float> status_or_value,
+    Print& out) {
   if (status_or_value.ok()) {
     return FloatResponse(request, status_or_value.value(), out);
   } else {
@@ -140,9 +141,9 @@ bool WriteResponse::UIntResponse(const AlpacaRequest& request, uint32_t value,
   return OkJsonResponse(request, source, out);
 }
 
-bool WriteResponse::StatusOrUIntResponse(const AlpacaRequest& request,
-                                         StatusOr<uint32_t> status_or_value,
-                                         Print& out) {
+bool WriteResponse::StatusOrUIntResponse(
+    const AlpacaRequest& request, mcucore::StatusOr<uint32_t> status_or_value,
+    Print& out) {
   if (status_or_value.ok()) {
     return UIntResponse(request, status_or_value.value(), out);
   } else {
@@ -156,9 +157,9 @@ bool WriteResponse::IntResponse(const AlpacaRequest& request, int32_t value,
   return OkJsonResponse(request, source, out);
 }
 
-bool WriteResponse::StatusOrIntResponse(const AlpacaRequest& request,
-                                        StatusOr<int32_t> status_or_value,
-                                        Print& out) {
+bool WriteResponse::StatusOrIntResponse(
+    const AlpacaRequest& request, mcucore::StatusOr<int32_t> status_or_value,
+    Print& out) {
   if (status_or_value.ok()) {
     return IntResponse(request, status_or_value.value(), out);
   } else {
@@ -173,9 +174,9 @@ bool WriteResponse::PrintableStringResponse(const AlpacaRequest& request,
   return OkJsonResponse(request, source, out);
 }
 
-bool WriteResponse::StatusOrLiteralResponse(const AlpacaRequest& request,
-                                            StatusOr<Literal> status_or_value,
-                                            Print& out) {
+bool WriteResponse::StatusOrLiteralResponse(
+    const AlpacaRequest& request,
+    mcucore::StatusOr<mcucore::Literal> status_or_value, Print& out) {
   if (status_or_value.ok()) {
     return AnyPrintableStringResponse(request, status_or_value.value(), out);
   } else {
@@ -184,15 +185,17 @@ bool WriteResponse::StatusOrLiteralResponse(const AlpacaRequest& request,
 }
 
 bool WriteResponse::LiteralArrayResponse(const AlpacaRequest& request,
-                                         const LiteralArray& value,
+                                         const mcucore::LiteralArray& value,
                                          Print& out) {
   return ArrayResponse(request, LiteralArraySource(value), out);
 }
 
 bool WriteResponse::UIntArrayResponse(const AlpacaRequest& request,
-                                      ArrayView<uint32_t> values, Print& out) {
+                                      mcucore::ArrayView<uint32_t> values,
+                                      Print& out) {
   return ArrayResponse(
-      request, MakeArrayViewSource(values, &JsonArrayEncoder::AddUIntElement),
+      request,
+      MakeArrayViewSource(values, &mcucore::JsonArrayEncoder::AddUIntElement),
       out);
 }
 
@@ -206,17 +209,19 @@ bool WriteResponse::AscomErrorResponse(AlpacaRequest request,
 }
 
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
-                                       Status error_status, Print& out) {
+                                       mcucore::Status error_status,
+                                       Print& out) {
   if (error_status.code() == ErrorCodes::kNotImplemented) {
     return AscomMethodNotImplementedResponse(request, out);
   }
   return AscomErrorResponse(request, error_status.code(),
-                            AnyPrintable(error_status.message()), out);
+                            mcucore::AnyPrintable(error_status.message()), out);
 }
 
 bool WriteResponse::AscomMethodNotImplementedResponse(
-    const AlpacaRequest& request, const AnyPrintable& method_name, Print& out) {
-  auto error_message = PrintableCat(
+    const AlpacaRequest& request, const mcucore::AnyPrintable& method_name,
+    Print& out) {
+  auto error_message = mcucore::PrintableCat(
       TAS_FLASHSTR("Alpaca method not implemented: "), method_name);
   return AscomErrorResponse(request, ErrorCodes::kNotImplemented, error_message,
                             out);
@@ -224,7 +229,7 @@ bool WriteResponse::AscomMethodNotImplementedResponse(
 
 bool WriteResponse::AscomMethodNotImplementedResponse(
     const AlpacaRequest& request, EDeviceMethod method, Print& out) {
-  AnyPrintable name(ToFlashStringHelper(method));
+  mcucore::AnyPrintable name(ToFlashStringHelper(method));
   return AscomMethodNotImplementedResponse(request, name, out);
 }
 
@@ -245,17 +250,17 @@ bool WriteResponse::AscomActionNotImplementedResponse(
   return AscomErrorResponse(request, ErrorCodes::ActionNotImplemented(), out);
 }
 bool WriteResponse::AscomParameterMissingErrorResponse(
-    const AlpacaRequest& request, Literal parameter_name, Print& out) {
-  auto error_message =
-      PrintableCat(TAS_FLASHSTR("Missing parameter: "), parameter_name);
+    const AlpacaRequest& request, mcucore::Literal parameter_name, Print& out) {
+  auto error_message = mcucore::PrintableCat(
+      TAS_FLASHSTR("Missing parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
                             out);
 }
 
 bool WriteResponse::AscomParameterInvalidErrorResponse(
-    const AlpacaRequest& request, Literal parameter_name, Print& out) {
-  auto error_message =
-      PrintableCat(TAS_FLASHSTR("Invalid parameter: "), parameter_name);
+    const AlpacaRequest& request, mcucore::Literal parameter_name, Print& out) {
+  auto error_message = mcucore::PrintableCat(
+      TAS_FLASHSTR("Invalid parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kInvalidValue, error_message,
                             out);
 }
@@ -263,13 +268,13 @@ bool WriteResponse::AscomParameterInvalidErrorResponse(
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
   TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
-      << TAS_FLASHSTR("Status code should be for an error.");
+      << TAS_FLASHSTR("mcucore::Status code should be for an error.");
 
   HttpResponseHeader hrh;
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
     hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
     hrh.reason_phrase =
-        TASLIT("Internal Server Error: Invalid HTTP Status Code");
+        TASLIT("Internal Server Error: Invalid HTTP mcucore::Status Code");
   } else {
     hrh.status_code = status_code;
     switch (status_code) {
@@ -307,12 +312,12 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
         // We don't have a reason phrase programmed in here.
         TAS_DCHECK(false) << TAS_FLASHSTR("Please add a case for status code ")
                           << status_code;
-        hrh.reason_phrase = Literal();
+        hrh.reason_phrase = mcucore::Literal();
     }
   }
 
   hrh.content_type = EContentType::kTextPlain;
-  hrh.content_length = SizeOfPrintable(body);
+  hrh.content_length = mcucore::SizeOfPrintable(body);
   hrh.do_close = true;
   hrh.printTo(out);
   body.printTo(out);

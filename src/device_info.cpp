@@ -1,12 +1,12 @@
 #include "device_info.h"
 
 #include "constants.h"
+#include "json_encoder.h"
 #include "literals.h"
-#include "utils/json_encoder.h"
 
 namespace alpaca {
 
-void DeviceInfo::AddTo(JsonObjectEncoder& object_encoder) const {
+void DeviceInfo::AddTo(mcucore::JsonObjectEncoder& object_encoder) const {
   object_encoder.AddStringProperty(Literals::DeviceName(), name);
 
   // TODO(jamessynge): Check on the case requirements of the device type's name.

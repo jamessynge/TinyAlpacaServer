@@ -4,18 +4,22 @@
 
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
+#include "array_view.h"
 #include "device_interface.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "extras/test_tools/http_request.h"
-#include "extras/test_tools/http_response.h"
-#include "extras/test_tools/json_decoder.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
+#include "logging.h"
+#include "mcucore/extrastest_tools/http_request.h"
+#include "mcucore/extrastest_tools/http_response.h"
+#include "mcucore/extrastest_tools/json_decoder.h"
 #include "util/task/status_macros.h"
-#include "utils/array_view.h"
 
 namespace alpaca {
 namespace test {
 namespace {
+
+using ::mcucore::test::HttpRequest;
+using ::mcucore::test::HttpResponse;
+using ::mcucore::test::JsonValue;
 
 constexpr int kDeviceNumber = 87405;
 constexpr int kClientId = 91240;
@@ -69,9 +73,10 @@ DecodeAndDispatchTestBase::CreateServer() {
                                                 GetDeviceInterfaces());
 }
 
-ArrayView<DeviceInterface*> DecodeAndDispatchTestBase::GetDeviceInterfaces() {
-  return ArrayView<DeviceInterface*>(device_interfaces_.data(),
-                                     device_interfaces_.size());
+mcucore::ArrayView<DeviceInterface*>
+DecodeAndDispatchTestBase::GetDeviceInterfaces() {
+  return mcucore::ArrayView<DeviceInterface*>(device_interfaces_.data(),
+                                              device_interfaces_.size());
 }
 
 std::string_view DecodeAndDispatchTestBase::GetDeviceTypeName() {

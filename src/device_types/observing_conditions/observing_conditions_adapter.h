@@ -8,9 +8,9 @@
 
 #include "constants.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "utils/status.h"
-#include "utils/status_or.h"
+#include "mcucore_platform.h"
+#include "status.h"
+#include "status_or.h"
 
 namespace alpaca {
 
@@ -34,64 +34,66 @@ class ObservingConditionsAdapter : public DeviceImplBase {
   // unimplemented error.
 
   // Returns the number of hours over which all sensor values will be averaged.
-  virtual StatusOr<double> GetAveragePeriod();
+  virtual mcucore::StatusOr<double> GetAveragePeriod();
 
   // Returns the percentage of the sky obscured by cloud.
-  virtual StatusOr<double> GetCloudCover();
+  virtual mcucore::StatusOr<double> GetCloudCover();
 
   // Returns the atmospheric dew point at the observatory reported in °C.
-  virtual StatusOr<double> GetDewPoint();
+  virtual mcucore::StatusOr<double> GetDewPoint();
 
   // Returns the atmospheric humidity (%) at the observatory.
-  virtual StatusOr<double> GetHumidity();
+  virtual mcucore::StatusOr<double> GetHumidity();
 
   // Returns the atmospheric pressure in hectoPascals at the observatory's
   // altitude
   // - NOT reduced to sea level.
-  virtual StatusOr<double> GetPressure();
+  virtual mcucore::StatusOr<double> GetPressure();
 
   // Returns the rain rate (mm/hour) at the observatory. For more info, see:
   // https://ascom-standards.org/Help/Developer/html/P_ASCOM_DeviceInterface_IObservingConditions_RainRate.htm
-  virtual StatusOr<double> GetRainRate();
+  virtual mcucore::StatusOr<double> GetRainRate();
 
   // Returns the description of the named sensor, or an error if not known.
   // The default implementation returns an unimplemented error.
-  virtual StatusOr<Literal> GetSensorDescription(ESensorName sensor_name);
+  virtual mcucore::StatusOr<mcucore::Literal> GetSensorDescription(
+      ESensorName sensor_name);
 
   // Returns the sky brightness at the observatory (Lux).
-  virtual StatusOr<double> GetSkyBrightness();
+  virtual mcucore::StatusOr<double> GetSkyBrightness();
 
   // Returns the sky quality at the observatory (magnitudes per square arc
   // second).
-  virtual StatusOr<double> GetSkyQuality();
+  virtual mcucore::StatusOr<double> GetSkyQuality();
 
   // Returns the sky temperature(°C) at the observatory.
-  virtual StatusOr<double> GetSkyTemperature();
+  virtual mcucore::StatusOr<double> GetSkyTemperature();
 
   // Returns the seeing at the observatory measured as star full width half
   // maximum (FWHM) in arc secs.
-  virtual StatusOr<double> GetStarFWHM();
+  virtual mcucore::StatusOr<double> GetStarFWHM();
 
   // Returns the temperature(°C) at the observatory.
-  virtual StatusOr<double> GetTemperature();
+  virtual mcucore::StatusOr<double> GetTemperature();
 
   // Returns the time (hours) since the sensor specified in the SensorName
   // parameter was last updated.
-  virtual StatusOr<double> GetTimeSinceLastUpdate(ESensorName sensor_name);
+  virtual mcucore::StatusOr<double> GetTimeSinceLastUpdate(
+      ESensorName sensor_name);
 
   // Returns the wind direction. The returned value must be between 0.0 and
   // 360.0, interpreted according to the metereological standard, where a
   // special value of 0.0 is returned when the wind speed is 0.0. Wind direction
   // is measured clockwise from north, through east, where East=90.0,
   // South=180.0, West=270.0 and North=360.0.
-  virtual StatusOr<double> GetWindDirection();
+  virtual mcucore::StatusOr<double> GetWindDirection();
 
   // Returns the peak 3 second wind gust(m/s) at the observatory over the last 2
   // minutes. Note that this doesn't follow the averaging of other sensors.
-  virtual StatusOr<double> GetWindGust();
+  virtual mcucore::StatusOr<double> GetWindGust();
 
   // Returns the wind speed(m/s) at the observatory.
-  virtual StatusOr<double> GetWindSpeed();
+  virtual mcucore::StatusOr<double> GetWindSpeed();
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -122,7 +124,7 @@ class ObservingConditionsAdapter : public DeviceImplBase {
   // averaged. Returns OK if the implementation can perform averaging over the
   // period, else an error. The default implementation returns an error if the
   // value is not 0 (i.e. no averaging is supported by default).
-  virtual Status SetAveragePeriod(double hours);
+  virtual mcucore::Status SetAveragePeriod(double hours);
 
   // Returns the maximum supported average period, which is used by
   // HandlePutAveragePeriod to validate the hours parameter prior to passing it
@@ -131,13 +133,13 @@ class ObservingConditionsAdapter : public DeviceImplBase {
   virtual double MaxAveragePeriod() const;
 
   // Refreshes sensor values from hardware.
-  virtual Status Refresh();
+  virtual mcucore::Status Refresh();
 
   // If the result is OK, the write a DoubleResponse, else write the specified
   // sensor error.
   static bool WriteDoubleOrSensorErrorResponse(const AlpacaRequest& request,
                                                ESensorName sensor_name,
-                                               StatusOr<double> result,
+                                               mcucore::StatusOr<double> result,
                                                Print& out);
 
   // Write a Not Implemented error with the name of the sensor.

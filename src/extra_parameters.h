@@ -12,9 +12,9 @@
 
 #include "config.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "utils/string_view.h"
-#include "utils/tiny_string.h"
+#include "mcucore_platform.h"
+#include "string_view.h"
+#include "tiny_string.h"
 
 // The minimum is 1 to allow for testing of this feature.
 
@@ -36,7 +36,7 @@ constexpr uint8_t kMaxExtraParameterValueLength =
 
 struct ExtraParameterValue {
   EParameter parameter;
-  TinyString<kMaxExtraParameterValueLength> value;
+  mcucore::TinyString<kMaxExtraParameterValueLength> value;
 };
 
 // A minimal collection of extra parameters.
@@ -61,7 +61,7 @@ class ExtraParameterValueMap {
   const_iterator begin() const { return entries_; }
   const_iterator end() const { return &entries_[size_]; }
 
-  EInsertResult insert(EParameter parameter, const StringView& value) {
+  EInsertResult insert(EParameter parameter, const mcucore::StringView& value) {
     if (contains(parameter)) {
       return kDuplicateParameter;
     } else if (size_ >= kMaxExtraParameters) {
@@ -84,14 +84,14 @@ class ExtraParameterValueMap {
     return false;
   }
 
-  StringView find(EParameter parameter) const {
+  mcucore::StringView find(EParameter parameter) const {
     for (int ndx = 0; ndx < size_; ++ndx) {
       if (entries_[ndx].parameter == parameter) {
-        return StringView(entries_[ndx].value.data(),
-                          entries_[ndx].value.size());
+        return mcucore::StringView(entries_[ndx].value.data(),
+                                   entries_[ndx].value.size());
       }
     }
-    return StringView();
+    return mcucore::StringView();
   }
 
  private:

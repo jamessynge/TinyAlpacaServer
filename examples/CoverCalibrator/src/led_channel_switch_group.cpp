@@ -3,14 +3,14 @@
 namespace astro_makers {
 
 using ::alpaca::AlpacaRequest;
-using ::alpaca::AnyPrintable;
 using ::alpaca::DeviceInfo;
 using ::alpaca::ErrorCodes;
-using ::alpaca::OkStatus;
-using ::alpaca::PrintableCat;
-using ::alpaca::Status;
-using ::alpaca::StatusOr;
 using ::alpaca::WriteResponse;
+using ::mcucore::AnyPrintable;
+using ::mcucore::OkStatus;
+using ::mcucore::PrintableCat;
+using ::mcucore::Status;
+using ::mcucore::StatusOr;
 
 LedChannelSwitchGroup::LedChannelSwitchGroup(const DeviceInfo& device_info,
                                              CoverCalibrator& cover_calibrator)
@@ -23,9 +23,10 @@ bool LedChannelSwitchGroup::HandleGetSwitchDescription(
   TAS_DCHECK_LT(switch_id, GetMaxSwitch());
   return WriteResponse::PrintableStringResponse(
       request,
-      PrintableCat(TAS_FLASHSTR("Enables Cover-Calibrator LED Channel #"),
-                   AnyPrintable(switch_id),
-                   TAS_FLASHSTR(", if hardware is available")),
+      mcucore::PrintableCat(
+          TAS_FLASHSTR("Enables Cover-Calibrator LED Channel #"),
+          mcucore::AnyPrintable(switch_id),
+          TAS_FLASHSTR(", if hardware is available")),
       out);
 }
 
@@ -33,7 +34,7 @@ bool LedChannelSwitchGroup::HandleGetSwitchName(const AlpacaRequest& request,
                                                 uint16_t switch_id,
                                                 Print& out) {
   return WriteResponse::PrintableStringResponse(
-      request, PrintableCat(TASLIT("Enable LED #"), switch_id), out);
+      request, mcucore::PrintableCat(TASLIT("Enable LED #"), switch_id), out);
 }
 
 bool LedChannelSwitchGroup::HandleSetSwitchName(const AlpacaRequest& request,
@@ -46,11 +47,12 @@ bool LedChannelSwitchGroup::GetCanWrite(uint16_t switch_id) {
   return cover_calibrator_.GetLedChannelHardwareEnabled(switch_id);
 }
 
-StatusOr<bool> LedChannelSwitchGroup::GetSwitch(uint16_t switch_id) {
+mcucore::StatusOr<bool> LedChannelSwitchGroup::GetSwitch(uint16_t switch_id) {
   return cover_calibrator_.GetLedChannelEnabled(switch_id);
 }
 
-StatusOr<double> LedChannelSwitchGroup::GetSwitchValue(uint16_t switch_id) {
+mcucore::StatusOr<double> LedChannelSwitchGroup::GetSwitchValue(
+    uint16_t switch_id) {
   if (cover_calibrator_.GetLedChannelEnabled(switch_id)) {
     return 1.0;
   } else {
@@ -68,7 +70,8 @@ double LedChannelSwitchGroup::GetMaxSwitchValue(uint16_t switch_id) {
 
 double LedChannelSwitchGroup::GetSwitchStep(uint16_t switch_id) { return 1; }
 
-Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id, bool state) {
+mcucore::Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id,
+                                                 bool state) {
   if (!GetCanWrite(switch_id)) {
     TAS_VLOG(2) << TAS_FLASHSTR("Can NOT write switch #") << switch_id;
     return ErrorCodes::NotImplemented();
@@ -80,10 +83,11 @@ Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id, bool state) {
     TAS_VLOG(4) << TAS_FLASHSTR("Switch #") << switch_id
                 << TAS_FLASHSTR(" now set to ") << state;
   }
-  return OkStatus();
+  return mcucore::OkStatus();
 }
 
-Status LedChannelSwitchGroup::SetSwitchValue(uint16_t switch_id, double value) {
+mcucore::Status LedChannelSwitchGroup::SetSwitchValue(uint16_t switch_id,
+                                                      double value) {
   return SetSwitch(switch_id, value >= 0.5);
 }
 

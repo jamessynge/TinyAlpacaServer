@@ -3,9 +3,9 @@
 #include "absl/strings/str_cat.h"
 #include "constants.h"
 #include "gtest/gtest.h"
+#include "literal.h"
 #include "literals.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "utils/literal.h"
 
 namespace alpaca {
 namespace test {
@@ -32,7 +32,7 @@ TEST(HttpResponseHeaderTest, Json) {
 TEST(HttpResponseHeaderTest, Error) {
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpBadRequest;
-  hrh.reason_phrase = Literal("Bad Request");
+  hrh.reason_phrase = mcucore::Literal("Bad Request");
   hrh.content_type = EContentType::kTextPlain;
   hrh.content_length = 123;
 

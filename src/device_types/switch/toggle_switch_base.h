@@ -9,7 +9,7 @@
 // Author: james.synge@gmail.com
 
 #include "device_types/switch/switch_interface.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 
 namespace alpaca {
 
@@ -18,7 +18,7 @@ class ToggleSwitchBase : public SwitchInterface {
   ~ToggleSwitchBase() override;
 
   // Returns 0 if the switch is off, 1 if the switch is on.
-  StatusOr<double> GetSwitchValue() override;
+  mcucore::StatusOr<double> GetSwitchValue() override;
 
   // Returns 0.
   double GetMinSwitchValue() override;
@@ -30,7 +30,7 @@ class ToggleSwitchBase : public SwitchInterface {
   double GetSwitchStep() override;
 
   // Calls SetSwitch(value >= 0.5).
-  Status SetSwitchValue(double value) override;
+  mcucore::Status SetSwitchValue(double value) override;
 };
 
 }  // namespace alpaca

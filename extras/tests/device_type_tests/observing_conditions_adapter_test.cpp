@@ -10,37 +10,41 @@
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
 #include "alpaca_response.h"
+#include "array_view.h"
 #include "constants.h"
 #include "device_info.h"
 #include "device_interface.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
 #include "extras/test_tools/decode_and_dispatch_test_base.h"
-#include "extras/test_tools/http_request.h"
-#include "extras/test_tools/http_response.h"
-#include "extras/test_tools/json_decoder.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "extras/test_tools/mock_observing_conditions.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "literals.h"
+#include "mcucore/extrastest_tools/http_request.h"
+#include "mcucore/extrastest_tools/http_response.h"
+#include "mcucore/extrastest_tools/json_decoder.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "mcucore/extrastest_tools/sample_printable.h"
+#include "mcucore_platform.h"
 #include "request_listener.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "server_sockets_and_connections.h"
+#include "status.h"
+#include "string_view.h"
 #include "tiny_alpaca_server.h"
-#include "utils/array_view.h"
 #include "utils/platform_ethernet.h"
-#include "utils/status.h"
-#include "utils/string_view.h"
 
 namespace alpaca {
 namespace test {
 namespace {
 
+using ::mcucore::test::HttpRequest;
+using ::mcucore::test::HttpResponse;
+using ::mcucore::test::JsonArray;
+using ::mcucore::test::JsonValue;
 using ::testing::HasSubstr;
 using ::testing::IsEmpty;
 using ::testing::Pair;
@@ -76,14 +80,14 @@ class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
             .description = TAS_FLASHSTR(DEVICE_DESCRIPTION),
             .driver_info = TAS_FLASHSTR(GITHUB_LINK),
             .driver_version = TAS_FLASHSTR(DEVICE_DRIVER_VERSION),
-            .supported_actions = LiteralArray(supported_actions_),
+            .supported_actions = mcucore::LiteralArray(supported_actions_),
             .interface_version = 1,
         }),
         device_(device_info_) {
     AddDeviceInterface(device_);
   }
 
-  Literal supported_actions_[1] = {MakeItRain()};
+  mcucore::Literal supported_actions_[1] = {MakeItRain()};
   DeviceInfo device_info_;
   ObservingConditionsAdapter device_;
   DeviceInterface* device_interfaces_[1] = {&device_};
@@ -461,14 +465,14 @@ class MockObservingConditionsTest : public DecodeAndDispatchTestBase {
             .description = TAS_FLASHSTR(DEVICE_DESCRIPTION),
             .driver_info = TAS_FLASHSTR(GITHUB_LINK),
             .driver_version = TAS_FLASHSTR(DEVICE_DRIVER_VERSION),
-            .supported_actions = LiteralArray(supported_actions_),
+            .supported_actions = mcucore::LiteralArray(supported_actions_),
             .interface_version = 1,
         }),
         device_(device_info_) {
     AddDeviceInterface(device_);
   }
 
-  Literal supported_actions_[1] = {MakeItRain()};
+  mcucore::Literal supported_actions_[1] = {MakeItRain()};
   DeviceInfo device_info_;
   MockObservingConditions device_;
   DeviceInterface* device_interfaces_[1] = {&device_};
@@ -604,7 +608,7 @@ TEST_F(MockObservingConditionsTest, Method_SensorDescription_MissingParameter) {
 
 TEST_F(MockObservingConditionsTest, Method_SensorDescription) {
   EXPECT_CALL(device_, GetSensorDescription)
-      .WillOnce(Return(Literal("MLX90614")));
+      .WillOnce(Return(mcucore::Literal("MLX90614")));
   auto req = GenerateDeviceApiRequest("sensordescription");
   req.SetParameter("SensorName", "Temperature");
   ASSERT_OK_AND_ASSIGN(auto response_str, RoundTripRequest(req, false));

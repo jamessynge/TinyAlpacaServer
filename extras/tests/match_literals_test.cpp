@@ -7,14 +7,17 @@
 #include "absl/strings/ascii.h"
 #include "absl/strings/escaping.h"
 #include "constants.h"
-#include "extras/test_tools/string_view_utils.h"
 #include "glog/logging.h"
 #include "gtest/gtest.h"
-#include "utils/string_view.h"
+#include "mcucore/extrastest_tools/string_view_utils.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace test {
 namespace {
+
+using ::mcucore::StringView;
+using ::mcucore::test::MakeStringView;
 
 TEST(MatchLiteralsTest, EHttpMethod) {
   const std::vector<std::pair<std::string, EHttpMethod>> test_cases = {

@@ -9,10 +9,10 @@ namespace astro_makers {
 namespace {
 using ::alpaca::DeviceInfo;
 using ::alpaca::EDeviceType;
-using ::alpaca::LiteralArray;
+using ::mcucore::LiteralArray;
 
 // No extra actions.
-const auto kSupportedActions = LiteralArray();
+const auto kSupportedActions = mcucore::LiteralArray();
 
 const DeviceInfo kAMWeatherBoxDeviceInfo{
     .device_type = EDeviceType::kObservingConditions,
@@ -55,8 +55,8 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
-  alpaca::LogSink() << kServerDescription.server_name;
-  alpaca::LogSink() << TAS_FLASHSTR("Initializing networking");
+  mcucore::LogSink() << kServerDescription.server_name;
+  mcucore::LogSink() << TAS_FLASHSTR("Initializing networking");
   alpaca::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the

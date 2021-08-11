@@ -226,7 +226,7 @@ size_t PrintValueTo({name} v, Print& out) {{
   if (flash_string != nullptr) {{
     return out.print(flash_string);
   }}
-  return PrintUnknownEnumValueTo(
+  return mcucore::PrintUnknownEnumValueTo(
         TAS_FLASHSTR("{name}"), static_cast<uint32_t>(v), out);
 }}""")
   print()

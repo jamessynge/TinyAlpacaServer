@@ -28,13 +28,13 @@ class LedChannelSwitchGroup : public alpaca::SwitchAdapter {
                            uint16_t switch_id, Print& out) override;
   uint16_t GetMaxSwitch() override;
   bool GetCanWrite(uint16_t switch_id) override;
-  alpaca::StatusOr<bool> GetSwitch(uint16_t switch_id) override;
-  alpaca::StatusOr<double> GetSwitchValue(uint16_t switch_id) override;
+  mcucore::StatusOr<bool> GetSwitch(uint16_t switch_id) override;
+  mcucore::StatusOr<double> GetSwitchValue(uint16_t switch_id) override;
   double GetMinSwitchValue(uint16_t switch_id) override;
   double GetMaxSwitchValue(uint16_t switch_id) override;
   double GetSwitchStep(uint16_t switch_id) override;
-  alpaca::Status SetSwitch(uint16_t switch_id, bool state) override;
-  alpaca::Status SetSwitchValue(uint16_t switch_id, double value) override;
+  mcucore::Status SetSwitch(uint16_t switch_id, bool state) override;
+  mcucore::Status SetSwitchValue(uint16_t switch_id, double value) override;
 
  private:
   CoverCalibrator& cover_calibrator_;

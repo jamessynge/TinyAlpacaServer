@@ -19,7 +19,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 
 #if TAS_HOST_TARGET
 #include <ostream>  // pragma: keep standard include
@@ -36,8 +36,8 @@ enum class RequestDecoderStatus : uint8_t {
   kDecoded,
 };
 
-// Most of these are based on HTTP Response Status Codes, the others are below
-// 100 (HTTP's continue status).
+// Most of these are based on HTTP Response mcucore::Status Codes, the others
+// are below 100 (HTTP's continue status).
 enum class EHttpStatusCode : uint16_t {
   // kContinueDecoding is first/zero because it will be the default value
   // returned by gmock, thus saving us the trouble of adding
@@ -57,10 +57,11 @@ enum class EHttpStatusCode : uint16_t {
   kHttpOk = 200,
 
   // NOTE: Each values in the 4xx and 5xx range should have a corresponding
-  // Literal in literals.inc, and a case in the switch statement in
+  // mcucore::Literal in literals.inc, and a case in the switch statement in
   // WriteResponse::HttpErrorResponse.
   //
-  // TODO(jamessynge): Consider adding an 'error code space' to Status so that
+  // TODO(jamessynge): Consider adding an 'error code space' to mcucore::Status
+  // so that
   // we can support two or three spaces: ASCOM error codes, HTTP status codes,
   // and possibly Unix errno values. That could help avoid the need for the
   // switch statement in WriteResponse::HttpErrorResponse, which has the effect

@@ -20,24 +20,25 @@
 
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
+#include "array_view.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "server_description.h"
 #include "server_sockets_and_connections.h"
-#include "utils/array_view.h"
 
 namespace alpaca {
 
 class TinyAlpacaServerBase : public RequestListener {
  public:
   TinyAlpacaServerBase(const ServerDescription& server_description,
-                       ArrayView<DeviceInterface*> devices);
+                       mcucore::ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
   TinyAlpacaServerBase(const ServerDescription& server_description,
                        DeviceInterface* (&devices)[N])
       : TinyAlpacaServerBase(server_description,
-                             ArrayView<DeviceInterface*>(devices, N)) {}
+                             mcucore::ArrayView<DeviceInterface*>(devices, N)) {
+  }
 
   // Calls Initialize on the nested objects. Returns true if all of the objects
   // are successfully initialized.
@@ -66,14 +67,14 @@ class TinyAlpacaServer : TinyAlpacaServerBase {
  public:
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
-                   ArrayView<DeviceInterface*> devices);
+                   mcucore::ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
   TinyAlpacaServer(uint16_t tcp_port,
                    const ServerDescription& server_description,
                    DeviceInterface* (&devices)[N])
       : TinyAlpacaServer(tcp_port, server_description,
-                         ArrayView<DeviceInterface*>(devices, N)) {}
+                         mcucore::ArrayView<DeviceInterface*>(devices, N)) {}
 
   // Calls Initialize on the nested objects, e.g. initializes sockets so they
   // listen for connections to tcp_port. Returns true if all of the objects are

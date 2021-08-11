@@ -10,21 +10,21 @@
 // Author: james.synge@gmail.com
 
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/progmem_string.h"
-#include "utils/json_encoder.h"
-#include "utils/literal.h"
-#include "utils/string_view.h"
+#include "json_encoder.h"
+#include "literal.h"
+#include "mcucore_platform.h"
+#include "progmem_string.h"
+#include "string_view.h"
 
 namespace alpaca {
 
 // There must be one instance of DeviceInfo per device in a sketch.
 struct DeviceInfo {
   // Write the ConfiguredDevices description of this server to the specified
-  // JsonObjectEncoder. The encoder should be for the nested object that is the
-  // value of the "Value" property of the response object, NOT the outermost
-  // object that is the body of the response to /man
-  void AddTo(JsonObjectEncoder& object_encoder) const;
+  // mcucore::JsonObjectEncoder. The encoder should be for the nested object
+  // that is the value of the "Value" property of the response object, NOT the
+  // outermost object that is the body of the response to /man
+  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const;
 
   // One of the supported ASCOM Devices types such as Telescope, Camera,
   // Focuser, etc.
@@ -38,30 +38,30 @@ struct DeviceInfo {
   // A short name for this device that a user would expect to see in a list of
   // available devices. Returned in the ConfiguredDevicesResponse and in the
   // response to the /name method of the device API.
-  ProgmemString name;
+  mcucore::ProgmemString name;
 
   // A string representation of a random value that uniquely identifies this
   // ASCOM device; the random value should have a minimum of 48bits of
   // randomness. Where possible a UUID / GUID should be used, but this is not
   // mandatory. Returned in the ConfiguredDevicesResponse.
-  ProgmemString unique_id;
+  mcucore::ProgmemString unique_id;
 
   // The description of the device. Returned in response to the /description
   // method of the device API.
-  ProgmemString description;
+  mcucore::ProgmemString description;
 
   // The description of the device driver. Returned in response to the
   // /driverinfo method of the device API.
-  ProgmemString driver_info;
+  mcucore::ProgmemString driver_info;
 
   // The driver version (a string containing only the major and minor version of
   // the driver). Returned in response to the /driverversion method of the
   // device API.
-  ProgmemString driver_version;
+  mcucore::ProgmemString driver_version;
 
   // The list of device-specific action names that the device supports. This is
   // returned in the response to the /supportedactions method of the device API.
-  LiteralArray supported_actions;
+  mcucore::LiteralArray supported_actions;
 
   // The ASCOM Device interface version number that this device supports.
   // Returned in response to the /interfaceversion method of the device API;

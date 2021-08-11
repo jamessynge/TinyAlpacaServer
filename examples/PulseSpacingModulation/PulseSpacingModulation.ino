@@ -155,7 +155,7 @@ void AdjustTimerPeriod(uint32_t period_ns) {
   TAS_VLOG(1) << TAS_FLASHSTR("period_ns=") << period_ns
               << TAS_FLASHSTR(", target_top=") << target_top
               << TAS_FLASHSTR(", top=") << top << TAS_FLASHSTR(" (")
-              << alpaca::BaseHex << top << TAS_FLASHSTR("), a=") << a
+              << mcucore::BaseHex << top << TAS_FLASHSTR("), a=") << a
               << TAS_FLASHSTR(", b=") << b;
   delay(20);
 

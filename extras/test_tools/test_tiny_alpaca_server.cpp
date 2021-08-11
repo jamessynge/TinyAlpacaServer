@@ -6,23 +6,23 @@
 
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
+#include "array_view.h"
 #include "device_interface.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
 #include "extras/test_tools/string_io_connection.h"
+#include "inline_literal.h"
+#include "logging.h"
 #include "mcucore/extrashost/ethernet5500/ethernet_config.h"
+#include "o_print_stream.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"
-#include "utils/array_view.h"
 
 namespace alpaca {
 namespace test {
 
 TestTinyAlpacaServer::TestTinyAlpacaServer(
     const ServerDescription& server_description,
-    ArrayView<DeviceInterface*> devices)
+    mcucore::ArrayView<DeviceInterface*> devices)
     : TinyAlpacaServerBase(server_description, devices),
       server_connection_(*this),
       sock_num_(0) {}

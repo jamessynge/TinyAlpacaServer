@@ -15,8 +15,8 @@
 
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "utils/status_or.h"
+#include "mcucore_platform.h"
+#include "status_or.h"
 
 namespace alpaca {
 
@@ -52,18 +52,18 @@ class CoverCalibratorAdapter : public DeviceImplBase {
   // unimplemented error.
 
   // Returns the current calibrator brightness.
-  virtual StatusOr<int32_t> GetBrightness();
+  virtual mcucore::StatusOr<int32_t> GetBrightness();
 
   // Returns the state of the calibration device, or kUnknown if not overridden
   // by a subclass.
-  virtual StatusOr<ECalibratorStatus> GetCalibratorState();
+  virtual mcucore::StatusOr<ECalibratorStatus> GetCalibratorState();
 
   // Returns the state of the device cover, or kUnknown if not overridden by a
   // subclass.
-  virtual StatusOr<ECoverStatus> GetCoverState();
+  virtual mcucore::StatusOr<ECoverStatus> GetCoverState();
 
   // Returns the calibrator's maximum Brightness value.
-  virtual StatusOr<int32_t> GetMaxBrightness();
+  virtual mcucore::StatusOr<int32_t> GetMaxBrightness();
 
   //////////////////////////////////////////////////////////////////////////////
   // Handlers for mutating requests (e.g. "/closecover"). These return true to
@@ -77,13 +77,13 @@ class CoverCalibratorAdapter : public DeviceImplBase {
   virtual bool HandlePutOpenCover(const AlpacaRequest& request, Print& out);
 
   // The above HandlePut* methods delegate to the following methods after
-  // validating arguments, and generate responses based on the returned Status
-  // values.
-  virtual Status SetCalibratorOff();
-  virtual Status SetCalibratorBrightness(uint32_t brightness);
+  // validating arguments, and generate responses based on the returned
+  // mcucore::Status values.
+  virtual mcucore::Status SetCalibratorOff();
+  virtual mcucore::Status SetCalibratorBrightness(uint32_t brightness);
 
-  virtual Status MoveCover(bool open);
-  virtual Status HaltCoverMotion();
+  virtual mcucore::Status MoveCover(bool open);
+  virtual mcucore::Status HaltCoverMotion();
 };
 
 }  // namespace alpaca

@@ -11,7 +11,7 @@
 
 #include "alpaca_request.h"
 #include "config.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "request_decoder.h"
 #include "request_listener.h"
 #include "utils/socket_listener.h"

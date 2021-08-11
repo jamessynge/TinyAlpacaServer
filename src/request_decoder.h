@@ -9,9 +9,9 @@
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
+#include "mcucore_platform.h"
 #include "request_decoder_listener.h"
-#include "utils/string_view.h"
+#include "string_view.h"
 
 namespace alpaca {
 
@@ -21,7 +21,8 @@ namespace alpaca {
 // HTTP error message, thus not needing a large buffer.
 
 struct RequestDecoderState {
-  using DecodeFunction = EHttpStatusCode (*)(RequestDecoderState&, StringView&);
+  using DecodeFunction = EHttpStatusCode (*)(RequestDecoderState&,
+                                             mcucore::StringView&);
 
   explicit RequestDecoderState(AlpacaRequest& request,
                                RequestDecoderListener* listener = nullptr);
@@ -31,7 +32,7 @@ struct RequestDecoderState {
 
   // Repeatedly applies the current decode function to the input until done,
   // needs more input than is in buffer, or an error is detected.
-  EHttpStatusCode DecodeBuffer(StringView& buffer, bool buffer_is_full,
+  EHttpStatusCode DecodeBuffer(mcucore::StringView& buffer, bool buffer_is_full,
                                bool at_end_of_input);
 
   // Set the next function to be used for decoding the input. Returns
@@ -51,10 +52,12 @@ struct RequestDecoderState {
 
  private:
   // Decode the portion of the current message's header that is in buffer.
-  EHttpStatusCode DecodeMessageHeader(StringView& buffer, bool at_end_of_input);
+  EHttpStatusCode DecodeMessageHeader(mcucore::StringView& buffer,
+                                      bool at_end_of_input);
 
   // Decode the portion of the current message's body that is in buffer.
-  EHttpStatusCode DecodeMessageBody(StringView& buffer, bool at_end_of_input);
+  EHttpStatusCode DecodeMessageBody(mcucore::StringView& buffer,
+                                    bool at_end_of_input);
 
   // The status of decoding the current request.
   RequestDecoderStatus decoder_status;

@@ -35,8 +35,8 @@
 // Author: james.synge@gmail.com
 
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "utils/status_or.h"
+#include "mcucore_platform.h"
+#include "status_or.h"
 
 namespace alpaca {
 
@@ -125,7 +125,7 @@ class SwitchAdapter : public DeviceImplBase {
   //
   // In both cases the driver should save a local copy of the state which it
   // last set and return this through GetSwitch and GetSwitchValue.
-  virtual StatusOr<bool> GetSwitch(uint16_t switch_id) = 0;
+  virtual mcucore::StatusOr<bool> GetSwitch(uint16_t switch_id) = 0;
 
   // Returns the value of switch device id as a double, which is expected to be
   // between MinSwitchValue and MaxSwitchValue. Must be implemented, must
@@ -141,7 +141,7 @@ class SwitchAdapter : public DeviceImplBase {
   //
   // In both cases the driver should save a local copy of the state which it
   // last set and return this through GetSwitch and GetSwitchValue.
-  virtual StatusOr<double> GetSwitchValue(uint16_t switch_id) = 0;
+  virtual mcucore::StatusOr<double> GetSwitchValue(uint16_t switch_id) = 0;
 
   //////////////////////////////////////////////////////////////////////////////
   // SwitchStep, MinSwitchValue and MaxSwitchValue can be used to determine the
@@ -176,14 +176,14 @@ class SwitchAdapter : public DeviceImplBase {
   // Returns MethodNotImplementedException if CanWrite is False. GetSwitchValue
   // must return MaxSwitchValue if the set state is true and MinSwitchValue if
   // the set state is false.
-  virtual Status SetSwitch(uint16_t switch_id, bool state) = 0;
+  virtual mcucore::Status SetSwitch(uint16_t switch_id, bool state) = 0;
 
   // Sets a switch device value to the specified value, whose value has been
   // verified to be between MinSwitchValue and MaxSwitchValue. A set value that
   // is intermediate between the values specified by SwitchStep should result in
   // the device being set to an achievable value close to the requested set
   // value.
-  virtual Status SetSwitchValue(uint16_t switch_id, double value) = 0;
+  virtual mcucore::Status SetSwitchValue(uint16_t switch_id, double value) = 0;
 
  protected:
   // Returns true if the request has a valid ID parameter, else false, in which

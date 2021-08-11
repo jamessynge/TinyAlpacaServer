@@ -13,8 +13,8 @@ cc_library(
     hdrs = ["cover.h"],
     deps = [
         ":constants",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
-        "//src:TinyAlpacaServer",
     ],
 )
 
@@ -25,8 +25,8 @@ cc_library(
     deps = [
         ":constants",
         ":cover",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
-        "//src:TinyAlpacaServer",
     ],
 )
 
@@ -36,7 +36,7 @@ cc_library(
     hdrs = ["led_channel_switch_group.h"],
     deps = [
         ":cover_calibrator",
-        "//src:TinyAlpacaServer",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
     ],
 )
 
@@ -47,7 +47,7 @@ cc_library(
     deps = [
         ":cover_calibrator",
         ":led_channel_switch_group",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
-        "//src:TinyAlpacaServer",
     ],
 )

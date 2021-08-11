@@ -1,10 +1,10 @@
 #include "alpaca_discovery_server.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/o_print_stream.h"
-#include "utils/hex_escape.h"
-#include "utils/literal.h"
-#include "utils/string_compare.h"
-#include "utils/string_view.h"
+#include "hex_escape.h"
+#include "literal.h"
+#include "o_print_stream.h"
+#include "string_compare.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace {
@@ -37,9 +37,10 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
   // Read the packet into the buffer.
   char buffer[kDiscoveryMessage().size()];
   auto copied = udp_.read(buffer, packet_size);
-  StringView view(buffer, copied);
+  mcucore::StringView view(buffer, copied);
 
-  TAS_VLOG(1) << TAS_FLASHSTR("UDP message contents: ") << HexEscaped(view);
+  TAS_VLOG(1) << TAS_FLASHSTR("UDP message contents: ")
+              << mcucore::HexEscaped(view);
 
   if (copied != packet_size) {
     // Ignoring unexpected message.
@@ -59,8 +60,9 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
 
   // Yes, looks like an ASCOM Alpaca discovery message. Tell the requestor the
   // TCP port on which we are listening for ASCOM Alpaca HTTP requests. Note
-  // that we could implement a JsonPropertySource to generate the JSON, but it
-  // is so simple that it takes less Flash storage to generate it explicitly.
+  // that we could implement a mcucore::JsonPropertySource to generate the JSON,
+  // but it is so simple that it takes less Flash storage to generate it
+  // explicitly.
   udp_.beginPacket(udp_.remoteIP(), udp_.remotePort());
   kAlpacaPortStart().printTo(udp_);
   udp_.print(tcp_port_, DEC);

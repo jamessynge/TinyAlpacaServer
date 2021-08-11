@@ -1,42 +1,42 @@
 #!/usr/bin/env python3
 """Makes /management/v1/configureddevices requests, prints responses.
 
-Usage: get_configured_devices.py [request_count [server_addr[:port]]]
+Usage: get_configured_devices.py [--url_base=1.2.3.4:8080]
 """
 
-import random
-import sys
-from typing import List
+import argparse
 
+import alpaca_discovery
 import alpaca_http_client
 
 
-def main(argv: List[str]) -> None:
-  if not argv:
-    request_count = 1
-  else:
-    request_count = int(argv.pop(0))
+def main() -> None:
+  parser = argparse.ArgumentParser(
+      description='Get configured devices.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          alpaca_http_client.make_url_base_parser(),
+          alpaca_http_client.make_device_number_parser(),
+          alpaca_http_client.make_device_type_parser(),
+      ])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
+  servers = alpaca_http_client.find_servers(**cli_kwargs)
 
-  if not argv:
-    client = alpaca_http_client.AlpacaHttpClient.find_first_server(
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
-    if not client:
-      print('Found no servers!', file=sys.stderr)
-      sys.exit(1)
-  else:
-    client = alpaca_http_client.AlpacaHttpClient(
-        argv.pop(0),
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
+  print(f'Found {len(servers)} Alpaca server{"" if len(servers) == 1 else "s"}')
 
-  try:
-    for _ in range(request_count):
-      client.get_configureddevices()
-  except KeyboardInterrupt:
-    pass
-  client.session.close()
+  for server in servers:
+    print()
+    print(f'URL base: {server.url_base}')
+    for cd in server.configured_devices():
+      print()
+      print(f'  Device #: {cd.device_number}')
+      print(f'      Type: {cd.device_type.name}')
+      print(f'      Name: {cd.device_name}')
+      print(f'  UniqueID: {cd.unique_id}', flush=True)
+
+  print()
 
 
 if __name__ == '__main__':
-  main(sys.argv[1:])
+  main()

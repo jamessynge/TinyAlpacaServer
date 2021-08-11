@@ -8,7 +8,7 @@
 #include "constants.h"
 #include "gmock/gmock.h"
 #include "request_decoder_listener.h"
-#include "utils/string_view.h"
+#include "string_view.h"
 
 namespace alpaca {
 namespace test {
@@ -16,17 +16,17 @@ namespace test {
 class MockRequestDecoderListener : public RequestDecoderListener {
  public:
   MOCK_METHOD(EHttpStatusCode, OnExtraParameter,
-              (EParameter, const StringView&), (override));
-  MOCK_METHOD(EHttpStatusCode, OnExtraHeader, (EHttpHeader, const StringView&),
-              (override));
-  MOCK_METHOD(EHttpStatusCode, OnUnknownParameterName, (const StringView&),
-              (override));
-  MOCK_METHOD(EHttpStatusCode, OnUnknownParameterValue, (const StringView&),
-              (override));
-  MOCK_METHOD(EHttpStatusCode, OnUnknownHeaderName, (const StringView&),
-              (override));
-  MOCK_METHOD(EHttpStatusCode, OnUnknownHeaderValue, (const StringView&),
-              (override));
+              (EParameter, const mcucore::StringView&), (override));
+  MOCK_METHOD(EHttpStatusCode, OnExtraHeader,
+              (EHttpHeader, const mcucore::StringView&), (override));
+  MOCK_METHOD(EHttpStatusCode, OnUnknownParameterName,
+              (const mcucore::StringView&), (override));
+  MOCK_METHOD(EHttpStatusCode, OnUnknownParameterValue,
+              (const mcucore::StringView&), (override));
+  MOCK_METHOD(EHttpStatusCode, OnUnknownHeaderName,
+              (const mcucore::StringView&), (override));
+  MOCK_METHOD(EHttpStatusCode, OnUnknownHeaderValue,
+              (const mcucore::StringView&), (override));
 };
 
 }  // namespace test

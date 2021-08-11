@@ -51,7 +51,10 @@ pytype_strict_binary(
     srcs = ["am_weather_box.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [":alpaca_http_client_lib"],
+    deps = [
+        ":alpaca_discovery_lib",
+        ":alpaca_http_client_lib",
+    ],
 )
 
 pytype_strict_binary(
@@ -59,7 +62,10 @@ pytype_strict_binary(
     srcs = ["cover_calibrator.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [":alpaca_http_client_lib"],
+    deps = [
+        ":alpaca_discovery_lib",
+        ":alpaca_http_client_lib",
+    ],
 )
 
 pytype_strict_binary(
@@ -67,7 +73,10 @@ pytype_strict_binary(
     srcs = ["get_api_versions.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [":alpaca_http_client_lib"],
+    deps = [
+        ":alpaca_discovery_lib",
+        ":alpaca_http_client_lib",
+    ],
 )
 
 pytype_strict_binary(
@@ -75,7 +84,10 @@ pytype_strict_binary(
     srcs = ["get_configured_devices.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [":alpaca_http_client_lib"],
+    deps = [
+        ":alpaca_discovery_lib",
+        ":alpaca_http_client_lib",
+    ],
 )
 
 pytype_strict_library(
@@ -89,5 +101,8 @@ pytype_strict_binary(
     srcs = ["set_brightness.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [":alpaca_http_client_lib"],
+    deps = [
+        ":alpaca_discovery_lib",
+        ":alpaca_http_client_lib",
+    ],
 )

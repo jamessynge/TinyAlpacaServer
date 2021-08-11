@@ -4,39 +4,32 @@
 Usage: get_api_versions.py [request_count [server_addr[:port]]]
 """
 
-import random
-import sys
-from typing import List
+import argparse
 
+import alpaca_discovery
 import alpaca_http_client
 
 
-def main(argv: List[str]) -> None:
-  if not argv:
-    request_count = 1
-  else:
-    request_count = int(argv.pop(0))
+def main() -> None:
+  parser = argparse.ArgumentParser(
+      description='Get supported Alpaca API versions.',
+      parents=[
+          alpaca_discovery.make_discovery_parser(),
+          alpaca_http_client.make_url_base_parser(),
+          alpaca_http_client.make_device_number_parser(),
+          alpaca_http_client.make_device_type_parser(),
+      ])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
+  servers = alpaca_http_client.find_servers(**cli_kwargs)
 
-  if not argv:
-    client = alpaca_http_client.AlpacaHttpClient.find_first_server(
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
-    if not client:
-      print('Found no servers!', file=sys.stderr)
-      sys.exit(1)
-  else:
-    client = alpaca_http_client.AlpacaHttpClient(
-        argv.pop(0),
-        client_id=random.randint(0, 10),
-        initial_client_transaction_id=random.randint(10, 20))
+  print(f'Found {len(servers)} Alpaca server{"" if len(servers) == 1 else "s"}')
 
-  try:
-    for _ in range(request_count):
-      client.get_apiversions()
-  except KeyboardInterrupt:
-    pass
-  client.session.close()
+  for server in servers:
+    print()
+    print(f'URL base: {server.url_base}')
+    print(f'API versions: {server.apiversions()!r}')
 
 
 if __name__ == '__main__':
-  main(sys.argv[1:])
+  main()

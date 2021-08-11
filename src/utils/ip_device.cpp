@@ -10,8 +10,8 @@
 
 #include "utils/ip_device.h"
 
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "inline_literal.h"
+#include "logging.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
@@ -84,11 +84,12 @@ bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
     Ethernet.macAddress(mac.mac);
     if (!(mac == addresses.mac)) {
       // Oops, this isn't the right board to run this sketch.
-      LogSink() << TAS_FLASHSTR("Found no networking hardware");
+      mcucore::LogSink() << TAS_FLASHSTR("Found no networking hardware");
       return false;
     }
 
-    LogSink() << TAS_FLASHSTR("No DHCP, using default IP ") << addresses.ip;
+    mcucore::LogSink() << TAS_FLASHSTR("No DHCP, using default IP ")
+                       << addresses.ip;
 
     // No DHCP server responded with a lease on an IP address, so we'll
     // fallback to using our randomly generated IP.
@@ -127,11 +128,11 @@ int IpDevice::MaintainDhcpLease() {
 void IpDevice::PrintNetworkAddresses() {
   alpaca::MacAddress mac;
   Ethernet.macAddress(mac.mac);
-  LogSink() << TAS_FLASHSTR("MAC: ") << mac;
-  LogSink() << TAS_FLASHSTR("IP: ") << Ethernet.localIP();
-  LogSink() << TAS_FLASHSTR("Subnet: ") << Ethernet.subnetMask();
-  LogSink() << TAS_FLASHSTR("Gateway: ") << Ethernet.gatewayIP();
-  LogSink() << TAS_FLASHSTR("DNS: ") << Ethernet.dnsServerIP();
+  mcucore::LogSink() << TAS_FLASHSTR("MAC: ") << mac;
+  mcucore::LogSink() << TAS_FLASHSTR("IP: ") << Ethernet.localIP();
+  mcucore::LogSink() << TAS_FLASHSTR("Subnet: ") << Ethernet.subnetMask();
+  mcucore::LogSink() << TAS_FLASHSTR("Gateway: ") << Ethernet.gatewayIP();
+  mcucore::LogSink() << TAS_FLASHSTR("DNS: ") << Ethernet.dnsServerIP();
 }
 
 }  // namespace alpaca

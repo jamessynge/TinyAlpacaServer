@@ -1,19 +1,19 @@
 #include "device_info.h"
 
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
 #include "gtest/gtest.h"
+#include "inline_literal.h"
+#include "json_encoder.h"
+#include "json_encoder_helpers.h"
+#include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "utils/json_encoder.h"
-#include "utils/json_encoder_helpers.h"
-#include "utils/literal.h"
 
 // Defining everything outside of the alpaca namespace as is expected for a real
 // device.
 
-const alpaca::Literal kActionLiterals[] = {TASLIT("ActionA"),
-                                           TASLIT("Action2")};
-const auto kSupportedActions = alpaca::LiteralArray(kActionLiterals);
+const mcucore::Literal kActionLiterals[] = {TASLIT("ActionA"),
+                                            TASLIT("Action2")};
+const auto kSupportedActions = mcucore::LiteralArray(kActionLiterals);
 
 TAS_DEFINE_LITERAL(DeviceName, "AbcDeviceName");
 TAS_DEFINE_LITERAL(DeviceDescription, "The Device Desc.");
@@ -40,8 +40,8 @@ namespace {
 
 TEST(DeviceInfoTest, Output) {
   mcucore::test::PrintToStdString out;
-  JsonPropertySourceAdapter<DeviceInfo> adapter(kDeviceInfo);
-  JsonObjectEncoder::Encode(adapter, out);
+  mcucore::JsonPropertySourceAdapter<DeviceInfo> adapter(kDeviceInfo);
+  mcucore::JsonObjectEncoder::Encode(adapter, out);
   EXPECT_EQ(out.str(), R"({"DeviceName": "AbcDeviceName", )"
                        R"("DeviceType": "Camera", )"
                        R"("DeviceNumber": 312, )"

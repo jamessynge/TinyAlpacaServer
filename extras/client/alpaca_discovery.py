@@ -7,10 +7,11 @@ sending the UDP discovery message.
 Note that I've chosen to omit support for IPv6 because I don't need it for
 testing Tiny Alpaca Server.
 
-TODO(jamessynge): Figure out why the discovery threads seem to end before the
-maximum wait time specified.
+TODO(jamessynge): Figure out if I can NOT use netifaces to get the network
+interface information.
 """
 
+import argparse
 import dataclasses
 import json
 import pprint
@@ -42,6 +43,7 @@ import netifaces  # pylint: disable=g-import-not-at-top,g-bad-import-order
 ALPACA_DISCOVERY_PORT = 32227
 DISCOVERY_REQUEST_BODY = 'alpacadiscovery1'
 ALPACA_SERVER_PORT_PROPERTY = 'alpacaport'
+DEFAULT_DISCOVERY_SECS = 2.0
 
 
 @dataclasses.dataclass
@@ -70,9 +72,18 @@ class DiscoverySource:
     # sock.setblocking(0)
     return sock
 
-  def send_discovery_packet(self, sock: socket.socket):
-    action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
-    print(f'{action} from {self.src_address} to {self.dst_address}', flush=True)
+  def send_discovery_packet(self, sock: socket.socket, verbose=False):
+    """Writes an Alpaca Discovery UDP Packet to sock."""
+    if verbose:
+      action = 'Broadcasting' if self.dst_is_broadcast else 'Sending'
+      # Appending a \n explicitly because multiple threads will output strings,
+      # and I've found that the default end value is output as a separate
+      # operation that can come after the "Collected..." string from another
+      # thread.
+      print(
+          f'{action} from {self.src_address} to {self.dst_address}\n',
+          flush=True,
+          end='')
     sock.sendto(
         DISCOVERY_REQUEST_BODY.encode(encoding='ascii'),
         (self.dst_address, ALPACA_DISCOVERY_PORT))
@@ -80,6 +91,8 @@ class DiscoverySource:
 
 @dataclasses.dataclass
 class DiscoveryResponse:
+  """Represents an Alpaca Discovery Protocol Response from an Alpaca Server."""
+
   source: DiscoverySource
   data_bytes: bytes
   recvfrom_addr: str
@@ -130,9 +143,9 @@ def generate_discovery_sources() -> Generator[DiscoverySource, None, None]:
           dst_is_broadcast=False)
 
 
-def receiver(sock: socket.socket, max_wait_time: float,
+def receiver(sock: socket.socket, max_discovery_secs: float,
              response_queue: queue.Queue) -> None:
-  sock.settimeout(max_wait_time)
+  sock.settimeout(max_discovery_secs)
   while True:
     try:
       data_bytes, addr = sock.recvfrom(1024)
@@ -150,11 +163,13 @@ class Discoverer(object):
 
   def perform_discovery(self,
                         response_queue: queue.Queue,
-                        max_wait_time: float = 5.0) -> threading.Thread:
+                        max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
+                        verbose=False) -> threading.Thread:
     """Returns a thread which writes DiscoveryResponses to response_queue."""
 
     def worker():
-      for r in self.generate_responses(max_wait_time=max_wait_time):
+      for r in self.generate_responses(
+          max_discovery_secs=max_discovery_secs, verbose=verbose):
         response_queue.put(r)
 
     t = threading.Thread(target=worker, name=self.source.get_name())
@@ -163,15 +178,16 @@ class Discoverer(object):
 
   def generate_responses(
       self,
-      max_wait_time: float = 5.0) -> Generator[DiscoveryResponse, None, None]:
+      max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
+      verbose=False) -> Generator[DiscoveryResponse, None, None]:
     """Yields DiscoveryResponses after sending from the source address."""
     sock = self.source.create_bound_udp_socket()
     q = queue.Queue(maxsize=1000)
-    t = threading.Thread(target=receiver, args=(sock, max_wait_time, q))
+    t = threading.Thread(target=receiver, args=(sock, max_discovery_secs, q))
     t.start()
-    iota = max(0.001, min(0.05, max_wait_time / 100.0))
+    iota = max(0.001, min(0.05, max_discovery_secs / 100.0))
     time.sleep(iota)
-    self.source.send_discovery_packet(sock)
+    self.source.send_discovery_packet(sock, verbose=verbose)
     count = 0
     while t.is_alive():
       try:
@@ -192,38 +208,60 @@ class Discoverer(object):
           data_bytes=data_bytes,
           recvfrom_addr=addr,
           recvfrom_port=port)
-    print(
-        f'Collected {count} responses for source {self.source.get_name()}',
-        flush=True)
+    if verbose:
+      # Appending a \n explicitly because multiple threads will output strings,
+      # and I've found that the default end value is output as a separate
+      # operation that can come after the "Collected..." string from another
+      # thread.
+      print(
+          f'Collected {count} responses for source {self.source.get_name()}\n',
+          flush=True,
+          end='')
 
 
 def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
                       sources: Optional[List[DiscoverySource]] = None,
-                      max_wait_time: float = 5.0) -> None:
+                      max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
+                      verbose=False) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
   if sources is None:
+    if verbose:
+      print('Finding network interfaces to use for discovery.')
     sources = list(generate_discovery_sources())
   discoverers = [Discoverer(source) for source in sources]
   q = queue.Queue(maxsize=1000)
-  threads = [
-      d.perform_discovery(response_queue=q, max_wait_time=max_wait_time)
-      for d in discoverers
-  ]
+  threads = []
+  for d in discoverers:
+    threads.append(
+        d.perform_discovery(
+            response_queue=q,
+            max_discovery_secs=max_discovery_secs,
+            verbose=verbose))
+  start_secs = time.time()
   while threads:
     if not threads[0].is_alive():
       t = threads.pop(0)
-      print('Thread %r is done' % t.name, flush=True)
+      if verbose:
+        print('Thread %r is done' % t.name, flush=True)
       t.join()
     while not q.empty():
       dr = q.get(block=False)
       discovery_response_handler(dr)
     time.sleep(0.01)
+  end_secs = time.time()
+  if verbose:
+    elapsed_secs = end_secs - start_secs
+    print(f'perform_discovery: elapsed_secs={elapsed_secs}')
+    if elapsed_secs < max_discovery_secs:
+      print(
+          f'perform_discovery: ended {max_discovery_secs - elapsed_secs}s early'
+      )
 
 
-def find_first_server(
-    max_wait_time: float = 5.0) -> Optional[DiscoveryResponse]:
-  """Return the first server to respond within max_wait_time, else None."""
+def find_first_server(max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
+                      verbose=False) -> Optional[DiscoveryResponse]:
+  """Return the first server to respond within max_discovery_secs, else None."""
   result = None
 
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
@@ -232,16 +270,40 @@ def find_first_server(
       return
     result = dr
 
-  perform_discovery(discovery_response_handler, max_wait_time=max_wait_time)
+  perform_discovery(
+      discovery_response_handler,
+      max_discovery_secs=max_discovery_secs,
+      verbose=verbose)
   return result
 
 
+def make_discovery_parser() -> argparse.ArgumentParser:
+  """Returns a parser for discovery operations."""
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument(
+      '--max_discovery_secs',
+      metavar='SECONDS',
+      type=float,
+      default=DEFAULT_DISCOVERY_SECS,
+      help='Time to wait (seconds) for Alpaca Discovery responses.')
+  parser.add_argument(
+      '--verbose',
+      '-v',
+      action='store_true',
+      help='Print more messages about what the program is doing.')
+  return parser
+
+
 def main():
+  parser = argparse.ArgumentParser(
+      description='Find Alpaca servers.', parents=[make_discovery_parser()])
+  cli_args = parser.parse_args()
+  cli_kwargs = vars(cli_args)
 
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
     pprint.pprint(dr)
 
-  perform_discovery(discovery_response_handler)
+  perform_discovery(discovery_response_handler, **cli_kwargs)
 
 
 if __name__ == '__main__':

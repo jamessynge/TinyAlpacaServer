@@ -4,11 +4,11 @@
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/inline_literal.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/logging.h"
+#include "inline_literal.h"
 #include "literals.h"
-#include "utils/printable_cat.h"
-#include "utils/status.h"
+#include "logging.h"
+#include "printable_cat.h"
+#include "status.h"
 
 namespace alpaca {
 
@@ -111,7 +111,7 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
   }
 }
 
-StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
   if (MaxAveragePeriod() == 0) {
     return 0;
   } else {
@@ -121,51 +121,51 @@ StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
     return ErrorCodes::NotImplemented();
   }
 }
-StatusOr<double> ObservingConditionsAdapter::GetCloudCover() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetCloudCover() {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetDewPoint() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetDewPoint() {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetHumidity() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetHumidity() {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetPressure() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetPressure() {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetRainRate() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetRainRate() {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<Literal> ObservingConditionsAdapter::GetSensorDescription(
+mcucore::StatusOr<mcucore::Literal>
+ObservingConditionsAdapter::GetSensorDescription(ESensorName sensor_name) {
+  return ErrorCodes::NotImplemented();
+}
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetSkyBrightness() {
+  return ErrorCodes::NotImplemented();
+}
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetSkyQuality() {
+  return ErrorCodes::NotImplemented();
+}
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetSkyTemperature() {
+  return ErrorCodes::NotImplemented();
+}
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetStarFWHM() {
+  return ErrorCodes::NotImplemented();
+}
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetTemperature() {
+  return ErrorCodes::NotImplemented();
+}
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetTimeSinceLastUpdate(
     ESensorName sensor_name) {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetSkyBrightness() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetWindDirection() {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetSkyQuality() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetWindGust() {
   return ErrorCodes::NotImplemented();
 }
-StatusOr<double> ObservingConditionsAdapter::GetSkyTemperature() {
-  return ErrorCodes::NotImplemented();
-}
-StatusOr<double> ObservingConditionsAdapter::GetStarFWHM() {
-  return ErrorCodes::NotImplemented();
-}
-StatusOr<double> ObservingConditionsAdapter::GetTemperature() {
-  return ErrorCodes::NotImplemented();
-}
-StatusOr<double> ObservingConditionsAdapter::GetTimeSinceLastUpdate(
-    ESensorName sensor_name) {
-  return ErrorCodes::NotImplemented();
-}
-StatusOr<double> ObservingConditionsAdapter::GetWindDirection() {
-  return ErrorCodes::NotImplemented();
-}
-StatusOr<double> ObservingConditionsAdapter::GetWindGust() {
-  return ErrorCodes::NotImplemented();
-}
-StatusOr<double> ObservingConditionsAdapter::GetWindSpeed() {
+mcucore::StatusOr<double> ObservingConditionsAdapter::GetWindSpeed() {
   return ErrorCodes::NotImplemented();
 }
 
@@ -204,10 +204,10 @@ bool ObservingConditionsAdapter::HandlePutAveragePeriod(
 
 double ObservingConditionsAdapter::MaxAveragePeriod() const { return 0; }
 
-Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
+mcucore::Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
   if (MaxAveragePeriod() == 0) {
     TAS_DCHECK_EQ(hours, 0);
-    return OkStatus();
+    return mcucore::OkStatus();
   } else {
     TAS_DCHECK(false) << TAS_FLASHSTR_128(
         "SetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
@@ -220,13 +220,13 @@ bool ObservingConditionsAdapter::HandlePutRefresh(const AlpacaRequest& request,
   return WriteResponse::StatusResponse(request, Refresh(), out);
 }
 
-Status ObservingConditionsAdapter::Refresh() {
+mcucore::Status ObservingConditionsAdapter::Refresh() {
   return ErrorCodes::NotImplemented();
 }
 
 bool ObservingConditionsAdapter::WriteDoubleOrSensorErrorResponse(
     const AlpacaRequest& request, ESensorName sensor_name,
-    StatusOr<double> result, Print& out) {
+    mcucore::StatusOr<double> result, Print& out) {
   if (result.ok()) {
     return WriteResponse::DoubleResponse(request, result.value(), out);
   } else if (result.status().code() == ErrorCodes::kNotImplemented) {
@@ -238,8 +238,9 @@ bool ObservingConditionsAdapter::WriteDoubleOrSensorErrorResponse(
 
 bool ObservingConditionsAdapter::WriteSensorNotImpementedResponse(
     const AlpacaRequest& request, ESensorName sensor_name, Print& out) {
-  auto error_message = PrintableCat(TAS_FLASHSTR("Sensor not implemented: "),
-                                    ToFlashStringHelper(sensor_name));
+  auto error_message =
+      mcucore::PrintableCat(TAS_FLASHSTR("Sensor not implemented: "),
+                            ToFlashStringHelper(sensor_name));
   return WriteResponse::AscomErrorResponse(request, ErrorCodes::kNotImplemented,
                                            error_message, out);
 }

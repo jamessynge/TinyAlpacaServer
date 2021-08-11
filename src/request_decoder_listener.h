@@ -7,8 +7,8 @@
 // Author: james.synge@gmail.com
 
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcucore/src/mcucore_platform.h"
-#include "utils/string_view.h"
+#include "mcucore_platform.h"
+#include "string_view.h"
 
 namespace alpaca {
 
@@ -27,27 +27,31 @@ class RequestDecoderListener {
   //
   // If this method returns kContinueDecoding, decoding continues. Any other
   // value is interpreted as an error, though the value should be an HTTP
-  // Response Status Code, not an enum whose underlying value is below 400
-  // kNeedMoreInput or kHttpOk(those are converted to kHttpInternalServerError).
+  // Response mcucore::Status Code, not an enum whose underlying value is below
+  // 400 kNeedMoreInput or kHttpOk(those are converted to
+  // kHttpInternalServerError).
   virtual EHttpStatusCode OnExtraParameter(EParameter param,
-                                           const StringView& value);
+                                           const mcucore::StringView& value);
 
   // Called to handle unrecognized parameters, with one call for the name and
   // another for the value. There is no guarantee that the name will still be
   // in the underlying buffer when the value method is called.
   // The return value is treated as described above.
-  virtual EHttpStatusCode OnUnknownParameterName(const StringView& name);
-  virtual EHttpStatusCode OnUnknownParameterValue(const StringView& value);
+  virtual EHttpStatusCode OnUnknownParameterName(
+      const mcucore::StringView& name);
+  virtual EHttpStatusCode OnUnknownParameterValue(
+      const mcucore::StringView& value);
 
   // Like OnExtraParameter, but for recognized but not directly supported
   // EHttpHeader values, or second appearances of the same supported header (an
   // error).
   virtual EHttpStatusCode OnExtraHeader(EHttpHeader header,
-                                        const StringView& value);
+                                        const mcucore::StringView& value);
 
   // Like the OnUnknownParameter* methods, but for unrecognized headers.
-  virtual EHttpStatusCode OnUnknownHeaderName(const StringView& name);
-  virtual EHttpStatusCode OnUnknownHeaderValue(const StringView& value);
+  virtual EHttpStatusCode OnUnknownHeaderName(const mcucore::StringView& name);
+  virtual EHttpStatusCode OnUnknownHeaderValue(
+      const mcucore::StringView& value);
 };
 
 }  // namespace alpaca
