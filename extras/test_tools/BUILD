@@ -139,10 +139,10 @@ cc_library(
         "//TinyAlpacaServer/src:server_description",
         "//TinyAlpacaServer/src:tiny_alpaca_server",
         "//absl/strings",
-        "//mcucore/extras/host/ethernet5500:ethernet_config",
         "//mcucore/src:array_view",
         "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:o_print_stream",
+        "//mcunet/extras/host/ethernet5500:ethernet_config",
     ],
 )

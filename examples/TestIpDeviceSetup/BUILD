@@ -7,6 +7,6 @@ cc_binary(
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/extras/host/arduino:arduino_main",
-        "//mcucore/extras/host/ethernet5500",
+        "//mcunet/extras/host/ethernet5500",
     ],
 )

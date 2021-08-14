@@ -74,10 +74,10 @@ cc_library(
     deps = [
         "//mcucore/extras/host/arduino:client",
         "//mcucore/extras/host/arduino:ip_address",
-        "//mcucore/extras/host/ethernet5500",
-        "//mcucore/extras/host/ethernet5500:host_sockets",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcunet/extras/host/ethernet5500",
+        "//mcunet/extras/host/ethernet5500:host_sockets",
     ],
 )
 

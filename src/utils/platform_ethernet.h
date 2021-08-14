@@ -25,7 +25,7 @@
 #include <Ethernet5500.h>  // IWYU pragma: export
 #include <IPAddress.h>     // IWYU pragma : export
 
-#include "mcucore/extrashost/ethernet5500/host_sockets.h"  // IWYU pragma: export
+#include "host/ethernet5500/host_sockets.h"  // IWYU pragma: export
 
 #endif  // ARDUINO
 
