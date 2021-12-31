@@ -31,10 +31,10 @@ constexpr char kErrorMessageName[] = "ErrorMessage";
 
 const ServerDescription kServerDescription  // NOLINT
     {
-        .server_name = TAS_FLASHSTR("OurServer"),
-        .manufacturer = TAS_FLASHSTR("Us"),
-        .manufacturer_version = TAS_FLASHSTR("0.0.1"),
-        .location = TAS_FLASHSTR("Right Here"),
+        .server_name = MCU_FLASHSTR("OurServer"),
+        .manufacturer = MCU_FLASHSTR("Us"),
+        .manufacturer_version = MCU_FLASHSTR("0.0.1"),
+        .location = MCU_FLASHSTR("Right Here"),
     };
 
 #define RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(json_value, json_type)             \
@@ -51,7 +51,7 @@ DecodeAndDispatchTestBase::DecodeAndDispatchTestBase() {}
 
 void DecodeAndDispatchTestBase::AddDeviceInterface(
     DeviceInterface& device_interface) {
-  TAS_CHECK(server_ == nullptr);
+  MCU_CHECK(server_ == nullptr);
   device_interfaces_.push_back(&device_interface);
 }
 
@@ -80,7 +80,7 @@ DecodeAndDispatchTestBase::GetDeviceInterfaces() {
 }
 
 std::string_view DecodeAndDispatchTestBase::GetDeviceTypeName() {
-  TAS_CHECK_EQ(device_interfaces_.size(), 1);
+  MCU_CHECK_EQ(device_interfaces_.size(), 1);
   const auto v = device_interfaces_[0]->device_type();
   switch (v) {
     case EDeviceType::kUnknown:
@@ -106,12 +106,12 @@ std::string_view DecodeAndDispatchTestBase::GetDeviceTypeName() {
     case EDeviceType::kTelescope:
       return "telescope";
   }
-  TAS_CHECK(false) << "Unknown device type: " << v;
+  MCU_CHECK(false) << "Unknown device type: " << v;
   return "";
 }
 
 uint32_t DecodeAndDispatchTestBase::GetDeviceNumber() {
-  TAS_CHECK_EQ(device_interfaces_.size(), 1);
+  MCU_CHECK_EQ(device_interfaces_.size(), 1);
   return device_interfaces_[0]->device_number();
 }
 

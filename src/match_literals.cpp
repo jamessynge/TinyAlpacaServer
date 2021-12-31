@@ -172,8 +172,8 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
         // is to return kHttpOk from the decoder if the request is well formed,
         // i.e. we don't want to decide too early that a kHttpBadRequest error
         // should be returned.
-        TAS_VLOG(2) << device_type
-                    << TAS_FLASHSTR(" is not supported by MatchDeviceMethod");
+        MCU_VLOG(2) << device_type
+                    << MCU_FLASHSTR(" is not supported by MatchDeviceMethod");
         break;
     }
     return internal::MatchCommonDeviceMethod(view, match);
@@ -182,8 +182,8 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
     MATCH_ONE_LITERAL_EXACTLY(setup, EDeviceMethod::kSetup);
     return false;
   } else {
-    TAS_CHECK(false) << TAS_FLASHSTR("api group (") << group
-                     << TAS_FLASHSTR(") is not device or setup");
+    MCU_CHECK(false) << MCU_FLASHSTR("api group (") << group
+                     << MCU_FLASHSTR(") is not device or setup");
     return false;
   }
 }

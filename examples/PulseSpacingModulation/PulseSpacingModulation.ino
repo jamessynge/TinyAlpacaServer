@@ -143,7 +143,7 @@ void AdjustTimerPeriod(uint32_t period_ns) {
     b |= static_cast<uint8_t>(ClockPrescaling::kDivideBy256);
     top = half_period_cycles / 256;
   } else {
-    TAS_DCHECK_LT(half_period_cycles, kMaxCount * 1024);
+    MCU_DCHECK_LT(half_period_cycles, kMaxCount * 1024);
     b |= static_cast<uint8_t>(ClockPrescaling::kDivideBy1024);
     top = half_period_cycles / 1024;
   }
@@ -152,11 +152,11 @@ void AdjustTimerPeriod(uint32_t period_ns) {
   auto initial_top = top * 32UL;
   top = min(65535UL, initial_top);
 
-  TAS_VLOG(1) << TAS_FLASHSTR("period_ns=") << period_ns
-              << TAS_FLASHSTR(", target_top=") << target_top
-              << TAS_FLASHSTR(", top=") << top << TAS_FLASHSTR(" (")
-              << mcucore::BaseHex << top << TAS_FLASHSTR("), a=") << a
-              << TAS_FLASHSTR(", b=") << b;
+  MCU_VLOG(1) << MCU_FLASHSTR("period_ns=") << period_ns
+              << MCU_FLASHSTR(", target_top=") << target_top
+              << MCU_FLASHSTR(", top=") << top << MCU_FLASHSTR(" (")
+              << mcucore::BaseHex << top << MCU_FLASHSTR("), a=") << a
+              << MCU_FLASHSTR(", b=") << b;
   delay(20);
 
   noInterrupts();
@@ -170,7 +170,7 @@ void AdjustTimerPeriod(uint32_t period_ns) {
 void StartTimer5(uint32_t period_ns) {
   DisableTimer5();
 
-  TAS_VLOG(5) << TAS_FLASHSTR("StartTimer5(") << period_ns << ')';
+  MCU_VLOG(5) << MCU_FLASHSTR("StartTimer5(") << period_ns << ')';
   delay(20);
 
   AdjustTimerPeriod(period_ns);
@@ -185,19 +185,19 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
     // Disable timer 5
     DisableTimer5();
     movement_mode = kNotMoving;
-    TAS_VLOG(1) << TAS_FLASHSTR("movement_mode was ") << copy
-                << TAS_FLASHSTR(", now ") << movement_mode;
+    MCU_VLOG(1) << MCU_FLASHSTR("movement_mode was ") << copy
+                << MCU_FLASHSTR(", now ") << movement_mode;
   }
 
-  TAS_VLOG(1) << TAS_FLASHSTR("StartMoving(") << new_movement_mode
-              << TAS_FLASHSTR(", ") << limit_switch_pin << TAS_FLASHSTR(", ")
+  MCU_VLOG(1) << MCU_FLASHSTR("StartMoving(") << new_movement_mode
+              << MCU_FLASHSTR(", ") << limit_switch_pin << MCU_FLASHSTR(", ")
               << steps_per_second << ')';
   delay(20);
 
   limit_pin = limit_switch_pin;
 
   if (digitalRead(limit_pin) == LOW) {
-    TAS_VLOG(1) << TAS_FLASHSTR("Limit switch is closed, so no need to move.");
+    MCU_VLOG(1) << MCU_FLASHSTR("Limit switch is closed, so no need to move.");
     return;
   }
 
@@ -298,11 +298,11 @@ void loop() {
       const double elapsed_s = elapsed_us / 1000000.0;
       const double steps_per_s = step_count / elapsed_s;
       const double pct_target = steps_per_s / steps_per_second * 100.0;
-      TAS_VLOG(1) << TAS_FLASHSTR("steps=") << step_count
-                  << TAS_FLASHSTR(", elapsed_us=") << elapsed_us
-                  << TAS_FLASHSTR(", elapsed_s=") << elapsed_s
-                  << TAS_FLASHSTR(", steps/s=") << steps_per_s
-                  << TAS_FLASHSTR(", % target steps/s=") << pct_target << '\n';
+      MCU_VLOG(1) << MCU_FLASHSTR("steps=") << step_count
+                  << MCU_FLASHSTR(", elapsed_us=") << elapsed_us
+                  << MCU_FLASHSTR(", elapsed_s=") << elapsed_s
+                  << MCU_FLASHSTR(", steps/s=") << steps_per_s
+                  << MCU_FLASHSTR(", % target steps/s=") << pct_target << '\n';
     }
     start_timer_micros = 0;
     stop_timer_micros = 0;

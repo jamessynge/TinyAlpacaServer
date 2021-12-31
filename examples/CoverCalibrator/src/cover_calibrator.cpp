@@ -1,6 +1,7 @@
 #include "cover_calibrator.h"
 
 #include <Arduino.h>
+#include <McuCore.h>
 
 #include "constants.h"
 
@@ -27,11 +28,11 @@ CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
       cover_() {}
 
 #define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)             \
-  TAS_VLOG(level) << TAS_FLASHSTR(name)                                    \
+  MCU_VLOG(level) << MCU_FLASHSTR(name)                                    \
                   << (enableable_by_pin.IsEnabled() ? IsEnabled()          \
                                                     : IsNotEnabled())      \
-                  << TAS_FLASHSTR("; digitalRead(")                        \
-                  << enableable_by_pin.enabled_pin() << TAS_FLASHSTR(")=") \
+                  << MCU_FLASHSTR("; digitalRead(")                        \
+                  << enableable_by_pin.enabled_pin() << MCU_FLASHSTR(")=") \
                   << enableable_by_pin.ReadPin()
 
 void CoverCalibrator::Initialize() {
@@ -129,10 +130,10 @@ mcucore::Status CoverCalibrator::SetCalibratorOff() {
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
-  TAS_VLOG(4) << TAS_FLASHSTR("SetLedChannelEnabled(") << channel
-              << TAS_FLASHSTR(", ") << enabled
-              << TAS_FLASHSTR(") ENTER, brightness_ = ") << brightness_
-              << TAS_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
+  MCU_VLOG(4) << MCU_FLASHSTR("SetLedChannelEnabled(") << channel
+              << MCU_FLASHSTR(", ") << enabled
+              << MCU_FLASHSTR(") ENTER, brightness_ = ") << brightness_
+              << MCU_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;
 
   if (0 <= channel && channel < 4) {
@@ -146,11 +147,11 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
     }
   }
 
-  TAS_VLOG(4) << TAS_FLASHSTR(
+  MCU_VLOG(4) << MCU_FLASHSTR(
                      "SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
-              << channel << TAS_FLASHSTR(") = ")
+              << channel << MCU_FLASHSTR(") = ")
               << GetLedChannelEnabled(channel)
-              << TAS_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
+              << MCU_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;
   return GetLedChannelEnabled(channel);
 }

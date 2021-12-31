@@ -18,7 +18,7 @@ namespace alpaca {
 // connection when OnHalfClosed is called (i.e. on every loop).
 class SocketListener {
  public:
-#if !TAS_EMBEDDED_TARGET
+#if !MCU_EMBEDDED_TARGET
   virtual ~SocketListener() {}
 #endif
 

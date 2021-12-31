@@ -37,7 +37,7 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
       break;
 
     case EAlpacaApi::kDeviceApi:
-      TAS_FALLTHROUGH_INTENDED;
+      MCU_FALLTHROUGH_INTENDED;
     case EAlpacaApi::kDeviceSetup:
       return alpaca_devices_.DispatchDeviceRequest(request, out);
 
@@ -54,7 +54,7 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
       return HandleServerSetup(request, out);
   }
 
-  TAS_VLOG(5) << TAS_FLASHSTR("OnRequestDecoded: api=") << request.api;
+  MCU_VLOG(5) << MCU_FLASHSTR("OnRequestDecoded: api=") << request.api;
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError, Literals::ApiUnknown(), out);
 }
@@ -62,13 +62,13 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
 void TinyAlpacaServerBase::OnRequestDecodingError(AlpacaRequest& request,
                                                   EHttpStatusCode status,
                                                   Print& out) {
-  TAS_VLOG(3) << TAS_FLASHSTR("OnRequestDecodingError: status=") << status;
+  MCU_VLOG(3) << MCU_FLASHSTR("OnRequestDecodingError: status=") << status;
   WriteResponse::HttpErrorResponse(status, mcucore::AnyPrintable(), out);
 }
 
 bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
                                                        Print& out) {
-  TAS_VLOG(3) << TAS_FLASHSTR("HandleManagementApiVersions");
+  MCU_VLOG(3) << MCU_FLASHSTR("HandleManagementApiVersions");
   uint32_t versions[] = {1};
   return WriteResponse::ArrayResponse(
       request,
@@ -78,7 +78,7 @@ bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
 
 bool TinyAlpacaServerBase::HandleManagementDescription(AlpacaRequest& request,
                                                        Print& out) {
-  TAS_VLOG(3) << TAS_FLASHSTR(
+  MCU_VLOG(3) << MCU_FLASHSTR(
       "TinyAlpacaServerBase::HandleManagementDescription");
   mcucore::JsonPropertySourceAdapter<ServerDescription> description(
       server_description_);
@@ -87,9 +87,9 @@ bool TinyAlpacaServerBase::HandleManagementDescription(AlpacaRequest& request,
 
 bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
                                              Print& out) {
-  TAS_VLOG(3) << TAS_FLASHSTR("HandleServerSetup");
+  MCU_VLOG(3) << MCU_FLASHSTR("HandleServerSetup");
 
-  auto body = TAS_FLASHSTR(
+  auto body = MCU_FLASHSTR(
       "<html><body>"
       "<h1>Tiny Alpaca Server</h1>\n"
       "No setup\n"

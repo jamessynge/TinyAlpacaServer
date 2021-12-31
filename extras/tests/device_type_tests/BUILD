@@ -54,6 +54,7 @@ cc_test(
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/src:inline_literal",
         "//mcucore/src:literal",
+        "//mcucore/src:progmem_string_data",
         "//mcucore/src:status",
         "//mcucore/src:status_or",
     ],

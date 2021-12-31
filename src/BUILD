@@ -68,6 +68,7 @@ cc_library(
         "//mcucore/src:json_encoder",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 
@@ -148,6 +149,7 @@ cc_library(
         "//mcucore/src:inline_literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:print_misc",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 
@@ -259,6 +261,7 @@ cc_library(
         "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string_data",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
     ],

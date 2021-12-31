@@ -16,6 +16,7 @@
 #include "inline_literal.h"
 #include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "progmem_string_data.h"
 
 namespace alpaca {
 namespace test {
@@ -95,11 +96,11 @@ class AlpacaDevicesTest : public testing::Test {
   const alpaca::DeviceInfo mock_camera0_info_{
       .device_type = alpaca::EDeviceType::kCamera,
       .device_number = 0,
-      .name = TAS_FLASHSTR("Camera Name"),
-      .unique_id = TAS_FLASHSTR("Camera Unique Id"),
-      .description = TAS_FLASHSTR("Camera Description"),
-      .driver_info = TAS_FLASHSTR("Camera Driver Info"),
-      .driver_version = TAS_FLASHSTR("Camera Driver Version"),
+      .name = MCU_FLASHSTR("Camera Name"),
+      .unique_id = MCU_FLASHSTR("Camera Unique Id"),
+      .description = MCU_FLASHSTR("Camera Description"),
+      .driver_info = MCU_FLASHSTR("Camera Driver Info"),
+      .driver_version = MCU_FLASHSTR("Camera Driver Version"),
       .supported_actions = {},
       .interface_version = 1,
   };
@@ -110,11 +111,11 @@ class AlpacaDevicesTest : public testing::Test {
   const alpaca::DeviceInfo mock_camera22_info_{
       .device_type = alpaca::EDeviceType::kCamera,
       .device_number = 22,
-      .name = TAS_FLASHSTR("Camera22 Name"),
-      .unique_id = TAS_FLASHSTR("Camera22 Unique Id"),
-      .description = TAS_FLASHSTR("Camera22 Description"),
-      .driver_info = TAS_FLASHSTR("Camera22 Driver Info"),
-      .driver_version = TAS_FLASHSTR("Camera22 Driver Version"),
+      .name = MCU_FLASHSTR("Camera22 Name"),
+      .unique_id = MCU_FLASHSTR("Camera22 Unique Id"),
+      .description = MCU_FLASHSTR("Camera22 Description"),
+      .driver_info = MCU_FLASHSTR("Camera22 Driver Info"),
+      .driver_version = MCU_FLASHSTR("Camera22 Driver Version"),
       .supported_actions = {},
       .interface_version = 1,
   };
@@ -125,11 +126,11 @@ class AlpacaDevicesTest : public testing::Test {
   const alpaca::DeviceInfo mock_observing_conditions1_info_{
       .device_type = alpaca::EDeviceType::kObservingConditions,
       .device_number = 1,
-      .name = TAS_FLASHSTR("Weather"),
-      .unique_id = TAS_FLASHSTR("Weather UUID"),
-      .description = TAS_FLASHSTR("Environment"),
-      .driver_info = TAS_FLASHSTR("WeatherStation"),
-      .driver_version = TAS_FLASHSTR("Ver."),
+      .name = MCU_FLASHSTR("Weather"),
+      .unique_id = MCU_FLASHSTR("Weather UUID"),
+      .description = MCU_FLASHSTR("Environment"),
+      .driver_info = MCU_FLASHSTR("WeatherStation"),
+      .driver_version = MCU_FLASHSTR("Ver."),
       .supported_actions = {},
       .interface_version = 1,
   };
@@ -294,7 +295,7 @@ TEST_F(AlpacaDevicesDeathTest, SameUniqueId) {
 TEST_F(AlpacaDevicesDeathTest, SameDeviceTypeAndNumber) {
   MockDeviceInterface second_mock_camera0;
   DeviceInfo alt_info = mock_camera0_info_;
-  alt_info.unique_id = TAS_FLASHSTR("alt id");
+  alt_info.unique_id = MCU_FLASHSTR("alt id");
   AddDefaultBehavior(alt_info, &second_mock_camera0);
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &second_mock_camera0};

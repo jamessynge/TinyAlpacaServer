@@ -48,11 +48,11 @@ using ::alpaca::DeviceInterface;
 // available for Arduino, which claims to use C++ 11, but it works.
 const alpaca::ServerDescription kServerDescription{
     .server_name =
-        TAS_FLASHSTR("Our Spiffy Weather Box, based on Tiny Alpaca Server"),
-    .manufacturer = TAS_FLASHSTR("Friends of AAVSO & ATMoB"),
+        MCU_FLASHSTR("Our Spiffy Weather Box, based on Tiny Alpaca Server"),
+    .manufacturer = MCU_FLASHSTR("Friends of AAVSO & ATMoB"),
     .manufacturer_version =
-        TAS_FLASHSTR("9099c8af5796a80137ce334713a67a718fd0cd3f"),
-    .location = TAS_FLASHSTR("Mittleman Observatory, Westford, MA"),
+        MCU_FLASHSTR("9099c8af5796a80137ce334713a67a718fd0cd3f"),
+    .location = MCU_FLASHSTR("Mittleman Observatory, Westford, MA"),
 };
 
 static Dht22Handler dht_handler;  // NOLINT

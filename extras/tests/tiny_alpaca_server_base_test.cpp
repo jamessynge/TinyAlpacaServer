@@ -60,10 +60,10 @@ constexpr int kServerTransactionId = 54981;
 
 const ServerDescription kServerDescription  // NOLINT
     {
-        .server_name = TAS_FLASHSTR(kServerName),
-        .manufacturer = TAS_FLASHSTR(kManufacturer),
-        .manufacturer_version = TAS_FLASHSTR(kManufacturerVersion),
-        .location = TAS_FLASHSTR(kDeviceLocation),
+        .server_name = MCU_FLASHSTR(kServerName),
+        .manufacturer = MCU_FLASHSTR(kManufacturer),
+        .manufacturer_version = MCU_FLASHSTR(kManufacturerVersion),
+        .location = MCU_FLASHSTR(kDeviceLocation),
     };
 
 class TinyAlpacaServerBaseExplicitLifecycleTest

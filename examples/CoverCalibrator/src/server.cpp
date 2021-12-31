@@ -26,12 +26,12 @@ const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
     {
         .device_type = EDeviceType::kCoverCalibrator,
         .device_number = 1,
-        .name = TAS_FLASHSTR("Cover-Calibrator"),
-        .unique_id = TAS_FLASHSTR("856cac35-7685-4a70-9bbf-be2b00f80af5"),
-        .description = TAS_FLASHSTR("AstroMakers Cover Calibrator"),
+        .name = MCU_FLASHSTR("Cover-Calibrator"),
+        .unique_id = MCU_FLASHSTR("856cac35-7685-4a70-9bbf-be2b00f80af5"),
+        .description = MCU_FLASHSTR("AstroMakers Cover Calibrator"),
         .driver_info =
-            TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-        .driver_version = TAS_FLASHSTR("0.1"),
+            MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+        .driver_version = MCU_FLASHSTR("0.1"),
         .supported_actions = kSupportedActions,
         .interface_version = 1,
     };
@@ -42,12 +42,12 @@ const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
     {
         .device_type = EDeviceType::kSwitch,
         .device_number = 1,
-        .name = TAS_FLASHSTR("Cover-Calibrator LED Channel Switches"),
-        .unique_id = TAS_FLASHSTR("491c450a-0d1d-4f2b-9d28-5878e968e9df"),
-        .description = TAS_FLASHSTR("AstroMakers Cover Calibrator Extension"),
+        .name = MCU_FLASHSTR("Cover-Calibrator LED Channel Switches"),
+        .unique_id = MCU_FLASHSTR("491c450a-0d1d-4f2b-9d28-5878e968e9df"),
+        .description = MCU_FLASHSTR("AstroMakers Cover Calibrator Extension"),
         .driver_info =
-            TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-        .driver_version = TAS_FLASHSTR("0.1"),
+            MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+        .driver_version = MCU_FLASHSTR("0.1"),
         .supported_actions = kSupportedActions,
         .interface_version = 1,
     };
@@ -58,10 +58,10 @@ LedChannelSwitchGroup led_switches(  // NOLINT
 // For responding to /management/v1/description
 const alpaca::ServerDescription kServerDescription  // NOLINT
     {
-        .server_name = TAS_FLASHSTR_128(kServerName),
-        .manufacturer = TAS_FLASHSTR(kManufacturer),
-        .manufacturer_version = TAS_FLASHSTR(kManufacturerVersion),
-        .location = TAS_FLASHSTR(kDeviceLocation),
+        .server_name = MCU_FLASHSTR_128(kServerName),
+        .manufacturer = MCU_FLASHSTR(kManufacturer),
+        .manufacturer_version = MCU_FLASHSTR(kManufacturerVersion),
+        .location = MCU_FLASHSTR(kDeviceLocation),
     };
 
 alpaca::DeviceInterface* kDevices[] = {&cover_calibrator, &led_switches};
@@ -81,7 +81,7 @@ void announceAddresses() {
 
 void setup() {
   mcucore::LogSink() << kServerDescription.server_name;
-  mcucore::LogSink() << TAS_FLASHSTR("Initializing networking");
+  mcucore::LogSink() << MCU_FLASHSTR("Initializing networking");
   alpaca::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the
@@ -89,21 +89,21 @@ void setup() {
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
   alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
-  TAS_CHECK(ip_device.InitializeNetworking(&oui_prefix))
-      << TAS_FLASHSTR("Unable to initialize networking!");
+  MCU_CHECK(ip_device.InitializeNetworking(&oui_prefix))
+      << MCU_FLASHSTR("Unable to initialize networking!");
   announceAddresses();
 
   // Initialize Tiny Alpaca Server, which will initialize TCP listeners.
   tiny_alpaca_server.Initialize();
 
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(char*): ") << sizeof(char*);
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(short): ") << sizeof(short);  // NOLINT
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(int): ") << sizeof(int);
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(long): ") << sizeof(long);  // NOLINT
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(float): ") << sizeof(float);
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(double): ") << sizeof(double);
-  TAS_VLOG(4) << TAS_FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(char*): ") << sizeof(char*);
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(short): ") << sizeof(short);  // NOLINT
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(int): ") << sizeof(int);
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(long): ") << sizeof(long);  // NOLINT
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(float): ") << sizeof(float);
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(double): ") << sizeof(double);
+  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
 }
 
 void loop() {
@@ -112,27 +112,27 @@ void loop() {
 }
 
 void logMCUStatusRegister(uint8_t mcusr) {
-  mcucore::LogSink() << TAS_FLASHSTR("MCUSR: ") << mcucore::BaseHex << mcusr;
-  if (TAS_VLOG_IS_ON(1)) {
+  mcucore::LogSink() << MCU_FLASHSTR("MCUSR: ") << mcucore::BaseHex << mcusr;
+  if (MCU_VLOG_IS_ON(1)) {
     if (mcusr & _BV(JTRF)) {
       // JTAG Reset
-      TAS_VLOG(1) << TAS_FLASHSTR("JTAG") << TAS_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_FLASHSTR("JTAG") << MCU_FLASHSTR(" reset occured");
     }
     if (mcusr & _BV(WDRF)) {
       // Watchdog Reset
-      TAS_VLOG(1) << TAS_FLASHSTR("Watchdog") << TAS_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_FLASHSTR("Watchdog") << MCU_FLASHSTR(" reset occured");
     }
     if (mcusr & _BV(BORF)) {
       // Brownout Reset
-      TAS_VLOG(1) << TAS_FLASHSTR("Brownout") << TAS_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_FLASHSTR("Brownout") << MCU_FLASHSTR(" reset occured");
     }
     if (mcusr & _BV(EXTRF)) {
       // Reset button or otherwise some software reset
-      TAS_VLOG(1) << TAS_FLASHSTR("External") << TAS_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_FLASHSTR("External") << MCU_FLASHSTR(" reset occured");
     }
     if (mcusr & _BV(PORF)) {
       // Power On Reset
-      TAS_VLOG(1) << TAS_FLASHSTR("Power-on") << TAS_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_FLASHSTR("Power-on") << MCU_FLASHSTR(" reset occured");
     }
   }
 }

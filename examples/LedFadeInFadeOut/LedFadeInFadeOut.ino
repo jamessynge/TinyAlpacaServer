@@ -85,7 +85,7 @@ void setup() {
 
   DUMP_USED_TIMER_COUNTERS;
 
-  TAS_VLOG(1) << TAS_FLASHSTR("Initializing 16-bit PWM");
+  MCU_VLOG(1) << MCU_FLASHSTR("Initializing 16-bit PWM");
 
   pinMode(kLedChannel1PwmPin, OUTPUT);
   pinMode(kLedChannel2PwmPin, OUTPUT);
@@ -95,7 +95,7 @@ void setup() {
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
 
-  TAS_VLOG(1) << TAS_FLASHSTR("Initialized 16-bit PWM");
+  MCU_VLOG(1) << MCU_FLASHSTR("Initialized 16-bit PWM");
   Serial.println();
 
   DUMP_USED_TIMER_COUNTERS;
@@ -105,41 +105,41 @@ template <class T>
 void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
                    const char* name) {
   if (t.IsEnabled()) {
-    TAS_VLOG(1) << name << TAS_FLASHSTR(" is enabled.");
-    TAS_VLOG(1) << TAS_FLASHSTR("Sweeping ") << name
-                << TAS_FLASHSTR(" upwards");
+    MCU_VLOG(1) << name << MCU_FLASHSTR(" is enabled.");
+    MCU_VLOG(1) << MCU_FLASHSTR("Sweeping ") << name
+                << MCU_FLASHSTR(" upwards");
 
     int32_t value = 1;
     while (value <= t.max_count()) {
       t.set_pulse_count(static_cast<uint16_t>(value & 0xFFFF));
 
       if (value == 1 || (value + increment) >= t.max_count()) {
-        TAS_VLOG(1) << TAS_FLASHSTR("value = ") << value;
+        MCU_VLOG(1) << MCU_FLASHSTR("value = ") << value;
         DUMP_USED_TIMER_COUNTERS;
       }
 
       value += increment;
       delay(delay_by);
     }
-    TAS_VLOG(1) << TAS_FLASHSTR("Sweeping ") << name
-                << TAS_FLASHSTR(" downwards");
+    MCU_VLOG(1) << MCU_FLASHSTR("Sweeping ") << name
+                << MCU_FLASHSTR(" downwards");
     value = t.max_count();
     while (value >= 1) {
       t.set_pulse_count(static_cast<uint16_t>(value & 0xFFFF));
       value -= increment;
       delay(delay_by);
     }
-    TAS_VLOG(1) << TAS_FLASHSTR("value = ") << value;
+    MCU_VLOG(1) << MCU_FLASHSTR("value = ") << value;
 
     DUMP_USED_TIMER_COUNTERS;
 
-    TAS_VLOG(1) << TAS_FLASHSTR("Turning ") << name << TAS_FLASHSTR(" off");
+    MCU_VLOG(1) << MCU_FLASHSTR("Turning ") << name << MCU_FLASHSTR(" off");
     t.set_pulse_count(0);
 
     DUMP_USED_TIMER_COUNTERS;
 
   } else {
-    TAS_VLOG(1) << name << TAS_FLASHSTR(" is disabled.");
+    MCU_VLOG(1) << name << MCU_FLASHSTR(" is disabled.");
   }
 }
 

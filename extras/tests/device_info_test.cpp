@@ -7,12 +7,13 @@
 #include "json_encoder_helpers.h"
 #include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "progmem_string_data.h"
 
 // Defining everything outside of the alpaca namespace as is expected for a real
 // device.
 
-const mcucore::Literal kActionLiterals[] = {TASLIT("ActionA"),
-                                            TASLIT("Action2")};
+const mcucore::Literal kActionLiterals[] = {MCU_PSV("ActionA"),
+                                            MCU_PSV("Action2")};
 const auto kSupportedActions = mcucore::LiteralArray(kActionLiterals);
 
 TAS_DEFINE_LITERAL(DeviceName, "AbcDeviceName");
@@ -25,11 +26,11 @@ TAS_DEFINE_LITERAL(DriverVersion, "1");
 const alpaca::DeviceInfo kDeviceInfo{
     .device_type = alpaca::EDeviceType::kCamera,
     .device_number = 312,
-    .name = TAS_FLASHSTR("AbcDeviceName"),
-    .unique_id = TAS_FLASHSTR("123456"),
-    .description = TAS_FLASHSTR("The Device Desc."),
-    .driver_info = TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-    .driver_version = TAS_FLASHSTR("1"),
+    .name = MCU_FLASHSTR("AbcDeviceName"),
+    .unique_id = MCU_FLASHSTR("123456"),
+    .description = MCU_FLASHSTR("The Device Desc."),
+    .driver_info = MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+    .driver_version = MCU_FLASHSTR("1"),
     .supported_actions = kSupportedActions,
     .interface_version = 1,
 };

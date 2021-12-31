@@ -35,55 +35,55 @@ struct AlpacaRequest {
   void Reset();
 
   void set_client_id(uint32_t id) {
-    TAS_DCHECK(!have_client_id);
+    MCU_DCHECK(!have_client_id);
     client_id = id;
     have_client_id = true;
   }
 
   void set_client_transaction_id(uint32_t id) {
-    TAS_DCHECK(!have_client_transaction_id);
+    MCU_DCHECK(!have_client_transaction_id);
     client_transaction_id = id;
     have_client_transaction_id = true;
   }
 
   void set_server_transaction_id(uint32_t id) {
-    TAS_DCHECK(!have_server_transaction_id);
+    MCU_DCHECK(!have_server_transaction_id);
     server_transaction_id = id;
     have_server_transaction_id = true;
   }
 
   void set_connected(bool value) {
-    TAS_DCHECK(!have_connected);
+    MCU_DCHECK(!have_connected);
     connected = value;
     have_connected = true;
   }
 
   void set_brightness(int32_t value) {
-    TAS_DCHECK(!have_brightness);
+    MCU_DCHECK(!have_brightness);
     brightness = value;
     have_brightness = true;
   }
 
   void set_id(int32_t value) {
-    TAS_DCHECK(!have_id);
+    MCU_DCHECK(!have_id);
     id = value;
     have_id = true;
   }
 
   void set_state(bool value) {
-    TAS_DCHECK(!have_state);
+    MCU_DCHECK(!have_state);
     state = value;
     have_state = true;
   }
 
   void set_value(double v) {
-    TAS_DCHECK(!have_value);
+    MCU_DCHECK(!have_value);
     value = v;
     have_value = true;
   }
 
   void set_average_period(double v) {
-    TAS_DCHECK(!have_average_period);
+    MCU_DCHECK(!have_average_period);
     average_period = v;
     have_average_period = true;
   }

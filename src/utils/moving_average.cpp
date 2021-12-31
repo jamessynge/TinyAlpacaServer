@@ -5,6 +5,7 @@
 #include "inline_literal.h"
 #include "logging.h"
 #include "mcucore_platform.h"
+#include "progmem_string_data.h"
 
 namespace alpaca {
 MovingAverage::MovingAverage()
@@ -17,7 +18,7 @@ void MovingAverage::RecordNewValue(double new_value, uint32_t current_time,
   if (has_average_value()) {
     uint32_t time_step = current_time - last_update_time_;
     if (time_step == 0) {
-      TAS_VLOG(1) << TAS_FLASHSTR_128(
+      MCU_VLOG(1) << MCU_FLASHSTR_128(
           "MovingAverage::RecordNewValue called too quickly, current_time "
           "hasn't advanced beyond last_update_time_");
       return;
@@ -27,8 +28,8 @@ void MovingAverage::RecordNewValue(double new_value, uint32_t current_time,
     // This is not a well founded adjustment; TBD later.
     time_step *= 2;
     if (average_period <= time_step) {
-      TAS_VLOG(1) << TAS_FLASHSTR("average_period (") << average_period
-                  << TAS_FLASHSTR(") should be much greater than time_step (")
+      MCU_VLOG(1) << MCU_FLASHSTR("average_period (") << average_period
+                  << MCU_FLASHSTR(") should be much greater than time_step (")
                   << time_step << ')';
       average_value_ = new_value;
     } else {

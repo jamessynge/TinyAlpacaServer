@@ -143,6 +143,7 @@ cc_library(
         "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:o_print_stream",
+        "//mcucore/src:progmem_string_data",
         "//mcunet/extras/host/ethernet5500:ethernet_config",
     ],
 )

@@ -39,10 +39,10 @@ ClientID, ClientTransactionID, Connected and SensorName are supported).
 Automated tests of the entire system aren't yet implemented.
 
 There are TODOs throughout the code representing various improvements I'd like
-to make, including modifying the guarantees provided by the TAS_CHECK macro: I
+to make, including modifying the guarantees provided by the MCU_CHECK macro: I
 think it should be changed so that the expression is always evaluated,
 regardless of whether a message is logged upon failure. The same doesn't apply
-to the TAS_DCHECK macro.
+to the MCU_DCHECK macro.
 
 ## Approach
 
@@ -173,7 +173,7 @@ I'm currently manually defining these by:
 1.  Using the `TASLIT(value)` macro inline in expressions, such as:
 
     ```
-    TAS_CHECK(false) << TASLIT("api group (") << group
+    MCU_CHECK(false) << TASLIT("api group (") << group
                      << TASLIT(") is not device or setup");
     ```
 
@@ -187,20 +187,20 @@ I'm currently manually defining these by:
     TASLIT is that it uses some fancy compile time type deduction to determine
     the length of the string, and this slows compilation.
 
-1.  Using the `TAS_FLASHSTR(value)` macro inline in expressions, such as:
+1.  Using the `MCU_FLASHSTR(value)` macro inline in expressions, such as:
 
     ```
-    TAS_CHECK(false) << TAS_FLASHSTR("api group (") << group
-                     << TAS_FLASHSTR(") is not device or setup");
+    MCU_CHECK(false) << MCU_FLASHSTR("api group (") << group
+                     << MCU_FLASHSTR(") is not device or setup");
     ```
 
-    `TAS_FLASHSTR` shares much in common with TASLIT, but the return type is
+    `MCU_FLASHSTR` shares much in common with TASLIT, but the return type is
     `const __FlashStringHelper*`, the type defined by Arduino to denote a string
     stored in flash memory, which (on Harvard architecture processors) can't be
-    treated as a regular string. In general, it appears that `TAS_FLASHSTR` is
+    treated as a regular string. In general, it appears that `MCU_FLASHSTR` is
     the most convenient of these macros.
 
-After building up the facilities described above (not including TAS_FLASHSTR), I
+After building up the facilities described above (not including MCU_FLASHSTR), I
 learned that the macro `PSTR(value)` (from AVR libc's pgmspace.h) will
 (supposedly) have the effect of storing a string in PROGMEM only. Further, the
 developers built on this by defining the macro `F(value)` in WString.h which
@@ -218,7 +218,7 @@ time, so it must be rediscovered each time.
 
 When trying to use `F(value)` and `PSTR(value)`, I discovered that they do what
 they say, but don't collapse multiple occurrences of a string into one. Hence
-`TAS_FLASHSTR(value)` is preferred over `F(value)` if you just want to output a
+`MCU_FLASHSTR(value)` is preferred over `F(value)` if you just want to output a
 string, and `TASLIT(value)` is preferred if you also want to know the length
 without search the string for the terminating NUL.
 
@@ -257,7 +257,7 @@ without search the string for the terminating NUL.
     *   Stream: `src/utils/o_print_stream.h` provides support for using
         operator<< to produce output in a manner like using std::ostream.
     *   Logging: `src/utils/logging.h` and `src/utils/log_sink.*` define
-        TAS_VLOG, TAS_CHECK and TAS_DCHECK macros, and related log sinks.
+        MCU_VLOG, MCU_CHECK and MCU_DCHECK macros, and related log sinks.
     *   String: `src/utils/literal.*` and `src/utils/string_view.*` provide
         wrappers for immutable strings (in Flash and RAM, respectively). These
         are aided by `any_printable.*`, `printable_cat.*`, `hex_escape.*`,

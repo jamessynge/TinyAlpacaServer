@@ -15,6 +15,7 @@ cc_library(
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:printable_cat",
+        "//mcucore/src:progmem_string_data",
         "//mcucore/src:status",
         "//mcucore/src:status_or",
     ],

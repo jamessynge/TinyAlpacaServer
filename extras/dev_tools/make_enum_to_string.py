@@ -206,12 +206,12 @@ def process_file(file_path: str):
     name = enum_def['name']
     print(f'const __FlashStringHelper* ToFlashStringHelper({name} v);')
   print()
-  print('#if TAS_HOST_TARGET')
+  print('#if MCU_HOST_TARGET')
   print('// Support for debug logging of enums.')
   for enum_def in enum_definitions:
     name = enum_def['name']
     print(f'std::ostream& operator<<(std::ostream& os, {name} v);')
-  print('#endif  // TAS_HOST_TARGET')
+  print('#endif  // MCU_HOST_TARGET')
   print()
   print('}  // namespace alpaca')
   print()
@@ -227,7 +227,7 @@ size_t PrintValueTo({name} v, Print& out) {{
     return out.print(flash_string);
   }}
   return mcucore::PrintUnknownEnumValueTo(
-        TAS_FLASHSTR("{name}"), static_cast<uint32_t>(v), out);
+        MCU_FLASHSTR("{name}"), static_cast<uint32_t>(v), out);
 }}""")
   print()
   print()
@@ -244,7 +244,7 @@ const __FlashStringHelper* ToFlashStringHelper({name} v) {{
       print(
           f"""
     case {name}::{enumerator}:
-      return TAS_FLASHSTR({dq_string});""",
+      return MCU_FLASHSTR({dq_string});""",
           end='')
     print(r"""
   }
@@ -253,7 +253,7 @@ const __FlashStringHelper* ToFlashStringHelper({name} v) {{
   print()
 
   print()
-  print('#if TAS_HOST_TARGET')
+  print('#if MCU_HOST_TARGET')
   print('// Support for debug logging of enums.')
 
   for enum_def in enum_definitions:
@@ -275,7 +275,7 @@ std::ostream& operator<<(std::ostream& os, {name} v) {{
   return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
 }""")
 
-  print('#endif  // TAS_HOST_TARGET')
+  print('#endif  // MCU_HOST_TARGET')
   print()
   print('}  // namespace alpaca')
 

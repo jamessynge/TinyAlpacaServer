@@ -21,7 +21,7 @@
 
 #include "mcucore_platform.h"
 
-#if TAS_HOST_TARGET
+#if MCU_HOST_TARGET
 #include <ostream>  // pragma: keep standard include
 #endif
 
@@ -332,7 +332,7 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v);
 const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v);
 const __FlashStringHelper* ToFlashStringHelper(EContentType v);
 
-#if TAS_HOST_TARGET
+#if MCU_HOST_TARGET
 // Support for debug logging of enums.
 std::ostream& operator<<(std::ostream& os, RequestDecoderStatus v);
 std::ostream& operator<<(std::ostream& os, EHttpStatusCode v);
@@ -346,7 +346,7 @@ std::ostream& operator<<(std::ostream& os, EParameter v);
 std::ostream& operator<<(std::ostream& os, ESensorName v);
 std::ostream& operator<<(std::ostream& os, EHttpHeader v);
 std::ostream& operator<<(std::ostream& os, EContentType v);
-#endif  // TAS_HOST_TARGET
+#endif  // MCU_HOST_TARGET
 
 }  // namespace alpaca
 

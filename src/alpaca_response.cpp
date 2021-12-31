@@ -222,7 +222,7 @@ bool WriteResponse::AscomMethodNotImplementedResponse(
     const AlpacaRequest& request, const mcucore::AnyPrintable& method_name,
     Print& out) {
   auto error_message = mcucore::PrintableCat(
-      TAS_FLASHSTR("Alpaca method not implemented: "), method_name);
+      MCU_FLASHSTR("Alpaca method not implemented: "), method_name);
   return AscomErrorResponse(request, ErrorCodes::kNotImplemented, error_message,
                             out);
 }
@@ -235,7 +235,7 @@ bool WriteResponse::AscomMethodNotImplementedResponse(
 
 bool WriteResponse::AscomMethodNotImplementedResponse(
     const AlpacaRequest& request, Print& out) {
-  TAS_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
+  MCU_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
              request.api == EAlpacaApi::kDeviceSetup);
   if (request.api == EAlpacaApi::kDeviceSetup) {
     return AscomMethodNotImplementedResponse(request, Literals::setup(), out);
@@ -252,7 +252,7 @@ bool WriteResponse::AscomActionNotImplementedResponse(
 bool WriteResponse::AscomParameterMissingErrorResponse(
     const AlpacaRequest& request, mcucore::Literal parameter_name, Print& out) {
   auto error_message = mcucore::PrintableCat(
-      TAS_FLASHSTR("Missing parameter: "), parameter_name);
+      MCU_FLASHSTR("Missing parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
                             out);
 }
@@ -260,15 +260,15 @@ bool WriteResponse::AscomParameterMissingErrorResponse(
 bool WriteResponse::AscomParameterInvalidErrorResponse(
     const AlpacaRequest& request, mcucore::Literal parameter_name, Print& out) {
   auto error_message = mcucore::PrintableCat(
-      TAS_FLASHSTR("Invalid parameter: "), parameter_name);
+      MCU_FLASHSTR("Invalid parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kInvalidValue, error_message,
                             out);
 }
 
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
-  TAS_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
-      << TAS_FLASHSTR("mcucore::Status code should be for an error.");
+  MCU_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
+      << MCU_FLASHSTR("mcucore::Status code should be for an error.");
 
   HttpResponseHeader hrh;
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
@@ -310,7 +310,7 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
         break;
       default:
         // We don't have a reason phrase programmed in here.
-        TAS_DCHECK(false) << TAS_FLASHSTR("Please add a case for status code ")
+        MCU_DCHECK(false) << MCU_FLASHSTR("Please add a case for status code ")
                           << status_code;
         hrh.reason_phrase = mcucore::Literal();
     }

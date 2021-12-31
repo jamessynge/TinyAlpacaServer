@@ -4,23 +4,24 @@
 #include "inline_literal.h"
 #include "mcucore_platform.h"
 #include "print_misc.h"
+#include "progmem_string_data.h"
 
 namespace alpaca {
 
 const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
   switch (v) {
     case ECalibratorStatus::kNotPresent:
-      return TAS_FLASHSTR("NotPresent");
+      return MCU_FLASHSTR("NotPresent");
     case ECalibratorStatus::kOff:
-      return TAS_FLASHSTR("Off");
+      return MCU_FLASHSTR("Off");
     case ECalibratorStatus::kNotReady:
-      return TAS_FLASHSTR("NotReady");
+      return MCU_FLASHSTR("NotReady");
     case ECalibratorStatus::kReady:
-      return TAS_FLASHSTR("Ready");
+      return MCU_FLASHSTR("Ready");
     case ECalibratorStatus::kUnknown:
-      return TAS_FLASHSTR("Unknown");
+      return MCU_FLASHSTR("Unknown");
     case ECalibratorStatus::kError:
-      return TAS_FLASHSTR("Error");
+      return MCU_FLASHSTR("Error");
   }
   return nullptr;
 }
@@ -30,24 +31,24 @@ size_t PrintValueTo(ECalibratorStatus v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("ECalibratorStatus"),
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("ECalibratorStatus"),
                                           static_cast<uint32_t>(v), out);
 }
 
 const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
   switch (v) {
     case ECoverStatus::kNotPresent:
-      return TAS_FLASHSTR("NotPresent");
+      return MCU_FLASHSTR("NotPresent");
     case ECoverStatus::kClosed:
-      return TAS_FLASHSTR("Closed");
+      return MCU_FLASHSTR("Closed");
     case ECoverStatus::kMoving:
-      return TAS_FLASHSTR("Moving");
+      return MCU_FLASHSTR("Moving");
     case ECoverStatus::kOpen:
-      return TAS_FLASHSTR("Open");
+      return MCU_FLASHSTR("Open");
     case ECoverStatus::kUnknown:
-      return TAS_FLASHSTR("Unknown");
+      return MCU_FLASHSTR("Unknown");
     case ECoverStatus::kError:
-      return TAS_FLASHSTR("Error");
+      return MCU_FLASHSTR("Error");
   }
   return nullptr;
 }
@@ -57,7 +58,7 @@ size_t PrintValueTo(ECoverStatus v, Print& out) {
   if (flash_string != nullptr) {
     return out.print(flash_string);
   }
-  return mcucore::PrintUnknownEnumValueTo(TAS_FLASHSTR("ECoverStatus"),
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("ECoverStatus"),
                                           static_cast<uint32_t>(v), out);
 }
 

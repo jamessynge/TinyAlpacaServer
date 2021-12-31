@@ -20,13 +20,13 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
       : WriteBufferedWrappedClientConnection(write_buffer, write_buffer_limit),
         client_(client),
         disconnect_data_(disconnect_data) {
-    TAS_VLOG(5) << TAS_FLASHSTR("TcpServerConnection@") << this
-                << TAS_FLASHSTR(" ctor");
+    MCU_VLOG(5) << MCU_FLASHSTR("TcpServerConnection@") << this
+                << MCU_FLASHSTR(" ctor");
     disconnect_data_.Reset();
   }
   ~TcpServerConnection() {  // NOLINT
-    TAS_VLOG(5) << TAS_FLASHSTR("TcpServerConnection@") << this
-                << TAS_FLASHSTR(" dtor");
+    MCU_VLOG(5) << MCU_FLASHSTR("TcpServerConnection@") << this
+                << MCU_FLASHSTR(" dtor");
     flush();
   }
 
@@ -42,8 +42,8 @@ class TcpServerConnection : public WriteBufferedWrappedClientConnection {
     // Ethernet5500, think about how to fix the issues with stop.
     auto socket_number = sock_num();
     auto status = PlatformEthernet::SocketStatus(socket_number);
-    TAS_VLOG(2) << TAS_FLASHSTR("TcpServerConnection::close, sock_num=")
-                << socket_number << TAS_FLASHSTR(", status=")
+    MCU_VLOG(2) << MCU_FLASHSTR("TcpServerConnection::close, sock_num=")
+                << socket_number << MCU_FLASHSTR(", status=")
                 << mcucore::BaseHex << status;
     if (status == SnSR::ESTABLISHED || status == SnSR::CLOSE_WAIT) {
       flush();
@@ -100,11 +100,11 @@ bool ServerSocket::PickClosedSocket() {
       last_status_ = PlatformEthernet::SocketStatus(sock_num_);
       return true;
     }
-    TAS_VLOG(1) << TAS_FLASHSTR("listen for ") << tcp_port_
-                << TAS_FLASHSTR(" failed with socket ") << sock_num_;
+    MCU_VLOG(1) << MCU_FLASHSTR("listen for ") << tcp_port_
+                << MCU_FLASHSTR(" failed with socket ") << sock_num_;
     sock_num_ = MAX_SOCK_NUM;
   } else {
-    TAS_VLOG(1) << TAS_FLASHSTR("No free socket for ") << tcp_port_;
+    MCU_VLOG(1) << MCU_FLASHSTR("No free socket for ") << tcp_port_;
   }
   return false;
 }
@@ -117,7 +117,7 @@ bool ServerSocket::IsConnected() const {
 }
 
 bool ServerSocket::ReleaseSocket() {
-  TAS_DCHECK(HasSocket());
+  MCU_DCHECK(HasSocket());
   if (IsConnected()) {
     return false;
   }
@@ -129,15 +129,15 @@ bool ServerSocket::ReleaseSocket() {
 
 #define STATUS_IS_UNEXPECTED_MESSAGE(expected_str, some_status,               \
                                      current_status)                          \
-  mcucore::BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ")        \
-                   << TAS_FLASHSTR(expected_str) << TAS_FLASHSTR(", but is ") \
+  mcucore::BaseHex << MCU_FLASHSTR("Expected " #some_status " to be ")        \
+                   << MCU_FLASHSTR(expected_str) << MCU_FLASHSTR(", but is ") \
                    << mcucore::BaseHex << some_status                         \
-                   << TAS_FLASHSTR("; current status is ") << current_status
+                   << MCU_FLASHSTR("; current status is ") << current_status
 
 #define VERIFY_STATUS_IS(expected_status, some_status)                        \
-  TAS_DCHECK_EQ(expected_status, some_status)                                 \
-      << mcucore::BaseHex << TAS_FLASHSTR("Expected " #some_status " to be ") \
-      << expected_status << TAS_FLASHSTR(", but is ") << some_status
+  MCU_DCHECK_EQ(expected_status, some_status)                                 \
+      << mcucore::BaseHex << MCU_FLASHSTR("Expected " #some_status " to be ") \
+      << expected_status << MCU_FLASHSTR(", but is ") << some_status
 
 bool ServerSocket::BeginListening() {
   if (!HasSocket()) {
@@ -153,15 +153,15 @@ bool ServerSocket::BeginListening() {
 
   if (PlatformEthernet::InitializeTcpListenerSocket(sock_num_, tcp_port_)) {
     last_status_ = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(1) << TAS_FLASHSTR("Listening to port ") << tcp_port_
-                << TAS_FLASHSTR(" on socket ") << sock_num_
-                << TAS_FLASHSTR(", last_status is ") << mcucore::BaseHex
+    MCU_VLOG(1) << MCU_FLASHSTR("Listening to port ") << tcp_port_
+                << MCU_FLASHSTR(" on socket ") << sock_num_
+                << MCU_FLASHSTR(", last_status is ") << mcucore::BaseHex
                 << last_status_;
     VERIFY_STATUS_IS(SnSR::LISTEN, last_status_);
     return true;
   }
-  TAS_VLOG(1) << TAS_FLASHSTR("listen for ") << tcp_port_
-              << TAS_FLASHSTR(" failed with socket ") << sock_num_;
+  MCU_VLOG(1) << MCU_FLASHSTR("listen for ") << tcp_port_
+              << MCU_FLASHSTR(" failed with socket ") << sock_num_;
   return false;
 }
 
@@ -187,12 +187,12 @@ void ServerSocket::PerformIO() {
 
   if (was_open && !is_open) {
     // Connection closed without us taking action. Let the listener know.
-    TAS_VLOG(2) << TAS_FLASHSTR("was open, not now");
+    MCU_VLOG(2) << MCU_FLASHSTR("was open, not now");
     if (!disconnect_data_.disconnected) {
       disconnect_data_.RecordDisconnect();
       listener_.OnDisconnect();
     } else {
-      TAS_VLOG(2) << TAS_FLASHSTR("Disconnect already recorded");
+      MCU_VLOG(2) << MCU_FLASHSTR("Disconnect already recorded");
     }
     // We'll deal with the new status next time (e.g. FIN_WAIT or closing)
     return;
@@ -223,11 +223,11 @@ void ServerSocket::PerformIO() {
     case SnSR::ESTABLISHED:
       if (!was_open) {
         VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
-            << TAS_FLASHSTR(" while handling ESTABLISHED");
+            << MCU_FLASHSTR(" while handling ESTABLISHED");
         AnnounceConnected();
       } else {
         VERIFY_STATUS_IS(SnSR::ESTABLISHED, past_status)
-            << TAS_FLASHSTR(" while handling ESTABLISHED");
+            << MCU_FLASHSTR(" while handling ESTABLISHED");
         AnnounceCanRead();
       }
       break;
@@ -235,10 +235,10 @@ void ServerSocket::PerformIO() {
     case SnSR::CLOSE_WAIT:
       if (!was_open) {
         VERIFY_STATUS_IS(SnSR::LISTEN, past_status)
-            << TAS_FLASHSTR(" while handling CLOSE_WAIT");
+            << MCU_FLASHSTR(" while handling CLOSE_WAIT");
         AnnounceConnected();
       } else {
-        TAS_DCHECK(was_open) << STATUS_IS_UNEXPECTED_MESSAGE(
+        MCU_DCHECK(was_open) << STATUS_IS_UNEXPECTED_MESSAGE(
             "ESTABLISHED or CLOSE_WAIT", past_status, status);
         HandleCloseWait();
       }
@@ -250,7 +250,7 @@ void ServerSocket::PerformIO() {
     case SnSR::LAST_ACK:
       // Transient states after the connection is closed, but before the final
       // cleanup is complete.
-      TAS_DCHECK(was_open || PlatformEthernet::StatusIsClosing(past_status))
+      MCU_DCHECK(was_open || PlatformEthernet::StatusIsClosing(past_status))
           << STATUS_IS_UNEXPECTED_MESSAGE("a closing value", past_status,
                                           status);
 
@@ -261,7 +261,7 @@ void ServerSocket::PerformIO() {
       // This is a transient state during setup of a TCP listener, and should
       // not be visible to us because BeginListening should make calls that
       // complete the process.
-      TAS_DCHECK(false) << TAS_FLASHSTR(
+      MCU_DCHECK(false) << MCU_FLASHSTR(
                                "Socket in INIT state, incomplete LISTEN setup; "
                                "past_status is ")
                         << past_status;
@@ -282,10 +282,10 @@ void ServerSocket::PerformIO() {
     case SnSR::IPRAW:
     case SnSR::MACRAW:
     case SnSR::PPPOE:
-      TAS_DCHECK(false) << TAS_FLASHSTR("Socket ") << sock_num_
+      MCU_DCHECK(false) << MCU_FLASHSTR("Socket ") << sock_num_
                         << mcucore::BaseHex
-                        << TAS_FLASHSTR(" has unexpected status ") << status
-                        << TAS_FLASHSTR(", past_status is ") << past_status;
+                        << MCU_FLASHSTR(" has unexpected status ") << status
+                        << MCU_FLASHSTR(", past_status is ") << past_status;
       CloseHardwareSocket();
       break;
 
@@ -342,21 +342,21 @@ void ServerSocket::HandleCloseWait() {
     listener_.OnCanRead(conn);
   } else {
     listener_.OnHalfClosed(conn);
-    TAS_VLOG(2) << TAS_FLASHSTR("HandleCloseWait ")
-                << TAS_FLASHSTR("disconnected=")
+    MCU_VLOG(2) << MCU_FLASHSTR("HandleCloseWait ")
+                << MCU_FLASHSTR("disconnected=")
                 << disconnect_data_.disconnected;
   }
   DetectListenerInitiatedDisconnect();
 }
 
 void ServerSocket::DetectListenerInitiatedDisconnect() {
-  TAS_VLOG(9) << TAS_FLASHSTR("DetectListenerInitiatedDisconnect ")
-              << TAS_FLASHSTR("disconnected=") << disconnect_data_.disconnected;
+  MCU_VLOG(9) << MCU_FLASHSTR("DetectListenerInitiatedDisconnect ")
+              << MCU_FLASHSTR("disconnected=") << disconnect_data_.disconnected;
   if (disconnect_data_.disconnected) {
     auto new_status = PlatformEthernet::SocketStatus(sock_num_);
-    TAS_VLOG(2) << TAS_FLASHSTR("DetectListenerInitiatedDisconnect")
-                << mcucore::BaseHex << TAS_FLASHSTR(" last_status=")
-                << last_status_ << TAS_FLASHSTR(" new_status=") << new_status;
+    MCU_VLOG(2) << MCU_FLASHSTR("DetectListenerInitiatedDisconnect")
+                << mcucore::BaseHex << MCU_FLASHSTR(" last_status=")
+                << last_status_ << MCU_FLASHSTR(" new_status=") << new_status;
     last_status_ = new_status;
   }
 }
@@ -369,23 +369,23 @@ void ServerSocket::DetectCloseTimeout() {
   if (disconnect_data_.disconnected &&
       disconnect_data_.ElapsedDisconnectTime() > kDisconnectMaxMillis) {
     // Time to give up.
-    TAS_VLOG(2) << TAS_FLASHSTR("DetectCloseTimeout closing socket");
+    MCU_VLOG(2) << MCU_FLASHSTR("DetectCloseTimeout closing socket");
     CloseHardwareSocket();
   }
 }
 
 void ServerSocket::CloseHardwareSocket() {
-  TAS_VLOG(2) << TAS_FLASHSTR("CloseHardwareSocket")
-              << TAS_FLASHSTR(" last_status=") << mcucore::BaseHex
+  MCU_VLOG(2) << MCU_FLASHSTR("CloseHardwareSocket")
+              << MCU_FLASHSTR(" last_status=") << mcucore::BaseHex
               << last_status_;
   PlatformEthernet::CloseSocket(sock_num_);
   last_status_ = PlatformEthernet::SocketStatus(sock_num_);
-  TAS_DCHECK_EQ(last_status_, SnSR::CLOSED);
+  MCU_DCHECK_EQ(last_status_, SnSR::CLOSED);
 }
 
 void ServerSocket::DisconnectData::RecordDisconnect() {
   if (!disconnected) {
-    TAS_VLOG(2) << TAS_FLASHSTR("DisconnectData::RecordDisconnect");
+    MCU_VLOG(2) << MCU_FLASHSTR("DisconnectData::RecordDisconnect");
     disconnected = true;
     disconnect_time_millis = millis();
   }
@@ -397,7 +397,7 @@ void ServerSocket::DisconnectData::Reset() {
 }
 
 MillisT ServerSocket::DisconnectData::ElapsedDisconnectTime() {
-  TAS_DCHECK(disconnected);
+  MCU_DCHECK(disconnected);
   return ElapsedMillis(disconnect_time_millis);
 }
 

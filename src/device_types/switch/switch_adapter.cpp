@@ -9,19 +9,19 @@ namespace alpaca {
 
 SwitchAdapter::SwitchAdapter(const DeviceInfo& device_info)
     : DeviceImplBase(device_info) {
-  TAS_DCHECK_EQ(device_info.device_type, EDeviceType::kSwitch);
+  MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kSwitch);
 }
 
 void SwitchAdapter::Initialize() {
   DeviceImplBase::Initialize();
-  TAS_CHECK_LE(0, GetMaxSwitch());
-  TAS_CHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
+  MCU_CHECK_LE(0, GetMaxSwitch());
+  MCU_CHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
 }
 
 bool SwitchAdapter::HandleGetRequest(const AlpacaRequest& request, Print& out) {
-  TAS_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
-  TAS_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
-  TAS_DCHECK_EQ(request.device_number, device_number());
+  MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
+  MCU_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
+  MCU_DCHECK_EQ(request.device_number, device_number());
 
   // All but one of the Switch-specific GET methods needs the id parameter, but
   // not the common methods.
@@ -86,9 +86,9 @@ bool SwitchAdapter::HandleGetRequest(const AlpacaRequest& request, Print& out) {
 
 // Handle a PUT 'request', write the HTTP response message to out.
 bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
-  TAS_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
-  TAS_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
-  TAS_DCHECK_EQ(request.device_number, device_number());
+  MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
+  MCU_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
+  MCU_DCHECK_EQ(request.device_number, device_number());
 
   // All of the Switch-specific PUT methods need the id parameter, but not the
   // common methods.
@@ -142,8 +142,8 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
 bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
                                               Print& out, bool& handler_ret) {
   if (request.have_id) {
-    TAS_DCHECK_LE(0, GetMaxSwitch());
-    TAS_DCHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
+    MCU_DCHECK_LE(0, GetMaxSwitch());
+    MCU_DCHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
     if (0 <= request.id && request.id < GetMaxSwitch()) {
       return true;
     }

@@ -15,7 +15,7 @@ MultiSwitchAdapter::MultiSwitchAdapter(
 
 SwitchInterface* MultiSwitchAdapter::GetSwitchInterface(
     uint16_t switch_id) const {
-  TAS_CHECK_LT(switch_id, switches_.size());
+  MCU_CHECK_LT(switch_id, switches_.size());
   return switches_[switch_id];
 }
 

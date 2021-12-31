@@ -4,6 +4,7 @@
 #include "inline_literal.h"
 #include "logging.h"
 #include "o_print_stream.h"
+#include "progmem_string_data.h"
 
 namespace alpaca {
 namespace {
@@ -18,10 +19,10 @@ const char kName[] = "addrs";
 // inclusive. Learn more: https://tools.ietf.org/html/rfc3927
 void pickIPAddress(IPAddress* output) {
   int c = random(254) + 1;
-  TAS_VLOG(5) << TAS_FLASHSTR("pickIPAddress: c=") << c;
+  MCU_VLOG(5) << MCU_FLASHSTR("pickIPAddress: c=") << c;
 
   int d = random(256);
-  TAS_VLOG(5) << TAS_FLASHSTR("pickIPAddress: d=") << d;
+  MCU_VLOG(5) << MCU_FLASHSTR("pickIPAddress: d=") << d;
 
   (*output)[0] = 169;
   (*output)[1] = 254;
@@ -101,7 +102,7 @@ void MacAddress::generateAddress(const OuiPrefix* oui_prefix) {
       r = toOuiUnicast(r);
     }
     mac[i] = r;
-    TAS_VLOG(4) << TAS_FLASHSTR("mac[") << i << TAS_FLASHSTR("] = ")
+    MCU_VLOG(4) << MCU_FLASHSTR("mac[") << i << MCU_FLASHSTR("] = ")
                 << mcucore::BaseHex << (mac[i] + 0);
   }
 }
@@ -169,7 +170,7 @@ int SaveableIPAddress::read(int fromAddress, mcucore::Crc32* crc) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
-  TAS_VLOG(4) << TAS_FLASHSTR("Entered loadOrGenAndSave");
+  MCU_VLOG(4) << MCU_FLASHSTR("Entered loadOrGenAndSave");
   if (load(oui_prefix)) {
     return;
   }
@@ -179,13 +180,13 @@ void Addresses::loadOrGenAndSave(const OuiPrefix* oui_prefix) {
 
 #ifndef NDEBUG
   Addresses loader;
-  TAS_DCHECK(loader.load(oui_prefix));
-  TAS_DCHECK_EQ(loader.ip, ip);
+  MCU_DCHECK(loader.load(oui_prefix));
+  MCU_DCHECK_EQ(loader.ip, ip);
 #endif
 }
 
 void Addresses::save() const {
-  TAS_VLOG(3) << TAS_FLASHSTR("Saving ") << kName;
+  MCU_VLOG(3) << MCU_FLASHSTR("Saving ") << kName;
 
   int ipAddress = mcucore::eeprom_io::SaveName(0, kName);
   mcucore::Crc32 crc;
@@ -197,18 +198,18 @@ void Addresses::save() const {
 bool Addresses::load(const OuiPrefix* oui_prefix) {
   int ipAddress;
   if (!mcucore::eeprom_io::VerifyName(0, kName, &ipAddress)) {
-    TAS_VLOG(2) << TAS_FLASHSTR("Stored name mismatch");
+    MCU_VLOG(2) << MCU_FLASHSTR("Stored name mismatch");
     return false;
   }
   mcucore::Crc32 crc;
   int macAddress = ip.read(ipAddress, &crc);
   int crcAddress = mac.read(macAddress, &crc);
   if (!crc.verify(crcAddress)) {
-    TAS_VLOG(2) << TAS_FLASHSTR("Stored crc mismatch");
+    MCU_VLOG(2) << MCU_FLASHSTR("Stored crc mismatch");
     return false;
   }
   if (oui_prefix && !mac.hasOuiPrefix(*oui_prefix)) {
-    TAS_VLOG(2) << TAS_FLASHSTR("Stored OUI prefix mismatch");
+    MCU_VLOG(2) << MCU_FLASHSTR("Stored OUI prefix mismatch");
     return false;
   }
   return true;
@@ -228,9 +229,9 @@ void Addresses::println(const char* prefix) const {
 
 size_t Addresses::printTo(Print& p) const {
   size_t result = p.print(kName);
-  result += p.print(TAS_FLASHSTR(": MAC="));
+  result += p.print(MCU_FLASHSTR(": MAC="));
   result += p.print(mac);
-  result += p.print(TAS_FLASHSTR(", IP="));
+  result += p.print(MCU_FLASHSTR(", IP="));
   result += p.print(ip);
   return result;
 }

@@ -12,6 +12,7 @@
 
 #include "inline_literal.h"
 #include "logging.h"
+#include "progmem_string_data.h"
 #include "utils/platform_ethernet.h"
 
 namespace alpaca {
@@ -60,7 +61,7 @@ bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
   Ethernet.setDhcp(&dhcp);
   using_dhcp_ = Ethernet.begin(addresses.mac.mac);
   if (!using_dhcp_) {
-    TAS_VLOG(2) << TAS_FLASHSTR("Failed to get an address using DHCP");
+    MCU_VLOG(2) << MCU_FLASHSTR("Failed to get an address using DHCP");
     // TODO(jamessynge): First check whether there is an Ethernet cable
     // attached; if not, then we don't benefit from a retry. Instead, we can
     // check whether a cable is attached later in the main loop. This may
@@ -70,8 +71,8 @@ bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
     Ethernet.softreset();
     using_dhcp_ = Ethernet.begin(addresses.mac.mac);
     if (!using_dhcp_) {
-      TAS_VLOG(2) << TAS_FLASHSTR("Failed to get an address using DHCP")
-                  << TAS_FLASHSTR(" after a soft reset.");
+      MCU_VLOG(2) << MCU_FLASHSTR("Failed to get an address using DHCP")
+                  << MCU_FLASHSTR(" after a soft reset.");
     }
   }
 
@@ -84,11 +85,11 @@ bool IpDevice::InitializeNetworking(const OuiPrefix* oui_prefix) {
     Ethernet.macAddress(mac.mac);
     if (!(mac == addresses.mac)) {
       // Oops, this isn't the right board to run this sketch.
-      mcucore::LogSink() << TAS_FLASHSTR("Found no networking hardware");
+      mcucore::LogSink() << MCU_FLASHSTR("Found no networking hardware");
       return false;
     }
 
-    mcucore::LogSink() << TAS_FLASHSTR("No DHCP, using default IP ")
+    mcucore::LogSink() << MCU_FLASHSTR("No DHCP, using default IP ")
                        << addresses.ip;
 
     // No DHCP server responded with a lease on an IP address, so we'll
@@ -128,11 +129,11 @@ int IpDevice::MaintainDhcpLease() {
 void IpDevice::PrintNetworkAddresses() {
   alpaca::MacAddress mac;
   Ethernet.macAddress(mac.mac);
-  mcucore::LogSink() << TAS_FLASHSTR("MAC: ") << mac;
-  mcucore::LogSink() << TAS_FLASHSTR("IP: ") << Ethernet.localIP();
-  mcucore::LogSink() << TAS_FLASHSTR("Subnet: ") << Ethernet.subnetMask();
-  mcucore::LogSink() << TAS_FLASHSTR("Gateway: ") << Ethernet.gatewayIP();
-  mcucore::LogSink() << TAS_FLASHSTR("DNS: ") << Ethernet.dnsServerIP();
+  mcucore::LogSink() << MCU_FLASHSTR("MAC: ") << mac;
+  mcucore::LogSink() << MCU_FLASHSTR("IP: ") << Ethernet.localIP();
+  mcucore::LogSink() << MCU_FLASHSTR("Subnet: ") << Ethernet.subnetMask();
+  mcucore::LogSink() << MCU_FLASHSTR("Gateway: ") << Ethernet.gatewayIP();
+  mcucore::LogSink() << MCU_FLASHSTR("DNS: ") << Ethernet.dnsServerIP();
 }
 
 }  // namespace alpaca

@@ -210,8 +210,8 @@ class AlpacaHttpClient(object):
 
   def gen_standard_params(self) -> Dict[str, str]:
     result = dict(
-        ClientID=self.client_id,
-        ClientTransactionID=self.gen_next_client_transaction_id())
+        ClientID=str(self.client_id),
+        ClientTransactionID=str(self.gen_next_client_transaction_id()))
     return result
 
   def gen_management_request(self, path_extension: str) -> requests.Request:

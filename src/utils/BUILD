@@ -14,6 +14,7 @@ cc_library(
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:o_print_stream",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 
@@ -28,6 +29,7 @@ cc_library(
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:print_misc",
         "//mcucore/src:print_to_trait",
+        "//mcucore/src:progmem_string_data",
         "//mcucore/src:stream_to_print",
         "//mcucore/src:type_traits",
     ],
@@ -53,6 +55,7 @@ cc_library(
         "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 
@@ -64,6 +67,7 @@ cc_library(
         "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 

@@ -14,6 +14,7 @@
 #include "inline_literal.h"
 #include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "progmem_string_data.h"
 #include "status.h"
 #include "status_or.h"
 
@@ -81,11 +82,11 @@ class SwitchGroupTest : public testing::Test {
   const alpaca::DeviceInfo device_info_{
       .device_type = alpaca::EDeviceType::kSwitch,
       .device_number = kDeviceNumber,
-      .name = TAS_FLASHSTR("Switch Name"),
-      .unique_id = TAS_FLASHSTR("Switch Unique Id"),
-      .description = TAS_FLASHSTR("Switch Description"),
-      .driver_info = TAS_FLASHSTR("Switch Driver Info"),
-      .driver_version = TAS_FLASHSTR("Switch Driver Version"),
+      .name = MCU_FLASHSTR("Switch Name"),
+      .unique_id = MCU_FLASHSTR("Switch Unique Id"),
+      .description = MCU_FLASHSTR("Switch Description"),
+      .driver_info = MCU_FLASHSTR("Switch Driver Info"),
+      .driver_version = MCU_FLASHSTR("Switch Driver Version"),
       .supported_actions = {},
       .interface_version = 1,
   };

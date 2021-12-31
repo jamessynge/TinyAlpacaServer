@@ -21,22 +21,22 @@ class DeviceInfoHtml : public Printable {
   size_t printTo(Print& out) const override {
     mcucore::CountingPrint counter(out);
     mcucore::OPrintStream strm(counter);
-    strm << TAS_FLASHSTR(
+    strm << MCU_FLASHSTR(
                 "<html><body>"
                 "<h1>Tiny Alpaca Server Device Setup</h1>\n"
                 "Type: ")
-         << info_.device_type << TAS_FLASHSTR("<br>")  //
-         << TAS_FLASHSTR("Number: ") << info_.device_number
-         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Name: ") << info_.name
-         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Description: ")
-         << info_.description << TAS_FLASHSTR("<br>")
-         << TAS_FLASHSTR("Unique ID: ") << info_.unique_id
-         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Driver Info: ")
-         << info_.driver_info << TAS_FLASHSTR("<br>")
-         << TAS_FLASHSTR("Driver Version: ") << info_.driver_version
-         << TAS_FLASHSTR("<br>") << TAS_FLASHSTR("Interface Version: ")
-         << info_.interface_version << TAS_FLASHSTR("<br>")
-         << TAS_FLASHSTR("</body></html>");
+         << info_.device_type << MCU_FLASHSTR("<br>")  //
+         << MCU_FLASHSTR("Number: ") << info_.device_number
+         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Name: ") << info_.name
+         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Description: ")
+         << info_.description << MCU_FLASHSTR("<br>")
+         << MCU_FLASHSTR("Unique ID: ") << info_.unique_id
+         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Driver Info: ")
+         << info_.driver_info << MCU_FLASHSTR("<br>")
+         << MCU_FLASHSTR("Driver Version: ") << info_.driver_version
+         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Interface Version: ")
+         << info_.interface_version << MCU_FLASHSTR("<br>")
+         << MCU_FLASHSTR("</body></html>");
     return counter.count();
   }
 

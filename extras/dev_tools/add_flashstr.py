@@ -17,7 +17,7 @@ TokenOrGroup = Union[Token, Group]
 def is_logging_keyword(identifier: str) -> bool:
   if not identifier.startswith('TAS_'):
     return False
-  for prefix in ['TAS_VLOG', 'TAS_CHECK', 'TAS_DCHECK']:
+  for prefix in ['MCU_VLOG', 'MCU_CHECK', 'MCU_DCHECK']:
     if identifier.startswith(prefix):
       return True
   return False
@@ -26,7 +26,7 @@ def is_logging_keyword(identifier: str) -> bool:
 def find_tas_stream_statements(
     grouped_tokens: List[TokenOrGroup]
 ) -> Generator[List[TokenOrGroup], None, None]:
-  """Yields statements starting with TAS_VLOG, TAS_CHECK or TAS_DCHECK."""
+  """Yields statements starting with MCU_VLOG, MCU_CHECK or MCU_DCHECK."""
 
   ndx_limit = len(grouped_tokens)
 

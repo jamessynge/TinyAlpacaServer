@@ -1,4 +1,4 @@
-#define TAS_ENABLED_VLOG_LEVEL 2
+#define MCU_ENABLED_VLOG_LEVEL 2
 
 #include <Arduino.h>
 #include <TinyAlpacaServer.h>
@@ -29,7 +29,7 @@ class EventInfo {
       : name_(name), pin_(pin), interrupt_(digitalPinToInterrupt(pin)) {}
 
   void Reset() {
-    TAS_VLOG(1) << TAS_FLASHSTR("\nEventInfo::Reset\n");
+    MCU_VLOG(1) << MCU_FLASHSTR("\nEventInfo::Reset\n");
 
     pinMode(pin_, INPUT);
     noInterrupts();
@@ -60,13 +60,13 @@ class EventInfo {
 
 #ifdef RECORD_RISING_AND_FALLING
     if (awaiting_falling) {
-      TAS_VLOG(1) << TAS_FLASHSTR("Awaiting ") << name_
-                  << TAS_FLASHSTR("pin FALLING");
+      MCU_VLOG(1) << MCU_FLASHSTR("Awaiting ") << name_
+                  << MCU_FLASHSTR("pin FALLING");
     } else {
-      TAS_VLOG(1) << TAS_FLASHSTR("Awaiting pin RISING");
+      MCU_VLOG(1) << MCU_FLASHSTR("Awaiting pin RISING");
     }
 #elif defined(RECORD_CHANGE)
-    TAS_VLOG(1) << TAS_FLASHSTR("Awaiting pin CHANGE");
+    MCU_VLOG(1) << MCU_FLASHSTR("Awaiting pin CHANGE");
 #endif
   }
 
@@ -103,21 +103,21 @@ class EventInfo {
       noInterrupts();
       auto missed_count = missed_count_;
       interrupts();
-      TAS_VLOG(1) << TAS_FLASHSTR("There were ") << missed_count
-                  << TAS_FLASHSTR(" events that we didn't record.");
+      MCU_VLOG(1) << MCU_FLASHSTR("There were ") << missed_count
+                  << MCU_FLASHSTR(" events that we didn't record.");
     }
 
-    TAS_VLOG(1) << TAS_FLASHSTR("Recorded ") << count
-                << TAS_FLASHSTR(" events.");
-    TAS_VLOG(1) << (event_is_falling_[0] ? TAS_FLASHSTR("Falling")
-                                         : TAS_FLASHSTR("Rising"))
-                << TAS_FLASHSTR(" @ micros ") << event_micros_[0];
+    MCU_VLOG(1) << MCU_FLASHSTR("Recorded ") << count
+                << MCU_FLASHSTR(" events.");
+    MCU_VLOG(1) << (event_is_falling_[0] ? MCU_FLASHSTR("Falling")
+                                         : MCU_FLASHSTR("Rising"))
+                << MCU_FLASHSTR(" @ micros ") << event_micros_[0];
     for (uint8_t ndx = 1; ndx < count; ++ndx) {
-      TAS_VLOG(1) << '+' << (event_micros_[ndx] - event_micros_[ndx - 1])
-                  << TAS_FLASHSTR(" micros later was ")
-                  << (event_is_falling_[ndx] ? TAS_FLASHSTR("Falling")
-                                             : TAS_FLASHSTR("Rising"))
-                  << TAS_FLASHSTR(" @ micros ") << event_micros_[ndx];
+      MCU_VLOG(1) << '+' << (event_micros_[ndx] - event_micros_[ndx - 1])
+                  << MCU_FLASHSTR(" micros later was ")
+                  << (event_is_falling_[ndx] ? MCU_FLASHSTR("Falling")
+                                             : MCU_FLASHSTR("Rising"))
+                  << MCU_FLASHSTR(" @ micros ") << event_micros_[ndx];
     }
 
     Reset();

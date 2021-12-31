@@ -1,5 +1,7 @@
 #include "led_channel_switch_group.h"
 
+#include <McuCore.h>
+
 namespace astro_makers {
 
 using ::alpaca::AlpacaRequest;
@@ -20,13 +22,13 @@ uint16_t LedChannelSwitchGroup::GetMaxSwitch() { return 4; }
 
 bool LedChannelSwitchGroup::HandleGetSwitchDescription(
     const AlpacaRequest& request, uint16_t switch_id, Print& out) {
-  TAS_DCHECK_LT(switch_id, GetMaxSwitch());
+  MCU_DCHECK_LT(switch_id, GetMaxSwitch());
   return WriteResponse::PrintableStringResponse(
       request,
       mcucore::PrintableCat(
-          TAS_FLASHSTR("Enables Cover-Calibrator LED Channel #"),
+          MCU_FLASHSTR("Enables Cover-Calibrator LED Channel #"),
           mcucore::AnyPrintable(switch_id),
-          TAS_FLASHSTR(", if hardware is available")),
+          MCU_FLASHSTR(", if hardware is available")),
       out);
 }
 
@@ -73,15 +75,15 @@ double LedChannelSwitchGroup::GetSwitchStep(uint16_t switch_id) { return 1; }
 mcucore::Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id,
                                                  bool state) {
   if (!GetCanWrite(switch_id)) {
-    TAS_VLOG(2) << TAS_FLASHSTR("Can NOT write switch #") << switch_id;
+    MCU_VLOG(2) << MCU_FLASHSTR("Can NOT write switch #") << switch_id;
     return ErrorCodes::NotImplemented();
   } else if (cover_calibrator_.SetLedChannelEnabled(switch_id, state) !=
              state) {
-    TAS_VLOG(1) << TAS_FLASHSTR("Failed to set channel ") << switch_id
-                << TAS_FLASHSTR(" to state ") << state;
+    MCU_VLOG(1) << MCU_FLASHSTR("Failed to set channel ") << switch_id
+                << MCU_FLASHSTR(" to state ") << state;
   } else {
-    TAS_VLOG(4) << TAS_FLASHSTR("Switch #") << switch_id
-                << TAS_FLASHSTR(" now set to ") << state;
+    MCU_VLOG(4) << MCU_FLASHSTR("Switch #") << switch_id
+                << MCU_FLASHSTR(" now set to ") << state;
   }
   return mcucore::OkStatus();
 }

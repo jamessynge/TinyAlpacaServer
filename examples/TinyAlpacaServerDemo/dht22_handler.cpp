@@ -17,11 +17,11 @@ const auto kSupportedActions = mcucore::LiteralArray({});
 const alpaca::DeviceInfo kDht22DeviceInfo{
     .device_type = alpaca::EDeviceType::kObservingConditions,
     .device_number = 1,
-    .name = TAS_FLASHSTR("DHT22"),
-    .unique_id = TAS_FLASHSTR("0.1"),
-    .description = TAS_FLASHSTR(DEVICE_DESCRIPTION),
-    .driver_info = TAS_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-    .driver_version = TAS_FLASHSTR("0.1"),
+    .name = MCU_FLASHSTR("DHT22"),
+    .unique_id = MCU_FLASHSTR("0.1"),
+    .description = MCU_FLASHSTR(DEVICE_DESCRIPTION),
+    .driver_info = MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
+    .driver_version = MCU_FLASHSTR("0.1"),
     .supported_actions = kSupportedActions,
     .interface_version = 1,
 };

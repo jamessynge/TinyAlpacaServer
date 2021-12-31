@@ -9,14 +9,14 @@ namespace alpaca {
 
 CoverCalibratorAdapter::CoverCalibratorAdapter(const DeviceInfo& device_info)
     : DeviceImplBase(device_info) {
-  TAS_DCHECK_EQ(device_info.device_type, EDeviceType::kCoverCalibrator);
+  MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kCoverCalibrator);
 }
 
 bool CoverCalibratorAdapter::HandleGetRequest(const AlpacaRequest& request,
                                               Print& out) {
-  TAS_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
-  TAS_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
-  TAS_DCHECK_EQ(request.device_number, device_number());
+  MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
+  MCU_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
+  MCU_DCHECK_EQ(request.device_number, device_number());
 
   switch (request.device_method) {
     case EDeviceMethod::kBrightness:
@@ -64,9 +64,9 @@ mcucore::StatusOr<int32_t> CoverCalibratorAdapter::GetMaxBrightness() {
 // Handle a PUT 'request', write the HTTP response message to out.
 bool CoverCalibratorAdapter::HandlePutRequest(const AlpacaRequest& request,
                                               Print& out) {
-  TAS_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
-  TAS_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
-  TAS_DCHECK_EQ(request.device_number, device_number());
+  MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
+  MCU_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
+  MCU_DCHECK_EQ(request.device_number, device_number());
 
   switch (request.device_method) {
     case EDeviceMethod::kCalibratorOff:

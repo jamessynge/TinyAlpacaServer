@@ -8,6 +8,7 @@
 #include "literals.h"
 #include "logging.h"
 #include "printable_cat.h"
+#include "progmem_string_data.h"
 #include "status.h"
 
 namespace alpaca {
@@ -15,7 +16,7 @@ namespace alpaca {
 ObservingConditionsAdapter::ObservingConditionsAdapter(
     const DeviceInfo& device_info)
     : DeviceImplBase(device_info) {
-  TAS_DCHECK_EQ(device_info.device_type, EDeviceType::kObservingConditions);
+  MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kObservingConditions);
 }
 
 // Handle a GET 'request', write the HTTP response message to out.
@@ -115,7 +116,7 @@ mcucore::StatusOr<double> ObservingConditionsAdapter::GetAveragePeriod() {
   if (MaxAveragePeriod() == 0) {
     return 0;
   } else {
-    TAS_DCHECK(false) << TAS_FLASHSTR_128(
+    MCU_DCHECK(false) << MCU_FLASHSTR_128(
         "GetAveragePeriod should be overridden given that MaxAveragePeriod is "
         "not 0, but it has not been.");
     return ErrorCodes::NotImplemented();
@@ -206,10 +207,10 @@ double ObservingConditionsAdapter::MaxAveragePeriod() const { return 0; }
 
 mcucore::Status ObservingConditionsAdapter::SetAveragePeriod(double hours) {
   if (MaxAveragePeriod() == 0) {
-    TAS_DCHECK_EQ(hours, 0);
+    MCU_DCHECK_EQ(hours, 0);
     return mcucore::OkStatus();
   } else {
-    TAS_DCHECK(false) << TAS_FLASHSTR_128(
+    MCU_DCHECK(false) << MCU_FLASHSTR_128(
         "SetAveragePeriod must be overridden if MaxAveragePeriod is not 0.");
     return ErrorCodes::NotImplemented();
   }
@@ -239,7 +240,7 @@ bool ObservingConditionsAdapter::WriteDoubleOrSensorErrorResponse(
 bool ObservingConditionsAdapter::WriteSensorNotImpementedResponse(
     const AlpacaRequest& request, ESensorName sensor_name, Print& out) {
   auto error_message =
-      mcucore::PrintableCat(TAS_FLASHSTR("Sensor not implemented: "),
+      mcucore::PrintableCat(MCU_FLASHSTR("Sensor not implemented: "),
                             ToFlashStringHelper(sensor_name));
   return WriteResponse::AscomErrorResponse(request, ErrorCodes::kNotImplemented,
                                            error_message, out);

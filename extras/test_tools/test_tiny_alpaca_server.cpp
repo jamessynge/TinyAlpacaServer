@@ -13,6 +13,7 @@
 #include "inline_literal.h"
 #include "logging.h"
 #include "o_print_stream.h"
+#include "progmem_string_data.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"
@@ -30,9 +31,9 @@ TestTinyAlpacaServer::TestTinyAlpacaServer(
 ConnectionResult TestTinyAlpacaServer::AnnounceConnect(std::string_view input,
                                                        bool repeat_until_stable,
                                                        bool peer_half_closed) {
-  TAS_CHECK(!server_connection_.has_socket());
-  TAS_CHECK(!connection_is_open_);
-  TAS_CHECK(!connection_is_writeable_);
+  MCU_CHECK(!server_connection_.has_socket());
+  MCU_CHECK(!connection_is_open_);
+  MCU_CHECK(!connection_is_writeable_);
   StringIoConnection conn(sock_num_, input, peer_half_closed);
   server_connection_.OnConnect(conn);
   if (repeat_until_stable) {
@@ -50,12 +51,12 @@ ConnectionResult TestTinyAlpacaServer::AnnounceConnect(std::string_view input,
 ConnectionResult TestTinyAlpacaServer::AnnounceCanRead(std::string_view input,
                                                        bool repeat_until_stable,
                                                        bool peer_half_closed) {
-  TAS_CHECK(server_connection_.has_socket());
-  TAS_CHECK_EQ(sock_num_, server_connection_.sock_num());
-  TAS_CHECK(connection_is_open_);
-  TAS_CHECK(connection_is_writeable_);
-  TAS_CHECK(!(input.empty() && peer_half_closed))
-      << TAS_FLASHSTR("Call AnnounceHalfClosed instead");
+  MCU_CHECK(server_connection_.has_socket());
+  MCU_CHECK_EQ(sock_num_, server_connection_.sock_num());
+  MCU_CHECK(connection_is_open_);
+  MCU_CHECK(connection_is_writeable_);
+  MCU_CHECK(!(input.empty() && peer_half_closed))
+      << MCU_FLASHSTR("Call AnnounceHalfClosed instead");
   StringIoConnection conn(sock_num_, input, peer_half_closed);
   server_connection_.OnCanRead(conn);
   if (repeat_until_stable) {
@@ -89,9 +90,9 @@ void TestTinyAlpacaServer::MaybeHalfClose(StringIoConnection& conn,
 
 ConnectionResult TestTinyAlpacaServer::AnnounceHalfClosed(
     bool repeat_until_stable) {
-  TAS_CHECK(server_connection_.has_socket());
-  TAS_CHECK_EQ(sock_num_, server_connection_.sock_num());
-  TAS_CHECK(connection_is_open_);
+  MCU_CHECK(server_connection_.has_socket());
+  MCU_CHECK_EQ(sock_num_, server_connection_.sock_num());
+  MCU_CHECK(connection_is_open_);
   StringIoConnection conn(sock_num_, "", /*half_closed=*/true);
   server_connection_.OnHalfClosed(conn);
   if (repeat_until_stable && !conn.output().empty()) {
@@ -115,9 +116,9 @@ void TestTinyAlpacaServer::RepeatedlyAnnounceHalfClosed(
 }
 
 void TestTinyAlpacaServer::AnnounceDisconnect() {
-  TAS_CHECK(server_connection_.has_socket());
-  TAS_CHECK_EQ(sock_num_, server_connection_.sock_num());
-  TAS_CHECK(connection_is_open_);
+  MCU_CHECK(server_connection_.has_socket());
+  MCU_CHECK_EQ(sock_num_, server_connection_.sock_num());
+  MCU_CHECK(connection_is_open_);
   server_connection_.OnDisconnect();
   sock_num_ = (sock_num_ + 1) % MAX_SOCK_NUM;
   connection_is_open_ = connection_is_writeable_ = false;

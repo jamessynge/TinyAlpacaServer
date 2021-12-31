@@ -19,6 +19,7 @@ cc_test(
         "//mcucore/src:array_view",
         "//mcucore/src:inline_literal",
         "//mcucore/src:literal",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 
@@ -57,6 +58,7 @@ cc_test(
         "//mcucore/src:json_encoder",
         "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:literal",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 

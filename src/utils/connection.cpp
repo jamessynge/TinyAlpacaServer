@@ -11,8 +11,8 @@ size_t Connection::read(uint8_t *buf, size_t size) {
     if (c < 0) {
       break;
     }
-    TAS_DCHECK_LT(c, 256) << TAS_FLASHSTR("c (") << c
-                          << TAS_FLASHSTR(") should be in the range [0, 255]");
+    MCU_DCHECK_LT(c, 256) << MCU_FLASHSTR("c (") << c
+                          << MCU_FLASHSTR(") should be in the range [0, 255]");
     *buf++ = c & 0xff;
     ++result;
     --size;
@@ -51,8 +51,8 @@ WriteBufferedWrappedClientConnection::WriteBufferedWrappedClientConnection(
     : write_buffer_(write_buffer),
       write_buffer_limit_(write_buffer_limit),
       write_buffer_size_(0) {
-  TAS_DCHECK(write_buffer != nullptr);
-  TAS_DCHECK(write_buffer_limit > 0);
+  MCU_DCHECK(write_buffer != nullptr);
+  MCU_DCHECK(write_buffer_limit > 0);
 }
 size_t WriteBufferedWrappedClientConnection::write(uint8_t b) {
   if (write_buffer_size_ >= write_buffer_limit_) {
@@ -71,7 +71,7 @@ size_t WriteBufferedWrappedClientConnection::write(const uint8_t *buf,
   size_t remaining = size;
   while (remaining > 0) {
     size_t room = write_buffer_limit_ - write_buffer_size_;
-    TAS_DCHECK_GT(room, 0);
+    MCU_DCHECK_GT(room, 0);
     if (room > remaining) {
       room = remaining;
     }
@@ -101,15 +101,15 @@ size_t WriteBufferedWrappedClientConnection::read(uint8_t *buf, size_t size) {
 int WriteBufferedWrappedClientConnection::peek() { return client().peek(); }
 void WriteBufferedWrappedClientConnection::flush() {
   if (write_buffer_size_ > 0) {
-    TAS_VLOG(4) << TAS_FLASHSTR("write_buffer_size_=") << write_buffer_size_;
+    MCU_VLOG(4) << MCU_FLASHSTR("write_buffer_size_=") << write_buffer_size_;
     if (!hasWriteError()) {
-      TAS_VLOG(5) << TAS_FLASHSTR("hasWriteError=") << false;
+      MCU_VLOG(5) << MCU_FLASHSTR("hasWriteError=") << false;
       auto cursor = write_buffer_;
       auto remaining = write_buffer_size_;
       while (true) {
         auto wrote = client().write(cursor, remaining);
-        TAS_VLOG(4) << TAS_FLASHSTR("wrote=") << wrote;
-        TAS_DCHECK_LE(wrote, remaining);
+        MCU_VLOG(4) << MCU_FLASHSTR("wrote=") << wrote;
+        MCU_DCHECK_LE(wrote, remaining);
         if (wrote <= 0 || !client().connected()) {
           setWriteError(1);
           break;
@@ -121,7 +121,7 @@ void WriteBufferedWrappedClientConnection::flush() {
         remaining -= wrote;
       }
     } else {
-      TAS_VLOG(3) << TAS_FLASHSTR("hasWriteError=") << true;
+      MCU_VLOG(3) << MCU_FLASHSTR("hasWriteError=") << true;
     }
     write_buffer_size_ = 0;
     return;

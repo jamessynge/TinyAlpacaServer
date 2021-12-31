@@ -8,6 +8,7 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
 #include <TinyAlpacaServer.h>
 
 #include "cover_calibrator.h"

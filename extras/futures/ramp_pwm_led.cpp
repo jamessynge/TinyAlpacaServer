@@ -12,7 +12,7 @@ RampPwmLed::RampPwmLed(uint8_t output_pin, uint8_t enabled_pin,
 bool RampPwmLed::is_enabled() const { return led_.is_enabled(); }
 
 void RampPwmLed::set_brightness_target(uint16_t brightness) {
-  TAS_DCHECK_LT(brightness, max_brightness());
+  MCU_DCHECK_LT(brightness, max_brightness());
   if (brightness_target_ == brightness) {
     return;
   }
@@ -23,7 +23,7 @@ void RampPwmLed::set_brightness_target(uint16_t brightness) {
 }
 
 void RampPwmLed::set_brightness_immediately(uint16_t brightness) {
-  TAS_DCHECK_LT(brightness, max_brightness());
+  MCU_DCHECK_LT(brightness, max_brightness());
   brightness_target_ =
       brightness > max_brightness() ? max_brightness() : brightness;
   if (!has_reached_target()) {

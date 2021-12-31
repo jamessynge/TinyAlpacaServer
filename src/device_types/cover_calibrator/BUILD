@@ -24,5 +24,6 @@ cc_library(
         "//mcucore/src:inline_literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:print_misc",
+        "//mcucore/src:progmem_string_data",
     ],
 )

@@ -110,7 +110,7 @@ EHttpStatusCode DecodeBuffer(
     // to check for cases where the decoder tries to read too far.
     const size_t initial_size = std::min(max_decode_buffer_size, buffer.size());
     std::string copy = buffer.substr(0, initial_size);
-#if TAS_ENABLE_DEBUGGING
+#if MCU_ENABLE_DEBUGGING
     copy.append("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t");
 #endif
     mcucore::StringView view(copy.data(), initial_size);

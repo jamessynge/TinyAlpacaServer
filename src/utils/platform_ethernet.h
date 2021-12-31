@@ -15,11 +15,11 @@
 #include <Stream.h>          // IWYU pragma: export
 #include <utility/socket.h>  // IWYU pragma: export
 
-#elif TAS_EMBEDDED_TARGET
+#elif MCU_EMBEDDED_TARGET
 
 #error "No support known for this platform."
 
-#elif TAS_HOST_TARGET
+#elif MCU_HOST_TARGET
 
 #include <Client.h>        // IWYU pragma : export
 #include <Ethernet5500.h>  // IWYU pragma: export
@@ -31,13 +31,13 @@
 
 namespace alpaca {
 
-#ifndef TAS_HAS_PLATFORM_ETHERNET_INTERFACE
-#if TAS_HOST_TARGET
-#define TAS_HAS_PLATFORM_ETHERNET_INTERFACE 1
-#endif  // TAS_HOST_TARGET
-#endif  // TAS_HAS_PLATFORM_ETHERNET_INTERFACE
+#ifndef MCU_HAS_PLATFORM_ETHERNET_INTERFACE
+#if MCU_HOST_TARGET
+#define MCU_HAS_PLATFORM_ETHERNET_INTERFACE 1
+#endif  // MCU_HOST_TARGET
+#endif  // MCU_HAS_PLATFORM_ETHERNET_INTERFACE
 
-#if TAS_HAS_PLATFORM_ETHERNET_INTERFACE
+#if MCU_HAS_PLATFORM_ETHERNET_INTERFACE
 class PlatformEthernetInterface {
  public:
   virtual ~PlatformEthernetInterface();
@@ -93,14 +93,14 @@ class PlatformEthernetInterface {
   // process of closing (e.g. FIN_WAIT).
   virtual bool StatusIsClosing(uint8_t status) = 0;
 };
-#endif  // TAS_HAS_PLATFORM_ETHERNET_INTERFACE
+#endif  // MCU_HAS_PLATFORM_ETHERNET_INTERFACE
 
 // Helper for testing with the same API on host and embedded.
 struct PlatformEthernet {
-#if TAS_HAS_PLATFORM_ETHERNET_INTERFACE
+#if MCU_HAS_PLATFORM_ETHERNET_INTERFACE
   static void SetPlatformEthernetImplementation(
       PlatformEthernetInterface* platform_ethernet_impl);
-#endif  // TAS_HAS_PLATFORM_ETHERNET_INTERFACE
+#endif  // MCU_HAS_PLATFORM_ETHERNET_INTERFACE
 
   // Returns the implementation defined status value for the specified socket.
   static uint8_t SocketStatus(uint8_t sock_num);
