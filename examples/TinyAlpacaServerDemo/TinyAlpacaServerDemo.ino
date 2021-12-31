@@ -3,7 +3,7 @@
 //
 // TODO(jamessynge): Add more details about how this demo works.
 //
-// * On first execution alpaca::IpDevice will generate a random MAC address and
+// * On first execution mcunet::IpDevice will generate a random MAC address and
 //   a default link-local IP address, and store those in EEPROM for later use.
 //
 // And on each run:
@@ -37,6 +37,8 @@
 // Author: james.synge@gmail.com
 
 #include <Arduino.h>
+#include <McuCore.h>
+#include <McuNet.h>
 #include <TinyAlpacaServer.h>
 
 #include "src/dht22_handler.h"
@@ -60,13 +62,13 @@ static Dht22Handler dht_handler;  // NOLINT
 static DeviceInterface* kDevices[] = {&dht_handler};
 
 static constexpr uint16_t kHttpPort = 80;
-static alpaca::IpDevice ip_device;
+static mcunet::IpDevice ip_device;
 static alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
     kHttpPort, kServerDescription, kDevices);
 
 void announceAddresses() {
   Serial.println();
-  alpaca::IpDevice::PrintNetworkAddresses();
+  mcunet::IpDevice::PrintNetworkAddresses();
   Serial.println();
 }
 
@@ -96,13 +98,13 @@ void setup() {
 
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
-  alpaca::Mega2560Eth::SetupW5500();
+  mcunet::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
-  alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
+  mcunet::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
   if (!ip_device.InitializeNetworking(&oui_prefix)) {
     announceFailure("Unable to initialize networking!");
   }

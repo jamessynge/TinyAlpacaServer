@@ -8,7 +8,7 @@
 // Author: james.synge@gmail.com
 
 #include "mcucore_platform.h"
-#include "utils/platform_ethernet.h"
+#include "platform_ethernet.h"
 
 namespace alpaca {
 

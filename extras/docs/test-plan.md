@@ -38,8 +38,8 @@ off-chip peripherals. For example:
 *   `HighResPwmExperiment.ino` was used to understand how to use the 16-bit
     Timer/Counter features of the ATmega2560, as part of learning how to
     generate PWM signals for the LED outputs.
-*   `TestIpDeviceSetup.ino.cc` is a test of `alpaca::IpDevice`,
-    `alpaca::Mega2560Eth` and the `Ethernet5500` library, just to the extent of
+*   `TestIpDeviceSetup.ino.cc` is a test of `mcunet::IpDevice`,
+    `mcunet::Mega2560Eth` and the `Ethernet5500` library, just to the extent of
     setting up the W5500 chip with multiple TCP sockets.
 
 ## Remote Alpaca Discovery API Testing

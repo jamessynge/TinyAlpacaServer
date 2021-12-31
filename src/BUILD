@@ -35,14 +35,8 @@ cc_library(
         "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
         "//TinyAlpacaServer/src/device_types/switch:switch_interface",
         "//TinyAlpacaServer/src/device_types/switch:toggle_switch_base",
-        "//TinyAlpacaServer/src/utils:addresses",
         "//TinyAlpacaServer/src/utils:avr_timer_counter",
-        "//TinyAlpacaServer/src/utils:connection",
-        "//TinyAlpacaServer/src/utils:ip_device",
         "//TinyAlpacaServer/src/utils:moving_average",
-        "//TinyAlpacaServer/src/utils:platform_ethernet",
-        "//TinyAlpacaServer/src/utils:server_socket",
-        "//TinyAlpacaServer/src/utils:socket_listener",
         "//mcucore/src:McuCore",
     ],
 )
@@ -61,7 +55,6 @@ cc_library(
         ":request_listener",
         ":server_description",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
-        "//TinyAlpacaServer/src/utils:platform_ethernet",
         "//mcucore/src:array_view",
         "//mcucore/src:hex_escape",
         "//mcucore/src:inline_literal",
@@ -69,6 +62,7 @@ cc_library(
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string_data",
+        "//mcunet/src:platform_ethernet",
     ],
 )
 
@@ -77,13 +71,13 @@ cc_library(
     srcs = ["alpaca_discovery_server.cc"],
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
-        "//TinyAlpacaServer/src/utils:platform_ethernet",
         "//mcucore/src:hex_escape",
         "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:o_print_stream",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
+        "//mcunet/src:platform_ethernet",
     ],
 )
 
@@ -302,10 +296,11 @@ cc_library(
         ":literals",
         ":request_decoder",
         ":request_listener",
-        "//TinyAlpacaServer/src/utils:platform_ethernet",
-        "//TinyAlpacaServer/src/utils:socket_listener",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:string_view",
+        "//mcunet/src:connection",
+        "//mcunet/src:platform_ethernet",
+        "//mcunet/src:socket_listener",
     ],
 )
 
@@ -328,8 +323,8 @@ cc_library(
     hdrs = ["server_socket_and_connection.h"],
     deps = [
         ":server_connection",
-        "//TinyAlpacaServer/src/utils:server_socket",
         "//mcucore/src:mcucore_platform",
+        "//mcunet/src:server_socket",
     ],
 )
 

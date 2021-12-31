@@ -1,6 +1,8 @@
 #include "server.h"
 
 #include <Arduino.h>
+#include <McuCore.h>
+#include <McuNet.h>
 #include <TinyAlpacaServer.h>
 
 #include "cover_calibrator.h"
@@ -69,11 +71,11 @@ alpaca::DeviceInterface* kDevices[] = {&cover_calibrator, &led_switches};
 alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
     /*tcp_port=*/80, kServerDescription, kDevices);
 
-alpaca::IpDevice ip_device;
+mcunet::IpDevice ip_device;
 
 void announceAddresses() {
   Serial.println();
-  alpaca::IpDevice::PrintNetworkAddresses();
+  mcunet::IpDevice::PrintNetworkAddresses();
   Serial.println();
 }
 
@@ -82,13 +84,13 @@ void announceAddresses() {
 void setup() {
   mcucore::LogSink() << kServerDescription.server_name;
   mcucore::LogSink() << MCU_FLASHSTR("Initializing networking");
-  alpaca::Mega2560Eth::SetupW5500();
+  mcunet::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
-  alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
+  mcunet::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
   MCU_CHECK(ip_device.InitializeNetworking(&oui_prefix))
       << MCU_FLASHSTR("Unable to initialize networking!");
   announceAddresses();

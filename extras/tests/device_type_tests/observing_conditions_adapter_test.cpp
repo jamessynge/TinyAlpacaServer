@@ -28,6 +28,7 @@
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "mcucore/extrastest_tools/sample_printable.h"
 #include "mcucore_platform.h"
+#include "platform_ethernet.h"
 #include "request_listener.h"
 #include "server_connection.h"
 #include "server_description.h"
@@ -35,7 +36,6 @@
 #include "status.h"
 #include "string_view.h"
 #include "tiny_alpaca_server.h"
-#include "utils/platform_ethernet.h"
 
 namespace alpaca {
 namespace test {

@@ -3,9 +3,9 @@
 #include "alpaca_response.h"
 #include "constants.h"
 #include "literals.h"
+#include "platform_ethernet.h"
 #include "request_listener.h"
 #include "string_view.h"
-#include "utils/platform_ethernet.h"
 
 #if MCU_HOST_TARGET
 #include <string.h>
@@ -21,7 +21,7 @@ ServerConnection::ServerConnection(RequestListener& request_listener)
               << MCU_FLASHSTR(" ctor");
 }
 
-void ServerConnection::OnConnect(Connection& connection) {
+void ServerConnection::OnConnect(mcunet::Connection& connection) {
   MCU_VLOG(2) << MCU_FLASHSTR("ServerConnection @ ") << this
               << MCU_FLASHSTR(" ->::OnConnect ") << connection.sock_num();
   MCU_DCHECK(!has_socket());
@@ -31,7 +31,7 @@ void ServerConnection::OnConnect(Connection& connection) {
   input_buffer_size_ = 0;
 }
 
-void ServerConnection::OnCanRead(Connection& connection) {
+void ServerConnection::OnCanRead(mcunet::Connection& connection) {
   MCU_VLOG(5) << MCU_FLASHSTR("ServerConnection @ ") << this
               << MCU_FLASHSTR(" ->::OnCanRead ") << MCU_FLASHSTR("socket ")
               << connection.sock_num();
@@ -121,7 +121,7 @@ void ServerConnection::OnCanRead(Connection& connection) {
   }
 }
 
-void ServerConnection::OnHalfClosed(Connection& connection) {
+void ServerConnection::OnHalfClosed(mcunet::Connection& connection) {
   MCU_DCHECK_EQ(sock_num(), connection.sock_num());
 
   if (!between_requests_) {

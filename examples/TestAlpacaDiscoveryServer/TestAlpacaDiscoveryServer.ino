@@ -1,12 +1,14 @@
 #include <Arduino.h>
+#include <McuCore.h>
+#include <McuNet.h>
 #include <TinyAlpacaServer.h>
 
-static alpaca::IpDevice ip_device;
+static mcunet::IpDevice ip_device;
 static alpaca::TinyAlpacaDiscoveryServer discovery_server(80);  // NOLINT
 
 void announceAddresses() {
   Serial.println();
-  alpaca::IpDevice::PrintNetworkAddresses();
+  mcunet::IpDevice::PrintNetworkAddresses();
   Serial.println();
 }
 
@@ -28,13 +30,13 @@ void setup() {
 
   //////////////////////////////////////////////////////////////////////////////
   // Initialize networking.
-  alpaca::Mega2560Eth::SetupW5500();
+  mcunet::Mega2560Eth::SetupW5500();
 
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
-  alpaca::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
+  mcunet::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
   if (!ip_device.InitializeNetworking(&oui_prefix)) {
     announceFailure("Unable to initialize networking!");
   }

@@ -14,9 +14,9 @@
 
 #include "array_view.h"
 #include "device_interface.h"
-#include "extras/test_tools/string_io_connection.h"
 #include "server_connection.h"
 #include "server_description.h"
+#include "test_tools/string_io_connection.h"
 #include "tiny_alpaca_server.h"
 
 namespace alpaca {
@@ -89,9 +89,10 @@ class TestTinyAlpacaServer : public TinyAlpacaServerBase {
   bool connection_is_writeable() const { return connection_is_writeable_; }
 
  private:
-  void RepeatedlyAnnounceCanRead(StringIoConnection& conn);
-  void RepeatedlyAnnounceHalfClosed(StringIoConnection& conn);
-  void MaybeHalfClose(StringIoConnection& conn, bool peer_half_closed);
+  void RepeatedlyAnnounceCanRead(mcunet::test::StringIoConnection& conn);
+  void RepeatedlyAnnounceHalfClosed(mcunet::test::StringIoConnection& conn);
+  void MaybeHalfClose(mcunet::test::StringIoConnection& conn,
+                      bool peer_half_closed);
 
   ServerConnection server_connection_;
   uint8_t sock_num_;

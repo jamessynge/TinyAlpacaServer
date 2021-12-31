@@ -8,7 +8,7 @@
 
 #include "mcucore_platform.h"
 #include "server_connection.h"
-#include "utils/server_socket.h"
+#include "server_socket.h"
 
 namespace alpaca {
 
@@ -31,7 +31,7 @@ class ServerSocketAndConnection {
 
  private:
   ServerConnection server_connection_;
-  ServerSocket server_socket_;
+  mcunet::ServerSocket server_socket_;
 };
 
 }  // namespace alpaca

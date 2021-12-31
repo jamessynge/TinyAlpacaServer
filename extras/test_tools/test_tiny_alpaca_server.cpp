@@ -8,7 +8,6 @@
 #include "absl/strings/str_cat.h"
 #include "array_view.h"
 #include "device_interface.h"
-#include "extras/test_tools/string_io_connection.h"
 #include "host/ethernet5500/ethernet_config.h"
 #include "inline_literal.h"
 #include "logging.h"
@@ -16,10 +15,13 @@
 #include "progmem_string_data.h"
 #include "server_connection.h"
 #include "server_description.h"
+#include "test_tools/string_io_connection.h"
 #include "tiny_alpaca_server.h"
 
 namespace alpaca {
 namespace test {
+
+using ::mcunet::test::StringIoConnection;
 
 TestTinyAlpacaServer::TestTinyAlpacaServer(
     const ServerDescription& server_description,

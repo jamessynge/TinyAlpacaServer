@@ -21,7 +21,6 @@ cc_library(
         "//TinyAlpacaServer/src:server_sockets_and_connections",
         "//TinyAlpacaServer/src:tiny_alpaca_server",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
-        "//TinyAlpacaServer/src/utils:platform_ethernet",
         "//absl/status",
         "//absl/strings",
         "//googletest:gunit_headers",
@@ -35,14 +34,9 @@ cc_library(
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:status",
         "//mcucore/src:string_view",
+        "//mcunet/src:platform_ethernet",
         "//util/task:status",
     ],
-)
-
-cc_library(
-    name = "fake_platform_ethernet",
-    hdrs = ["fake_platform_ethernet.h"],
-    deps = ["//TinyAlpacaServer/src/utils:platform_ethernet"],
 )
 
 cc_library(
@@ -91,16 +85,6 @@ cc_library(
 )
 
 cc_library(
-    name = "mock_socket_listener",
-    hdrs = ["mock_socket_listener.h"],
-    deps = [
-        "//TinyAlpacaServer/src/utils:connection",
-        "//TinyAlpacaServer/src/utils:socket_listener",
-        "//googletest:gunit_headers",
-    ],
-)
-
-cc_library(
     name = "mock_switch_group",
     hdrs = ["mock_switch_group.h"],
     deps = [
@@ -113,27 +97,11 @@ cc_library(
 )
 
 cc_library(
-    name = "string_io_connection",
-    hdrs = ["string_io_connection.h"],
-    deps = ["//TinyAlpacaServer/src/utils:connection"],
-)
-
-cc_test(
-    name = "string_io_connection_test",
-    srcs = ["string_io_connection_test.cc"],
-    deps = [
-        ":string_io_connection",
-        "//googletest:gunit_main",
-    ],
-)
-
-cc_library(
     name = "test_tiny_alpaca_server",
     testonly = True,
     srcs = ["test_tiny_alpaca_server.cc"],
     hdrs = ["test_tiny_alpaca_server.h"],
     deps = [
-        ":string_io_connection",
         "//TinyAlpacaServer/src:device_interface",
         "//TinyAlpacaServer/src:server_connection",
         "//TinyAlpacaServer/src:server_description",
@@ -145,5 +113,6 @@ cc_library(
         "//mcucore/src:o_print_stream",
         "//mcucore/src:progmem_string_data",
         "//mcunet/extras/host/ethernet5500:ethernet_config",
+        "//mcunet/extras/test_tools:string_io_connection",
     ],
 )

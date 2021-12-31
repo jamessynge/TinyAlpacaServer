@@ -11,14 +11,15 @@
 
 #include "alpaca_request.h"
 #include "config.h"
+#include "connection.h"
 #include "mcucore_platform.h"
 #include "request_decoder.h"
 #include "request_listener.h"
-#include "utils/socket_listener.h"
+#include "socket_listener.h"
 
 namespace alpaca {
 
-class ServerConnection : public ServerSocketListener {
+class ServerConnection : public mcunet::ServerSocketListener {
  public:
   explicit ServerConnection(RequestListener& request_listener);
 
@@ -28,9 +29,9 @@ class ServerConnection : public ServerSocketListener {
   bool has_socket() const { return sock_num_ < MAX_SOCK_NUM; }
 
   // Methods from ServerSocketListener.
-  void OnConnect(Connection& connection) override;
-  void OnCanRead(Connection& connection) override;
-  void OnHalfClosed(Connection& connection) override;
+  void OnConnect(mcunet::Connection& connection) override;
+  void OnCanRead(mcunet::Connection& connection) override;
+  void OnHalfClosed(mcunet::Connection& connection) override;
   void OnDisconnect() override;
 
  private:

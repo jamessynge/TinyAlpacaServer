@@ -26,13 +26,3 @@ cc_test(
         "//googletest:gunit_main",
     ],
 )
-
-cc_test(
-    name = "server_socket_test",
-    srcs = ["server_socket_test.cc"],
-    deps = [
-        "//TinyAlpacaServer/extras/test_tools:mock_socket_listener",
-        "//TinyAlpacaServer/src/utils:server_socket",
-        "//googletest:gunit_main",
-    ],
-)

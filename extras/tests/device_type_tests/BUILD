@@ -25,7 +25,6 @@ cc_test(
         "//TinyAlpacaServer/src:tiny_alpaca_server",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
         "//TinyAlpacaServer/src/device_types/observing_conditions:observing_conditions_adapter",
-        "//TinyAlpacaServer/src/utils:platform_ethernet",
         "//absl/strings",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:http_request",
@@ -37,6 +36,7 @@ cc_test(
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:status",
         "//mcucore/src:string_view",
+        "//mcunet/src:platform_ethernet",
     ],
 )
 

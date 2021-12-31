@@ -7,8 +7,8 @@
 #include "json_encoder.h"
 #include "literals.h"
 #include "logging.h"
+#include "platform_ethernet.h"
 #include "progmem_string_data.h"
-#include "utils/platform_ethernet.h"
 
 namespace alpaca {
 
