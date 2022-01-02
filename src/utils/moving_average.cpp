@@ -2,7 +2,6 @@
 
 #include <math.h>
 
-#include "inline_literal.h"
 #include "logging.h"
 #include "mcucore_platform.h"
 #include "progmem_string_data.h"

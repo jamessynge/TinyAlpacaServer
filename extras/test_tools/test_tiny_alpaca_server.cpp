@@ -9,7 +9,6 @@
 #include "array_view.h"
 #include "device_interface.h"
 #include "host/ethernet5500/ethernet_config.h"
-#include "inline_literal.h"
 #include "logging.h"
 #include "o_print_stream.h"
 #include "progmem_string_data.h"

@@ -11,8 +11,6 @@
 #include "extras/test_tools/mock_switch_group.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "inline_literal.h"
-#include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "progmem_string_data.h"
 #include "status.h"

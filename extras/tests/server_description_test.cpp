@@ -3,7 +3,6 @@
 #include "gtest/gtest.h"
 #include "json_encoder.h"
 #include "json_encoder_helpers.h"
-#include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 
 #define kServerName "HAL 9000"

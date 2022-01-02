@@ -16,20 +16,6 @@
 namespace alpaca {
 namespace {
 
-class LiteralArraySource : public mcucore::JsonElementSource {
- public:
-  explicit LiteralArraySource(const mcucore::LiteralArray& literals)
-      : literals_(literals) {}
-  void AddTo(mcucore::JsonArrayEncoder& encoder) const override {
-    for (const mcucore::Literal& literal : literals_) {
-      encoder.AddStringElement(literal);
-    }
-  }
-
- private:
-  const mcucore::LiteralArray& literals_;
-};
-
 class ProgmemStringArraySource : public mcucore::JsonElementSource {
  public:
   explicit ProgmemStringArraySource(const mcucore::ProgmemStringArray& strings)

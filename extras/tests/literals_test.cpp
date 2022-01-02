@@ -3,7 +3,6 @@
 #include <string>
 
 #include "gtest/gtest.h"
-#include "literal.h"
 #include "mcucore/extrastest_tools/print_value_to_std_string.h"
 #include "mcucore/extrastest_tools/string_view_utils.h"
 #include "string_compare.h"

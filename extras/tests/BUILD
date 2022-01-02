@@ -17,8 +17,6 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/src:array_view",
-        "//mcucore/src:inline_literal",
-        "//mcucore/src:literal",
         "//mcucore/src:progmem_string_data",
     ],
 )
@@ -41,7 +39,6 @@ cc_test(
         "//mcucore/src:any_printable",
         "//mcucore/src:array_view",
         "//mcucore/src:json_encoder",
-        "//mcucore/src:literal",
         "//mcucore/src:status_or",
     ],
 )
@@ -54,10 +51,8 @@ cc_test(
         "//TinyAlpacaServer/src:device_info",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
-        "//mcucore/src:inline_literal",
         "//mcucore/src:json_encoder",
         "//mcucore/src:json_encoder_helpers",
-        "//mcucore/src:literal",
         "//mcucore/src:progmem_string_data",
     ],
 )
@@ -72,7 +67,6 @@ cc_test(
         "//absl/strings",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
-        "//mcucore/src:literal",
         "//mcucore/src:progmem_string_data",
     ],
 )
@@ -100,7 +94,6 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_value_to_std_string",
         "//mcucore/extras/test_tools:string_view_utils",
-        "//mcucore/src:literal",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
     ],
@@ -149,7 +142,6 @@ cc_test(
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/src:json_encoder",
         "//mcucore/src:json_encoder_helpers",
-        "//mcucore/src:literal",
     ],
 )
 

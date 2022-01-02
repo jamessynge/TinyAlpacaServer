@@ -2,7 +2,6 @@
 
 #include "array_view.h"
 #include "constants.h"
-#include "literal.h"
 #include "literals.h"
 #include "logging.h"
 #include "string_compare.h"

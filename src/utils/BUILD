@@ -9,7 +9,6 @@ cc_library(
     deps = [
         "//mcucore/src:counting_print",
         "//mcucore/src:has_print_to",
-        "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:print_misc",
@@ -24,7 +23,6 @@ cc_library(
     srcs = ["moving_average.cc"],
     hdrs = ["moving_average.h"],
     deps = [
-        "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string_data",

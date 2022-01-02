@@ -132,6 +132,9 @@ These pages have some very interesting info about sections:
 
 ### ProgmemStringViews in Tiny Alpaca Server
 
+**NOTE: This is out of date; the implementation has been moved to mcucore, so
+this documentation needs updating.**
+
 To simplify working with strings in PROGMEM, I've developed classes and macros
 to allow for easily defining PROGMEM strings, for comparing and printing them
 (where printing includes generating HTTP and JSON responses to Alpaca requests).
@@ -155,20 +158,6 @@ I'm currently manually defining these by:
 
     Defining a literal in this file is appropriate if the string will be used in
     multiple files.
-
-1.  Defining them at file scope in .cc files using TAS_DEFINE_LITERAL, such as
-    these:
-
-    ```
-    TAS_DEFINE_LITERAL(JsonFalse, "false")
-    TAS_DEFINE_LITERAL(JsonNan, "NaN")
-    ```
-
-    This macro defines a char array and function, just like the behaves much
-    like those in literals.inc, as they are expanded in `literals.cc`.
-
-    TAS_DEFINE_LITERAL is an appropriate choice when the string will be used
-    multiple times in a single file (which these examples won't be).
 
 1.  Using the `TASLIT(value)` macro inline in expressions, such as:
 

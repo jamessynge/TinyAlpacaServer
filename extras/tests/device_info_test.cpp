@@ -2,10 +2,8 @@
 
 #include "constants.h"
 #include "gtest/gtest.h"
-#include "inline_literal.h"
 #include "json_encoder.h"
 #include "json_encoder_helpers.h"
-#include "literal.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
 #include "progmem_string_data.h"
 

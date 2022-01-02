@@ -4,13 +4,13 @@
 // HttpResponseHeader holds the data needed to emit an HTTP response header.
 // Should be entirely filled out before emitting (printing/streaming) the
 // response, after which it should be const so that we can emit it multiple
-// times if needed (unlikely).
+// times if needed.
 //
 // Author: james.synge@gmail.com
 
 #include "constants.h"
-#include "literal.h"
 #include "mcucore_platform.h"
+#include "progmem_string.h"
 
 namespace alpaca {
 
@@ -26,8 +26,6 @@ struct HttpResponseHeader : public Printable {
   uint32_t content_length;
   bool do_close;
 };
-
-// Declare stuff
 
 }  // namespace alpaca
 

@@ -1,7 +1,6 @@
 
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
 
-#include "inline_literal.h"
 #include "mcucore_platform.h"
 #include "print_misc.h"
 #include "progmem_string_data.h"

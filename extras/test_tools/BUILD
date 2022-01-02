@@ -108,7 +108,6 @@ cc_library(
         "//TinyAlpacaServer/src:tiny_alpaca_server",
         "//absl/strings",
         "//mcucore/src:array_view",
-        "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:o_print_stream",
         "//mcucore/src:progmem_string_data",

@@ -15,8 +15,9 @@
 //
 // Author: james.synge@gmail.com
 
-#include "literal.h"
 #include "mcucore_platform.h"
+#include "progmem_string.h"
+#include "progmem_string_view.h"
 
 #ifdef TAS_DEFINE_PROGMEM_LITERAL
 #undef TAS_DEFINE_PROGMEM_LITERAL

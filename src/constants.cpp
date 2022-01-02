@@ -2,7 +2,6 @@
 
 // GENERATED FILE. See make_enum_to_string.py
 
-#include "inline_literal.h"
 #include "print_misc.h"
 #include "progmem_string_data.h"
 

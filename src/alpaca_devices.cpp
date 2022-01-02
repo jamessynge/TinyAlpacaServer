@@ -3,7 +3,6 @@
 #include "alpaca_response.h"
 #include "constants.h"
 #include "hex_escape.h"
-#include "inline_literal.h"
 #include "json_encoder.h"
 #include "literals.h"
 #include "logging.h"

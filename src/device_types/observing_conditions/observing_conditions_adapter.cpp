@@ -4,7 +4,6 @@
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
-#include "inline_literal.h"
 #include "literals.h"
 #include "logging.h"
 #include "printable_cat.h"

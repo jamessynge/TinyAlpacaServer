@@ -23,7 +23,6 @@
 #include "config.h"
 #include "constants.h"
 #include "hex_escape.h"
-#include "inline_literal.h"
 #include "literals.h"
 #include "logging.h"
 #include "match_literals.h"

@@ -6,7 +6,6 @@
 
 #include "counting_print.h"
 #include "has_print_to.h"
-#include "inline_literal.h"
 #include "logging.h"
 #include "print_misc.h"
 #include "progmem_string_data.h"

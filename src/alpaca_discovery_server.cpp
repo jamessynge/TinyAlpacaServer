@@ -1,15 +1,14 @@
 #include "alpaca_discovery_server.h"
 
 #include "hex_escape.h"
-#include "literal.h"
 #include "o_print_stream.h"
 #include "string_compare.h"
 #include "string_view.h"
 
 namespace alpaca {
 namespace {
-TAS_DEFINE_LITERAL(kAlpacaPortStart, R"({"alpacaport": )");
-TAS_DEFINE_LITERAL(kDiscoveryMessage, "alpacadiscovery1");
+
+constexpr auto kDiscoveryMessage = MCU_PSV("alpacadiscovery1");
 constexpr uint16_t kAlpacaDiscoveryPort = 32227;
 
 }  // namespace
@@ -28,14 +27,14 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
               << MCU_FLASHSTR(" from ") << udp_.remoteIP() << ':'
               << udp_.remotePort();
 
-  if (packet_size != kDiscoveryMessage().size()) {
+  if (packet_size != kDiscoveryMessage.size()) {
     // Ignoring unexpected message.
     MCU_VLOG(1) << MCU_FLASHSTR("Ignoring UDP message of unexpected length");
     return;
   }
 
   // Read the packet into the buffer.
-  char buffer[kDiscoveryMessage().size()];
+  char buffer[kDiscoveryMessage.size()];
   auto copied = udp_.read(buffer, packet_size);
   mcucore::StringView view(buffer, copied);
 
@@ -52,7 +51,7 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
   // Got all the data.
 
   // Is the message the expected one?
-  if (kDiscoveryMessage() != view) {
+  if (kDiscoveryMessage != view) {
     // Ignoring unexpected message.
     MCU_VLOG(1) << MCU_FLASHSTR("Received unexpected discovery message");
     return;
@@ -64,7 +63,7 @@ void TinyAlpacaDiscoveryServer::PerformIO() {
   // but it is so simple that it takes less Flash storage to generate it
   // explicitly.
   udp_.beginPacket(udp_.remoteIP(), udp_.remotePort());
-  kAlpacaPortStart().printTo(udp_);
+  udp_.print(MCU_FLASHSTR(R"({"alpacaport": )"));
   udp_.print(tcp_port_, DEC);
   udp_.print('}');
   udp_.endPacket();

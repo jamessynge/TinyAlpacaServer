@@ -36,7 +36,8 @@ bool LedChannelSwitchGroup::HandleGetSwitchName(const AlpacaRequest& request,
                                                 uint16_t switch_id,
                                                 Print& out) {
   return WriteResponse::PrintableStringResponse(
-      request, mcucore::PrintableCat(TASLIT("Enable LED #"), switch_id), out);
+      request, mcucore::PrintableCat(MCU_FLASHSTR("Enable LED #"), switch_id),
+      out);
 }
 
 bool LedChannelSwitchGroup::HandleSetSwitchName(const AlpacaRequest& request,

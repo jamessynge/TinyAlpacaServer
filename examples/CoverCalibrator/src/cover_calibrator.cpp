@@ -6,18 +6,12 @@
 #include "constants.h"
 
 namespace astro_makers {
-namespace {
 using ::alpaca::ECalibratorStatus;
 using ::alpaca::ECoverStatus;
 using ::alpaca::ErrorCodes;
 using ::alpaca::TimerCounterChannel;
 using ::mcucore::Status;
 using ::mcucore::StatusOr;
-
-TAS_DEFINE_LITERAL(IsNotEnabled, " is not enabled");
-TAS_DEFINE_LITERAL(IsEnabled, " is enabled");
-
-}  // namespace
 
 CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
     : CoverCalibratorAdapter(device_info),
@@ -29,8 +23,9 @@ CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
 
 #define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)             \
   MCU_VLOG(level) << MCU_FLASHSTR(name)                                    \
-                  << (enableable_by_pin.IsEnabled() ? IsEnabled()          \
-                                                    : IsNotEnabled())      \
+                  << (enableable_by_pin.IsEnabled()                        \
+                          ? MCU_FLASHSTR(" is enabled")                    \
+                          : MCU_FLASHSTR(" is not enabled"))               \
                   << MCU_FLASHSTR("; digitalRead(")                        \
                   << enableable_by_pin.enabled_pin() << MCU_FLASHSTR(")=") \
                   << enableable_by_pin.ReadPin()

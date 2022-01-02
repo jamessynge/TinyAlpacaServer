@@ -57,7 +57,6 @@ cc_library(
         "//TinyAlpacaServer/src/device_types:device_impl_base",
         "//mcucore/src:array_view",
         "//mcucore/src:hex_escape",
-        "//mcucore/src:inline_literal",
         "//mcucore/src:json_encoder",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
@@ -72,7 +71,6 @@ cc_library(
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
         "//mcucore/src:hex_escape",
-        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:o_print_stream",
         "//mcucore/src:string_compare",
@@ -141,7 +139,6 @@ cc_library(
     srcs = ["constants.cc"],
     hdrs = ["constants.h"],
     deps = [
-        "//mcucore/src:inline_literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:print_misc",
         "//mcucore/src:progmem_string_data",
@@ -156,7 +153,6 @@ cc_library(
         ":constants",
         ":literals",
         "//mcucore/src:json_encoder",
-        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
         "//mcucore/src:string_view",
@@ -197,8 +193,8 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
-        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string",
     ],
 )
 
@@ -222,8 +218,9 @@ cc_library(
     textual_hdrs = ["literals.inc"],
     deps = [
         "//mcucore/src:McuCore",
-        "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string",
+        "//mcucore/src:progmem_string_view",
     ],
 )
 
@@ -235,7 +232,6 @@ cc_library(
         ":constants",
         ":literals",
         "//mcucore/src:array_view",
-        "//mcucore/src:literal",
         "//mcucore/src:logging",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
@@ -254,7 +250,6 @@ cc_library(
         ":match_literals",
         ":request_decoder_listener",
         "//mcucore/src:hex_escape",
-        "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string_data",

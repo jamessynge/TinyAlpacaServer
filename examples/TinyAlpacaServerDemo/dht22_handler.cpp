@@ -41,7 +41,7 @@ mcucore::StatusOr<mcucore::ProgmemStringView>
 Dht22Handler::GetSensorDescription(alpaca::ESensorName sensor_name) {
   if (sensor_name == alpaca::ESensorName::kHumidity ||
       sensor_name == alpaca::ESensorName::kTemperature) {
-    return mcucore::ProgmemStringView(TASLIT(DEVICE_DESCRIPTION));
+    return MCU_PSV(DEVICE_DESCRIPTION);
   }
   return alpaca::ErrorCodes::InvalidValue();
 }

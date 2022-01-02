@@ -15,7 +15,6 @@
 #include "constants.h"
 #include "gtest/gtest.h"
 #include "json_encoder.h"
-#include "literal.h"
 #include "literals.h"
 #include "mcucore/extrastest_tools/json_test_utils.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"

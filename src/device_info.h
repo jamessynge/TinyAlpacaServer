@@ -11,7 +11,6 @@
 
 #include "constants.h"
 #include "json_encoder.h"
-#include "literal.h"
 #include "mcucore_platform.h"
 #include "progmem_string.h"
 #include "string_view.h"

@@ -11,7 +11,6 @@ cc_library(
         "//TinyAlpacaServer/src:literals",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
         "//TinyAlpacaServer/src/device_types/cover_calibrator:cover_calibrator_constants",
-        "//mcucore/src:inline_literal",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:printable_cat",
