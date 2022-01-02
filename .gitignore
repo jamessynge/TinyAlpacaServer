@@ -13,6 +13,7 @@
 
 # Visual Studio (VS) Code editor creates a file (or directory?) with this name.
 .vscode
+*.code-workspace
 
 # Ignore lines from the github template for C++ projects...
 
