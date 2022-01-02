@@ -1,5 +1,5 @@
-#ifndef AVR_TIMER_COUNTER_ENABLE_TAS_VLOG
-#define TAS_DISABLE_VLOG
+#ifndef AVR_TIMER_COUNTER_ENABLE_MCU_VLOG
+#define MCU_DISABLE_VLOG
 #endif
 
 #include "utils/avr_timer_counter.h"

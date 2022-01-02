@@ -14,8 +14,8 @@
 //
 // Author: james.synge@gmail.com
 
-#ifndef REQUEST_DECODER_ENABLE_TAS_VLOG
-#define TAS_DISABLE_VLOG
+#ifndef REQUEST_DECODER_ENABLE_MCU_VLOG
+#define MCU_DISABLE_VLOG
 #endif
 
 #include "request_decoder.h"
