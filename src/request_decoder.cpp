@@ -854,7 +854,7 @@ EHttpStatusCode DecodeHttpMethod(RequestDecoderState& state,
 
 size_t PrintValueTo(DecodeFunction decode_function, Print& out) {
 #define OUTPUT_METHOD_NAME(symbol) \
-  if (decode_function == symbol) return out.print(#symbol)
+  if (decode_function == symbol) return out.print(MCU_FLASHSTR(#symbol))
 
   OUTPUT_METHOD_NAME(DecodeApiGroup);
   OUTPUT_METHOD_NAME(DecodeApiVersion);
