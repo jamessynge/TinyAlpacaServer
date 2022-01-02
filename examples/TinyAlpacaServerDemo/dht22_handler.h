@@ -15,7 +15,7 @@ class Dht22Handler : public alpaca::ObservingConditionsAdapter {
   mcucore::StatusOr<double> GetHumidity() override;
   mcucore::StatusOr<double> GetTemperature() override;
   mcucore::StatusOr<bool> GetConnected() override;
-  mcucore::StatusOr<mcucore::Literal> GetSensorDescription(
+  mcucore::StatusOr<mcucore::ProgmemStringView> GetSensorDescription(
       alpaca::ESensorName sensor_name) override;
 };
 

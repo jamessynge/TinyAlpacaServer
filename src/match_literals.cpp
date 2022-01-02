@@ -8,13 +8,13 @@
 #include "string_compare.h"
 
 #define MATCH_ONE_LITERAL_EXACTLY(literal_name, enum_value) \
-  if (Literals::literal_name() == view) {                   \
+  if (ProgmemStringViews::literal_name() == view) {         \
     match = enum_value;                                     \
     return true;                                            \
   }
 
 #define MATCH_ONE_LITERAL_CASE_INSENSITIVELY(literal_name, enum_value) \
-  if (mcucore::CaseEqual(Literals::literal_name(), view)) {            \
+  if (mcucore::CaseEqual(ProgmemStringViews::literal_name(), view)) {  \
     match = enum_value;                                                \
     return true;                                                       \
   }

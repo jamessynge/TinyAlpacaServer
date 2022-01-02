@@ -111,7 +111,7 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
       // Requires the state parameter.
       if (!request.have_state) {
         return WriteResponse::AscomParameterMissingErrorResponse(
-            request, Literals::State(), out);
+            request, ProgmemStringViews::State(), out);
       }
       return WriteResponse::StatusResponse(
           request, SetSwitch(request.id, request.state), out);
@@ -120,12 +120,12 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
       // Requires the value parameter.
       if (!request.have_value) {
         return WriteResponse::AscomParameterMissingErrorResponse(
-            request, Literals::Value(), out);
+            request, ProgmemStringViews::Value(), out);
       }
       if (request.value < GetMinSwitchValue(request.id) ||
           GetMaxSwitchValue(request.id) < request.value) {
         return WriteResponse::AscomParameterInvalidErrorResponse(
-            request, Literals::Value(), out);
+            request, ProgmemStringViews::Value(), out);
       }
       return WriteResponse::StatusResponse(
           request, SetSwitchValue(request.id, request.value), out);
@@ -148,10 +148,10 @@ bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
       return true;
     }
     handler_ret = WriteResponse::AscomParameterInvalidErrorResponse(
-        request, Literals::Id(), out);
+        request, ProgmemStringViews::Id(), out);
   } else {
     handler_ret = WriteResponse::AscomParameterMissingErrorResponse(
-        request, Literals::Id(), out);
+        request, ProgmemStringViews::Id(), out);
   }
   return false;
 }

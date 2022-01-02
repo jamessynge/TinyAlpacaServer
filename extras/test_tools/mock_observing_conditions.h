@@ -51,8 +51,8 @@ class MockObservingConditions : public ::alpaca::ObservingConditionsAdapter {
 
   MOCK_METHOD(mcucore::StatusOr<double>, GetRainRate, (), (override));
 
-  MOCK_METHOD(mcucore::StatusOr<class mcucore::Literal>, GetSensorDescription,
-              (enum ESensorName), (override));
+  MOCK_METHOD(mcucore::StatusOr<class mcucore::ProgmemStringView>,
+              GetSensorDescription, (enum ESensorName), (override));
 
   MOCK_METHOD(mcucore::StatusOr<double>, GetSkyBrightness, (), (override));
 

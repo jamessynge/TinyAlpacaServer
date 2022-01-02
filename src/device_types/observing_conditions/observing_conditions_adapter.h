@@ -56,7 +56,7 @@ class ObservingConditionsAdapter : public DeviceImplBase {
 
   // Returns the description of the named sensor, or an error if not known.
   // The default implementation returns an unimplemented error.
-  virtual mcucore::StatusOr<mcucore::Literal> GetSensorDescription(
+  virtual mcucore::StatusOr<mcucore::ProgmemStringView> GetSensorDescription(
       ESensorName sensor_name);
 
   // Returns the sky brightness at the observatory (Lux).

@@ -13,9 +13,9 @@
 
 namespace alpaca {
 
-// TODO(jamessynge): Allow the caller to provide either a mcucore::Literal for
-// the /setup HTML response, or to provide a function for that purpose, maybe as
-// a Printable instance.
+// TODO(jamessynge): Allow the caller to provide either a
+// mcucore::ProgmemStringView for the /setup HTML response, or to provide a
+// function for that purpose, maybe as a Printable instance.
 struct ServerDescription {
   // Write the description of this server to the specified
   // mcucore::JsonObjectEncoder. The encoder should be for the nested object

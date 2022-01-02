@@ -28,7 +28,7 @@ class ConfiguredDevicesResponseValue : public mcucore::JsonElementSource {
 void ConfiguredDevicesResponse::AddTo(
     mcucore::JsonObjectEncoder& object_encoder) const {
   ConfiguredDevicesResponseValue value(devices_);
-  object_encoder.AddArrayProperty(Literals::Value(), value);
+  object_encoder.AddArrayProperty(ProgmemStringViews::Value(), value);
   JsonMethodResponse::AddTo(object_encoder);
 }
 

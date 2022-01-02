@@ -98,12 +98,12 @@ bool CoverCalibratorAdapter::HandlePutCalibratorOn(const AlpacaRequest& request,
                                                    Print& out) {
   if (!request.have_brightness) {
     return WriteResponse::AscomParameterMissingErrorResponse(
-        request, Literals::brightness(), out);
+        request, ProgmemStringViews::brightness(), out);
   }
   // We decode the value as a uint32_t ()
   if (request.brightness > INT32_MAX) {
     return WriteResponse::AscomParameterInvalidErrorResponse(
-        request, Literals::brightness(), out);
+        request, ProgmemStringViews::brightness(), out);
   }
   auto status_or_max = GetMaxBrightness();
   if (!status_or_max.ok()) {
@@ -112,7 +112,7 @@ bool CoverCalibratorAdapter::HandlePutCalibratorOn(const AlpacaRequest& request,
   }
   if (request.brightness > status_or_max.value()) {
     return WriteResponse::AscomParameterInvalidErrorResponse(
-        request, Literals::brightness(), out);
+        request, ProgmemStringViews::brightness(), out);
   }
   return WriteResponse::StatusResponse(
       request, SetCalibratorBrightness(request.brightness), out);

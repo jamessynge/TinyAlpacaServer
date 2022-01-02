@@ -61,7 +61,7 @@ struct DeviceInfo {
 
   // The list of device-specific action names that the device supports. This is
   // returned in the response to the /supportedactions method of the device API.
-  mcucore::LiteralArray supported_actions;
+  mcucore::ProgmemStringArray supported_actions;
 
   // The ASCOM Device interface version number that this device supports.
   // Returned in response to the /interfaceversion method of the device API;

@@ -57,7 +57,8 @@ enum class EHttpStatusCode : uint16_t {
   kHttpOk = 200,
 
   // NOTE: Each values in the 4xx and 5xx range should have a corresponding
-  // mcucore::Literal in literals.inc, and a case in the switch statement in
+  // mcucore::ProgmemStringView in literals.inc, and a case in the switch
+  // statement in
   // WriteResponse::HttpErrorResponse.
   //
   // TODO(jamessynge): Consider adding an 'error code space' to mcucore::Status

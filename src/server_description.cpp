@@ -7,11 +7,13 @@ namespace alpaca {
 
 void ServerDescription::AddTo(
     mcucore::JsonObjectEncoder& object_encoder) const {
-  object_encoder.AddStringProperty(Literals::ServerName(), server_name);
-  object_encoder.AddStringProperty(Literals::Manufacturer(), manufacturer);
-  object_encoder.AddStringProperty(Literals::ManufacturerVersion(),
+  object_encoder.AddStringProperty(ProgmemStringViews::ServerName(),
+                                   server_name);
+  object_encoder.AddStringProperty(ProgmemStringViews::Manufacturer(),
+                                   manufacturer);
+  object_encoder.AddStringProperty(ProgmemStringViews::ManufacturerVersion(),
                                    manufacturer_version);
-  object_encoder.AddStringProperty(Literals::Location(), location);
+  object_encoder.AddStringProperty(ProgmemStringViews::Location(), location);
 }
 
 }  // namespace alpaca

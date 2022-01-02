@@ -19,10 +19,9 @@ namespace astro_makers {
 namespace {
 using ::alpaca::DeviceInfo;
 using ::alpaca::EDeviceType;
-using ::mcucore::LiteralArray;
 
 // No extra actions.
-const auto kSupportedActions = mcucore::LiteralArray();
+const auto kSupportedActions = mcucore::ProgmemStringArray();
 
 const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
     {

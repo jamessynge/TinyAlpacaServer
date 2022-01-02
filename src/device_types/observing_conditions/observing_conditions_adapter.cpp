@@ -51,9 +51,9 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
       // Requires a sensor name.
       if (request.sensor_name == ESensorName::kUnknown) {
         return WriteResponse::AscomParameterMissingErrorResponse(
-            request, Literals::SensorName(), out);
+            request, ProgmemStringViews::SensorName(), out);
       }
-      return WriteResponse::StatusOrLiteralResponse(
+      return WriteResponse::StatusOrProgmemStringViewResponse(
           request, GetSensorDescription(request.sensor_name), out);
 
     case EDeviceMethod::kSkyBrightness:
@@ -89,7 +89,7 @@ bool ObservingConditionsAdapter::HandleGetRequest(const AlpacaRequest& request,
       // GetTimeSinceLastUpdate() method that takes no argument,
       if (request.sensor_name == ESensorName::kUnknown) {
         return WriteResponse::AscomParameterMissingErrorResponse(
-            request, Literals::SensorName(), out);
+            request, ProgmemStringViews::SensorName(), out);
       }
       return WriteDoubleOrSensorErrorResponse(
           request, request.sensor_name,
@@ -137,7 +137,7 @@ mcucore::StatusOr<double> ObservingConditionsAdapter::GetPressure() {
 mcucore::StatusOr<double> ObservingConditionsAdapter::GetRainRate() {
   return ErrorCodes::NotImplemented();
 }
-mcucore::StatusOr<mcucore::Literal>
+mcucore::StatusOr<mcucore::ProgmemStringView>
 ObservingConditionsAdapter::GetSensorDescription(ESensorName sensor_name) {
   return ErrorCodes::NotImplemented();
 }
@@ -192,12 +192,12 @@ bool ObservingConditionsAdapter::HandlePutAveragePeriod(
   // Requires the AveragePeriod parameter.
   if (!request.have_average_period) {
     return WriteResponse::AscomParameterMissingErrorResponse(
-        request, Literals::AveragePeriod(), out);
+        request, ProgmemStringViews::AveragePeriod(), out);
   }
   if (request.average_period < 0 ||
       MaxAveragePeriod() < request.average_period) {
     return WriteResponse::AscomParameterInvalidErrorResponse(
-        request, Literals::AveragePeriod(), out);
+        request, ProgmemStringViews::AveragePeriod(), out);
   }
   return WriteResponse::StatusResponse(
       request, SetAveragePeriod(request.average_period), out);

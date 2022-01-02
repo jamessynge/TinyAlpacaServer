@@ -8,51 +8,57 @@
 namespace alpaca {
 
 mcucore::Status ErrorCodes::NotImplemented() {
-  return mcucore::Status(kNotImplemented, Literals::ErrorNotImplemented());
+  return mcucore::Status(kNotImplemented,
+                         ProgmemStringViews::ErrorNotImplemented());
 }
 
 mcucore::Status ErrorCodes::InvalidValue() {
-  return mcucore::Status(kInvalidValue, Literals::ErrorInvalidValue());
+  return mcucore::Status(kInvalidValue,
+                         ProgmemStringViews::ErrorInvalidValue());
 }
 
 mcucore::Status ErrorCodes::ValueNotSet() {
-  return mcucore::Status(kValueNotSet, Literals::ErrorValueNotSet());
+  return mcucore::Status(kValueNotSet, ProgmemStringViews::ErrorValueNotSet());
 }
 
 mcucore::Status ErrorCodes::NotConnected() {
-  return mcucore::Status(kNotConnected, Literals::ErrorNotConnected());
+  return mcucore::Status(kNotConnected,
+                         ProgmemStringViews::ErrorNotConnected());
 }
 
 mcucore::Status ErrorCodes::InvalidWhileParked() {
   return mcucore::Status(kInvalidWhileParked,
-                         Literals::ErrorInvalidWhileParked());
+                         ProgmemStringViews::ErrorInvalidWhileParked());
 }
 
 mcucore::Status ErrorCodes::InvalidWhileSlaved() {
   return mcucore::Status(kInvalidWhileSlaved,
-                         Literals::ErrorInvalidWhileSlaved());
+                         ProgmemStringViews::ErrorInvalidWhileSlaved());
 }
 
 mcucore::Status ErrorCodes::SettingsProviderError() {
-  return mcucore::Status(0x40A, Literals::ErrorSettingsProviderError());
+  return mcucore::Status(0x40A,
+                         ProgmemStringViews::ErrorSettingsProviderError());
 }
 
 mcucore::Status ErrorCodes::InvalidOperation() {
-  return mcucore::Status(kInvalidOperation, Literals::InvalidOperation());
+  return mcucore::Status(kInvalidOperation,
+                         ProgmemStringViews::InvalidOperation());
 }
 
 mcucore::Status ErrorCodes::ActionNotImplemented() {
   return mcucore::Status(kActionNotImplemented,
-                         Literals::ErrorActionNotImplemented());
+                         ProgmemStringViews::ErrorActionNotImplemented());
 }
 
 mcucore::Status ErrorCodes::NotInCacheException() {
   return mcucore::Status(kNotInCacheException,
-                         Literals::ErrorNotInCacheException());
+                         ProgmemStringViews::ErrorNotInCacheException());
 }
 
 mcucore::Status ErrorCodes::UnspecifiedError() {
-  return mcucore::Status(kUnspecifiedError, Literals::ErrorUnspecifiedError());
+  return mcucore::Status(kUnspecifiedError,
+                         ProgmemStringViews::ErrorUnspecifiedError());
 }
 
 }  // namespace alpaca

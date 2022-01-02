@@ -21,7 +21,7 @@ struct HttpResponseHeader : public Printable {
   size_t printTo(Print& out) const override;
 
   EHttpStatusCode status_code;
-  mcucore::Literal reason_phrase;
+  mcucore::ProgmemString reason_phrase;
   EContentType content_type;
   uint32_t content_length;
   bool do_close;

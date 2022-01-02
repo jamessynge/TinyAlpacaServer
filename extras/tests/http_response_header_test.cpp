@@ -6,6 +6,7 @@
 #include "literal.h"
 #include "literals.h"
 #include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "progmem_string_data.h"
 
 namespace alpaca {
 namespace test {
@@ -16,7 +17,7 @@ constexpr char kEOL[] = "\r\n";
 TEST(HttpResponseHeaderTest, Json) {
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
-  hrh.reason_phrase = Literals::OK();
+  hrh.reason_phrase = ProgmemStrings::OK();
   hrh.content_type = EContentType::kApplicationJson;
   hrh.content_length = 65535;
 
@@ -32,7 +33,7 @@ TEST(HttpResponseHeaderTest, Json) {
 TEST(HttpResponseHeaderTest, Error) {
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpBadRequest;
-  hrh.reason_phrase = mcucore::Literal("Bad Request");
+  hrh.reason_phrase = MCU_PSD("Bad Request");
   hrh.content_type = EContentType::kTextPlain;
   hrh.content_length = 123;
 

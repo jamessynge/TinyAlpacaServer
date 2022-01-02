@@ -32,18 +32,19 @@ class JsonMethodResponse : public mcucore::JsonPropertySource {
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     if (request_.have_client_transaction_id) {
-      object_encoder.AddUIntProperty(Literals::ClientTransactionID(),
+      object_encoder.AddUIntProperty(ProgmemStringViews::ClientTransactionID(),
                                      request_.client_transaction_id);
     }
     if (request_.have_server_transaction_id) {
-      object_encoder.AddUIntProperty(Literals::ServerTransactionID(),
+      object_encoder.AddUIntProperty(ProgmemStringViews::ServerTransactionID(),
                                      request_.server_transaction_id);
     }
     if (error_number_ != 0) {
-      object_encoder.AddUIntProperty(Literals::ErrorNumber(), error_number_);
+      object_encoder.AddUIntProperty(ProgmemStringViews::ErrorNumber(),
+                                     error_number_);
     }
     if (error_message_ != nullptr) {
-      object_encoder.AddStringProperty(Literals::ErrorMessage(),
+      object_encoder.AddStringProperty(ProgmemStringViews::ErrorMessage(),
                                        *error_message_);
     }
   }
@@ -61,7 +62,7 @@ class JsonArrayResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddArrayProperty(Literals::Value(), value_);
+    object_encoder.AddArrayProperty(ProgmemStringViews::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -75,7 +76,7 @@ class JsonBoolResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddBooleanProperty(Literals::Value(), value_);
+    object_encoder.AddBooleanProperty(ProgmemStringViews::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -89,7 +90,7 @@ class JsonDoubleResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddDoubleProperty(Literals::Value(), value_);
+    object_encoder.AddDoubleProperty(ProgmemStringViews::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -103,7 +104,7 @@ class JsonFloatResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddFloatProperty(Literals::Value(), value_);
+    object_encoder.AddFloatProperty(ProgmemStringViews::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -117,7 +118,7 @@ class JsonUnsignedIntegerResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddUIntProperty(Literals::Value(), value_);
+    object_encoder.AddUIntProperty(ProgmemStringViews::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -131,7 +132,7 @@ class JsonIntegerResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), value_(value) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddIntProperty(Literals::Value(), value_);
+    object_encoder.AddIntProperty(ProgmemStringViews::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -143,13 +144,14 @@ class JsonStringResponse : public JsonMethodResponse {
  public:
   JsonStringResponse(const AlpacaRequest& request, mcucore::AnyPrintable value)
       : JsonMethodResponse(request), value_(value) {}
-  JsonStringResponse(const AlpacaRequest& request, mcucore::Literal value)
+  JsonStringResponse(const AlpacaRequest& request,
+                     mcucore::ProgmemStringView value)
       : JsonMethodResponse(request), value_(mcucore::AnyPrintable(value)) {}
   JsonStringResponse(const AlpacaRequest& request, const Printable& value)
       : JsonMethodResponse(request), value_(mcucore::AnyPrintable(value)) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddStringProperty(Literals::Value(), value_);
+    object_encoder.AddStringProperty(ProgmemStringViews::Value(), value_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 
@@ -164,7 +166,8 @@ class JsonObjectResponse : public JsonMethodResponse {
       : JsonMethodResponse(request), property_source_(property_source) {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
-    object_encoder.AddObjectProperty(Literals::Value(), property_source_);
+    object_encoder.AddObjectProperty(ProgmemStringViews::Value(),
+                                     property_source_);
     JsonMethodResponse::AddTo(object_encoder);
   }
 

@@ -113,6 +113,7 @@ cc_library(
         "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:printable_cat",
+        "//mcucore/src:progmem_string",
         "//mcucore/src:status_or",
     ],
 )
@@ -220,6 +221,7 @@ cc_library(
     hdrs = ["literals.h"],
     textual_hdrs = ["literals.inc"],
     deps = [
+        "//mcucore/src:McuCore",
         "//mcucore/src:literal",
         "//mcucore/src:mcucore_platform",
     ],

@@ -247,7 +247,7 @@ TEST_F(SwitchGroupTest, GetSwitch) {
   }
 
   const char kErrorMessage[] = "Can not get switch as boolean";
-  mcucore::Literal literal_error_message(kErrorMessage);
+  mcucore::ProgmemStringView literal_error_message(kErrorMessage);
   mcucore::Status status(123, literal_error_message);
 
   InitializeRequest();
@@ -282,7 +282,7 @@ TEST_F(SwitchGroupTest, GetSwitchValue) {
   }
 
   const char kErrorMessage[] = "Can not get switch as double";
-  mcucore::Literal literal_error_message(kErrorMessage);
+  mcucore::ProgmemStringView literal_error_message(kErrorMessage);
   mcucore::Status status(123, literal_error_message);
 
   EXPECT_CALL(switch_group_, GetSwitchValue(0)).WillOnce(Return(status));

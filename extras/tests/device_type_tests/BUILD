@@ -34,6 +34,8 @@ cc_test(
         "//mcucore/extras/test_tools:sample_printable",
         "//mcucore/src:array_view",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string",
+        "//mcucore/src:progmem_string_data",
         "//mcucore/src:status",
         "//mcucore/src:string_view",
         "//mcunet/src:platform_ethernet",

@@ -272,7 +272,7 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
     // allowed for here; after the media-type there may be a semi-colon and some
     // additional details (charset and boundary).
     if (state.request.http_method == EHttpMethod::PUT &&
-        value != Literals::MimeTypeWwwFormUrlEncoded()) {
+        value != ProgmemStringViews::MimeTypeWwwFormUrlEncoded()) {
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
       if (state.listener) {
         status =
@@ -285,7 +285,7 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
     }
   } else if (state.current_header == EHttpHeader::kConnection) {
-    if (mcucore::CaseEqual(Literals::close(), value)) {
+    if (mcucore::CaseEqual(ProgmemStringViews::close(), value)) {
       state.request.do_close = true;
     }
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
@@ -385,7 +385,8 @@ EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
 // (We're not supporting HTTP/1.0 or earlier.)
 EHttpStatusCode MatchHttpVersion(RequestDecoderState& state,
                                  mcucore::StringView& view) {
-  const mcucore::Literal expected = Literals::HttpVersionEndOfLine();
+  const mcucore::ProgmemStringView expected =
+      ProgmemStringViews::HttpVersionEndOfLine();
   if (mcucore::StartsWith(view, expected)) {
     view.remove_prefix(expected.size());
     state.is_decoding_start_line = false;
@@ -526,20 +527,20 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
       state.request.set_average_period(d);
     }
   } else if (state.current_parameter == EParameter::kConnected) {
-    if (mcucore::CaseEqual(value, Literals::False()) &&
+    if (mcucore::CaseEqual(value, ProgmemStringViews::False()) &&
         !state.request.have_connected) {
       state.request.set_connected(false);
-    } else if (mcucore::CaseEqual(value, Literals::True()) &&
+    } else if (mcucore::CaseEqual(value, ProgmemStringViews::True()) &&
                !state.request.have_connected) {
       state.request.set_connected(true);
     } else {
       status = ReportExtraParameter(state, value);
     }
   } else if (state.current_parameter == EParameter::kState) {
-    if (mcucore::CaseEqual(value, Literals::False()) &&
+    if (mcucore::CaseEqual(value, ProgmemStringViews::False()) &&
         !state.request.have_state) {
       state.request.set_state(false);
-    } else if (mcucore::CaseEqual(value, Literals::True()) &&
+    } else if (mcucore::CaseEqual(value, ProgmemStringViews::True()) &&
                !state.request.have_state) {
       state.request.set_state(true);
     } else {
@@ -690,7 +691,7 @@ EHttpStatusCode DecodeDeviceType(RequestDecoderState& state,
 EHttpStatusCode ProcessApiVersion(RequestDecoderState& state,
                                   const mcucore::StringView& matched_text,
                                   mcucore::StringView& view) {
-  if (matched_text == Literals::v1()) {
+  if (matched_text == ProgmemStringViews::v1()) {
     return state.SetDecodeFunction(DecodeDeviceType);
   } else {
     return EHttpStatusCode::kHttpBadRequest;
@@ -738,13 +739,13 @@ EHttpStatusCode ProcessManagementType(RequestDecoderState& state,
                                       const mcucore::StringView& matched_text,
                                       mcucore::StringView& view) {
   MCU_DCHECK(!view.empty());
-  if (matched_text == Literals::v1()) {
+  if (matched_text == ProgmemStringViews::v1()) {
     if (view.match_and_consume('/')) {
       return state.SetDecodeFunction(DecodeManagementMethod);
     } else {
       return EHttpStatusCode::kHttpBadRequest;
     }
-  } else if (matched_text == Literals::apiversions()) {
+  } else if (matched_text == ProgmemStringViews::apiversions()) {
     state.request.api = EAlpacaApi::kManagementApiVersions;
     return state.SetDecodeFunction(DecodeEndOfPath);
   } else {

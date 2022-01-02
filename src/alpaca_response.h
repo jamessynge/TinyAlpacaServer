@@ -114,12 +114,6 @@ struct WriteResponse {
     }
   }
 
-  // These methods aren't all called [mcucore::StatusOr]StringResponse to make
-  // sure that we don't make the mistake of returning a
-  // mcucore::StatusOr<mcucore::StringView>, or similar, where the value to be
-  // captured is a reference (or contains a reference to) a temporary that will
-  // disappear during the return (i.e. an example of a memory ownership problem
-  // that Rust aims to address).
   static bool PrintableStringResponse(const AlpacaRequest& request,
                                       const Printable& value, Print& out);
   static bool AnyPrintableStringResponse(const AlpacaRequest& request,
@@ -127,17 +121,35 @@ struct WriteResponse {
                                          Print& out) {
     return PrintableStringResponse(request, value, out);
   }
-  static bool StatusOrLiteralResponse(
+
+  // These methods aren't all called [mcucore::StatusOr]StringResponse to make
+  // sure that we don't make the mistake of returning a StatusOr<StringView>, or
+  // similar, where the value to be captured is a reference (or contains a
+  // reference to) a temporary that will disappear during the return (i.e. an
+  // example of a memory ownership problem that Rust aims to address). For
+  // example, if a device type adapter had a method such as:
+  //
+  //     virtual StatusOr<StringView> GetFoo() = 0;
+  //
+  // Then the characters referenced by the StringView might be on the stack, and
+  // thus might go out of scope before the StatusOrStringViewResponse method
+  // could be called; at that point we'd be attempting to generate a response
+  // with garbage input.
+  static bool StatusOrProgmemStringViewResponse(
       const AlpacaRequest& request,
-      mcucore::StatusOr<mcucore::Literal> status_or_value, Print& out);
+      mcucore::StatusOr<mcucore::ProgmemStringView> status_or_value,
+      Print& out);
+  static bool StatusOrProgmemStringResponse(
+      const AlpacaRequest& request,
+      mcucore::StatusOr<mcucore::ProgmemString> status_or_value, Print& out);
 
   // Array responses.
   static bool UIntArrayResponse(const AlpacaRequest& request,
                                 mcucore::ArrayView<uint32_t> values,
                                 Print& out);
-  static bool LiteralArrayResponse(const AlpacaRequest& request,
-                                   const mcucore::LiteralArray& value,
-                                   Print& out);
+  static bool ProgmemStringArrayResponse(
+      const AlpacaRequest& request, const mcucore::ProgmemStringArray& value,
+      Print& out);
 
   // Writes an ASCOM error response JSON body in an HTTP OK response message;
   // the header tells the client that the connection will be closed. Returns
@@ -155,11 +167,11 @@ struct WriteResponse {
                                  mcucore::Status error_status, Print& out);
 
   static bool AscomParameterMissingErrorResponse(
-      const AlpacaRequest& request, mcucore::Literal parameter_name,
+      const AlpacaRequest& request, mcucore::ProgmemStringView parameter_name,
       Print& out);
 
   static bool AscomParameterInvalidErrorResponse(
-      const AlpacaRequest& request, mcucore::Literal parameter_name,
+      const AlpacaRequest& request, mcucore::ProgmemStringView parameter_name,
       Print& out);
 
   // Write an Alpaca Not Implemented error response, indicating that the

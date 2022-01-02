@@ -130,7 +130,7 @@ These pages have some very interesting info about sections:
 *   [Memory Sections](https://www.nongnu.org/avr-libc/user-manual/mem_sections.html)
 *   [Maximum PROGMEM data size? - Arduino Mega Forum](https://forum.arduino.cc/t/maximum-progmem-data-size-arduino-mega/373448/12)
 
-### Literals in Tiny Alpaca Server
+### ProgmemStringViews in Tiny Alpaca Server
 
 To simplify working with strings in PROGMEM, I've developed classes and macros
 to allow for easily defining PROGMEM strings, for comparing and printing them
@@ -140,8 +140,8 @@ I'm currently manually defining these by:
 1.  Adding appropriate entries to src/literals.inc, such as these:
 
     ```
-    TAS_DEFINE_BUILTIN_LITERAL1(ClientTransactionID)
-    TAS_DEFINE_BUILTIN_LITERAL(HttpRequestHeaderFieldsTooLarge,
+    TAS_DEFINE_PROGMEM_LITERAL1(ClientTransactionID)
+    TAS_DEFINE_PROGMEM_LITERAL(HttpRequestHeaderFieldsTooLarge,
                                "Request Header Fields Too Large")
     ```
 

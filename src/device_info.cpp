@@ -7,15 +7,16 @@
 namespace alpaca {
 
 void DeviceInfo::AddTo(mcucore::JsonObjectEncoder& object_encoder) const {
-  object_encoder.AddStringProperty(Literals::DeviceName(), name);
+  object_encoder.AddStringProperty(ProgmemStringViews::DeviceName(), name);
 
   // TODO(jamessynge): Check on the case requirements of the device type's name.
-  object_encoder.AddStringProperty(Literals::DeviceType(),
+  object_encoder.AddStringProperty(ProgmemStringViews::DeviceType(),
                                    ToFlashStringHelper(device_type));
 
-  object_encoder.AddUIntProperty(Literals::DeviceNumber(), device_number);
+  object_encoder.AddUIntProperty(ProgmemStringViews::DeviceNumber(),
+                                 device_number);
 
-  object_encoder.AddStringProperty(Literals::UniqueID(), unique_id);
+  object_encoder.AddStringProperty(ProgmemStringViews::UniqueID(), unique_id);
 }
 
 }  // namespace alpaca

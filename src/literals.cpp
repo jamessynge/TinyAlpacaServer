@@ -1,24 +1,27 @@
 #include "literals.h"
 
+#include <McuCore.h>
+
 namespace alpaca {
 
-// Define string literal constants in a nested namespace.
-namespace progmem_data {
-#define TAS_DEFINE_BUILTIN_LITERAL(name, literal) \
-  constexpr char k##name[] AVR_PROGMEM = literal;
-#include "literals.inc"
-#undef TAS_DEFINE_BUILTIN_LITERAL
-}  // namespace progmem_data
-
-// Define static mcucore::Literal factory methods in a struct, acting as a
-// nested namespace.
-#define TAS_DEFINE_BUILTIN_LITERAL(name, literal)   \
-  mcucore::Literal Literals::name() {               \
-    return mcucore::Literal(progmem_data::k##name); \
+// Define static mcucore::ProgmemStringView factory methods in struct
+// ProgmemStringViews, which acts as a nested namespace.
+#define TAS_DEFINE_PROGMEM_LITERAL(name, literal)         \
+  mcucore::ProgmemStringView ProgmemStringViews::name() { \
+    return PSV_128(literal);                              \
   }
 
 #include "literals.inc"
 
-#undef TAS_DEFINE_BUILTIN_LITERAL
+#undef TAS_DEFINE_PROGMEM_LITERAL
+
+// Define static mcucore::ProgmemString factory methods in struct
+// ProgmemStrings, which acts as a nested namespace.
+#define TAS_DEFINE_PROGMEM_LITERAL(name, literal) \
+  mcucore::ProgmemString ProgmemStrings::name() { return PSD_128(literal); }
+
+#include "literals.inc"
+
+#undef TAS_DEFINE_PROGMEM_LITERAL
 
 }  // namespace alpaca

@@ -11,8 +11,8 @@ namespace {
 
 using ::alpaca::ErrorCodes;
 using ::alpaca::ESensorName;
-using ::alpaca::Literals;
 using ::alpaca::ObservingConditionsAdapter;
+using ::alpaca::ProgmemStringViews;
 using ::mcucore::OkStatus;
 using ::mcucore::Status;
 using ::mcucore::StatusOr;
@@ -25,8 +25,8 @@ using ::mcucore::StatusOr;
 
 constexpr uint32_t kReadIntervalMillis = READ_INTERVAL_SECS * 1000;
 
-TAS_DEFINE_LITERAL(MLX90614Description, "MLX90614 Infrared Thermometer");
-TAS_DEFINE_LITERAL(RG11Description, "Hydreon RG11 Rain Sensor");
+#define MLX90614_DESCRIPTION "MLX90614 Infrared Thermometer"
+#define RG11_DESCRIPTION "Hydreon RG11 Rain Sensor"
 
 Adafruit_MLX90614 ir_therm;
 
@@ -55,12 +55,12 @@ void AMWeatherBox::MaintainDevice() {
                   << MCU_FLASHSTR(" \xE2\x84\x83, Ambient: ")
                   << GetTemperature().value()
                   << MCU_FLASHSTR(" \xE2\x84\x83, Rain Detected: ")
-                  << (GetRainRate().value() == 0 ? Literals::False()
-                                                 : Literals::True());
+                  << (GetRainRate().value() == 0 ? ProgmemStringViews::False()
+                                                 : ProgmemStringViews::True());
     } else {
       MCU_VLOG(3) << MCU_FLASHSTR("Rain Detected: ")
-                  << (GetRainRate().value() == 0 ? Literals::False()
-                                                 : Literals::True());
+                  << (GetRainRate().value() == 0 ? ProgmemStringViews::False()
+                                                 : ProgmemStringViews::True());
     }
   }
 }
@@ -105,14 +105,14 @@ mcucore::StatusOr<double> AMWeatherBox::GetTemperature() {
   return ErrorCodes::NotConnected();
 }
 
-mcucore::StatusOr<mcucore::Literal> AMWeatherBox::GetSensorDescription(
-    ESensorName sensor_name) {
+mcucore::StatusOr<mcucore::ProgmemStringView>
+AMWeatherBox::GetSensorDescription(ESensorName sensor_name) {
   if (sensor_name == ESensorName::kSkyTemperature ||
       sensor_name == ESensorName::kTemperature) {
-    return MLX90614Description();
+    return MCU_PSV(MLX90614_DESCRIPTION);
   }
   if (sensor_name == ESensorName::kRainRate) {
-    return RG11Description();
+    return MCU_PSV(RG11_DESCRIPTION);
   }
   return ErrorCodes::InvalidValue();
 }

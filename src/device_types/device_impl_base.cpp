@@ -75,7 +75,7 @@ bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
   // phrase.
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,
-      Literals::HttpMethodNotImplemented(), out);
+      ProgmemStringViews::HttpMethodNotImplemented(), out);
 }
 
 bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
@@ -105,7 +105,7 @@ bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
                                                        device_info_.name, out);
 
     case EDeviceMethod::kSupportedActions:
-      return WriteResponse::LiteralArrayResponse(
+      return WriteResponse::ProgmemStringArrayResponse(
           request, device_info_.supported_actions, out);
 
     default:
@@ -165,7 +165,7 @@ bool DeviceImplBase::HandlePutConnected(const AlpacaRequest& request,
                                         Print& out) {
   if (!request.have_connected) {
     return WriteResponse::AscomParameterMissingErrorResponse(
-        request, Literals::Connected(), out);
+        request, ProgmemStringViews::Connected(), out);
   }
   return WriteResponse::StatusResponse(request, SetConnected(request.connected),
                                        out);

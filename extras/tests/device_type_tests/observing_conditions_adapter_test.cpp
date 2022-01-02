@@ -29,6 +29,8 @@
 #include "mcucore/extrastest_tools/sample_printable.h"
 #include "mcucore_platform.h"
 #include "platform_ethernet.h"
+#include "progmem_string.h"
+#include "progmem_string_data.h"
 #include "request_listener.h"
 #include "server_connection.h"
 #include "server_description.h"
@@ -62,32 +64,26 @@ constexpr int kDeviceNumber = 331;
 #define SUPPORTED_ACTION "MakeItRain"
 #define DEVICE_DRIVER_VERSION "99"
 
-TAS_DEFINE_LITERAL(GithubRepoLink, GITHUB_LINK);
-TAS_DEFINE_LITERAL(DeviceDriverVersion, DEVICE_DRIVER_VERSION);
-TAS_DEFINE_LITERAL(DeviceName, DEVICE_NAME);
-TAS_DEFINE_LITERAL(DeviceDescription, DEVICE_DESCRIPTION);
-TAS_DEFINE_LITERAL(DeviceUniqueId, "0");
-TAS_DEFINE_LITERAL(MakeItRain, SUPPORTED_ACTION);
-
 class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
  protected:
   ObservingConditionsAdapterTest()
       : device_info_({
             .device_type = EDeviceType::kObservingConditions,
             .device_number = kDeviceNumber,
-            .name = MCU_FLASHSTR(DEVICE_NAME),
-            .unique_id = MCU_FLASHSTR("0"),
-            .description = MCU_FLASHSTR(DEVICE_DESCRIPTION),
-            .driver_info = MCU_FLASHSTR(GITHUB_LINK),
-            .driver_version = MCU_FLASHSTR(DEVICE_DRIVER_VERSION),
-            .supported_actions = mcucore::LiteralArray(supported_actions_),
+            .name = MCU_PSD(DEVICE_NAME),
+            .unique_id = MCU_PSD("0"),
+            .description = MCU_PSD(DEVICE_DESCRIPTION),
+            .driver_info = MCU_PSD(GITHUB_LINK),
+            .driver_version = MCU_PSD(DEVICE_DRIVER_VERSION),
+            .supported_actions =
+                mcucore::ProgmemStringArray{supported_actions_},
             .interface_version = 1,
         }),
         device_(device_info_) {
     AddDeviceInterface(device_);
   }
 
-  mcucore::Literal supported_actions_[1] = {MakeItRain()};
+  mcucore::ProgmemString supported_actions_[1] = {MCU_PSD(SUPPORTED_ACTION)};
   DeviceInfo device_info_;
   ObservingConditionsAdapter device_;
   DeviceInterface* device_interfaces_[1] = {&device_};
@@ -465,14 +461,15 @@ class MockObservingConditionsTest : public DecodeAndDispatchTestBase {
             .description = MCU_FLASHSTR(DEVICE_DESCRIPTION),
             .driver_info = MCU_FLASHSTR(GITHUB_LINK),
             .driver_version = MCU_FLASHSTR(DEVICE_DRIVER_VERSION),
-            .supported_actions = mcucore::LiteralArray(supported_actions_),
+            .supported_actions =
+                mcucore::ProgmemStringArray{supported_actions_},
             .interface_version = 1,
         }),
         device_(device_info_) {
     AddDeviceInterface(device_);
   }
 
-  mcucore::Literal supported_actions_[1] = {MakeItRain()};
+  mcucore::ProgmemString supported_actions_[1] = {MCU_PSD(SUPPORTED_ACTION)};
   DeviceInfo device_info_;
   MockObservingConditions device_;
   DeviceInterface* device_interfaces_[1] = {&device_};
@@ -608,7 +605,7 @@ TEST_F(MockObservingConditionsTest, Method_SensorDescription_MissingParameter) {
 
 TEST_F(MockObservingConditionsTest, Method_SensorDescription) {
   EXPECT_CALL(device_, GetSensorDescription)
-      .WillOnce(Return(mcucore::Literal("MLX90614")));
+      .WillOnce(Return(mcucore::ProgmemStringView("MLX90614")));
   auto req = GenerateDeviceApiRequest("sensordescription");
   req.SetParameter("SensorName", "Temperature");
   ASSERT_OK_AND_ASSIGN(auto response_str, RoundTripRequest(req, false));

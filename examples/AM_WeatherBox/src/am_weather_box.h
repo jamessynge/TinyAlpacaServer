@@ -22,7 +22,7 @@ class AMWeatherBox : public alpaca::ObservingConditionsAdapter {
   mcucore::StatusOr<double> GetRainRate() override;
   mcucore::StatusOr<double> GetSkyTemperature() override;
   mcucore::StatusOr<double> GetTemperature() override;
-  mcucore::StatusOr<mcucore::Literal> GetSensorDescription(
+  mcucore::StatusOr<mcucore::ProgmemStringView> GetSensorDescription(
       alpaca::ESensorName sensor_name) override;
   mcucore::Status SetAveragePeriod(double hours) override;
   mcucore::Status Refresh() override;

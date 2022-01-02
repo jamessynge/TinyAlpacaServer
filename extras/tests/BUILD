@@ -73,6 +73,7 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/src:literal",
+        "//mcucore/src:progmem_string_data",
     ],
 )
 
@@ -97,6 +98,7 @@ cc_test(
     deps = [
         "//TinyAlpacaServer/src:literals",
         "//googletest:gunit_main",
+        "//mcucore/extras/test_tools:print_value_to_std_string",
         "//mcucore/extras/test_tools:string_view_utils",
         "//mcucore/src:literal",
         "//mcucore/src:string_compare",

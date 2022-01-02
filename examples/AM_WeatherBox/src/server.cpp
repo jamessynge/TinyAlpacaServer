@@ -11,10 +11,6 @@ namespace astro_makers {
 namespace {
 using ::alpaca::DeviceInfo;
 using ::alpaca::EDeviceType;
-using ::mcucore::LiteralArray;
-
-// No extra actions.
-const auto kSupportedActions = mcucore::LiteralArray();
 
 const DeviceInfo kAMWeatherBoxDeviceInfo{
     .device_type = EDeviceType::kObservingConditions,
@@ -26,7 +22,7 @@ const DeviceInfo kAMWeatherBoxDeviceInfo{
     .description = MCU_FLASHSTR("AstroMakers Weather Box"),
     .driver_info = MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
     .driver_version = MCU_FLASHSTR("0.1"),
-    .supported_actions = kSupportedActions,
+    .supported_actions = {},  // No extra actions.
     .interface_version = 1,
 };
 

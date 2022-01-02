@@ -145,7 +145,7 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
   // COV_NF_START
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,
-      Literals::HttpMethodNotImplemented(), out);
+      ProgmemStringViews::HttpMethodNotImplemented(), out);
   // COV_NF_END
 }
 

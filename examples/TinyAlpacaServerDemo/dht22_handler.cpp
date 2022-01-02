@@ -3,14 +3,11 @@
 #include "src/pretend_devices.h"
 
 using ::alpaca::ObservingConditionsAdapter;
-using ::mcucore::Literal;
+using ::mcucore::ProgmemStringView;
 using ::mcucore::StatusOr;
 
 // Just one simple device, used to report Observing Conditions.
 static Dht22Device dht22;
-
-// No extra actions.
-const auto kSupportedActions = mcucore::LiteralArray({});
 
 #define DEVICE_DESCRIPTION "DHT22 Humidity and Temperature Sensor"
 
@@ -22,7 +19,7 @@ const alpaca::DeviceInfo kDht22DeviceInfo{
     .description = MCU_FLASHSTR(DEVICE_DESCRIPTION),
     .driver_info = MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
     .driver_version = MCU_FLASHSTR("0.1"),
-    .supported_actions = kSupportedActions,
+    .supported_actions = {},  // No extra actions.
     .interface_version = 1,
 };
 
@@ -40,11 +37,11 @@ mcucore::StatusOr<bool> Dht22Handler::GetConnected() {
   return true;  // XXX: Return true if able to talk to the device.
 }
 
-mcucore::StatusOr<mcucore::Literal> Dht22Handler::GetSensorDescription(
-    alpaca::ESensorName sensor_name) {
+mcucore::StatusOr<mcucore::ProgmemStringView>
+Dht22Handler::GetSensorDescription(alpaca::ESensorName sensor_name) {
   if (sensor_name == alpaca::ESensorName::kHumidity ||
       sensor_name == alpaca::ESensorName::kTemperature) {
-    return mcucore::Literal(TASLIT(DEVICE_DESCRIPTION));
+    return mcucore::ProgmemStringView(TASLIT(DEVICE_DESCRIPTION));
   }
   return alpaca::ErrorCodes::InvalidValue();
 }

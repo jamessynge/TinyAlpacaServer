@@ -11,6 +11,7 @@
 #include "json_response.h"
 #include "literals.h"
 #include "printable_cat.h"
+#include "progmem_string.h"
 
 namespace alpaca {
 namespace {
@@ -29,16 +30,30 @@ class LiteralArraySource : public mcucore::JsonElementSource {
   const mcucore::LiteralArray& literals_;
 };
 
+class ProgmemStringArraySource : public mcucore::JsonElementSource {
+ public:
+  explicit ProgmemStringArraySource(const mcucore::ProgmemStringArray& strings)
+      : strings_(strings) {}
+  void AddTo(mcucore::JsonArrayEncoder& encoder) const override {
+    for (const mcucore::ProgmemString& str : strings_) {
+      encoder.AddStringElement(str);
+    }
+  }
+
+ private:
+  const mcucore::ProgmemStringArray& strings_;
+};
+
 }  // namespace
 
 bool WriteResponse::OkResponse(const AlpacaRequest& request,
                                EContentType content_type,
                                const Printable& content_source, Print& out,
                                bool append_http_newline) {
-  const auto eol = Literals::HttpEndOfLine();
+  const auto eol = ProgmemStringViews::HttpEndOfLine();
   HttpResponseHeader hrh;
   hrh.status_code = EHttpStatusCode::kHttpOk;
-  hrh.reason_phrase = Literals::OK();
+  hrh.reason_phrase = ProgmemStrings::OK();
   hrh.content_type = content_type;
   hrh.content_length = mcucore::SizeOfPrintable(content_source);
   if (append_http_newline) {
@@ -174,9 +189,9 @@ bool WriteResponse::PrintableStringResponse(const AlpacaRequest& request,
   return OkJsonResponse(request, source, out);
 }
 
-bool WriteResponse::StatusOrLiteralResponse(
+bool WriteResponse::StatusOrProgmemStringViewResponse(
     const AlpacaRequest& request,
-    mcucore::StatusOr<mcucore::Literal> status_or_value, Print& out) {
+    mcucore::StatusOr<mcucore::ProgmemStringView> status_or_value, Print& out) {
   if (status_or_value.ok()) {
     return AnyPrintableStringResponse(request, status_or_value.value(), out);
   } else {
@@ -184,10 +199,20 @@ bool WriteResponse::StatusOrLiteralResponse(
   }
 }
 
-bool WriteResponse::LiteralArrayResponse(const AlpacaRequest& request,
-                                         const mcucore::LiteralArray& value,
-                                         Print& out) {
-  return ArrayResponse(request, LiteralArraySource(value), out);
+bool WriteResponse::StatusOrProgmemStringResponse(
+    const AlpacaRequest& request,
+    mcucore::StatusOr<mcucore::ProgmemString> status_or_value, Print& out) {
+  if (status_or_value.ok()) {
+    return AnyPrintableStringResponse(request, status_or_value.value(), out);
+  } else {
+    return AscomErrorResponse(request, status_or_value.status(), out);
+  }
+}
+
+bool WriteResponse::ProgmemStringArrayResponse(
+    const AlpacaRequest& request, const mcucore::ProgmemStringArray& value,
+    Print& out) {
+  return ArrayResponse(request, ProgmemStringArraySource(value), out);
 }
 
 bool WriteResponse::UIntArrayResponse(const AlpacaRequest& request,
@@ -238,7 +263,8 @@ bool WriteResponse::AscomMethodNotImplementedResponse(
   MCU_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
              request.api == EAlpacaApi::kDeviceSetup);
   if (request.api == EAlpacaApi::kDeviceSetup) {
-    return AscomMethodNotImplementedResponse(request, Literals::setup(), out);
+    return AscomMethodNotImplementedResponse(request,
+                                             ProgmemStringViews::setup(), out);
   } else {
     return AscomMethodNotImplementedResponse(request, request.device_method,
                                              out);
@@ -250,7 +276,8 @@ bool WriteResponse::AscomActionNotImplementedResponse(
   return AscomErrorResponse(request, ErrorCodes::ActionNotImplemented(), out);
 }
 bool WriteResponse::AscomParameterMissingErrorResponse(
-    const AlpacaRequest& request, mcucore::Literal parameter_name, Print& out) {
+    const AlpacaRequest& request, mcucore::ProgmemStringView parameter_name,
+    Print& out) {
   auto error_message = mcucore::PrintableCat(
       MCU_FLASHSTR("Missing parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kValueNotSet, error_message,
@@ -258,7 +285,8 @@ bool WriteResponse::AscomParameterMissingErrorResponse(
 }
 
 bool WriteResponse::AscomParameterInvalidErrorResponse(
-    const AlpacaRequest& request, mcucore::Literal parameter_name, Print& out) {
+    const AlpacaRequest& request, mcucore::ProgmemStringView parameter_name,
+    Print& out) {
   auto error_message = mcucore::PrintableCat(
       MCU_FLASHSTR("Invalid parameter: "), parameter_name);
   return AscomErrorResponse(request, ErrorCodes::kInvalidValue, error_message,
@@ -274,45 +302,44 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
     hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
     hrh.reason_phrase =
-        TASLIT("Internal Server Error: Invalid HTTP mcucore::Status Code");
+        MCU_PSD("Internal Server Error: Invalid HTTP mcucore::Status Code");
   } else {
     hrh.status_code = status_code;
     switch (status_code) {
       case EHttpStatusCode::kHttpBadRequest:
-        hrh.reason_phrase = Literals::HttpBadRequest();
+        hrh.reason_phrase = ProgmemStrings::HttpBadRequest();
         break;
       case EHttpStatusCode::kHttpMethodNotAllowed:
-        hrh.reason_phrase = Literals::HttpMethodNotAllowed();
+        hrh.reason_phrase = ProgmemStrings::HttpMethodNotAllowed();
         break;
       case EHttpStatusCode::kHttpNotAcceptable:
-        hrh.reason_phrase = Literals::HttpNotAcceptable();
+        hrh.reason_phrase = ProgmemStrings::HttpNotAcceptable();
         break;
       case EHttpStatusCode::kHttpLengthRequired:
-        hrh.reason_phrase = Literals::HttpLengthRequired();
+        hrh.reason_phrase = ProgmemStrings::HttpLengthRequired();
         break;
       case EHttpStatusCode::kHttpPayloadTooLarge:
-        hrh.reason_phrase = Literals::HttpPayloadTooLarge();
+        hrh.reason_phrase = ProgmemStrings::HttpPayloadTooLarge();
         break;
       case EHttpStatusCode::kHttpUnsupportedMediaType:
-        hrh.reason_phrase = Literals::HttpUnsupportedMediaType();
+        hrh.reason_phrase = ProgmemStrings::HttpUnsupportedMediaType();
         break;
       case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-        hrh.reason_phrase = Literals::HttpRequestHeaderFieldsTooLarge();
+        hrh.reason_phrase = ProgmemStrings::HttpRequestHeaderFieldsTooLarge();
         break;
       case EHttpStatusCode::kHttpMethodNotImplemented:
-        hrh.reason_phrase = Literals::HttpMethodNotImplemented();
+        hrh.reason_phrase = ProgmemStrings::HttpMethodNotImplemented();
         break;
       case EHttpStatusCode::kHttpVersionNotSupported:
-        hrh.reason_phrase = Literals::HttpVersionNotSupported();
+        hrh.reason_phrase = ProgmemStrings::HttpVersionNotSupported();
         break;
       case EHttpStatusCode::kHttpInternalServerError:
-        hrh.reason_phrase = Literals::HttpInternalServerError();
+        hrh.reason_phrase = ProgmemStrings::HttpInternalServerError();
         break;
       default:
         // We don't have a reason phrase programmed in here.
         MCU_DCHECK(false) << MCU_FLASHSTR("Please add a case for status code ")
                           << status_code;
-        hrh.reason_phrase = mcucore::Literal();
     }
   }
 
