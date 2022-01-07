@@ -50,7 +50,7 @@ Notes:
 *   D8 may be connected to the INTn pin of W5500 chip, enabling it to signal to
     the ATmega2560 for certain conditions occur (e.g. when a Wake-on-LAN packet
     is received or when a new TCP connection is established). We're not
-    currently planning to use the interrupt feature of the W5500, so we _may_
+    currently planning to use the interrupt feature of the W5500, so we *may*
     use D8 for other purposes (e.g. for PWM output associated with OC4C), though
     it is probably best to avoid it so as to keep our options open, unless we're
     short on pins

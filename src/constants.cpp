@@ -467,7 +467,8 @@ std::ostream& operator<<(std::ostream& os, RequestDecoderStatus v) {
     case RequestDecoderStatus::kDecoded:
       return os << "Decoded";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown RequestDecoderStatus, value="
+            << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EHttpStatusCode v) {
@@ -499,7 +500,7 @@ std::ostream& operator<<(std::ostream& os, EHttpStatusCode v) {
     case EHttpStatusCode::kHttpVersionNotSupported:
       return os << "HttpVersionNotSupported";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EHttpStatusCode, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EHttpMethod v) {
@@ -513,7 +514,7 @@ std::ostream& operator<<(std::ostream& os, EHttpMethod v) {
     case EHttpMethod::HEAD:
       return os << "HEAD";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EHttpMethod, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EApiGroup v) {
@@ -527,7 +528,7 @@ std::ostream& operator<<(std::ostream& os, EApiGroup v) {
     case EApiGroup::kSetup:
       return os << "Setup";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EApiGroup, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EAlpacaApi v) {
@@ -547,7 +548,7 @@ std::ostream& operator<<(std::ostream& os, EAlpacaApi v) {
     case EAlpacaApi::kServerSetup:
       return os << "ServerSetup";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EAlpacaApi, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EManagementMethod v) {
@@ -559,7 +560,7 @@ std::ostream& operator<<(std::ostream& os, EManagementMethod v) {
     case EManagementMethod::kConfiguredDevices:
       return os << "ConfiguredDevices";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EManagementMethod, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EDeviceType v) {
@@ -587,7 +588,7 @@ std::ostream& operator<<(std::ostream& os, EDeviceType v) {
     case EDeviceType::kTelescope:
       return os << "Telescope";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EDeviceType, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EDeviceMethod v) {
@@ -697,7 +698,7 @@ std::ostream& operator<<(std::ostream& os, EDeviceMethod v) {
     case EDeviceMethod::kSwitchStep:
       return os << "SwitchStep";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EDeviceMethod, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EParameter v) {
@@ -733,7 +734,7 @@ std::ostream& operator<<(std::ostream& os, EParameter v) {
     case EParameter::kValue:
       return os << "Value";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EParameter, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, ESensorName v) {
@@ -767,7 +768,7 @@ std::ostream& operator<<(std::ostream& os, ESensorName v) {
     case ESensorName::kWindSpeed:
       return os << "WindSpeed";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown ESensorName, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EHttpHeader v) {
@@ -783,7 +784,7 @@ std::ostream& operator<<(std::ostream& os, EHttpHeader v) {
     case EHttpHeader::kDate:
       return os << "Date";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EHttpHeader, value=" << static_cast<int64_t>(v);
 }
 
 std::ostream& operator<<(std::ostream& os, EContentType v) {
@@ -795,7 +796,7 @@ std::ostream& operator<<(std::ostream& os, EContentType v) {
     case EContentType::kTextHtml:
       return os << "text/html";
   }
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+  return os << "Unknown EContentType, value=" << static_cast<int64_t>(v);
 }
 #endif  // MCU_HOST_TARGET
 

@@ -270,10 +270,10 @@ std::ostream& operator<<(std::ostream& os, {name} v) {{
     case {name}::{enumerator}:
       return os << {dq_string};""",
           end='')
-    print(r"""
-  }
+    print(f"""
+  }}
   return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
-}""")
+}}""")
 
   print('#endif  // MCU_HOST_TARGET')
   print()
