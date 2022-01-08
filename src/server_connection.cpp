@@ -75,7 +75,7 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
       if (view.size() < input_buffer_size_) {
         // Move the undecoded bytes to the front of the buffer.
         input_buffer_size_ = view.size();
-        memcpy(input_buffer_, view.data(), view.size());
+        memmove(input_buffer_, view.data(), view.size());
       }
     }
 
