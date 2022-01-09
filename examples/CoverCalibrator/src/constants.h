@@ -1,7 +1,8 @@
 #ifndef TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_CONSTANTS_H_
 #define TINY_ALPACA_SERVER_EXAMPLES_COVERCALIBRATOR_SRC_CONSTANTS_H_
 
-// Pin constants, etc.
+// Pin constants, etc. Note that the enable pins are grounded to indicate that
+// the feature is present.
 
 #define kNoSuchPin 255  // Enable pins are allowed to be omitted.
 
@@ -29,9 +30,9 @@
 #define kCoverEnabledPin \
   kNoSuchPin  // really 13, preserving builtin LED access.
 
-#else
+#elif 0
 
-// Suggested pin selection for next revision.
+// Suggested pin selection for next revision after rev 6.
 //
 // The Microstep Resolution pins are optional, but seem like a good idea; if not
 // provided, I recommend at least providing jumpers, though making this software
@@ -60,7 +61,29 @@
 #define kMicrostepResolution1 PIN_A9   // ADC9, PCINT17    NEW         Output
 #define kMicrostepResolution2 PIN_A10  // ADC10, PCINT18   NEW         Output
 #define kMicrostepResolution3 PIN_A11  // ADC11, PCINT19   NEW         Output
-#define kCoverMotorEnabledPin PIN_A13  // ADC13, PCINT21   NEW         Output
+
+#else
+// Based on AM_CoverCalibrator_schematic_rev_8_pcb.pdf, for the board labeled
+// "Cap Calibrator Rev2 austinb, Alan Sliski", manufactured at the end of
+// December, 2021.
+
+//                                        Alt. Func.       Rev. 6 pin  Dir
+#define kLedChannel1PwmPin 2           // OC3B             was 5       Output
+#define kLedChannel2PwmPin 3           // OC3C             was 6       Output
+#define kLedChannel3PwmPin 5           // OC3A             was 7       Output
+#define kLedChannel4PwmPin 6           // OC4A             was 8       Output
+#define kLedChannel1EnabledPin PIN_A0  // ADC0             NEW         Input
+#define kLedChannel2EnabledPin PIN_A1  // ADC1             was 10      Input
+#define kLedChannel3EnabledPin PIN_A2  // ADC2             was 11      Input
+#define kLedChannel4EnabledPin PIN_A3  // ADC3             was 12      Input
+#define kCoverMotorStepPin 16          // TXD2             was 3       Output
+#define kCoverMotorDirectionPin 17     // RXD2             was 4       Output
+#define kCoverOpenLimitPin 18          // TXD1, INT3       was 20      Input
+#define kCoverCloseLimitPin 19         // RXD1, INT2       was 21      Input
+#define kCoverEnabledPin PIN_A13       // ADC13, PCINT21   was 13      Input
+#define kMicrostepResolution1 PIN_A9   // ADC9, PCINT17    NEW         Output
+#define kMicrostepResolution2 PIN_A10  // ADC10, PCINT18   NEW         Output
+#define kMicrostepResolution3 PIN_A11  // ADC11, PCINT19   NEW         Output
 
 #endif
 
