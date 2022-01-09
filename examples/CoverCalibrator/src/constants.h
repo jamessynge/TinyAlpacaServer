@@ -60,6 +60,7 @@
 #define kMicrostepResolution1 PIN_A9   // ADC9, PCINT17    NEW         Output
 #define kMicrostepResolution2 PIN_A10  // ADC10, PCINT18   NEW         Output
 #define kMicrostepResolution3 PIN_A11  // ADC11, PCINT19   NEW         Output
+#define kCoverMotorEnabledPin PIN_A13  // ADC13, PCINT21   NEW         Output
 
 #endif
 
