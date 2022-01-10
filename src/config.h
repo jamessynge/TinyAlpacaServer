@@ -1,9 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_SRC_CONFIG_H_
 #define TINY_ALPACA_SERVER_SRC_CONFIG_H_
 
-// Controls the set of features available in the Tiny Alpaca Server. (This is in
-// contrast to platform.h, which expresses the set of features provided by the
-// platform.)
+// Controls the set of features available in the Tiny Alpaca Server.
+//
+// See mcucore_config.h for config related to logging, etc., and
+// mcucore_platform.h for settings/includes related to the platform on which the
+// server runs.
 //
 // This file should only define macros (and possibly constants), and not include
 // (and hence export) anything else.
@@ -26,7 +28,7 @@
 // This isn't fully fleshed out, but the basics are there for storing the
 // parameter enum and short string value of parameter types that are defined
 // and have token entries in kRecognizedParameters passed
-#define TAS_ENABLE_EXTRA_REQUEST_PARAMETERS 1
+#define TAS_ENABLE_EXTRA_REQUEST_PARAMETERS 0
 #define TAS_MAX_EXTRA_REQUEST_PARAMETERS 2
 #define TAS_MAX_EXTRA_REQUEST_PARAMETER_LENGTH 128
 
