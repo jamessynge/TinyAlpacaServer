@@ -4,6 +4,10 @@
 Uses the netifaces library to find the broadcast IPs that can be used for
 sending the UDP discovery message.
 
+Some functions accept **kwargs (i.e. unspecified keyword arguments) so that they
+can be passed arguments that originated from argparse, which may well include
+arguments not of interested to the methods here.
+
 Note that I've chosen to omit support for IPv6 because I don't need it for
 testing Tiny Alpaca Server.
 
@@ -223,8 +227,10 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
                       sources: Optional[List[DiscoverySource]] = None,
                       max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
-                      verbose=False) -> None:
+                      verbose=False,
+                      **kwargs) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
+  del kwargs  # Unused.
   if sources is None:
     if verbose:
       print('Finding network interfaces to use for discovery.')
@@ -259,9 +265,8 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
       )
 
 
-def find_first_server(max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
-                      verbose=False) -> Optional[DiscoveryResponse]:
-  """Return the first server to respond within max_discovery_secs, else None."""
+def find_first_server(**kwargs) -> Optional[DiscoveryResponse]:
+  """Return the first server to respond, else None."""
   result = None
 
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
@@ -270,10 +275,7 @@ def find_first_server(max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
       return
     result = dr
 
-  perform_discovery(
-      discovery_response_handler,
-      max_discovery_secs=max_discovery_secs,
-      verbose=verbose)
+  perform_discovery(discovery_response_handler, **kwargs)
   return result
 
 
@@ -301,7 +303,7 @@ def main():
   cli_kwargs = vars(cli_args)
 
   def discovery_response_handler(dr: DiscoveryResponse) -> None:
-    pprint.pprint(dr)
+    print('Found a server at', dr.get_alpaca_server_addr())
 
   perform_discovery(discovery_response_handler, **cli_kwargs)
 

@@ -93,6 +93,7 @@ def to_url_base(arg: str) -> str:
 
 
 def get_ok_response_json(response: requests.Response) -> Dict[str, Any]:
+  """Returns Json body if response is OK and doesn't represent an error."""
   if response.status_code != 200:
     raise ValueError(f'Response has status {response.status_code}')
   jv = response.json()
@@ -100,12 +101,6 @@ def get_ok_response_json(response: requests.Response) -> Dict[str, Any]:
     raise ValueError(f'Response body is not a JSON Object: {response.content}')
 
   absent = object()
-  value = jv.get('ServerTransactionID', absent)
-  if value is absent:
-    raise ValueError(f'Response JSON is missing ServerTransactionID')
-  # Not sure if JSON decoding will produce an integer or a float.
-  if not isinstance(value, int):
-    raise ValueError(f'ServerTransactionID is not an integer: {value}')
 
   value = jv.get('ErrorNumber', absent)
   if isinstance(value, int) and value != 0:
@@ -115,6 +110,15 @@ def get_ok_response_json(response: requests.Response) -> Dict[str, Any]:
   if isinstance(value, str) and value:
     raise ValueError(f'Response represents an error: {response.content}')
 
+  value = jv.get('ServerTransactionID', absent)
+  if value is absent:
+    raise ValueError('Response JSON is missing ServerTransactionID')
+
+  # Not sure if JSON decoding will produce an integer or a float.
+  if not isinstance(value, int):
+    raise ValueError(f'ServerTransactionID is not an integer: {value}')
+
+  # Response looks OK.
   return jv
 
 
@@ -126,11 +130,12 @@ def get_ok_response_json_value(response: requests.Response) -> Any:
   return jv['Value']
 
 
-def get_ok_response_json_value_dict(response: requests.Response) -> Dict[str, Any]:
+def get_ok_response_json_value_dict(
+    response: requests.Response) -> Dict[str, Any]:
   value = get_ok_response_json_value(response)
   if not isinstance(value, dict):
     raise ValueError(
-        f'Response JSON does not contain a Value object: {response.content}')
+        f'Response JSON Value property is not an object: {response.content}')
   return value
 
 
@@ -358,8 +363,8 @@ class HttpDeviceBase(object):
                    servers: Optional[List[AlpacaHttpClient]] = None,
                    server_cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
                    device_number: Optional[int] = None,
-                   min_required_devices=Optional[int],
-                   max_allowed_devices=Optional[int],
+                   min_required_devices: Optional[int] = None,
+                   max_allowed_devices: Optional[int] = None,
                    **kwargs) -> List[_T]:
     """Returns devices of type cls.DEVICE_TYPE."""
     if cls == HttpDeviceBase:
