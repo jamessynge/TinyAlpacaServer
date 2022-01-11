@@ -9,9 +9,6 @@ using ::alpaca::DeviceInfo;
 using ::alpaca::ErrorCodes;
 using ::alpaca::WriteResponse;
 using ::mcucore::AnyPrintable;
-using ::mcucore::OkStatus;
-using ::mcucore::PrintableCat;
-using ::mcucore::Status;
 using ::mcucore::StatusOr;
 
 LedChannelSwitchGroup::LedChannelSwitchGroup(const DeviceInfo& device_info,

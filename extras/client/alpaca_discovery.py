@@ -18,7 +18,6 @@ interface information.
 import argparse
 import dataclasses
 import json
-import pprint
 import queue
 import socket
 import sys

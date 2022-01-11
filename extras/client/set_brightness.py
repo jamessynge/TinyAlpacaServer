@@ -5,8 +5,6 @@ Usage: set_brightness.py brightness [request_count [server_addr[:port]]]
 """
 
 import argparse
-import sys
-from typing import List
 
 import alpaca_discovery
 import alpaca_http_client

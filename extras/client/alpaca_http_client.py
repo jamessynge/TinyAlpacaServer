@@ -180,7 +180,7 @@ ConfiguredDeviceFilterFunc = Callable[[ConfiguredDevice], bool]
 def make_configured_device_filter(
     device_number: Optional[int] = None,
     device_type: Optional[EDeviceType] = None) -> ConfiguredDeviceFilterFunc:
-  """Returns a ConfiguredDeviceFilterFunc based on the kwargs."""
+  """Returns a ConfiguredDeviceFilterFunc applying the restrictions."""
 
   def the_filter(configured_device: ConfiguredDevice) -> bool:
     if (device_number is not None and
@@ -293,7 +293,7 @@ def make_composite_server_filter(
     server_filter: Optional[ServerFilterFunc] = None,
     configured_device_filter: Optional[ConfiguredDeviceFilterFunc] = None
 ) -> ServerFilterFunc:
-  """Returns a ServerFilterFunc based on the kwargs."""
+  """Returns a ServerFilterFunc based on the args."""
 
   def the_filter(client: AlpacaHttpClient):
     if server_filter and not server_filter(client):
@@ -405,10 +405,13 @@ class HttpDeviceBase(object):
 
   @classmethod
   def find_first_device(cls: Type[_T], **kwargs) -> _T:
+    del kwargs['min_required_devices']
     return cls.find_devices(min_required_devices=1, **kwargs)[0]
 
   @classmethod
   def find_sole_device(cls: Type[_T], **kwargs) -> _T:
+    del kwargs['min_required_devices']
+    del kwargs['max_allowed_devices']
     return cls.find_devices(
         min_required_devices=1, max_allowed_devices=1, **kwargs)[0]
 
