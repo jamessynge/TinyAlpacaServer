@@ -405,13 +405,13 @@ class HttpDeviceBase(object):
 
   @classmethod
   def find_first_device(cls: Type[_T], **kwargs) -> _T:
-    del kwargs['min_required_devices']
+    kwargs.pop('min_required_devices', None)
     return cls.find_devices(min_required_devices=1, **kwargs)[0]
 
   @classmethod
   def find_sole_device(cls: Type[_T], **kwargs) -> _T:
-    del kwargs['min_required_devices']
-    del kwargs['max_allowed_devices']
+    kwargs.pop('min_required_devices', None)
+    kwargs.pop('max_allowed_devices', None)
     return cls.find_devices(
         min_required_devices=1, max_allowed_devices=1, **kwargs)[0]
 

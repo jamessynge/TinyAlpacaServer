@@ -19,17 +19,24 @@ def main() -> None:
           alpaca_http_client.make_device_number_parser(),
           alpaca_http_client.make_device_limits_parser(),
       ])
-  parser.add_argument('--all', '-a', help='Enable all LED channels.')
-  parser.add_argument('--red', '-r', help='Enable the red LED channel.')
-  parser.add_argument('--green', '-g', help='Enable the green LED channel.')
-  parser.add_argument('--blue', '-b', help='Enable blue LED channel.')
-  parser.add_argument('--white', '-w', help='Enable white LED channel.')
-  parser.add_argument('brightness', type=int, help=('The brightness value.'))
+
+  parser.add_argument(
+      '--all', '-a', action='store_true', help='Enable all LED channels.')
+  parser.add_argument(
+      '--red', '-r', action='store_true', help='Enable the red LED.')
+  parser.add_argument(
+      '--green', '-g', action='store_true', help='Enable the green LED.')
+  parser.add_argument(
+      '--blue', '-b', action='store_true', help='Enable blue LED.')
+  parser.add_argument(
+      '--white', '-w', action='store_true', help='Enable white LED.')
+
+  parser.add_argument('brightness', type=int, help='The LED brightness value.')
 
   args = parser.parse_args()
-  cli_kwargs = dict(vars(args))  # Need a copy of the dictionary, else will
-                                     # modify args itself.
-  del cli_kwargs['brightness']
+  # Need a copy of the dictionary, else will modify args itself.
+  cli_kwargs = dict(vars(args))
+  cli_kwargs.pop('brightness', None)
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
       alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs))
 
