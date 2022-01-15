@@ -149,6 +149,15 @@ void Cover::Initialize() {
   pinMode(open_limit_pin_, kLimitSwitchPinMode);
   pinMode(closed_limit_pin_, kLimitSwitchPinMode);
 
+#if defined(kMicrostepResolution1)
+  pinMode(kMicrostepResolution1, OUTPUT);
+  pinMode(kMicrostepResolution2, OUTPUT);
+  pinMode(kMicrostepResolution3, OUTPUT);
+  digitalWrite(kMicrostepResolution1, HIGH);
+  digitalWrite(kMicrostepResolution2, HIGH);
+  digitalWrite(kMicrostepResolution3, LOW);
+#endif
+
   ResetTimer5();
 }
 
@@ -238,13 +247,6 @@ void Cover::StartMoving(int direction_pin_value) {
   ResetTimer5();
   step_count_ = 0;
   digitalWrite(direction_pin_, direction_pin_value);
-
-#if defined(kMicrostepResolution1)
-  digitalWrite(kMicrostepResolution1, HIGH);
-  digitalWrite(kMicrostepResolution2, HIGH);
-  digitalWrite(kMicrostepResolution3, LOW);
-#endif
-
   interrupt_handler = this;
   StartTimer5(kStepsPerSecond);
   delay(1);
