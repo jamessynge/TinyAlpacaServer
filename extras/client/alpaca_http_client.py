@@ -5,6 +5,7 @@ import argparse
 import dataclasses
 import enum
 import random
+import socket
 import sys
 import threading
 import time
@@ -194,6 +195,22 @@ def make_configured_device_filter(
   return the_filter
 
 
+class HTTPAdapterWithSocketOptions(requests.adapters.HTTPAdapter):
+  """Support for setting socket options on a Requests.session instance.
+
+  Copied from https://stackoverflow.com/a/35278688.
+  """
+
+  def __init__(self, *args, **kwargs):
+    self.socket_options = kwargs.pop('socket_options', None)
+    super().__init__(*args, **kwargs)
+
+  def init_poolmanager(self, *args, **kwargs):
+    if self.socket_options is not None:
+      kwargs['socket_options'] = self.socket_options
+    super().init_poolmanager(*args, **kwargs)
+
+
 class AlpacaHttpClient(object):
   """Device independent Alpaca client, for communicating with one server."""
 
@@ -205,8 +222,13 @@ class AlpacaHttpClient(object):
     self.url_base = to_url_base(url_base)
     self.mgmt_url_base = f'{url_base}/management'
     self.device_url_base = f'{url_base}/api/v1'
-    self.session = requests.session()
     self._configured_devices: Optional[List[ConfiguredDevice]] = None
+    self.session = requests.session()
+    # Turn on the TCP keep alive feature, which detects when a connection has
+    # ended implicitly (i.e. the device has rebooted).
+    socket_options = [(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)]
+    adapter = HTTPAdapterWithSocketOptions(socket_options=socket_options)
+    self.session.mount('http://', adapter)
 
   def gen_next_client_transaction_id(self):
     with self.last_client_transaction_id_lock:

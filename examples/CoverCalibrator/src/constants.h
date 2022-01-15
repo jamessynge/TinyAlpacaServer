@@ -65,7 +65,13 @@
 #else
 // Based on AM_CoverCalibrator_schematic_rev_8_pcb.pdf, for the board labeled
 // "Cap Calibrator Rev2 austinb, Alan Sliski", manufactured at the end of
-// December, 2021.
+// December, 2021... with corrections based on connectivity tests of the board:
+//
+// * The schematic claims that A13 is connected to the ~ENABLE pin of the A4988
+//   carrier board. Instead it appears to just connect to the "Motorized Cap
+//   Enable" jumper.
+//
+// * The A9 and A11 lines are swapped, connecting to MS3 and MS1.
 
 //                                        Alt. Func.       Rev. 6 pin  Dir
 #define kLedChannel1PwmPin 2           // OC3B             was 5       Output
@@ -81,9 +87,9 @@
 #define kCoverOpenLimitPin 18          // TXD1, INT3       was 20      Input
 #define kCoverCloseLimitPin 19         // RXD1, INT2       was 21      Input
 #define kCoverEnabledPin PIN_A13       // ADC13, PCINT21   was 13      Input
-#define kMicrostepResolution1 PIN_A9   // ADC9, PCINT17    NEW         Output
+#define kMicrostepResolution3 PIN_A9   // ADC9, PCINT17    NEW         Output
 #define kMicrostepResolution2 PIN_A10  // ADC10, PCINT18   NEW         Output
-#define kMicrostepResolution3 PIN_A11  // ADC11, PCINT19   NEW         Output
+#define kMicrostepResolution1 PIN_A11  // ADC11, PCINT19   NEW         Output
 
 #endif
 
