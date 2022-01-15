@@ -89,38 +89,38 @@ def open_cover(
 
 
 def sweep_brightness(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-                     brightnesses: List[int]) -> None:
+                     brightness_list: List[int]) -> None:
   """Set the brightness to each brightness, then reverse order, then turn off.
 
-  Generally assumed that the brightnesses rise from low to high, so this has
+  Generally assumed that the brightness_list rise from low to high, so this has
   the effect of gradually increasing the brightness, then lowering it back
   down before turning it off.
 
   Args:
     cover_calibrator: The Cover Calibrator device.
-    brightnesses: The list of brightness values.
+    brightness_list: The list of brightness values.
   """
   # start = datetime.datetime.now()
-  for brightness in brightnesses:
+  for brightness in brightness_list:
     # print('brightness', brightness)
     cover_calibrator.put_calibratoron(brightness)
-  for brightness in reversed(brightnesses):
+  for brightness in reversed(brightness_list):
     # print('brightness', brightness)
     cover_calibrator.put_calibratoron(brightness)
   cover_calibrator.put_calibratoroff()
   # end = datetime.datetime.now()
   # elapsed = end - start
   # print('Elapsed time:', elapsed)
-  # print('Request duration', elapsed / (1 + 2 * len(brightnesses)))
+  # print('Request duration', elapsed / (1 + 2 * len(brightness_list)))
 
 
 def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
                       led_channel: int,
                       cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-                      brightnesses: Iterable[int]) -> None:
+                      brightness_list: Iterable[int]) -> None:
   for n in range(4):
     led_switches.put_setswitch(n, led_channel == n)
-  sweep_brightness(cover_calibrator, list(brightnesses))
+  sweep_brightness(cover_calibrator, list(brightness_list))
 
 
 def main() -> None:
@@ -142,12 +142,14 @@ def main() -> None:
           servers=[cover_calibrator.client],
           device_number=cover_calibrator.device_number))
 
+  brightness_list = [1 << i for i in range(7)]
+
   try:
     while True:
       for led_channel in range(4):
         print(f'Raising and lowering brightness on channel {led_channel}')
         sweep_led_channel(led_switches, led_channel, cover_calibrator,
-                          range(0, 65535, 2048))
+                          brightness_list)
       open_cover(cover_calibrator)
       close_cover(cover_calibrator)
       open_cover(cover_calibrator)
