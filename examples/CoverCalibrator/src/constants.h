@@ -3,6 +3,8 @@
 
 // Pin constants, etc. Note that the enable pins are grounded to indicate that
 // the feature is present.
+//
+// Author: james.synge@gmail.com
 
 #define kNoSuchPin 255  // Enable pins are allowed to be omitted.
 

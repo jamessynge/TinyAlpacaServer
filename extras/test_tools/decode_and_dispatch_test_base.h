@@ -5,6 +5,8 @@
 // requests for a single device instance. This is basically parts of
 // TinyAlpacaServer, but skipping dealing with PlatformEthernet, for which I
 // don't yet have a fake implemented.
+//
+// Author: james.synge@gmail.com
 
 #include <iostream>
 #include <memory>

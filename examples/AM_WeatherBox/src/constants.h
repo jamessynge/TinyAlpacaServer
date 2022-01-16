@@ -6,6 +6,8 @@
 // NOTE: I'm not supporting multiple AM Weather Box devices, just a single one
 // using the standard SDA/SCL pins for communicating with a single MLX90614, and
 // a single RG11 Rain Sensor.
+//
+// Author: james.synge@gmail.com
 
 #include <Arduino.h>
 

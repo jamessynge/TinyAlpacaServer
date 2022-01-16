@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_COVER_CALIBRATOR_COVER_CALIBRATOR_CONSTANTS_H_
 
 // ASCOM constants specified in the Cover Calibrator device API.
+//
+// Author: james.synge@gmail.com
 
 #include "mcucore_platform.h"
 

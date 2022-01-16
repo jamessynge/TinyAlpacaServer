@@ -3,6 +3,8 @@
 
 // Error codes defined by ASCOM.
 // See: https://ascom-standards.org/Help/Developer/html/T_ASCOM_ErrorCodes.htm
+//
+// Author: james.synge@gmail.com
 
 #include "mcucore_platform.h"
 #include "status.h"

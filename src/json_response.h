@@ -27,8 +27,7 @@ class JsonMethodResponse : public mcucore::JsonPropertySource {
         error_number_(error_number),
         error_message_(&error_message) {}
 
-  JsonMethodResponse(const JsonMethodResponse&) = delete;
-  JsonMethodResponse(JsonMethodResponse&&) = delete;
+  ~JsonMethodResponse() override {}
 
   void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override {
     if (request_.have_client_transaction_id) {
@@ -50,6 +49,10 @@ class JsonMethodResponse : public mcucore::JsonPropertySource {
   }
 
  private:
+  // Make JsonMethodResponse non-copyable; also makes it non-moveable.
+  JsonMethodResponse(const JsonMethodResponse&) = delete;
+  JsonMethodResponse& operator=(const JsonMethodResponse&) = delete;
+
   const AlpacaRequest& request_;
   const uint32_t error_number_;
   const Printable* error_message_;
