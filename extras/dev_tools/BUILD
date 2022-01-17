@@ -12,6 +12,18 @@ pytype_strict_binary(
 )
 
 pytype_strict_binary(
+    name = "cpp_enum",
+    srcs = ["cpp_enum.py"],
+    deps = [":tokenize_cpp_lib"],
+)
+
+pytype_strict_library(
+    name = "cpp_enum_lib",
+    srcs = ["cpp_enum.py"],
+    deps = [":tokenize_cpp_lib"],
+)
+
+pytype_strict_binary(
     name = "find_non_progmem_strings",
     srcs = ["find_non_progmem_strings.py"],
     python_version = "PY3",
