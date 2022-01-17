@@ -8,6 +8,7 @@ Why test generated code? Because someone may modify the enum declaration, which
 compiling the generated may not detect.
 """
 
+import argparse
 import re
 import sys
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
@@ -164,6 +165,60 @@ def generate_enum_definitions(
     handler = find_enum_start
 
 
+def make_id_and_str(v: Union[str, Tuple[str, str]]) -> Tuple[str, str]:
+  """Returns the identifier and string form of an enumerator."""
+
+  # For enumerator identifiers that start with lower-case k followed by a
+  # capital letter (e.g. kName or kFooBar), we strip the leading k from the
+  # string that we print.
+  if isinstance(v, tuple):
+    return v
+  identifier: str = v
+  if re.match('k[A-Z]', identifier):
+    return (identifier, f'"{identifier[1:]}"')
+  return (identifier, f'"{identifier}"')
+
+
+def fix_enumerators(enum_def: Dict[str, Any]) -> None:
+  """Sets the identifier and string form of all enumerators of an enum."""
+  enum_def['enumerators'] = [
+      make_id_and_str(v) for v in enum_def['enumerators']
+  ]
+
+
+def define_to_flash_string_helper(enum_def: Dict[str, Any]) -> None:
+  """Print the definition of ToFlashStringHelper for an enum."""
+  name = enum_def['name']
+  enumerators = enum_def['enumerators']
+  print(
+      f"""
+const __FlashStringHelper* ToFlashStringHelper({name} v) {{
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+  switch (v) {{""",
+      end='')
+  for enumerator, dq_string in enumerators:
+    print(
+        f"""
+    case {name}::{enumerator}:
+      return MCU_FLASHSTR({dq_string});""",
+        end='')
+  print(r"""
+  }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH""", end='')
+  for enumerator, dq_string in enumerators:
+    print(
+        f"""
+  if (v == {name}::{enumerator}) {{
+    return MCU_FLASHSTR({dq_string});
+  }}""",
+        end='')
+
+  print(r"""
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+}""")
+
+
 def process_file(file_path: str):
   """Reads a file, finds enum definitions, emits print functions."""
   enum_definitions = list(generate_enum_definitions(file_path))
@@ -174,22 +229,6 @@ def process_file(file_path: str):
       'Generating functions for enum definitions in file',
       file_path,
       file=sys.stderr)
-
-  # For enumerator identifiers that start with lower-case k followed by a
-  # capital letter (e.g. kName or kFooBar), we strip the leading k from the
-  # string that we print.
-  def make_id_and_str(v: Union[str, Tuple[str, str]]) -> Tuple[str, str]:
-    if isinstance(v, tuple):
-      return v
-    identifier: str = v
-    if re.match('k[A-Z]', identifier):
-      return (identifier, f'"{identifier[1:]}"')
-    return (identifier, f'"{identifier}"')
-
-  def fix_enumerators(enum_def: Dict[str, Any]) -> None:
-    enum_def['enumerators'] = [
-        make_id_and_str(v) for v in enum_def['enumerators']
-    ]
 
   for enum_def in enum_definitions:
     fix_enumerators(enum_def)
@@ -233,23 +272,8 @@ size_t PrintValueTo({name} v, Print& out) {{
   print()
 
   for enum_def in enum_definitions:
-    name = enum_def['name']
-    enumerators = enum_def['enumerators']
-    print(
-        f"""
-const __FlashStringHelper* ToFlashStringHelper({name} v) {{
-  switch (v) {{""",
-        end='')
-    for enumerator, dq_string in enumerators:
-      print(
-          f"""
-    case {name}::{enumerator}:
-      return MCU_FLASHSTR({dq_string});""",
-          end='')
-    print(r"""
-  }
-  return nullptr;
-}""")
+    define_to_flash_string_helper(enum_def)
+    continue
   print()
 
   print()

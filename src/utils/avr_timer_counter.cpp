@@ -44,6 +44,7 @@ size_t PrintValueTo(TimerCounterChannel v, Print& out) {
 ////////////////////////////////////////////////////////////////////////////////
 
 const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case ClockPrescaling::kDisabled:
       return MCU_FLASHSTR("Disabled");
@@ -58,10 +59,31 @@ const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
     case ClockPrescaling::kDivideBy1024:
       return MCU_FLASHSTR("DivideBy1024");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == ClockPrescaling::kDisabled) {
+    return MCU_FLASHSTR("Disabled");
+  }
+  if (v == ClockPrescaling::kDivideBy1) {
+    return MCU_FLASHSTR("DivideBy1");
+  }
+  if (v == ClockPrescaling::kDivideBy8) {
+    return MCU_FLASHSTR("DivideBy8");
+  }
+  if (v == ClockPrescaling::kDivideBy64) {
+    return MCU_FLASHSTR("DivideBy64");
+  }
+  if (v == ClockPrescaling::kDivideBy256) {
+    return MCU_FLASHSTR("DivideBy256");
+  }
+  if (v == ClockPrescaling::kDivideBy1024) {
+    return MCU_FLASHSTR("DivideBy1024");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case FastPwmCompareOutputMode::kDisabled:
       return MCU_FLASHSTR("Disabled");
@@ -70,10 +92,22 @@ const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
     case FastPwmCompareOutputMode::kInvertingMode:
       return MCU_FLASHSTR("InvertingMode");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == FastPwmCompareOutputMode::kDisabled) {
+    return MCU_FLASHSTR("Disabled");
+  }
+  if (v == FastPwmCompareOutputMode::kNonInvertingMode) {
+    return MCU_FLASHSTR("NonInvertingMode");
+  }
+  if (v == FastPwmCompareOutputMode::kInvertingMode) {
+    return MCU_FLASHSTR("InvertingMode");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case TimerCounterChannel::A:
       return MCU_FLASHSTR("A");
@@ -82,6 +116,17 @@ const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
     case TimerCounterChannel::C:
       return MCU_FLASHSTR("C");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == TimerCounterChannel::A) {
+    return MCU_FLASHSTR("A");
+  }
+  if (v == TimerCounterChannel::B) {
+    return MCU_FLASHSTR("B");
+  }
+  if (v == TimerCounterChannel::C) {
+    return MCU_FLASHSTR("C");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 

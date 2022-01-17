@@ -116,6 +116,7 @@ size_t PrintValueTo(EContentType v, Print& out) {
 }
 
 const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case RequestDecoderStatus::kReset:
       return MCU_FLASHSTR("Reset");
@@ -124,10 +125,22 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
     case RequestDecoderStatus::kDecoded:
       return MCU_FLASHSTR("Decoded");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == RequestDecoderStatus::kReset) {
+    return MCU_FLASHSTR("Reset");
+  }
+  if (v == RequestDecoderStatus::kDecoding) {
+    return MCU_FLASHSTR("Decoding");
+  }
+  if (v == RequestDecoderStatus::kDecoded) {
+    return MCU_FLASHSTR("Decoded");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EHttpStatusCode::kContinueDecoding:
       return MCU_FLASHSTR("ContinueDecoding");
@@ -156,10 +169,52 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
     case EHttpStatusCode::kHttpVersionNotSupported:
       return MCU_FLASHSTR("HttpVersionNotSupported");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EHttpStatusCode::kContinueDecoding) {
+    return MCU_FLASHSTR("ContinueDecoding");
+  }
+  if (v == EHttpStatusCode::kNeedMoreInput) {
+    return MCU_FLASHSTR("NeedMoreInput");
+  }
+  if (v == EHttpStatusCode::kHttpOk) {
+    return MCU_FLASHSTR("HttpOk");
+  }
+  if (v == EHttpStatusCode::kHttpBadRequest) {
+    return MCU_FLASHSTR("HttpBadRequest");
+  }
+  if (v == EHttpStatusCode::kHttpMethodNotAllowed) {
+    return MCU_FLASHSTR("HttpMethodNotAllowed");
+  }
+  if (v == EHttpStatusCode::kHttpNotAcceptable) {
+    return MCU_FLASHSTR("HttpNotAcceptable");
+  }
+  if (v == EHttpStatusCode::kHttpLengthRequired) {
+    return MCU_FLASHSTR("HttpLengthRequired");
+  }
+  if (v == EHttpStatusCode::kHttpPayloadTooLarge) {
+    return MCU_FLASHSTR("HttpPayloadTooLarge");
+  }
+  if (v == EHttpStatusCode::kHttpUnsupportedMediaType) {
+    return MCU_FLASHSTR("HttpUnsupportedMediaType");
+  }
+  if (v == EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge) {
+    return MCU_FLASHSTR("HttpRequestHeaderFieldsTooLarge");
+  }
+  if (v == EHttpStatusCode::kHttpInternalServerError) {
+    return MCU_FLASHSTR("HttpInternalServerError");
+  }
+  if (v == EHttpStatusCode::kHttpMethodNotImplemented) {
+    return MCU_FLASHSTR("HttpMethodNotImplemented");
+  }
+  if (v == EHttpStatusCode::kHttpVersionNotSupported) {
+    return MCU_FLASHSTR("HttpVersionNotSupported");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EHttpMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -170,10 +225,25 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
     case EHttpMethod::HEAD:
       return MCU_FLASHSTR("HEAD");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EHttpMethod::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EHttpMethod::GET) {
+    return MCU_FLASHSTR("GET");
+  }
+  if (v == EHttpMethod::PUT) {
+    return MCU_FLASHSTR("PUT");
+  }
+  if (v == EHttpMethod::HEAD) {
+    return MCU_FLASHSTR("HEAD");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EApiGroup::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -184,10 +254,25 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
     case EApiGroup::kSetup:
       return MCU_FLASHSTR("Setup");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EApiGroup::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EApiGroup::kDevice) {
+    return MCU_FLASHSTR("Device");
+  }
+  if (v == EApiGroup::kManagement) {
+    return MCU_FLASHSTR("Management");
+  }
+  if (v == EApiGroup::kSetup) {
+    return MCU_FLASHSTR("Setup");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EAlpacaApi::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -204,10 +289,34 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
     case EAlpacaApi::kServerSetup:
       return MCU_FLASHSTR("ServerSetup");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EAlpacaApi::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EAlpacaApi::kDeviceApi) {
+    return MCU_FLASHSTR("DeviceApi");
+  }
+  if (v == EAlpacaApi::kDeviceSetup) {
+    return MCU_FLASHSTR("DeviceSetup");
+  }
+  if (v == EAlpacaApi::kManagementApiVersions) {
+    return MCU_FLASHSTR("ManagementApiVersions");
+  }
+  if (v == EAlpacaApi::kManagementDescription) {
+    return MCU_FLASHSTR("ManagementDescription");
+  }
+  if (v == EAlpacaApi::kManagementConfiguredDevices) {
+    return MCU_FLASHSTR("ManagementConfiguredDevices");
+  }
+  if (v == EAlpacaApi::kServerSetup) {
+    return MCU_FLASHSTR("ServerSetup");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EManagementMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -216,10 +325,22 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
     case EManagementMethod::kConfiguredDevices:
       return MCU_FLASHSTR("ConfiguredDevices");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EManagementMethod::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EManagementMethod::kDescription) {
+    return MCU_FLASHSTR("Description");
+  }
+  if (v == EManagementMethod::kConfiguredDevices) {
+    return MCU_FLASHSTR("ConfiguredDevices");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EDeviceType::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -244,10 +365,46 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
     case EDeviceType::kTelescope:
       return MCU_FLASHSTR("Telescope");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EDeviceType::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EDeviceType::kCamera) {
+    return MCU_FLASHSTR("Camera");
+  }
+  if (v == EDeviceType::kCoverCalibrator) {
+    return MCU_FLASHSTR("CoverCalibrator");
+  }
+  if (v == EDeviceType::kDome) {
+    return MCU_FLASHSTR("Dome");
+  }
+  if (v == EDeviceType::kFilterWheel) {
+    return MCU_FLASHSTR("FilterWheel");
+  }
+  if (v == EDeviceType::kFocuser) {
+    return MCU_FLASHSTR("Focuser");
+  }
+  if (v == EDeviceType::kObservingConditions) {
+    return MCU_FLASHSTR("ObservingConditions");
+  }
+  if (v == EDeviceType::kRotator) {
+    return MCU_FLASHSTR("Rotator");
+  }
+  if (v == EDeviceType::kSafetyMonitor) {
+    return MCU_FLASHSTR("SafetyMonitor");
+  }
+  if (v == EDeviceType::kSwitch) {
+    return MCU_FLASHSTR("Switch");
+  }
+  if (v == EDeviceType::kTelescope) {
+    return MCU_FLASHSTR("Telescope");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EDeviceMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -354,10 +511,169 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
     case EDeviceMethod::kSwitchStep:
       return MCU_FLASHSTR("SwitchStep");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EDeviceMethod::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EDeviceMethod::kSetup) {
+    return MCU_FLASHSTR("Setup");
+  }
+  if (v == EDeviceMethod::kAction) {
+    return MCU_FLASHSTR("Action");
+  }
+  if (v == EDeviceMethod::kCommandBlind) {
+    return MCU_FLASHSTR("CommandBlind");
+  }
+  if (v == EDeviceMethod::kCommandBool) {
+    return MCU_FLASHSTR("CommandBool");
+  }
+  if (v == EDeviceMethod::kCommandString) {
+    return MCU_FLASHSTR("CommandString");
+  }
+  if (v == EDeviceMethod::kConnected) {
+    return MCU_FLASHSTR("Connected");
+  }
+  if (v == EDeviceMethod::kDescription) {
+    return MCU_FLASHSTR("Description");
+  }
+  if (v == EDeviceMethod::kDriverInfo) {
+    return MCU_FLASHSTR("DriverInfo");
+  }
+  if (v == EDeviceMethod::kDriverVersion) {
+    return MCU_FLASHSTR("DriverVersion");
+  }
+  if (v == EDeviceMethod::kInterfaceVersion) {
+    return MCU_FLASHSTR("InterfaceVersion");
+  }
+  if (v == EDeviceMethod::kName) {
+    return MCU_FLASHSTR("Name");
+  }
+  if (v == EDeviceMethod::kSupportedActions) {
+    return MCU_FLASHSTR("SupportedActions");
+  }
+  if (v == EDeviceMethod::kBrightness) {
+    return MCU_FLASHSTR("Brightness");
+  }
+  if (v == EDeviceMethod::kCalibratorState) {
+    return MCU_FLASHSTR("CalibratorState");
+  }
+  if (v == EDeviceMethod::kCoverState) {
+    return MCU_FLASHSTR("CoverState");
+  }
+  if (v == EDeviceMethod::kMaxBrightness) {
+    return MCU_FLASHSTR("MaxBrightness");
+  }
+  if (v == EDeviceMethod::kCalibratorOff) {
+    return MCU_FLASHSTR("CalibratorOff");
+  }
+  if (v == EDeviceMethod::kCalibratorOn) {
+    return MCU_FLASHSTR("CalibratorOn");
+  }
+  if (v == EDeviceMethod::kCloseCover) {
+    return MCU_FLASHSTR("CloseCover");
+  }
+  if (v == EDeviceMethod::kHaltCover) {
+    return MCU_FLASHSTR("HaltCover");
+  }
+  if (v == EDeviceMethod::kOpenCover) {
+    return MCU_FLASHSTR("OpenCover");
+  }
+  if (v == EDeviceMethod::kAveragePeriod) {
+    return MCU_FLASHSTR("AveragePeriod");
+  }
+  if (v == EDeviceMethod::kCloudCover) {
+    return MCU_FLASHSTR("CloudCover");
+  }
+  if (v == EDeviceMethod::kDewPoint) {
+    return MCU_FLASHSTR("DewPoint");
+  }
+  if (v == EDeviceMethod::kHumidity) {
+    return MCU_FLASHSTR("Humidity");
+  }
+  if (v == EDeviceMethod::kPressure) {
+    return MCU_FLASHSTR("Pressure");
+  }
+  if (v == EDeviceMethod::kRainRate) {
+    return MCU_FLASHSTR("RainRate");
+  }
+  if (v == EDeviceMethod::kRefresh) {
+    return MCU_FLASHSTR("Refresh");
+  }
+  if (v == EDeviceMethod::kSensorDescription) {
+    return MCU_FLASHSTR("SensorDescription");
+  }
+  if (v == EDeviceMethod::kSkyBrightness) {
+    return MCU_FLASHSTR("SkyBrightness");
+  }
+  if (v == EDeviceMethod::kSkyQuality) {
+    return MCU_FLASHSTR("SkyQuality");
+  }
+  if (v == EDeviceMethod::kSkyTemperature) {
+    return MCU_FLASHSTR("SkyTemperature");
+  }
+  if (v == EDeviceMethod::kStarFWHM) {
+    return MCU_FLASHSTR("StarFWHM");
+  }
+  if (v == EDeviceMethod::kTemperature) {
+    return MCU_FLASHSTR("Temperature");
+  }
+  if (v == EDeviceMethod::kTimeSinceLastUpdate) {
+    return MCU_FLASHSTR("TimeSinceLastUpdate");
+  }
+  if (v == EDeviceMethod::kWindDirection) {
+    return MCU_FLASHSTR("WindDirection");
+  }
+  if (v == EDeviceMethod::kWindGust) {
+    return MCU_FLASHSTR("WindGust");
+  }
+  if (v == EDeviceMethod::kWindSpeed) {
+    return MCU_FLASHSTR("WindSpeed");
+  }
+  if (v == EDeviceMethod::kIsSafe) {
+    return MCU_FLASHSTR("IsSafe");
+  }
+  if (v == EDeviceMethod::kMaxSwitch) {
+    return MCU_FLASHSTR("MaxSwitch");
+  }
+  if (v == EDeviceMethod::kCanWrite) {
+    return MCU_FLASHSTR("CanWrite");
+  }
+  if (v == EDeviceMethod::kGetSwitch) {
+    return MCU_FLASHSTR("GetSwitch");
+  }
+  if (v == EDeviceMethod::kGetSwitchDescription) {
+    return MCU_FLASHSTR("GetSwitchDescription");
+  }
+  if (v == EDeviceMethod::kGetSwitchName) {
+    return MCU_FLASHSTR("GetSwitchName");
+  }
+  if (v == EDeviceMethod::kGetSwitchValue) {
+    return MCU_FLASHSTR("GetSwitchValue");
+  }
+  if (v == EDeviceMethod::kMinSwitchValue) {
+    return MCU_FLASHSTR("MinSwitchValue");
+  }
+  if (v == EDeviceMethod::kMaxSwitchValue) {
+    return MCU_FLASHSTR("MaxSwitchValue");
+  }
+  if (v == EDeviceMethod::kSetSwitch) {
+    return MCU_FLASHSTR("SetSwitch");
+  }
+  if (v == EDeviceMethod::kSetSwitchName) {
+    return MCU_FLASHSTR("SetSwitchName");
+  }
+  if (v == EDeviceMethod::kSetSwitchValue) {
+    return MCU_FLASHSTR("SetSwitchValue");
+  }
+  if (v == EDeviceMethod::kSwitchStep) {
+    return MCU_FLASHSTR("SwitchStep");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EParameter::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -390,10 +706,58 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
     case EParameter::kValue:
       return MCU_FLASHSTR("Value");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EParameter::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EParameter::kAction) {
+    return MCU_FLASHSTR("Action");
+  }
+  if (v == EParameter::kClientID) {
+    return MCU_FLASHSTR("ClientID");
+  }
+  if (v == EParameter::kClientTransactionID) {
+    return MCU_FLASHSTR("ClientTransactionID");
+  }
+  if (v == EParameter::kCommand) {
+    return MCU_FLASHSTR("Command");
+  }
+  if (v == EParameter::kConnected) {
+    return MCU_FLASHSTR("Connected");
+  }
+  if (v == EParameter::kParameters) {
+    return MCU_FLASHSTR("Parameters");
+  }
+  if (v == EParameter::kRaw) {
+    return MCU_FLASHSTR("Raw");
+  }
+  if (v == EParameter::kBrightness) {
+    return MCU_FLASHSTR("Brightness");
+  }
+  if (v == EParameter::kAveragePeriod) {
+    return MCU_FLASHSTR("AveragePeriod");
+  }
+  if (v == EParameter::kSensorName) {
+    return MCU_FLASHSTR("SensorName");
+  }
+  if (v == EParameter::kId) {
+    return MCU_FLASHSTR("Id");
+  }
+  if (v == EParameter::kName) {
+    return MCU_FLASHSTR("Name");
+  }
+  if (v == EParameter::kState) {
+    return MCU_FLASHSTR("State");
+  }
+  if (v == EParameter::kValue) {
+    return MCU_FLASHSTR("Value");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case ESensorName::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -424,10 +788,55 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
     case ESensorName::kWindSpeed:
       return MCU_FLASHSTR("WindSpeed");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == ESensorName::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == ESensorName::kCloudCover) {
+    return MCU_FLASHSTR("CloudCover");
+  }
+  if (v == ESensorName::kDewPoint) {
+    return MCU_FLASHSTR("DewPoint");
+  }
+  if (v == ESensorName::kHumidity) {
+    return MCU_FLASHSTR("Humidity");
+  }
+  if (v == ESensorName::kPressure) {
+    return MCU_FLASHSTR("Pressure");
+  }
+  if (v == ESensorName::kRainRate) {
+    return MCU_FLASHSTR("RainRate");
+  }
+  if (v == ESensorName::kSkyBrightness) {
+    return MCU_FLASHSTR("SkyBrightness");
+  }
+  if (v == ESensorName::kSkyQuality) {
+    return MCU_FLASHSTR("SkyQuality");
+  }
+  if (v == ESensorName::kSkyTemperature) {
+    return MCU_FLASHSTR("SkyTemperature");
+  }
+  if (v == ESensorName::kStarFWHM) {
+    return MCU_FLASHSTR("StarFWHM");
+  }
+  if (v == ESensorName::kTemperature) {
+    return MCU_FLASHSTR("Temperature");
+  }
+  if (v == ESensorName::kWindDirection) {
+    return MCU_FLASHSTR("WindDirection");
+  }
+  if (v == ESensorName::kWindGust) {
+    return MCU_FLASHSTR("WindGust");
+  }
+  if (v == ESensorName::kWindSpeed) {
+    return MCU_FLASHSTR("WindSpeed");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EHttpHeader::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -440,10 +849,28 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
     case EHttpHeader::kDate:
       return MCU_FLASHSTR("Date");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EHttpHeader::kUnknown) {
+    return MCU_FLASHSTR("Unknown");
+  }
+  if (v == EHttpHeader::kConnection) {
+    return MCU_FLASHSTR("Connection");
+  }
+  if (v == EHttpHeader::kContentLength) {
+    return MCU_FLASHSTR("Content-Length");
+  }
+  if (v == EHttpHeader::kContentType) {
+    return MCU_FLASHSTR("Content-Type");
+  }
+  if (v == EHttpHeader::kDate) {
+    return MCU_FLASHSTR("Date");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
 const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
   switch (v) {
     case EContentType::kApplicationJson:
       return MCU_FLASHSTR("application/json");
@@ -452,6 +879,17 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
     case EContentType::kTextHtml:
       return MCU_FLASHSTR("text/html");
   }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == EContentType::kApplicationJson) {
+    return MCU_FLASHSTR("application/json");
+  }
+  if (v == EContentType::kTextPlain) {
+    return MCU_FLASHSTR("text/plain");
+  }
+  if (v == EContentType::kTextHtml) {
+    return MCU_FLASHSTR("text/html");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
 }
 
