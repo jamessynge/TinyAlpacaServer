@@ -1,4 +1,7 @@
 # Tooling to support developing Tiny Alpaca Server.
+#
+# Many python files in this directory have both library and binary
+# targets to permit testing the library by just running it.
 
 load("//devtools/python/blaze:pytype.bzl", "pytype_strict_binary", "pytype_strict_library")
 load("//devtools/python/blaze:strict.bzl", "py_strict_test")
@@ -24,6 +27,16 @@ pytype_strict_library(
 )
 
 pytype_strict_binary(
+    name = "file_edit",
+    srcs = ["file_edit.py"],
+)
+
+pytype_strict_library(
+    name = "file_edit_lib",
+    srcs = ["file_edit.py"],
+)
+
+pytype_strict_binary(
     name = "find_non_progmem_strings",
     srcs = ["find_non_progmem_strings.py"],
     python_version = "PY3",
@@ -36,7 +49,11 @@ pytype_strict_binary(
     srcs = ["make_enum_to_string.py"],
     python_version = "PY3",
     srcs_version = "PY3",
-    deps = [":tokenize_cpp_lib"],
+    deps = [
+        ":cpp_enum_lib",
+        ":file_edit_lib",
+        ":tokenize_cpp_lib",
+    ],
 )
 
 pytype_strict_binary(
@@ -52,12 +69,14 @@ pytype_strict_binary(
     srcs = ["tokenize_cpp.py"],
     python_version = "PY3",
     srcs_version = "PY3",
+    deps = [":file_edit_lib"],
 )
 
 pytype_strict_library(
     name = "tokenize_cpp_lib",
     srcs = ["tokenize_cpp.py"],
     srcs_version = "PY3",
+    deps = [":file_edit_lib"],
 )
 
 py_strict_test(

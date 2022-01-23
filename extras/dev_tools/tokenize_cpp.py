@@ -13,9 +13,13 @@ and the position (character index within the file).
 
 import dataclasses
 import enum
+import glob
+import os.path
 import re
 import sys
-from typing import Generator, List, Match, Optional, Sequence, Tuple, Union
+from typing import Callable, Generator, List, Match, Optional, Sequence, Tuple, Union
+
+import file_edit
 
 
 class EToken(enum.Enum):
@@ -157,23 +161,61 @@ FLOATING_POINT_RE = re.compile(r'(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?')
 IDENTIFIER_RE = re.compile(r'[a-zA-Z_][a-zA-Z_0-9]*')
 
 
-def find_char_end(file_src: str, start_pos: int) -> int:
-  """Returns the pos just beyond the end of the char literal at start_pos."""
-  # print('find_char_end start_pos:', start_pos)
-  pos = start_pos + 1
-  while pos < len(file_src):
-    m = SINGLE_QUOTE_OR_BACKSLASH.search(file_src, pos=pos)
-    if not m:
-      break
-    if file_src[m.start()] != '\\':
-      return m.end()
-    # Found a backslash in the char. Skip the character after the backslash.
-    pos = m.end() + 1
-  raise AssertionError(f'Unterminated character starting at {start_pos}')
+def find_char_end(file_src: str, start_pos: int, pos: int) -> int:
+  """Returns the position just beyond the end of the char literal.
+
+  Args:
+    file_src: The C++ source.
+    start_pos: The start of the character literal. Might be a prefix like L.
+    pos: The start of the contents of the character literal, i.e. after the
+      starting single quote.
+
+  Returns:
+    The position just after the ending single quote.
+  """
+  # print(f'find_char_end(, {start_pos}, {pos})')
+  if file_src[pos] != '\\':
+    # Not an escaped character, so must not be single quote or newline, and the
+    # character after that must be a single quote.
+    if file_src[pos] not in "'\n" and file_src[pos + 1] == "'":
+      return pos + 2
+    if file_src[pos] == "'":
+      raise AssertionError(f'Empty character literal starting at {start_pos}: '
+                           f'{file_src[start_pos:start_pos+20]}')
+    raise AssertionError(
+        f'Too many characters in literal starting at {start_pos}: '
+        f'{file_src[start_pos:start_pos+20]}')
+
+  # Contains an escaped character. Is it a simple escape?
+  pos += 1
+  if file_src[pos] in r"""'"?\abfnrtv""":
+    # Next character must be a single quote.
+    if file_src[pos + 1] == "'":
+      return pos + 2
+    raise AssertionError(
+        f'Too many characters in literal starting at {start_pos}: '
+        f'{file_src[start_pos:start_pos+20]}')
+
+  # A more complicated escaped literal. Not (yet) bothering to validate the
+  # contents make sense, just looking for the closing quote.
+  sq_pos = file_src.find("'", pos)
+  if sq_pos != -1:
+    if sq_pos - pos > 10:
+      raise AssertionError(
+          f'Too many characters in literal starting at {start_pos}: '
+          f'{file_src[start_pos:start_pos+20]}')
+    return sq_pos + 1
+  raise AssertionError(f'Unterminated character starting at {start_pos}: '
+                       f'{file_src[start_pos:start_pos+20]}')
 
 
 def find_char_literal_end(file_src: str, m: Match[str]) -> int:
-  return find_char_end(file_src, m.end() - 1)
+  try:
+    return find_char_end(file_src, m.start(), m.end())
+  except IndexError:
+    pass
+  raise AssertionError(f'Unterminated character starting at {m.start()}: '
+                       f'{file_src[m.start():m.start()+20]}')
 
 
 def find_string_end(file_src: str, start_pos: int) -> int:
@@ -412,7 +454,8 @@ def generate_phase2_tokenization(
       print(
           'Exception while matching '
           f'{phase2_source[pos:pos+20]!r} in file {file_path!r}',
-          file=sys.stderr)
+          file=sys.stderr,
+          flush=True)
       raise
 
     raise ValueError(
@@ -420,21 +463,6 @@ def generate_phase2_tokenization(
 
 
 IndexPair = Tuple[int, int]
-
-
-class FileContents(object):
-  """Foo."""
-
-  def __init__(self, file_path: str = '', raw_source: str = ''):
-    self.file_path = file_path
-    if not raw_source:
-      with open(file_path, mode='rt') as f:
-        raw_source: str = f.read()
-    self.raw_source: str = raw_source
-
-  def update_file(self):
-    with open(self.file_path, mode='wt') as f:
-      f.write(self.raw_source)
 
 
 class Phase2Source(object):
@@ -625,14 +653,65 @@ class Replacement:
     return Replacement(start=token.raw_end, end=token.raw_end, text=text)
 
 
+def has_source_extension(file_path: str) -> bool:
+  """Returns True if the file extension indicates this is a C++ source file."""
+  if not file_path:
+    return False
+  _, ext = os.path.splitext(file_path)
+  return ext.lower() in ('.cc', '.cpp', '.cxx', '.c++', '.cp') or ext == '.C'
+
+
+def has_header_extension(file_path: str) -> bool:
+  """Returns True if the file extension indicates this is a C++ header file."""
+  if not file_path:
+    return False
+  _, ext = os.path.splitext(file_path)
+  return ext.lower() in ('.h', '.hpp', '.hxx', '.h++')
+
+
+def find_same_base_files(
+    file_path: str,
+    filter_fn: Optional[Callable[[str], bool]] = None) -> List[str]:
+  """Returns the other files with the same basename as file_path."""
+  base, _ = os.path.splitext(file_path)
+  paths = glob.glob(base + '.*')
+  if filter_fn:
+    paths = filter(filter_fn, paths)
+  return [f for f in paths if f != file_path]
+
+
+def find_source_paths(file_path: str) -> List[str]:
+  if has_source_extension(file_path):
+    return [file_path]
+  return find_same_base_files(file_path, has_source_extension)
+
+
+def find_header_paths(file_path: str) -> List[str]:
+  if has_header_extension(file_path):
+    return [file_path]
+  return find_same_base_files(file_path, has_header_extension)
+
+
 class CppSource(object):
   """FooBar."""
 
   def __init__(self, file_path: str = '', raw_source: str = ''):
-    self.file_contents = FileContents(
+    self.file_contents = file_edit.FileContents(
         file_path=file_path, raw_source=raw_source)
     self._phase2_source = None
     self._all_tokens = None
+
+  @property
+  def file_path(self) -> str:
+    return self.file_contents.file_path
+
+  @property
+  def is_source_file(self) -> bool:
+    return has_source_extension(self.file_path)
+
+  @property
+  def is_header_file(self) -> bool:
+    return has_header_extension(self.file_path)
 
   @property
   def raw_source(self) -> str:
