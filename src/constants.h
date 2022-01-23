@@ -307,18 +307,11 @@ enum class EContentType : uint8_t {
 
 #undef TASENUMERATOR
 
-size_t PrintValueTo(RequestDecoderStatus v, Print& out);
-size_t PrintValueTo(EHttpStatusCode v, Print& out);
-size_t PrintValueTo(EHttpMethod v, Print& out);
-size_t PrintValueTo(EApiGroup v, Print& out);
-size_t PrintValueTo(EAlpacaApi v, Print& out);
-size_t PrintValueTo(EManagementMethod v, Print& out);
-size_t PrintValueTo(EDeviceType v, Print& out);
-size_t PrintValueTo(EDeviceMethod v, Print& out);
-size_t PrintValueTo(EParameter v, Print& out);
-size_t PrintValueTo(ESensorName v, Print& out);
-size_t PrintValueTo(EHttpHeader v, Print& out);
-size_t PrintValueTo(EContentType v, Print& out);
+}  // namespace alpaca
+
+// BEGIN_HEADER_GENERATED_BY_MAKE_ENUM_TO_STRING
+
+namespace alpaca {
 
 const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v);
 const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v);
@@ -332,6 +325,19 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v);
 const __FlashStringHelper* ToFlashStringHelper(ESensorName v);
 const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v);
 const __FlashStringHelper* ToFlashStringHelper(EContentType v);
+
+size_t PrintValueTo(RequestDecoderStatus v, Print& out);
+size_t PrintValueTo(EHttpStatusCode v, Print& out);
+size_t PrintValueTo(EHttpMethod v, Print& out);
+size_t PrintValueTo(EApiGroup v, Print& out);
+size_t PrintValueTo(EAlpacaApi v, Print& out);
+size_t PrintValueTo(EManagementMethod v, Print& out);
+size_t PrintValueTo(EDeviceType v, Print& out);
+size_t PrintValueTo(EDeviceMethod v, Print& out);
+size_t PrintValueTo(EParameter v, Print& out);
+size_t PrintValueTo(ESensorName v, Print& out);
+size_t PrintValueTo(EHttpHeader v, Print& out);
+size_t PrintValueTo(EContentType v, Print& out);
 
 #if MCU_HOST_TARGET
 // Support for debug logging of enums.
@@ -350,5 +356,7 @@ std::ostream& operator<<(std::ostream& os, EContentType v);
 #endif  // MCU_HOST_TARGET
 
 }  // namespace alpaca
+
+// END_HEADER_GENERATED_BY_MAKE_ENUM_TO_STRING
 
 #endif  // TINY_ALPACA_SERVER_SRC_CONSTANTS_H_

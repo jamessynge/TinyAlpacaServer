@@ -7,6 +7,10 @@
 
 #include "mcucore_platform.h"
 
+#if MCU_HOST_TARGET
+#include <ostream>  // pragma: keep standard include
+#endif
+
 namespace alpaca {
 
 // CalibratorStatus Enumeration - Describes the state of a calibration device.
@@ -21,8 +25,6 @@ enum class ECalibratorStatus : ECalibratorStatus_UnderlyingType {
   kUnknown = 4,  // The calibrator state is unknown
   kError = 5,    // The calibrator encountered an error when changing state
 };
-const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v);
-size_t PrintValueTo(ECalibratorStatus v, Print& out);
 
 // CoverStatus Enumeration - Describes the state of a telescope cover.
 // https://ascom-standards.org/Help/Developer/html/T_ASCOM_DeviceInterface_CoverStatus.htm
@@ -36,9 +38,27 @@ enum class ECoverStatus : ECoverStatus_UnderlyingType {
   kUnknown = 4,  // The state of the cover is unknown
   kError = 5,    // The device encountered an error when changing state
 };
-const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v);
-size_t PrintValueTo(ECoverStatus v, Print& out);
 
 }  // namespace alpaca
+
+// BEGIN_HEADER_GENERATED_BY_MAKE_ENUM_TO_STRING
+
+namespace alpaca {
+
+const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v);
+const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v);
+
+size_t PrintValueTo(ECalibratorStatus v, Print& out);
+size_t PrintValueTo(ECoverStatus v, Print& out);
+
+#if MCU_HOST_TARGET
+// Support for debug logging of enums.
+std::ostream& operator<<(std::ostream& os, ECalibratorStatus v);
+std::ostream& operator<<(std::ostream& os, ECoverStatus v);
+#endif  // MCU_HOST_TARGET
+
+}  // namespace alpaca
+
+// END_HEADER_GENERATED_BY_MAKE_ENUM_TO_STRING
 
 #endif  // TINY_ALPACA_SERVER_SRC_DEVICE_TYPES_COVER_CALIBRATOR_COVER_CALIBRATOR_CONSTANTS_H_

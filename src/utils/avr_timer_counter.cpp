@@ -14,124 +14,6 @@
 
 namespace alpaca {
 
-size_t PrintValueTo(ClockPrescaling v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("ClockPrescaling"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(
-      MCU_FLASHSTR("FastPwmCompareOutputMode"), static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(TimerCounterChannel v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("TimerCounterChannel"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
-  switch (v) {
-    case ClockPrescaling::kDisabled:
-      return MCU_FLASHSTR("Disabled");
-    case ClockPrescaling::kDivideBy1:
-      return MCU_FLASHSTR("DivideBy1");
-    case ClockPrescaling::kDivideBy8:
-      return MCU_FLASHSTR("DivideBy8");
-    case ClockPrescaling::kDivideBy64:
-      return MCU_FLASHSTR("DivideBy64");
-    case ClockPrescaling::kDivideBy256:
-      return MCU_FLASHSTR("DivideBy256");
-    case ClockPrescaling::kDivideBy1024:
-      return MCU_FLASHSTR("DivideBy1024");
-  }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
-  if (v == ClockPrescaling::kDisabled) {
-    return MCU_FLASHSTR("Disabled");
-  }
-  if (v == ClockPrescaling::kDivideBy1) {
-    return MCU_FLASHSTR("DivideBy1");
-  }
-  if (v == ClockPrescaling::kDivideBy8) {
-    return MCU_FLASHSTR("DivideBy8");
-  }
-  if (v == ClockPrescaling::kDivideBy64) {
-    return MCU_FLASHSTR("DivideBy64");
-  }
-  if (v == ClockPrescaling::kDivideBy256) {
-    return MCU_FLASHSTR("DivideBy256");
-  }
-  if (v == ClockPrescaling::kDivideBy1024) {
-    return MCU_FLASHSTR("DivideBy1024");
-  }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
-  return nullptr;
-}
-
-const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
-  switch (v) {
-    case FastPwmCompareOutputMode::kDisabled:
-      return MCU_FLASHSTR("Disabled");
-    case FastPwmCompareOutputMode::kNonInvertingMode:
-      return MCU_FLASHSTR("NonInvertingMode");
-    case FastPwmCompareOutputMode::kInvertingMode:
-      return MCU_FLASHSTR("InvertingMode");
-  }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
-  if (v == FastPwmCompareOutputMode::kDisabled) {
-    return MCU_FLASHSTR("Disabled");
-  }
-  if (v == FastPwmCompareOutputMode::kNonInvertingMode) {
-    return MCU_FLASHSTR("NonInvertingMode");
-  }
-  if (v == FastPwmCompareOutputMode::kInvertingMode) {
-    return MCU_FLASHSTR("InvertingMode");
-  }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
-  return nullptr;
-}
-
-const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
-  switch (v) {
-    case TimerCounterChannel::A:
-      return MCU_FLASHSTR("A");
-    case TimerCounterChannel::B:
-      return MCU_FLASHSTR("B");
-    case TimerCounterChannel::C:
-      return MCU_FLASHSTR("C");
-  }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
-  if (v == TimerCounterChannel::A) {
-    return MCU_FLASHSTR("A");
-  }
-  if (v == TimerCounterChannel::B) {
-    return MCU_FLASHSTR("B");
-  }
-  if (v == TimerCounterChannel::C) {
-    return MCU_FLASHSTR("C");
-  }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
-  return nullptr;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 uint16_t ToClockDivisor(ClockPrescaling prescaling) {
   switch (prescaling) {
     case ClockPrescaling::kDivideBy1:
@@ -667,3 +549,173 @@ uint16_t TimerCounter5Pwm16Output::get_pulse_count() const {
 }
 
 }  // namespace alpaca
+
+// BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
+
+namespace alpaca {
+
+const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+  switch (v) {
+    case ClockPrescaling::kDisabled:
+      return MCU_FLASHSTR("Disabled");
+    case ClockPrescaling::kDivideBy1:
+      return MCU_FLASHSTR("DivideBy1");
+    case ClockPrescaling::kDivideBy8:
+      return MCU_FLASHSTR("DivideBy8");
+    case ClockPrescaling::kDivideBy64:
+      return MCU_FLASHSTR("DivideBy64");
+    case ClockPrescaling::kDivideBy256:
+      return MCU_FLASHSTR("DivideBy256");
+    case ClockPrescaling::kDivideBy1024:
+      return MCU_FLASHSTR("DivideBy1024");
+  }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == ClockPrescaling::kDisabled) {
+    return MCU_FLASHSTR("Disabled");
+  }
+  if (v == ClockPrescaling::kDivideBy1) {
+    return MCU_FLASHSTR("DivideBy1");
+  }
+  if (v == ClockPrescaling::kDivideBy8) {
+    return MCU_FLASHSTR("DivideBy8");
+  }
+  if (v == ClockPrescaling::kDivideBy64) {
+    return MCU_FLASHSTR("DivideBy64");
+  }
+  if (v == ClockPrescaling::kDivideBy256) {
+    return MCU_FLASHSTR("DivideBy256");
+  }
+  if (v == ClockPrescaling::kDivideBy1024) {
+    return MCU_FLASHSTR("DivideBy1024");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+}
+
+const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+  switch (v) {
+    case FastPwmCompareOutputMode::kDisabled:
+      return MCU_FLASHSTR("Disabled");
+    case FastPwmCompareOutputMode::kNonInvertingMode:
+      return MCU_FLASHSTR("NonInvertingMode");
+    case FastPwmCompareOutputMode::kInvertingMode:
+      return MCU_FLASHSTR("InvertingMode");
+  }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == FastPwmCompareOutputMode::kDisabled) {
+    return MCU_FLASHSTR("Disabled");
+  }
+  if (v == FastPwmCompareOutputMode::kNonInvertingMode) {
+    return MCU_FLASHSTR("NonInvertingMode");
+  }
+  if (v == FastPwmCompareOutputMode::kInvertingMode) {
+    return MCU_FLASHSTR("InvertingMode");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+}
+
+const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+  switch (v) {
+    case TimerCounterChannel::A:
+      return MCU_FLASHSTR("A");
+    case TimerCounterChannel::B:
+      return MCU_FLASHSTR("B");
+    case TimerCounterChannel::C:
+      return MCU_FLASHSTR("C");
+  }
+#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  if (v == TimerCounterChannel::A) {
+    return MCU_FLASHSTR("A");
+  }
+  if (v == TimerCounterChannel::B) {
+    return MCU_FLASHSTR("B");
+  }
+  if (v == TimerCounterChannel::C) {
+    return MCU_FLASHSTR("C");
+  }
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+}
+
+size_t PrintValueTo(ClockPrescaling v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("ClockPrescaling"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(
+      MCU_FLASHSTR("FastPwmCompareOutputMode"), static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(TimerCounterChannel v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("TimerCounterChannel"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+#if MCU_HOST_TARGET
+// Support for debug logging of enums.
+
+std::ostream& operator<<(std::ostream& os, ClockPrescaling v) {
+  switch (v) {
+    case ClockPrescaling::kDisabled:
+      return os << "Disabled";
+    case ClockPrescaling::kDivideBy1:
+      return os << "DivideBy1";
+    case ClockPrescaling::kDivideBy8:
+      return os << "DivideBy8";
+    case ClockPrescaling::kDivideBy64:
+      return os << "DivideBy64";
+    case ClockPrescaling::kDivideBy256:
+      return os << "DivideBy256";
+    case ClockPrescaling::kDivideBy1024:
+      return os << "DivideBy1024";
+  }
+  return os << "Unknown ClockPrescaling, value=" << static_cast<int64_t>(v);
+}
+
+std::ostream& operator<<(std::ostream& os, FastPwmCompareOutputMode v) {
+  switch (v) {
+    case FastPwmCompareOutputMode::kDisabled:
+      return os << "Disabled";
+    case FastPwmCompareOutputMode::kNonInvertingMode:
+      return os << "NonInvertingMode";
+    case FastPwmCompareOutputMode::kInvertingMode:
+      return os << "InvertingMode";
+  }
+  return os << "Unknown FastPwmCompareOutputMode, value="
+            << static_cast<int64_t>(v);
+}
+
+std::ostream& operator<<(std::ostream& os, TimerCounterChannel v) {
+  switch (v) {
+    case TimerCounterChannel::A:
+      return os << "A";
+    case TimerCounterChannel::B:
+      return os << "B";
+    case TimerCounterChannel::C:
+      return os << "C";
+  }
+  return os << "Unknown TimerCounterChannel, value=" << static_cast<int64_t>(v);
+}
+
+#endif  // MCU_HOST_TARGET
+
+}  // namespace alpaca
+
+// END_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING

@@ -1,119 +1,13 @@
 #include "constants.h"
 
-// GENERATED FILE. See make_enum_to_string.py
+// (Mostly) GENERATED FILE. See make_enum_to_string.py
 
 #include "print_misc.h"
 #include "progmem_string_data.h"
 
+// BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
+
 namespace alpaca {
-
-size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("RequestDecoderStatus"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EHttpStatusCode v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EHttpStatusCode"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EHttpMethod v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EHttpMethod"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EApiGroup v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EApiGroup"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EAlpacaApi v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EAlpacaApi"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EManagementMethod v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EManagementMethod"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EDeviceType v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EDeviceType"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EDeviceMethod v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EDeviceMethod"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EParameter v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EParameter"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(ESensorName v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("ESensorName"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EHttpHeader v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EHttpHeader"),
-                                          static_cast<uint32_t>(v), out);
-}
-
-size_t PrintValueTo(EContentType v, Print& out) {
-  auto flash_string = ToFlashStringHelper(v);
-  if (flash_string != nullptr) {
-    return out.print(flash_string);
-  }
-  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EContentType"),
-                                          static_cast<uint32_t>(v), out);
-}
 
 const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
 #ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -893,6 +787,114 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
   return nullptr;
 }
 
+size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("RequestDecoderStatus"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EHttpStatusCode v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EHttpStatusCode"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EHttpMethod v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EHttpMethod"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EApiGroup v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EApiGroup"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EAlpacaApi v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EAlpacaApi"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EManagementMethod v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EManagementMethod"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EDeviceType v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EDeviceType"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EDeviceMethod v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EDeviceMethod"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EParameter v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EParameter"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(ESensorName v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("ESensorName"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EHttpHeader v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EHttpHeader"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EContentType v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EContentType"),
+                                          static_cast<uint32_t>(v), out);
+}
+
 #if MCU_HOST_TARGET
 // Support for debug logging of enums.
 
@@ -1236,6 +1238,9 @@ std::ostream& operator<<(std::ostream& os, EContentType v) {
   }
   return os << "Unknown EContentType, value=" << static_cast<int64_t>(v);
 }
+
 #endif  // MCU_HOST_TARGET
 
 }  // namespace alpaca
+
+// END_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING

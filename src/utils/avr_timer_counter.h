@@ -25,6 +25,10 @@
 
 #include "mcucore_platform.h"
 
+#if MCU_HOST_TARGET
+#include <ostream>  // pragma: keep standard include
+#endif
+
 namespace alpaca {
 
 enum class ClockPrescaling : uint8_t {
@@ -36,26 +40,17 @@ enum class ClockPrescaling : uint8_t {
   kDivideBy1024 = 0b101,
 };
 
-size_t PrintValueTo(ClockPrescaling v, Print& out);
-const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v);
-
 enum class FastPwmCompareOutputMode : uint8_t {
   kDisabled = 0b00,
   kNonInvertingMode = 0b10,
   kInvertingMode = 0b11,
 };
 
-size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out);
-const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v);
-
 enum class TimerCounterChannel {
   A,
   B,
   C,
 };
-
-size_t PrintValueTo(TimerCounterChannel v, Print& out);
-const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -219,5 +214,28 @@ class TimerCounter5Pwm16Output : public EnableableByPin {
 };
 
 }  // namespace alpaca
+
+// BEGIN_HEADER_GENERATED_BY_MAKE_ENUM_TO_STRING
+
+namespace alpaca {
+
+const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v);
+const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v);
+const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v);
+
+size_t PrintValueTo(ClockPrescaling v, Print& out);
+size_t PrintValueTo(FastPwmCompareOutputMode v, Print& out);
+size_t PrintValueTo(TimerCounterChannel v, Print& out);
+
+#if MCU_HOST_TARGET
+// Support for debug logging of enums.
+std::ostream& operator<<(std::ostream& os, ClockPrescaling v);
+std::ostream& operator<<(std::ostream& os, FastPwmCompareOutputMode v);
+std::ostream& operator<<(std::ostream& os, TimerCounterChannel v);
+#endif  // MCU_HOST_TARGET
+
+}  // namespace alpaca
+
+// END_HEADER_GENERATED_BY_MAKE_ENUM_TO_STRING
 
 #endif  // TINY_ALPACA_SERVER_SRC_UTILS_AVR_TIMER_COUNTER_H_
