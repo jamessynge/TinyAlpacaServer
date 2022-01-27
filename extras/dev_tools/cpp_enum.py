@@ -289,7 +289,7 @@ def process_file(file_path: str):
         print(enumerator.name, end='')
       if enumerator.value:
         print(' = ', end='')
-        print(tokenize_cpp.stringify_token_groups(enumerator.value), end='')
+        print(tokenize_cpp.stringify_grouped_tokens(enumerator.value), end='')
       print(',')
     print('};')
 

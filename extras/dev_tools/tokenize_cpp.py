@@ -609,8 +609,8 @@ def flatten_group(group: Group) -> Generator[Token, None, None]:
   yield group.end_token
 
 
-def stringify_token_groups(grouped_tokens: List[TokenOrGroup]) -> str:
-  """Join the raw_src of the flattened token groups into a single string."""
+def stringify_grouped_tokens(grouped_tokens: List[TokenOrGroup]) -> str:
+  """Join the raw_src of the flattened grouped tokens into a single string."""
   if not grouped_tokens:
     return ''
   tokens = list(flatten_grouped_tokens(grouped_tokens))

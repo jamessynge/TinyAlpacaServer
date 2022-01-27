@@ -81,7 +81,7 @@ def process_source_file(file_path: str) -> None:
     lst = [id_token, group]
     tokenize_cpp.dump_grouped_tokens(lst)
     print()
-    print(tokenize_cpp.stringify_token_groups(lst))
+    print(tokenize_cpp.stringify_grouped_tokens(lst))
     print(flush=True)
 
 
