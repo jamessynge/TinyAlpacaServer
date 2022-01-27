@@ -30,7 +30,8 @@ class EToken(enum.Enum):
   LEFT_BRACE = enum.auto()
   LEFT_BRACKET = enum.auto()
   LEFT_PARENTHESIS = enum.auto()
-  NUMBER = enum.auto()
+  FP_NUMBER = enum.auto()
+  INTEGER = enum.auto()
   OP_AND = enum.auto()
   OP_ASSIGN = enum.auto()
   OP_BITAND = enum.auto()
@@ -89,6 +90,37 @@ START_AND_END_TOKENS = {
     EToken.LEFT_BRACKET: EToken.RIGHT_BRACKET,
     EToken.LEFT_PARENTHESIS: EToken.RIGHT_PARENTHESIS,
 }
+
+# Tokens that could reasonably be in a purely numeric expression.
+NUMERIC_EXPRESSION_TOKENS = set([
+    EToken.CHAR,
+    EToken.COLON,
+    EToken.LEFT_PARENTHESIS,
+    EToken.FP_NUMBER,
+    EToken.INTEGER,
+    EToken.OP_AND,
+    EToken.OP_BITAND,
+    EToken.OP_BITNOT,
+    EToken.OP_BITOR,
+    EToken.OP_BITXOR,
+    EToken.OP_DIVIDE,
+    EToken.OP_EQUAL,
+    EToken.OP_GREATER_THAN,
+    EToken.OP_GREATER_THAN_EQUAL,
+    EToken.OP_LESS_THAN,
+    EToken.OP_LESS_THAN_EQUAL,
+    EToken.OP_MINUS,
+    EToken.OP_MODULO,
+    EToken.OP_NOT,
+    EToken.OP_NOT_EQUAL,
+    EToken.OP_OR,
+    EToken.OP_PLUS,
+    EToken.OP_SHIFT_LEFT,
+    EToken.OP_SHIFT_RIGHT,
+    EToken.OP_TERNARY,
+    EToken.OP_TIMES,
+    EToken.RIGHT_PARENTHESIS,
+])
 
 
 @dataclasses.dataclass()
@@ -156,8 +188,54 @@ SINGLE_QUOTE_OR_BACKSLASH = re.compile(r"'|\\")
 
 DOUBLE_QUOTE_OR_BACKSLASH = re.compile(r'"|\\')
 
-FLOATING_POINT_RE = re.compile(r'(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?')
+# There are lots of different number formats in C++, and many of them will match
+# at the start of a number, therefore we generally need the longest match. This
+# regex matches the start of a sequence that could be a number, after which we
+# can look for the longest match at that point to determine whether it is an
+# integer or floating point number.
+NUMBER_RE = re.compile(r'[0-9]|([.][0-9])')
 
+# Patterns from: https://en.cppreference.com/w/cpp/language/floating_literal
+# Note: Not yet supporting C++ 17's hexadecimal floating-point literals.
+DIGIT_SEQUENCE_PAT = r'[0-9]+'
+OPT_DIGIT_SEQUENCE_PAT = f'(?:{DIGIT_SEQUENCE_PAT})?'
+DECIMAL_EXPONENT_PAT = r'[eE][-+]?' + DIGIT_SEQUENCE_PAT
+OPT_DECIMAL_EXPONENT_PAT = f'(?:{DECIMAL_EXPONENT_PAT})?'
+
+FP_CASE_1 = DIGIT_SEQUENCE_PAT + DECIMAL_EXPONENT_PAT
+FP_CASE_2 = f'{DIGIT_SEQUENCE_PAT}[.]{OPT_DECIMAL_EXPONENT_PAT}'
+FP_CASE_3 = f'{OPT_DIGIT_SEQUENCE_PAT}[.]{DIGIT_SEQUENCE_PAT}{OPT_DECIMAL_EXPONENT_PAT}'
+FP_CASES = (
+    f'(?:{FP_CASE_3})|'  # Order matters.
+    f'(?:{FP_CASE_2})|'
+    f'(?:{FP_CASE_1})')
+FP_SUFFIX_PAT = '[fFlL]'
+
+FLOATING_POINT_RE = re.compile(f'(?:{FP_CASES}){FP_SUFFIX_PAT}?')
+
+INT_CASE_1 = '[1-9][0-9]*'  # Decimal literal
+INT_CASE_2 = '0[0-7]*'  # Octal literal
+INT_CASE_3 = '0[xX][0-9a-fA-F]+'  # Hex literal
+INT_CASE_4 = '0[bB][01]+'  # Binary literal
+# Need the octal case to come last, else it will match the zero at the start of
+# hex and binary literals, and stop the match at that one digit.
+INT_CASES = (f'(?:{INT_CASE_1})|'
+             f'(?:{INT_CASE_3})|'
+             f'(?:{INT_CASE_4})|'
+             f'(?:{INT_CASE_2})')
+# Need 'll' to come before 'l', else 'l' will match the first character of 'll'
+# and stop the match at that one character.
+INT_SIZE_PAT = '(?:ll|LL|l|L|z|Z)'
+INT_SIZE_UNSIGNED_PAT = f'(?:{INT_SIZE_PAT}[uU]?)'
+INT_UNSIGNED_SIZE_PAT = f'(?:[uU]{INT_SIZE_PAT}?)'
+INT_SUFFIX_PAT = f'(?:{INT_SIZE_UNSIGNED_PAT}|{INT_UNSIGNED_SIZE_PAT})'
+
+INTEGER_RE = re.compile(f'(?:{INT_CASES}){INT_SUFFIX_PAT}?')
+# # r'([1-9][0-9]*)|(0[0-7]*)|(0x[0-9a-f]+)|(0b[01]+)', flags=re.IGNORECASE)
+# UNSIGNED_SUFFIX_RE = re.compile(r'U', flags=re.IGNORECASE)
+# SIZE_SUFFIX_RE = re.compile(r'l|L|ll|LL|z|Z')
+
+# Not worrying here about supporting non-English alphabets.
 IDENTIFIER_RE = re.compile(r'[a-zA-Z_][a-zA-Z_0-9]*')
 
 
@@ -180,11 +258,10 @@ def find_char_end(file_src: str, start_pos: int, pos: int) -> int:
     if file_src[pos] not in "'\n" and file_src[pos + 1] == "'":
       return pos + 2
     if file_src[pos] == "'":
-      raise AssertionError(f'Empty character literal starting at {start_pos}: '
-                           f'{file_src[start_pos:start_pos+20]}')
-    raise AssertionError(
-        f'Too many characters in literal starting at {start_pos}: '
-        f'{file_src[start_pos:start_pos+20]}')
+      raise ValueError(f'Empty character literal starting at {start_pos}: '
+                       f'{file_src[start_pos:start_pos+20]}')
+    raise ValueError(f'Too many characters in literal starting at {start_pos}: '
+                     f'{file_src[start_pos:start_pos+20]}')
 
   # Contains an escaped character. Is it a simple escape?
   pos += 1
@@ -192,21 +269,20 @@ def find_char_end(file_src: str, start_pos: int, pos: int) -> int:
     # Next character must be a single quote.
     if file_src[pos + 1] == "'":
       return pos + 2
-    raise AssertionError(
-        f'Too many characters in literal starting at {start_pos}: '
-        f'{file_src[start_pos:start_pos+20]}')
+    raise ValueError(f'Too many characters in literal starting at {start_pos}: '
+                     f'{file_src[start_pos:start_pos+20]}')
 
   # A more complicated escaped literal. Not (yet) bothering to validate the
   # contents make sense, just looking for the closing quote.
   sq_pos = file_src.find("'", pos)
   if sq_pos != -1:
     if sq_pos - pos > 10:
-      raise AssertionError(
+      raise ValueError(
           f'Too many characters in literal starting at {start_pos}: '
           f'{file_src[start_pos:start_pos+20]}')
     return sq_pos + 1
-  raise AssertionError(f'Unterminated character starting at {start_pos}: '
-                       f'{file_src[start_pos:start_pos+20]}')
+  raise ValueError(f'Unterminated character starting at {start_pos}: '
+                   f'{file_src[start_pos:start_pos+20]}')
 
 
 def find_char_literal_end(file_src: str, m: Match[str]) -> int:
@@ -214,8 +290,8 @@ def find_char_literal_end(file_src: str, m: Match[str]) -> int:
     return find_char_end(file_src, m.start(), m.end())
   except IndexError:
     pass
-  raise AssertionError(f'Unterminated character starting at {m.start()}: '
-                       f'{file_src[m.start():m.start()+20]}')
+  raise ValueError(f'Unterminated character starting at {m.start()}: '
+                   f'{file_src[m.start():m.start()+20]}')
 
 
 def find_string_end(file_src: str, start_pos: int) -> int:
@@ -229,27 +305,28 @@ def find_string_end(file_src: str, start_pos: int) -> int:
       return m.end()
     # Found a backslash in the string. Skip the character after the backslash.
     pos = m.end() + 1
-  raise AssertionError(f'Unterminated string starting at {start_pos}')
+  raise ValueError(f'Unterminated string starting at {start_pos}')
 
 
 def find_raw_string_literal_end(file_src: str, m: Match[str]) -> int:
   """Returns the pos just beyond the raw string literal that starts with m."""
   if not m.group(0).endswith('R"'):
-    raise AssertionError(f'Expected start of raw string literal: {m.group()}')
+    raise AssertionError(  # COV_NF_START
+        f'Expected start of raw string literal: {m.group()}')  # COV_NF_END
 
   # We've matched the start of a raw string literal. Determine the delimiter,
   # then search for the end of the string.
   regexp = re.compile(r'[^()\\ \f\n\r\t\v]{0,16}\(')
   m2 = regexp.match(file_src, pos=m.end())
   if not m2:
-    raise AssertionError(
+    raise ValueError(
         'Unable to locate opening delimiter of the raw string literal '
         f'starting at {m.start()}: {file_src[m.start():m.start()+32]!r}')
 
   needle = ')' + m2.group()[0:-1] + '"'
   pos1 = file_src.find(needle, m2.end())
   if pos1 < 0:
-    raise AssertionError(
+    raise ValueError(
         'Unable to locate closing delimiter of the raw string literal '
         f'starting at {m.start()}: {file_src[m.start():m.start()+32]!r}')
 
@@ -324,7 +401,28 @@ def match_operator_or_punctuation(phase2_source: str,
     token = phase2_source[pos:end_pos]
     if s == token:
       return (e, s, pos, end_pos)
-  return None
+  return None  # COV_NF_LINE
+
+
+def attempt_fp_match(phase2_source: str, pos: int) -> Optional[Phase2Token]:
+  """Return an FP_NUMBER Phase2Token if able to match an FP number."""
+
+  m: Match[str] = FLOATING_POINT_RE.match(phase2_source, pos=pos)
+  if not m:
+    return None
+  end_pos = m.end()
+  return (EToken.FP_NUMBER, phase2_source[pos:end_pos], pos, end_pos)
+
+
+def attempt_int_match(phase2_source: str, pos: int) -> Optional[Phase2Token]:
+  """Return an INTEGER Phase2Token if able to match an integer."""
+
+  start_pos = pos
+  m = INTEGER_RE.match(phase2_source, pos=pos)
+  if not m:
+    return None  # COV_NF_LINE
+  end_pos = m.end()
+  return (EToken.INTEGER, phase2_source[start_pos:end_pos], start_pos, end_pos)
 
 
 def generate_phase2_tokenization(
@@ -341,6 +439,19 @@ def generate_phase2_tokenization(
   """
 
   pos = 0
+
+  def confirm_number_properly_terminated(end_pos: int, kind: str) -> None:
+    # A number must not be followed immediately by an identifier, nor by another
+    # number.
+    m = (
+        IDENTIFIER_RE.match(phase2_source, pos=end_pos) or
+        NUMBER_RE.match(phase2_source, pos=end_pos))
+    if not m:
+      return
+    raise ValueError(f'Matched {phase2_source[pos:end_pos]!r}, spanning '
+                     f'[{pos}:{end_pos}] as {kind}, but it is followed by an '
+                     f'invalid character: {phase2_source[end_pos]!r}')
+
   while pos < len(phase2_source):
     # print('pos=', pos)
     try:
@@ -420,17 +531,32 @@ def generate_phase2_tokenization(
         continue
 
       # Match numbers.
-      m = FLOATING_POINT_RE.match(phase2_source, pos=pos)
+      m = NUMBER_RE.match(phase2_source, pos=pos)
       if m:
-        # print(f'FLOATING_POINT_RE matched [{pos}:{m.end()}]')
-        token = phase2_source[pos:m.end()]
-        yield (EToken.NUMBER, token, pos, m.end())
-        pos = m.end()
-        continue
+        # Maybe a floating point number.
+        opt_token: Optional[Phase2Token] = attempt_fp_match(phase2_source, pos)
+        if opt_token:
+          end_pos = opt_token[3]
+          confirm_number_properly_terminated(end_pos,
+                                             'a floating point literal')
+          yield opt_token
+          pos = end_pos
+          continue
+
+        opt_token = attempt_int_match(phase2_source, pos)
+        if opt_token:
+          end_pos = opt_token[3]
+          confirm_number_properly_terminated(end_pos, 'an integer literal')
+          yield opt_token
+          pos = end_pos
+          continue
+
+        # This is surprising!
+        raise ValueError(f'Unable to match {phase2_source[pos:pos+20]!r} '
+                         f'as a number in file {file_path!r}')
 
       # Match operators and other punctuation. Not attempting to make them
       # complete tokens (i.e. '->' will be yielded as '-' and '>').
-
       if phase2_source[pos] in OPS_AND_PUNC_CHAR_SET:
         # print(f'Found operator or punctuation at {pos}')
         v = match_operator_or_punctuation(phase2_source, pos)
@@ -450,6 +576,13 @@ def generate_phase2_tokenization(
         yield (EToken.IDENTIFIER, token, pos, m.end())
         pos = m.end()
         continue
+    except ValueError as ex:
+      # Add some detail to the exception message.
+      if ex.args:
+        msg = (f'{ex.args[0]}\nWhile matching {phase2_source[pos:pos+20]!r} in '
+               f'file {file_path!r}')
+        ex.args = (msg,) + ex.args[1:]
+      raise
     except:
       print(
           'Exception while matching '
@@ -458,6 +591,7 @@ def generate_phase2_tokenization(
           flush=True)
       raise
 
+    # We've tried all our available patterns, none match!
     raise ValueError(
         f'Unable to match {phase2_source[pos:pos+20]!r} in file {file_path!r}')
 
@@ -562,7 +696,7 @@ def group_cpp_tokens(tokens: List[Token]) -> List[TokenOrGroup]:
       nested.append(tokens[ndx])
       ndx += 1
       continue
-    raise AssertionError(
+    raise ValueError(
         f'Starting at token #{start_ndx} ({start_token}), failed to find '
         f'closing token of type {target_kind}')
 
@@ -607,6 +741,13 @@ def flatten_group(group: Group) -> Generator[Token, None, None]:
   yield group.start_token
   yield from flatten_grouped_tokens(group.nested)
   yield group.end_token
+
+
+def is_not_numeric_expression(grouped_tokens: List[TokenOrGroup]) -> bool:
+  """Returns True if group_tokens aren't valid in purely numeric expressions."""
+  return any(
+      map(lambda x: x not in NUMERIC_EXPRESSION_TOKENS,
+          flatten_grouped_tokens(grouped_tokens)))
 
 
 def stringify_grouped_tokens(grouped_tokens: List[TokenOrGroup]) -> str:

@@ -1,5 +1,6 @@
 """Tests for tokenize_cpp."""
 
+from typing import Optional
 import unittest.mock
 
 from absl import flags
@@ -16,33 +17,76 @@ flags.DEFINE_string(
     default='',
     help='Ignored; defined just to be ignored if provided to all tests.')
 
+STRING_PREFIXES = ('', 'L', 'u8', 'u', 'U')
+INT_SIZE_SUFFIXES = ('', 'l', 'L', 'll', 'LL', 'z', 'Z')
+INT_SIGN_SUFFIXES = ('', 'U')
+FP_TYPE_SUFFIXES = ('', 'f', 'F', 'l', 'L')
 
-def make_expected_string_token(src, raw_start=0, raw_src=''):
+
+def make_token(kind: EToken, src: str, raw_start=0, raw_src=''):
   if not raw_src:
     raw_src = src
   return tokenize_cpp.Token(
-      kind=tokenize_cpp.EToken.STRING,
+      kind=kind,
       src=src,
       raw_src=raw_src,
       raw_start=raw_start,
       raw_end=raw_start + len(raw_src))
 
 
+def make_expected_string_token(src, raw_start=0, raw_src=''):
+  return make_token(EToken.STRING, src, raw_start=raw_start, raw_src=raw_src)
+
+
 def make_expected_raw_string_token(raw_src, raw_start=0):
-  return tokenize_cpp.Token(
-      kind=tokenize_cpp.EToken.RAW_STRING,
-      src=raw_src,
-      raw_src=raw_src,
-      raw_start=raw_start,
-      raw_end=raw_start + len(raw_src))
+  return make_token(
+      EToken.RAW_STRING, raw_src, raw_start=raw_start, raw_src=raw_src)
 
 
-class TokenizeCppTest(absltest.TestCase):
+class TokenizeCppBaseTest(absltest.TestCase):
 
-  STRING_PREFIXES = ['', 'L', 'u8', 'u', 'U']
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.verbose = False
+
+  def assertTokenizedAs(self,
+                        raw_src: str,
+                        kind: EToken,
+                        prefix: str = ' ',
+                        suffix: str = ' ',
+                        src: Optional[str] = None):
+    if self.verbose:
+      print('raw_src:', raw_src, f'    as py string: {raw_src!r}', flush=True)
+    if not src:
+      src = raw_src
+    file_src = f'{prefix}{raw_src}{suffix}'
+    expected_token = make_token(kind, src, raw_src=raw_src, raw_start=1)
+    tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=file_src))
+    if self.verbose:
+      print(tokenization, flush=True)
+    self.assertSequenceEqual(tokenization, [expected_token])
+
+  def assertTokenizeFails(self,
+                          raw_src: str,
+                          prefix: str = ' ',
+                          suffix: str = ' ') -> None:
+    if self.verbose:
+      print('raw_src:', raw_src, f'    as py string: {raw_src!r}', flush=True)
+    file_src = f'{prefix}{raw_src}{suffix}'
+    try:
+      tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=file_src))
+      print(tokenization, flush=True)
+      self.fail(f'Should not have been able to tokenize {file_src!r}\n'
+                f'As: {tokenization}')
+    except ValueError as e:
+      if self.verbose:
+        print(e.args[0], flush=True)
+
+
+class TokenizeStringLiteralsTest(TokenizeCppBaseTest):
 
   def test_empty_string_literals(self):
-    for prefix in self.STRING_PREFIXES:
+    for prefix in STRING_PREFIXES:
       s = prefix + '""'
       src = s
       tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=src))
@@ -50,7 +94,7 @@ class TokenizeCppTest(absltest.TestCase):
       self.assertSequenceEqual(tokenization, [make_expected_string_token(s)])
 
   def test_non_empty_string_literals(self):
-    for prefix in self.STRING_PREFIXES:
+    for prefix in STRING_PREFIXES:
       s = prefix + '"abc"'
       src = '\n' + s + '\t'
       tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=src))
@@ -59,7 +103,7 @@ class TokenizeCppTest(absltest.TestCase):
                                [make_expected_string_token(s, raw_start=1)])
 
   def test_string_literals_with_continuation(self):
-    for prefix in self.STRING_PREFIXES:
+    for prefix in STRING_PREFIXES:
       raw = prefix + '"a\\\nb\\\nc"'
       s = prefix + '"abc"'
       src = '\n' + raw + '\t'
@@ -69,8 +113,16 @@ class TokenizeCppTest(absltest.TestCase):
           tokenization,
           [make_expected_string_token(s, raw_start=1, raw_src=raw)])
 
-  def test_empty_raw_string_literals(self):
-    for prefix in self.STRING_PREFIXES:
+  def test_rejects_unterminated_string_literal(self):
+    for prefix in STRING_PREFIXES:
+      for string_content in ['', 'abc', '\\', '\\\\', r'abc\"']:
+        self.assertTokenizeFails(f'{prefix}"{string_content}', suffix='')
+
+
+class TokenizeRawStringLiteralsTest(TokenizeCppBaseTest):
+
+  def test_tokenizes_empty_literal(self):
+    for prefix in STRING_PREFIXES:
       for delimiter in ['', '1234567890123456', '"']:
         s = f'{prefix}R"{delimiter}(){delimiter}"'
         src = ' ' + s
@@ -79,9 +131,9 @@ class TokenizeCppTest(absltest.TestCase):
         self.assertSequenceEqual(
             tokenization, [make_expected_raw_string_token(s, raw_start=1)])
 
-  def test_non_empty_raw_string_literals(self):
+  def test_tokenizes_non_empty_literal(self):
     inner_string = 'Some text with "" (quotes) and with () (parentheses)'
-    for prefix in self.STRING_PREFIXES:
+    for prefix in STRING_PREFIXES:
       for delimiter in ['', '1234567890123456', '"']:
         s = f'{prefix}R"{delimiter}({inner_string}){delimiter}"'
         src = s + ' '
@@ -90,10 +142,10 @@ class TokenizeCppTest(absltest.TestCase):
         self.assertSequenceEqual(tokenization,
                                  [make_expected_raw_string_token(s)])
 
-  def test_raw_string_literal_with_continuation(self):
+  def test_tokenizes_literal_with_continuation(self):
     continuations = '\\\n\\\n'
     inner_string = 'Some text with a continued \\\n line'
-    for prefix in self.STRING_PREFIXES:
+    for prefix in STRING_PREFIXES:
       for delimiter in ['', '1234567890123456', '"']:
         s = f'{prefix}R"{delimiter}({inner_string}){delimiter}"'
         src = continuations + s
@@ -104,8 +156,28 @@ class TokenizeCppTest(absltest.TestCase):
         # print(tokenization, flush=True)
         self.assertSequenceEqual(tokenization, [expected])
 
+  def test_rejects_invalid_raw_string_literal(self):
+    for open_raw_str in [f'{prefix}R"' for prefix in STRING_PREFIXES]:
+      # Not a valid start to the string.
+      for string_content in ['', 'a', '\n', ('a' * 17) + '(', ')', r'"']:
+        self.assertTokenizeFails(f'{open_raw_str}"{string_content}', suffix='')
+
+      # Not a valid end to the string
+      for string_content in ['', ' ', '\n', ')', ')def"' ')abcd"']:
+        self.assertTokenizeFails(f'{open_raw_str}"({string_content}', suffix='')
+        self.assertTokenizeFails(
+            f'{open_raw_str}"(xyz{string_content}', suffix='')
+      for string_content in ['', ' ', ')"', '\n', ')', ')def"' ')abcd"']:
+        self.assertTokenizeFails(
+            f'{open_raw_str}"abc({string_content}', suffix='')
+        self.assertTokenizeFails(
+            f'{open_raw_str}"abc(xyz{string_content}', suffix='')
+
+
+class TokenizeCharactersTest(TokenizeCppBaseTest):
+
   def test_char_literal(self):
-    for prefix in self.STRING_PREFIXES:
+    for prefix in STRING_PREFIXES:
       for contents in ['a', r"\'", r'\a', r'\001', r'\xAA', r'\\']:
         s = f"{prefix}'{contents}'"
         # print('s:', s, f'    rs: {s!r}', flush=True)
@@ -121,11 +193,11 @@ class TokenizeCppTest(absltest.TestCase):
         self.assertSequenceEqual(tokenization, [expected_token])
 
   def test_invalid_char_literal(self):
-    verbose = True
-    short_esq = '\\'
+    verbose = False
+    short_esq = '\\'  # esq = escaped single quoted character
     long_esq = '\\' + ' ' * 30 + "'"
     unterminated_esq = '\\   '
-    for prefix in self.STRING_PREFIXES:
+    for prefix in STRING_PREFIXES:
       for contents in [
           "a '", "'", "\n'", r"\? '", short_esq, long_esq, unterminated_esq
       ]:
@@ -134,12 +206,110 @@ class TokenizeCppTest(absltest.TestCase):
           print('\ns:', s, f'    rs: {s!r}', flush=True)
         try:
           tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=s))
-        except AssertionError as e:
+          print(tokenization, flush=True)
+          self.fail('Should not reach here!')
+        except ValueError as e:
           if verbose:
             print(e.args[0], flush=True)
+
+
+class TokenizeNumbersTest(TokenizeCppBaseTest):
+  # Note that the tokenizer doesn't convert numeric literals into integers or
+  # floating point values, just identifies their span within the text.
+
+  def test_tokenizes_floating_point_literals(self):
+    numbers = ['0', '1', '9', '0123', '987']
+    exponents = ['']
+    for indicator in ('e', 'E'):
+      for sign in ('', '-', '+'):
+        for i in numbers:
+          exponents.append(f'{indicator}{sign}{i}')
+
+    for whole_number in [''] + numbers + [f'{n}.' for n in numbers]:
+      for fractional_number in [''] + numbers:
+        if not whole_number and not fractional_number:
           continue
-        print(tokenization, flush=True)
-        self.fail('Should not reach here!')
+        number = whole_number + '.' + fractional_number
+        number = number.replace('..', '.')
+        for exponent in exponents:
+          for type_suffix in FP_TYPE_SUFFIXES:
+            s = f'{number}{exponent}{type_suffix}'
+            if s == '0':
+              continue
+            self.assertTokenizedAs(s, EToken.FP_NUMBER)
+
+  def test_rejects_floating_point_literals(self):
+    self.assertTokenizeFails('.0E')
+    self.assertTokenizeFails('0E')
+    self.assertTokenizeFails('0E+')
+    self.assertTokenizeFails('0E-')
+    self.assertTokenizeFails('0.EF')
+
+  def test_integers(self):
+
+    def check_decimal(i, size, sign):
+      s = f'{i:d}{size}{sign}'
+      self.assertTokenizedAs(s, EToken.INTEGER)
+
+    def check_octal(i, size, sign):
+      s = f'{i:o}{size}{sign}'
+      if i != 0:
+        s = '0' + s
+      self.assertTokenizedAs(s, EToken.INTEGER)
+
+    def check_hex(i, size, sign):
+      s = f'{i:x}{size}{sign}'
+      self.assertTokenizedAs('0x' + s, EToken.INTEGER)
+      self.assertTokenizedAs('0X' + s, EToken.INTEGER)
+      s = f'{i:X}{size}{sign}'
+      self.assertTokenizedAs('0x' + s, EToken.INTEGER)
+      self.assertTokenizedAs('0X' + s, EToken.INTEGER)
+
+    def check_binary(i, size, sign):
+      s = f'{i:b}{size}{sign}'
+      self.assertTokenizedAs('0b' + s, EToken.INTEGER)
+      self.assertTokenizedAs('0B' + s, EToken.INTEGER)
+
+    # Checking various values that are appropriate for each base in which
+    # integers can be represented.
+
+    for i in list(range(1, 20)) + list(range(20, 101, 10)):
+      for size_suffix in INT_SIZE_SUFFIXES:
+        for sign_suffix in INT_SIGN_SUFFIXES:
+          check_decimal(i, size_suffix, sign_suffix)
+
+    for i in list(range(8)) + list(range(8, 70, 3)):
+      for size_suffix in INT_SIZE_SUFFIXES:
+        for sign_suffix in INT_SIGN_SUFFIXES:
+          check_octal(i, size_suffix, sign_suffix)
+
+    for i in list(range(16)) + list(range(16, 260, 7)) + [255, 256]:
+      for size_suffix in INT_SIZE_SUFFIXES:
+        for sign_suffix in INT_SIGN_SUFFIXES:
+          check_hex(i, size_suffix, sign_suffix)
+
+    for i in range(8):
+      for size_suffix in INT_SIZE_SUFFIXES:
+        for sign_suffix in INT_SIGN_SUFFIXES:
+          check_binary(i, size_suffix, sign_suffix)
+
+  def test_invalid_integer(self):
+    """Confirm that malformed integers are rejected."""
+    self.verbose = False
+
+    self.assertTokenizeFails('08')
+    self.assertTokenizeFails('0128')
+    self.assertTokenizeFails('0f')
+    self.assertTokenizeFails('9f')
+    self.assertTokenizeFails('1x')
+    self.assertTokenizeFails('0b2')
+    self.assertTokenizeFails('0b012')
+    self.assertTokenizeFails('0b01a')
+    self.assertTokenizeFails('0xg')
+    self.assertTokenizeFails('0x1g')
+
+
+class CppSourceTest(TokenizeCppBaseTest):
 
   def test_replacement(self):
     cpp_source = tokenize_cpp.CppSource(raw_source=' "str" ')
@@ -162,6 +332,9 @@ class TokenizeCppTest(absltest.TestCase):
         EToken.IDENTIFIER, EToken.LEFT_PARENTHESIS, EToken.STRING,
         EToken.RIGHT_PARENTHESIS
     ])
+
+
+class PathHandlingTest(TokenizeCppBaseTest):
 
   def test_has_source_extension(self):
     self.assertTrue(tokenize_cpp.has_source_extension('a/b.cc'))
