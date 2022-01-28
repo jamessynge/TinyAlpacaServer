@@ -1,6 +1,6 @@
 """Tests for tokenize_cpp."""
 
-from typing import Optional
+from typing import List, Optional
 import unittest.mock
 
 from absl import flags
@@ -52,35 +52,176 @@ class TokenizeCppBaseTest(absltest.TestCase):
   def assertTokenizedAs(self,
                         raw_src: str,
                         kind: EToken,
-                        prefix: str = ' ',
-                        suffix: str = ' ',
-                        src: Optional[str] = None):
+                        prefix: str = '',
+                        suffix: str = '',
+                        src: Optional[str] = None,
+                        file_src: Optional[str] = None,
+                        source_only=True):
     if self.verbose:
       print('raw_src:', raw_src, f'    as py string: {raw_src!r}', flush=True)
     if not src:
       src = raw_src
-    file_src = f'{prefix}{raw_src}{suffix}'
-    expected_token = make_token(kind, src, raw_src=raw_src, raw_start=1)
-    tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=file_src))
+    if file_src:
+      raw_start = file_src.find(raw_src)
+      self.assertGreaterEqual(raw_start, 0)
+      self.assertEqual(prefix, '')
+      self.assertEqual(suffix, '')
+    else:
+      file_src = f'{prefix}{raw_src}{suffix}'
+      raw_start = len(prefix)
+    expected_token = make_token(kind, src, raw_src=raw_src, raw_start=raw_start)
+    if self.verbose:
+      print(f'expected_token: {expected_token!r}', flush=True)
+    try:
+      tokenization = list(
+          tokenize_cpp.generate_cpp_tokens(
+              file_src=file_src, source_only=source_only))
+    except Exception as ex:
+      if ex.args:
+        msg = f'{ex.args[0]}\nfile_src: {file_src!r}'
+        ex.args = (msg,) + ex.args[1:]
+      raise
     if self.verbose:
       print(tokenization, flush=True)
     self.assertSequenceEqual(tokenization, [expected_token])
 
+  def assertHasNoTokens(self,
+                        raw_src: str,
+                        prefix: str = '',
+                        suffix: str = '',
+                        source_only=True):
+    if self.verbose:
+      print('raw_src:', raw_src, f'    as py string: {raw_src!r}', flush=True)
+    file_src = f'{prefix}{raw_src}{suffix}'
+    tokenization = list(
+        tokenize_cpp.generate_cpp_tokens(
+            file_src=file_src, source_only=source_only))
+    self.assertSequenceEqual(tokenization, [], f'file_src: {file_src!r}')
+
   def assertTokenizeFails(self,
                           raw_src: str,
-                          prefix: str = ' ',
-                          suffix: str = ' ') -> None:
+                          prefix: str = '',
+                          suffix: str = '',
+                          source_only=True) -> None:
     if self.verbose:
       print('raw_src:', raw_src, f'    as py string: {raw_src!r}', flush=True)
     file_src = f'{prefix}{raw_src}{suffix}'
     try:
-      tokenization = list(tokenize_cpp.generate_cpp_tokens(file_src=file_src))
+      tokenization = list(
+          tokenize_cpp.generate_cpp_tokens(
+              file_src=file_src, source_only=source_only))
       print(tokenization, flush=True)
       self.fail(f'Should not have been able to tokenize {file_src!r}\n'
                 f'As: {tokenization}')
     except ValueError as e:
       if self.verbose:
         print(e.args[0], flush=True)
+
+
+class TokenizeIgnoresNonTokensTest(TokenizeCppBaseTest):
+
+  def test_skips_whitespace(self):
+    tokenization = list(
+        tokenize_cpp.generate_cpp_tokens(file_src=' \r\n\t\v\f '))
+    self.assertEmpty(tokenization)
+
+  def test_skips_attributes(self):
+    tokenization: List[tokenize_cpp.TokenOrGroup] = list(
+        tokenize_cpp.generate_cpp_tokens(file_src="""
+0
+1 [[attr]]
+2 [[attr1,attr2,attr3(arg)]]
+3 [[attr_ns::attr(arg1, arg2)]]
+4 [[ using X: attr ]]
+5 [[using X:attr1, attr2]]
+6
+        """))
+    self.assertSequenceEqual([x.kind for x in tokenization],
+                             [EToken.INTEGER] * len(tokenization), tokenization)
+    self.assertSequenceEqual([x.src for x in tokenization],
+                             [str(i) for i in range(len(tokenization))],
+                             tokenization)
+
+
+class TokenizePreprocessorDirectiveTest(TokenizeCppBaseTest):
+
+  def test_matches_preprocessor_directive(self):
+    for prefix in ['', '\n', ' \n']:
+      for suffix in ['', '\n', '\n ']:
+        self.assertTokenizedAs(
+            '#else',
+            EToken.PREPROCESSOR_DIRECTIVE,
+            prefix=prefix,
+            suffix=suffix,
+            source_only=False)
+        self.assertTokenizedAs(
+            ' #\telse',
+            EToken.PREPROCESSOR_DIRECTIVE,
+            prefix=prefix,
+            suffix=suffix,
+            source_only=False)
+        self.assertTokenizedAs(
+            '\t# else',
+            EToken.PREPROCESSOR_DIRECTIVE,
+            prefix=prefix,
+            suffix=suffix,
+            source_only=False)
+        self.assertHasNoTokens(
+            '#else', prefix=prefix, suffix=suffix, source_only=True)
+
+  def test_optionally_skips_preprocessor_directive(self):
+    tokenization: List[tokenize_cpp.TokenOrGroup] = list(
+        tokenize_cpp.generate_cpp_tokens(file_src="""
+0
+# if 1
+1
+ #elif 2
+2
+#else
+3
+ # endif
+4
+        """))
+    self.assertSequenceEqual([x.kind for x in tokenization],
+                             [EToken.INTEGER] * len(tokenization), tokenization)
+    self.assertSequenceEqual([x.src for x in tokenization],
+                             [str(i) for i in range(len(tokenization))],
+                             tokenization)
+
+  def test_rejects_invalid_preprocessor_directive(self):
+    self.assertTokenizeFails('a #')
+    self.assertTokenizeFails('#')
+
+
+class TokenizeCommentsTest(TokenizeCppBaseTest):
+
+  def assertCommentTokenizedOrSkipped(self, file_src, src):
+    if self.verbose:
+      print(f'file_src: {file_src!r}')
+      print(f'src: {src!r}', flush=True)
+    self.assertTokenizedAs(
+        src, EToken.COMMENT, file_src=file_src, source_only=False)
+    self.assertHasNoTokens(file_src, source_only=True)
+
+  def test_matches_line_comment(self):
+    for prefix in ['', '\n', ' ', '\t']:
+      for content in ['', ' ', 'a', '\ta ', ' a b /* */', '////']:
+        comment = f'//{content}'
+        self.assertCommentTokenizedOrSkipped(f'{prefix}{comment}', comment)
+        self.assertCommentTokenizedOrSkipped(f'{prefix}{comment}\n\n', comment)
+
+  def test_matches_multi_line_comment(self):
+    for prefix in ['', '\n', ' ', '\t']:
+      for suffix in ['', '\n', '\n ', ' ']:
+        for content in ['', ' ', 'a', ' //\n// ', '*\n *\n ', ' /* ']:
+          comment = f'/*{content}*/'
+          self.assertCommentTokenizedOrSkipped(f'{prefix}{comment}{suffix}',
+                                               comment)
+
+  def test_rejects_unterminated_multi_line_comment(self):
+    self.assertTokenizeFails('/*')
+    self.assertTokenizeFails('/* abc')
+    self.assertTokenizeFails('/* *')
 
 
 class TokenizeStringLiteralsTest(TokenizeCppBaseTest):
@@ -163,11 +304,11 @@ class TokenizeRawStringLiteralsTest(TokenizeCppBaseTest):
         self.assertTokenizeFails(f'{open_raw_str}"{string_content}', suffix='')
 
       # Not a valid end to the string
-      for string_content in ['', ' ', '\n', ')', ')def"' ')abcd"']:
+      for string_content in ['', ' ', '\n', ')', ')def"', ')abcd"']:
         self.assertTokenizeFails(f'{open_raw_str}"({string_content}', suffix='')
         self.assertTokenizeFails(
             f'{open_raw_str}"(xyz{string_content}', suffix='')
-      for string_content in ['', ' ', ')"', '\n', ')', ')def"' ')abcd"']:
+      for string_content in ['', ' ', ')"', '\n', ')', ')def"', ')abcd"']:
         self.assertTokenizeFails(
             f'{open_raw_str}"abc({string_content}', suffix='')
         self.assertTokenizeFails(

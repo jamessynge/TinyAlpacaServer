@@ -9,6 +9,10 @@ tool using the clang API was annoying and it ran very slowly.
 
 A Token instance tells us the kind of token found, the source text for the token
 and the position (character index within the file).
+
+Raises ValueError for cases where the C++ source appears invalid (e.g. an
+unterminated string), and AssertionError where I think that the code must have
+a bug (i.e. is called incorrectly, or has produced an invalid state).
 """
 
 import dataclasses
@@ -165,18 +169,35 @@ TokenOrGroup = Union[Token, Group]
 
 # Regular expressions used to match various tokens, or parts of such tokens, in
 # a C++ source file.
+# Without DOTALL, '.' does not match newlines. MULTILINE ensures that ^ will
+# match the start of lines within the source, and '$' will match the end of
+# lines within the source.
 
-WHITESPACE_RE = re.compile(r'\s+', flags=re.MULTILINE)
+# Pattern that matches whitespace inside a line, but not \n or \r. This is
+# pattern has a double-negative in it: \S means not whitespace, but that is in
+# a complementing (i.e. NOT) character set, i.e. one that matches characters not
+# in the set.
+LINE_WS_PAT = r'[^\S\r\n]'
 
-# Simplistic attribute specifier matcher. Not sure that I need re.MULTILINE for
-# any case I've had to deal with, and re.DOTALL might actually be what I meant!
-ATTRIBUTE_RE = re.compile(r'\[\[.*\]\]', flags=re.MULTILINE)
+# Pattern that matches the end of a line. I don't expect carriage return (\r) to
+# appear in practice because Python will regularize line endings to the newline
+# character (\n).
+NL_PAT = r'(?:\r\n?|\n)'
 
-PREPROCESSOR_RE = re.compile(r'^\s*#\s*\w+.*', flags=re.MULTILINE)
+# A preprocessor directive can only appear on a line by itself, which means that
+# we need to take care when skipping over whitespace that we don't lose track of
+# the fact that the next item is a '#' that is logically the first thing (except
+# whitespace) on the line.
+PREPROCESSOR_RE = re.compile(
+    f'^{LINE_WS_PAT}*#{LINE_WS_PAT}*\\w.*', flags=re.MULTILINE)
+
+# We skip over whitespace in at most one line at a time.
+WHITESPACE_RE = re.compile(f'(?:{LINE_WS_PAT}+{NL_PAT}?|{NL_PAT})')
+
+# Simplistic attribute specifier matcher. Does not match alignas.
+ATTRIBUTE_RE = re.compile(r'\[\[.+?\]\]', flags=re.DOTALL)
 
 LINE_COMMENT_RE = re.compile(r'//.*$', flags=re.MULTILINE)
-
-MULTI_LINE_COMMENT_RE = re.compile(r'/\*.*?\*/', flags=re.DOTALL)
 
 START_CHAR_LITERAL_RE = re.compile(r"(u8|u|U|L)?'")
 
@@ -455,8 +476,18 @@ def generate_phase2_tokenization(
   while pos < len(phase2_source):
     # print('pos=', pos)
     try:
+      # Match preprocessor lines.
+      m = PREPROCESSOR_RE.match(phase2_source, pos=pos)
+      if m:
+        # print(f'PREPROCESSOR_RE matched [{pos}:{m.end()}]')
+        token = phase2_source[pos:m.end()]
+        yield (EToken.PREPROCESSOR_DIRECTIVE, token, pos, m.end())
+        pos = m.end()
+        continue
 
-      # Skip whitespace.
+      # Skip whitespace, up through the end of the current line. We don't skip
+      # multiple lines so that the PREPROCESSOR_RE match below will be able to
+      # determine whether we're at the start of a line.
       m = WHITESPACE_RE.match(phase2_source, pos=pos)
       if m:
         # print(f'WHITESPACE_RE matched [{pos}:{m.end()}]')
@@ -477,15 +508,6 @@ def generate_phase2_tokenization(
         pos = m.end()
         continue
 
-      # Match preprocessor lines.
-      m = PREPROCESSOR_RE.match(phase2_source, pos=pos)
-      if m:
-        # print(f'PREPROCESSOR_RE matched [{pos}:{m.end()}]')
-        token = phase2_source[pos:m.end()]
-        yield (EToken.PREPROCESSOR_DIRECTIVE, token, pos, m.end())
-        pos = m.end()
-        continue
-
       # Match comments.
       m = LINE_COMMENT_RE.match(phase2_source, pos=pos)
       if m:
@@ -494,13 +516,19 @@ def generate_phase2_tokenization(
         yield (EToken.COMMENT, token, pos, m.end())
         pos = m.end()
         continue
-      m = MULTI_LINE_COMMENT_RE.match(phase2_source, pos=pos)
-      if m:
-        # print(f'MULTI_LINE_COMMENT_RE matched [{pos}:{m.end()}]')
-        token = phase2_source[pos:m.end()]
-        yield (EToken.COMMENT, token, pos, m.end())
-        pos = m.end()
-        continue
+
+      if phase2_source.startswith('/*', pos):
+        # print(f'Multi-line comment starts at {pos}')
+        end_pos = phase2_source.find('*/', pos + 1)
+        if end_pos != -1:
+          end_pos += 2
+          token = phase2_source[pos:end_pos]
+          yield (EToken.COMMENT, token, pos, end_pos)
+          pos = end_pos
+          continue
+        raise ValueError('Unterminated multi-line comment starts with '
+                         f'{phase2_source[pos:pos+20]!r} at {pos}, '
+                         f'in file {file_path!r}')
 
       # Match strings and characters.
       m = START_CHAR_LITERAL_RE.match(phase2_source, pos=pos)
@@ -552,8 +580,9 @@ def generate_phase2_tokenization(
           continue
 
         # This is surprising!
+        # COV_NF_START
         raise ValueError(f'Unable to match {phase2_source[pos:pos+20]!r} '
-                         f'as a number in file {file_path!r}')
+                         f'as a number in file {file_path!r}')  # COV_NF_END
 
       # Match operators and other punctuation. Not attempting to make them
       # complete tokens (i.e. '->' will be yielded as '-' and '>').
