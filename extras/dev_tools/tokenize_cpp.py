@@ -775,7 +775,7 @@ def flatten_group(group: Group) -> Generator[Token, None, None]:
 def is_not_numeric_expression(grouped_tokens: List[TokenOrGroup]) -> bool:
   """Returns True if group_tokens aren't valid in purely numeric expressions."""
   return any(
-      map(lambda x: x not in NUMERIC_EXPRESSION_TOKENS,
+      map(lambda x: x.kind not in NUMERIC_EXPRESSION_TOKENS,
           flatten_grouped_tokens(grouped_tokens)))
 
 

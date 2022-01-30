@@ -26,6 +26,17 @@ pytype_strict_library(
     deps = [":tokenize_cpp_lib"],
 )
 
+py_strict_test(
+    name = "cpp_enum_test",
+    srcs = ["cpp_enum_test.py"],
+    deps = [
+        ":cpp_enum_lib",
+        ":tokenize_cpp_lib",
+        "//absltest",
+        "//third_party/py/absl/flags",
+    ],
+)
+
 pytype_strict_binary(
     name = "file_edit",
     srcs = ["file_edit.py"],

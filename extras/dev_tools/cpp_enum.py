@@ -90,6 +90,7 @@ class EnumeratorDefinition:
   name: str
   print_name: Optional[str]
   value: List[TokenOrGroup]  # Empty value of enumerator is unspecified.
+  numeric_value: Optional[int] = dataclasses.field(default=None)
 
   def get_dq_print_name(self) -> str:
     """Return print_name or a default value for it, double quoted."""
@@ -99,6 +100,58 @@ class EnumeratorDefinition:
     if re.match('k[A-Z]', name):
       name = name[1:]
     return f'"{name}"'
+
+  def init_numeric_value(self, enum_def: 'EnumerationDefinition',
+                         prior: 'EnumeratorDefinition') -> bool:
+    if self.numeric_value is None:
+      self.numeric_value = self.compute_numeric_value(enum_def, prior)
+    return self.numeric_value is not None
+
+  def compute_numeric_value(
+      self, enum_def: 'EnumerationDefinition',
+      prior: Optional['EnumeratorDefinition']) -> Optional[int]:
+    """Return the numeric value of this enum, if easily computable."""
+
+    # Maybe use enum_def for finding the values of other enums when resolving
+    # identifier names. For now, suppressing the fact that it is unused.
+    del enum_def
+
+    if not self.value:
+      # No explicitly specified value. Can we compute it?
+      if not prior:
+        return 0
+      elif prior.numeric_value is not None:
+        return prior.numeric_value + 1
+      else:
+        return
+
+    # This enumerator has an explicit value. Can we evaluate it?
+    if tokenize_cpp.is_not_numeric_expression(self.value):
+      # The expression may contain identifiers, etc. We don't currently have an
+      # easy way to evaluate this, so we don't.
+      return
+    if len(self.value) != 1:
+      return
+    token = self.value[0]
+    if not is_token_kind(token, EToken.INTEGER):
+      return
+
+    # Maybe straightforward.
+    token = typing.cast(Token, token)
+    s = token.raw_src
+    if s.startswith('0x') and len(s) > 2:
+      return int(s, base=0)
+    elif s.startswith('0b') and len(s) > 2:
+      return int(s, base=0)
+    elif s.startswith('0'):
+      return int(s, 8)
+    else:
+      return int(s, base=10)
+
+  def stringify_value(self) -> Optional[str]:
+    if not self.value:
+      return None
+    return tokenize_cpp.stringify_grouped_tokens(self.value)
 
 
 @dataclasses.dataclass()
@@ -113,6 +166,56 @@ class EnumerationDefinition:
   is_scoped: bool
   underlying_type: Optional[str]
   enumerators: List[EnumeratorDefinition]
+  _all_values_known: bool = dataclasses.field(default=True)
+  maximum_enumerator: Optional[EnumeratorDefinition] = dataclasses.field(
+      default=None)
+  minimum_enumerator: Optional[EnumeratorDefinition] = dataclasses.field(
+      default=None)
+
+  def __post_init__(self):
+    """Determines the values of the enumerators, if relatively easy."""
+
+    if not self.enumerators:
+      return
+
+    prior: Optional[EnumeratorDefinition] = None
+    for enumerator in self.enumerators:
+      if not enumerator.init_numeric_value(self, prior):
+        self._all_values_known = False
+      prior = enumerator
+
+    if not self._all_values_known:
+      return
+
+    maximum_enumerator = self.enumerators[0]
+    maximum_value = maximum_enumerator.numeric_value
+    maximum_value: int
+
+    minimum_enumerator = maximum_enumerator
+    minimum_value: int = maximum_value
+
+    for enumerator in self.enumerators[1:]:
+      if enumerator.numeric_value > maximum_value:
+        maximum_enumerator = enumerator
+        maximum_value = enumerator.numeric_value
+      elif enumerator.numeric_value < minimum_value:
+        minimum_enumerator = enumerator
+        minimum_value = enumerator.numeric_value
+    self.maximum_enumerator = maximum_enumerator
+    self.minimum_enumerator = minimum_enumerator
+
+  def all_values_known(self) -> bool:
+    return self._all_values_known
+
+  def maximum_value(self) -> Optional[int]:
+    if self.maximum_enumerator:
+      return self.maximum_enumerator.numeric_value
+    return
+
+  def minimum_value(self) -> Optional[int]:
+    if self.minimum_enumerator:
+      return self.minimum_enumerator.numeric_value
+    return
 
 
 def parse_enumerations_list(
@@ -264,12 +367,12 @@ def get_enumeration_definitions(
   return result
 
 
-def process_file(file_path: str):
+def process_file(file_path: str, file_src: str = ''):
   """Reads a file and prints its enum definitions."""
   print()
   print('#' * 80)
   print('Finding enum definitions in file', file_path, flush=True)
-  cpp_source = tokenize_cpp.CppSource(file_path=file_path)
+  cpp_source = tokenize_cpp.CppSource(file_path=file_path, raw_source=file_src)
   for enum_def in get_enumeration_definitions(cpp_source):
     print()
     print('enum', end='')
