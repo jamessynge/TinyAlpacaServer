@@ -570,7 +570,8 @@ const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
     case ClockPrescaling::kDivideBy1024:
       return MCU_FLASHSTR("DivideBy1024");
   }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
   if (v == ClockPrescaling::kDisabled) {
     return MCU_FLASHSTR("Disabled");
   }
@@ -589,8 +590,22 @@ const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
   if (v == ClockPrescaling::kDivideBy1024) {
     return MCU_FLASHSTR("DivideBy1024");
   }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
+#else   // Use flash string table.
+  static const __FlashStringHelper* flash_string_table[6] AVR_PROGMEM = {
+      /*0=*/MCU_FLASHSTR("Disabled"),      // kDisabled
+      /*1=*/MCU_FLASHSTR("DivideBy1"),     // kDivideBy1
+      /*2=*/MCU_FLASHSTR("DivideBy8"),     // kDivideBy8
+      /*3=*/MCU_FLASHSTR("DivideBy64"),    // kDivideBy64
+      /*4=*/MCU_FLASHSTR("DivideBy256"),   // kDivideBy256
+      /*5=*/MCU_FLASHSTR("DivideBy1024"),  // kDivideBy1024
+  };
+  auto iv = static_cast<uint8_t>(v);
+  if (0 <= iv && iv <= 5) {
+    return flash_string_table[iv - 0];
+  }
+  return nullptr;
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
 const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
@@ -603,7 +618,8 @@ const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
     case FastPwmCompareOutputMode::kInvertingMode:
       return MCU_FLASHSTR("InvertingMode");
   }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+#else   // Use if statements.
   if (v == FastPwmCompareOutputMode::kDisabled) {
     return MCU_FLASHSTR("Disabled");
   }
@@ -613,8 +629,8 @@ const __FlashStringHelper* ToFlashStringHelper(FastPwmCompareOutputMode v) {
   if (v == FastPwmCompareOutputMode::kInvertingMode) {
     return MCU_FLASHSTR("InvertingMode");
   }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
 const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
@@ -627,7 +643,8 @@ const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
     case TimerCounterChannel::C:
       return MCU_FLASHSTR("C");
   }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
   if (v == TimerCounterChannel::A) {
     return MCU_FLASHSTR("A");
   }
@@ -637,8 +654,19 @@ const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
   if (v == TimerCounterChannel::C) {
     return MCU_FLASHSTR("C");
   }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
+#else   // Use flash string table.
+  static const __FlashStringHelper* flash_string_table[3] AVR_PROGMEM = {
+      /*0=*/MCU_FLASHSTR("A"),  // A
+      /*1=*/MCU_FLASHSTR("B"),  // B
+      /*2=*/MCU_FLASHSTR("C"),  // C
+  };
+  auto iv = static_cast<uint8_t>(v);
+  if (0 <= iv && iv <= 2) {
+    return flash_string_table[iv - 0];
+  }
+  return nullptr;
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
 size_t PrintValueTo(ClockPrescaling v, Print& out) {

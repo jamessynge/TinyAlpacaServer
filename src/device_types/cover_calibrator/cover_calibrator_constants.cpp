@@ -25,7 +25,8 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
     case ECalibratorStatus::kError:
       return MCU_FLASHSTR("Error");
   }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
   if (v == ECalibratorStatus::kNotPresent) {
     return MCU_FLASHSTR("NotPresent");
   }
@@ -44,8 +45,22 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
   if (v == ECalibratorStatus::kError) {
     return MCU_FLASHSTR("Error");
   }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
+#else   // Use flash string table.
+  static const __FlashStringHelper* flash_string_table[6] AVR_PROGMEM = {
+      /*0=*/MCU_FLASHSTR("NotPresent"),  // kNotPresent
+      /*1=*/MCU_FLASHSTR("Off"),         // kOff
+      /*2=*/MCU_FLASHSTR("NotReady"),    // kNotReady
+      /*3=*/MCU_FLASHSTR("Ready"),       // kReady
+      /*4=*/MCU_FLASHSTR("Unknown"),     // kUnknown
+      /*5=*/MCU_FLASHSTR("Error"),       // kError
+  };
+  auto iv = static_cast<ECalibratorStatus_UnderlyingType>(v);
+  if (0 <= iv && iv <= 5) {
+    return flash_string_table[iv - 0];
+  }
+  return nullptr;
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
 const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
@@ -64,7 +79,8 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
     case ECoverStatus::kError:
       return MCU_FLASHSTR("Error");
   }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH
+  return nullptr;
+#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
   if (v == ECoverStatus::kNotPresent) {
     return MCU_FLASHSTR("NotPresent");
   }
@@ -83,8 +99,22 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
   if (v == ECoverStatus::kError) {
     return MCU_FLASHSTR("Error");
   }
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
   return nullptr;
+#else   // Use flash string table.
+  static const __FlashStringHelper* flash_string_table[6] AVR_PROGMEM = {
+      /*0=*/MCU_FLASHSTR("NotPresent"),  // kNotPresent
+      /*1=*/MCU_FLASHSTR("Closed"),      // kClosed
+      /*2=*/MCU_FLASHSTR("Moving"),      // kMoving
+      /*3=*/MCU_FLASHSTR("Open"),        // kOpen
+      /*4=*/MCU_FLASHSTR("Unknown"),     // kUnknown
+      /*5=*/MCU_FLASHSTR("Error"),       // kError
+  };
+  auto iv = static_cast<ECoverStatus_UnderlyingType>(v);
+  if (0 <= iv && iv <= 5) {
+    return flash_string_table[iv - 0];
+  }
+  return nullptr;
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
 size_t PrintValueTo(ECalibratorStatus v, Print& out) {
