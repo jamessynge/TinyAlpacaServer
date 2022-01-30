@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Extract the enumeration definitions from a CppSource instance."""
 
+import collections
 import dataclasses
 import re
 import sys
 import typing
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, List, Optional, Tuple, OrderedDict
 
 import tokenize_cpp
 
@@ -207,15 +208,62 @@ class EnumerationDefinition:
   def all_values_known(self) -> bool:
     return self._all_values_known
 
+  def minimum_value(self) -> Optional[int]:
+    if self.minimum_enumerator:
+      return self.minimum_enumerator.numeric_value
+    return
+
   def maximum_value(self) -> Optional[int]:
     if self.maximum_enumerator:
       return self.maximum_enumerator.numeric_value
     return
 
-  def minimum_value(self) -> Optional[int]:
-    if self.minimum_enumerator:
-      return self.minimum_enumerator.numeric_value
+  def extreme_values(self) -> Optional[Tuple[int, int]]:
+    minimum = self.minimum_value()
+    maximum = self.maximum_value()
+    if minimum is not None and maximum is not None:
+      return (minimum, maximum)
     return
+
+  def get_int_type(self) -> Optional[str]:
+    """Return an integer type that can represent the enum values."""
+    if self.underlying_type:
+      return self.underlying_type
+    min_max = self.extreme_values()
+    if not min_max:
+      return
+    minimum, maximum = min_max
+    if minimum >= 0:
+      if maximum < 256:
+        return 'uint8_t'
+      elif maximum < 65536:
+        return 'uint16_t'
+      else:
+        return 'uint32_t'  # Not checking for even larger values.
+    maximum = max(-(minimum - 1), maximum)
+    if maximum < 256:
+      return 'int8_t'
+    elif maximum < 65536:
+      return 'int16_t'
+    else:
+      return 'int32_t'  # Not checking for even larger values.
+
+  def get_numeric_value_to_enumerator(
+      self) -> Optional[OrderedDict[int, EnumeratorDefinition]]:
+    """Returns a mapping from numeric_value to enumerator, if known for all."""
+    if not self.all_values_known():
+      return
+    result: OrderedDict[int, EnumeratorDefinition] = collections.OrderedDict()
+    for enumerator in self.enumerators:
+      if enumerator.numeric_value is None:
+        raise AssertionError(
+            f'Missing numeric_value for {self.name}::{enumerator.name}')
+      if enumerator.numeric_value in result:
+        # Multiple enumerators with the same value; we stick wtih the first.
+        # Could prefer the first value that has a print_name, else first.
+        continue
+      result[enumerator.numeric_value] = enumerator
+    return result
 
 
 def parse_enumerations_list(

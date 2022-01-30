@@ -1,9 +1,7 @@
 """Tests for cpp_enum."""
 
 import json
-import pprint
 from typing import Any, Dict, List, Optional
-# import unittest.mock
 
 from absl import flags
 

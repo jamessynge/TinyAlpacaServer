@@ -16,23 +16,155 @@ import argparse
 import contextlib
 import io
 import sys
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import cpp_enum
 import file_edit
 import tokenize_cpp
 
 EToken = tokenize_cpp.EToken
+EnumerationDefinition = cpp_enum.EnumerationDefinition
 
 
-def declare_to_flash_string_helper(
-    enum_def: cpp_enum.EnumerationDefinition) -> None:
+def capture_stdout(func, *args, **kwargs) -> str:
+  with contextlib.redirect_stdout(io.StringIO()) as f:
+    func(*args, **kwargs)
+  return f.getvalue()
+
+
+def declare_to_flash_string_helper(enum_def: EnumerationDefinition) -> None:
   print(f'const __FlashStringHelper* ToFlashStringHelper({enum_def.name} v);')
 
 
-def define_to_flash_string_helper(
-    enum_def: cpp_enum.EnumerationDefinition) -> None:
+def enumerator_dict_is_compact(
+    n_to_enumerator: Dict[int, cpp_enum.EnumeratorDefinition]) -> bool:
+  ns = sorted(list(n_to_enumerator.keys()))
+  for a, b in zip(ns, ns[1:]):
+    if a + 1 != b:
+      return False
+  return True
+
+
+def print_to_flash_string_via_table_body(enum_def: EnumerationDefinition,
+                                         var_name: str) -> bool:
+  """Print the body of a function for looking up a string via a table."""
+
+  # Consider emitting a static assert that the mapping is still correct,
+  # and maybe an unused function with a switch on the enum values which will
+  # fail to compile (with certain warnings as errors) if the enumerators have
+  # changed.
+
+  if not enum_def.all_values_known():
+    return False
+
+  int_type = enum_def.get_int_type()
+  if not int_type:
+    raise AssertionError('enum_def.get_int_type() did not return a type')
+
+  min_max = enum_def.extreme_values()
+  if not min_max:
+    raise AssertionError('enum_def.extreme_values() did not return values')
+  minimum, maximum = min_max
+
+  n_to_enumerator = enum_def.get_numeric_value_to_enumerator()
+  if not n_to_enumerator:
+    raise AssertionError(
+        'enum_def.get_numeric_value_to_enumerator() did not return a dict')
+  if not enumerator_dict_is_compact(n_to_enumerator):
+    return False
+
+  items = sorted(n_to_enumerator.items())
+  if items[0][0] != minimum:
+    raise AssertionError(
+        'minimum value does not match that of sorted enumerators: '
+        f'{items[0][0]} != {minimum}')
+  if items[-1][0] != maximum:
+    raise AssertionError(
+        'maximum value does not match that of sorted enumerators: '
+        f'{items[-1][0]} != {maximum}')
+
+  print('  static const __FlashStringHelper* '
+        f'flash_string_table[{len(n_to_enumerator)}] AVR_PROGMEM = {{')
+
+  for nv, enumerator in items:
+    print(f'      /*{nv}=*/ '
+          f'MCU_FLASHSTR({enumerator.get_dq_print_name()}),  '
+          f'// {enumerator.name}')
+  print(
+      f"""  }};
+  auto iv = static_cast<{int_type}>({var_name});
+  if ({minimum} <= iv && iv <= {maximum}) {{
+    return flash_string_table[iv - {minimum}];
+  }}
+  return nullptr;""",
+      end='')
+
+  return True
+
+
+def define_flash_table_printer_for_enumerator_dict(
+    enum_def: EnumerationDefinition) -> bool:
+  """Define the table based printer for an enum type, if sensible."""
+
+  # Consider emitting a static assert that the mapping is still correct,
+  # and maybe an unused function with a switch on the enum values which will
+  # fail to compile (with certain warnings as errors) if the enumerators have
+  # changed.
+
+  if not enum_def.all_values_known():
+    return False
+
+  int_type = enum_def.get_int_type()
+  if not int_type:
+    raise AssertionError('enum_def.get_int_type() did not return a type')
+
+  min_max = enum_def.extreme_values()
+  if not min_max:
+    raise AssertionError('enum_def.extreme_values() did not return values')
+  minimum, maximum = min_max
+
+  n_to_enumerator = enum_def.get_numeric_value_to_enumerator()
+  if not n_to_enumerator:
+    raise AssertionError(
+        'enum_def.get_numeric_value_to_enumerator() did not return a dict')
+  if not enumerator_dict_is_compact(n_to_enumerator):
+    return False
+
+  items = sorted(n_to_enumerator.items())
+  if items[0][0] != minimum:
+    raise AssertionError(
+        'minimum value does not match that of sorted enumerators: '
+        f'{items[0][0]} != {minimum}')
+  if items[-1][0] != maximum:
+    raise AssertionError(
+        'maximum value does not match that of sorted enumerators: '
+        f'{items[-1][0]} != {maximum}')
+
+  print(f"""
+static const __FlashStringHelper* ToFlashStringHelperViaTable({enum_def.name} v) {{
+  static constexpr __FlashStringHelper*
+         flash_string_table[{len(n_to_enumerator)}] AVR_PROGMEM = {{""")
+
+  for nv, enumerator in items:
+    print(f'      /*{nv}=*/ '
+          f'MCU_FLASHSTR({enumerator.get_dq_print_name()}),  '
+          f'// {enumerator.name}')
+  print(f"""  }};
+  auto iv = static_cast<{int_type}>(v);
+  if ({minimum} <= iv && iv <= {maximum}) {{
+    return flash_string_table[iv - {minimum}];
+  }}
+  return nullptr;
+}}""")
+
+  return True
+
+
+def define_to_flash_string_helper(enum_def: EnumerationDefinition) -> None:
   """Print the definition of ToFlashStringHelper for an enum."""
+
+  via_table_body = capture_stdout(print_to_flash_string_via_table_body,
+                                  enum_def, 'v')
 
   name = enum_def.name
   print(
@@ -49,7 +181,13 @@ const __FlashStringHelper* ToFlashStringHelper({name} v) {{
         end='')
   print(r"""
   }
-#else   // !TO_FLASH_STRING_HELPER_USE_SWITCH""", end='')
+  return nullptr;""")
+
+  if via_table_body:
+    print('#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)', end='')
+  else:
+    print('#else  // Use if statements.', end='')
+
   for enumerator in enum_def.enumerators:
     print(
         f"""
@@ -57,18 +195,24 @@ const __FlashStringHelper* ToFlashStringHelper({name} v) {{
     return MCU_FLASHSTR({enumerator.get_dq_print_name()});
   }}""",
         end='')
+  print("""
+  return nullptr;""", end='')
+
+  if via_table_body:
+    print(f"""
+#else  // Use flash string table.
+{via_table_body}""", end='')
 
   print(r"""
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
-  return nullptr;
 }""")
 
 
-def declare_print_value_to(enum_def: cpp_enum.EnumerationDefinition) -> None:
+def declare_print_value_to(enum_def: EnumerationDefinition) -> None:
   print(f'size_t PrintValueTo({enum_def.name} v, Print& out);')
 
 
-def define_print_value_to(enum_def: cpp_enum.EnumerationDefinition) -> None:
+def define_print_value_to(enum_def: EnumerationDefinition) -> None:
   """Print the definition of PrintValueTo for an enum."""
   name = enum_def.name
   print(f"""
@@ -82,11 +226,11 @@ size_t PrintValueTo({name} v, Print& out) {{
 }}""")
 
 
-def declare_stream_insert(enum_def: cpp_enum.EnumerationDefinition) -> None:
+def declare_stream_insert(enum_def: EnumerationDefinition) -> None:
   print(f'std::ostream& operator<<(std::ostream& os, {enum_def.name} v);')
 
 
-def define_stream_insert(enum_def: cpp_enum.EnumerationDefinition) -> None:
+def define_stream_insert(enum_def: EnumerationDefinition) -> None:
   """Print the definition of operator<< for an enum."""
   name = enum_def.name
 
@@ -108,7 +252,7 @@ std::ostream& operator<<(std::ostream& os, {name} v) {{
 
 
 def print_function_declarations(
-    enum_definitions: List[cpp_enum.EnumerationDefinition]) -> None:
+    enum_definitions: List[EnumerationDefinition]) -> None:
   """Prints the enum print function declarations to stdout."""
 
   print()
@@ -138,12 +282,17 @@ def print_function_declarations(
 
 
 def print_function_definitions(
-    enum_definitions: List[cpp_enum.EnumerationDefinition]) -> None:
+    enum_definitions: List[EnumerationDefinition]) -> None:
   """Prints the enum print function definitions to stdout."""
 
   print()
   print('namespace alpaca {')
   print()
+
+#   has_table_based_printer = set()
+#   for enum_def in enum_definitions:
+#     if define_flash_table_printer_for_enumerator_dict(enum_def):
+#       has_table_based_printer.add(enum_def.name)
 
   for enum_def in enum_definitions:
     define_to_flash_string_helper(enum_def)
@@ -168,12 +317,6 @@ def print_function_definitions(
   print('#endif  // MCU_HOST_TARGET')
   print()
   print('}  // namespace alpaca')
-
-
-def capture_stdout(func, *args, **kwargs) -> str:
-  with contextlib.redirect_stdout(io.StringIO()) as f:
-    func(*args, **kwargs)
-  return f.getvalue()
 
 
 def generate_decls_and_defns(
@@ -209,6 +352,7 @@ def update_source_file(file_contents: file_edit.FileContents,
 
 def get_header_file_contents(
     cpp_source: tokenize_cpp.CppSource) -> Optional[file_edit.FileContents]:
+  """Return the header file corresponding to `cpp_source`."""
   if cpp_source.is_header_file:
     return cpp_source.file_contents
   paths = tokenize_cpp.find_header_paths(cpp_source.file_path)
@@ -224,6 +368,7 @@ def get_header_file_contents(
 
 def get_source_file_contents(
     cpp_source: tokenize_cpp.CppSource) -> Optional[file_edit.FileContents]:
+  """Return the source file corresponding to `cpp_source`."""
   if cpp_source.is_source_file:
     return cpp_source.file_contents
   paths = tokenize_cpp.find_source_paths(cpp_source.file_path)
