@@ -592,7 +592,7 @@ const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[6] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Disabled"),      // kDisabled
       /*1=*/MCU_FLASHSTR("DivideBy1"),     // kDivideBy1
       /*2=*/MCU_FLASHSTR("DivideBy8"),     // kDivideBy8
@@ -656,7 +656,7 @@ const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[3] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("A"),  // A
       /*1=*/MCU_FLASHSTR("B"),  // B
       /*2=*/MCU_FLASHSTR("C"),  // C

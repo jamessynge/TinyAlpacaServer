@@ -32,10 +32,6 @@ def capture_stdout(func, *args, **kwargs) -> str:
   return f.getvalue()
 
 
-def declare_to_flash_string_helper(enum_def: EnumerationDefinition) -> None:
-  print(f'const __FlashStringHelper* ToFlashStringHelper({enum_def.name} v);')
-
-
 def enumerator_dict_is_compact(
     n_to_enumerator: Dict[int, cpp_enum.EnumeratorDefinition]) -> bool:
   ns = sorted(list(n_to_enumerator.keys()))
@@ -83,7 +79,7 @@ def print_to_flash_string_via_table_body(enum_def: EnumerationDefinition,
         'maximum value does not match that of sorted enumerators: '
         f'{items[-1][0]} != {maximum}')
 
-  print('  static const __FlashStringHelper* '
+  print('  static const __FlashStringHelper* const '
         f'flash_string_table[{len(n_to_enumerator)}] AVR_PROGMEM = {{')
 
   for nv, enumerator in items:
@@ -102,62 +98,8 @@ def print_to_flash_string_via_table_body(enum_def: EnumerationDefinition,
   return True
 
 
-def define_flash_table_printer_for_enumerator_dict(
-    enum_def: EnumerationDefinition) -> bool:
-  """Define the table based printer for an enum type, if sensible."""
-
-  # Consider emitting a static assert that the mapping is still correct,
-  # and maybe an unused function with a switch on the enum values which will
-  # fail to compile (with certain warnings as errors) if the enumerators have
-  # changed.
-
-  if not enum_def.all_values_known():
-    return False
-
-  int_type = enum_def.get_int_type()
-  if not int_type:
-    raise AssertionError('enum_def.get_int_type() did not return a type')
-
-  min_max = enum_def.extreme_values()
-  if not min_max:
-    raise AssertionError('enum_def.extreme_values() did not return values')
-  minimum, maximum = min_max
-
-  n_to_enumerator = enum_def.get_numeric_value_to_enumerator()
-  if not n_to_enumerator:
-    raise AssertionError(
-        'enum_def.get_numeric_value_to_enumerator() did not return a dict')
-  if not enumerator_dict_is_compact(n_to_enumerator):
-    return False
-
-  items = sorted(n_to_enumerator.items())
-  if items[0][0] != minimum:
-    raise AssertionError(
-        'minimum value does not match that of sorted enumerators: '
-        f'{items[0][0]} != {minimum}')
-  if items[-1][0] != maximum:
-    raise AssertionError(
-        'maximum value does not match that of sorted enumerators: '
-        f'{items[-1][0]} != {maximum}')
-
-  print(f"""
-static const __FlashStringHelper* ToFlashStringHelperViaTable({enum_def.name} v) {{
-  static constexpr __FlashStringHelper*
-         flash_string_table[{len(n_to_enumerator)}] AVR_PROGMEM = {{""")
-
-  for nv, enumerator in items:
-    print(f'      /*{nv}=*/ '
-          f'MCU_FLASHSTR({enumerator.get_dq_print_name()}),  '
-          f'// {enumerator.name}')
-  print(f"""  }};
-  auto iv = static_cast<{int_type}>(v);
-  if ({minimum} <= iv && iv <= {maximum}) {{
-    return flash_string_table[iv - {minimum}];
-  }}
-  return nullptr;
-}}""")
-
-  return True
+def declare_to_flash_string_helper(enum_def: EnumerationDefinition) -> None:
+  print(f'const __FlashStringHelper* ToFlashStringHelper({enum_def.name} v);')
 
 
 def define_to_flash_string_helper(enum_def: EnumerationDefinition) -> None:
@@ -288,11 +230,6 @@ def print_function_definitions(
   print()
   print('namespace alpaca {')
   print()
-
-#   has_table_based_printer = set()
-#   for enum_def in enum_definitions:
-#     if define_flash_table_printer_for_enumerator_dict(enum_def):
-#       has_table_based_printer.add(enum_def.name)
 
   for enum_def in enum_definitions:
     define_to_flash_string_helper(enum_def)

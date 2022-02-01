@@ -32,7 +32,7 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[3] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Reset"),     // kReset
       /*1=*/MCU_FLASHSTR("Decoding"),  // kDecoding
       /*2=*/MCU_FLASHSTR("Decoded"),   // kDecoded
@@ -148,7 +148,7 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[4] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[4] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),  // kUnknown
       /*1=*/MCU_FLASHSTR("GET"),      // GET
       /*2=*/MCU_FLASHSTR("PUT"),      // PUT
@@ -190,7 +190,7 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[4] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[4] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),     // kUnknown
       /*1=*/MCU_FLASHSTR("Device"),      // kDevice
       /*2=*/MCU_FLASHSTR("Management"),  // kManagement
@@ -247,7 +247,7 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[7] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[7] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),                // kUnknown
       /*1=*/MCU_FLASHSTR("DeviceApi"),              // kDeviceApi
       /*2=*/MCU_FLASHSTR("DeviceSetup"),            // kDeviceSetup
@@ -289,7 +289,7 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[3] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),            // kUnknown
       /*1=*/MCU_FLASHSTR("Description"),        // kDescription
       /*2=*/MCU_FLASHSTR("ConfiguredDevices"),  // kConfiguredDevices
@@ -365,7 +365,7 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[11] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[11] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),              // kUnknown
       /*1=*/MCU_FLASHSTR("Camera"),               // kCamera
       /*2=*/MCU_FLASHSTR("CoverCalibrator"),      // kCoverCalibrator
@@ -654,7 +654,7 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[52] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[52] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),                // kUnknown
       /*1=*/MCU_FLASHSTR("Setup"),                  // kSetup
       /*2=*/MCU_FLASHSTR("Action"),                 // kAction
@@ -799,7 +799,7 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[15] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[15] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),              // kUnknown
       /*1=*/MCU_FLASHSTR("Action"),               // kAction
       /*2=*/MCU_FLASHSTR("ClientID"),             // kClientID
@@ -902,7 +902,7 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[14] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[14] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),         // kUnknown
       /*1=*/MCU_FLASHSTR("CloudCover"),      // kCloudCover
       /*2=*/MCU_FLASHSTR("DewPoint"),        // kDewPoint
@@ -959,7 +959,7 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[5] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[5] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("Unknown"),         // kUnknown
       /*1=*/MCU_FLASHSTR("Connection"),      // kConnection
       /*2=*/MCU_FLASHSTR("Content-Length"),  // kContentLength
@@ -997,7 +997,7 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[3] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("application/json"),  // kApplicationJson
       /*1=*/MCU_FLASHSTR("text/plain"),        // kTextPlain
       /*2=*/MCU_FLASHSTR("text/html"),         // kTextHtml

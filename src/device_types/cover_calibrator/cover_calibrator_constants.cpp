@@ -47,7 +47,7 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[6] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("NotPresent"),  // kNotPresent
       /*1=*/MCU_FLASHSTR("Off"),         // kOff
       /*2=*/MCU_FLASHSTR("NotReady"),    // kNotReady
@@ -101,7 +101,7 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* flash_string_table[6] AVR_PROGMEM = {
+  static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
       /*0=*/MCU_FLASHSTR("NotPresent"),  // kNotPresent
       /*1=*/MCU_FLASHSTR("Closed"),      // kClosed
       /*2=*/MCU_FLASHSTR("Moving"),      // kMoving
