@@ -11,12 +11,7 @@
 #include "alpaca_request.h"
 #include "array_view.h"
 #include "device_interface.h"
-#include "device_types/device_impl_base.h"
-#include "json_encoder.h"
-#include "json_response.h"
 #include "mcucore_platform.h"
-#include "request_listener.h"
-#include "server_description.h"
 
 namespace alpaca {
 

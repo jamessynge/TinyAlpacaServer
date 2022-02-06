@@ -13,7 +13,6 @@
 #include "json_encoder.h"
 #include "mcucore_platform.h"
 #include "progmem_string.h"
-#include "string_view.h"
 
 namespace alpaca {
 

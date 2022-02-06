@@ -50,11 +50,7 @@ cc_library(
         ":alpaca_response",
         ":constants",
         ":device_interface",
-        ":json_response",
         ":literals",
-        ":request_listener",
-        ":server_description",
-        "//TinyAlpacaServer/src/device_types:device_impl_base",
         "//mcucore/src:array_view",
         "//mcucore/src:hex_escape",
         "//mcucore/src:json_encoder",
@@ -89,7 +85,6 @@ cc_library(
         ":extra_parameters",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:string_view",
     ],
 )
 
@@ -155,7 +150,6 @@ cc_library(
         "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
-        "//mcucore/src:string_view",
     ],
 )
 
@@ -207,7 +201,6 @@ cc_library(
         "//mcucore/src:any_printable",
         "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:string_view",
     ],
 )
 

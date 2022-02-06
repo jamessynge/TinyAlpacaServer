@@ -10,7 +10,6 @@
 #include "constants.h"
 #include "logging.h"
 #include "mcucore_platform.h"
-#include "string_view.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 #include "extra_parameters.h"

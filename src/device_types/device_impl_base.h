@@ -14,7 +14,6 @@
 // Author: james.synge@gmail.com
 
 #include "alpaca_request.h"
-#include "ascom_error_codes.h"
 #include "device_info.h"
 #include "device_interface.h"
 #include "mcucore_platform.h"

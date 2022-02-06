@@ -1,4 +1,4 @@
-# Defines a base type for Cover Calibrator devices.
+# Defines a base class for Cover Calibrator devices.
 
 cc_library(
     name = "cover_calibrator_adapter",

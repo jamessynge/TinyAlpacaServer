@@ -1,4 +1,4 @@
-# TODO(jamessynge): describe this package.
+# Defines base classes for implementing ASCOM Alpaca Switch devices.
 
 cc_library(
     name = "multi_switch_adapter",

@@ -11,10 +11,7 @@ namespace {
 
 using ::alpaca::ErrorCodes;
 using ::alpaca::ESensorName;
-using ::alpaca::ObservingConditionsAdapter;
 using ::alpaca::ProgmemStringViews;
-using ::mcucore::OkStatus;
-using ::mcucore::Status;
 using ::mcucore::StatusOr;
 
 #if defined(MCU_ENABLED_VLOG_LEVEL) && MCU_ENABLED_VLOG_LEVEL >= 3
