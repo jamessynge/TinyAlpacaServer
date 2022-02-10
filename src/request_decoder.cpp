@@ -27,6 +27,7 @@
 #include "logging.h"
 #include "match_literals.h"
 #include "progmem_string_data.h"
+#include "progmem_string_view.h"
 #include "string_compare.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified
@@ -49,15 +50,6 @@ namespace alpaca {
 namespace {
 using DecodeFunction = RequestDecoderState::DecodeFunction;
 using CharMatchFunction = bool (*)(char c);
-
-// TODO(jamessynge): Decide whether to move more of these strings into literals
-// or inline them somehow.
-MCU_CONSTEXPR_VAR mcucore::StringView kHttpMethodTerminators(" ");
-MCU_CONSTEXPR_VAR mcucore::StringView kEndOfHeaderLine("\r\n");
-MCU_CONSTEXPR_VAR mcucore::StringView kPathSeparator("/");
-MCU_CONSTEXPR_VAR mcucore::StringView kPathTerminators("? ");
-MCU_CONSTEXPR_VAR mcucore::StringView kParamNameValueSeparator("=");
-MCU_CONSTEXPR_VAR mcucore::StringView kHeaderNameValueSeparator(":");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
@@ -150,10 +142,9 @@ using NameProcessor = EHttpStatusCode (*)(
 
 EHttpStatusCode ExtractAndProcessName(
     RequestDecoderState& state, mcucore::StringView& view,
-    const mcucore::StringView& valid_terminating_chars,
-    const NameProcessor processor, const bool consume_terminator_char,
+    const char valid_terminating_char, const NameProcessor processor,
+    const bool consume_terminator_char,
     const EHttpStatusCode bad_terminator_error) {
-  MCU_DCHECK(!valid_terminating_chars.empty());
   MCU_DCHECK_GT(bad_terminator_error, EHttpStatusCode::kHttpOk);
   mcucore::StringView matched_text;
   if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
@@ -163,15 +154,12 @@ EHttpStatusCode ExtractAndProcessName(
   }
   MCU_DCHECK(!view.empty());
 
-  if (!valid_terminating_chars.contains(view.front())) {
+  if (!view.starts_with(valid_terminating_char)) {
     // Doesn't end with something appropriate for the path to end in. Perhaps an
     // unexpected/unsupported delimiter. Reporting Not Found because the error
     // is with the path.
     return bad_terminator_error;
   } else if (consume_terminator_char) {
-    // For now, we expect that:
-    //    consume_terminator_char == (valid_terminating_chars.size() ==1)
-    MCU_DCHECK_EQ(valid_terminating_chars.size(), 1);
     view.remove_prefix(1);
   }
 
@@ -204,14 +192,15 @@ EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
 EHttpStatusCode DecodeHeaderLineEnd(RequestDecoderState& state,
                                     mcucore::StringView& view) {
   // We expect "\r\n" at the end of a header line.
-  if (view.match_and_consume(kEndOfHeaderLine)) {
+  const auto kEndOfHeaderLine = ProgmemStringViews::HttpEndOfLine();
+  if (mcucore::SkipPrefix(view, kEndOfHeaderLine)) {
     return state.SetDecodeFunction(DecodeHeaderLines);
-  } else if (kEndOfHeaderLine.starts_with(view)) {
+  } else if (mcucore::StartsWith(kEndOfHeaderLine, view)) {
     // Need more input.
     return EHttpStatusCode::kNeedMoreInput;
   } else {
     // The header line doesn't end where or as expected; perhaps the EOL
-    // terminator isn't correct (e.g. a "\n" instead of a  "\r\n").
+    // terminator isn't correct (e.g. a "\n" instead of a "\r\n").
     return EHttpStatusCode::kHttpBadRequest;
   }
 }
@@ -338,6 +327,7 @@ EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
 
 EHttpStatusCode DecodeHeaderName(RequestDecoderState& state,
                                  mcucore::StringView& view) {
+  const char kHeaderNameValueSeparator = ':';
   return ExtractAndProcessName(
       state, view, kHeaderNameValueSeparator, ProcessHeaderName,
       /*consume_terminator_char=*/true,
@@ -346,7 +336,8 @@ EHttpStatusCode DecodeHeaderName(RequestDecoderState& state,
 
 EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
                                   mcucore::StringView& view) {
-  if (view.match_and_consume(kEndOfHeaderLine)) {
+  const auto kEndOfHeaderLine = ProgmemStringViews::HttpEndOfLine();
+  if (mcucore::SkipPrefix(view, kEndOfHeaderLine)) {
     // We've reached the end of the headers.
     if (state.request.http_method == EHttpMethod::GET) {
       // The standard requires that we not examine the body of a GET request,
@@ -371,8 +362,8 @@ EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
       state.decode_function = DecodeParamName;
       return EHttpStatusCode::kNeedMoreInput;
     }
-  } else if (kEndOfHeaderLine.starts_with(view)) {
-    // view might be empty, or it might be the start of a kEndOfHeaderLine.
+  } else if (mcucore::StartsWith(kEndOfHeaderLine, view)) {
+    // view might be empty, or it might be the start of a HttpEndOfLine.
     // To decide what to do next, we need more input.
     return EHttpStatusCode::kNeedMoreInput;
   } else {
@@ -384,8 +375,7 @@ EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
 // (We're not supporting HTTP/1.0 or earlier.)
 EHttpStatusCode MatchHttpVersion(RequestDecoderState& state,
                                  mcucore::StringView& view) {
-  const mcucore::ProgmemStringView expected =
-      ProgmemStringViews::HttpVersionEndOfLine();
+  const auto expected = ProgmemStringViews::HttpVersionEndOfLine();
   if (mcucore::StartsWith(view, expected)) {
     view.remove_prefix(expected.size());
     state.is_decoding_start_line = false;
@@ -587,6 +577,7 @@ EHttpStatusCode ProcessParamName(RequestDecoderState& state,
 
 EHttpStatusCode DecodeParamName(RequestDecoderState& state,
                                 mcucore::StringView& view) {
+  const char kParamNameValueSeparator = '=';
   return ExtractAndProcessName(
       state, view, kParamNameValueSeparator, ProcessParamName,
       /*consume_terminator_char=*/true,
@@ -642,10 +633,25 @@ EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
 
 EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
                                    mcucore::StringView& view) {
-  return ExtractAndProcessName(
-      state, view, kPathTerminators, ProcessDeviceMethod,
-      /*consume_terminator_char=*/false,
-      /*bad_terminator_error=*/EHttpStatusCode::kHttpBadRequest);
+  mcucore::StringView matched_text;
+  if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
+    // We didn't find a character that IsNameChar doesn't match, so we don't
+    // know if we have enough input yet.
+    return EHttpStatusCode::kNeedMoreInput;
+  }
+  MCU_DCHECK(!view.empty());
+
+  // The device method is supposed to be the end of the path; it may be followed
+  // by a query string, or a space and then the HTTP version.
+  const char next = view.front();
+  if (!(next == '?' || next == ' ')) {
+    // Doesn't end with something appropriate for the path to end in. Perhaps an
+    // unexpected/unsupported delimiter. Reporting Bad Request because the error
+    // is with the format of the request.
+    return EHttpStatusCode::kHttpBadRequest;
+  }
+
+  return ProcessDeviceMethod(state, matched_text, view);
 }
 
 EHttpStatusCode ProcessDeviceNumber(RequestDecoderState& state,
@@ -659,6 +665,7 @@ EHttpStatusCode ProcessDeviceNumber(RequestDecoderState& state,
 
 EHttpStatusCode DecodeDeviceNumber(RequestDecoderState& state,
                                    mcucore::StringView& view) {
+  const char kPathSeparator = '/';
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessDeviceNumber,
       /*consume_terminator_char=*/true,
@@ -680,6 +687,7 @@ EHttpStatusCode ProcessDeviceType(RequestDecoderState& state,
 // After the path prefix, we expect the name of a supported device type.
 EHttpStatusCode DecodeDeviceType(RequestDecoderState& state,
                                  mcucore::StringView& view) {
+  const char kPathSeparator = '/';
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessDeviceType,
       /*consume_terminator_char=*/true,
@@ -699,6 +707,7 @@ EHttpStatusCode ProcessApiVersion(RequestDecoderState& state,
 
 EHttpStatusCode DecodeApiVersion(RequestDecoderState& state,
                                  mcucore::StringView& view) {
+  const char kPathSeparator = '/';
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessApiVersion,
       /*consume_terminator_char=*/true,
@@ -844,8 +853,9 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
 // single request per TCP connection (i.e. we won't support Keep-Alive).
 EHttpStatusCode DecodeHttpMethod(RequestDecoderState& state,
                                  mcucore::StringView& view) {
+  const char kHttpMethodTerminator = ' ';
   return ExtractAndProcessName(
-      state, view, kHttpMethodTerminators, ProcessHttpMethod,
+      state, view, kHttpMethodTerminator, ProcessHttpMethod,
       /*consume_terminator_char=*/true,
       /*bad_terminator_error=*/EHttpStatusCode::kHttpBadRequest);
 }

@@ -2,6 +2,7 @@
 
 #include "constants.h"
 #include "literals.h"
+#include "progmem_string_view.h"
 
 namespace alpaca {
 namespace {

@@ -7,6 +7,7 @@
 // Author: james.synge@gmail.com
 
 #include "mcucore_platform.h"
+#include "request_listener.h"
 #include "server_connection.h"
 #include "server_socket.h"
 

@@ -11,7 +11,7 @@ namespace alpaca {
     return MCU_PSV_128(literal);                          \
   }
 
-#include "literals.inc"
+#include "literals.inc"  // IWYU pragma: keep
 
 #undef TAS_DEFINE_PROGMEM_LITERAL
 
@@ -20,7 +20,7 @@ namespace alpaca {
 #define TAS_DEFINE_PROGMEM_LITERAL(name, literal) \
   mcucore::ProgmemString ProgmemStrings::name() { return MCU_PSD_128(literal); }
 
-#include "literals.inc"
+#include "literals.inc"  // IWYU pragma: keep
 
 #undef TAS_DEFINE_PROGMEM_LITERAL
 

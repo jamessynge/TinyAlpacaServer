@@ -33,7 +33,7 @@ struct ProgmemStringViews {
 #define TAS_DEFINE_PROGMEM_LITERAL(name, literal) \
   static mcucore::ProgmemStringView name();
 
-#include "literals.inc"
+#include "literals.inc"  // IWYU pragma: export
 
 #undef TAS_DEFINE_PROGMEM_LITERAL
 };
@@ -45,7 +45,7 @@ struct ProgmemStrings {
 #define TAS_DEFINE_PROGMEM_LITERAL(name, literal) \
   static mcucore::ProgmemString name();
 
-#include "literals.inc"
+#include "literals.inc"  // IWYU pragma: export
 
 #undef TAS_DEFINE_PROGMEM_LITERAL
 };

@@ -67,8 +67,9 @@ cc_library(
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
         "//mcucore/src:hex_escape",
+        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:o_print_stream",
+        "//mcucore/src:progmem_string_data",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
         "//mcunet/src:platform_ethernet",
@@ -189,6 +190,7 @@ cc_library(
         ":literals",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
+        "//mcucore/src:progmem_string_view",
     ],
 )
 
@@ -201,6 +203,7 @@ cc_library(
         "//mcucore/src:any_printable",
         "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:progmem_string_view",
     ],
 )
 
@@ -246,6 +249,7 @@ cc_library(
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string_data",
+        "//mcucore/src:progmem_string_view",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
     ],
@@ -312,6 +316,7 @@ cc_library(
     srcs = ["server_socket_and_connection.cc"],
     hdrs = ["server_socket_and_connection.h"],
     deps = [
+        ":request_listener",
         ":server_connection",
         "//mcucore/src:mcucore_platform",
         "//mcunet/src:server_socket",
@@ -323,8 +328,10 @@ cc_library(
     srcs = ["server_sockets_and_connections.cc"],
     hdrs = ["server_sockets_and_connections.h"],
     deps = [
+        ":config",
         ":request_listener",
         ":server_socket_and_connection",
+        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
     ],
 )

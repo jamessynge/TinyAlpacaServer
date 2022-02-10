@@ -1,7 +1,8 @@
 #include "alpaca_discovery_server.h"
 
 #include "hex_escape.h"
-#include "o_print_stream.h"
+#include "logging.h"
+#include "progmem_string_data.h"
 #include "string_compare.h"
 #include "string_view.h"
 

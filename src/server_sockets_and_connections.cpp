@@ -1,5 +1,6 @@
 #include "server_sockets_and_connections.h"
 
+#include "logging.h"
 #include "mcucore_platform.h"
 
 namespace alpaca {
