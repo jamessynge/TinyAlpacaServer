@@ -8,16 +8,11 @@
 // but omit when there isn't.
 //
 // Another way to reduce the size of *this* code is to pass the buck to the
-// calling code (i.e. via the listener). The only Header that we "need" to
-// decode is Content-Length; we could pass all parameters and all other headers
-// to the client.
+// calling code (i.e. via the listener). If we limit this decoder to just the
+// request headers, and not the body, then the we don't need to know about any
+// of the header names.
 //
 // Author: james.synge@gmail.com
-
-// DO NOT SUBMIT
-// #ifndef REQUEST_DECODER_ENABLE_MCU_VLOG
-// #define MCU_DISABLE_VLOG
-// #endif
 
 #include "request_decoder.h"
 
