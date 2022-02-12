@@ -83,13 +83,18 @@ def print_to_flash_string_via_table_body(enum_def: EnumerationDefinition,
         f'flash_string_table[{len(n_to_enumerator)}] AVR_PROGMEM = {{')
 
   for nv, enumerator in items:
-    print(f'      /*{nv}=*/ '
-          f'MCU_FLASHSTR({enumerator.get_dq_print_name()}),  '
-          f'// {enumerator.name}')
+    print(f'      MCU_FLASHSTR({enumerator.get_dq_print_name()}),  '
+          f'// {nv}: {enumerator.name}')
+
+  # Omit the minimum comparision against zero if we know it is unsigned.
+  comparisons = []
+  if minimum == 0 and int_type not in ('uint8_t', 'unsigned char', 'uint16_t'):
+    comparisons.append(f'{minimum} <= iv')
+  comparisons.append(f'iv <= {maximum}')
   print(
       f"""  }};
   auto iv = static_cast<{int_type}>({var_name});
-  if ({minimum} <= iv && iv <= {maximum}) {{
+  if ({'&&'.join(comparisons)}) {{
     return flash_string_table[iv - {minimum}];
   }}
   return nullptr;""",

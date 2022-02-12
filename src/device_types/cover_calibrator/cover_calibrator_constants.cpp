@@ -48,12 +48,12 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("NotPresent"),  // kNotPresent
-      /*1=*/MCU_FLASHSTR("Off"),         // kOff
-      /*2=*/MCU_FLASHSTR("NotReady"),    // kNotReady
-      /*3=*/MCU_FLASHSTR("Ready"),       // kReady
-      /*4=*/MCU_FLASHSTR("Unknown"),     // kUnknown
-      /*5=*/MCU_FLASHSTR("Error"),       // kError
+      MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
+      MCU_FLASHSTR("Off"),         // 1: kOff
+      MCU_FLASHSTR("NotReady"),    // 2: kNotReady
+      MCU_FLASHSTR("Ready"),       // 3: kReady
+      MCU_FLASHSTR("Unknown"),     // 4: kUnknown
+      MCU_FLASHSTR("Error"),       // 5: kError
   };
   auto iv = static_cast<ECalibratorStatus_UnderlyingType>(v);
   if (0 <= iv && iv <= 5) {
@@ -102,12 +102,12 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("NotPresent"),  // kNotPresent
-      /*1=*/MCU_FLASHSTR("Closed"),      // kClosed
-      /*2=*/MCU_FLASHSTR("Moving"),      // kMoving
-      /*3=*/MCU_FLASHSTR("Open"),        // kOpen
-      /*4=*/MCU_FLASHSTR("Unknown"),     // kUnknown
-      /*5=*/MCU_FLASHSTR("Error"),       // kError
+      MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
+      MCU_FLASHSTR("Closed"),      // 1: kClosed
+      MCU_FLASHSTR("Moving"),      // 2: kMoving
+      MCU_FLASHSTR("Open"),        // 3: kOpen
+      MCU_FLASHSTR("Unknown"),     // 4: kUnknown
+      MCU_FLASHSTR("Error"),       // 5: kError
   };
   auto iv = static_cast<ECoverStatus_UnderlyingType>(v);
   if (0 <= iv && iv <= 5) {

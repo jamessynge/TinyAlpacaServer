@@ -33,12 +33,12 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Reset"),     // kReset
-      /*1=*/MCU_FLASHSTR("Decoding"),  // kDecoding
-      /*2=*/MCU_FLASHSTR("Decoded"),   // kDecoded
+      MCU_FLASHSTR("Reset"),     // 0: kReset
+      MCU_FLASHSTR("Decoding"),  // 1: kDecoding
+      MCU_FLASHSTR("Decoded"),   // 2: kDecoded
   };
   auto iv = static_cast<uint8_t>(v);
-  if (0 <= iv && iv <= 2) {
+  if (iv <= 2) {
     return flash_string_table[iv - 0];
   }
   return nullptr;
@@ -53,27 +53,29 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
     case EHttpStatusCode::kNeedMoreInput:
       return MCU_FLASHSTR("NeedMoreInput");
     case EHttpStatusCode::kHttpOk:
-      return MCU_FLASHSTR("HttpOk");
+      return MCU_FLASHSTR("OK");
     case EHttpStatusCode::kHttpBadRequest:
-      return MCU_FLASHSTR("HttpBadRequest");
+      return MCU_FLASHSTR("Bad Request");
+    case EHttpStatusCode::kHttpNotFound:
+      return MCU_FLASHSTR("Not Found");
     case EHttpStatusCode::kHttpMethodNotAllowed:
-      return MCU_FLASHSTR("HttpMethodNotAllowed");
+      return MCU_FLASHSTR("Method Not Allowed");
     case EHttpStatusCode::kHttpNotAcceptable:
-      return MCU_FLASHSTR("HttpNotAcceptable");
+      return MCU_FLASHSTR("Not Acceptable");
     case EHttpStatusCode::kHttpLengthRequired:
-      return MCU_FLASHSTR("HttpLengthRequired");
+      return MCU_FLASHSTR("Length Required");
     case EHttpStatusCode::kHttpPayloadTooLarge:
-      return MCU_FLASHSTR("HttpPayloadTooLarge");
+      return MCU_FLASHSTR("Payload Too Large");
     case EHttpStatusCode::kHttpUnsupportedMediaType:
-      return MCU_FLASHSTR("HttpUnsupportedMediaType");
+      return MCU_FLASHSTR("Unsupported Media Type");
     case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-      return MCU_FLASHSTR("HttpRequestHeaderFieldsTooLarge");
+      return MCU_FLASHSTR("Request Header Fields Too Large");
     case EHttpStatusCode::kHttpInternalServerError:
-      return MCU_FLASHSTR("HttpInternalServerError");
+      return MCU_FLASHSTR("Internal Server Error");
     case EHttpStatusCode::kHttpMethodNotImplemented:
-      return MCU_FLASHSTR("HttpMethodNotImplemented");
+      return MCU_FLASHSTR("Method Not Implemented");
     case EHttpStatusCode::kHttpVersionNotSupported:
-      return MCU_FLASHSTR("HttpVersionNotSupported");
+      return MCU_FLASHSTR("HTTP Version Not Supported");
   }
   return nullptr;
 #else   // Use if statements.
@@ -84,37 +86,40 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
     return MCU_FLASHSTR("NeedMoreInput");
   }
   if (v == EHttpStatusCode::kHttpOk) {
-    return MCU_FLASHSTR("HttpOk");
+    return MCU_FLASHSTR("OK");
   }
   if (v == EHttpStatusCode::kHttpBadRequest) {
-    return MCU_FLASHSTR("HttpBadRequest");
+    return MCU_FLASHSTR("Bad Request");
+  }
+  if (v == EHttpStatusCode::kHttpNotFound) {
+    return MCU_FLASHSTR("Not Found");
   }
   if (v == EHttpStatusCode::kHttpMethodNotAllowed) {
-    return MCU_FLASHSTR("HttpMethodNotAllowed");
+    return MCU_FLASHSTR("Method Not Allowed");
   }
   if (v == EHttpStatusCode::kHttpNotAcceptable) {
-    return MCU_FLASHSTR("HttpNotAcceptable");
+    return MCU_FLASHSTR("Not Acceptable");
   }
   if (v == EHttpStatusCode::kHttpLengthRequired) {
-    return MCU_FLASHSTR("HttpLengthRequired");
+    return MCU_FLASHSTR("Length Required");
   }
   if (v == EHttpStatusCode::kHttpPayloadTooLarge) {
-    return MCU_FLASHSTR("HttpPayloadTooLarge");
+    return MCU_FLASHSTR("Payload Too Large");
   }
   if (v == EHttpStatusCode::kHttpUnsupportedMediaType) {
-    return MCU_FLASHSTR("HttpUnsupportedMediaType");
+    return MCU_FLASHSTR("Unsupported Media Type");
   }
   if (v == EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge) {
-    return MCU_FLASHSTR("HttpRequestHeaderFieldsTooLarge");
+    return MCU_FLASHSTR("Request Header Fields Too Large");
   }
   if (v == EHttpStatusCode::kHttpInternalServerError) {
-    return MCU_FLASHSTR("HttpInternalServerError");
+    return MCU_FLASHSTR("Internal Server Error");
   }
   if (v == EHttpStatusCode::kHttpMethodNotImplemented) {
-    return MCU_FLASHSTR("HttpMethodNotImplemented");
+    return MCU_FLASHSTR("Method Not Implemented");
   }
   if (v == EHttpStatusCode::kHttpVersionNotSupported) {
-    return MCU_FLASHSTR("HttpVersionNotSupported");
+    return MCU_FLASHSTR("HTTP Version Not Supported");
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -149,10 +154,10 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[4] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),  // kUnknown
-      /*1=*/MCU_FLASHSTR("GET"),      // GET
-      /*2=*/MCU_FLASHSTR("PUT"),      // PUT
-      /*3=*/MCU_FLASHSTR("HEAD"),     // HEAD
+      MCU_FLASHSTR("Unknown"),  // 0: kUnknown
+      MCU_FLASHSTR("GET"),      // 1: GET
+      MCU_FLASHSTR("PUT"),      // 2: PUT
+      MCU_FLASHSTR("HEAD"),     // 3: HEAD
   };
   auto iv = static_cast<EHttpMethod_UnderlyingType>(v);
   if (0 <= iv && iv <= 3) {
@@ -191,13 +196,13 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[4] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),     // kUnknown
-      /*1=*/MCU_FLASHSTR("Device"),      // kDevice
-      /*2=*/MCU_FLASHSTR("Management"),  // kManagement
-      /*3=*/MCU_FLASHSTR("Setup"),       // kSetup
+      MCU_FLASHSTR("Unknown"),     // 0: kUnknown
+      MCU_FLASHSTR("Device"),      // 1: kDevice
+      MCU_FLASHSTR("Management"),  // 2: kManagement
+      MCU_FLASHSTR("Setup"),       // 3: kSetup
   };
   auto iv = static_cast<uint8_t>(v);
-  if (0 <= iv && iv <= 3) {
+  if (iv <= 3) {
     return flash_string_table[iv - 0];
   }
   return nullptr;
@@ -248,18 +253,17 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[7] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),                // kUnknown
-      /*1=*/MCU_FLASHSTR("DeviceApi"),              // kDeviceApi
-      /*2=*/MCU_FLASHSTR("DeviceSetup"),            // kDeviceSetup
-      /*3=*/MCU_FLASHSTR("ManagementApiVersions"),  // kManagementApiVersions
-      /*4=*/MCU_FLASHSTR("ManagementDescription"),  // kManagementDescription
-                                                    /*5=*/
+      MCU_FLASHSTR("Unknown"),                // 0: kUnknown
+      MCU_FLASHSTR("DeviceApi"),              // 1: kDeviceApi
+      MCU_FLASHSTR("DeviceSetup"),            // 2: kDeviceSetup
+      MCU_FLASHSTR("ManagementApiVersions"),  // 3: kManagementApiVersions
+      MCU_FLASHSTR("ManagementDescription"),  // 4: kManagementDescription
       MCU_FLASHSTR(
-          "ManagementConfiguredDevices"),  // kManagementConfiguredDevices
-      /*6=*/MCU_FLASHSTR("ServerSetup"),   // kServerSetup
+          "ManagementConfiguredDevices"),  // 5: kManagementConfiguredDevices
+      MCU_FLASHSTR("ServerSetup"),         // 6: kServerSetup
   };
   auto iv = static_cast<uint8_t>(v);
-  if (0 <= iv && iv <= 6) {
+  if (iv <= 6) {
     return flash_string_table[iv - 0];
   }
   return nullptr;
@@ -290,9 +294,9 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),            // kUnknown
-      /*1=*/MCU_FLASHSTR("Description"),        // kDescription
-      /*2=*/MCU_FLASHSTR("ConfiguredDevices"),  // kConfiguredDevices
+      MCU_FLASHSTR("Unknown"),            // 0: kUnknown
+      MCU_FLASHSTR("Description"),        // 1: kDescription
+      MCU_FLASHSTR("ConfiguredDevices"),  // 2: kConfiguredDevices
   };
   auto iv = static_cast<EManagementMethod_UnderlyingType>(v);
   if (0 <= iv && iv <= 2) {
@@ -366,17 +370,17 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[11] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),              // kUnknown
-      /*1=*/MCU_FLASHSTR("Camera"),               // kCamera
-      /*2=*/MCU_FLASHSTR("CoverCalibrator"),      // kCoverCalibrator
-      /*3=*/MCU_FLASHSTR("Dome"),                 // kDome
-      /*4=*/MCU_FLASHSTR("FilterWheel"),          // kFilterWheel
-      /*5=*/MCU_FLASHSTR("Focuser"),              // kFocuser
-      /*6=*/MCU_FLASHSTR("ObservingConditions"),  // kObservingConditions
-      /*7=*/MCU_FLASHSTR("Rotator"),              // kRotator
-      /*8=*/MCU_FLASHSTR("SafetyMonitor"),        // kSafetyMonitor
-      /*9=*/MCU_FLASHSTR("Switch"),               // kSwitch
-      /*10=*/MCU_FLASHSTR("Telescope"),           // kTelescope
+      MCU_FLASHSTR("Unknown"),              // 0: kUnknown
+      MCU_FLASHSTR("Camera"),               // 1: kCamera
+      MCU_FLASHSTR("CoverCalibrator"),      // 2: kCoverCalibrator
+      MCU_FLASHSTR("Dome"),                 // 3: kDome
+      MCU_FLASHSTR("FilterWheel"),          // 4: kFilterWheel
+      MCU_FLASHSTR("Focuser"),              // 5: kFocuser
+      MCU_FLASHSTR("ObservingConditions"),  // 6: kObservingConditions
+      MCU_FLASHSTR("Rotator"),              // 7: kRotator
+      MCU_FLASHSTR("SafetyMonitor"),        // 8: kSafetyMonitor
+      MCU_FLASHSTR("Switch"),               // 9: kSwitch
+      MCU_FLASHSTR("Telescope"),            // 10: kTelescope
   };
   auto iv = static_cast<EDeviceType_UnderlyingType>(v);
   if (0 <= iv && iv <= 10) {
@@ -655,58 +659,58 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[52] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),                // kUnknown
-      /*1=*/MCU_FLASHSTR("Setup"),                  // kSetup
-      /*2=*/MCU_FLASHSTR("Action"),                 // kAction
-      /*3=*/MCU_FLASHSTR("CommandBlind"),           // kCommandBlind
-      /*4=*/MCU_FLASHSTR("CommandBool"),            // kCommandBool
-      /*5=*/MCU_FLASHSTR("CommandString"),          // kCommandString
-      /*6=*/MCU_FLASHSTR("Connected"),              // kConnected
-      /*7=*/MCU_FLASHSTR("Description"),            // kDescription
-      /*8=*/MCU_FLASHSTR("DriverInfo"),             // kDriverInfo
-      /*9=*/MCU_FLASHSTR("DriverVersion"),          // kDriverVersion
-      /*10=*/MCU_FLASHSTR("InterfaceVersion"),      // kInterfaceVersion
-      /*11=*/MCU_FLASHSTR("Name"),                  // kName
-      /*12=*/MCU_FLASHSTR("SupportedActions"),      // kSupportedActions
-      /*13=*/MCU_FLASHSTR("Brightness"),            // kBrightness
-      /*14=*/MCU_FLASHSTR("CalibratorState"),       // kCalibratorState
-      /*15=*/MCU_FLASHSTR("CoverState"),            // kCoverState
-      /*16=*/MCU_FLASHSTR("MaxBrightness"),         // kMaxBrightness
-      /*17=*/MCU_FLASHSTR("CalibratorOff"),         // kCalibratorOff
-      /*18=*/MCU_FLASHSTR("CalibratorOn"),          // kCalibratorOn
-      /*19=*/MCU_FLASHSTR("CloseCover"),            // kCloseCover
-      /*20=*/MCU_FLASHSTR("HaltCover"),             // kHaltCover
-      /*21=*/MCU_FLASHSTR("OpenCover"),             // kOpenCover
-      /*22=*/MCU_FLASHSTR("AveragePeriod"),         // kAveragePeriod
-      /*23=*/MCU_FLASHSTR("CloudCover"),            // kCloudCover
-      /*24=*/MCU_FLASHSTR("DewPoint"),              // kDewPoint
-      /*25=*/MCU_FLASHSTR("Humidity"),              // kHumidity
-      /*26=*/MCU_FLASHSTR("Pressure"),              // kPressure
-      /*27=*/MCU_FLASHSTR("RainRate"),              // kRainRate
-      /*28=*/MCU_FLASHSTR("Refresh"),               // kRefresh
-      /*29=*/MCU_FLASHSTR("SensorDescription"),     // kSensorDescription
-      /*30=*/MCU_FLASHSTR("SkyBrightness"),         // kSkyBrightness
-      /*31=*/MCU_FLASHSTR("SkyQuality"),            // kSkyQuality
-      /*32=*/MCU_FLASHSTR("SkyTemperature"),        // kSkyTemperature
-      /*33=*/MCU_FLASHSTR("StarFWHM"),              // kStarFWHM
-      /*34=*/MCU_FLASHSTR("Temperature"),           // kTemperature
-      /*35=*/MCU_FLASHSTR("TimeSinceLastUpdate"),   // kTimeSinceLastUpdate
-      /*36=*/MCU_FLASHSTR("WindDirection"),         // kWindDirection
-      /*37=*/MCU_FLASHSTR("WindGust"),              // kWindGust
-      /*38=*/MCU_FLASHSTR("WindSpeed"),             // kWindSpeed
-      /*39=*/MCU_FLASHSTR("IsSafe"),                // kIsSafe
-      /*40=*/MCU_FLASHSTR("MaxSwitch"),             // kMaxSwitch
-      /*41=*/MCU_FLASHSTR("CanWrite"),              // kCanWrite
-      /*42=*/MCU_FLASHSTR("GetSwitch"),             // kGetSwitch
-      /*43=*/MCU_FLASHSTR("GetSwitchDescription"),  // kGetSwitchDescription
-      /*44=*/MCU_FLASHSTR("GetSwitchName"),         // kGetSwitchName
-      /*45=*/MCU_FLASHSTR("GetSwitchValue"),        // kGetSwitchValue
-      /*46=*/MCU_FLASHSTR("MinSwitchValue"),        // kMinSwitchValue
-      /*47=*/MCU_FLASHSTR("MaxSwitchValue"),        // kMaxSwitchValue
-      /*48=*/MCU_FLASHSTR("SetSwitch"),             // kSetSwitch
-      /*49=*/MCU_FLASHSTR("SetSwitchName"),         // kSetSwitchName
-      /*50=*/MCU_FLASHSTR("SetSwitchValue"),        // kSetSwitchValue
-      /*51=*/MCU_FLASHSTR("SwitchStep"),            // kSwitchStep
+      MCU_FLASHSTR("Unknown"),               // 0: kUnknown
+      MCU_FLASHSTR("Setup"),                 // 1: kSetup
+      MCU_FLASHSTR("Action"),                // 2: kAction
+      MCU_FLASHSTR("CommandBlind"),          // 3: kCommandBlind
+      MCU_FLASHSTR("CommandBool"),           // 4: kCommandBool
+      MCU_FLASHSTR("CommandString"),         // 5: kCommandString
+      MCU_FLASHSTR("Connected"),             // 6: kConnected
+      MCU_FLASHSTR("Description"),           // 7: kDescription
+      MCU_FLASHSTR("DriverInfo"),            // 8: kDriverInfo
+      MCU_FLASHSTR("DriverVersion"),         // 9: kDriverVersion
+      MCU_FLASHSTR("InterfaceVersion"),      // 10: kInterfaceVersion
+      MCU_FLASHSTR("Name"),                  // 11: kName
+      MCU_FLASHSTR("SupportedActions"),      // 12: kSupportedActions
+      MCU_FLASHSTR("Brightness"),            // 13: kBrightness
+      MCU_FLASHSTR("CalibratorState"),       // 14: kCalibratorState
+      MCU_FLASHSTR("CoverState"),            // 15: kCoverState
+      MCU_FLASHSTR("MaxBrightness"),         // 16: kMaxBrightness
+      MCU_FLASHSTR("CalibratorOff"),         // 17: kCalibratorOff
+      MCU_FLASHSTR("CalibratorOn"),          // 18: kCalibratorOn
+      MCU_FLASHSTR("CloseCover"),            // 19: kCloseCover
+      MCU_FLASHSTR("HaltCover"),             // 20: kHaltCover
+      MCU_FLASHSTR("OpenCover"),             // 21: kOpenCover
+      MCU_FLASHSTR("AveragePeriod"),         // 22: kAveragePeriod
+      MCU_FLASHSTR("CloudCover"),            // 23: kCloudCover
+      MCU_FLASHSTR("DewPoint"),              // 24: kDewPoint
+      MCU_FLASHSTR("Humidity"),              // 25: kHumidity
+      MCU_FLASHSTR("Pressure"),              // 26: kPressure
+      MCU_FLASHSTR("RainRate"),              // 27: kRainRate
+      MCU_FLASHSTR("Refresh"),               // 28: kRefresh
+      MCU_FLASHSTR("SensorDescription"),     // 29: kSensorDescription
+      MCU_FLASHSTR("SkyBrightness"),         // 30: kSkyBrightness
+      MCU_FLASHSTR("SkyQuality"),            // 31: kSkyQuality
+      MCU_FLASHSTR("SkyTemperature"),        // 32: kSkyTemperature
+      MCU_FLASHSTR("StarFWHM"),              // 33: kStarFWHM
+      MCU_FLASHSTR("Temperature"),           // 34: kTemperature
+      MCU_FLASHSTR("TimeSinceLastUpdate"),   // 35: kTimeSinceLastUpdate
+      MCU_FLASHSTR("WindDirection"),         // 36: kWindDirection
+      MCU_FLASHSTR("WindGust"),              // 37: kWindGust
+      MCU_FLASHSTR("WindSpeed"),             // 38: kWindSpeed
+      MCU_FLASHSTR("IsSafe"),                // 39: kIsSafe
+      MCU_FLASHSTR("MaxSwitch"),             // 40: kMaxSwitch
+      MCU_FLASHSTR("CanWrite"),              // 41: kCanWrite
+      MCU_FLASHSTR("GetSwitch"),             // 42: kGetSwitch
+      MCU_FLASHSTR("GetSwitchDescription"),  // 43: kGetSwitchDescription
+      MCU_FLASHSTR("GetSwitchName"),         // 44: kGetSwitchName
+      MCU_FLASHSTR("GetSwitchValue"),        // 45: kGetSwitchValue
+      MCU_FLASHSTR("MinSwitchValue"),        // 46: kMinSwitchValue
+      MCU_FLASHSTR("MaxSwitchValue"),        // 47: kMaxSwitchValue
+      MCU_FLASHSTR("SetSwitch"),             // 48: kSetSwitch
+      MCU_FLASHSTR("SetSwitchName"),         // 49: kSetSwitchName
+      MCU_FLASHSTR("SetSwitchValue"),        // 50: kSetSwitchValue
+      MCU_FLASHSTR("SwitchStep"),            // 51: kSwitchStep
   };
   auto iv = static_cast<EDeviceMethod_UnderlyingType>(v);
   if (0 <= iv && iv <= 51) {
@@ -800,21 +804,21 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[15] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),              // kUnknown
-      /*1=*/MCU_FLASHSTR("Action"),               // kAction
-      /*2=*/MCU_FLASHSTR("ClientID"),             // kClientID
-      /*3=*/MCU_FLASHSTR("ClientTransactionID"),  // kClientTransactionID
-      /*4=*/MCU_FLASHSTR("Command"),              // kCommand
-      /*5=*/MCU_FLASHSTR("Connected"),            // kConnected
-      /*6=*/MCU_FLASHSTR("Parameters"),           // kParameters
-      /*7=*/MCU_FLASHSTR("Raw"),                  // kRaw
-      /*8=*/MCU_FLASHSTR("Brightness"),           // kBrightness
-      /*9=*/MCU_FLASHSTR("AveragePeriod"),        // kAveragePeriod
-      /*10=*/MCU_FLASHSTR("SensorName"),          // kSensorName
-      /*11=*/MCU_FLASHSTR("Id"),                  // kId
-      /*12=*/MCU_FLASHSTR("Name"),                // kName
-      /*13=*/MCU_FLASHSTR("State"),               // kState
-      /*14=*/MCU_FLASHSTR("Value"),               // kValue
+      MCU_FLASHSTR("Unknown"),              // 0: kUnknown
+      MCU_FLASHSTR("Action"),               // 1: kAction
+      MCU_FLASHSTR("ClientID"),             // 2: kClientID
+      MCU_FLASHSTR("ClientTransactionID"),  // 3: kClientTransactionID
+      MCU_FLASHSTR("Command"),              // 4: kCommand
+      MCU_FLASHSTR("Connected"),            // 5: kConnected
+      MCU_FLASHSTR("Parameters"),           // 6: kParameters
+      MCU_FLASHSTR("Raw"),                  // 7: kRaw
+      MCU_FLASHSTR("Brightness"),           // 8: kBrightness
+      MCU_FLASHSTR("AveragePeriod"),        // 9: kAveragePeriod
+      MCU_FLASHSTR("SensorName"),           // 10: kSensorName
+      MCU_FLASHSTR("Id"),                   // 11: kId
+      MCU_FLASHSTR("Name"),                 // 12: kName
+      MCU_FLASHSTR("State"),                // 13: kState
+      MCU_FLASHSTR("Value"),                // 14: kValue
   };
   auto iv = static_cast<EParameter_UnderlyingType>(v);
   if (0 <= iv && iv <= 14) {
@@ -903,20 +907,20 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[14] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),         // kUnknown
-      /*1=*/MCU_FLASHSTR("CloudCover"),      // kCloudCover
-      /*2=*/MCU_FLASHSTR("DewPoint"),        // kDewPoint
-      /*3=*/MCU_FLASHSTR("Humidity"),        // kHumidity
-      /*4=*/MCU_FLASHSTR("Pressure"),        // kPressure
-      /*5=*/MCU_FLASHSTR("RainRate"),        // kRainRate
-      /*6=*/MCU_FLASHSTR("SkyBrightness"),   // kSkyBrightness
-      /*7=*/MCU_FLASHSTR("SkyQuality"),      // kSkyQuality
-      /*8=*/MCU_FLASHSTR("SkyTemperature"),  // kSkyTemperature
-      /*9=*/MCU_FLASHSTR("StarFWHM"),        // kStarFWHM
-      /*10=*/MCU_FLASHSTR("Temperature"),    // kTemperature
-      /*11=*/MCU_FLASHSTR("WindDirection"),  // kWindDirection
-      /*12=*/MCU_FLASHSTR("WindGust"),       // kWindGust
-      /*13=*/MCU_FLASHSTR("WindSpeed"),      // kWindSpeed
+      MCU_FLASHSTR("Unknown"),         // 0: kUnknown
+      MCU_FLASHSTR("CloudCover"),      // 1: kCloudCover
+      MCU_FLASHSTR("DewPoint"),        // 2: kDewPoint
+      MCU_FLASHSTR("Humidity"),        // 3: kHumidity
+      MCU_FLASHSTR("Pressure"),        // 4: kPressure
+      MCU_FLASHSTR("RainRate"),        // 5: kRainRate
+      MCU_FLASHSTR("SkyBrightness"),   // 6: kSkyBrightness
+      MCU_FLASHSTR("SkyQuality"),      // 7: kSkyQuality
+      MCU_FLASHSTR("SkyTemperature"),  // 8: kSkyTemperature
+      MCU_FLASHSTR("StarFWHM"),        // 9: kStarFWHM
+      MCU_FLASHSTR("Temperature"),     // 10: kTemperature
+      MCU_FLASHSTR("WindDirection"),   // 11: kWindDirection
+      MCU_FLASHSTR("WindGust"),        // 12: kWindGust
+      MCU_FLASHSTR("WindSpeed"),       // 13: kWindSpeed
   };
   auto iv = static_cast<ESensorName_UnderlyingType>(v);
   if (0 <= iv && iv <= 13) {
@@ -960,11 +964,11 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[5] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Unknown"),         // kUnknown
-      /*1=*/MCU_FLASHSTR("Connection"),      // kConnection
-      /*2=*/MCU_FLASHSTR("Content-Length"),  // kContentLength
-      /*3=*/MCU_FLASHSTR("Content-Type"),    // kContentType
-      /*4=*/MCU_FLASHSTR("Date"),            // kDate
+      MCU_FLASHSTR("Unknown"),         // 0: kUnknown
+      MCU_FLASHSTR("Connection"),      // 1: kConnection
+      MCU_FLASHSTR("Content-Length"),  // 2: kContentLength
+      MCU_FLASHSTR("Content-Type"),    // 3: kContentType
+      MCU_FLASHSTR("Date"),            // 4: kDate
   };
   auto iv = static_cast<EHttpHeader_UnderlyingType>(v);
   if (0 <= iv && iv <= 4) {
@@ -998,12 +1002,12 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("application/json"),  // kApplicationJson
-      /*1=*/MCU_FLASHSTR("text/plain"),        // kTextPlain
-      /*2=*/MCU_FLASHSTR("text/html"),         // kTextHtml
+      MCU_FLASHSTR("application/json"),  // 0: kApplicationJson
+      MCU_FLASHSTR("text/plain"),        // 1: kTextPlain
+      MCU_FLASHSTR("text/html"),         // 2: kTextHtml
   };
   auto iv = static_cast<uint8_t>(v);
-  if (0 <= iv && iv <= 2) {
+  if (iv <= 2) {
     return flash_string_table[iv - 0];
   }
   return nullptr;
@@ -1141,27 +1145,29 @@ std::ostream& operator<<(std::ostream& os, EHttpStatusCode v) {
     case EHttpStatusCode::kNeedMoreInput:
       return os << "NeedMoreInput";
     case EHttpStatusCode::kHttpOk:
-      return os << "HttpOk";
+      return os << "OK";
     case EHttpStatusCode::kHttpBadRequest:
-      return os << "HttpBadRequest";
+      return os << "Bad Request";
+    case EHttpStatusCode::kHttpNotFound:
+      return os << "Not Found";
     case EHttpStatusCode::kHttpMethodNotAllowed:
-      return os << "HttpMethodNotAllowed";
+      return os << "Method Not Allowed";
     case EHttpStatusCode::kHttpNotAcceptable:
-      return os << "HttpNotAcceptable";
+      return os << "Not Acceptable";
     case EHttpStatusCode::kHttpLengthRequired:
-      return os << "HttpLengthRequired";
+      return os << "Length Required";
     case EHttpStatusCode::kHttpPayloadTooLarge:
-      return os << "HttpPayloadTooLarge";
+      return os << "Payload Too Large";
     case EHttpStatusCode::kHttpUnsupportedMediaType:
-      return os << "HttpUnsupportedMediaType";
+      return os << "Unsupported Media Type";
     case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-      return os << "HttpRequestHeaderFieldsTooLarge";
+      return os << "Request Header Fields Too Large";
     case EHttpStatusCode::kHttpInternalServerError:
-      return os << "HttpInternalServerError";
+      return os << "Internal Server Error";
     case EHttpStatusCode::kHttpMethodNotImplemented:
-      return os << "HttpMethodNotImplemented";
+      return os << "Method Not Implemented";
     case EHttpStatusCode::kHttpVersionNotSupported:
-      return os << "HttpVersionNotSupported";
+      return os << "HTTP Version Not Supported";
   }
   return os << "Unknown EHttpStatusCode, value=" << static_cast<int64_t>(v);
 }

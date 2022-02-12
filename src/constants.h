@@ -54,7 +54,7 @@ enum class EHttpStatusCode : uint16_t {
   kNeedMoreInput,
 
   // The request has been successfully decoded.
-  kHttpOk = 200,
+  TASENUMERATOR(kHttpOk, "OK") = 200,
 
   // NOTE: Each values in the 4xx and 5xx range should have a corresponding
   // mcucore::ProgmemStringView in literals.inc, and a case in the switch
@@ -72,23 +72,42 @@ enum class EHttpStatusCode : uint16_t {
   // ASCOM error codes.
 
   // Invalid syntax in the request.
-  kHttpBadRequest = 400,
+  TASENUMERATOR(kHttpBadRequest, "Bad Request") = 400,
+
+  // Not a supported/known path.
+  TASENUMERATOR(kHttpNotFound, "Not Found") = 404,
 
   // Unknown/unsupported HTTP method.
-  kHttpMethodNotAllowed = 405,
+  TASENUMERATOR(kHttpMethodNotAllowed, "Method Not Allowed") = 405,
+
   // If Accept header from client doesn't include application/json.
-  kHttpNotAcceptable = 406,
-  kHttpLengthRequired = 411,
-  kHttpPayloadTooLarge = 413,
-  kHttpUnsupportedMediaType = 415,
+  TASENUMERATOR(kHttpNotAcceptable, "Not Acceptable") = 406,
+
+  // Need the length to know where the end of the body (payload) is; we don't
+  // support encodings that require delimiters to be located.
+  TASENUMERATOR(kHttpLengthRequired, "Length Required") = 411,
+
+  // Either the client sent more body bytes than the Content-Length specified
+  // (maybe pipelining requests, which isn't supported) or the Content-Length
+  // was greater than the maximum supported value.
+  TASENUMERATOR(kHttpPayloadTooLarge, "Payload Too Large") = 413,
+
+  // The Content-Type header didn't specify a supported value, which is
+  // currently only application/x-www-form-urlencoded.
+  TASENUMERATOR(kHttpUnsupportedMediaType, "Unsupported Media Type") = 415,
 
   // May use for extra-long names and values.
-  kHttpRequestHeaderFieldsTooLarge = 431,
+  TASENUMERATOR(kHttpRequestHeaderFieldsTooLarge,
+                "Request Header Fields Too Large") = 431,
 
   // Unspecified problem with processing the request.
-  kHttpInternalServerError = 500,
-  kHttpMethodNotImplemented = 501,
-  kHttpVersionNotSupported = 505,
+  TASENUMERATOR(kHttpInternalServerError, "Internal Server Error") = 500,
+
+  // We only support GET, HEAD and PUT, and return this for any other method.
+  TASENUMERATOR(kHttpMethodNotImplemented, "Method Not Implemented") = 501,
+
+  // Only HTTP/1.1 is supported. Could support 1.0 easily enough.
+  TASENUMERATOR(kHttpVersionNotSupported, "HTTP Version Not Supported") = 505,
 };
 
 using EHttpMethod_UnderlyingType = uint8_t;

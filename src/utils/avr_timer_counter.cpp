@@ -593,15 +593,15 @@ const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("Disabled"),      // kDisabled
-      /*1=*/MCU_FLASHSTR("DivideBy1"),     // kDivideBy1
-      /*2=*/MCU_FLASHSTR("DivideBy8"),     // kDivideBy8
-      /*3=*/MCU_FLASHSTR("DivideBy64"),    // kDivideBy64
-      /*4=*/MCU_FLASHSTR("DivideBy256"),   // kDivideBy256
-      /*5=*/MCU_FLASHSTR("DivideBy1024"),  // kDivideBy1024
+      MCU_FLASHSTR("Disabled"),      // 0: kDisabled
+      MCU_FLASHSTR("DivideBy1"),     // 1: kDivideBy1
+      MCU_FLASHSTR("DivideBy8"),     // 2: kDivideBy8
+      MCU_FLASHSTR("DivideBy64"),    // 3: kDivideBy64
+      MCU_FLASHSTR("DivideBy256"),   // 4: kDivideBy256
+      MCU_FLASHSTR("DivideBy1024"),  // 5: kDivideBy1024
   };
   auto iv = static_cast<uint8_t>(v);
-  if (0 <= iv && iv <= 5) {
+  if (iv <= 5) {
     return flash_string_table[iv - 0];
   }
   return nullptr;
@@ -657,12 +657,12 @@ const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
   return nullptr;
 #else   // Use flash string table.
   static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
-      /*0=*/MCU_FLASHSTR("A"),  // A
-      /*1=*/MCU_FLASHSTR("B"),  // B
-      /*2=*/MCU_FLASHSTR("C"),  // C
+      MCU_FLASHSTR("A"),  // 0: A
+      MCU_FLASHSTR("B"),  // 1: B
+      MCU_FLASHSTR("C"),  // 2: C
   };
   auto iv = static_cast<uint8_t>(v);
-  if (0 <= iv && iv <= 2) {
+  if (iv <= 2) {
     return flash_string_table[iv - 0];
   }
   return nullptr;
