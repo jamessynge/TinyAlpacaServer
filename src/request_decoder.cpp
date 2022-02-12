@@ -14,9 +14,10 @@
 //
 // Author: james.synge@gmail.com
 
-#ifndef REQUEST_DECODER_ENABLE_MCU_VLOG
-#define MCU_DISABLE_VLOG
-#endif
+// DO NOT SUBMIT
+// #ifndef REQUEST_DECODER_ENABLE_MCU_VLOG
+// #define MCU_DISABLE_VLOG
+// #endif
 
 #include "request_decoder.h"
 
@@ -308,6 +309,9 @@ EHttpStatusCode SkipHeaderValue(RequestDecoderState& state,
 EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
                                   const mcucore::StringView& matched_text,
                                   mcucore::StringView& view) {
+  if (matched_text.empty()) {
+    return EHttpStatusCode::kHttpBadRequest;
+  }
   state.current_header = EHttpHeader::kUnknown;
   if (!MatchHttpHeader(matched_text, state.current_header)) {
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
@@ -565,6 +569,10 @@ EHttpStatusCode ProcessParamName(RequestDecoderState& state,
   if (MatchParameter(matched_text, state.current_parameter)) {
     return state.SetDecodeFunction(DecodeParamValue);
   }
+  if (matched_text.empty()) {
+    // Missing parameter name.
+    return EHttpStatusCode::kHttpBadRequest;
+  }
   // Unrecognized parameter name.
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
@@ -577,6 +585,10 @@ EHttpStatusCode ProcessParamName(RequestDecoderState& state,
 
 EHttpStatusCode DecodeParamName(RequestDecoderState& state,
                                 mcucore::StringView& view) {
+  // Not supporting the case here of a param without a value, i.e. followed by
+  // a space marking the end of the path, a '&' separating it from the next
+  // param, or end-of-input in the body. Not needed for ASCOM, but would be for
+  // a somewhat more general decoder.
   const char kParamNameValueSeparator = '=';
   return ExtractAndProcessName(
       state, view, kParamNameValueSeparator, ProcessParamName,
@@ -644,14 +656,15 @@ EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
   // The device method is supposed to be the end of the path; it may be followed
   // by a query string, or a space and then the HTTP version.
   const char next = view.front();
-  if (!(next == '?' || next == ' ')) {
+  if (next == '?' || next == ' ') {
+    return ProcessDeviceMethod(state, matched_text, view);
+  } else {
     // Doesn't end with something appropriate for the path to end in. Perhaps an
     // unexpected/unsupported delimiter. Reporting Bad Request because the error
-    // is with the format of the request.
+    // is with the format of the request... though we could report Not Found if
+    // what follows is a '/' and another well-formed but invalid path element.
     return EHttpStatusCode::kHttpBadRequest;
   }
-
-  return ProcessDeviceMethod(state, matched_text, view);
 }
 
 EHttpStatusCode ProcessDeviceNumber(RequestDecoderState& state,
@@ -839,7 +852,8 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
     MCU_VLOG(3) << MCU_FLASHSTR("method: ") << method;
     state.request.http_method = method;
     return state.SetDecodeFunction(MatchStartOfPath);
-
+  } else if (matched_text.empty()) {
+    return EHttpStatusCode::kHttpBadRequest;
   } else {
     return EHttpStatusCode::kHttpMethodNotImplemented;
   }
@@ -849,8 +863,7 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
 // returns an error. We *could* allow for leading whitespace, which has been
 // supported implementations in the past, perhaps to deal with multiple
 // requests (or multiple responses) in a row without clear delimiters. However
-// HTTP/1.1 requires clear delimiters, and we're planning to support only a
-// single request per TCP connection (i.e. we won't support Keep-Alive).
+// HTTP/1.1 requires clear delimiters, so we won't tolerate extra whitespace.
 EHttpStatusCode DecodeHttpMethod(RequestDecoderState& state,
                                  mcucore::StringView& view) {
   const char kHttpMethodTerminator = ' ';

@@ -4,6 +4,7 @@
 
 #include "request_decoder.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <string>
 #include <tuple>
@@ -35,6 +36,7 @@ namespace {
 constexpr const size_t kDecodeBufferSize = 40;
 
 using ::testing::EndsWith;
+using ::testing::HasSubstr;
 using ::testing::IsEmpty;
 using ::testing::Mock;
 using ::testing::StartsWith;
@@ -979,6 +981,29 @@ TEST(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
   }
 }
 
+TEST(RequestDecoderTest, WhitespaceBeforeHttpMethod) {
+  AlpacaRequest alpaca_request;
+  RequestDecoderListener listener;
+  RequestDecoder decoder(alpaca_request, &listener);
+
+  const std::string request_after_method =
+      "/api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
+      "Content-Length: 0\r\n"
+      "\r\n";
+
+  for (const std::string prefix : {" ", "\r\n", "\t", "  ", "\n"}) {
+    for (const std::string method : {"GET", "PUT", "HEAD", "CONNECT", "DELETE",
+                                     "OPTIONS", "PATCH", "POST", "TRACE"}) {
+      const std::string full_request =
+          prefix + method + " " + request_after_method;
+      auto request = full_request;
+      EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+                EHttpStatusCode::kHttpBadRequest);
+      EXPECT_THAT(request, EndsWith(method + " " + request_after_method));
+    }
+  }
+}
+
 TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
   AlpacaRequest alpaca_request;
   RequestDecoderListener listener;
@@ -1003,7 +1028,8 @@ TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
                                      request_after_ascom_method;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EHttpStatusCode::kHttpBadRequest);
+              EHttpStatusCode::kHttpBadRequest)
+        << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_ascom_method));
   }
@@ -1017,6 +1043,8 @@ TEST(RequestDecoderTest, NotFoundPaths) {
   for (const auto& path : {
            "/api",
            "/api/",
+           "/api/v1",
+           "/api/v1/",
            "/api/v1/safetymonitor",
            "/api/v1/safetymonitor/",
            "/api/v1/safetymonitor/1",
@@ -1159,6 +1187,18 @@ TEST(RequestDecoderTest, RejectsUnsupportedHttpVersion) {
             EHttpStatusCode::kHttpVersionNotSupported);
 }
 
+TEST(RequestDecoderTest, RejectsMissingParamName) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, &listener);
+
+  std::string request(
+      "GET /api/v1/safetymonitor/0/name?=1 HTTP/1.1\r\n"
+      "\r\n");
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpBadRequest);
+}
+
 TEST(RequestDecoderTest, RejectsInvalidParamNameValueSeparator) {
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
@@ -1181,6 +1221,21 @@ TEST(RequestDecoderTest, RejectsInvalidParamSeparator) {
       "\r\n");
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
             EHttpStatusCode::kHttpBadRequest);
+}
+
+TEST(RequestDecoderTest, MissingHeaderName) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, &listener);
+
+  std::string request(
+      "GET /api/v1/safetymonitor/0/name HTTP/1.1\r\n"
+      ": 123\r\n"
+      "\r\n");
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+            EHttpStatusCode::kHttpBadRequest);
+  EXPECT_THAT(request, HasSubstr(" 123"));
 }
 
 TEST(RequestDecoderTest, BadHeaderNameEnd) {
