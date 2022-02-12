@@ -66,7 +66,8 @@ TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
     EXPECT_THAT(out.str(), StartsWith("HTTP/1.1 400 Bad Request"));
     EXPECT_THAT(out.str(), HasSubstr("Connection: close"));
     EXPECT_THAT(out.str(), HasSubstr("Content-Type: text/plain"));
-    EXPECT_THAT(out.str(), EndsWith("Unknown device"));
+    EXPECT_THAT(out.str(), HasSubstr("\r\n\r\nNot found: api="));
+    EXPECT_THAT(out.str(), EndsWith("number=0"));
   }
 }
 
@@ -234,7 +235,8 @@ TEST_F(AlpacaDevicesTest, SetupUnknownDevice) {
   EXPECT_THAT(out.str(), StartsWith("HTTP/1.1 400 Bad Request"));
   EXPECT_THAT(out.str(), HasSubstr("Connection: close"));
   EXPECT_THAT(out.str(), HasSubstr("Content-Type: text/plain"));
-  EXPECT_THAT(out.str(), EndsWith("Unknown device"));
+  EXPECT_THAT(out.str(), HasSubstr("\r\n\r\nNot found: api="));
+  EXPECT_THAT(out.str(), EndsWith("number=99999999"));
 }
 
 TEST_F(AlpacaDevicesTest, DispatchDeviceRequest) {

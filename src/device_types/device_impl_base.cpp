@@ -9,6 +9,7 @@
 #include "json_encoder.h"
 #include "literals.h"
 #include "o_print_stream.h"
+#include "printable_cat.h"
 #include "status.h"
 
 namespace alpaca {
@@ -75,7 +76,9 @@ bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
   // phrase.
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,
-      ProgmemStringViews::HttpMethodNotImplemented(), out);
+      mcucore::PrintableCat(MCU_FLASHSTR("request.api: "),
+                            ToFlashStringHelper(request.http_method)),
+      out);
 }
 
 bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,

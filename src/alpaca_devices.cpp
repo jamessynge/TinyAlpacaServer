@@ -7,6 +7,7 @@
 #include "literals.h"
 #include "logging.h"
 #include "platform_ethernet.h"
+#include "printable_cat.h"
 #include "progmem_string_data.h"
 
 namespace alpaca {
@@ -117,18 +118,21 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
     }
   }
 
-  MCU_VLOG(2) << MCU_FLASHSTR("AlpacaDevices::")
-              << MCU_FLASHSTR("DispatchDeviceRequest: ")
-              << MCU_FLASHSTR("Found no Device API Handler for api=")
-              << request.api << MCU_FLASHSTR(" device_type=")
-              << request.device_type << MCU_FLASHSTR(", device_number=")
+  const auto s1 = MCU_PSV("Not found: api=");
+  const auto s2 = MCU_PSV(", type=");
+  const auto s3 = MCU_PSV(", number=");
+
+  MCU_VLOG(2) << s1 << request.api << s2 << request.device_type << s3
               << request.device_number;
 
   // https://ascom-standards.org/Developer/ASCOM%20Alpaca%20API%20Reference.pdf
   // says we should return Bad Request rather than Not Found or another such
   // error for an understandable Alpaca path which is for a non-existent device.
-  return WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpBadRequest,
-                                          MCU_FLASHSTR("Unknown device"), out);
+  return WriteResponse::HttpErrorResponse(
+      EHttpStatusCode::kHttpBadRequest,
+      mcucore::PrintableCat(s1, request.api, s2, request.device_type, s3,
+                            request.device_number),
+      out);
 }
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
@@ -144,7 +148,9 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
   // COV_NF_START
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,
-      ProgmemStringViews::HttpMethodNotImplemented(), out);
+      mcucore::PrintableCat(MCU_FLASHSTR("request.api: "),
+                            ToFlashStringHelper(request.api)),
+      out);
   // COV_NF_END
 }
 

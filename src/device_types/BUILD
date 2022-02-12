@@ -20,6 +20,7 @@ cc_library(
         "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:o_print_stream",
+        "//mcucore/src:printable_cat",
         "//mcucore/src:status",
         "//mcucore/src:status_or",
     ],

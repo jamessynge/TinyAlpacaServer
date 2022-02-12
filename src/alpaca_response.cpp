@@ -284,51 +284,22 @@ bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
   MCU_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
       << MCU_FLASHSTR("mcucore::Status code should be for an error.");
 
+  auto phrase = ToFlashStringHelper(status_code);
+  MCU_DCHECK(phrase != nullptr)
+      << MCU_FLASHSTR("Please add a case for status code ") << status_code;
+
   HttpResponseHeader hrh;
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
     hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
+  } else {
+    hrh.status_code = status_code;
+  }
+  if (status_code < EHttpStatusCode::kHttpBadRequest || phrase == nullptr) {
     hrh.reason_phrase =
         MCU_PSD("Internal Server Error: Invalid HTTP mcucore::Status Code");
   } else {
-    hrh.status_code = status_code;
-    switch (status_code) {
-      case EHttpStatusCode::kHttpBadRequest:
-        hrh.reason_phrase = ProgmemStrings::HttpBadRequest();
-        break;
-      case EHttpStatusCode::kHttpMethodNotAllowed:
-        hrh.reason_phrase = ProgmemStrings::HttpMethodNotAllowed();
-        break;
-      case EHttpStatusCode::kHttpNotAcceptable:
-        hrh.reason_phrase = ProgmemStrings::HttpNotAcceptable();
-        break;
-      case EHttpStatusCode::kHttpLengthRequired:
-        hrh.reason_phrase = ProgmemStrings::HttpLengthRequired();
-        break;
-      case EHttpStatusCode::kHttpPayloadTooLarge:
-        hrh.reason_phrase = ProgmemStrings::HttpPayloadTooLarge();
-        break;
-      case EHttpStatusCode::kHttpUnsupportedMediaType:
-        hrh.reason_phrase = ProgmemStrings::HttpUnsupportedMediaType();
-        break;
-      case EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge:
-        hrh.reason_phrase = ProgmemStrings::HttpRequestHeaderFieldsTooLarge();
-        break;
-      case EHttpStatusCode::kHttpMethodNotImplemented:
-        hrh.reason_phrase = ProgmemStrings::HttpMethodNotImplemented();
-        break;
-      case EHttpStatusCode::kHttpVersionNotSupported:
-        hrh.reason_phrase = ProgmemStrings::HttpVersionNotSupported();
-        break;
-      case EHttpStatusCode::kHttpInternalServerError:
-        hrh.reason_phrase = ProgmemStrings::HttpInternalServerError();
-        break;
-      default:
-        // We don't have a reason phrase programmed in here.
-        MCU_DCHECK(false) << MCU_FLASHSTR("Please add a case for status code ")
-                          << status_code;
-    }
+    hrh.reason_phrase = phrase;
   }
-
   hrh.content_type = EContentType::kTextPlain;
   hrh.content_length = mcucore::SizeOfPrintable(body);
   hrh.do_close = true;

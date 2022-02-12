@@ -54,10 +54,11 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
       return HandleServerSetup(request, out);
   }
 
-  MCU_VLOG(5) << MCU_FLASHSTR("OnRequestDecoded: api=") << request.api;
+  auto msg = MCU_PSV("OnRequestDecoded: unknown request.api=");
+  MCU_VLOG(5) << msg << request.api;
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,
-      ProgmemStringViews::ApiUnknown(), out);
+      mcucore::PrintableCat(msg, (request.api)), out);
 }
 
 void TinyAlpacaServerBase::OnRequestDecodingError(AlpacaRequest& request,

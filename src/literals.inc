@@ -142,21 +142,6 @@ TAS_DEFINE_PROGMEM_LITERAL(HttpOkStatus, "HTTP/1.1 200 OK")
 TAS_DEFINE_PROGMEM_LITERAL(HttpConnectionClose, "Connection: close\r\n")
 TAS_DEFINE_PROGMEM_LITERAL(HttpServerHeader, "Server: TinyAlpacaServer\r\n")
 
-// HTTP Response Reason Phrases:
-TAS_DEFINE_PROGMEM_LITERAL(HttpBadRequest, "Bad Request")
-TAS_DEFINE_PROGMEM_LITERAL(HttpNotFound, "Not Found")
-TAS_DEFINE_PROGMEM_LITERAL(HttpMethodNotAllowed, "Method Not Allowed")
-TAS_DEFINE_PROGMEM_LITERAL(HttpNotAcceptable, "Not Acceptable")
-TAS_DEFINE_PROGMEM_LITERAL(HttpLengthRequired, "Length Required")
-TAS_DEFINE_PROGMEM_LITERAL(HttpPayloadTooLarge, "Payload Too Large")
-TAS_DEFINE_PROGMEM_LITERAL(HttpUnsupportedMediaType, "Unsupported Media Type")
-TAS_DEFINE_PROGMEM_LITERAL(HttpRequestHeaderFieldsTooLarge,
-                           "Request Header Fields Too Large")
-TAS_DEFINE_PROGMEM_LITERAL(HttpMethodNotImplemented, "Method Not Implemented")
-TAS_DEFINE_PROGMEM_LITERAL(HttpVersionNotSupported,
-                           "HTTP Version Not Supported")
-TAS_DEFINE_PROGMEM_LITERAL(HttpInternalServerError, "Internal Server Error")
-
 // Error bodies:
 TAS_DEFINE_PROGMEM_LITERAL(ApiUnknown,
                            "request.api value is unknown/unexpected (bug).")
