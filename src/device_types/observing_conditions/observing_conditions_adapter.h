@@ -6,11 +6,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "constants.h"
 #include "device_types/device_impl_base.h"
-#include "mcucore_platform.h"
-#include "status.h"
-#include "status_or.h"
 
 namespace alpaca {
 

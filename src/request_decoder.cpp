@@ -16,15 +16,12 @@
 
 #include "request_decoder.h"
 
+#include <McuCore.h>
+
 #include "config.h"
 #include "constants.h"
-#include "hex_escape.h"
 #include "literals.h"
-#include "logging.h"
 #include "match_literals.h"
-#include "progmem_string_data.h"
-#include "progmem_string_view.h"
-#include "string_compare.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified
 // as the rest of HTTP (AFAICT), so I'm assuming that:

@@ -4,13 +4,7 @@
 
 #include "utils/avr_timer_counter.h"
 
-#include "counting_print.h"
-#include "has_print_to.h"
-#include "logging.h"
-#include "print_misc.h"
-#include "progmem_string_data.h"
-#include "stream_to_print.h"
-#include "type_traits.h"
+#include <McuCore.h>
 
 namespace alpaca {
 

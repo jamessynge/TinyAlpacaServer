@@ -24,11 +24,11 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "alpaca_request.h"
-#include "array_view.h"
 #include "device_info.h"
 #include "json_response.h"
-#include "mcucore_platform.h"
 
 namespace alpaca {
 

@@ -5,9 +5,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "alpaca_request.h"
 #include "constants.h"
-#include "mcucore_platform.h"
 
 namespace alpaca {
 

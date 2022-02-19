@@ -1,14 +1,11 @@
 #include "alpaca_devices.h"
 
+#include <McuCore.h>
+
 #include "alpaca_response.h"
 #include "constants.h"
-#include "hex_escape.h"
-#include "json_encoder.h"
+#include "experimental/users/jamessynge/arduino/mcunet/src/platform_ethernet.h"
 #include "literals.h"
-#include "logging.h"
-#include "platform_ethernet.h"
-#include "printable_cat.h"
-#include "progmem_string_data.h"
 
 namespace alpaca {
 

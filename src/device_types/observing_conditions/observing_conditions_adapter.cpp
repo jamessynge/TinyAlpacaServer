@@ -1,14 +1,12 @@
 #include "device_types/observing_conditions/observing_conditions_adapter.h"
 
+#include <McuCore.h>
+
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
 #include "literals.h"
-#include "logging.h"
-#include "printable_cat.h"
-#include "progmem_string_data.h"
-#include "status.h"
 
 namespace alpaca {
 

@@ -1,9 +1,9 @@
 #include "server_description.h"
 
+#include <McuCore.h>
+
 #include "gtest/gtest.h"
-#include "json_encoder.h"
-#include "json_encoder_helpers.h"
-#include "mcucore/extrastest_tools/print_to_std_string.h"
+#include "mcucore/extras/test_tools/print_to_std_string.h"
 
 #define kServerName "HAL 9000"
 #define kManufacturer "HAL Laboratories, Urbana, Illinois"

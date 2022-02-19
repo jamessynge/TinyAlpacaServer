@@ -1,11 +1,10 @@
 #include "device_info.h"
 
+#include <McuCore.h>
+
 #include "constants.h"
 #include "gtest/gtest.h"
-#include "json_encoder.h"
-#include "json_encoder_helpers.h"
-#include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "progmem_string_data.h"
+#include "mcucore/extras/test_tools/print_to_std_string.h"
 
 // Defining everything outside of the alpaca namespace as is expected for a real
 // device; i.e. we reserve the alpaca namespace for the generic ASCOM Alpaca

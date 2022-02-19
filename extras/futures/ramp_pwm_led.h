@@ -7,9 +7,9 @@
 // Author: james.synge@gmail.com
 
 #include <Arduino.h>
+#include <McuCore.h>
 
 #include "extras/futures/pwm_led.h"
-#include "mcucore_platform.h"
 
 namespace astro_makers {
 

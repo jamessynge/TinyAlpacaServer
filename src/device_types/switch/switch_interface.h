@@ -5,10 +5,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "alpaca_request.h"
-#include "mcucore_platform.h"
-#include "status.h"
-#include "status_or.h"
 
 namespace alpaca {
 

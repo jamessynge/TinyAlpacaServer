@@ -9,10 +9,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "constants.h"
-#include "json_encoder.h"
-#include "mcucore_platform.h"
-#include "progmem_string.h"
 
 namespace alpaca {
 

@@ -23,7 +23,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include "mcucore_platform.h"
+#include <McuCore.h>
 
 #if MCU_HOST_TARGET
 #include <ostream>  // pragma: keep standard include

@@ -18,34 +18,32 @@
 
 // TODO Remove excessive headers.
 
+#include <McuCore.h>
+
 #include "absl/strings/numbers.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
 #include "alpaca_response.h"
-#include "array_view.h"
 #include "constants.h"
 #include "device_interface.h"
 #include "device_types/device_impl_base.h"
+#include "experimental/users/jamessynge/arduino/mcunet/src/platform_ethernet.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "extras/test_tools/mock_switch_group.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "literals.h"
-#include "mcucore/extrastest_tools/http_request.h"
-#include "mcucore/extrastest_tools/http_response.h"
-#include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "mcucore/extrastest_tools/sample_printable.h"
-#include "mcucore_platform.h"
-#include "platform_ethernet.h"
+#include "mcucore/extras/test_tools/http_request.h"
+#include "mcucore/extras/test_tools/http_response.h"
+#include "mcucore/extras/test_tools/print_to_std_string.h"
+#include "mcucore/extras/test_tools/sample_printable.h"
 #include "request_listener.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "server_sockets_and_connections.h"
-#include "status.h"
-#include "string_view.h"
 #include "tiny_alpaca_server.h"
 
 namespace alpaca {

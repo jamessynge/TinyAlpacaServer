@@ -5,10 +5,11 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "constants.h"
 #include "gmock/gmock.h"
 #include "request_decoder_listener.h"
-#include "string_view.h"
 
 namespace alpaca {
 namespace test {

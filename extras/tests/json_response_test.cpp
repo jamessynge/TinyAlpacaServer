@@ -1,14 +1,12 @@
 #include "json_response.h"
 
+#include <McuCore.h>
 #include <stdint.h>
 
 #include "alpaca_request.h"
-#include "any_printable.h"
 #include "gtest/gtest.h"
-#include "json_encoder.h"
-#include "mcucore/extrastest_tools/json_test_utils.h"
-#include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "string_view.h"
+#include "mcucore/extras/test_tools/json_test_utils.h"
+#include "mcucore/extras/test_tools/print_to_std_string.h"
 
 namespace alpaca {
 namespace test {

@@ -1,10 +1,7 @@
 #include "utils/moving_average.h"
 
+#include <McuCore.h>
 #include <math.h>
-
-#include "logging.h"
-#include "mcucore_platform.h"
-#include "progmem_string_data.h"
 
 namespace alpaca {
 MovingAverage::MovingAverage()

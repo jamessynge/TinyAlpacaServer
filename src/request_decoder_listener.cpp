@@ -2,10 +2,9 @@
 
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "constants.h"
-#include "hex_escape.h"
-#include "logging.h"
-#include "string_view.h"
 
 namespace alpaca {
 

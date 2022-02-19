@@ -6,10 +6,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "config.h"
 #include "constants.h"
-#include "logging.h"
-#include "mcucore_platform.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 #include "extra_parameters.h"

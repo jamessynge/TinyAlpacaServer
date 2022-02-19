@@ -5,13 +5,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "alpaca_request.h"
-#include "any_printable.h"
-#include "array_view.h"
 #include "constants.h"
-#include "json_encoder.h"
-#include "mcucore_platform.h"
-#include "status_or.h"
 
 namespace alpaca {
 

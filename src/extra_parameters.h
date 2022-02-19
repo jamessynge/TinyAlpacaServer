@@ -10,11 +10,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "config.h"
 #include "constants.h"
-#include "mcucore_platform.h"
-#include "string_view.h"
-#include "tiny_string.h"
 
 // The minimum is 1 to allow for testing of this feature.
 

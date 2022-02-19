@@ -1,7 +1,8 @@
 #include "device_info.h"
 
+#include <McuCore.h>
+
 #include "constants.h"
-#include "json_encoder.h"
 #include "literals.h"
 
 namespace alpaca {

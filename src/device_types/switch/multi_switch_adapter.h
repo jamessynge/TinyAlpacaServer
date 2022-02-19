@@ -5,11 +5,10 @@
 //
 // Author: james.synge@gmail.com
 
-#include "array_view.h"
+#include <McuCore.h>
+
 #include "device_types/switch/switch_adapter.h"
 #include "device_types/switch/switch_interface.h"
-#include "mcucore_platform.h"
-#include "status_or.h"
 
 namespace alpaca {
 

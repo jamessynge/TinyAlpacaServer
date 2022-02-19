@@ -1,10 +1,9 @@
 #include "match_literals.h"
 
-#include "array_view.h"
+#include <McuCore.h>
+
 #include "constants.h"
 #include "literals.h"
-#include "logging.h"
-#include "string_compare.h"
 
 #define MATCH_ONE_LITERAL_EXACTLY(literal_name, enum_value) \
   if (ProgmemStringViews::literal_name() == view) {         \

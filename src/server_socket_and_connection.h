@@ -6,10 +6,11 @@
 //
 // Author: james.synge@gmail.com
 
-#include "mcucore_platform.h"
+#include <McuCore.h>
+
+#include "experimental/users/jamessynge/arduino/mcunet/src/server_socket.h"
 #include "request_listener.h"
 #include "server_connection.h"
-#include "server_socket.h"
 
 namespace alpaca {
 

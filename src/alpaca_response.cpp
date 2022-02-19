@@ -1,17 +1,12 @@
 #include "alpaca_response.h"
 
-#include "any_printable.h"
-#include "array_view.h"
+#include <McuCore.h>
+
 #include "ascom_error_codes.h"
 #include "constants.h"
-#include "counting_print.h"
 #include "http_response_header.h"
-#include "json_encoder.h"
-#include "json_encoder_helpers.h"
 #include "json_response.h"
 #include "literals.h"
-#include "printable_cat.h"
-#include "progmem_string.h"
 
 namespace alpaca {
 namespace {

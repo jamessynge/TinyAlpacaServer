@@ -1,16 +1,13 @@
 #include "device_types/device_impl_base.h"
 
+#include <McuCore.h>
+
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
-#include "counting_print.h"
 #include "device_info.h"
 #include "http_response_header.h"
-#include "json_encoder.h"
 #include "literals.h"
-#include "o_print_stream.h"
-#include "printable_cat.h"
-#include "status.h"
 
 namespace alpaca {
 namespace {

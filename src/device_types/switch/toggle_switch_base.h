@@ -8,8 +8,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "device_types/switch/switch_interface.h"
-#include "mcucore_platform.h"
 
 namespace alpaca {
 

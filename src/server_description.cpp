@@ -1,6 +1,7 @@
 #include "server_description.h"
 
-#include "json_encoder.h"
+#include <McuCore.h>
+
 #include "literals.h"
 
 namespace alpaca {

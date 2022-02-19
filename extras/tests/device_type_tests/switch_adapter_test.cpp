@@ -1,5 +1,6 @@
 #include "device_types/switch/switch_adapter.h"
 
+#include <McuCore.h>
 #include <stdint.h>
 
 #include <string>
@@ -11,10 +12,7 @@
 #include "extras/test_tools/mock_switch_group.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "progmem_string_data.h"
-#include "status.h"
-#include "status_or.h"
+#include "mcucore/extras/test_tools/print_to_std_string.h"
 
 namespace alpaca {
 namespace test {

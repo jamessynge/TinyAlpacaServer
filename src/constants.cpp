@@ -2,8 +2,7 @@
 
 // (Mostly) GENERATED FILE. See make_enum_to_string.py
 
-#include "print_misc.h"
-#include "progmem_string_data.h"
+#include <McuCore.h>
 
 // BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
 

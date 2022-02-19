@@ -1,6 +1,6 @@
 #include "device_types/switch/toggle_switch_base.h"
 
-#include "mcucore_platform.h"
+#include <McuCore.h>
 
 namespace alpaca {
 

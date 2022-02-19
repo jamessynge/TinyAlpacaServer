@@ -1,9 +1,8 @@
 #include "device_interface.h"
 
+#include <McuCore.h>
+
 #include "device_info.h"
-#include "json_encoder.h"
-#include "json_encoder_helpers.h"
-#include "mcucore_platform.h"
 
 namespace alpaca {
 

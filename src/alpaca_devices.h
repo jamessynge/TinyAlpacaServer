@@ -8,10 +8,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "alpaca_request.h"
-#include "array_view.h"
 #include "device_interface.h"
-#include "mcucore_platform.h"
 
 namespace alpaca {
 

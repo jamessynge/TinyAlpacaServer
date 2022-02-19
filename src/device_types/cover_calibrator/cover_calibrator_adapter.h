@@ -13,10 +13,10 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"
 #include "device_types/device_impl_base.h"
-#include "mcucore_platform.h"
-#include "status_or.h"
 
 namespace alpaca {
 

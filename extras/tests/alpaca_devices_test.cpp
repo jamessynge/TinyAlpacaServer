@@ -1,11 +1,12 @@
 #include "alpaca_devices.h"
 
+#include <McuCore.h>
+
 #include <cstdint>
 #include <string>
 
 #include "absl/strings/str_cat.h"
 #include "alpaca_request.h"
-#include "array_view.h"
 #include "constants.h"
 #include "device_info.h"
 #include "device_interface.h"
@@ -13,8 +14,7 @@
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "mcucore/extrastest_tools/print_to_std_string.h"
-#include "progmem_string_data.h"
+#include "mcucore/extras/test_tools/print_to_std_string.h"
 
 namespace alpaca {
 namespace test {

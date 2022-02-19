@@ -1,11 +1,12 @@
 #include "server_connection.h"
 
+#include <McuCore.h>
+
 #include "alpaca_response.h"
 #include "constants.h"
+#include "experimental/users/jamessynge/arduino/mcunet/src/platform_ethernet.h"
 #include "literals.h"
-#include "platform_ethernet.h"
 #include "request_listener.h"
-#include "string_view.h"
 
 #if MCU_HOST_TARGET
 #include <string.h>

@@ -1,15 +1,11 @@
 #include "tiny_alpaca_server.h"
 
+#include <McuCore.h>
+
 #include "alpaca_response.h"
-#include "any_printable.h"
-#include "array_view.h"
 #include "constants.h"
-#include "counting_print.h"
 #include "http_response_header.h"
-#include "json_encoder.h"
-#include "json_encoder_helpers.h"
 #include "literals.h"
-#include "printable_cat.h"
 
 namespace alpaca {
 

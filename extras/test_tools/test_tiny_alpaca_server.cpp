@@ -1,20 +1,18 @@
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 
+#include <McuCore.h>
+
 #include <sstream>
 #include <string>
 #include <string_view>
 
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
-#include "array_view.h"
 #include "device_interface.h"
-#include "host/ethernet5500/ethernet_config.h"
-#include "logging.h"
-#include "o_print_stream.h"
-#include "progmem_string_data.h"
+#include "mcunet/extras/host/ethernet5500/ethernet_config.h"
+#include "mcunet/extras/test_tools/string_io_connection.h"
 #include "server_connection.h"
 #include "server_description.h"
-#include "test_tools/string_io_connection.h"
 #include "tiny_alpaca_server.h"
 
 namespace alpaca {

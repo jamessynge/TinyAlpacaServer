@@ -8,17 +8,17 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include <string>
 #include <string_view>
 
-#include "array_view.h"
 #include "device_interface.h"
+#include "mcunet/extras/test_tools/string_io_connection.h"
 #include "server_connection.h"
 #include "server_description.h"
-#include "test_tools/string_io_connection.h"
 #include "tiny_alpaca_server.h"
 
 namespace alpaca {

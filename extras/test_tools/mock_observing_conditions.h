@@ -5,13 +5,12 @@
 // methods that a subclass must override in order to enable interacting with
 // sensors, not methods like HandleGetRequest.
 
+#include <McuCore.h>
 #include <stdint.h>
 
 #include "device_info.h"
 #include "device_types/observing_conditions/observing_conditions_adapter.h"
 #include "gmock/gmock.h"
-#include "status.h"
-#include "status_or.h"
 
 namespace alpaca {
 namespace test {

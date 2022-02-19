@@ -1,16 +1,16 @@
 #include "extras/test_tools/decode_and_dispatch_test_base.h"
 
+#include <McuCore.h>
+
 #include <string>
 
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
-#include "array_view.h"
 #include "device_interface.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
-#include "logging.h"
-#include "mcucore/extrastest_tools/http_request.h"
-#include "mcucore/extrastest_tools/http_response.h"
-#include "mcucore/extrastest_tools/json_decoder.h"
+#include "mcucore/extras/test_tools/http_request.h"
+#include "mcucore/extras/test_tools/http_response.h"
+#include "mcucore/extras/test_tools/json_decoder.h"
 #include "util/task/status_macros.h"
 
 namespace alpaca {

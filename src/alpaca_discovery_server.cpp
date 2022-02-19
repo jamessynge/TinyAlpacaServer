@@ -1,10 +1,6 @@
 #include "alpaca_discovery_server.h"
 
-#include "hex_escape.h"
-#include "logging.h"
-#include "progmem_string_data.h"
-#include "string_compare.h"
-#include "string_view.h"
+#include <McuCore.h>
 
 namespace alpaca {
 namespace {

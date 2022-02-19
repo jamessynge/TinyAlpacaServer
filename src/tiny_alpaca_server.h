@@ -18,11 +18,11 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
-#include "array_view.h"
 #include "device_types/device_impl_base.h"
-#include "mcucore_platform.h"
 #include "server_description.h"
 #include "server_sockets_and_connections.h"
 

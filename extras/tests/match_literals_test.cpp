@@ -1,5 +1,7 @@
 #include "match_literals.h"
 
+#include <McuCore.h>
+
 #include <functional>
 #include <string>
 #include <vector>
@@ -9,8 +11,7 @@
 #include "constants.h"
 #include "glog/logging.h"
 #include "gtest/gtest.h"
-#include "mcucore/extrastest_tools/string_view_utils.h"
-#include "string_view.h"
+#include "mcucore/extras/test_tools/string_view_utils.h"
 
 namespace alpaca {
 namespace test {

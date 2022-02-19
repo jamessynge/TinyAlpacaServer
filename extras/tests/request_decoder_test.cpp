@@ -4,6 +4,8 @@
 
 #include "request_decoder.h"
 
+#include <McuCore.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <string>
@@ -23,9 +25,7 @@
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "mcucore_platform.h"
 #include "request_decoder_listener.h"
-#include "string_view.h"
 
 ABSL_DECLARE_FLAG(int, v);
 

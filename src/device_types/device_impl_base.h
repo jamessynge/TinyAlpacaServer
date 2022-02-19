@@ -13,12 +13,11 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "alpaca_request.h"
 #include "device_info.h"
 #include "device_interface.h"
-#include "mcucore_platform.h"
-#include "status.h"
-#include "status_or.h"
 
 namespace alpaca {
 

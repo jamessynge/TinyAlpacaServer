@@ -6,9 +6,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+
 #include "constants.h"
-#include "mcucore_platform.h"
-#include "string_view.h"
 
 namespace alpaca {
 
