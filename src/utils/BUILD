@@ -2,6 +2,15 @@
 # which aren't necessarily specific to Alpaca, but could be useful in any Arduino
 # sketch.
 
+load(
+    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
+    "build_config",
+)
+
+package(
+    default_copts = build_config.default_copts,
+)
+
 cc_library(
     name = "avr_timer_counter",
     srcs = ["avr_timer_counter.cc"],

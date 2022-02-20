@@ -1,5 +1,14 @@
 # Defines a base class for Cover Calibrator devices.
 
+load(
+    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
+    "build_config",
+)
+
+package(
+    default_copts = build_config.default_copts,
+)
+
 cc_library(
     name = "cover_calibrator_adapter",
     srcs = ["cover_calibrator_adapter.cc"],

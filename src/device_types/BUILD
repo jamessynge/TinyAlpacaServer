@@ -3,6 +3,15 @@
 # interface with any particular hardware, but instead makes it easier to write
 # hardware specific DeviceInterface implementations.
 
+load(
+    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
+    "build_config",
+)
+
+package(
+    default_copts = build_config.default_copts,
+)
+
 cc_library(
     name = "device_impl_base",
     srcs = ["device_impl_base.cc"],

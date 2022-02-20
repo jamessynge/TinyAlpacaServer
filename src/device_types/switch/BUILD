@@ -1,5 +1,14 @@
 # Defines base classes for implementing ASCOM Alpaca Switch devices.
 
+load(
+    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
+    "build_config",
+)
+
+package(
+    default_copts = build_config.default_copts,
+)
+
 cc_library(
     name = "multi_switch_adapter",
     srcs = ["multi_switch_adapter.cc"],

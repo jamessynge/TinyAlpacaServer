@@ -1,6 +1,15 @@
 # Bazel BUILD file for Tiny Alpaca Server.
 # NOTE: Needs much work to support building on an arbitrary machine.
 
+load(
+    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
+    "build_config",
+)
+
+package(
+    default_copts = build_config.default_copts,
+)
+
 cc_library(
     name = "TinyAlpacaServer",
     hdrs = ["TinyAlpacaServer.h"],

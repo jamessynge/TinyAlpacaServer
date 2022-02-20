@@ -1,5 +1,14 @@
 # Defines a base type for Observing Conditions devices.
 
+load(
+    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
+    "build_config",
+)
+
+package(
+    default_copts = build_config.default_copts,
+)
+
 cc_library(
     name = "observing_conditions_adapter",
     srcs = ["observing_conditions_adapter.cc"],

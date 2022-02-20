@@ -2,6 +2,15 @@
 # Arduino sketch which offers an ASCOM Alpaca server with a CoverCalibrator
 # device.
 
+load(
+    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
+    "build_config",
+)
+
+package(
+    default_copts = build_config.default_copts,
+)
+
 cc_library(
     name = "constants",
     hdrs = ["constants.h"],
