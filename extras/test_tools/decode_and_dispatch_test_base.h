@@ -19,6 +19,7 @@
 // TODO Remove excessive headers.
 
 #include <McuCore.h>
+#include <McuNet.h>
 
 #include "absl/strings/numbers.h"
 #include "absl/strings/str_cat.h"
@@ -29,7 +30,6 @@
 #include "constants.h"
 #include "device_interface.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcunet/src/platform_ethernet.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "extras/test_tools/mock_switch_group.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"

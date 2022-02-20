@@ -1,6 +1,7 @@
 #include "device_types/observing_conditions/observing_conditions_adapter.h"
 
 #include <McuCore.h>
+#include <McuNet.h>
 
 #include <iostream>
 #include <memory>
@@ -16,7 +17,6 @@
 #include "device_info.h"
 #include "device_interface.h"
 #include "device_types/device_impl_base.h"
-#include "experimental/users/jamessynge/arduino/mcunet/src/platform_ethernet.h"
 #include "extras/test_tools/decode_and_dispatch_test_base.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "extras/test_tools/mock_observing_conditions.h"

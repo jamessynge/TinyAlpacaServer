@@ -10,11 +10,10 @@
 // Author: james.synge@gmail.com
 
 #include <McuCore.h>
+#include <McuNet.h>
 
 #include "alpaca_request.h"
 #include "config.h"
-#include "experimental/users/jamessynge/arduino/mcunet/src/connection.h"
-#include "experimental/users/jamessynge/arduino/mcunet/src/socket_listener.h"
 #include "request_decoder.h"
 #include "request_listener.h"
 

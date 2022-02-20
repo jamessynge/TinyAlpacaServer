@@ -7,8 +7,8 @@
 // Author: james.synge@gmail.com
 
 #include <McuCore.h>
+#include <McuNet.h>
 
-#include "experimental/users/jamessynge/arduino/mcunet/src/server_socket.h"
 #include "request_listener.h"
 #include "server_connection.h"
 

@@ -1,10 +1,10 @@
 #include "alpaca_devices.h"
 
 #include <McuCore.h>
+#include <McuNet.h>
 
 #include "alpaca_response.h"
 #include "constants.h"
-#include "experimental/users/jamessynge/arduino/mcunet/src/platform_ethernet.h"
 #include "literals.h"
 
 namespace alpaca {
