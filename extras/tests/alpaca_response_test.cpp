@@ -431,7 +431,8 @@ TEST(AlpacaResponseDeathTest, HttpErrorResponse_NoReasonCode) {
         EXPECT_FALSE(WriteResponse::HttpErrorResponse(
             static_cast<EHttpStatusCode>(499), body, out));
         const auto expected =                                        // Force
-            absl::StrCat("HTTP/1.1 499 ", kEOL,                      // line
+            absl::StrCat("HTTP/1.1 499 Internal Server Error: ",     // line
+                         "Invalid HTTP mcucore::Status Code", kEOL,  // to
                          "Server: TinyAlpacaServer", kEOL,           // wrap
                          "Connection: close", kEOL,                  // right
                          "Content-Type: text/plain", kEOL,           // here,
