@@ -180,8 +180,13 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
     MATCH_ONE_LITERAL_EXACTLY(setup, EDeviceMethod::kSetup);
     return false;
   } else {
-    MCU_CHECK(false) << MCU_FLASHSTR("api group (") << group
-                     << MCU_FLASHSTR(") is not device or setup");
+#ifdef MCU_ENABLE_DCHECK
+    MCU_DCHECK(false) << MCU_FLASHSTR("api group (") << group
+                      << MCU_FLASHSTR(") is not device or setup");
+#else
+    MCU_VLOG(1) << MCU_FLASHSTR("api group (") << group
+                << MCU_FLASHSTR(") is not device or setup");
+#endif
     return false;
   }
 }

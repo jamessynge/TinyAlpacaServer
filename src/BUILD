@@ -239,6 +239,8 @@ cc_library(
         ":literals",
         "//mcucore/src:array_view",
         "//mcucore/src:logging",
+        "//mcucore/src:mcucore_config",
+        "//mcucore/src:printable_cat",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
     ],
