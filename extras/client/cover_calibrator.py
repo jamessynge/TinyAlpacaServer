@@ -142,7 +142,7 @@ def main() -> None:
           servers=[cover_calibrator.client],
           device_number=cover_calibrator.device_number))
 
-  brightness_list = [1 << i for i in range(7)]
+  brightness_list = [min(1 << i, 65535) for i in range(17)]
 
   try:
     while True:
