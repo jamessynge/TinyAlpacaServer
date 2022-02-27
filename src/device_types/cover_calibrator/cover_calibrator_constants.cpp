@@ -56,7 +56,9 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
   };
   auto iv = static_cast<ECalibratorStatus_UnderlyingType>(v);
   if (0 <= iv && iv <= 5) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -110,7 +112,9 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
   };
   auto iv = static_cast<ECoverStatus_UnderlyingType>(v);
   if (0 <= iv && iv <= 5) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH

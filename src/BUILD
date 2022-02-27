@@ -145,6 +145,7 @@ cc_library(
     srcs = ["constants.cc"],
     hdrs = ["constants.h"],
     deps = [
+        "//mcucore/extras/host/arduino:pgmspace",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:print_misc",
         "//mcucore/src:progmem_string_data",

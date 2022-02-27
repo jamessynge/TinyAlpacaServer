@@ -596,7 +596,9 @@ const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
   };
   auto iv = static_cast<uint8_t>(v);
   if (iv <= 5) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -657,7 +659,9 @@ const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
   };
   auto iv = static_cast<uint8_t>(v);
   if (iv <= 2) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH

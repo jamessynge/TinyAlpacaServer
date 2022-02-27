@@ -38,7 +38,9 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
   };
   auto iv = static_cast<uint8_t>(v);
   if (iv <= 2) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -160,7 +162,9 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
   };
   auto iv = static_cast<EHttpMethod_UnderlyingType>(v);
   if (0 <= iv && iv <= 3) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -202,7 +206,9 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
   };
   auto iv = static_cast<uint8_t>(v);
   if (iv <= 3) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -263,7 +269,9 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
   };
   auto iv = static_cast<uint8_t>(v);
   if (iv <= 6) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -299,7 +307,9 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
   };
   auto iv = static_cast<EManagementMethod_UnderlyingType>(v);
   if (0 <= iv && iv <= 2) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -383,7 +393,9 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
   };
   auto iv = static_cast<EDeviceType_UnderlyingType>(v);
   if (0 <= iv && iv <= 10) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -713,7 +725,9 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
   };
   auto iv = static_cast<EDeviceMethod_UnderlyingType>(v);
   if (0 <= iv && iv <= 51) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -821,7 +835,9 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
   };
   auto iv = static_cast<EParameter_UnderlyingType>(v);
   if (0 <= iv && iv <= 14) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -923,7 +939,9 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
   };
   auto iv = static_cast<ESensorName_UnderlyingType>(v);
   if (0 <= iv && iv <= 13) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -971,7 +989,9 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
   };
   auto iv = static_cast<EHttpHeader_UnderlyingType>(v);
   if (0 <= iv && iv <= 4) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
@@ -1007,7 +1027,9 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
   };
   auto iv = static_cast<uint8_t>(v);
   if (iv <= 2) {
-    return flash_string_table[iv - 0];
+    const void* entry_address = &(flash_string_table[iv - 0]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }
   return nullptr;
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH

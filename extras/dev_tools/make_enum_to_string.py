@@ -95,7 +95,9 @@ def print_to_flash_string_via_table_body(enum_def: EnumerationDefinition,
       f"""  }};
   auto iv = static_cast<{int_type}>({var_name});
   if ({'&&'.join(comparisons)}) {{
-    return flash_string_table[iv - {minimum}];
+    const void* entry_address = &(flash_string_table[iv - {minimum}]);
+    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
+    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
   }}
   return nullptr;""",
       end='')
