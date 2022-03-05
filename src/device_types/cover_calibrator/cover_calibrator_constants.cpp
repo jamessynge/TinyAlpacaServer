@@ -2,9 +2,9 @@
 
 // (Mostly) GENERATED FILE. See make_enum_to_string.py
 
-#include <McuCore.h>
-
 // BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
+
+#include <McuCore.h>
 
 namespace alpaca {
 
@@ -46,21 +46,18 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
-      MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
-      MCU_FLASHSTR("Off"),         // 1: kOff
-      MCU_FLASHSTR("NotReady"),    // 2: kNotReady
-      MCU_FLASHSTR("Ready"),       // 3: kReady
-      MCU_FLASHSTR("Unknown"),     // 4: kUnknown
-      MCU_FLASHSTR("Error"),       // 5: kError
-  };
-  auto iv = static_cast<ECalibratorStatus_UnderlyingType>(v);
-  if (0 <= iv && iv <= 5) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
+                                MCU_FLASHSTR("Off"),         // 1: kOff
+                                MCU_FLASHSTR("NotReady"),    // 2: kNotReady
+                                MCU_FLASHSTR("Ready"),       // 3: kReady
+                                MCU_FLASHSTR("Unknown"),     // 4: kUnknown
+                                MCU_FLASHSTR("Error"),       // 5: kError
+  );
+  return mcucore::LookupFlashStringForDenseEnum<
+      ECalibratorStatus_UnderlyingType>(flash_string_table,
+                                        ECalibratorStatus::kNotPresent,
+                                        ECalibratorStatus::kError, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -102,21 +99,16 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
-      MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
-      MCU_FLASHSTR("Closed"),      // 1: kClosed
-      MCU_FLASHSTR("Moving"),      // 2: kMoving
-      MCU_FLASHSTR("Open"),        // 3: kOpen
-      MCU_FLASHSTR("Unknown"),     // 4: kUnknown
-      MCU_FLASHSTR("Error"),       // 5: kError
-  };
-  auto iv = static_cast<ECoverStatus_UnderlyingType>(v);
-  if (0 <= iv && iv <= 5) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
+                                MCU_FLASHSTR("Closed"),      // 1: kClosed
+                                MCU_FLASHSTR("Moving"),      // 2: kMoving
+                                MCU_FLASHSTR("Open"),        // 3: kOpen
+                                MCU_FLASHSTR("Unknown"),     // 4: kUnknown
+                                MCU_FLASHSTR("Error"),       // 5: kError
+  );
+  return mcucore::LookupFlashStringForDenseEnum<ECoverStatus_UnderlyingType>(
+      flash_string_table, ECoverStatus::kNotPresent, ECoverStatus::kError, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 

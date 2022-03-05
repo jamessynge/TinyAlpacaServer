@@ -30,6 +30,7 @@ cc_library(
     srcs = ["cover_calibrator_constants.cc"],
     hdrs = ["cover_calibrator_constants.h"],
     deps = [
+        "//mcucore/src:flash_string_table",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:print_misc",
         "//mcucore/src:progmem_string_data",

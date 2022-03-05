@@ -586,21 +586,16 @@ const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[6] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Disabled"),      // 0: kDisabled
       MCU_FLASHSTR("DivideBy1"),     // 1: kDivideBy1
       MCU_FLASHSTR("DivideBy8"),     // 2: kDivideBy8
       MCU_FLASHSTR("DivideBy64"),    // 3: kDivideBy64
       MCU_FLASHSTR("DivideBy256"),   // 4: kDivideBy256
       MCU_FLASHSTR("DivideBy1024"),  // 5: kDivideBy1024
-  };
-  auto iv = static_cast<uint8_t>(v);
-  if (iv <= 5) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -652,18 +647,12 @@ const __FlashStringHelper* ToFlashStringHelper(TimerCounterChannel v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
-      MCU_FLASHSTR("A"),  // 0: A
-      MCU_FLASHSTR("B"),  // 1: B
-      MCU_FLASHSTR("C"),  // 2: C
-  };
-  auto iv = static_cast<uint8_t>(v);
-  if (iv <= 2) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("A"),  // 0: A
+                                MCU_FLASHSTR("B"),  // 1: B
+                                MCU_FLASHSTR("C"),  // 2: C
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 

@@ -2,9 +2,9 @@
 
 // (Mostly) GENERATED FILE. See make_enum_to_string.py
 
-#include <McuCore.h>
-
 // BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
+
+#include <McuCore.h>
 
 namespace alpaca {
 
@@ -31,18 +31,12 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
-      MCU_FLASHSTR("Reset"),     // 0: kReset
-      MCU_FLASHSTR("Decoding"),  // 1: kDecoding
-      MCU_FLASHSTR("Decoded"),   // 2: kDecoded
-  };
-  auto iv = static_cast<uint8_t>(v);
-  if (iv <= 2) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("Reset"),     // 0: kReset
+                                MCU_FLASHSTR("Decoding"),  // 1: kDecoding
+                                MCU_FLASHSTR("Decoded"),   // 2: kDecoded
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -154,19 +148,13 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[4] AVR_PROGMEM = {
-      MCU_FLASHSTR("Unknown"),  // 0: kUnknown
-      MCU_FLASHSTR("GET"),      // 1: GET
-      MCU_FLASHSTR("PUT"),      // 2: PUT
-      MCU_FLASHSTR("HEAD"),     // 3: HEAD
-  };
-  auto iv = static_cast<EHttpMethod_UnderlyingType>(v);
-  if (0 <= iv && iv <= 3) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("Unknown"),  // 0: kUnknown
+                                MCU_FLASHSTR("GET"),      // 1: GET
+                                MCU_FLASHSTR("PUT"),      // 2: PUT
+                                MCU_FLASHSTR("HEAD"),     // 3: HEAD
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -198,19 +186,13 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[4] AVR_PROGMEM = {
-      MCU_FLASHSTR("Unknown"),     // 0: kUnknown
-      MCU_FLASHSTR("Device"),      // 1: kDevice
-      MCU_FLASHSTR("Management"),  // 2: kManagement
-      MCU_FLASHSTR("Setup"),       // 3: kSetup
-  };
-  auto iv = static_cast<uint8_t>(v);
-  if (iv <= 3) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("Unknown"),     // 0: kUnknown
+                                MCU_FLASHSTR("Device"),      // 1: kDevice
+                                MCU_FLASHSTR("Management"),  // 2: kManagement
+                                MCU_FLASHSTR("Setup"),       // 3: kSetup
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -257,7 +239,8 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[7] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Unknown"),                // 0: kUnknown
       MCU_FLASHSTR("DeviceApi"),              // 1: kDeviceApi
       MCU_FLASHSTR("DeviceSetup"),            // 2: kDeviceSetup
@@ -266,14 +249,8 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
       MCU_FLASHSTR(
           "ManagementConfiguredDevices"),  // 5: kManagementConfiguredDevices
       MCU_FLASHSTR("ServerSetup"),         // 6: kServerSetup
-  };
-  auto iv = static_cast<uint8_t>(v);
-  if (iv <= 6) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -300,18 +277,13 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Unknown"),            // 0: kUnknown
       MCU_FLASHSTR("Description"),        // 1: kDescription
       MCU_FLASHSTR("ConfiguredDevices"),  // 2: kConfiguredDevices
-  };
-  auto iv = static_cast<EManagementMethod_UnderlyingType>(v);
-  if (0 <= iv && iv <= 2) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -378,7 +350,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[11] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Unknown"),              // 0: kUnknown
       MCU_FLASHSTR("Camera"),               // 1: kCamera
       MCU_FLASHSTR("CoverCalibrator"),      // 2: kCoverCalibrator
@@ -390,14 +363,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
       MCU_FLASHSTR("SafetyMonitor"),        // 8: kSafetyMonitor
       MCU_FLASHSTR("Switch"),               // 9: kSwitch
       MCU_FLASHSTR("Telescope"),            // 10: kTelescope
-  };
-  auto iv = static_cast<EDeviceType_UnderlyingType>(v);
-  if (0 <= iv && iv <= 10) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -669,7 +636,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[52] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Unknown"),               // 0: kUnknown
       MCU_FLASHSTR("Setup"),                 // 1: kSetup
       MCU_FLASHSTR("Action"),                // 2: kAction
@@ -722,14 +690,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
       MCU_FLASHSTR("SetSwitchName"),         // 49: kSetSwitchName
       MCU_FLASHSTR("SetSwitchValue"),        // 50: kSetSwitchValue
       MCU_FLASHSTR("SwitchStep"),            // 51: kSwitchStep
-  };
-  auto iv = static_cast<EDeviceMethod_UnderlyingType>(v);
-  if (0 <= iv && iv <= 51) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -816,7 +778,8 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[15] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Unknown"),              // 0: kUnknown
       MCU_FLASHSTR("Action"),               // 1: kAction
       MCU_FLASHSTR("ClientID"),             // 2: kClientID
@@ -832,14 +795,8 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
       MCU_FLASHSTR("Name"),                 // 12: kName
       MCU_FLASHSTR("State"),                // 13: kState
       MCU_FLASHSTR("Value"),                // 14: kValue
-  };
-  auto iv = static_cast<EParameter_UnderlyingType>(v);
-  if (0 <= iv && iv <= 14) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -921,7 +878,8 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[14] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Unknown"),         // 0: kUnknown
       MCU_FLASHSTR("CloudCover"),      // 1: kCloudCover
       MCU_FLASHSTR("DewPoint"),        // 2: kDewPoint
@@ -936,14 +894,8 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
       MCU_FLASHSTR("WindDirection"),   // 11: kWindDirection
       MCU_FLASHSTR("WindGust"),        // 12: kWindGust
       MCU_FLASHSTR("WindSpeed"),       // 13: kWindSpeed
-  };
-  auto iv = static_cast<ESensorName_UnderlyingType>(v);
-  if (0 <= iv && iv <= 13) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -980,20 +932,15 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[5] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("Unknown"),         // 0: kUnknown
       MCU_FLASHSTR("Connection"),      // 1: kConnection
       MCU_FLASHSTR("Content-Length"),  // 2: kContentLength
       MCU_FLASHSTR("Content-Type"),    // 3: kContentType
       MCU_FLASHSTR("Date"),            // 4: kDate
-  };
-  auto iv = static_cast<EHttpHeader_UnderlyingType>(v);
-  if (0 <= iv && iv <= 4) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -1020,18 +967,13 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
   }
   return nullptr;
 #else   // Use flash string table.
-  static const __FlashStringHelper* const flash_string_table[3] AVR_PROGMEM = {
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
       MCU_FLASHSTR("application/json"),  // 0: kApplicationJson
       MCU_FLASHSTR("text/plain"),        // 1: kTextPlain
       MCU_FLASHSTR("text/html"),         // 2: kTextHtml
-  };
-  auto iv = static_cast<uint8_t>(v);
-  if (iv <= 2) {
-    const void* entry_address = &(flash_string_table[iv - 0]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }
-  return nullptr;
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 

@@ -2,20 +2,23 @@
 #define TINY_ALPACA_SERVER_SRC_CONSTANTS_H_
 
 // Enums defining the HTTP status and enums corresponding to each kind of token
-// to be decoded.
+// to be decoded, or state which must be shared across libraries in Tiny Alpaca
+// Server.
 //
-// Note that we include the streaming operators in support of testing; these
-// should not be used in the embedded code (except in DLOG or DCHECK type
-// macro invocations).
+// In addition, make_enum_to_string.py is used to generate functions that which
+// support printing an enumerators name given its value. Specifically:
 //
-// The <EnumName>_UnderlyingType declarations are present to help with reducing
-// the number of unique template instantiations of functions operating on arrays
-// of enums, with the aim of reducing the amount of PROGMEM (flash) required.
-// The reason for explicitly declaring the underlying type is that the Arduino
-// compiler doesn't include the <type_traits> library, and hence the definition
-// of std::underlying_type<E>. (Note that the function motivating the addition
-// of those underlying type declarations has since been removed, which calls
-// into question the continued explicit declaration.)
+// *  ToFlashStringHelper returns a pointer to a string stored in flash given a
+//    valid enumerator, else returns a nullptr value is not a known enumerator.
+//
+// *  PrintValueTo prints the name returned by ToFlashStringHelper to a Print
+//    instance; if instead a nullptr was returned, a message is printed
+//    indicating the enum type and the raw value of the enumerator.
+//
+// In support of testing, the generated code also includes std::ostream
+// insertion operators. These should not (and really, cannot) be used in the
+// embedded code as Arduino libraries don't include a remotely complete C++
+// standard library.
 //
 // Author: james.synge@gmail.com
 
@@ -110,8 +113,7 @@ enum class EHttpStatusCode : uint16_t {
   TASENUMERATOR(kHttpVersionNotSupported, "HTTP Version Not Supported") = 505,
 };
 
-using EHttpMethod_UnderlyingType = uint8_t;
-enum class EHttpMethod : EHttpMethod_UnderlyingType {
+enum class EHttpMethod : uint8_t {
   kUnknown = 0,
   // The supported HTTP methods. Note that the the HTTP/1.1 standard requires
   // that the methods GET and HEAD are supported.
@@ -120,7 +122,6 @@ enum class EHttpMethod : EHttpMethod_UnderlyingType {
   HEAD = 3,
 };
 
-using EApiGroup_UnderlyingType = uint8_t;
 enum class EApiGroup : uint8_t {
   kUnknown = 0,
   kDevice,      // Path: /api...
@@ -128,7 +129,6 @@ enum class EApiGroup : uint8_t {
   kSetup,       // Path: /setup...
 };
 
-using EAlpacaApi_UnderlyingType = uint8_t;
 enum class EAlpacaApi : uint8_t {
   kUnknown = 0,
 
@@ -151,15 +151,13 @@ enum class EAlpacaApi : uint8_t {
   kServerSetup,
 };
 
-using EManagementMethod_UnderlyingType = uint8_t;
-enum class EManagementMethod : EManagementMethod_UnderlyingType {
+enum class EManagementMethod : uint8_t {
   kUnknown,
   kDescription,
   kConfiguredDevices,
 };
 
-using EDeviceType_UnderlyingType = uint8_t;
-enum class EDeviceType : EDeviceType_UnderlyingType {
+enum class EDeviceType : uint8_t {
   kUnknown,
   kCamera,
   kCoverCalibrator,
@@ -173,15 +171,10 @@ enum class EDeviceType : EDeviceType_UnderlyingType {
   kTelescope,
 };
 
-// Note that for many PUT methods, the name of the method, which appears in the
-// request path, appears also in the parameters (e.g. "AveragePeriod" or
-// "Connected"). Note that in the path the name must be lower case, while it may
-// be mixed case in the list of parameters. IF we can rely on the compiler and
-// linker to share literal strings, then it shouldn't be a problem to define an
-// enum in both EDeviceMethod and EParameter, and a corresponding Token for each
-// in requests.cc.
-using EDeviceMethod_UnderlyingType = uint8_t;
-enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
+// Note that for many PUT methods, the name of the method must lower case in the
+// request path (e.g. "averageperiod"), but that same name is used as a
+// case-insensitive parameter same in the body of the request.
+enum class EDeviceMethod : uint8_t {
   kUnknown,
 
   // This is the only method for EAlpacaApi::kDeviceSetup:
@@ -251,8 +244,7 @@ enum class EDeviceMethod : EDeviceMethod_UnderlyingType {
 
 // These are parameter names used in *requests*, not responses. Names such as
 // ServerTransactionID and ErrorNumber should not be in this list.
-using EParameter_UnderlyingType = uint8_t;
-enum class EParameter : EParameter_UnderlyingType {
+enum class EParameter : uint8_t {
   kUnknown,
 
   // Common or all method parameters.
@@ -281,8 +273,7 @@ enum class EParameter : EParameter_UnderlyingType {
 // These are sensor names used in an ObservingConditions SensorDescription
 // requests, e.g. DewPoint or SkyBrightness. These are to be matched case
 // insensitively.
-using ESensorName_UnderlyingType = uint8_t;
-enum class ESensorName : ESensorName_UnderlyingType {
+enum class ESensorName : uint8_t {
   kUnknown,
 
   kCloudCover,
@@ -300,8 +291,7 @@ enum class ESensorName : ESensorName_UnderlyingType {
   kWindSpeed,
 };
 
-using EHttpHeader_UnderlyingType = uint8_t;
-enum class EHttpHeader : EHttpHeader_UnderlyingType {
+enum class EHttpHeader : uint8_t {
   kUnknown,
 
   kConnection,

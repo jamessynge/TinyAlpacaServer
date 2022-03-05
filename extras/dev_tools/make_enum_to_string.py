@@ -15,6 +15,7 @@ printed by this file.
 import argparse
 import contextlib
 import io
+import re
 import sys
 from typing import Dict, List, Optional, Tuple
 
@@ -41,14 +42,32 @@ def enumerator_dict_is_compact(
   return True
 
 
+def type_is_unsigned(int_type: str) -> bool:
+  if re.fullmatch(r'(?:std::)?uint(?:8|16|32|64)_t', int_type):
+    return True
+  elif re.fullmatch(r'unsigned(?: (?:char|short|int|long(?: long)?))?',
+                    int_type):
+    return True
+  else:
+    return False
+
+
+def value_to_enum_type_and_name(enum_def: EnumerationDefinition,
+                                value: int) -> str:
+  n_to_enumerator = enum_def.get_numeric_value_to_enumerator()
+  if value not in n_to_enumerator:
+    raise ValueError(
+        f'{value} is not the value of an enumerator for {enum_def.name}')
+  return f'{enum_def.name}::{n_to_enumerator[value].name}'
+
+
 def print_to_flash_string_via_table_body(enum_def: EnumerationDefinition,
                                          var_name: str) -> bool:
   """Print the body of a function for looking up a string via a table."""
 
-  # Consider emitting a static assert that the mapping is still correct,
-  # and maybe an unused function with a switch on the enum values which will
-  # fail to compile (with certain warnings as errors) if the enumerators have
-  # changed.
+  # Consider emitting a static assert that the mapping is still correct, and
+  # maybe an unused function with a switch on the enum values which will fail to
+  # compile (with certain warnings as errors) if the enumerators have changed.
 
   if not enum_def.all_values_known():
     return False
@@ -79,28 +98,30 @@ def print_to_flash_string_via_table_body(enum_def: EnumerationDefinition,
         'maximum value does not match that of sorted enumerators: '
         f'{items[-1][0]} != {maximum}')
 
-  print('  static const __FlashStringHelper* const '
-        f'flash_string_table[{len(n_to_enumerator)}] AVR_PROGMEM = {{')
+  print('  static MCU_FLASH_STRING_TABLE( ')
+  print('      flash_string_table,', end='')
 
   for nv, enumerator in items:
-    print(f'      MCU_FLASHSTR({enumerator.get_dq_print_name()}),  '
-          f'// {nv}: {enumerator.name}')
+    print_name = enumerator.get_dq_print_name()
+    print(
+        f"""
+      MCU_FLASHSTR({print_name}),  // {nv}: {enumerator.name}""",
+        end='')
 
-  # Omit the minimum comparision against zero if we know it is unsigned.
-  comparisons = []
-  if minimum == 0 and int_type not in ('uint8_t', 'unsigned char', 'uint16_t'):
-    comparisons.append(f'{minimum} <= iv')
-  comparisons.append(f'iv <= {maximum}')
   print(
-      f"""  }};
-  auto iv = static_cast<{int_type}>({var_name});
-  if ({'&&'.join(comparisons)}) {{
-    const void* entry_address = &(flash_string_table[iv - {minimum}]);
-    const void* flash_string_ptr = pgm_read_ptr_near(entry_address);
-    return static_cast<const __FlashStringHelper*>(flash_string_ptr);
-  }}
-  return nullptr;""",
+      f"""
+  );
+  return mcucore::LookupFlashStringForDenseEnum<{int_type}>(
+      flash_string_table, """,
       end='')
+
+  # Include the min and max if the underlying type isn't unsigned or the minimum
+  # is non-zero.
+  if not (minimum == 0 and type_is_unsigned(int_type)):
+    print(f'{value_to_enum_type_and_name(enum_def, minimum)}, ')
+    print(f'{value_to_enum_type_and_name(enum_def, maximum)}, ')
+
+  print(f'{var_name});', end='')
 
   return True
 
@@ -280,6 +301,11 @@ BEGIN_HEADER_TAG = '// BEGIN_HEADER_' + TAG_SUFFIX
 END_HEADER_TAG = '// END_HEADER_' + TAG_SUFFIX
 BEGIN_SOURCE_TAG = '// BEGIN_SOURCE_' + TAG_SUFFIX
 END_SOURCE_TAG = '// END_SOURCE_' + TAG_SUFFIX
+INCLUDES = """
+#include <McuCore.h>
+#include <McuCore.h>
+#include <McuCore.h>
+"""
 
 
 def update_header_file(file_contents: file_edit.FileContents,
@@ -349,6 +375,7 @@ def process_file(file_path: str, update_files: bool = False):
       'Generated functions for enum definitions in file', file_path, flush=True)
 
   declarations, definitions = decls_and_defns
+  definitions = INCLUDES + definitions
 
   # Attempt to update the files, if permitted. If unable, then we'll print them
   # out.

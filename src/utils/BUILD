@@ -17,6 +17,7 @@ cc_library(
     hdrs = ["avr_timer_counter.h"],
     deps = [
         "//mcucore/src:counting_print",
+        "//mcucore/src:flash_string_table",
         "//mcucore/src:has_print_to",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
