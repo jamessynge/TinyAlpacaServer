@@ -6,12 +6,8 @@
 //
 // Author: james.synge@gmail.com
 
-#include <McuCore.h>  // IWYU pragma: export
-
-// TODO(jamessynge): Reduce this list to just the necessary headers. This will
-// probably be helped along by splitting this huge library into several smaller
-// ones (e.g. much of src/utils could be moved to a generic Arduino helpers
-// library).
+// TODO(jamessynge): (Maybe) Reduce this list to just the necessary headers,
+// i.e. those that will be used by sketches using Tiny Alpaca Server.
 
 #include "alpaca_devices.h"           // IWYU pragma: export
 #include "alpaca_discovery_server.h"  // IWYU pragma: export
