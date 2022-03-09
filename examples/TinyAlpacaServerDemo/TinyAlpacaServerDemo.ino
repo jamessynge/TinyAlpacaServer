@@ -63,8 +63,10 @@ static DeviceInterface* kDevices[] = {&dht_handler};
 
 static constexpr uint16_t kHttpPort = 80;
 static mcunet::IpDevice ip_device;
-static alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
-    kHttpPort, kServerDescription, kDevices);
+static alpaca::TinyAlpacaDeviceServer device_server(  // NOLINT
+    kServerDescription, kDevices);
+static alpaca::TinyAlpacaNetworkServer network_server(  // NOLINT
+    device_server, kHttpPort);
 
 void announceAddresses() {
   Serial.println();
@@ -109,7 +111,11 @@ void setup() {
     announceFailure("Unable to initialize networking!");
   }
   announceAddresses();
-  tiny_alpaca_server.Initialize();
+
+  // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
+  device_server.Initialize();
+  // Initialize Tiny Alpaca Network Server, which will initialize TCP listeners.
+  network_server.Initialize();
 }
 
 // For now only supporting one request at a time. Unless there are multiple
@@ -138,5 +144,6 @@ void loop() {
       Serial.print("Unexpected result from MaintainDhcpLease: ");
       Serial.println(dhcp_check);
   }
-  tiny_alpaca_server.PerformIO();
+  device_server.MaintainDevices();
+  network_server.PerformIO();
 }

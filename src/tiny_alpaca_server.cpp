@@ -9,25 +9,27 @@
 
 namespace alpaca {
 
-TinyAlpacaServerBase::TinyAlpacaServerBase(
+TinyAlpacaDeviceServer::TinyAlpacaDeviceServer(
     const ServerDescription& server_description,
     mcucore::ArrayView<DeviceInterface*> devices)
     : alpaca_devices_(devices),
       server_description_(server_description),
       server_transaction_id_(0) {}
 
-bool TinyAlpacaServerBase::Initialize() { return alpaca_devices_.Initialize(); }
+bool TinyAlpacaDeviceServer::Initialize() {
+  return alpaca_devices_.Initialize();
+}
 
-void TinyAlpacaServerBase::MaintainDevices() {
+void TinyAlpacaDeviceServer::MaintainDevices() {
   alpaca_devices_.MaintainDevices();
 }
 
-void TinyAlpacaServerBase::OnStartDecoding(AlpacaRequest& request) {
+void TinyAlpacaDeviceServer::OnStartDecoding(AlpacaRequest& request) {
   request.set_server_transaction_id(++server_transaction_id_);
 }
 
-bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
-                                            Print& out) {
+bool TinyAlpacaDeviceServer::OnRequestDecoded(AlpacaRequest& request,
+                                              Print& out) {
   switch (request.api) {
     case EAlpacaApi::kUnknown:
       break;
@@ -57,15 +59,15 @@ bool TinyAlpacaServerBase::OnRequestDecoded(AlpacaRequest& request,
       mcucore::PrintableCat(msg, (request.api)), out);
 }
 
-void TinyAlpacaServerBase::OnRequestDecodingError(AlpacaRequest& request,
-                                                  EHttpStatusCode status,
-                                                  Print& out) {
+void TinyAlpacaDeviceServer::OnRequestDecodingError(AlpacaRequest& request,
+                                                    EHttpStatusCode status,
+                                                    Print& out) {
   MCU_VLOG(3) << MCU_FLASHSTR("OnRequestDecodingError: status=") << status;
   WriteResponse::HttpErrorResponse(status, mcucore::AnyPrintable(), out);
 }
 
-bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
-                                                       Print& out) {
+bool TinyAlpacaDeviceServer::HandleManagementApiVersions(AlpacaRequest& request,
+                                                         Print& out) {
   MCU_VLOG(3) << MCU_FLASHSTR("HandleManagementApiVersions");
   uint32_t versions[] = {1};
   return WriteResponse::ArrayResponse(
@@ -74,17 +76,17 @@ bool TinyAlpacaServerBase::HandleManagementApiVersions(AlpacaRequest& request,
       out);
 }
 
-bool TinyAlpacaServerBase::HandleManagementDescription(AlpacaRequest& request,
-                                                       Print& out) {
+bool TinyAlpacaDeviceServer::HandleManagementDescription(AlpacaRequest& request,
+                                                         Print& out) {
   MCU_VLOG(3) << MCU_FLASHSTR(
-      "TinyAlpacaServerBase::HandleManagementDescription");
+      "TinyAlpacaDeviceServer::HandleManagementDescription");
   mcucore::JsonPropertySourceAdapter<ServerDescription> description(
       server_description_);
   return WriteResponse::ObjectResponse(request, description, out);
 }
 
-bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
-                                             Print& out) {
+bool TinyAlpacaDeviceServer::HandleServerSetup(AlpacaRequest& request,
+                                               Print& out) {
   MCU_VLOG(3) << MCU_FLASHSTR("HandleServerSetup");
 
   auto body = MCU_FLASHSTR(
@@ -98,29 +100,22 @@ bool TinyAlpacaServerBase::HandleServerSetup(AlpacaRequest& request,
                                    /*append_http_newline=*/true);
 }
 
-TinyAlpacaServer::TinyAlpacaServer(uint16_t tcp_port,
-                                   const ServerDescription& server_description,
-                                   mcucore::ArrayView<DeviceInterface*> devices)
-    : TinyAlpacaServerBase(server_description, devices),
-      sockets_(tcp_port, *this),
-      discovery_server_(tcp_port) {}
+TinyAlpacaNetworkServer::TinyAlpacaNetworkServer(
+    TinyAlpacaDeviceServer& device_server, uint16_t tcp_port)
+    : sockets_(tcp_port, device_server), discovery_server_(tcp_port) {}
 
-bool TinyAlpacaServer::Initialize() {
+bool TinyAlpacaNetworkServer::Initialize() {
   // Give everything a chance to initialize so that logs will contain relevant
   // info about any failures. Choosing to initialize the discovery server before
   // the sockets so that it occupies socket 0.
-  bool result = TinyAlpacaServerBase::Initialize();
-  if (!discovery_server_.Initialize()) {
-    result = false;
-  }
+  bool result = discovery_server_.Initialize();
   if (!sockets_.Initialize()) {
     result = false;
   }
   return result;
 }
 
-void TinyAlpacaServer::PerformIO() {
-  TinyAlpacaServerBase::MaintainDevices();
+void TinyAlpacaNetworkServer::PerformIO() {
   discovery_server_.PerformIO();
   sockets_.PerformIO();
 }

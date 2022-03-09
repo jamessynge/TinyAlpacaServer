@@ -39,7 +39,7 @@ struct ConnectionResult {
   bool connection_closed;
 };
 
-class TestTinyAlpacaServer : public TinyAlpacaServerBase {
+class TestTinyAlpacaServer : public TinyAlpacaDeviceServer {
  public:
   TestTinyAlpacaServer(const ServerDescription& server_description,
                        mcucore::ArrayView<DeviceInterface*> devices);

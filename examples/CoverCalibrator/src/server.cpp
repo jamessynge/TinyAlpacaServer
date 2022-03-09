@@ -67,8 +67,10 @@ const alpaca::ServerDescription kServerDescription  // NOLINT
 
 alpaca::DeviceInterface* kDevices[] = {&cover_calibrator, &led_switches};
 
-alpaca::TinyAlpacaServer tiny_alpaca_server(  // NOLINT
-    /*tcp_port=*/80, kServerDescription, kDevices);
+alpaca::TinyAlpacaDeviceServer device_server(  // NOLINT
+    kServerDescription, kDevices);
+
+alpaca::TinyAlpacaNetworkServer network_server(device_server);  // NOLINT
 
 mcunet::IpDevice ip_device;
 
@@ -94,8 +96,12 @@ void setup() {
       << MCU_FLASHSTR("Unable to initialize networking!");
   announceAddresses();
 
-  // Initialize Tiny Alpaca Server, which will initialize TCP listeners.
-  tiny_alpaca_server.Initialize();
+  // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
+  device_server.Initialize();
+
+  // Initialize Tiny Alpaca Network Server, which will initialize TCP listeners
+  // and the Alpaca Discovery Server.
+  network_server.Initialize();
 
   MCU_VLOG(4) << MCU_FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
   MCU_VLOG(4) << MCU_FLASHSTR("sizeof(char*): ") << sizeof(char*);
@@ -109,7 +115,8 @@ void setup() {
 
 void loop() {
   ip_device.MaintainDhcpLease();
-  tiny_alpaca_server.PerformIO();
+  device_server.MaintainDevices();
+  network_server.PerformIO();
 }
 
 void logMCUStatusRegister(uint8_t mcusr) {

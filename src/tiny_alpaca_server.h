@@ -1,20 +1,21 @@
 #ifndef TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 #define TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
 
-// TinyAlpacaServerBase handles AlpacaRequests, dispatching successfully decoded
-// requests to the appropriate device instance.
+// TinyAlpacaDeviceServer handles AlpacaRequests, dispatching successfully
+// decoded requests to the appropriate device instance.
 //
-// TinyAlpacaServer adds in the networking support, using all but one of the
-// hardware sockets provided by the Ethernet chip (i.e. reserving one for DHCP
-// renewal), with one socket used for the Alpaca (UDP) Discovery Protocol, and
-// the remaining sockets used for the Alpaca (HTTP) Management and Device APIs.
+// TinyAlpacaNetworkServer adds in the networking support, using all but one of
+// the hardware sockets provided by the Ethernet chip (i.e. reserving one for
+// DHCP renewal), with one socket used for the Alpaca (UDP) Discovery Protocol,
+// and the remaining sockets used for the Alpaca (HTTP) Management and Device
+// APIs.
 //
-// TinyAlpacaServer::Initialize should be called from the setup function of the
-// Arduino sketch, and then TinyAlpacaServer::PerformIO should be called from
-// the loop function of the sketch.
+// TinyAlpacaNetworkServer::Initialize should be called from the setup function
+// of the Arduino sketch, and then TinyAlpacaServer::PerformIO should be called
+// from the loop function of the sketch.
 //
 // Separating the two classes this way improves testability of the
-// non-networking portion, i.e. of TinyAlpacaServerBase.
+// non-networking portion, i.e. of TinyAlpacaNetworkServer.
 //
 // Author: james.synge@gmail.com
 
@@ -28,17 +29,17 @@
 
 namespace alpaca {
 
-class TinyAlpacaServerBase : public RequestListener {
+class TinyAlpacaDeviceServer : public RequestListener {
  public:
-  TinyAlpacaServerBase(const ServerDescription& server_description,
-                       mcucore::ArrayView<DeviceInterface*> devices);
+  TinyAlpacaDeviceServer(const ServerDescription& server_description,
+                         mcucore::ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
-  TinyAlpacaServerBase(const ServerDescription& server_description,
-                       DeviceInterface* (&devices)[N])
-      : TinyAlpacaServerBase(server_description,
-                             mcucore::ArrayView<DeviceInterface*>(devices, N)) {
-  }
+  TinyAlpacaDeviceServer(const ServerDescription& server_description,
+                         DeviceInterface* (&devices)[N])
+      : TinyAlpacaDeviceServer(
+            server_description,
+            mcucore::ArrayView<DeviceInterface*>(devices, N)) {}
 
   // Calls Initialize on the nested objects. Returns true if all of the objects
   // are successfully initialized.
@@ -63,18 +64,10 @@ class TinyAlpacaServerBase : public RequestListener {
   uint32_t server_transaction_id_;
 };
 
-class TinyAlpacaServer : TinyAlpacaServerBase {
+class TinyAlpacaNetworkServer {
  public:
-  TinyAlpacaServer(uint16_t tcp_port,
-                   const ServerDescription& server_description,
-                   mcucore::ArrayView<DeviceInterface*> devices);
-
-  template <size_t N>
-  TinyAlpacaServer(uint16_t tcp_port,
-                   const ServerDescription& server_description,
-                   DeviceInterface* (&devices)[N])
-      : TinyAlpacaServer(tcp_port, server_description,
-                         mcucore::ArrayView<DeviceInterface*>(devices, N)) {}
+  TinyAlpacaNetworkServer(TinyAlpacaDeviceServer& device_server,
+                          uint16_t tcp_port = 80);
 
   // Calls Initialize on the nested objects, e.g. initializes sockets so they
   // listen for connections to tcp_port. Returns true if all of the objects are

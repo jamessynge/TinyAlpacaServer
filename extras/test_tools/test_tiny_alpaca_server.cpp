@@ -23,7 +23,7 @@ using ::mcunet::test::StringIoConnection;
 TestTinyAlpacaServer::TestTinyAlpacaServer(
     const ServerDescription& server_description,
     mcucore::ArrayView<DeviceInterface*> devices)
-    : TinyAlpacaServerBase(server_description, devices),
+    : TinyAlpacaDeviceServer(server_description, devices),
       server_connection_(*this),
       sock_num_(0) {}
 

@@ -1,5 +1,4 @@
-// Tests of TinyAlpacaServerBase, via the concrete sub-class
-// TestTinyAlpacaServer.
+// Tests of TinyAlpacaDeviceServer.
 
 #include <McuCore.h>
 #include <McuNet.h>
