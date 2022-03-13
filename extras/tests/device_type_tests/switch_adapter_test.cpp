@@ -244,7 +244,8 @@ TEST_F(SwitchGroupTest, GetSwitch) {
 
   const char kErrorMessage[] = "Can not get switch as boolean";
   mcucore::ProgmemStringView literal_error_message(kErrorMessage);
-  mcucore::Status status(123, literal_error_message);
+  mcucore::Status status(static_cast<mcucore::StatusCode>(999),
+                         literal_error_message);
 
   InitializeRequest();
   request_.device_method = EDeviceMethod::kGetSwitch;
@@ -256,7 +257,7 @@ TEST_F(SwitchGroupTest, GetSwitch) {
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
-    EXPECT_THAT(response, HasSubstr(R"("ErrorNumber": 123)"));
+    EXPECT_THAT(response, HasSubstr(R"("ErrorNumber": 999)"));
     EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ErrorMessage": ")",
                                                  kErrorMessage, "\"")));
   }
@@ -279,7 +280,7 @@ TEST_F(SwitchGroupTest, GetSwitchValue) {
 
   const char kErrorMessage[] = "Can not get switch as double";
   mcucore::ProgmemStringView literal_error_message(kErrorMessage);
-  mcucore::Status status(123, literal_error_message);
+  mcucore::Status status(mcucore::StatusCode::kNotFound, literal_error_message);
 
   EXPECT_CALL(switch_group_, GetSwitchValue(0)).WillOnce(Return(status));
 
@@ -288,7 +289,10 @@ TEST_F(SwitchGroupTest, GetSwitchValue) {
     switch_group_.HandleGetRequest(request_, out);
     const std::string response = out.str();
     VerifyResponseHasError(response);
-    EXPECT_THAT(response, HasSubstr(R"("ErrorNumber": 123)"));
+    EXPECT_THAT(response,
+                HasSubstr(absl::StrCat(
+                    R"("ErrorNumber": )",
+                    static_cast<int>(mcucore::StatusCode::kNotFound))));
     EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ErrorMessage": ")",
                                                  kErrorMessage, "\"")));
   }

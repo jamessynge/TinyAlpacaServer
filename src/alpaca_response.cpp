@@ -217,10 +217,10 @@ bool WriteResponse::AscomErrorResponse(AlpacaRequest request,
 bool WriteResponse::AscomErrorResponse(const AlpacaRequest& request,
                                        mcucore::Status error_status,
                                        Print& out) {
-  if (error_status.code() == ErrorCodes::kNotImplemented) {
+  if (error_status.code() == ErrorCodes::kNotImplementedStatusCode) {
     return AscomMethodNotImplementedResponse(request, out);
   }
-  return AscomErrorResponse(request, error_status.code(),
+  return AscomErrorResponse(request, static_cast<uint32_t>(error_status.code()),
                             mcucore::AnyPrintable(error_status.message()), out);
 }
 

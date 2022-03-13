@@ -227,7 +227,8 @@ bool ObservingConditionsAdapter::WriteDoubleOrSensorErrorResponse(
     mcucore::StatusOr<double> result, Print& out) {
   if (result.ok()) {
     return WriteResponse::DoubleResponse(request, result.value(), out);
-  } else if (result.status().code() == ErrorCodes::kNotImplemented) {
+  } else if (static_cast<int>(result.status().code()) ==
+             ErrorCodes::kNotImplemented) {
     return WriteSensorNotImpementedResponse(request, sensor_name, out);
   } else {
     return WriteResponse::StatusResponse(request, result.status(), out);
