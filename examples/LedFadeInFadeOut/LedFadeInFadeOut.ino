@@ -102,7 +102,7 @@ void setup() {
 }
 
 template <class T>
-void Sweep16BitPwm(T& t, uint16_t increment, MillisT delay_by,
+void Sweep16BitPwm(T& t, uint16_t increment, mcucore::MillisT delay_by,
                    const char* name) {
   if (t.IsEnabled()) {
     MCU_VLOG(1) << name << MCU_FLASHSTR(" is enabled.");

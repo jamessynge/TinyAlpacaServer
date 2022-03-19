@@ -35,7 +35,7 @@ class RampPwmLed {
   PwmLed led_;
   uint16_t current_brightness_{0};
   uint16_t brightness_target_{0};
-  MillisT last_step_time_ms_;
+  mcucore::MillisT last_step_time_ms_;
   // NOTE: Could adopt Bresenham's Line Algorithm or similar for tracking the
   // excess, or could just scale the values up by 256 or 65536 here, then scale
   // down when calling led_.set_brightness().
