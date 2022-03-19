@@ -981,7 +981,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 
   EHttpStatusCode status;
   do {
-#if MCU_ENABLE_DEBUGGING
+#ifdef REQUEST_DECODER_EXTRA_CHECKS
     const auto buffer_size_before_decode = buffer.size();
     auto old_decode_function = decode_function;
     MCU_VLOG(2) << decode_function << ' ' << mcucore::HexEscaped(buffer)
@@ -991,7 +991,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 
     status = decode_function(*this, buffer);
 
-#if MCU_ENABLE_DEBUGGING
+#ifdef REQUEST_DECODER_EXTRA_CHECKS
     MCU_CHECK_LE(buffer.size(), buffer_size_before_decode);
     auto consumed_chars = buffer_size_before_decode - buffer.size();
 
@@ -1062,7 +1062,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
   EHttpStatusCode status;
   do {
     const auto buffer_size_before_decode = buffer.size();
-#if MCU_ENABLE_DEBUGGING
+#ifdef REQUEST_DECODER_EXTRA_CHECKS
     const auto old_decode_function = decode_function;
     MCU_VLOG(2) << decode_function << ' ' << mcucore::HexEscaped(buffer)
                 << MCU_FLASHSTR(" (") << (buffer.size() + 0)
@@ -1072,7 +1072,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
     status = decode_function(*this, buffer);
     const auto consumed_chars = buffer_size_before_decode - buffer.size();
 
-#if MCU_ENABLE_DEBUGGING
+#ifdef REQUEST_DECODER_EXTRA_CHECKS
     MCU_VLOG(3) << MCU_FLASHSTR("decode_function ") << MCU_FLASHSTR("returned ")
                 << status << MCU_FLASHSTR(", consumed ") << consumed_chars
                 << MCU_FLASHSTR(" characters, ")
@@ -1107,7 +1107,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
   MCU_CHECK_NE(status, EHttpStatusCode::kContinueDecoding);
 
   if (status >= EHttpStatusCode::kHttpOk) {
-#if MCU_ENABLE_DEBUGGING
+#ifdef REQUEST_DECODER_EXTRA_CHECKS
     if (status == EHttpStatusCode::kHttpOk) {
       MCU_CHECK_EQ(remaining_content_length, 0);
       MCU_CHECK(at_end_of_input);

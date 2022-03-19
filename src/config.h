@@ -12,6 +12,12 @@
 //
 // Author: james.synge@gmail.com
 
+#ifndef REQUEST_DECODER_DISABLE_EXTRA_CHECKS
+#if MCU_HOST_TARGET && MCU_ENABLE_DEBUGGING
+#define REQUEST_DECODER_EXTRA_CHECKS
+#endif
+#endif
+
 // The number of hardware sockets we'll dedicate to listening for TCP
 // connections to the Tiny Alpaca Server.
 #define TAS_NUM_SERVER_CONNECTIONS 3
