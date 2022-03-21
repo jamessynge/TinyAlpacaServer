@@ -211,6 +211,12 @@ they say, but don't collapse multiple occurrences of a string into one. Hence
 string, and `TASLIT(value)` is preferred if you also want to know the length
 without search the string for the terminating NUL.
 
+NOTE: An additional problem with `F(str)` is that the symbol `F` is used in
+existing libraries, so including both Arduino.h and those existing libraries can
+easily lead to compilation failures or other errors. So, I've defined `FLASHSTR`
+as a direct replacement of Arduino's `F` for those cases where that is what is
+desired.
+
 ## Improvement Priorities
 
 1.  DONE: High-Resolution PWM for CoverCalibrator.
