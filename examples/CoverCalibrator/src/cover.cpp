@@ -122,10 +122,12 @@ ISR(TIMER5_OVF_vect) {
 namespace astro_makers {
 using ::alpaca::ECoverStatus;
 
-Cover::Cover(uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
-             uint8_t closed_limit_pin, uint8_t cover_present_pin,
-             uint32_t allowed_steps, uint32_t allowed_start_steps)
+Cover::Cover(uint8_t cover_present_pin, uint8_t stepper_enable_pin,
+             uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
+             uint8_t closed_limit_pin, uint32_t allowed_steps,
+             uint32_t allowed_start_steps)
     : alpaca::EnableableByPin(cover_present_pin),
+      stepper_enable_pin_(stepper_enable_pin),
       step_pin_(step_pin),
       direction_pin_(direction_pin),
       open_limit_pin_(open_limit_pin),
@@ -135,11 +137,18 @@ Cover::Cover(uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
       motor_status_(kNotMoving) {}
 
 Cover::Cover()
-    : Cover(kCoverMotorStepPin, kCoverMotorDirectionPin, kCoverOpenLimitPin,
-            kCoverCloseLimitPin, kCoverEnabledPin, kMaximumSteps,
-            kMaximumStartSteps) {}
+    : Cover(kCoverPresentPin, kCoverMotorEnablePin, kCoverMotorStepPin,
+            kCoverMotorDirectionPin, kCoverOpenLimitPin, kCoverCloseLimitPin,
+            kMaximumSteps, kMaximumStartSteps) {}
 
 void Cover::Initialize() {
+  // TODO(jamessynge): Consider whether to do this if motor is not present.
+
+  ResetTimer5();
+
+  pinMode(stepper_enable_pin_, OUTPUT);
+  digitalWrite(stepper_enable_pin_, LOW);
+
   pinMode(step_pin_, OUTPUT);
   digitalWrite(step_pin_, LOW);
 
@@ -157,8 +166,6 @@ void Cover::Initialize() {
   digitalWrite(kMicrostepResolution2, HIGH);
   digitalWrite(kMicrostepResolution3, LOW);
 #endif
-
-  ResetTimer5();
 }
 
 ECoverStatus Cover::GetCoverStatus() const {
@@ -251,7 +258,7 @@ void Cover::StartMoving(int direction_pin_value) {
   StartTimer5(kStepsPerSecond);
   delay(1);
 
-  if (MCU_VLOG_IS_ON(1)) {
+  if (MCU_VLOG_IS_ON(2)) {
     noInterrupts();
     uint32_t step_count_copy = step_count_;
     interrupts();

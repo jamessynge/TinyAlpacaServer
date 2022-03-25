@@ -6,11 +6,9 @@
 #include "constants.h"
 
 namespace astro_makers {
+
 using ::alpaca::ECalibratorStatus;
-using ::alpaca::ECoverStatus;
-using ::alpaca::ErrorCodes;
 using ::alpaca::TimerCounterChannel;
-using ::mcucore::Status;
 using ::mcucore::StatusOr;
 
 CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
@@ -96,16 +94,20 @@ mcucore::Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
   }
   calibrator_on_ = true;
   brightness_ = brightness;
-  if (GetLedChannelEnabled(0) && led1_.IsEnabled()) {
+  if (GetLedChannelEnabled(0)) {
+    MCU_VLOG_IF(1, !led1_.IsEnabled()) << MCU_FLASHSTR("led1 not enabled!");
     led1_.set_pulse_count(brightness_);
   }
-  if (GetLedChannelEnabled(1) && led2_.IsEnabled()) {
+  if (GetLedChannelEnabled(1)) {
+    MCU_VLOG_IF(1, !led2_.IsEnabled()) << MCU_FLASHSTR("led2 not enabled!");
     led2_.set_pulse_count(brightness_);
   }
-  if (GetLedChannelEnabled(2) && led3_.IsEnabled()) {
+  if (GetLedChannelEnabled(2)) {
+    MCU_VLOG_IF(1, !led3_.IsEnabled()) << MCU_FLASHSTR("led3 not enabled!");
     led3_.set_pulse_count(brightness_);
   }
-  if (GetLedChannelEnabled(3) && led4_.IsEnabled()) {
+  if (GetLedChannelEnabled(3)) {
+    MCU_VLOG_IF(1, !led4_.IsEnabled()) << MCU_FLASHSTR("led4 not enabled!");
     led4_.set_pulse_count(brightness_);
   }
   return mcucore::OkStatus();
@@ -125,7 +127,7 @@ mcucore::Status CoverCalibrator::SetCalibratorOff() {
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
-  MCU_VLOG(4) << MCU_FLASHSTR("SetLedChannelEnabled(") << channel
+  MCU_VLOG(2) << MCU_FLASHSTR("SetLedChannelEnabled(") << channel
               << MCU_FLASHSTR(", ") << enabled
               << MCU_FLASHSTR(") ENTER, brightness_ = ") << brightness_
               << MCU_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
@@ -157,8 +159,11 @@ bool CoverCalibrator::IsCalibratorHardwareEnabled() const {
 }
 
 bool CoverCalibrator::GetLedChannelEnabled(int channel) const {
-  return GetLedChannelHardwareEnabled(channel) &&
-         (enabled_led_channels_ & (1 << channel)) != 0;
+  if (!GetLedChannelHardwareEnabled(channel)) {
+    return false;
+  }
+  const auto mask = 1 << channel;
+  return (enabled_led_channels_ & mask) != 0;
 }
 
 bool CoverCalibrator::GetLedChannelHardwareEnabled(int channel) const {

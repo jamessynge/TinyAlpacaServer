@@ -100,22 +100,28 @@
 // so the stepper motor didn't move. Sigh.
 
 //                                        Alt. Func.       Rev. 6 pin  Dir
-#define kLedChannel1PwmPin 2           // OC3B             was 5       Output
-#define kLedChannel2PwmPin 3           // OC3C             was 6       Output
-#define kLedChannel3PwmPin 5           // OC3A             was 7       Output
-#define kLedChannel4PwmPin 6           // OC4A             was 8       Output
-#define kLedChannel1EnabledPin PIN_A0  // ADC0             NEW         Input
-#define kLedChannel2EnabledPin PIN_A1  // ADC1             was 10      Input
-#define kLedChannel3EnabledPin PIN_A2  // ADC2             was 11      Input
-#define kLedChannel4EnabledPin PIN_A3  // ADC3             was 12      Input
+#define kLedChannel1PwmPin 2  // OC3B             was 5       Output
+#define kLedChannel2PwmPin 3  // OC3C             was 6       Output
+#define kLedChannel3PwmPin 5  // OC3A             was 7       Output
+#define kLedChannel4PwmPin 6  // OC4A             was 8       Output
+
 #define kCoverMotorDirectionPin 16     // TXD2             was 4       Output
 #define kCoverMotorStepPin 17          // RXD2             was 3       Output
 #define kCoverOpenLimitPin 18          // TXD1, INT3       was 20      Input
 #define kCoverCloseLimitPin 19         // RXD1, INT2       was 21      Input
-#define kCoverEnabledPin PIN_A13       // ADC13, PCINT21   was 13      Input
 #define kMicrostepResolution3 PIN_A9   // ADC9, PCINT17    NEW         Output
 #define kMicrostepResolution2 PIN_A10  // ADC10, PCINT18   NEW         Output
 #define kMicrostepResolution1 PIN_A11  // ADC11, PCINT19   NEW         Output
+
+#define kLedChannel4EnabledPin PIN_A0  // ADC0             NEW         Input
+#define kLedChannel3EnabledPin PIN_A1  // ADC1             was 10      Input
+#define kLedChannel2EnabledPin PIN_A2  // ADC2             was 11      Input
+#define kLedChannel1EnabledPin PIN_A3  // ADC3             was 12      Input
+
+#define kCoverPresentPin PIN_A13  // Enabled if low
+
+// Inverted, so low output to enable motor driver.
+#define kCoverMotorEnablePin PIN_A8
 
 #endif
 
