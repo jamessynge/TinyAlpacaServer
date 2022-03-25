@@ -96,16 +96,16 @@ mcucore::Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
   }
   calibrator_on_ = true;
   brightness_ = brightness;
-  if (GetLedChannelEnabled(0)) {
+  if (GetLedChannelEnabled(0) && led1_.IsEnabled()) {
     led1_.set_pulse_count(brightness_);
   }
-  if (GetLedChannelEnabled(1)) {
+  if (GetLedChannelEnabled(1) && led2_.IsEnabled()) {
     led2_.set_pulse_count(brightness_);
   }
-  if (GetLedChannelEnabled(2)) {
+  if (GetLedChannelEnabled(2) && led3_.IsEnabled()) {
     led3_.set_pulse_count(brightness_);
   }
-  if (GetLedChannelEnabled(3)) {
+  if (GetLedChannelEnabled(3) && led4_.IsEnabled()) {
     led4_.set_pulse_count(brightness_);
   }
   return mcucore::OkStatus();

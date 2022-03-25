@@ -451,7 +451,8 @@ TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter1Pwm16Output::set_pulse_count(uint16_t value) {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 1") << MCU_FLASHSTR(" is not enabled");
   if (value == 0) {
     TimerCounter1SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -463,7 +464,8 @@ void TimerCounter1Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter1Pwm16Output::get_pulse_count() const {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 1") << MCU_FLASHSTR(" is not enabled");
   return TimerCounter1GetOutputCompareRegister(channel_);
 }
 
@@ -476,7 +478,8 @@ TimerCounter3Pwm16Output::TimerCounter3Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 3") << MCU_FLASHSTR(" is not enabled");
   if (value == 0) {
     TimerCounter3SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -488,7 +491,8 @@ void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter3Pwm16Output::get_pulse_count() const {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 3") << MCU_FLASHSTR(" is not enabled");
   return TimerCounter3GetOutputCompareRegister(channel_);
 }
 
@@ -501,7 +505,8 @@ TimerCounter4Pwm16Output::TimerCounter4Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 4") << MCU_FLASHSTR(" is not enabled");
   if (value == 0) {
     TimerCounter4SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -513,7 +518,8 @@ void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter4Pwm16Output::get_pulse_count() const {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 4") << MCU_FLASHSTR(" is not enabled");
   return TimerCounter4GetOutputCompareRegister(channel_);
 }
 
@@ -526,7 +532,8 @@ TimerCounter5Pwm16Output::TimerCounter5Pwm16Output(TimerCounterChannel channel)
     : channel_(channel) {}
 
 void TimerCounter5Pwm16Output::set_pulse_count(uint16_t value) {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 5") << MCU_FLASHSTR(" is not enabled");
   if (value == 0) {
     TimerCounter5SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -538,7 +545,8 @@ void TimerCounter5Pwm16Output::set_pulse_count(uint16_t value) {
 }
 
 uint16_t TimerCounter5Pwm16Output::get_pulse_count() const {
-  MCU_DCHECK(IsEnabled());
+  MCU_VLOG_IF(1, !IsEnabled())
+      << MCU_FLASHSTR("T/C 5") << MCU_FLASHSTR(" is not enabled");
   return TimerCounter5GetOutputCompareRegister(channel_);
 }
 
