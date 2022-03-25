@@ -32,8 +32,8 @@ class Cover : public alpaca::EnableableByPin, InterruptHandler {
     kClosingFailed,
   };
 
-  Cover(uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
-        uint8_t closed_limit_pin, uint8_t cover_present_pin,
+  Cover(uint8_t cover_present_pin, uint8_t stepper_enable_pin, uint8_t step_pin,
+        uint8_t direction_pin, uint8_t open_limit_pin, uint8_t closed_limit_pin,
         uint32_t allowed_steps, uint32_t allowed_start_steps);
 
   // Uses the values in constants.h to call the above ctor.
@@ -76,6 +76,9 @@ class Cover : public alpaca::EnableableByPin, InterruptHandler {
   void HandleInterrupt() override;
 
   // bool StartMoving(MotorStatus motor_status,
+
+  // Low to enable the stepper driver.
+  const uint8_t stepper_enable_pin_;
 
   // Pulse to step the motor.
   const uint8_t step_pin_;

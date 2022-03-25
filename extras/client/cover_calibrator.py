@@ -144,9 +144,12 @@ def main() -> None:
 
   brightness_list = [min(1 << i, 65535) for i in range(17)]
 
+  led_channels = list(range(4))
+  # led_channels = []
+
   try:
     while True:
-      for led_channel in range(4):
+      for led_channel in led_channels:
         print(f'Raising and lowering brightness on channel {led_channel}')
         sweep_led_channel(led_switches, led_channel, cover_calibrator,
                           brightness_list)
