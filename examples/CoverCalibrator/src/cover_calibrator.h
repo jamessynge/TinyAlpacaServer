@@ -19,10 +19,6 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
 
   void Initialize() override;
 
-  // Don't need to override MaintainDevice as we're using timer/counter
-  // interrupts and PWM output.
-  //  void MaintainDevice() override;
-
   // Returns the current calibrator brightness.
   mcucore::StatusOr<int32_t> GetBrightness() override;
 
