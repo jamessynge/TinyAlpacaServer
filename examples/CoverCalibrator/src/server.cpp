@@ -87,13 +87,19 @@ void setup() {
   mcucore::LogSink() << MCU_FLASHSTR("Initializing networking");
   mcunet::Mega2560Eth::SetupW5500();
 
+  // Get an EepromTlv instance, to be used for persistence of settings.
+  auto eeprom_tlv = mcucore::EepromTlv::GetOrDie();
+
+  // Initialize the pseudo-random number generator with a random number
+  // generated based on clock jitter.
+  mcucore::JitterRandom::setRandomSeed();
+
   // Provide an "Organizationally Unique Identifier" which will be used as the
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
   mcunet::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
-  MCU_CHECK(ip_device.InitializeNetworking(&oui_prefix))
-      << MCU_FLASHSTR("Unable to initialize networking!");
+  MCU_CHECK_OK(ip_device.InitializeNetworking(eeprom_tlv, &oui_prefix));
   announceAddresses();
 
   // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
@@ -102,15 +108,6 @@ void setup() {
   // Initialize Tiny Alpaca Network Server, which will initialize TCP listeners
   // and the Alpaca Discovery Server.
   network_server.Initialize();
-
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(nullptr): ") << sizeof(nullptr);
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(char*): ") << sizeof(char*);
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(short): ") << sizeof(short);  // NOLINT
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(int): ") << sizeof(int);
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(long): ") << sizeof(long);  // NOLINT
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(float): ") << sizeof(float);
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(double): ") << sizeof(double);
-  MCU_VLOG(4) << MCU_FLASHSTR("sizeof(&setup): ") << sizeof(&setup);
 }
 
 void loop() {

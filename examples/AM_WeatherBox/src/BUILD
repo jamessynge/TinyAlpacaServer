@@ -38,6 +38,8 @@ cc_library(
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/src:McuCore",
+        "//mcucore/src:eeprom_tlv",
+        "//mcucore/src:jitter_random",
         "//mcunet/src:mcu_net",
     ],
 )
