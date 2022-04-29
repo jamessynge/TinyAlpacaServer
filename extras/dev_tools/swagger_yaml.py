@@ -42,12 +42,12 @@ def make_components_map(spec: Any) -> Dict[str, Any]:
 
 
 @dataclasses.dataclass()
-class Schema(object):
+class Schema:
   type_: str
 
 
 @dataclasses.dataclass()
-class Parameter(object):
+class Parameter:
   """Represents a named value in an HTTP request path or query string.
 
   Parameters in a request are positional, with that position specified by name
@@ -62,11 +62,11 @@ class Parameter(object):
   name: str
 
 
-class Property(object):
+class Property:
   """Represents a named value provided in an HTTP request or response body."""
 
 
-class AlpacaSpec(object):
+class AlpacaSpec:
   """An Alpaca API spec."""
 
   def __init__(self, spec: Dict[str, Any]):

@@ -6,7 +6,7 @@ import dataclasses
 import re
 import sys
 import typing
-from typing import Callable, List, Optional, Tuple, OrderedDict
+from typing import Callable, List, Optional, OrderedDict, Tuple
 
 import tokenize_cpp
 

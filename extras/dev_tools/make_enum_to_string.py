@@ -45,7 +45,7 @@ def enumerator_dict_is_compact(
 def type_is_unsigned(int_type: str) -> bool:
   if re.fullmatch(r'(?:std::)?uint(?:8|16|32|64)_t', int_type):
     return True
-  elif re.fullmatch(r'unsigned(?: (?:char|short|int|long(?: long)?))?',
+  elif re.fullmatch(r'unsigned(?:\s+(?:char|short|int|long(?:\s+long)?))?',
                     int_type):
     return True
   else:

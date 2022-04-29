@@ -31,6 +31,7 @@ try:
   import netifaces  # pylint: disable=g-import-not-at-top
 except ImportError:
   install_advice.install_advice('netifaces')
+
 # build_cleaner doesn't find imports that aren't at the top level, so we repeat
 # the import here.
 import netifaces  # pylint: disable=g-import-not-at-top,g-bad-import-order
@@ -158,7 +159,7 @@ def receiver(sock: socket.socket, max_discovery_secs: float,
     response_queue.put((data_bytes, addr[0], addr[1]))
 
 
-class Discoverer(object):
+class Discoverer:
   """Performs Alpaca Discovery for a single DiscoverySource."""
 
   def __init__(self, source: DiscoverySource):

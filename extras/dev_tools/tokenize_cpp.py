@@ -628,7 +628,7 @@ def generate_phase2_tokenization(
 IndexPair = Tuple[int, int]
 
 
-class Phase2Source(object):
+class Phase2Source:
   """Provides mapping to the raw source from its phase2 translation."""
 
   def __init__(self, raw_source: str, file_path: str):
@@ -862,7 +862,7 @@ def find_header_paths(file_path: str) -> List[str]:
   return find_same_base_files(file_path, has_header_extension)
 
 
-class CppSource(object):
+class CppSource:
   """FooBar."""
 
   def __init__(self, file_path: str = '', raw_source: str = ''):

@@ -18,6 +18,7 @@ try:
   import requests  # pylint: disable=g-import-not-at-top
 except ImportError:
   install_advice.install_advice('requests')
+
 # build_cleaner doesn't find imports that aren't at the top level, so we repeat
 # the import here.
 import requests  # pylint: disable=g-import-not-at-top,g-bad-import-order
@@ -211,7 +212,7 @@ class HTTPAdapterWithSocketOptions(requests.adapters.HTTPAdapter):
     super().init_poolmanager(*args, **kwargs)
 
 
-class AlpacaHttpClient(object):
+class AlpacaHttpClient:
   """Device independent Alpaca client, for communicating with one server."""
 
   client_id = random.randint(1, 65535)
@@ -377,7 +378,7 @@ def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
   return results
 
 
-class HttpDeviceBase(object):
+class HttpDeviceBase:
   """Base class of device type specific clients."""
 
   @classmethod

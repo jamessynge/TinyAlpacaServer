@@ -5,7 +5,7 @@ import sys
 from typing import Optional, Sequence, Tuple
 
 
-class FileContents(object):
+class FileContents:
   """Path to a file and its contents."""
 
   def __init__(self, file_path: str = '', raw_source: str = ''):
