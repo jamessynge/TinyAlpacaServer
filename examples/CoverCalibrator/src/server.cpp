@@ -83,6 +83,9 @@ void announceAddresses() {
 
 void setup() {
   mcucore::LogSink() << kServerDescription.server_name;
+  mcucore::LogSink() << kServerDescription.manufacturer
+                     << MCU_FLASHSTR(", version ")
+                     << kServerDescription.manufacturer_version;
   mcucore::LogSink() << MCU_FLASHSTR("Initializing networking");
   mcunet::Mega2560Eth::SetupW5500();
 

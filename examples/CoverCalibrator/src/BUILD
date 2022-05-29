@@ -62,6 +62,7 @@ cc_library(
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/src:McuCore",
+        "//mcucore/src:progmem_string_data",
         "//mcunet/src:mcu_net",
     ],
 )
