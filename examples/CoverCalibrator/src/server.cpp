@@ -8,13 +8,6 @@
 #include "cover_calibrator.h"
 #include "led_channel_switch_group.h"
 
-// Define some literals, which get stored in PROGMEM (in the case of AVR chips).
-#define kServerName \
-  "AstroMakers Cover Calibrator Server, based on Tiny Alpaca Server"
-#define kManufacturer "Friends of AAVSO & ATMoB"
-#define kManufacturerVersion "0.1"
-#define kDeviceLocation "Earth Bound"
-
 namespace astro_makers {
 namespace {
 using ::alpaca::DeviceInfo;
@@ -22,6 +15,11 @@ using ::alpaca::EDeviceType;
 
 // No extra actions.
 const auto kSupportedActions = mcucore::ProgmemStringArray();
+
+// TODO(jamessynge): Replace field unique_id with a `EepromDomain device_domain`
+// field, i.e. one that must be unique for each device of a single server.
+// TODO(jamessynge): Use the device_domain to store and retrieve a UUID for
+// each device.
 
 const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
     {
@@ -32,7 +30,7 @@ const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator"),
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-        .driver_version = MCU_FLASHSTR("0.1"),
+        .driver_version = MCU_FLASHSTR("0.2"),
         .supported_actions = kSupportedActions,
         .interface_version = 1,
     };
@@ -48,7 +46,7 @@ const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator Extension"),
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-        .driver_version = MCU_FLASHSTR("0.1"),
+        .driver_version = MCU_FLASHSTR("0.2"),
         .supported_actions = kSupportedActions,
         .interface_version = 1,
     };
@@ -59,10 +57,11 @@ LedChannelSwitchGroup led_switches(  // NOLINT
 // For responding to /management/v1/description
 const alpaca::ServerDescription kServerDescription  // NOLINT
     {
-        .server_name = MCU_FLASHSTR_128(kServerName),
-        .manufacturer = MCU_FLASHSTR(kManufacturer),
-        .manufacturer_version = MCU_FLASHSTR(kManufacturerVersion),
-        .location = MCU_FLASHSTR(kDeviceLocation),
+        .server_name = MCU_FLASHSTR_128(
+            "AstroMakers Cover Calibrator Server, based on Tiny Alpaca Server"),
+        .manufacturer = MCU_FLASHSTR("Friends of AAVSO & ATMoB, 2022-05-29"),
+        .manufacturer_version = MCU_FLASHSTR("0.2"),
+        .location = MCU_FLASHSTR("Earth Bound"),
     };
 
 alpaca::DeviceInterface* kDevices[] = {&cover_calibrator, &led_switches};

@@ -12,6 +12,11 @@ namespace {
 using ::alpaca::DeviceInfo;
 using ::alpaca::EDeviceType;
 
+// TODO(jamessynge): Replace field unique_id with a `EepromDomain device_domain`
+// field, i.e. one that must be unique for each device of a single server.
+// TODO(jamessynge): Use the device_domain to store and retrieve a UUID for
+// each device.
+
 const DeviceInfo kAMWeatherBoxDeviceInfo{
     .device_type = EDeviceType::kObservingConditions,
     .device_number = 1,
@@ -21,7 +26,7 @@ const DeviceInfo kAMWeatherBoxDeviceInfo{
     .unique_id = MCU_FLASHSTR("7bc0548a-fbc7-4e77-8f66-a0a21854ff48"),
     .description = MCU_FLASHSTR("AstroMakers Weather Box"),
     .driver_info = MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-    .driver_version = MCU_FLASHSTR("0.1"),
+    .driver_version = MCU_FLASHSTR("0.2"),
     .supported_actions = {},  // No extra actions.
     .interface_version = 1,
 };
@@ -32,8 +37,8 @@ AMWeatherBox weather_box(kAMWeatherBoxDeviceInfo);  // NOLINT
 const alpaca::ServerDescription kServerDescription{
     .server_name = MCU_FLASHSTR(
         "AstroMakers Weather Box Server, based on Tiny Alpaca Server"),
-    .manufacturer = MCU_FLASHSTR("Friends of AAVSO & ATMoB"),
-    .manufacturer_version = MCU_FLASHSTR("0.1"),
+    .manufacturer = MCU_FLASHSTR("Friends of AAVSO & ATMoB, 2022-05-29"),
+    .manufacturer_version = MCU_FLASHSTR("0.2"),
     .location = MCU_FLASHSTR("Earth Bound"),
 };
 
@@ -70,7 +75,7 @@ void setup() {
   // first 3 bytes of the MAC addresses generated; this means that all boards
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
-  mcunet::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
+  mcunet::OuiPrefix oui_prefix(0x53, 0x76, 0x77);
   MCU_CHECK_OK(ip_device.InitializeNetworking(eeprom_tlv, &oui_prefix));
   announceAddresses();
 

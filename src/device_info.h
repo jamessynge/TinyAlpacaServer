@@ -7,6 +7,12 @@
 // TODO(jamessynge): Rename DeviceInfo to DeviceDescription, which better
 // matches ServerDescription.
 //
+// TODO(jamessynge): Replace field unique_id with a `EepromDomain device_domain`
+// field, i.e. one that must be unique for each device of a single server.
+//
+// TODO(jamessynge): Use the device_domain to store and retrieve a UUID for
+// each device.
+//
 // Author: james.synge@gmail.com
 
 #include <McuCore.h>
@@ -16,6 +22,7 @@
 namespace alpaca {
 
 // There must be one instance of DeviceInfo per device in a sketch.
+// TODO(jamessynge): Come up with a way to store this in PROGMEM.
 struct DeviceInfo {
   // Write the ConfiguredDevices description of this server to the specified
   // mcucore::JsonObjectEncoder. The encoder should be for the nested object
@@ -58,6 +65,7 @@ struct DeviceInfo {
 
   // The list of device-specific action names that the device supports. This is
   // returned in the response to the /supportedactions method of the device API.
+  // TODO(jamessynge): Come up with a way to store this in PROGMEM.
   mcucore::ProgmemStringArray supported_actions;
 
   // The ASCOM Device interface version number that this device supports.
