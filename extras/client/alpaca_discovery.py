@@ -17,6 +17,7 @@ interface information.
 
 import argparse
 import dataclasses
+import ipaddress
 import json
 import queue
 import socket
@@ -111,28 +112,37 @@ class DiscoveryResponse:
     return int(jsondata[ALPACA_SERVER_PORT_PROPERTY])
 
 
-def generate_addresses(address_family) -> Generator[Dict[str, str], None, None]:
+def generate_addresses(address_family,
+                       verbose=False) -> Generator[Dict[str, str], None, None]:
   """docstring."""
   # netifaces.interfaces returns a list of interface names.
   for name in netifaces.interfaces():
+    if verbose:
+      print('Interface', name)
     # netifaces.ifaddresses(interface_name) returns a dictionary mapping an
     # address family (e.g. netifaces.AF_INET for IPv4) to a list of address
     # groups (dictionaries) provided by that interface. Note that a single
     # interface may have multiple addresses, even for a single address family.
     for addr_family, addr_groups in netifaces.ifaddresses(name).items():
+      if verbose:
+        print('addr_family', addr_family)
+        print('addr_groups', addr_groups)
       if address_family == addr_family:
         for address_group in addr_groups:
           if 'addr' not in address_group:
-            # Note that I'm assuming
             continue
           result = dict(interface_name=name)
           result.update(address_group)
           yield result
 
 
-def generate_discovery_sources() -> Generator[DiscoverySource, None, None]:
+def generate_discovery_sources(
+      verbose=False) -> Generator[DiscoverySource, None, None]:
   """docstring."""
-  for address_group in generate_addresses(netifaces.AF_INET):
+  for address_group in generate_addresses(netifaces.AF_INET,
+                                          verbose=verbose):
+    if verbose:
+      print('address_group', address_group)
     if 'broadcast' in address_group:
       yield DiscoverySource(
           interface_name=address_group['interface_name'],
@@ -145,6 +155,18 @@ def generate_discovery_sources() -> Generator[DiscoverySource, None, None]:
           src_address=address_group['addr'],
           dst_address=address_group['peer'],
           dst_is_broadcast=False)
+    elif 'netmask' in address_group:
+      addr = address_group['addr']
+      netmask = address_group['netmask']
+      network = ipaddress.ip_network(f'{addr}/{netmask}', strict=False)
+      if verbose:
+        print('network', network)
+        print('broadcast', network.broadcast_address)
+      yield DiscoverySource(
+          interface_name=address_group['interface_name'],
+          src_address=addr,
+          dst_address=str(network.broadcast_address),
+          dst_is_broadcast=True)
 
 
 def receiver(sock: socket.socket, max_discovery_secs: float,
@@ -234,7 +256,7 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
   if sources is None:
     if verbose:
       print('Finding network interfaces to use for discovery.')
-    sources = list(generate_discovery_sources())
+    sources = list(generate_discovery_sources(verbose=verbose))
   discoverers = [Discoverer(source) for source in sources]
   q = queue.Queue(maxsize=1000)
   threads = []
