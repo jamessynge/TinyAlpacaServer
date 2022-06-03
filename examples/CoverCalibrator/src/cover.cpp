@@ -147,7 +147,7 @@ void Cover::Initialize() {
   ResetTimer5();
 
   pinMode(stepper_enable_pin_, OUTPUT);
-  digitalWrite(stepper_enable_pin_, LOW);
+  DisableStepper();
 
   pinMode(step_pin_, OUTPUT);
   digitalWrite(step_pin_, LOW);
@@ -250,7 +250,14 @@ bool Cover::Close() {
   return true;
 }
 
+void Cover::EnableStepper() {
+  digitalWrite(stepper_enable_pin_, LOW);
+}
+
+void Cover::DisableStepper() { digitalWrite(stepper_enable_pin_, HIGH); }
+
 void Cover::StartMoving(int direction_pin_value) {
+  EnableStepper();
   ResetTimer5();
   step_count_ = 0;
   digitalWrite(direction_pin_, direction_pin_value);
@@ -270,6 +277,7 @@ void Cover::StartMoving(int direction_pin_value) {
 }
 
 void Cover::Halt() {
+  DisableStepper();
   // Don't change the value of motor_status_ unless it appears we were moving.
   if (IsMoving()) {
     motor_status_ = kNotMoving;
@@ -288,6 +296,7 @@ void Cover::HandleInterrupt() {
     limit_pin = open_limit_pin_;
   } else {
     interrupt_handler = nullptr;
+    DisableStepper();
     return;
   }
 
@@ -306,6 +315,7 @@ void Cover::HandleInterrupt() {
     // Reached the end.
     motor_status_ = kNotMoving;
     interrupt_handler = nullptr;
+    DisableStepper();
     return;
   }
 
@@ -320,6 +330,7 @@ void Cover::HandleInterrupt() {
       motor_status_ = kStartOpeningFailed;
     }
     interrupt_handler = nullptr;
+    DisableStepper();
     return;
   }
 
@@ -330,6 +341,7 @@ void Cover::HandleInterrupt() {
       motor_status_ = kOpeningFailed;
     }
     interrupt_handler = nullptr;
+    DisableStepper();
     return;
   }
 }
