@@ -23,6 +23,8 @@ except ImportError:
 # the import here.
 import requests  # pylint: disable=g-import-not-at-top,g-bad-import-order
 
+ConnectionError = requests.exceptions.ConnectionError
+
 GET = 'GET'
 OPTIONS = 'OPTIONS'
 POST = 'POST'

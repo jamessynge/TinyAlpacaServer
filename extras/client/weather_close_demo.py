@@ -130,14 +130,15 @@ def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
   sweep_brightness(cover_calibrator, list(brightness_list))
 
 
-def get_weather_report(device: alpaca_http_client.HttpObservingConditions) -> Dict[str, Any]:
+def get_weather_report(
+    device: alpaca_http_client.HttpObservingConditions) -> Dict[str, Any]:
   """Returns True if the weather is OK."""
   sky = device.get_skytemperature().json()['Value']
   ambient = device.get_temperature().json()['Value']
   rainrate = device.get_rainrate().json()['Value']
   if rainrate > 0:
     condition = 'RAINING'
-  elif sky > ambient:
+  elif sky > ambient or (sky > 28 and ambient >= sky):
     # Normally this would be something like (ambient - sky) < 20.
     condition = 'Cloudy'
   else:
@@ -229,43 +230,46 @@ def main() -> None:
     led_channel_index = 99999
     brightness_list_index = 99999
     while True:
-      report = get_weather_report(obs_conditions)
-      print_weather_if_changed(report)
-      if report['condition'] == 'dry':
-        if not weather_ok:
-          cover_calibrator.put_calibratoroff()
-          cover_calibrator.put_haltcover()
-          cover_calibrator.put_opencover()
-          weather_ok = True
-          led_channel_index = 99999
-          brightness_list_index = 99999
-        continue
+      try:
+        report = get_weather_report(obs_conditions)
+        print_weather_if_changed(report)
+        if report['condition'] == 'dry':
+          if not weather_ok:
+            cover_calibrator.put_calibratoroff()
+            cover_calibrator.put_haltcover()
+            cover_calibrator.put_opencover()
+            weather_ok = True
+            led_channel_index = 99999
+            brightness_list_index = 99999
+          continue
 
-      # Weather is not OK.
-      weather_ok = False
-      if not is_closed(cover_calibrator):
-        cover_calibrator.put_closecover()
-        continue
+        # Weather is not OK.
+        weather_ok = False
+        if not is_closed(cover_calibrator):
+          cover_calibrator.put_closecover()
+          continue
 
-      if brightness_list_index < len(brightness_list):
-        # Set brightness.
-        brightness = brightness_list[brightness_list_index]
-        cover_calibrator.put_calibratoron(brightness)
-        print('brightness', brightness)
-        brightness_list_index += 1
-        continue
+        if brightness_list_index < len(brightness_list):
+          # Set brightness.
+          brightness = brightness_list[brightness_list_index]
+          cover_calibrator.put_calibratoron(brightness)
+          print('brightness', brightness)
+          brightness_list_index += 1
+          continue
 
-      # Done with the previous channel.
-      cover_calibrator.put_calibratoroff()
+        # Done with the previous channel.
+        cover_calibrator.put_calibratoroff()
 
-      # Move on to the next channel.
-      led_channel_index += 1
-      if led_channel_index >= len(led_channels):
-        led_channel_index = 0
-      led_channel = led_channels[led_channel_index]
-      print('led_channel', led_channel)
-      enable_only_led_channel(led_switches, led_channel)
-      brightness_list_index = 0      
+        # Move on to the next channel.
+        led_channel_index += 1
+        if led_channel_index >= len(led_channels):
+          led_channel_index = 0
+        led_channel = led_channels[led_channel_index]
+        print('led_channel', led_channel)
+        enable_only_led_channel(led_switches, led_channel)
+        brightness_list_index = 0
+      except alpaca_http_client.ConnectionError as e:
+        print('Ignoring connection error', e)
       continue 
   except KeyboardInterrupt:
     pass
