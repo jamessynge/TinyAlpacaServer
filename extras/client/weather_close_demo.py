@@ -244,7 +244,7 @@ def main() -> None:
       # Weather is not OK.
       weather_ok = False
       if not is_closed(cover_calibrator):
-        close_cover(cover_calibrator)
+        cover_calibrator.put_closecover()
         continue
 
       if brightness_list_index < len(brightness_list):
