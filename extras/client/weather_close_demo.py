@@ -145,16 +145,37 @@ def get_weather_report(
     condition = 'dry'
   return dict(sky=sky, ambient=ambient, rainrate=rainrate, condition=condition)
 
+averaged_samples = 20
+sky_temps = []
+ambient_temps = []
 
 def print_weather_if_changed(report: Dict[str, Any]) -> None:
-  def round_to_half(v: float) -> float:
-    return round(v * 2) / 2
-  sky = round_to_half(report['sky'])
-  ambient = round_to_half(report['ambient'])
-  rainrate = report['rainrate']
+  def round_temp(v: float) -> float:
+    return round(v * 4) / 4
+
+  def append_and_average(lst: List[float], v: float) -> float:
+    lst.append(v)
+    if len(lst) > averaged_samples:
+      lst.pop(0)
+    avg = sum(lst) / len(lst)
+    # Could choose to drop other samples if new value is very different.
+    return avg
+
+  sky = append_and_average(sky_temps, round_temp(report['sky']))
+  ambient = append_and_average(sky_temps, round_temp(report['ambient']))
+
+  sky = round_temp(sky)
+  ambient = round_temp(ambient)
+
+  # def round_temp(v: float) -> float:
+  #   return round(v)
+  # sky = round_temp(report['sky'])
+  # ambient = round_temp(report['ambient'])
+
+  rainrate = int(report['rainrate'])
   condition = report['condition']
   msg = (f'Sky: {sky:>+5.1f}    Ambient: {ambient:>+5.1f}    '
-         f'Rainrate: {rainrate}    Condition: {condition}')
+         f'Rainrate: {rainrate:>2d}    Condition: {condition}')
   global last_weather_msg
   if last_weather_msg == msg:
     return
@@ -187,10 +208,10 @@ def main() -> None:
     brightness_list = sorted(list(cli_args.brightness))
   else:
     brightness_list = [min(1 << i, 65535) for i in range(17)]
-  print('brightness_list', brightness_list)
+  # print('brightness_list', brightness_list)
   decrease_list = list(reversed(brightness_list))[1:]
   brightness_list.extend(decrease_list)
-  print('brightness_list', brightness_list)
+  # print('brightness_list', brightness_list)
 
   green_channel = 0
   red_channel = 1
@@ -208,12 +229,15 @@ def main() -> None:
   else:
     led_channels = [red_channel, green_channel, blue_channel, white_channel]
   led_channels.sort()
-  print('led_channels', led_channels)
+  # print('led_channels', led_channels)
+
+  print('Finding devices')
 
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
       alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs))
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
+  cover_calibrator.put_calibratoroff()
 
   led_switches: alpaca_http_client.HttpSwitch = (
       alpaca_http_client.HttpSwitch.find_first_device(
@@ -222,8 +246,6 @@ def main() -> None:
 
   obs_conditions: alpaca_http_client.HttpObservingConditions = (
       alpaca_http_client.HttpObservingConditions.find_sole_device(**cli_kwargs))
-
-  cover_calibrator.put_calibratoroff()
 
   try:
     weather_ok = False
@@ -253,7 +275,7 @@ def main() -> None:
           # Set brightness.
           brightness = brightness_list[brightness_list_index]
           cover_calibrator.put_calibratoron(brightness)
-          print('brightness', brightness)
+          # print('brightness', brightness)
           brightness_list_index += 1
           continue
 
@@ -265,7 +287,7 @@ def main() -> None:
         if led_channel_index >= len(led_channels):
           led_channel_index = 0
         led_channel = led_channels[led_channel_index]
-        print('led_channel', led_channel)
+        # print('led_channel', led_channel)
         enable_only_led_channel(led_switches, led_channel)
         brightness_list_index = 0
       except alpaca_http_client.ConnectionError as e:
