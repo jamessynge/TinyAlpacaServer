@@ -249,7 +249,7 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
                                                            None],
                       sources: Optional[List[DiscoverySource]] = None,
                       max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
-                      verbose=False,
+                      verbose=False, drop_repeated_address=True,
                       **kwargs) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
   del kwargs  # Unused.
@@ -267,6 +267,7 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
             max_discovery_secs=max_discovery_secs,
             verbose=verbose))
   start_secs = time.time()
+  seen_addresses = set()
   while threads:
     if not threads[0].is_alive():
       t = threads.pop(0)
@@ -274,7 +275,12 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
         print('Thread %r is done' % t.name, flush=True)
       t.join()
     while not q.empty():
-      dr = q.get(block=False)
+      dr: DiscoveryResponse = q.get(block=False)
+      if drop_repeated_address:
+        host_port_addr = dr.get_alpaca_server_addr()
+        if host_port_addr in seen_addresses:
+          continue
+        seen_addresses.add(host_port_addr)
       discovery_response_handler(dr)
     time.sleep(0.01)
   end_secs = time.time()
