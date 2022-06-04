@@ -24,7 +24,7 @@ const auto kSupportedActions = mcucore::ProgmemStringArray();
 const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
     {
         .device_type = EDeviceType::kCoverCalibrator,
-        .device_number = 1,
+        .device_number = 0,
         .name = MCU_FLASHSTR("Cover-Calibrator"),
         .unique_id = MCU_FLASHSTR("856cac35-7685-4a70-9bbf-be2b00f80af5"),
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator"),
@@ -40,7 +40,7 @@ CoverCalibrator cover_calibrator(kCoverCalibratorDeviceInfo);  // NOLINT
 const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
     {
         .device_type = EDeviceType::kSwitch,
-        .device_number = 1,
+        .device_number = 0,
         .name = MCU_FLASHSTR("Cover-Calibrator LED Channel Switches"),
         .unique_id = MCU_FLASHSTR("491c450a-0d1d-4f2b-9d28-5878e968e9df"),
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator Extension"),

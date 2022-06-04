@@ -19,7 +19,7 @@ using ::alpaca::EDeviceType;
 
 const DeviceInfo kAMWeatherBoxDeviceInfo{
     .device_type = EDeviceType::kObservingConditions,
-    .device_number = 1,
+    .device_number = 0,
     .name = MCU_FLASHSTR("AM_WeatherBox"),
     // TODO(jamessynge): Replace this UUID with a value that feeds into a UUID
     // generator, along with the MAC address, and EDeviceType of the device.
