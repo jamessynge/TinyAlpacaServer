@@ -10,8 +10,9 @@ Author: james.synge@gmail.com
 """
 
 import argparse
+import curses
 import time
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Optional
 
 import alpaca_discovery
 import alpaca_http_client
@@ -19,11 +20,18 @@ import alpaca_http_client
 MOVING_SLEEP_TIME = 1
 last_weather_msg = None
 
+CursesWindow = Any  # Typeshed uses the name CursesWindow
 
 
 def get_cover_state(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> int:
-  resp = cover_calibrator.get_coverstate()
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+    unavailable: Optional[int] = -1) -> int:
+  try:
+    resp = cover_calibrator.get_coverstate()
+  except alpaca_http_client.ConnectionError as e:
+    if unavailable is None:
+      raise e
+    return unavailable
   return resp.json()['Value']
 
 
@@ -42,6 +50,29 @@ def is_moving(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
 
 def is_open(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
   return get_cover_state(cover_calibrator) == 3
+
+
+def cover_state_to_name(cover_state: int,
+                        unavailable: Optional[int] = -1) -> str:
+  if cover_state == 1:
+    return 'Closed'
+  elif cover_state == 2:
+    return 'Moving'
+  elif cover_state == 3:
+    return 'Open'
+  elif cover_state == unavailable:
+    return '(unavailable)'
+  else:
+    return f'Unknown ({cover_state})'
+  
+def cover_state_name(
+      cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> str:
+  try:
+    cover_state = get_cover_state(cover_calibrator)
+  except alpaca_http_client.ConnectionError as e:
+    return '(unavailable)'
+  if cover_state == 1:
+    return 'Closed'
 
 
 def get_cover_state_after_moving(
@@ -161,8 +192,13 @@ def print_weather_if_changed(report: Dict[str, Any]) -> None:
     # Could choose to drop other samples if new value is very different.
     return avg
 
+  rainrate = int(report['rainrate'])
+  condition = report['condition']
+
+  # "Special" handling of temperatures so that the output isn't so
+  # noisy.
   sky = append_and_average(sky_temps, round_temp(report['sky']))
-  ambient = append_and_average(sky_temps, round_temp(report['ambient']))
+  ambient = append_and_average(ambient_temps, round_temp(report['ambient']))
 
   sky = round_temp(sky)
   ambient = round_temp(ambient)
@@ -172,8 +208,6 @@ def print_weather_if_changed(report: Dict[str, Any]) -> None:
   # sky = round_temp(report['sky'])
   # ambient = round_temp(report['ambient'])
 
-  rainrate = int(report['rainrate'])
-  condition = report['condition']
   msg = (f'Sky: {sky:>+5.1f}    Ambient: {ambient:>+5.1f}    '
          f'Rainrate: {rainrate:>2d}    Condition: {condition}')
   global last_weather_msg
@@ -181,6 +215,92 @@ def print_weather_if_changed(report: Dict[str, Any]) -> None:
     return
   last_weather_msg = msg
   print(msg)
+
+
+def display_status(stdscr: CursesWindow, report: Dict[str, Any]) -> None:
+  labels_and_values = [
+    ['      Sky', f'{report["sky"]:>+5.1f}'],
+    ['  Ambient', f'{report["ambient"]:>+5.1f}'],
+    ['Rain Rate', f'{report["rainrate"]}'],
+    ['Condition', f'{report["condition"]}'],
+  ]
+  for ndx, (label, value) in enumerate(labels_and_values):
+    stdscr.addstr(ndx, 0, f'{label}: {value}                  ')
+
+
+def run(stdscr: CursesWindow, brightness_list: List[int],
+        led_channels: List[int], 
+  cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+  led_switches: alpaca_http_client.HttpSwitch,
+  obs_conditions: alpaca_http_client.HttpObservingConditions
+) -> None:
+  # stdscr.clear()
+  # def display_status():
+  #   labels_and_values = [
+  #     ['      Sky', f'{report["sky"]:>+5.1f}'],
+  #     ['  Ambient', f'{report["ambient"]:>+5.1f}'],
+  #     ['Rain Rate', f'{report["rainrate"]}'],
+  #     ['Condition', f'{report["condition"]}'],
+  #     ['Cover Status', ]
+  #   ]
+  #   for ndx, (label, value) in enumerate(labels_and_values):
+  #     stdscr.addstr(ndx, 0, f'{label}: {value}                  ')
+
+
+
+  try:
+    weather_ok = False
+    led_channel_index = 99999
+    brightness_list_index = 99999
+    while True:
+      stdscr.refresh()
+      try:
+        report = get_weather_report(obs_conditions)
+        display_status(stdscr, report)
+        # print_weather_if_changed(report)
+        if report['condition'] == 'dry':
+          if not weather_ok:
+            cover_calibrator.put_calibratoroff()
+            cover_calibrator.put_haltcover()
+            cover_calibrator.put_opencover()
+            weather_ok = True
+            led_channel_index = 99999
+            brightness_list_index = 99999
+          continue
+
+        # Weather is not OK.
+        weather_ok = False
+        if not is_closed(cover_calibrator):
+          cover_calibrator.put_closecover()
+          continue
+
+        if brightness_list_index < len(brightness_list):
+          # Set brightness.
+          brightness = brightness_list[brightness_list_index]
+          cover_calibrator.put_calibratoron(brightness)
+          # print('brightness', brightness)
+          brightness_list_index += 1
+          continue
+
+        # Done with the previous channel.
+        cover_calibrator.put_calibratoroff()
+
+        # Move on to the next channel.
+        led_channel_index += 1
+        if led_channel_index >= len(led_channels):
+          led_channel_index = 0
+        led_channel = led_channels[led_channel_index]
+        # print('led_channel', led_channel)
+        enable_only_led_channel(led_switches, led_channel)
+        brightness_list_index = 0
+      except alpaca_http_client.ConnectionError as e:
+        print('Ignoring connection error', e)
+      continue 
+  except KeyboardInterrupt:
+    pass
+
+
+
 
 
 def main() -> None:
@@ -247,54 +367,8 @@ def main() -> None:
   obs_conditions: alpaca_http_client.HttpObservingConditions = (
       alpaca_http_client.HttpObservingConditions.find_sole_device(**cli_kwargs))
 
-  try:
-    weather_ok = False
-    led_channel_index = 99999
-    brightness_list_index = 99999
-    while True:
-      try:
-        report = get_weather_report(obs_conditions)
-        print_weather_if_changed(report)
-        if report['condition'] == 'dry':
-          if not weather_ok:
-            cover_calibrator.put_calibratoroff()
-            cover_calibrator.put_haltcover()
-            cover_calibrator.put_opencover()
-            weather_ok = True
-            led_channel_index = 99999
-            brightness_list_index = 99999
-          continue
-
-        # Weather is not OK.
-        weather_ok = False
-        if not is_closed(cover_calibrator):
-          cover_calibrator.put_closecover()
-          continue
-
-        if brightness_list_index < len(brightness_list):
-          # Set brightness.
-          brightness = brightness_list[brightness_list_index]
-          cover_calibrator.put_calibratoron(brightness)
-          # print('brightness', brightness)
-          brightness_list_index += 1
-          continue
-
-        # Done with the previous channel.
-        cover_calibrator.put_calibratoroff()
-
-        # Move on to the next channel.
-        led_channel_index += 1
-        if led_channel_index >= len(led_channels):
-          led_channel_index = 0
-        led_channel = led_channels[led_channel_index]
-        # print('led_channel', led_channel)
-        enable_only_led_channel(led_switches, led_channel)
-        brightness_list_index = 0
-      except alpaca_http_client.ConnectionError as e:
-        print('Ignoring connection error', e)
-      continue 
-  except KeyboardInterrupt:
-    pass
+  curses.wrapper(run, brightness_list, led_channels, cover_calibrator,
+                 led_switches, obs_conditions)
 
 
 if __name__ == '__main__':
