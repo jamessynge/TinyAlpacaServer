@@ -314,6 +314,12 @@ enum class EContentType : uint8_t {
   TASENUMERATOR(kTextHtml, "text/html"),
 };
 
+
+// Tag numbers for EEPROM entries.
+enum class EDeviceEepromTagId : uint8_t {
+  kUniqueId = 1,
+};
+
 #undef TASENUMERATOR
 
 }  // namespace alpaca

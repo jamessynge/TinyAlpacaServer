@@ -44,11 +44,10 @@ bool AlpacaDevices::Initialize() {
         result = false;  // MCU_DCHECK may be disabled.
         break;
       }
-      if (device1->device_info().unique_id ==
-          device2->device_info().unique_id) {
+      if (device1->device_info().domain == device2->device_info().domain) {
         MCU_DCHECK(false) << MCU_FLASHSTR("Devices [") << i
                           << MCU_FLASHSTR("] and [") << j
-                          << MCU_FLASHSTR("] have the same unique_id");
+                          << MCU_FLASHSTR("] have the same domain");
         result = false;  // MCU_DCHECK may be disabled.
       }
       if (device1->device_type() != device2->device_type()) {
@@ -60,19 +59,10 @@ bool AlpacaDevices::Initialize() {
                           << MCU_FLASHSTR("] have the same type and number");
         result = false;  // MCU_DCHECK may be disabled.
       }
-#if 0
-      if (device1->device_info().config_id ==
-          device2->device_info().config_id) {
-        // Someday we'll generate a UUID from the device type and config_id,
-        // so they need to be distinct.
-        MCU_DCHECK(false) << MCU_FLASHSTR("Devices [") << i
-                          << MCU_FLASHSTR("] and [") << j
-                          << MCU_FLASHSTR("] have the same type and config_id");
-        result = false;  // MCU_DCHECK may be disabled.
-      }
-#endif
     }
   }
+  // TODO(jamessynge): Verify that device_numbers, within each device_type, are
+  // ascending.
   if (!result) {
     return false;
   }
