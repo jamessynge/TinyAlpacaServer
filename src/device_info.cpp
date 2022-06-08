@@ -38,7 +38,7 @@ mcucore::StatusOr<mcucore::Uuid> DeviceInfo::GetOrCreateUniqueId(
     mcucore::EepromTlv& tlv) const {
   mcucore::EepromTag tag{.domain = domain, .id = kUniqueIdTagId};
   mcucore::Uuid uuid;
-  MCU_RETURN_IF_ERROR(uuid.ReadFromEeprom(tlv, tag));
+  MCU_RETURN_IF_ERROR(uuid.ReadOrStoreEntry(tlv, tag));
   return uuid;
 }
 
