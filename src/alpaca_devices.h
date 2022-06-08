@@ -19,8 +19,8 @@ class AlpacaDevices {
  public:
   explicit AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices);
 
-  // Prepares the server and device drivers to receive requests. Returns true
-  // if able to do so, false otherwise.
+  // Prepares the server and device drivers to receive requests. Returns OK
+  // if able to do so, otherwise an error.
   bool Initialize();
 
   // Delegates to device drivers so that they can perform actions other than

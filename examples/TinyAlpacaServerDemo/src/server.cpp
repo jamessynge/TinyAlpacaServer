@@ -8,7 +8,7 @@
 #include "fake_weather.h"
 
 // Used to identify EepromTlv entries, i.e. for storing data in the EEPROM .
-MCU_DEFINE_NAMED_DOMAIN(FakeWeather, 16);
+MCU_DEFINE_NAMED_DOMAIN(FakeWeather, 17);
 
 namespace fake_weather_service {
 namespace {

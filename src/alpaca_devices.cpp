@@ -13,59 +13,48 @@ AlpacaDevices::AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices)
     : devices_(devices) {}
 
 bool AlpacaDevices::Initialize() {
-  bool result = true;
+  MCU_CHECK_OK_AND_ASSIGN(auto tlv, mcucore::EepromTlv::GetIfValid());
   // Before initializing the devices, we make sure they're valid:
   // * None of the pointers are nullptr.
-  // * No two devices of the same type have the same device_number or the
-  //   same config_id).
+  // * No two devices have the same UUID or EepromDomain.
+  // * No two devices of the same type have the same device_number.
   for (int i = 0; i < devices_.size(); ++i) {
-    DeviceInterface* const device = devices_[i];
-    if (device == nullptr) {
-      MCU_DCHECK_NE(device, nullptr)
-          << MCU_FLASHSTR("DeviceInterface pointer [") << i
-          << MCU_FLASHSTR("] is null!");
-      result = false;  // MCU_DCHECK may be disabled.
-    }
-  }
-  if (!result) {
-    return false;
+    MCU_CHECK_NE(devices_[i], nullptr)
+        << MCU_FLASHSTR("DeviceInterface pointer [") << i
+        << MCU_FLASHSTR("] is null!");
   }
   for (int i = 0; i < devices_.size(); ++i) {
     DeviceInterface* const device1 = devices_[i];
+    MCU_CHECK_OK_AND_ASSIGN(auto device1_uuid,
+                            device1->device_info().GetOrCreateUniqueId(tlv));
     for (int j = i + 1; j < devices_.size(); ++j) {
       DeviceInterface* const device2 = devices_[j];
-      if (device1 == device2) {
-        MCU_DCHECK_NE(device1, device2)
-            << MCU_FLASHSTR("Device appears twice in the list of devices:")
-            << MCU_FLASHSTR(" device_type=") << device1->device_type()
-            << MCU_FLASHSTR(", device_number=") << device1->device_number()
-            << MCU_FLASHSTR(", name=")
-            << mcucore::HexEscaped(device1->device_info().name);
-        result = false;  // MCU_DCHECK may be disabled.
-        break;
-      }
-      if (device1->device_info().domain == device2->device_info().domain) {
-        MCU_DCHECK(false) << MCU_FLASHSTR("Devices [") << i
-                          << MCU_FLASHSTR("] and [") << j
-                          << MCU_FLASHSTR("] have the same domain");
-        result = false;  // MCU_DCHECK may be disabled.
-      }
+      MCU_CHECK_NE(device1, device2)
+          << MCU_FLASHSTR("Device appears twice in the list of devices:")
+          << MCU_FLASHSTR(" device_type=") << device1->device_type()
+          << MCU_FLASHSTR(", device_number=") << device1->device_number()
+          << MCU_FLASHSTR(", name=")
+          << mcucore::HexEscaped(device1->device_info().name);
+      MCU_CHECK_NE(device1->device_info().domain, device2->device_info().domain)
+          << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
+          << MCU_FLASHSTR("] have the same domain");
+      MCU_CHECK_OK_AND_ASSIGN(auto device2_uuid,
+                              device2->device_info().GetOrCreateUniqueId(tlv));
+      MCU_CHECK_NE(device1_uuid, device2_uuid)
+          << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
+          << MCU_FLASHSTR("] have the same UUID: ") << device1_uuid;
+
       if (device1->device_type() != device2->device_type()) {
         break;
       }
-      if (device1->device_number() == device2->device_number()) {
-        MCU_DCHECK(false) << MCU_FLASHSTR("Devices [") << i
-                          << MCU_FLASHSTR("] and [") << j
-                          << MCU_FLASHSTR("] have the same type and number");
-        result = false;  // MCU_DCHECK may be disabled.
-      }
+
+      MCU_CHECK_NE(device1->device_number(), device2->device_number())
+          << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
+          << MCU_FLASHSTR("] have the same type and number");
     }
   }
   // TODO(jamessynge): Verify that device_numbers, within each device_type, are
-  // ascending.
-  if (!result) {
-    return false;
-  }
+  // ascending and start at zero.
   for (DeviceInterface* device : devices_) {
     device->Initialize();
   }
