@@ -265,7 +265,7 @@ enum class EParameter : uint8_t {
 
   // Switch parameters.
   kId,
-  kName,  // DECODING NOT YET SUPPORTED (No provision for storage)
+  kName,
   kState,
   kValue,
 };

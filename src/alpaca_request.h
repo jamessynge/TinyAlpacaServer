@@ -87,6 +87,13 @@ struct AlpacaRequest {
     have_average_period = true;
   }
 
+  bool set_string_value(const mcucore::StringView& value) {
+    if (have_string_value || !string_value.Set(value.data(), value.size())) {
+      return false;
+    }
+    have_string_value = true;
+  }
+
   // From the HTTP method and path:
   EHttpMethod http_method;
   EApiGroup api_group;
@@ -103,7 +110,11 @@ struct AlpacaRequest {
   // Parameters, either from the path (GET & HEAD) or the body (PUT), or both
   // (PUT).
   // TODO(jamessynge): Rework so that we don't waste space for parameters that
-  // aren't provided in the same request.
+  // aren't provided in the same request. Probably want to dispatch to device
+  // specific code each time we decode a parameter so that code can choose where
+  // in some device and method specific union field the parameter should be
+  // stored. ALTERNATIVELY, use ExtraParameters for storage, and call the device
+  // specific code to decide whether to store the value.
   uint32_t client_id;
   uint32_t client_transaction_id;
   ESensorName sensor_name;
@@ -113,6 +124,7 @@ struct AlpacaRequest {
   bool state;
   double value;
   double average_period;
+  mcucore::TinyString<32> string_value;
 
   // NOT from the client; this is set by the server/decoder at the *start* of
   // handling a request. We set this at the start so that even before we know
@@ -120,6 +132,10 @@ struct AlpacaRequest {
   // The implications of setting this at the start is that we may execute
   // requests out of order w.r.t server_transaction_id.
   uint32_t server_transaction_id;
+
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
+  ExtraParameterValueMap extra_parameters;
+#endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 
   // Set to zero by Reset, set to 1 when the corresponding field is set.
   unsigned int have_client_id : 1;
@@ -131,12 +147,9 @@ struct AlpacaRequest {
   unsigned int have_state : 1;
   unsigned int have_value : 1;
   unsigned int have_average_period : 1;
+  unsigned int have_string_value : 1;
 
   unsigned int do_close : 1;  // Set to true if client requests it.
-
-#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
-  ExtraParameterValueMap extra_parameters;
-#endif  // TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
 };
 
 }  // namespace alpaca
