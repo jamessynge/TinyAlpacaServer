@@ -12,6 +12,7 @@ import time
 from typing import Any, Callable, Dict, List, Optional, Union, Type, TypeVar
 
 import alpaca_discovery
+import alpaca_model
 import install_advice
 
 try:
@@ -24,6 +25,8 @@ except ImportError:
 import requests  # pylint: disable=g-import-not-at-top,g-bad-import-order
 
 ConnectionError = requests.exceptions.ConnectionError
+EDeviceType = alpaca_model.EDeviceType
+ConfiguredDevice = alpaca_model.ConfiguredDevice
 
 GET = 'GET'
 OPTIONS = 'OPTIONS'
@@ -31,31 +34,6 @@ POST = 'POST'
 PUT = 'PUT'
 
 _T = TypeVar('_T')
-
-
-class EDeviceType(enum.Enum):
-  """The Alpaca device types."""
-  # pylint: disable=invalid-name
-  Camera = enum.auto()
-  CoverCalibrator = enum.auto()
-  Dome = enum.auto()
-  FilterWheel = enum.auto()
-  Focuser = enum.auto()
-  ObservingConditions = enum.auto()
-  Rotator = enum.auto()
-  SafetyMonitor = enum.auto()
-  Switch = enum.auto()
-  Telescope = enum.auto()
-  # pylint: enable=invalid-name
-
-  @classmethod
-  def _missing_(cls, name):
-    for member in cls:
-      if member.name.lower() == name.lower():
-        return member
-
-  def api_name(self):
-    return self.name.lower()
 
 
 def to_url_base(arg: str) -> str:
@@ -134,6 +112,22 @@ def get_ok_response_json_value(response: requests.Response) -> Any:
   return jv['Value']
 
 
+def get_ok_response_json_value_array(response: requests.Response) -> List[Any]:
+  value = get_ok_response_json_value(response)
+  if not isinstance(value, list):
+    raise ValueError(
+        f'Response JSON Value property is not an array: {response.content}')
+  return value
+
+
+def get_ok_response_json_value_bool(response: requests.Response) -> bool:
+  value = get_ok_response_json_value(response)
+  if not isinstance(value, bool):
+    raise ValueError(
+        f'Response JSON Value property is not a boolean: {response.content}')
+  return value
+
+
 def get_ok_response_json_value_dict(
     response: requests.Response) -> Dict[str, Any]:
   value = get_ok_response_json_value(response)
@@ -143,59 +137,28 @@ def get_ok_response_json_value_dict(
   return value
 
 
-@dataclasses.dataclass
-class ServerDescription:
-  """The fields of an Alpaca Server Description value."""
-  server_name: str
-  manufacturer: str
-  manufacturer_version: str
-  location: str
-
-  @staticmethod
-  def from_response(response: requests.Response) -> 'ServerDescription':
-    value = get_ok_response_json_value_dict(response)
-    return ServerDescription(
-        server_name=value['ServerName'],
-        manufacturer=value['Manufacturer'],
-        manufacturer_version=value['ManufacturerVersion'],
-        location=value['Location'])
+def get_ok_response_json_value_float(response: requests.Response) -> float:
+  value = get_ok_response_json_value(response)
+  if not isinstance(value, float):
+    raise ValueError(
+        f'Response JSON Value property is not a float: {response.content}')
+  return value
 
 
-@dataclasses.dataclass
-class ConfiguredDevice:
-  """The fields of an Alpaca Configured Device value."""
-  device_name: str
-  device_type: EDeviceType
-  device_number: int
-  unique_id: str
-
-  @staticmethod
-  def from_dict(cd_dict: Dict[str, Any]) -> 'ConfiguredDevice':
-    return ConfiguredDevice(
-        device_name=cd_dict['DeviceName'],
-        device_type=EDeviceType[cd_dict['DeviceType']],
-        device_number=cd_dict['DeviceNumber'],
-        unique_id=cd_dict['UniqueID'])
+def get_ok_response_json_value_int(response: requests.Response) -> int:
+  value = get_ok_response_json_value(response)
+  if not isinstance(value, int):
+    raise ValueError(
+        f'Response JSON Value property is not an integer: {response.content}')
+  return value
 
 
-ConfiguredDeviceFilterFunc = Callable[[ConfiguredDevice], bool]
-
-
-def make_configured_device_filter(
-    device_number: Optional[int] = None,
-    device_type: Optional[EDeviceType] = None) -> ConfiguredDeviceFilterFunc:
-  """Returns a ConfiguredDeviceFilterFunc applying the restrictions."""
-
-  def the_filter(configured_device: ConfiguredDevice) -> bool:
-    if (device_number is not None and
-        configured_device.device_number != device_number):
-      return False
-    if (device_type is not None and
-        configured_device.device_type != device_type):
-      return False
-    return True
-
-  return the_filter
+def get_ok_response_json_value_str(response: requests.Response) -> str:
+  value = get_ok_response_json_value(response)
+  if not isinstance(value, str):
+    raise ValueError(
+        f'Response JSON Value property is not a string: {response.content}')
+  return value
 
 
 class HTTPAdapterWithSocketOptions(requests.adapters.HTTPAdapter):
@@ -286,9 +249,10 @@ class AlpacaHttpClient:
 
   def configured_devices(
       self,
-      device_filter: Optional[ConfiguredDeviceFilterFunc] = None
+      device_filter: Optional[alpaca_model.ConfiguredDeviceFilterFunc] = None
   ) -> List[ConfiguredDevice]:
     """Returns the configured devices of device_type provided by the server."""
+    # TODO(jamessynge): Move this to alpaca_client.AlpacaServer.
     if self._configured_devices is None:
       resp = self.get_configureddevices()
       resp_jv = resp.json()
@@ -300,8 +264,10 @@ class AlpacaHttpClient:
       return self._configured_devices
     return [cd for cd in self._configured_devices if device_filter(cd)]
 
-  def description(self) -> ServerDescription:
-    return ServerDescription.from_response(self.get_description())
+  def server_description(self) -> alpaca_model.ServerDescription:
+    response = self.get_description()
+    value = get_ok_response_json_value_dict(response)
+    return alpaca_model.ServerDescription.from_response_value()
 
 
 ServerFilterFunc = Callable[[AlpacaHttpClient], bool]
@@ -309,14 +275,14 @@ ServerFilterFunc = Callable[[AlpacaHttpClient], bool]
 
 def has_configured_device(
     client: AlpacaHttpClient,
-    configured_device_filter: ConfiguredDeviceFilterFunc) -> bool:
+    configured_device_filter: alpaca_model.ConfiguredDeviceFilterFunc) -> bool:
   """Returns True if the server has a matching device."""
   return bool(client.configured_devices(configured_device_filter))
 
 
 def make_composite_server_filter(
     server_filter: Optional[ServerFilterFunc] = None,
-    configured_device_filter: Optional[ConfiguredDeviceFilterFunc] = None
+    configured_device_filter: Optional[alpaca_model.ConfiguredDeviceFilterFunc] = None
 ) -> ServerFilterFunc:
   """Returns a ServerFilterFunc based on the args."""
 
@@ -344,7 +310,7 @@ def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
     device_type: EDeviceType = EDeviceType(device_type)
   the_filter = make_composite_server_filter(
       server_filter=server_filter,
-      configured_device_filter=make_configured_device_filter(
+      configured_device_filter=alpaca_model.make_configured_device_filter(
           device_number=device_number, device_type=device_type))
   if url_base:
     client = cls(url_base=url_base)
@@ -402,7 +368,7 @@ class HttpDeviceBase:
           device_type=device_type,
           device_number=device_number,
           **kwargs)
-    cd_filter = make_configured_device_filter(
+    cd_filter = alpaca_model.make_configured_device_filter(
         device_number=device_number, device_type=device_type)
     devices: List[HttpDeviceBase] = []
     for server in servers:
@@ -796,7 +762,7 @@ def main() -> None:
     print()
     print(f'Alpaca Server {client.url_base} supports API versions: '
           f'{client.apiversions()!r}')
-    desc = client.description()
+    desc = client.server_description()
     print('Using API v1, server description:')
     print(f'        Name: {desc.server_name}')
     print(f'Manufacturer: {desc.manufacturer}')
