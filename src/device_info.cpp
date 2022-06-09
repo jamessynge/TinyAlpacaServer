@@ -3,6 +3,7 @@
 #include <McuCore.h>
 
 #include "constants.h"
+#include "eeprom_ids.h"
 #include "literals.h"
 
 namespace alpaca {

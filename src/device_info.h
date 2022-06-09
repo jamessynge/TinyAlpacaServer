@@ -25,7 +25,6 @@ namespace alpaca {
 // TODO(jamessynge): Come up with a way to store this in PROGMEM, or at least
 // the strings as they are only used rarely.
 struct DeviceInfo {
-  static constexpr uint8_t kUniqueIdTagId = 128;
 
   // Write the ConfiguredDevices description of this server to the specified
   // mcucore::JsonObjectEncoder. The encoder should be for the nested object
