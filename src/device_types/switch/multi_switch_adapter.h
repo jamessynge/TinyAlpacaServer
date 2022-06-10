@@ -10,10 +10,13 @@
 #include "device_types/switch/switch_adapter.h"
 #include "device_types/switch/switch_interface.h"
 
+
 namespace alpaca {
 
 class MultiSwitchAdapter : public SwitchAdapter {
  public:
+  static constexpr uint8_t kMaxSwitchesForName = 10;
+
   MultiSwitchAdapter(const DeviceInfo& device_info,
                      mcucore::ArrayView<SwitchInterface*> switches);
   // ~MultiSwitchAdapter() override {}

@@ -55,6 +55,10 @@ class DeviceImplBase : public DeviceInterface {
   bool HandleDeviceApiRequest(const AlpacaRequest& request,
                               Print& out) override;
 
+  // Create a tag for reading data stored in EEPROM using this device's
+  // EepromDomain.
+  mcucore::EepromTag MakeTag(uint8_t id);
+
  protected:
   // Additional methods provided by this class, can be overridden by subclass.
 

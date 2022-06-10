@@ -116,6 +116,12 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
       return WriteResponse::StatusResponse(
           request, SetSwitch(request.id, request.state), out);
 
+    case EDeviceMethod::kSetSwitchName:
+      if (!request.have_string_value || request.string_value.) {
+        return WriteResponse::AscomParameterMissingErrorResponse(
+            request, ProgmemStringViews::Name(), out);
+      }
+
     case EDeviceMethod::kSetSwitchValue:
       // Requires the value parameter.
       if (!request.have_value) {
@@ -130,13 +136,40 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
       return WriteResponse::StatusResponse(
           request, SetSwitchValue(request.id, request.value), out);
 
-    case EDeviceMethod::kSetSwitchName:
       // TODO(jamessynge): Verify that the request has a valid name parameter.
       return HandleSetSwitchName(request, request.id, out);
 
     default:
       return DeviceImplBase::HandlePutRequest(request, out);
   }
+}
+
+bool SwitchAdapter::HandleGetSwitchName(const AlpacaRequest& request,
+                                        uint16_t switch_id, Print& out) {
+  if (switch_id >= kMaxSwitchesForName) {
+    return WriteResponse::AscomParameterInvalidErrorResponse(
+        request, ProgmemStringViews::Id(), out);
+  }
+  auto status_or_tlv = mcucore::EepromTlv::GetIfValid();
+  if (status_or_tlv.ok()) {
+    mcucore::TinyString<kMaxNameLength> name_buffer;
+    auto tag = MakeTag(kSwitch0NameId + switch_id);
+    auto status_or_size = tlv.ReadEntry(tag, name.data(), name.maximum_size());
+    if (status_or_size.ok()) {
+      auto size = status_or_size.value();
+      MCU_DCHECK_LE(size, name_buffer.maximum_size());
+      return WriteResponse::PrintableStringResponse(
+          request, name,
+          // mcucore::PrintableCat(name),
+          out);
+    }
+  }
+  return GetSwitchInterface(switch_id)->HandleGetSwitchName(request, out);
+}
+
+bool SwitchAdapter::HandleSetSwitchName(const AlpacaRequest& request,
+                                        uint16_t switch_id, Print& out) {
+  return GetSwitchInterface(switch_id)->HandleSetSwitchName(request, out);
 }
 
 bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
@@ -147,13 +180,47 @@ bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
     if (0 <= request.id && request.id < GetMaxSwitch()) {
       return true;
     }
-    handler_ret = WriteResponse::AscomParameterInvalidErrorResponse(
+    return WriteResponse::AscomParameterInvalidErrorResponse(
         request, ProgmemStringViews::Id(), out);
   } else {
-    handler_ret = WriteResponse::AscomParameterMissingErrorResponse(
+    return WriteResponse::AscomParameterMissingErrorResponse(
         request, ProgmemStringViews::Id(), out);
   }
-  return false;
+}
+
+bool SwitchAdapter::ReadSwitchName(uint16_t switch_id,
+                                   TinyString<kMaxNameLength>& name) {
+  auto status_or_tlv = mcucore::EepromTlv::GetIfValid();
+  MCU_DCHECK_OK(status_or_tlv);
+  if (!status_or_tlv.ok()) {
+    return false;
+  }
+
+  mcucore::TinyString<kMaxNameLength> name_buffer;
+  auto tag = MakeTag(kSwitch0NameId + switch_id);
+  auto status_or_size = tlv.ReadEntry(tag, name.data(), name.maximum_size());
+  if (!status_or_size.ok()) {
+    MCU_DCHECK(mcucore::IsNotFound(status_or_size.status()))
+        << status_or_size.status();
+    return false;
+  }
+
+  // Success!
+  name.set_size(status_or_size.value());
+  return true;
+}
+
+void SwitchAdapter::GenerateSwitchName(uint16_t switch_id,
+                                       TinyString<kMaxNameLength>& name) {
+  MCU_CHECK(false) << "NOT IMPLEMENTED";
+  // Need to add mcucore::PrintToBuffer, then using printing to generate
+  // the name, e.g. "Switch N".
+}
+
+bool SwitchAdapter::WriteSwitchName(const AlpacaRequest& request,
+                                    uint16_t switch_id, const StringView& name,
+                                    Print& out) {
+  MCU_CHECK(false) << "NOT IMPLEMENTED";
 }
 
 }  // namespace alpaca

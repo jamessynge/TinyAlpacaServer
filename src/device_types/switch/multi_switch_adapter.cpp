@@ -4,6 +4,7 @@
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "device_info.h"
+#include "eeprom_ids.h"
 #include "literals.h"
 
 namespace alpaca {
@@ -25,15 +26,6 @@ bool MultiSwitchAdapter::HandleGetSwitchDescription(
                                                                    out);
 }
 
-bool MultiSwitchAdapter::HandleGetSwitchName(const AlpacaRequest& request,
-                                             uint16_t switch_id, Print& out) {
-  return GetSwitchInterface(switch_id)->HandleGetSwitchName(request, out);
-}
-
-bool MultiSwitchAdapter::HandleSetSwitchName(const AlpacaRequest& request,
-                                             uint16_t switch_id, Print& out) {
-  return GetSwitchInterface(switch_id)->HandleSetSwitchName(request, out);
-}
 
 uint16_t MultiSwitchAdapter::GetMaxSwitch() { return switches_.size(); }
 

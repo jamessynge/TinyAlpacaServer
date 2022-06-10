@@ -88,6 +88,10 @@ bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
       out);
 }
 
+mcucore::EepromTag DeviceImplBase::MakeTag(uint8_t id) {
+  return {.domain=device_info_.domain, .id=id};
+}
+
 bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
                                       Print& out) {
   switch (request.device_method) {

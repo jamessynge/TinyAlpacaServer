@@ -13,6 +13,7 @@ namespace alpaca {
 
 // For storing the name given to a particular switch. Applies to all Switch
 // device domains.
+static constexpr uint8_t kMaxSwitchesForName = 10;
 static constexpr uint8_t kSwitch0NameId = 50;
 static constexpr uint8_t kSwitch1NameId = 51;
 static constexpr uint8_t kSwitch2NameId = 52;

@@ -92,6 +92,7 @@ struct AlpacaRequest {
       return false;
     }
     have_string_value = true;
+    return true;
   }
 
   // From the HTTP method and path:
