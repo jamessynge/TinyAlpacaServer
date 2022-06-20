@@ -12,21 +12,13 @@ package(
 )
 
 cc_library(
-    name = "am_weather_box",
-    srcs = ["am_weather_box.cc"],
-    hdrs = ["am_weather_box.h"],
+    name = "fake_weather",
+    srcs = ["fake_weather.cc"],
+    hdrs = ["fake_weather.h"],
     deps = [
-        ":constants",
         "//TinyAlpacaServer/src:TinyAlpacaServer",
-        "//mcucore/extras/host/arduino",
-        "//mcucore/extras/host/mlx90614",
+        "//mcucore/src:McuCore",
     ],
-)
-
-cc_library(
-    name = "constants",
-    hdrs = ["constants.h"],
-    deps = ["//mcucore/extras/host/arduino"],
 )
 
 cc_library(
@@ -34,13 +26,10 @@ cc_library(
     srcs = ["server.cc"],
     hdrs = ["server.h"],
     deps = [
-        ":am_weather_box",
+        ":fake_weather",
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/src:McuCore",
-        "//mcucore/src:eeprom_tag",
-        "//mcucore/src:eeprom_tlv",
-        "//mcucore/src:jitter_random",
         "//mcunet/src:mcu_net",
     ],
 )

@@ -16,27 +16,31 @@ class SwitchInterface {
  public:
   virtual ~SwitchInterface() {}
 
-  //////////////////////////////////////////////////////////////////////////////
-  // Delegatees from the above methods which allow the method to write the full
-  // response to out. These return true to indicate that the response was
-  // written without error, otherwise false, in which case the connection to the
-  // client will be closed. The switch_id argument passed to the methods below
-  // has already been validated.
+  // //////////////////////////////////////////////////////////////////////////////
+  // // Delegatees from the above methods which allow the method to write the
+  // full
+  // // response to out. These return true to indicate that the response was
+  // // written without error, otherwise false, in which case the connection to
+  // the
+  // // client will be closed. The switch_id argument passed to the methods
+  // below
+  // // has already been validated.
 
-  // Gets the description of the specified switch device. This is to allow a
-  // fuller description of the device to be returned, for example for a tool
-  // tip.
-  virtual bool HandleGetSwitchDescription(const AlpacaRequest& request,
-                                          Print& out) = 0;
+  // // Gets the description of the specified switch device. This is to allow a
+  // // fuller description of the device to be returned, for example for a tool
+  // // tip.
+  // virtual bool HandleGetSwitchDescription(const AlpacaRequest& request,
+  //                                         Print& out) = 0;
 
-  // Gets the name of the specified switch device.
-  virtual bool HandleGetSwitchName(const AlpacaRequest& request,
-                                   Print& out) = 0;
+  // // Gets the name of the specified switch device.
+  // virtual bool HandleGetSwitchName(const AlpacaRequest& request,
+  //                                  Print& out) = 0;
 
-  // Sets the name of the specified switch device. The switch name has not been
-  // extracted from the request, nor validated.
-  virtual bool HandleSetSwitchName(const AlpacaRequest& request,
-                                   Print& out) = 0;
+  // // Sets the name of the specified switch device. The switch name has not
+  // been
+  // // extracted from the request, nor validated.
+  // virtual bool HandleSetSwitchName(const AlpacaRequest& request,
+  //                                  Print& out) = 0;
 
   //////////////////////////////////////////////////////////////////////////////
   // Accessors for various values.

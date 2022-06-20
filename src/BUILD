@@ -95,6 +95,8 @@ cc_library(
         ":extra_parameters",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:string_view",
+        "//mcucore/src:tiny_string",
     ],
 )
 
@@ -157,10 +159,14 @@ cc_library(
     hdrs = ["device_info.h"],
     deps = [
         ":constants",
+        ":eeprom_ids",
         ":literals",
+        "//mcucore/src:eeprom_tlv",
         "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
+        "//mcucore/src:status_or",
+        "//mcucore/src:uuid",
     ],
 )
 
@@ -177,6 +183,12 @@ cc_library(
         "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
     ],
+)
+
+cc_library(
+    name = "eeprom_ids",
+    hdrs = ["eeprom_ids.h"],
+    deps = ["//mcucore/src:mcucore_platform"],
 )
 
 cc_library(

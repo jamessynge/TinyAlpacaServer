@@ -44,7 +44,9 @@ TEST(JsonMethodResponseTest, NoError) {
   mcucore::test::PrintToStdString out;
   mcucore::JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"ClientTransactionID": 789, )"
-                       R"("ServerTransactionID": 123})");
+                       R"("ServerTransactionID": 123, )"
+                       R"("ErrorNumber": 0, )"
+                       R"("ErrorMessage": ""})");
 }
 
 TEST(JsonArrayResponseTest, Empty) {
@@ -58,7 +60,9 @@ TEST(JsonArrayResponseTest, Empty) {
   mcucore::test::PrintToStdString out;
   mcucore::JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [], )"
-                       R"("ServerTransactionID": 0})");
+                       R"("ServerTransactionID": 0, )"
+                       R"("ErrorNumber": 0, )"
+                       R"("ErrorMessage": ""})");
 }
 
 TEST(JsonArrayResponseTest, Mixed) {
@@ -74,7 +78,9 @@ TEST(JsonArrayResponseTest, Mixed) {
   mcucore::JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": [false, -1, ")"
                        "\\r\\n"
-                       R"("]})");
+                       R"("], )"
+                       R"("ErrorNumber": 0, )"
+                       R"("ErrorMessage": ""})");
 }
 
 TEST(JsonBoolResponseTest, True) {
@@ -83,7 +89,9 @@ TEST(JsonBoolResponseTest, True) {
 
   mcucore::test::PrintToStdString out;
   mcucore::JsonObjectEncoder::Encode(response, out);
-  EXPECT_EQ(out.str(), R"({"Value": true})");
+  EXPECT_EQ(out.str(), R"({"Value": true, )"
+                       R"("ErrorNumber": 0, )"
+                       R"("ErrorMessage": ""})");
 }
 
 TEST(JsonBoolResponseTest, False) {
@@ -96,7 +104,9 @@ TEST(JsonBoolResponseTest, False) {
   mcucore::JsonObjectEncoder::Encode(response, out);
   EXPECT_EQ(out.str(), R"({"Value": false, )"
                        R"("ClientTransactionID": 2, )"
-                       R"("ServerTransactionID": 3})");
+                       R"("ServerTransactionID": 3, )"
+                       R"("ErrorNumber": 0, )"
+                       R"("ErrorMessage": ""})");
 }
 
 }  // namespace

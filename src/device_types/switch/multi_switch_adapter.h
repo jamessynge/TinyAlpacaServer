@@ -14,17 +14,19 @@ namespace alpaca {
 
 class MultiSwitchAdapter : public SwitchAdapter {
  public:
+  static constexpr uint8_t kMaxSwitchesForName = 10;
+
   MultiSwitchAdapter(const DeviceInfo& device_info,
                      mcucore::ArrayView<SwitchInterface*> switches);
   // ~MultiSwitchAdapter() override {}
 
   // Overrides of the base class methods:
-  bool HandleGetSwitchDescription(const AlpacaRequest& request,
-                                  uint16_t switch_id, Print& out) override;
-  bool HandleGetSwitchName(const AlpacaRequest& request, uint16_t switch_id,
-                           Print& out) override;
-  bool HandleSetSwitchName(const AlpacaRequest& request, uint16_t switch_id,
-                           Print& out) override;
+  // bool HandleGetSwitchDescription(const AlpacaRequest& request,
+  //                                 uint16_t switch_id, Print& out) override;
+  // bool HandleGetSwitchName(const AlpacaRequest& request, uint16_t switch_id,
+  //                          Print& out) override;
+  // bool HandleSetSwitchName(const AlpacaRequest& request, uint16_t switch_id,
+  //                          Print& out) override;
   uint16_t GetMaxSwitch() override;
   bool GetCanWrite(uint16_t switch_id) override;
   mcucore::StatusOr<bool> GetSwitch(uint16_t switch_id) override;

@@ -8,6 +8,9 @@
 #include "cover_calibrator.h"
 #include "led_channel_switch_group.h"
 
+MCU_DEFINE_NAMED_DOMAIN(CoverCalibrator, 17);
+MCU_DEFINE_NAMED_DOMAIN(LedChannelSwitch, 18);
+
 namespace astro_makers {
 namespace {
 using ::alpaca::DeviceInfo;
@@ -24,9 +27,9 @@ const auto kSupportedActions = mcucore::ProgmemStringArray();
 const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
     {
         .device_type = EDeviceType::kCoverCalibrator,
-        .device_number = 1,
+        .device_number = 0,
+        .domain = MCU_DOMAIN(CoverCalibrator),
         .name = MCU_FLASHSTR("Cover-Calibrator"),
-        .unique_id = MCU_FLASHSTR("856cac35-7685-4a70-9bbf-be2b00f80af5"),
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator"),
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
@@ -40,9 +43,9 @@ CoverCalibrator cover_calibrator(kCoverCalibratorDeviceInfo);  // NOLINT
 const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
     {
         .device_type = EDeviceType::kSwitch,
-        .device_number = 1,
+        .device_number = 0,
+        .domain = MCU_DOMAIN(LedChannelSwitch),
         .name = MCU_FLASHSTR("Cover-Calibrator LED Channel Switches"),
-        .unique_id = MCU_FLASHSTR("491c450a-0d1d-4f2b-9d28-5878e968e9df"),
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator Extension"),
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),

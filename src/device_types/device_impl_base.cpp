@@ -19,6 +19,16 @@ class DeviceInfoHtml : public Printable {
   size_t printTo(Print& out) const override {
     mcucore::CountingPrint counter(out);
     mcucore::OPrintStream strm(counter);
+    auto status_or_uuid = info_.GetOrCreateUniqueId();
+    mcucore::Uuid uuid;
+    if (!status_or_uuid.ok()) {
+      MCU_DCHECK_OK(status_or_uuid)
+          << MCU_FLASHSTR("Should have been able to GetOrCreateUniqueId");
+      uuid.Zero();
+    } else {
+      uuid = status_or_uuid.value();
+    }
+
     strm << MCU_FLASHSTR(
                 "<html><body>"
                 "<h1>Tiny Alpaca Server Device Setup</h1>\n"
@@ -28,13 +38,13 @@ class DeviceInfoHtml : public Printable {
          << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Name: ") << info_.name
          << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Description: ")
          << info_.description << MCU_FLASHSTR("<br>")
-         << MCU_FLASHSTR("Unique ID: ") << info_.unique_id
-         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Driver Info: ")
-         << info_.driver_info << MCU_FLASHSTR("<br>")
-         << MCU_FLASHSTR("Driver Version: ") << info_.driver_version
-         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Interface Version: ")
-         << info_.interface_version << MCU_FLASHSTR("<br>")
-         << MCU_FLASHSTR("</body></html>");
+         << MCU_FLASHSTR("Unique ID: ") << uuid << MCU_FLASHSTR("<br>")
+         << MCU_FLASHSTR("Driver Info: ") << info_.driver_info
+         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Driver Version: ")
+         << info_.driver_version << MCU_FLASHSTR("<br>")
+         << MCU_FLASHSTR("Interface Version: ") << info_.interface_version
+         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("EEPROM Domain: ")
+         << info_.domain.value() << MCU_FLASHSTR("</body></html>");
     return counter.count();
   }
 
@@ -76,6 +86,10 @@ bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
       mcucore::PrintableCat(MCU_FLASHSTR("request.api: "),
                             ToFlashStringHelper(request.http_method)),
       out);
+}
+
+mcucore::EepromTag DeviceImplBase::MakeTag(uint8_t id) {
+  return {.domain = device_info_.domain, .id = id};
 }
 
 bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,

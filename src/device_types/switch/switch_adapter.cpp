@@ -1,11 +1,15 @@
 #include "device_types/switch/switch_adapter.h"
 
+#include <McuCore.h>
+
 #include "alpaca_response.h"
-#include "ascom_error_codes.h"
 #include "constants.h"
+#include "eeprom_ids.h"
 #include "literals.h"
 
 namespace alpaca {
+
+using mcucore::TinyString;
 
 SwitchAdapter::SwitchAdapter(const DeviceInfo& device_info)
     : DeviceImplBase(device_info) {
@@ -23,9 +27,9 @@ bool SwitchAdapter::HandleGetRequest(const AlpacaRequest& request, Print& out) {
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
   MCU_DCHECK_EQ(request.device_number, device_number());
 
-  // All but one of the Switch-specific GET methods needs the id parameter, but
-  // not the common methods.
-  bool handler_ret;
+  // Except for 'maxswitch', all of the Switch-specific GET methods needs the id
+  // parameter.
+  bool handler_ret = true;
   switch (request.device_method) {
     case EDeviceMethod::kCanWrite:
     case EDeviceMethod::kGetSwitch:
@@ -116,6 +120,15 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
       return WriteResponse::StatusResponse(
           request, SetSwitch(request.id, request.state), out);
 
+    case EDeviceMethod::kSetSwitchName:
+      if (!request.have_string_value || request.string_value.empty()) {
+        return WriteResponse::AscomParameterMissingErrorResponse(
+            request, ProgmemStringViews::Name(), out);
+      }
+      // TODO(jamessynge): Implement
+      MCU_CHECK(false) << "NOT IMPLEMENTED";
+      return false;
+
     case EDeviceMethod::kSetSwitchValue:
       // Requires the value parameter.
       if (!request.have_value) {
@@ -130,13 +143,29 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
       return WriteResponse::StatusResponse(
           request, SetSwitchValue(request.id, request.value), out);
 
-    case EDeviceMethod::kSetSwitchName:
       // TODO(jamessynge): Verify that the request has a valid name parameter.
       return HandleSetSwitchName(request, request.id, out);
 
     default:
       return DeviceImplBase::HandlePutRequest(request, out);
   }
+}
+
+bool SwitchAdapter::HandleGetSwitchName(const AlpacaRequest& request,
+                                        uint16_t switch_id, Print& out) {
+  mcucore::TinyString<kMaxNameLength> name_buffer;
+  if (!ReadSwitchName(switch_id, name_buffer)) {
+    name_buffer.Clear();
+    GenerateSwitchName(switch_id, name_buffer);
+  }
+  return WriteResponse::PrintableStringResponse(
+      request, mcucore::AnyPrintable(name_buffer), out);
+}
+
+bool SwitchAdapter::HandleSetSwitchName(const AlpacaRequest& request,
+                                        uint16_t switch_id, Print& out) {
+  MCU_CHECK(false) << "NOT IMPLEMENTED";
+  return false;
 }
 
 bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
@@ -149,11 +178,76 @@ bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
     }
     handler_ret = WriteResponse::AscomParameterInvalidErrorResponse(
         request, ProgmemStringViews::Id(), out);
+    return false;
   } else {
     handler_ret = WriteResponse::AscomParameterMissingErrorResponse(
         request, ProgmemStringViews::Id(), out);
+    return false;
   }
-  return false;
+}
+
+bool SwitchAdapter::ReadSwitchName(uint16_t switch_id,
+                                   TinyString<kMaxNameLength>& name) {
+  // Not overridden by subclass, so we have a much stricter limit on the number
+  // of supported switches:
+  MCU_CHECK_LE(GetMaxSwitch(), kMaxSwitchesForName);
+
+  auto status_or_tlv = mcucore::EepromTlv::GetIfValid();
+  MCU_DCHECK_OK(status_or_tlv);
+  if (!status_or_tlv.ok()) {
+    return false;
+  }
+
+  auto tlv = status_or_tlv.value();
+  auto tag = MakeTag(kSwitch0NameId + switch_id);
+
+  static_assert(sizeof(char) == sizeof(uint8_t));
+  auto status_or_size = tlv.ReadEntry(
+      tag, reinterpret_cast<uint8_t*>(name.data()), name.maximum_size());
+
+  if (!status_or_size.ok()) {
+    MCU_DCHECK(mcucore::IsNotFound(status_or_size.status()))
+        << status_or_size.status();
+    return false;
+  }
+
+  // Success!
+  name.set_size(status_or_size.value());
+  return true;
+}
+
+void SwitchAdapter::GenerateSwitchName(uint16_t switch_id,
+                                       TinyString<kMaxNameLength>& name) {
+  mcucore::PrintToBuffer p2b(name);
+  p2b.print(MCU_FLASHSTR("Switch #"));
+  p2b.print(switch_id);
+  MCU_DCHECK(!p2b.has_buffer_overflow())
+      << p2b.buffer_size() << '<' << p2b.data_size();
+  const auto size =
+      p2b.has_buffer_overflow() ? p2b.buffer_size() : p2b.data_size();
+  name.set_size(name.size() + size);
+}
+
+bool SwitchAdapter::WriteSwitchName(const AlpacaRequest& request,
+                                    uint16_t switch_id,
+                                    const mcucore::StringView& name,
+                                    Print& out) {
+  // Not overridden by subclass, so we have a much stricter limit on the number
+  // of supported switches:
+  MCU_CHECK_LE(GetMaxSwitch(), kMaxSwitchesForName);
+
+  auto status_or_tlv = mcucore::EepromTlv::GetIfValid();
+  MCU_DCHECK_OK(status_or_tlv);
+  if (!status_or_tlv.ok()) {
+    return WriteResponse::StatusResponse(request, status_or_tlv.status(), out);
+  }
+
+  auto tlv = status_or_tlv.value();
+  auto tag = MakeTag(kSwitch0NameId + switch_id);
+
+  auto status = tlv.WriteEntry(
+      tag, reinterpret_cast<const uint8_t*>(name.data()), name.size());
+  return WriteResponse::StatusResponse(request, status, out);
 }
 
 }  // namespace alpaca

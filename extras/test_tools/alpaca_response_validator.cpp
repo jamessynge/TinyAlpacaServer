@@ -33,6 +33,10 @@ void AlpacaResponseValidator::SetTransactionIdsFromAlpacaRequest(
   }
   if (request.have_server_transaction_id) {
     expected_server_transaction_id = request.server_transaction_id;
+    if (last_server_transaction_id.has_value() &&
+        request.server_transaction_id <= last_server_transaction_id.value()) {
+      last_server_transaction_id = std::nullopt;
+    }
   } else {
     expected_server_transaction_id = std::nullopt;
   }

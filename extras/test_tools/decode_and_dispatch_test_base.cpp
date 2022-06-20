@@ -9,7 +9,6 @@
 #include "device_interface.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 #include "mcucore/extras/test_tools/http_request.h"
-#include "mcucore/extras/test_tools/http_response.h"
 #include "mcucore/extras/test_tools/json_decoder.h"
 #include "util/task/status_macros.h"
 
@@ -18,7 +17,6 @@ namespace test {
 namespace {
 
 using ::mcucore::test::HttpRequest;
-using ::mcucore::test::HttpResponse;
 using ::mcucore::test::JsonValue;
 
 constexpr int kDeviceNumber = 87405;
@@ -188,7 +186,16 @@ absl::StatusOr<std::string> DecodeAndDispatchTestBase::RoundTripRequest(
 
 absl::StatusOr<std::string> DecodeAndDispatchTestBase::RoundTripRequest(
     HttpRequest& request, bool half_close_when_drained) {
+  response_validator_.SetClientTransactionIdFromRequest(request);
   return RoundTripRequest(request.ToString(), half_close_when_drained);
+}
+
+absl::StatusOr<JsonValue>
+DecodeAndDispatchTestBase::RoundTripRequestWithValueResponse(
+    HttpRequest& request, bool half_close_when_drained) {
+  ASSIGN_OR_RETURN(auto response_message,
+                   RoundTripRequest(request, half_close_when_drained));
+  return response_validator_.ValidateValueResponse(response_message);
 }
 
 absl::StatusOr<std::string> DecodeAndDispatchTestBase::RoundTripSoleRequest(
@@ -229,159 +236,15 @@ absl::StatusOr<std::string> DecodeAndDispatchTestBase::RoundTripSoleRequest(
 
 absl::StatusOr<std::string> DecodeAndDispatchTestBase::RoundTripSoleRequest(
     HttpRequest& request) {
+  response_validator_.SetClientTransactionIdFromRequest(request);
   return RoundTripSoleRequest(request.ToString());
 }
 
-absl::StatusOr<HttpResponse> DecodeAndDispatchTestBase::ValidateResponseIsOk(
-    const std::string& response_string) {
-  ASSIGN_OR_RETURN(auto resp, HttpResponse::Make(response_string));
-  if (resp.status_code != 200) {
-    return absl::InvalidArgumentError(
-        absl::StrCat("Expected status_code 200, not ", resp.status_code,
-                     "; response:\n\n", response_string, "\n"));
-  }
-  if (resp.status_message != "OK") {
-    return absl::InvalidArgumentError(
-        absl::StrCat("Expected status_message OK, not ", resp.status_message,
-                     "; response:\n\n", response_string, "\n"));
-  }
-  if (!resp.json_value.is_unset()) {
-    // The body must be a JSON Object, and must have a ServerTransactionID
-    // property.
-    auto body_jv = resp.json_value;
-    RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(body_jv, JsonValue::kObject);
-    RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(
-        body_jv.GetValue(kServerTransactionIDName), JsonValue::kInteger);
-    // The other three Alpaca standard properties are optional.
-    if (body_jv.HasKey(kClientTransactionIDName)) {
-      RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(
-          body_jv.GetValue(kClientTransactionIDName), JsonValue::kInteger);
-    }
-    if (body_jv.HasKey(kErrorNumberName)) {
-      RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(body_jv.GetValue(kErrorNumberName),
-                                          JsonValue::kInteger);
-    }
-    if (body_jv.HasKey(kErrorMessageName)) {
-      RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(body_jv.GetValue(kErrorMessageName),
-                                          JsonValue::kString);
-    }
-    // If there is an ErrorMessage,, there must be a non-zero ErrorNumber.
-    if (body_jv.HasKey(kErrorMessageName) &&
-        body_jv.GetValue(kErrorMessageName) != "") {
-      auto error_number_jv = body_jv.GetValue(kErrorNumberName);
-      if (body_jv.GetValue(kErrorNumberName) == 0) {
-        return absl::InvalidArgumentError(absl::StrCat(
-            "Has an ", kErrorMessageName, ", but not a non-zero ",
-            kErrorNumberName, "; JSON response: ", body_jv.ToDebugString()));
-      }
-    }
-    // The ServerTransactionID must be increasing.
-    auto recv_txn_id = body_jv.GetValue(kServerTransactionIDName).as_integer();
-    if (recv_txn_id < 0) {
-      return absl::InvalidArgumentError(
-          absl::StrCat("Expected ", kServerTransactionIDName,
-                       " to be >= 0; value: ", recv_txn_id));
-    }
-    auto min_expected_txn_id = last_server_transaction_id_ + 1;
-    last_server_transaction_id_ = recv_txn_id;
-    if (min_expected_txn_id > recv_txn_id) {
-      return absl::InvalidArgumentError(absl::StrCat(
-          "Expected ", kServerTransactionIDName, " >= ", min_expected_txn_id,
-          "; received ", recv_txn_id));
-    }
-  }
-  return resp;
-}
-
-absl::StatusOr<HttpResponse>
-DecodeAndDispatchTestBase::ValidateJsonResponseIsOk(
-    const HttpRequest& request, const std::string& response_string) {
-  ASSIGN_OR_RETURN(auto resp, ValidateResponseIsOk(response_string));
-  RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(resp.json_value, JsonValue::kObject);
-  auto body_jv = resp.json_value;
-
-  // Not OK if there is a non-zero error number.
-  if (body_jv.HasKey(kErrorNumberName) &&
-      body_jv.GetValue(kErrorNumberName).as_integer() != 0) {
-    return absl::InvalidArgumentError(
-        absl::StrCat("Expected no ASCOM error, got:\n", kErrorNumberName, ":  ",
-                     body_jv.GetValue(kErrorNumberName).as_integer(), "\n",
-                     kErrorMessageName, ": ",
-                     (body_jv.HasKey(kErrorMessageName)
-                          ? body_jv.GetValue(kErrorMessageName).as_string()
-                          : "")));
-  }
-  if (request.HasParameter(kClientTransactionIDName)) {
-    ASSIGN_OR_RETURN(auto sent_txn_id,
-                     request.GetParameter(kClientTransactionIDName));
-    auto recv_txn_id = body_jv.GetValue(kClientTransactionIDName);
-    RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(recv_txn_id, JsonValue::kInteger);
-    if (sent_txn_id != std::to_string(recv_txn_id.as_integer())) {
-      return absl::InvalidArgumentError(
-          absl::StrCat("Sent ", kClientTransactionIDName, "=", sent_txn_id,
-                       ", response contained ", recv_txn_id.ToDebugString()));
-    }
-  }
-  return resp;
-}
-
-absl::StatusOr<HttpResponse>
-DecodeAndDispatchTestBase::ValidateJsonResponseHasError(
-    const HttpRequest& request, const std::string& response_string,
-    int expected_error_number) {
-  ASSIGN_OR_RETURN(auto resp, ValidateResponseIsOk(response_string));
-  RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(resp.json_value, JsonValue::kObject);
-  auto body_jv = resp.json_value;
-  if (body_jv.GetValue(kErrorNumberName) != expected_error_number) {
-    return absl::InvalidArgumentError(
-        absl::StrCat("Expected ", kErrorNumberName, "=", expected_error_number,
-                     "; JSON response:\n", body_jv.ToDebugString()));
-  }
-  return resp;
-}
-
-absl::StatusOr<HttpResponse>
-DecodeAndDispatchTestBase::ValidateValuelessResponse(
-    const HttpRequest& request, const std::string& response_string) {
-  ASSIGN_OR_RETURN(auto resp,
-                   ValidateJsonResponseIsOk(request, response_string));
-  if (resp.json_value.HasKey("Value")) {
-    return absl::InvalidArgumentError(
-        "Expected the JSON body object to NOT have a Value property");
-  }
-  return resp;
-}
-
-absl::StatusOr<JsonValue> DecodeAndDispatchTestBase::ValidateValueResponse(
-    const HttpRequest& request, const std::string& response_string) {
-  ASSIGN_OR_RETURN(auto resp,
-                   ValidateJsonResponseIsOk(request, response_string));
-  if (!resp.json_value.HasKey("Value")) {
-    return absl::InvalidArgumentError(
-        "Expected the JSON body object to have a Value property");
-  }
-  return resp.json_value.GetValue("Value");
-}
-
-absl::StatusOr<JsonValue> DecodeAndDispatchTestBase::ValidateArrayValueResponse(
-    const HttpRequest& request, const std::string& response_string) {
-  ASSIGN_OR_RETURN(auto value_jv,
-                   ValidateValueResponse(request, response_string));
-  RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(value_jv, JsonValue::kArray);
-  return value_jv;
-}
-
-absl::StatusOr<std::vector<int64_t>>
-DecodeAndDispatchTestBase::ValidateIntArrayResponse(
-    const HttpRequest& request, const std::string& response_string) {
-  ASSIGN_OR_RETURN(auto array_jv,
-                   ValidateArrayValueResponse(request, response_string));
-  std::vector<int64_t> result;
-  for (const auto& elem_jv : array_jv.as_array()) {
-    RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(elem_jv, JsonValue::kInteger);
-    result.push_back((elem_jv.as_integer()));
-  }
-  return result;
+absl::StatusOr<JsonValue>
+DecodeAndDispatchTestBase::RoundTripSoleRequestWithValueResponse(
+    HttpRequest& request) {
+  ASSIGN_OR_RETURN(auto response_message, RoundTripSoleRequest(request));
+  return response_validator_.ValidateValueResponse(response_message);
 }
 
 }  // namespace test

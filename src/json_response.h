@@ -36,14 +36,11 @@ class JsonMethodResponse : public mcucore::JsonPropertySource {
       object_encoder.AddUIntProperty(ProgmemStringViews::ServerTransactionID(),
                                      request_.server_transaction_id);
     }
-    if (error_number_ != 0) {
-      object_encoder.AddUIntProperty(ProgmemStringViews::ErrorNumber(),
-                                     error_number_);
-    }
-    if (error_message_ != nullptr) {
-      object_encoder.AddStringProperty(ProgmemStringViews::ErrorMessage(),
-                                       *error_message_);
-    }
+    object_encoder.AddUIntProperty(ProgmemStringViews::ErrorNumber(),
+                                   error_number_);
+    mcucore::AnyPrintable empty;
+    object_encoder.AddStringProperty(ProgmemStringViews::ErrorMessage(),
+                                     error_message_ ? *error_message_ : empty);
   }
 
  private:

@@ -265,7 +265,7 @@ enum class EParameter : uint8_t {
 
   // Switch parameters.
   kId,
-  kName,  // DECODING NOT YET SUPPORTED (No provision for storage)
+  kName,
   kState,
   kValue,
 };
@@ -312,6 +312,11 @@ enum class EContentType : uint8_t {
   TASENUMERATOR(kApplicationJson, "application/json"),
   TASENUMERATOR(kTextPlain, "text/plain"),
   TASENUMERATOR(kTextHtml, "text/html"),
+};
+
+// Tag numbers for EEPROM entries.
+enum class EDeviceEepromTagId : uint8_t {
+  kUniqueId = 1,
 };
 
 #undef TASENUMERATOR

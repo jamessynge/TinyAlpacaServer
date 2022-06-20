@@ -1,8 +1,5 @@
 #include "device_types/switch/multi_switch_adapter.h"
 
-#include "alpaca_response.h"
-#include "ascom_error_codes.h"
-#include "constants.h"
 #include "device_info.h"
 #include "literals.h"
 
@@ -19,21 +16,11 @@ SwitchInterface* MultiSwitchAdapter::GetSwitchInterface(
   return switches_[switch_id];
 }
 
-bool MultiSwitchAdapter::HandleGetSwitchDescription(
-    const AlpacaRequest& request, uint16_t switch_id, Print& out) {
-  return GetSwitchInterface(switch_id)->HandleGetSwitchDescription(request,
-                                                                   out);
-}
-
-bool MultiSwitchAdapter::HandleGetSwitchName(const AlpacaRequest& request,
-                                             uint16_t switch_id, Print& out) {
-  return GetSwitchInterface(switch_id)->HandleGetSwitchName(request, out);
-}
-
-bool MultiSwitchAdapter::HandleSetSwitchName(const AlpacaRequest& request,
-                                             uint16_t switch_id, Print& out) {
-  return GetSwitchInterface(switch_id)->HandleSetSwitchName(request, out);
-}
+// bool MultiSwitchAdapter::HandleGetSwitchDescription(
+//     const AlpacaRequest& request, uint16_t switch_id, Print& out) {
+//   return GetSwitchInterface(switch_id)->HandleGetSwitchDescription(request,
+//                                                                    out);
+// }
 
 uint16_t MultiSwitchAdapter::GetMaxSwitch() { return switches_.size(); }
 

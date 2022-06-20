@@ -543,6 +543,10 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     } else {
       state.request.sensor_name = matched;
     }
+  } else if (state.current_parameter == EParameter::kName) {
+    if (!state.request.set_string_value(value)) {
+      status = ReportExtraParameter(state, value);
+    }
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   } else if (state.current_parameter == EParameter::kUnknown) {
     if (state.listener) {

@@ -53,7 +53,6 @@ cc_library(
         "//absl/strings",
         "//googletest:gunit_headers",
         "//mcucore/extras/test_tools:http_request",
-        "//mcucore/extras/test_tools:http_response",
         "//mcucore/extras/test_tools:json_decoder",
         "//mcucore/src:array_view",
         "//mcucore/src:eeprom_tlv",

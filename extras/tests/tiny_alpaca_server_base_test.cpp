@@ -7,31 +7,16 @@
 #include <memory>
 #include <string>
 
-#include "absl/strings/numbers.h"
 #include "absl/strings/str_cat.h"
-#include "absl/strings/str_split.h"
-#include "alpaca_devices.h"
-#include "alpaca_discovery_server.h"
-#include "alpaca_response.h"
-#include "constants.h"
-#include "device_info.h"
 #include "device_interface.h"
-#include "device_types/device_impl_base.h"
 #include "extras/test_tools/decode_and_dispatch_test_base.h"
-#include "extras/test_tools/mock_device_interface.h"
-#include "extras/test_tools/mock_switch_group.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "literals.h"
 #include "mcucore/extras/test_tools/http_request.h"
 #include "mcucore/extras/test_tools/http_response.h"
-#include "mcucore/extras/test_tools/print_to_std_string.h"
-#include "mcucore/extras/test_tools/sample_printable.h"
-#include "request_listener.h"
-#include "server_connection.h"
 #include "server_description.h"
-#include "server_sockets_and_connections.h"
 #include "tiny_alpaca_server.h"
 
 namespace alpaca {
@@ -67,7 +52,9 @@ class TinyAlpacaServerBaseExplicitLifecycleTest
     : public DecodeAndDispatchTestBase {
  protected:
   void SetUp() override {
-    // NOT calling base class.
+    // NOT calling base class SetUp, but do call PrepareEeprom because we need
+    // that else we crash.
+    PrepareEeprom();
   }
 
   const ServerDescription& GetServerDescription() override {
@@ -156,10 +143,13 @@ TEST_F(TinyAlpacaServerBaseTest, NoConfiguredDevices) {
   HttpRequest request("/management/v1/configureddevices");
   ASSERT_OK_AND_ASSIGN(auto response_str,
                        RoundTripSoleRequest(request.ToString()));
+  response_validator_.SetClientTransactionIdFromRequest(request);
+
   // There aren't any devices, so the response should be OK, but the Value array
   // should be empty.
-  ASSERT_OK_AND_ASSIGN(auto configured_devices_jv_array,
-                       ValidateArrayValueResponse(request, response_str));
+  ASSERT_OK_AND_ASSIGN(
+      auto configured_devices_jv_array,
+      response_validator_.ValidateArrayValueResponse(response_str));
   ASSERT_THAT(configured_devices_jv_array.as_array(), IsEmpty());
 }
 

@@ -54,6 +54,8 @@ std::string MakeExpectedResponse(std::string_view raw_json_for_value,
   if (txn_id >= 0) {
     entries.push_back(absl::StrCat(R"("ServerTransactionID": )", txn_id));
   }
+  entries.push_back(R"("ErrorNumber": 0)");
+  entries.push_back(R"("ErrorMessage": "")");
   std::string expected_body =
       absl::StrCat("{", absl::StrJoin(entries, ", "), "}", kEOL);
   std::string header = MakeExpectedResponseHeader(expected_body, do_close);
@@ -332,9 +334,9 @@ TEST(AlpacaResponseTest, ProgmemStringArrayResponse) {
   AlpacaRequest request;
   PrintToStdString out;
   EXPECT_TRUE(WriteResponse::ProgmemStringArrayResponse(request, value, out));
-
   const std::string expected_body =
-      absl::StrCat(R"({"Value": ["DeviceType", "ManufacturerVersion"]})", kEOL);
+      absl::StrCat(R"({"Value": ["DeviceType", "ManufacturerVersion"], )",
+                   R"("ErrorNumber": 0, "ErrorMessage": ""})", kEOL);
   EXPECT_EQ(out.str(),
             absl::StrCat("HTTP/1.1 200 OK", kEOL, "Server: TinyAlpacaServer",
                          kEOL, "Content-Type: application/json", kEOL,

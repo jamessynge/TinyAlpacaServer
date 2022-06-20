@@ -16,9 +16,6 @@ cc_library(
     deps = [
         ":switch_adapter",
         ":switch_interface",
-        "//TinyAlpacaServer/src:alpaca_response",
-        "//TinyAlpacaServer/src:ascom_error_codes",
-        "//TinyAlpacaServer/src:constants",
         "//TinyAlpacaServer/src:device_info",
         "//TinyAlpacaServer/src:literals",
         "//mcucore/src:array_view",
@@ -33,12 +30,16 @@ cc_library(
     hdrs = ["switch_adapter.h"],
     deps = [
         "//TinyAlpacaServer/src:alpaca_response",
-        "//TinyAlpacaServer/src:ascom_error_codes",
         "//TinyAlpacaServer/src:constants",
+        "//TinyAlpacaServer/src:eeprom_ids",
         "//TinyAlpacaServer/src:literals",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
+        "//mcucore/src:any_printable",
+        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src:print_to_buffer",
         "//mcucore/src:status_or",
+        "//mcucore/src:string_view",
     ],
 )
 

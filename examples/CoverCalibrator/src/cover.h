@@ -71,6 +71,9 @@ class Cover : public alpaca::EnableableByPin, InterruptHandler {
   bool CanMove() const;
 
  private:
+  void EnableStepper();
+  void DisableStepper();
+
   void StartMoving(int direction_pin_value);
 
   void HandleInterrupt() override;

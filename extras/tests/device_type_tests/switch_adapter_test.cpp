@@ -5,40 +5,69 @@
 
 #include <string>
 
-#include "absl/strings/str_cat.h"
 #include "alpaca_request.h"
 #include "constants.h"
 #include "device_info.h"
+#include "extras/test_tools/decode_and_dispatch_test_base.h"
 #include "extras/test_tools/mock_switch_group.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extras/test_tools/print_to_std_string.h"
 
+MCU_DEFINE_DOMAIN(75);
+
 namespace alpaca {
 namespace test {
 namespace {
 
-using ::testing::ContainsRegex;
-using ::testing::HasSubstr;
+using ::mcucore::test::JsonValue;
 using ::testing::Mock;
-using ::testing::Not;
+using ::testing::NiceMock;
 using ::testing::Return;
-using ::testing::StartsWith;
 
-constexpr int kDeviceNumber = 87405;
+constexpr int kDeviceNumber = 0;
 constexpr int kClientId = 91240;
 constexpr int kClientTransactionId = 42050;
 constexpr int kServerTransactionId = 54981;
 
-class SwitchGroupTest : public testing::Test {
+constexpr int kAscomInvalidValueError = 1025;
+constexpr int kAscomValueNotSetError = 1026;
+
+#define DEVICE_NAME "CircuitsController"
+#define GITHUB_LINK "https://github/jamessynge/TinyAlpacaServer"
+#define DEVICE_DESCRIPTION "Circuits Controller"
+#define SUPPORTED_ACTION "JiggleSwitch"
+#define DEVICE_DRIVER_VERSION "0.9"
+
+class SwitchAdapterTest : public DecodeAndDispatchTestBase {
  protected:
-  SwitchGroupTest() : switch_group_(device_info_) {}
+  SwitchAdapterTest()
+      : device_info_({
+            .device_type = alpaca::EDeviceType::kSwitch,
+            .device_number = kDeviceNumber,
+            .domain = MCU_DOMAIN(75),
+            .name = MCU_FLASHSTR("Switch Name"),
+            .description = MCU_FLASHSTR("Switch Description"),
+            .driver_info = MCU_FLASHSTR("Switch Driver Info"),
+            .driver_version = MCU_FLASHSTR("Switch Driver Version"),
+            .supported_actions = {},
+            .interface_version = 1,
+        }),
+        device_(device_info_) {
+    // Setting this very early because GetMaxSwitch is called a lot. But the
+    // return value isn't cached, so it is OK to change the expectation in
+    // individual tests.
+    ON_CALL(device_, GetMaxSwitch).WillByDefault(Return(1));
+    AddDeviceInterface(device_);
+  }
+
   void SetUp() override {
+    DecodeAndDispatchTestBase::SetUp();
+
     InitializeRequest();
 
-    EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(0));
-    switch_group_.Initialize();
-    Mock::VerifyAndClearExpectations(&switch_group_);
+    device_.Initialize();
+    Mock::VerifyAndClearExpectations(&device_);
   }
 
   void InitializeRequest() {
@@ -53,61 +82,54 @@ class SwitchGroupTest : public testing::Test {
     request_.set_client_transaction_id(kClientTransactionId);
   }
 
-  void VerifyResponseIsOK(const std::string& response) {
-    EXPECT_THAT(response, StartsWith("HTTP/1.1 200 OK\r\n"));
-    EXPECT_THAT(response, HasSubstr("\r\nContent-Type: application/json\r\n"));
-    EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ClientTransactionID": )",
-                                                 kClientTransactionId)));
-    EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ServerTransactionID": )",
-                                                 kServerTransactionId)));
-  }
+  // void VerifyResponseIsOK(const std::string& response) {
+  //   EXPECT_THAT(response, StartsWith("HTTP/1.1 200 OK\r\n"));
+  //   EXPECT_THAT(response, HasSubstr("\r\nContent-Type:
+  //   application/json\r\n")); EXPECT_THAT(response,
+  //   HasSubstr(absl::StrCat(R"("ClientTransactionID": )",
+  //                                                kClientTransactionId)));
+  //   EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ServerTransactionID":
+  //   )",
+  //                                                kServerTransactionId)));
+  // }
 
-  void VerifyResponseIsGood(const std::string& response) {
-    VerifyResponseIsOK(response);
-    EXPECT_THAT(response, Not(HasSubstr(R"("ErrorMessage":)")));
-    EXPECT_THAT(response, Not(HasSubstr(R"("ErrorNumber":)")));
-  }
+  // void VerifyResponseIsGood(const std::string& response) {
+  //   VerifyResponseIsOK(response);
+  //   EXPECT_THAT(response, Not(HasSubstr(R"("ErrorMessage":)")));
+  //   EXPECT_THAT(response, Not(HasSubstr(R"("ErrorNumber":)")));
+  // }
 
-  void VerifyResponseHasError(const std::string& response) {
-    VerifyResponseIsOK(response);
-    EXPECT_THAT(response, HasSubstr(R"("ErrorMessage":)"));
-    EXPECT_THAT(response, HasSubstr(R"("ErrorNumber":)"));
-    EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
-  }
+  // void VerifyResponseHasError(const std::string& response) {
+  //   VerifyResponseIsOK(response);
+  //   EXPECT_THAT(response, HasSubstr(R"("ErrorMessage":)"));
+  //   EXPECT_THAT(response, HasSubstr(R"("ErrorNumber":)"));
+  //   EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
+  // }
 
-  const alpaca::DeviceInfo device_info_{
-      .device_type = alpaca::EDeviceType::kSwitch,
-      .device_number = kDeviceNumber,
-      .name = MCU_FLASHSTR("Switch Name"),
-      .unique_id = MCU_FLASHSTR("Switch Unique Id"),
-      .description = MCU_FLASHSTR("Switch Description"),
-      .driver_info = MCU_FLASHSTR("Switch Driver Info"),
-      .driver_version = MCU_FLASHSTR("Switch Driver Version"),
-      .supported_actions = {},
-      .interface_version = 1,
-  };
-
-  MockSwitchGroup switch_group_;
+  const mcucore::ProgmemString supported_actions_[1] = {
+      MCU_PSD(SUPPORTED_ACTION)};
+  const DeviceInfo device_info_;
+  NiceMock<MockSwitchGroup> device_;
   AlpacaRequest request_;
 };
 
-TEST_F(SwitchGroupTest, MaxSwitch) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(9));
+// NOT testing the common methods here. observing_conditions_adapter_test.cc
+// does so, and that testing should really be moved to a parameterized test,
+// such as common_device_methods_test.cc.
 
+TEST_F(SwitchAdapterTest, MaxSwitch) {
+  EXPECT_CALL(device_, GetMaxSwitch).WillRepeatedly(Return(9));
   request_.device_method = EDeviceMethod::kMaxSwitch;
   mcucore::test::PrintToStdString out;
-  EXPECT_TRUE(switch_group_.HandleGetRequest(request_, out));
-  const std::string response = out.str();
-
-  VerifyResponseIsGood(response);
-  EXPECT_THAT(response, ContainsRegex(R"("Value":\s*9[^0-9.])"));
+  ASSERT_TRUE(device_.HandleGetRequest(request_, out));
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK_AND_ASSIGN(auto value_jv,
+                       response_validator_.ValidateValueResponse(out.str()));
+  EXPECT_EQ(value_jv, 9);
 }
 
-TEST_F(SwitchGroupTest, DetectsMissingSwitchId) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(9));
-
-  const auto kExpectedErrorMessage =
-      R"("ErrorMessage": "Missing parameter: Id")";
+TEST_F(SwitchAdapterTest, DetectsMissingSwitchId) {
+  EXPECT_CALL(device_, GetMaxSwitch).WillRepeatedly(Return(9));
 
   for (const auto device_method : {
            EDeviceMethod::kCanWrite,
@@ -120,13 +142,19 @@ TEST_F(SwitchGroupTest, DetectsMissingSwitchId) {
            EDeviceMethod::kMaxSwitchValue,
            EDeviceMethod::kSwitchStep,
        }) {
+    InitializeRequest();
     request_.device_method = device_method;
 
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-    EXPECT_THAT(response, HasSubstr(kExpectedErrorMessage));
+    device_.HandleGetRequest(request_, out);
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto response,
+                         response_validator_.ValidateJsonResponseHasError(
+                             out.str(), kAscomValueNotSetError));
+    ASSERT_OK_AND_ASSIGN(
+        auto error_message_jv,
+        response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+    EXPECT_EQ(error_message_jv, "Missing parameter: Id");
   }
 
   for (const auto device_method : {
@@ -134,23 +162,24 @@ TEST_F(SwitchGroupTest, DetectsMissingSwitchId) {
            EDeviceMethod::kSetSwitchName,
            EDeviceMethod::kSetSwitchValue,
        }) {
+    InitializeRequest();
     request_.device_method = device_method;
 
     mcucore::test::PrintToStdString out;
-    switch_group_.HandlePutRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-    EXPECT_THAT(response, HasSubstr(kExpectedErrorMessage));
+    device_.HandlePutRequest(request_, out);
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto response,
+                         response_validator_.ValidateJsonResponseHasError(
+                             out.str(), kAscomValueNotSetError));
+    ASSERT_OK_AND_ASSIGN(
+        auto error_message_jv,
+        response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+    EXPECT_EQ(error_message_jv, "Missing parameter: Id");
   }
 }
 
-TEST_F(SwitchGroupTest, DetectsSwitchIdTooHigh) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(9));
-
-  request_.set_id(9);
-
-  const auto kExpectedErrorMessage =
-      R"("ErrorMessage": "Invalid parameter: Id")";
+TEST_F(SwitchAdapterTest, DetectsSwitchIdTooHigh) {
+  EXPECT_CALL(device_, GetMaxSwitch).WillRepeatedly(Return(9));
 
   for (const auto device_method : {
            EDeviceMethod::kCanWrite,
@@ -163,12 +192,22 @@ TEST_F(SwitchGroupTest, DetectsSwitchIdTooHigh) {
            EDeviceMethod::kMaxSwitchValue,
            EDeviceMethod::kSwitchStep,
        }) {
+    InitializeRequest();
     request_.device_method = device_method;
+    request_.set_id(9);
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-    EXPECT_THAT(response, HasSubstr(kExpectedErrorMessage));
+    // We choose to close connections if an error is generated, partly as a
+    // defense against ill-behaved clients causing denial of service for others;
+    // given how slow the Arduino Mega is, this has at least some merit.
+    EXPECT_FALSE(device_.HandleGetRequest(request_, out));
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto response,
+                         response_validator_.ValidateJsonResponseHasError(
+                             out.str(), kAscomInvalidValueError));
+    ASSERT_OK_AND_ASSIGN(
+        auto error_message_jv,
+        response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+    EXPECT_EQ(error_message_jv, "Invalid parameter: Id");
   }
 
   for (const auto device_method : {
@@ -176,70 +215,81 @@ TEST_F(SwitchGroupTest, DetectsSwitchIdTooHigh) {
            EDeviceMethod::kSetSwitchName,
            EDeviceMethod::kSetSwitchValue,
        }) {
+    InitializeRequest();
     request_.device_method = device_method;
+    request_.set_id(9);
     mcucore::test::PrintToStdString out;
-    switch_group_.HandlePutRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-    EXPECT_THAT(response, HasSubstr(kExpectedErrorMessage));
+    EXPECT_FALSE(device_.HandlePutRequest(request_, out));
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto response,
+                         response_validator_.ValidateJsonResponseHasError(
+                             out.str(), kAscomInvalidValueError));
+    ASSERT_OK_AND_ASSIGN(
+        auto error_message_jv,
+        response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+    EXPECT_EQ(error_message_jv, "Invalid parameter: Id");
   }
 }
 
-TEST_F(SwitchGroupTest, CanWrite) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(9));
+TEST_F(SwitchAdapterTest, CanWrite) {
+  EXPECT_CALL(device_, GetMaxSwitch).WillRepeatedly(Return(9));
 
   request_.device_method = EDeviceMethod::kCanWrite;
   request_.set_id(2);
-  EXPECT_CALL(switch_group_, GetCanWrite(2)).WillOnce(Return(false));
+  EXPECT_CALL(device_, GetCanWrite(2)).WillOnce(Return(false));
 
   {
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseIsGood(response);
-    EXPECT_THAT(response, HasSubstr(R"("Value": false)"));
+    EXPECT_TRUE(device_.HandleGetRequest(request_, out));
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto value_jv,
+                         response_validator_.ValidateValueResponse(out.str()));
+    EXPECT_EQ(value_jv, false);
   }
 
   InitializeRequest();
   request_.device_method = EDeviceMethod::kCanWrite;
   request_.set_id(3);
-  EXPECT_CALL(switch_group_, GetCanWrite(3)).WillOnce(Return(true));
+  EXPECT_CALL(device_, GetCanWrite(3)).WillOnce(Return(true));
 
   {
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseIsGood(response);
-    EXPECT_THAT(response, HasSubstr(R"("Value": true)"));
+    EXPECT_TRUE(device_.HandleGetRequest(request_, out));
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto value_jv,
+                         response_validator_.ValidateValueResponse(out.str()));
+    EXPECT_EQ(value_jv, true);
   }
 }
 
-TEST_F(SwitchGroupTest, GetSwitch) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(9));
+TEST_F(SwitchAdapterTest, GetSwitch) {
+  EXPECT_CALL(device_, GetMaxSwitch).WillRepeatedly(Return(9));
 
   request_.device_method = EDeviceMethod::kGetSwitch;
   request_.set_id(0);
-  EXPECT_CALL(switch_group_, GetSwitch(0)).WillOnce(Return(false));
+  EXPECT_CALL(device_, GetSwitch(0)).WillOnce(Return(false));
 
   {
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseIsGood(response);
-    EXPECT_THAT(response, HasSubstr(R"("Value": false)"));
+    device_.HandleGetRequest(request_, out);
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto value_jv,
+                         response_validator_.ValidateValueResponse(out.str()));
+    EXPECT_EQ(value_jv, false);
   }
 
   InitializeRequest();
   request_.device_method = EDeviceMethod::kGetSwitch;
   request_.set_id(8);
-  EXPECT_CALL(switch_group_, GetSwitch(8)).WillOnce(Return(true));
+  EXPECT_CALL(device_, GetSwitch(8)).WillOnce(Return(true));
 
   {
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseIsGood(response);
-    EXPECT_THAT(response, HasSubstr(R"("Value": true)"));
+    device_.HandleGetRequest(request_, out);
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto value_jv,
+                         response_validator_.ValidateValueResponse(out.str()));
+    EXPECT_EQ(value_jv, true);
   }
 
   const char kErrorMessage[] = "Can not get switch as boolean";
@@ -250,197 +300,184 @@ TEST_F(SwitchGroupTest, GetSwitch) {
   InitializeRequest();
   request_.device_method = EDeviceMethod::kGetSwitch;
   request_.set_id(1);
-  EXPECT_CALL(switch_group_, GetSwitch(1)).WillOnce(Return(status));
+  EXPECT_CALL(device_, GetSwitch(1)).WillOnce(Return(status));
 
   {
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-    EXPECT_THAT(response, HasSubstr(R"("ErrorNumber": 999)"));
-    EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ErrorMessage": ")",
-                                                 kErrorMessage, "\"")));
+    device_.HandleGetRequest(request_, out);
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(
+        auto response,
+        response_validator_.ValidateJsonResponseHasError(out.str(), 999));
+    ASSERT_OK_AND_ASSIGN(
+        auto error_message_jv,
+        response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+    EXPECT_EQ(error_message_jv, std::string(kErrorMessage));
   }
 }
 
-TEST_F(SwitchGroupTest, GetSwitchValue) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-
+TEST_F(SwitchAdapterTest, GetSwitchValue) {
   request_.device_method = EDeviceMethod::kGetSwitchValue;
   request_.set_id(0);
-  EXPECT_CALL(switch_group_, GetSwitchValue(0)).WillOnce(Return(123.4));
+  EXPECT_CALL(device_, GetSwitchValue(0)).WillOnce(Return(123.4));
 
   {
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseIsGood(response);
-    EXPECT_THAT(response, HasSubstr(R"("Value": 123.4)"));
+    device_.HandleGetRequest(request_, out);
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto value_jv,
+                         response_validator_.ValidateValueResponse(out.str()));
+    EXPECT_EQ(value_jv, 123.4);
   }
 
   const char kErrorMessage[] = "Can not get switch as double";
   mcucore::ProgmemStringView literal_error_message(kErrorMessage);
   mcucore::Status status(mcucore::StatusCode::kNotFound, literal_error_message);
 
-  EXPECT_CALL(switch_group_, GetSwitchValue(0)).WillOnce(Return(status));
+  EXPECT_CALL(device_, GetSwitchValue(0)).WillOnce(Return(status));
 
   {
     mcucore::test::PrintToStdString out;
-    switch_group_.HandleGetRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-    EXPECT_THAT(response,
-                HasSubstr(absl::StrCat(
-                    R"("ErrorNumber": )",
-                    static_cast<int>(mcucore::StatusCode::kNotFound))));
-    EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ErrorMessage": ")",
-                                                 kErrorMessage, "\"")));
+    device_.HandleGetRequest(request_, out);
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(
+        auto response,
+        response_validator_.ValidateJsonResponseHasError(
+            out.str(), static_cast<int>(mcucore::StatusCode::kNotFound)));
+    ASSERT_OK_AND_ASSIGN(
+        auto error_message_jv,
+        response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+    EXPECT_EQ(error_message_jv, std::string(kErrorMessage));
   }
 }
 
-TEST_F(SwitchGroupTest, GetMinSwitchValue) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-
+TEST_F(SwitchAdapterTest, GetMinSwitchValue) {
   request_.device_method = EDeviceMethod::kMinSwitchValue;
   request_.set_id(0);
-  EXPECT_CALL(switch_group_, GetMinSwitchValue(0)).WillOnce(Return(1.23));
+  EXPECT_CALL(device_, GetMinSwitchValue(0)).WillOnce(Return(1.23));
 
   mcucore::test::PrintToStdString out;
-  switch_group_.HandleGetRequest(request_, out);
-  const std::string response = out.str();
-  VerifyResponseIsGood(response);
-  EXPECT_THAT(response, HasSubstr(R"("Value": 1.23)"));
+  device_.HandleGetRequest(request_, out);
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK_AND_ASSIGN(auto value_jv,
+                       response_validator_.ValidateValueResponse(out.str()));
+  EXPECT_EQ(value_jv, 1.23);
 }
 
-TEST_F(SwitchGroupTest, GetMaxSwitchValue) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-
+TEST_F(SwitchAdapterTest, GetMaxSwitchValue) {
   request_.device_method = EDeviceMethod::kMaxSwitchValue;
   request_.set_id(0);
-  EXPECT_CALL(switch_group_, GetMaxSwitchValue(0)).WillOnce(Return(1000.001));
+  EXPECT_CALL(device_, GetMaxSwitchValue(0)).WillOnce(Return(1000.001));
 
   mcucore::test::PrintToStdString out;
-  switch_group_.HandleGetRequest(request_, out);
-  const std::string response = out.str();
-  VerifyResponseIsGood(response);
-  EXPECT_THAT(response, HasSubstr(R"("Value": 1000.00,)"));
+  device_.HandleGetRequest(request_, out);
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK_AND_ASSIGN(auto value_jv,
+                       response_validator_.ValidateValueResponse(out.str()));
+  EXPECT_EQ(value_jv, 1000.0);
 }
 
-TEST_F(SwitchGroupTest, GetSwitchStep) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-
+TEST_F(SwitchAdapterTest, GetSwitchStep) {
   request_.device_method = EDeviceMethod::kSwitchStep;
   request_.set_id(0);
-  EXPECT_CALL(switch_group_, GetSwitchStep(0)).WillOnce(Return(1));
+  EXPECT_CALL(device_, GetSwitchStep(0)).WillOnce(Return(1));
 
   mcucore::test::PrintToStdString out;
-  switch_group_.HandleGetRequest(request_, out);
-  const std::string response = out.str();
-  VerifyResponseIsGood(response);
-  EXPECT_THAT(response, HasSubstr(R"("Value": 1.00,)"));
+  device_.HandleGetRequest(request_, out);
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK_AND_ASSIGN(auto value_jv,
+                       response_validator_.ValidateValueResponse(out.str()));
+  EXPECT_EQ(value_jv, 1.0);
 }
 
-TEST_F(SwitchGroupTest, SetSwitch_MissingState) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-
+TEST_F(SwitchAdapterTest, SetSwitch_MissingState) {
   request_.device_method = EDeviceMethod::kSetSwitch;
   request_.set_id(0);
   request_.set_value(1.23);  // Should be ignored.
-  EXPECT_CALL(switch_group_, SetSwitch).Times(0);
+  EXPECT_CALL(device_, SetSwitch).Times(0);
 
   mcucore::test::PrintToStdString out;
-  switch_group_.HandlePutRequest(request_, out);
-  const std::string response = out.str();
-  VerifyResponseHasError(response);
+  EXPECT_FALSE(device_.HandlePutRequest(request_, out));
 
-  EXPECT_THAT(response,
-              HasSubstr(R"("ErrorMessage": "Missing parameter: State")"));
-  EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK_AND_ASSIGN(auto response,
+                       response_validator_.ValidateJsonResponseHasError(
+                           out.str(), kAscomValueNotSetError));
+  ASSERT_OK_AND_ASSIGN(
+      auto error_message_jv,
+      response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+  EXPECT_EQ(error_message_jv, "Missing parameter: State");
 }
 
-TEST_F(SwitchGroupTest, SetSwitch) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-
+TEST_F(SwitchAdapterTest, SetSwitch) {
   request_.device_method = EDeviceMethod::kSetSwitch;
   request_.set_id(0);
   request_.set_state(false);
-  EXPECT_CALL(switch_group_, SetSwitch(0, false))
+  EXPECT_CALL(device_, SetSwitch(0, false))
       .WillOnce(Return(mcucore::OkStatus()));
 
   mcucore::test::PrintToStdString out;
-  switch_group_.HandlePutRequest(request_, out);
-  const std::string response = out.str();
-  VerifyResponseIsGood(response);
-  EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
+  EXPECT_TRUE(device_.HandlePutRequest(request_, out));
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK(response_validator_.ValidateValuelessResponse(out.str()));
 }
 
-TEST_F(SwitchGroupTest, SetSwitchValue_MissingValue) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-
+TEST_F(SwitchAdapterTest, SetSwitchValue_MissingValue) {
   request_.device_method = EDeviceMethod::kSetSwitchValue;
   request_.set_id(0);
   request_.set_state(false);  // Should be ignored.
-  EXPECT_CALL(switch_group_, SetSwitchValue).Times(0);
+  EXPECT_CALL(device_, SetSwitchValue).Times(0);
 
   mcucore::test::PrintToStdString out;
-  switch_group_.HandlePutRequest(request_, out);
-  const std::string response = out.str();
-  VerifyResponseHasError(response);
+  EXPECT_FALSE(device_.HandlePutRequest(request_, out));
 
-  EXPECT_THAT(response,
-              HasSubstr(R"("ErrorMessage": "Missing parameter: Value")"));
-  EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK_AND_ASSIGN(auto response,
+                       response_validator_.ValidateJsonResponseHasError(
+                           out.str(), kAscomValueNotSetError));
+  ASSERT_OK_AND_ASSIGN(
+      auto error_message_jv,
+      response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+  EXPECT_EQ(error_message_jv, "Missing parameter: Value");
 }
 
-TEST_F(SwitchGroupTest, SetSwitchValue_InvalidValue) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-  EXPECT_CALL(switch_group_, GetMinSwitchValue).WillRepeatedly(Return(0.0));
-  EXPECT_CALL(switch_group_, GetMaxSwitchValue).WillRepeatedly(Return(1.0));
+TEST_F(SwitchAdapterTest, SetSwitchValue_InvalidValue) {
+  EXPECT_CALL(device_, GetMinSwitchValue).WillRepeatedly(Return(0.0));
+  EXPECT_CALL(device_, GetMaxSwitchValue).WillRepeatedly(Return(1.0));
 
-  request_.device_method = EDeviceMethod::kSetSwitchValue;
-  request_.set_id(0);
-  request_.set_value(1.001);
-  {
+  for (const double value : {-0.000001, 1.000001}) {
+    InitializeRequest();
+    request_.device_method = EDeviceMethod::kSetSwitchValue;
+    request_.set_id(0);
+    request_.set_value(value);
     mcucore::test::PrintToStdString out;
-    switch_group_.HandlePutRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-
-    EXPECT_THAT(response,
-                HasSubstr(R"("ErrorMessage": "Invalid parameter: Value")"));
-  }
-
-  InitializeRequest();
-  request_.device_method = EDeviceMethod::kSetSwitchValue;
-  request_.set_id(0);
-  request_.set_value(-0.001);
-  {
-    mcucore::test::PrintToStdString out;
-    switch_group_.HandlePutRequest(request_, out);
-    const std::string response = out.str();
-    VerifyResponseHasError(response);
-
-    EXPECT_THAT(response,
-                HasSubstr(R"("ErrorMessage": "Invalid parameter: Value")"));
+    EXPECT_FALSE(device_.HandlePutRequest(request_, out));
+    response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+    ASSERT_OK_AND_ASSIGN(auto response,
+                         response_validator_.ValidateJsonResponseHasError(
+                             out.str(), kAscomInvalidValueError));
+    ASSERT_OK_AND_ASSIGN(
+        auto error_message_jv,
+        response.json_value.GetValueOfType("ErrorMessage", JsonValue::kString));
+    EXPECT_EQ(error_message_jv, "Invalid parameter: Value");
   }
 }
 
-TEST_F(SwitchGroupTest, SetSwitchValue) {
-  EXPECT_CALL(switch_group_, GetMaxSwitch).WillRepeatedly(Return(1));
-  EXPECT_CALL(switch_group_, GetMinSwitchValue).WillRepeatedly(Return(0));
-  EXPECT_CALL(switch_group_, GetMaxSwitchValue).WillRepeatedly(Return(2));
+TEST_F(SwitchAdapterTest, SetSwitchValue) {
+  EXPECT_CALL(device_, GetMaxSwitch).WillRepeatedly(Return(1));
+  EXPECT_CALL(device_, GetMinSwitchValue).WillRepeatedly(Return(0));
+  EXPECT_CALL(device_, GetMaxSwitchValue).WillRepeatedly(Return(2));
 
   request_.device_method = EDeviceMethod::kSetSwitchValue;
   request_.set_id(0);
   request_.set_value(1.23);
-  EXPECT_CALL(switch_group_, SetSwitchValue(0, 1.23))
+  EXPECT_CALL(device_, SetSwitchValue(0, 1.23))
       .WillOnce(Return(mcucore::OkStatus()));
 
   mcucore::test::PrintToStdString out;
-  switch_group_.HandlePutRequest(request_, out);
-  const std::string response = out.str();
-  VerifyResponseIsGood(response);
-  EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
+  EXPECT_TRUE(device_.HandlePutRequest(request_, out));
+  response_validator_.SetTransactionIdsFromAlpacaRequest(request_);
+  ASSERT_OK(response_validator_.ValidateValuelessResponse(out.str()));
 }
 
 }  // namespace
