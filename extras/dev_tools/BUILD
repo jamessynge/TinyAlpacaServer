@@ -5,6 +5,7 @@
 
 load("//devtools/python/blaze:pytype.bzl", "pytype_strict_binary", "pytype_strict_library")
 load("//devtools/python/blaze:strict.bzl", "py_strict_test")
+load("//tools/build_defs/testing:bzl_library.bzl", "bzl_library")
 
 pytype_strict_binary(
     name = "add_flashstr",
@@ -12,6 +13,13 @@ pytype_strict_binary(
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [":tokenize_cpp_lib"],
+)
+
+bzl_library(
+    name = "build_config_bzl",
+    srcs = ["build_config.bzl"],
+    parse_tests = False,
+    visibility = ["//visibility:private"],
 )
 
 pytype_strict_binary(

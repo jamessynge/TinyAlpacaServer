@@ -1,5 +1,43 @@
 # Libraries intended to simplify the task of writing tests of Tiny Alpaca Server.
 
+package(
+    # In addition to testonly, I'd also like to have a "hostonly" feature on a
+    # target, so that I could readily mark those features that can be used on
+    # embedded systems, and those that are only available on host systems. There
+    # probably is some notion of "platform" that I can use. TBD.
+    default_testonly = 1,
+)
+
+cc_library(
+    name = "alpaca_response_validator",
+    srcs = ["alpaca_response_validator.cc"],
+    hdrs = ["alpaca_response_validator.h"],
+    deps = [
+        "//TinyAlpacaServer/src:alpaca_request",
+        "//absl/status",
+        "//absl/status:statusor",
+        "//absl/strings",
+        "//mcucore/extras/test_tools:http_request",
+        "//mcucore/extras/test_tools:http_response",
+        "//mcucore/extras/test_tools:json_decoder",
+        "//mcucore/src:logging",
+        "//util/task:status",
+    ],
+)
+
+cc_test(
+    name = "alpaca_response_validator_test",
+    srcs = ["alpaca_response_validator_test.cc"],
+    deps = [
+        ":alpaca_response_validator",
+        "//TinyAlpacaServer/src:alpaca_request",
+        "//absl/status",
+        "//googletest:gunit_main",
+        "//mcucore/extras/test_tools:http_request",
+        "//mcucore/extras/test_tools:http_response",
+    ],
+)
+
 cc_library(
     name = "decode_and_dispatch_test_base",
     testonly = True,
