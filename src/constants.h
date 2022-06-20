@@ -107,7 +107,7 @@ enum class EHttpStatusCode : uint16_t {
   TASENUMERATOR(kHttpInternalServerError, "Internal Server Error") = 500,
 
   // We only support GET, HEAD and PUT, and return this for any other method.
-  TASENUMERATOR(kHttpMethodNotImplemented, "Method Not Implemented") = 501,
+  TASENUMERATOR(kHttpNotImplemented, "Not Implemented") = 501,
 
   // Only HTTP/1.1 is supported. Could support 1.0 easily enough.
   TASENUMERATOR(kHttpVersionNotSupported, "HTTP Version Not Supported") = 505,

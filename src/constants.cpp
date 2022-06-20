@@ -67,8 +67,8 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
       return MCU_FLASHSTR("Request Header Fields Too Large");
     case EHttpStatusCode::kHttpInternalServerError:
       return MCU_FLASHSTR("Internal Server Error");
-    case EHttpStatusCode::kHttpMethodNotImplemented:
-      return MCU_FLASHSTR("Method Not Implemented");
+    case EHttpStatusCode::kHttpNotImplemented:
+      return MCU_FLASHSTR("Not Implemented");
     case EHttpStatusCode::kHttpVersionNotSupported:
       return MCU_FLASHSTR("HTTP Version Not Supported");
   }
@@ -110,7 +110,7 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
   if (v == EHttpStatusCode::kHttpInternalServerError) {
     return MCU_FLASHSTR("Internal Server Error");
   }
-  if (v == EHttpStatusCode::kHttpMethodNotImplemented) {
+  if (v == EHttpStatusCode::kHttpNotImplemented) {
     return MCU_FLASHSTR("Method Not Implemented");
   }
   if (v == EHttpStatusCode::kHttpVersionNotSupported) {
@@ -1127,7 +1127,7 @@ std::ostream& operator<<(std::ostream& os, EHttpStatusCode v) {
       return os << "Request Header Fields Too Large";
     case EHttpStatusCode::kHttpInternalServerError:
       return os << "Internal Server Error";
-    case EHttpStatusCode::kHttpMethodNotImplemented:
+    case EHttpStatusCode::kHttpNotImplemented:
       return os << "Method Not Implemented";
     case EHttpStatusCode::kHttpVersionNotSupported:
       return os << "HTTP Version Not Supported";

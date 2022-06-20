@@ -976,7 +976,7 @@ TEST(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
     const std::string full_request = method + " " + request_after_method;
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-              EHttpStatusCode::kHttpMethodNotImplemented);
+              EHttpStatusCode::kHttpNotImplemented);
     EXPECT_THAT(request, EndsWith(request_after_method));
   }
 }
@@ -1377,10 +1377,10 @@ TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedAndUnknownHeaders) {
   EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
       .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
   EXPECT_CALL(listener, OnUnknownHeaderValue(Eq("deflate")))
-      .WillOnce(Return(EHttpStatusCode::kHttpMethodNotImplemented));
+      .WillOnce(Return(EHttpStatusCode::kHttpNotImplemented));
   request = full_request;
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpMethodNotImplemented);
+            EHttpStatusCode::kHttpNotImplemented);
 
   EXPECT_CALL(listener,
               OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))

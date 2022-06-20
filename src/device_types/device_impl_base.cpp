@@ -69,7 +69,7 @@ bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
 
   // We shouldn't get here because we shouldn't have decoded an http_method not
   // explicitly listed above. So returning kHttpInternalServerError rather than
-  // kHttpMethodNotImplemented, but using the HttpMethodNotImplemented reason
+  // kHttpNotImplemented, but using the HttpMethodNotImplemented reason
   // phrase.
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,

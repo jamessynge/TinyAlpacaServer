@@ -851,7 +851,7 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
   } else if (matched_text.empty()) {
     return EHttpStatusCode::kHttpBadRequest;
   } else {
-    return EHttpStatusCode::kHttpMethodNotImplemented;
+    return EHttpStatusCode::kHttpNotImplemented;
   }
 }
 
