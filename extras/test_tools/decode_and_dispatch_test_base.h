@@ -21,30 +21,14 @@
 #include <McuCore.h>
 #include <McuNet.h>
 
-#include "absl/strings/numbers.h"
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_split.h"
-#include "alpaca_devices.h"
-#include "alpaca_discovery_server.h"
-#include "alpaca_response.h"
-#include "constants.h"
 #include "device_interface.h"
-#include "device_types/device_impl_base.h"
-#include "extras/test_tools/mock_device_interface.h"
-#include "extras/test_tools/mock_switch_group.h"
+#include "extras/test_tools/alpaca_response_validator.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "literals.h"
 #include "mcucore/extras/test_tools/http_request.h"
 #include "mcucore/extras/test_tools/http_response.h"
-#include "mcucore/extras/test_tools/print_to_std_string.h"
-#include "mcucore/extras/test_tools/sample_printable.h"
-#include "request_listener.h"
-#include "server_connection.h"
 #include "server_description.h"
-#include "server_sockets_and_connections.h"
-#include "tiny_alpaca_server.h"
 
 namespace alpaca {
 namespace test {
@@ -59,6 +43,9 @@ class DecodeAndDispatchTestBase : public testing::Test {
   // Initializes the server description, and creates the TestTinyAlpacaServer
   // instance.
   void SetUp() override;
+
+  // By default clears and initializes with EepromTlv.
+  virtual void PrepareEeprom();
 
   // Get the description of the server.
   virtual const ServerDescription& GetServerDescription();

@@ -37,14 +37,6 @@ const ServerDescription kServerDescription  // NOLINT
         .location = MCU_FLASHSTR("Right Here"),
     };
 
-#define RETURN_ERROR_IF_JSON_VALUE_NOT_TYPE(json_value, json_type)             \
-  if ((json_value.type()) == (json_type))                                      \
-    ;                                                                          \
-  else                                                                         \
-    return absl::InvalidArgumentError(absl::StrCat(                            \
-        "JSON value does not have the desired type (" #json_type "); value: ", \
-        json_value.ToDebugString()))
-
 }  // namespace
 
 DecodeAndDispatchTestBase::DecodeAndDispatchTestBase() {}
@@ -56,11 +48,16 @@ void DecodeAndDispatchTestBase::AddDeviceInterface(
 }
 
 void DecodeAndDispatchTestBase::SetUp() {
+  PrepareEeprom();
   server_ = CreateServer();
   if (InitializeServerAutomatically()) {
     EXPECT_TRUE(server_->Initialize());
     EXPECT_FALSE(server_->connection_is_open());
   }
+}
+
+void DecodeAndDispatchTestBase::PrepareEeprom() {
+  mcucore::EepromTlv::ClearAndInitializeEeprom();
 }
 
 const ServerDescription& DecodeAndDispatchTestBase::GetServerDescription() {
