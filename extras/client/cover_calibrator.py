@@ -131,6 +131,12 @@ def main() -> None:
           alpaca_http_client.make_url_base_parser(),
           alpaca_http_client.make_device_number_parser(),
       ])
+  parser.add_argument(
+      '--no-move',
+      action='store_false',
+      default=True,
+      dest='move',
+      help='Disable moving the cover.')
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
 
@@ -153,9 +159,11 @@ def main() -> None:
         print(f'Raising and lowering brightness on channel {led_channel}')
         sweep_led_channel(led_switches, led_channel, cover_calibrator,
                           brightness_list)
-      open_cover(cover_calibrator)
-      close_cover(cover_calibrator)
-      open_cover(cover_calibrator)
+
+      if cli_args.move:
+        open_cover(cover_calibrator)
+        close_cover(cover_calibrator)
+        open_cover(cover_calibrator)
   except KeyboardInterrupt:
     pass
 
