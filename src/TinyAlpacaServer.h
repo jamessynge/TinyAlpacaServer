@@ -26,6 +26,7 @@
 #include "device_types/switch/switch_adapter.h"        // IWYU pragma: export
 #include "device_types/switch/switch_interface.h"      // IWYU pragma: export
 #include "device_types/switch/toggle_switch_base.h"    // IWYU pragma: export
+#include "eeprom_ids.h"                                // IWYU pragma: export
 #include "extra_parameters.h"                          // IWYU pragma: export
 #include "http_response_header.h"                      // IWYU pragma: export
 #include "json_response.h"                             // IWYU pragma: export

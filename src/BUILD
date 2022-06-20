@@ -23,6 +23,7 @@ cc_library(
         ":constants",
         ":device_info",
         ":device_interface",
+        ":eeprom_ids",
         ":extra_parameters",
         ":http_response_header",
         ":json_response",
