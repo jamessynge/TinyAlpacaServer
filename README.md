@@ -233,33 +233,12 @@ desired.
     Some thought will be needed to decide how to check the conformance of a
     server w.r.t. PUT requests (i.e. we don't want to damage anything).
 
-1.  Figure out how to use a timer/counter and the watchdog timer to produce a
-    better seed for randomness than the Arduino `rand()` function has. As things
-    stand, all of the devices that I load these sketches on to are getting the
-    same MAC address and default IP.
+1.  DONE: Figure out how to use a timer/counter and the watchdog timer to
+    produce a better seed for randomness than the Arduino `rand()` function has.
+    As things stand, all of the devices that I load these sketches on to are
+    getting the same MAC address and default IP.
 
 ## Planning
-
-*   Split various parts of src/utils out into its their own Arduino libraries.
-    In particular, these features could be broken out into their own libraries,
-    or maybe into a smaller number of libraries with some of these features in
-    the same library. For example (and listed in order of least dependent to
-    most dependent):
-
-    *   C++ utils: `src/utils/traits` is based on the standard `<type_traits>`
-        header, which isn't available with avr-gcc. It is currently used
-        primarily for printing support.
-    *   Stream: `src/utils/o_print_stream.h` provides support for using
-        operator<< to produce output in a manner like using std::ostream.
-    *   Logging: `src/utils/logging.h` and `src/utils/log_sink.*` define
-        MCU_VLOG, MCU_CHECK and MCU_DCHECK macros, and related log sinks.
-    *   String: `src/utils/literal.*` and `src/utils/string_view.*` provide
-        wrappers for immutable strings (in Flash and RAM, respectively). These
-        are aided by `any_printable.*`, `printable_cat.*`, `hex_escape.*`,
-        `string_compare.*`, etc.
-    *   mcucore::Status: `src/utils/status.h` and `src/utils/status_or.h`
-        provide the ability to return an error status code and error message, or
-        a non-error value.
 
 *   Complete the ExtraParameters feature OR plumb unsupported parameters into
     the DeviceInterface impl of the device type. Without this methods such as
@@ -271,71 +250,42 @@ desired.
     parameters. To save RAM, these might be instantiated dynamically when a
     request of the approriate type arrives.
 
+*   Add support for serving files from the SDcard, especially for paths under
+    /setup and /assets, based on support to be added to McuCore.
+
 *   MAYBE: Read the entirety of well-formed but unsupported requests (e.g. with
     parameters or headers that are too large), so that we don't *have* to close
     the connection, which will make testing easier.
-
-*   Collapse `mcucore::Literal` and `mcucore::ProgmemStringView` into a single
-    class, or at least into layered classes, i.e. `mcucore::ProgmemString` for
-    just the core feature of holding a pointer to a PROGMEM string and its
-    length, and `LiteralView` with facilities like those in `mcucore::Literal`
-    and `mcucore::StringView`, including the printTo function, but probably
-    without inheritance from `Printable`.
-
-*   Support copying literal strings into stack variables for temporary needs.
-    For example, use a template class with a field of type char[N], where N is
-    the length of the literal (without a terminating NUL), copy the literal into
-    the field at construction time, and provide the ability to construct a
-    mcucore::StringView from it.
-
-*   Normalize string comparison support so that we can have fewer types of
-    strings or more templated comparison functions.
-
-*   Add support for serving files from the SDcard for paths under /setup and
-    /assets. Non-normalized paths should be rejected (e.g. those with `//`,
-    `/../`, or `/./`). I'm planning to use Bill Greiman's SdFat library which
-    supports long file names (127 ASCII characters).
 
 *   MAYBE: Support "easy" extension of the HTTP decoder to support non-standard
     paths (e.g. POST /setserverlocation?value=Mauna+Kea). This could include
     support for requests such as GET /static/path-to/file-on/sd-card, where all
     /static/ requests result in reading from the SD Card on the Arduino, if
-    available.
+    available. If so, maybe generalize the decoder and move to repo McuNet.
 
 *   MAYBE: Write a tool for gathering the literal definitions across the code
     base, and updating literals.inc accordingly.
 
-    Consider using the
-    [Shortest Superstring Greedy Approximate Algorithm](https://www.geeksforgeeks.org/shortest-superstring-problem/)
-    to produce a single long literal string without extra NUL characters, and a
-    table of pairs `<offset, length>`, with the offset being the start of a
-    substring (i.e. a literal defined with DEFINE_LITERAL) within the
-    superstring, and length being the number of characters in the substring. If
-    we generate a dense enum starting at zero for the keywords, then we can use
-    those enums to build PROGMEM tables of allowed tokens for use when decoding
-    the path.
-
-*   Add the ability to produce a UniqueID for a device instance based on
-    multiple factors, including at least DeviceInterface::GetUniqueBytes,
-    device_type and config_id and MAC address. Alternatively, we might use the
-    device setup UI to allow the user to provide the UUID or randomness source
-    for the UUID. If based on additional, perhaps non-constant factors such as
-    the time when the UUID is first generated, then we might choose to store the
-    UUID in EEPROM.
-
-*   To support arbitrary sources for strings to be printed in responses, maybe
-    introduce a concrete Printable subclass, IndirectPrintable, which uses the
-    pointer-to-implementation (Pimpl) pattern to keep the size down and to allow
-    the IndirectPrintable to be passed by value. The pointer would be of type
-    Printable*, thus allowing any source to be used for printing, i.e. RAM,
-    PROGMEM, EEPROM or SD Card.
+    *   Related to that tool, consider how to recognize when literal strings can
+        be split or combined such that multiple references to same character
+        sequence in multiple locations can be shared.
 
 *   To eliminate RAM consumed for alpaca::DeviceInfo objects, change the
     internal API for locating those to instead pass in a stack allocated
     DeviceInfo to be filled in when the info is needed.
 
-*   DONE: Write a tool for converting uses of bare literal strings into TASLIT
-    or similar macro invocations.
+*   Maybe store some attributes of the server and/or some device types (other
+    than UUID) using mcucore::EepromTlv; for example, the location of the
+    server, or the name of a switch.
+
+*   DONE: the UniqueID using the mcucore::EepromTlv, with a separate
+    mcucore::EepromDomain assigned to each device instance in the code.
+
+*   DONE: Use mcucore::JitterRandom to seed the Arduino RNG, then generate
+    values such as a MAC address, a link-local IP and, for each device, a
+    Version 4 UUIDs (128 bits, of which about 122 are completely random), when
+    such a device instance is first encountered by the server (i.e. on first run
+    of the server on a particular board).
 
 ### Generate Device-Type Specific Code
 
@@ -435,23 +385,6 @@ device-type specific code. Ideas:
     device which in turn makes Alpaca requests to a device with the actual
     sensors.
 
-*   For reading and writing from EEPROM, it may be useful to use an approach
-    such as:
-
-    *   All "things" that want to use EEPROM are registered with a single EEPROM
-        manager.
-    *   Each registrant has a unique Tag (e.g. a semi-random uint16) that is
-        used when reading to identify the owner of the data.
-    *   Store data in EEPROM using TLV format (Tag, Length, Value).
-    *   When writing to EEPROM, re-write all data so that we avoid the need to
-        defragment it.
-    *   Consider using a semi-spaces approach, where we write from the bottom of
-        EEPROM on one write pass, and next time we need to update it we write
-        from the top (i.e. backwards). The purpose is to reduce the risk of
-        losing data if writing is interrupted.
-    *   We might need some temporary storage in RAM during writing, for which we
-        could use an Arduino String class, which has a reserve method.
-
 *   The local clock on the device is fine for timing relatively short intervals
     (e.g. 10 minutes), so can be used for most rate and averaging computations.
 
@@ -463,8 +396,8 @@ device-type specific code. Ideas:
 
 ## Ultra Tiny HTTP Decoder?
 
-The request decoder I've written is customized for Alpaca. It is possible that
-makes it slightly larger (in code) than if I had a generic decoder and an Alpaca
-specific handler of decoding events (OnMethod, OnPathStart, OnPathSegment,
-etc.). If this were to become an issue, it *might* be worth considering this
-approach.
+The request decoder I've written is customized for just Alpaca. It is possible
+that makes it slightly larger (in code) than if I had a generic decoder and an
+Alpaca specific handler of decoding events (OnMethod, OnPathStart,
+OnPathSegment, etc.). If this were to become an issue, it *might* be worth
+considering this approach.

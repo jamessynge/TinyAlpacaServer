@@ -34,7 +34,15 @@ namespace alpaca {
 
 // TODO(jamessynge): Augment the API with support for decoding device-type
 // specific info, such as the ASCOM method name and custom parameter names and
-// values.
+// values. In particular, a method for determining whether the current parameter
+// name (maybe already converted to an enum) is one that the current device
+// desires to have kept given the HTTP method and ASCOM method; other parameters
+// can then be discarded as uninteresting. TBD how we can express how such a
+// value is stored; for example, we could just have a map from enum to string
+// value, with the DeviceInterface impl responsible for converting the string to
+// any more specific type that is needed). Alternately, the method for
+// specifying whether the parameter should be kept could also be responsible for
+// returning the desired data type (e.g. string, int, double).
 
 class DeviceInterface {
  public:
@@ -63,7 +71,7 @@ class DeviceInterface {
   // ASCOM method?
   virtual size_t GetUniqueBytes(uint8_t* buffer, size_t buffer_size) = 0;
 
-  // Handles an ASCOM Device API (i.e. /api/v1/...). Returns true to indicate
+  // Handles an ASCOM Device API (i.e. /setup/v1/...). Returns true to indicate
   // that the response was written without error and the connection can remain
   // open (which should depend in part on request.do_close); otherwise returns
   // false, in which case the connection to the client will be closed.
@@ -73,11 +81,11 @@ class DeviceInterface {
   virtual bool HandleDeviceSetupRequest(const AlpacaRequest& request,
                                         Print& out) = 0;
 
-  // Handles an ASCOM Device API, dispatches to the appropriate method based on
-  // the HTTP method name. Returns true to indicate that the response was
-  // written without error and the connection can remain open (which should
-  // depend in part on request.do_close); otherwise returns false, in which case
-  // the connection to the client will be closed.
+  // Handles an ASCOM Device API (i.e. /api/v1/...), dispatches to the
+  // appropriate method based on the HTTP method name. Returns true to indicate
+  // that the response was written without error and the connection can remain
+  // open (which should depend in part on request.do_close); otherwise returns
+  // false, in which case the connection to the client will be closed.
   //
   // Default implementation delegates to HandleGetRequest for GET and HEAD
   // requests, and to HandlePutRequest for PUT requests; for any other method,

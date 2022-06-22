@@ -65,12 +65,11 @@ enum class EHttpStatusCode : uint16_t {
   // WriteResponse::HttpErrorResponse.
   //
   // TODO(jamessynge): Consider adding an 'error code space' to mcucore::Status
-  // so that
-  // we can support two or three spaces: ASCOM error codes, HTTP status codes,
-  // and possibly Unix errno values. That could help avoid the need for the
-  // switch statement in WriteResponse::HttpErrorResponse, which has the effect
-  // of causing all of the error literals to be linked in to the binary if
-  // HttpErrorResponse is also linked in. Instead we could have a separate
+  // so that we can support two or three spaces: ASCOM error codes, HTTP status
+  // codes, and possibly Unix errno values. That could help avoid the need for
+  // the switch statement in WriteResponse::HttpErrorResponse, which has the
+  // effect of causing all of the error literals to be linked in to the binary
+  // if HttpErrorResponse is also linked in. Instead we could have a separate
   // function for each HTTP status code, like those in ascom_error_codes.* for
   // ASCOM error codes.
 
