@@ -166,6 +166,6 @@ cc_test(
         "//mcucore/extras/test_tools:http_response",
         "//mcucore/src:array_view",
         "//mcucore/src:mcucore_platform",
-        "//mcunet/src:platform_ethernet",
+        "//mcunet/src:platform_network",
     ],
 )

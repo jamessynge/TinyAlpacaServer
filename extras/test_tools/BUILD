@@ -58,7 +58,7 @@ cc_library(
         "//mcucore/src:eeprom_tlv",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcunet/src:platform_ethernet",
+        "//mcunet/src:platform_network",
         "//util/task:status",
     ],
 )

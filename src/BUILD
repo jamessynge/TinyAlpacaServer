@@ -67,7 +67,7 @@ cc_library(
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:printable_cat",
         "//mcucore/src:progmem_string_data",
-        "//mcunet/src:platform_ethernet",
+        "//mcunet/src:platform_network",
     ],
 )
 
@@ -82,7 +82,7 @@ cc_library(
         "//mcucore/src:progmem_string_data",
         "//mcucore/src:string_compare",
         "//mcucore/src:string_view",
-        "//mcunet/src:platform_ethernet",
+        "//mcunet/src:platform_network",
     ],
 )
 
@@ -318,7 +318,7 @@ cc_library(
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:string_view",
         "//mcunet/src:connection",
-        "//mcunet/src:platform_ethernet",
+        "//mcunet/src:platform_network",
         "//mcunet/src:socket_listener",
     ],
 )

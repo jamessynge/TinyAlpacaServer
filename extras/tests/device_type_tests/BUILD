@@ -23,7 +23,7 @@ cc_test(
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
         "//mcucore/src:progmem_string_data",
-        "//mcunet/src:platform_ethernet",
+        "//mcunet/src:platform_network",
     ],
 )
 
