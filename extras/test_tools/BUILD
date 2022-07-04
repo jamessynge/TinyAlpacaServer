@@ -58,6 +58,7 @@ cc_library(
         "//mcucore/src:eeprom_tlv",
         "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcunet/extras/test_tools:mock_platform_network",
         "//mcunet/src:platform_network",
         "//util/task:status",
     ],
@@ -136,6 +137,6 @@ cc_library(
         "//mcucore/src:o_print_stream",
         "//mcucore/src:progmem_string_data",
         "//mcunet/extras/host/ethernet5500:ethernet_config",
-        "//mcunet/extras/test_tools:string_io_connection",
+        "//mcunet/extras/test_tools:string_io_stream_impl",
     ],
 )

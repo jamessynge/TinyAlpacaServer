@@ -8,6 +8,9 @@
 //
 // Author: james.synge@gmail.com
 
+#include <McuCore.h>
+#include <McuNet.h>
+
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -16,17 +19,13 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO Remove excessive headers.
-
-#include <McuCore.h>
-#include <McuNet.h>
-
 #include "device_interface.h"
 #include "extras/test_tools/alpaca_response_validator.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 #include "gtest/gtest.h"
 #include "literals.h"
 #include "mcucore/extras/test_tools/http_request.h"
+#include "mcunet/extras/test_tools/mock_platform_network.h"
 #include "server_description.h"
 
 namespace alpaca {
@@ -114,59 +113,14 @@ class DecodeAndDispatchTestBase : public testing::Test {
       const std::string& request);
   virtual absl::StatusOr<std::string> RoundTripSoleRequest(
       mcucore::test::HttpRequest& request);
+
+  // As above, but expecting the response to be an Alpaca JSON response with a
+  // Value property; if that is the case, returns the value of that property.
+  // Otherwise returns an error.
   virtual absl::StatusOr<mcucore::test::JsonValue>
   RoundTripSoleRequestWithValueResponse(mcucore::test::HttpRequest& request);
 
-  // // Validates that an HTTP response is 200 OK. If the body is JSON, verifies
-  // // that it is a JSON object, and that any standard Alpaca properties
-  // present
-  // // have their expected types (e.g. "ErrorMessage" has a value of type
-  // string). absl::StatusOr<mcucore::test::HttpResponse> ValidateResponseIsOk(
-  //     const std::string& response_string);
-
-  // // Extends ValidateResponseIsOk, validating that the response contains a
-  // JSON
-  // // body and that there is not an error in the JSON body; validates also
-  // that
-  // // if the request contained a ClientTransactionID, it is returned in the
-  // JSON
-  // // body.
-  // absl::StatusOr<mcucore::test::HttpResponse> ValidateJsonResponseIsOk(
-  //     const mcucore::test::HttpRequest& request,
-  //     const std::string& response_string);
-
-  // // Validates that an HTTP response is 200 OK, but has an ASCOM error.
-  // absl::StatusOr<mcucore::test::HttpResponse> ValidateJsonResponseHasError(
-  //     const mcucore::test::HttpRequest& request,
-  //     const std::string& response_string, int expected_error_number);
-
-  // // Extends ValidateJsonResponseIsOk by verifying that the JSON object has
-  // no
-  // // Value property.
-  // absl::StatusOr<mcucore::test::HttpResponse> ValidateValuelessResponse(
-  //     const mcucore::test::HttpRequest& request,
-  //     const std::string& response_string);
-
-  // // Returns the value of the Value property if the response is OK and
-  // contains
-  // // a Value property, else an error with details.
-  // absl::StatusOr<mcucore::test::JsonValue> ValidateValueResponse(
-  //     const mcucore::test::HttpRequest& request,
-  //     const std::string& response_string);
-
-  // // Returns the value of the Value property if the response is OK and
-  // contains
-  // // the Value property as an array, else an error with details.
-  // absl::StatusOr<mcucore::test::JsonValue> ValidateArrayValueResponse(
-  //     const mcucore::test::HttpRequest& request,
-  //     const std::string& response_string);
-
-  // // Returns the Value array if the response is OK and contains the expected
-  // // array of integers, else an error with details.
-  // absl::StatusOr<std::vector<int64_t>> ValidateIntArrayResponse(
-  //     const mcucore::test::HttpRequest& request,
-  //     const std::string& response_string);
-
+  mcunet::test::MockPlatformNetworkInstaller mock_platform_network_;
   std::unique_ptr<TestTinyAlpacaServer> server_;
   AlpacaResponseValidator response_validator_;
   uint32_t last_server_transaction_id_ = 0;

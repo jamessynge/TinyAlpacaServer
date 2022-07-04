@@ -16,7 +16,7 @@
 #include <string_view>
 
 #include "device_interface.h"
-#include "mcunet/extras/test_tools/string_io_connection.h"
+#include "mcunet/extras/test_tools/string_io_stream_impl.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"

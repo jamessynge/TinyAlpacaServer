@@ -7,10 +7,9 @@
 #include <string_view>
 
 #include "absl/strings/escaping.h"
-#include "absl/strings/str_cat.h"
 #include "device_interface.h"
 #include "mcunet/extras/host/ethernet5500/ethernet_config.h"
-#include "mcunet/extras/test_tools/string_io_connection.h"
+#include "mcunet/extras/test_tools/string_io_stream_impl.h"
 #include "server_connection.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"
@@ -33,7 +32,7 @@ ConnectionResult TestTinyAlpacaServer::AnnounceConnect(std::string_view input,
   MCU_CHECK(!server_connection_.has_socket());
   MCU_CHECK(!connection_is_open_);
   MCU_CHECK(!connection_is_writeable_);
-  StringIoConnection conn(sock_num_, input, peer_half_closed);
+  StringIoConnection conn(sock_num_, input);
   server_connection_.OnConnect(conn);
   if (repeat_until_stable) {
     RepeatedlyAnnounceCanRead(conn);
@@ -56,7 +55,7 @@ ConnectionResult TestTinyAlpacaServer::AnnounceCanRead(std::string_view input,
   MCU_CHECK(connection_is_writeable_);
   MCU_CHECK(!(input.empty() && peer_half_closed))
       << MCU_FLASHSTR("Call AnnounceHalfClosed instead");
-  StringIoConnection conn(sock_num_, input, peer_half_closed);
+  StringIoConnection conn(sock_num_, input);
   server_connection_.OnCanRead(conn);
   if (repeat_until_stable) {
     RepeatedlyAnnounceCanRead(conn);
@@ -92,7 +91,7 @@ ConnectionResult TestTinyAlpacaServer::AnnounceHalfClosed(
   MCU_CHECK(server_connection_.has_socket());
   MCU_CHECK_EQ(sock_num_, server_connection_.sock_num());
   MCU_CHECK(connection_is_open_);
-  StringIoConnection conn(sock_num_, "", /*half_closed=*/true);
+  StringIoConnection conn(sock_num_, "");
   server_connection_.OnHalfClosed(conn);
   if (repeat_until_stable && !conn.output().empty()) {
     RepeatedlyAnnounceHalfClosed(conn);
