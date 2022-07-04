@@ -120,7 +120,8 @@ class DecodeAndDispatchTestBase : public testing::Test {
   virtual absl::StatusOr<mcucore::test::JsonValue>
   RoundTripSoleRequestWithValueResponse(mcucore::test::HttpRequest& request);
 
-  mcunet::test::MockPlatformNetworkInstaller mock_platform_network_;
+  mcunet::PlatformNetworkLifetime<mcunet::test::MockPlatformNetwork>
+      mock_platform_network_lifetime_;
   std::unique_ptr<TestTinyAlpacaServer> server_;
   AlpacaResponseValidator response_validator_;
   uint32_t last_server_transaction_id_ = 0;

@@ -2,6 +2,7 @@
 
 #include <McuCore.h>
 
+#include <memory>
 #include <string>
 
 #include "absl/status/status.h"
@@ -37,7 +38,9 @@ const ServerDescription kServerDescription  // NOLINT
 
 }  // namespace
 
-DecodeAndDispatchTestBase::DecodeAndDispatchTestBase() {}
+DecodeAndDispatchTestBase::DecodeAndDispatchTestBase()
+    : mock_platform_network_lifetime_(
+          std::make_unique<mcunet::test::MockPlatformNetwork>()) {}
 
 void DecodeAndDispatchTestBase::AddDeviceInterface(
     DeviceInterface& device_interface) {
