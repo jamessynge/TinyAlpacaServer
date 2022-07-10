@@ -1,11 +1,11 @@
 #include "utils/avr_timer_counter.h"
 
-#include <Arduino.h>
 #include <stdint.h>
 
 #include "absl/time/time.h"
 #include "glog/logging.h"
 #include "gtest/gtest.h"
+#include "mcucore/extras/host/arduino/arduino.h"
 #include "mcucore/extras/test_tools/print_to_std_string.h"
 #include "mcucore/extras/test_tools/print_value_to_std_string.h"
 

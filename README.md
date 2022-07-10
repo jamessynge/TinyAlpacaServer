@@ -29,7 +29,7 @@ including Power-over-Ethernet. I've permanently forked Ethernet3 as Ethernet5500
 in order to allow for fixing some API flaws that Ethernet3 inherited from the
 Ethernet2.
 
-## mcucore::Status
+## Status
 
 The basic server is complete, though the server and device setup methods are
 just stubs (each device implementation will need to provide its own setup
@@ -219,8 +219,20 @@ desired.
 
 ## Improvement Priorities
 
-1.  DONE: High-Resolution PWM for CoverCalibrator.
+1.  Generate an HTML status page for requests to path `/`, with support from
+    each device instance (i.e. to fill in a block of html). To avoid having to
+    generate the value for the Content-Length header, which requires two passes
+    of generating the body of the HTTP response, I could use chunked encoding or
+    similar.
+
+1.  Get around to publishing Arduino libraries so that others can more easily
+    make use of the code (i.e. from the Arduino IDE).
+
 1.  PARTIAL: Write Python Alpaca Client Library for the UDP and HTTP Protocols.
+
+    > I've learned that Bob Denny has written alpyca, a Python Alpaca Client
+    > Library, and so should adopt that for use by my python scripts.
+
 1.  Write a minimal "Conformance Test" in Python, that checks for valid and
     sensible responses to:
 
@@ -233,12 +245,18 @@ desired.
     Some thought will be needed to decide how to check the conformance of a
     server w.r.t. PUT requests (i.e. we don't want to damage anything).
 
+1.  DONE: High-Resolution PWM for CoverCalibrator.
+
 1.  DONE: Figure out how to use a timer/counter and the watchdog timer to
     produce a better seed for randomness than the Arduino `rand()` function has.
     As things stand, all of the devices that I load these sketches on to are
     getting the same MAC address and default IP.
 
 ## Planning
+
+*   PARTIAL: Maybe store some attributes of the server and/or some device types
+    using mcucore::EepromTlv; for example, the location of the server, or the
+    name of a switch.
 
 *   Complete the ExtraParameters feature OR plumb unsupported parameters into
     the DeviceInterface impl of the device type. Without this methods such as
@@ -252,6 +270,8 @@ desired.
 
 *   Add support for serving files from the SDcard, especially for paths under
     /setup and /assets, based on support to be added to McuCore.
+
+### Candidate Tasks
 
 *   MAYBE: Read the entirety of well-formed but unsupported requests (e.g. with
     parameters or headers that are too large), so that we don't *have* to close
@@ -270,15 +290,13 @@ desired.
         be split or combined such that multiple references to same character
         sequence in multiple locations can be shared.
 
-*   To eliminate RAM consumed for alpaca::DeviceInfo objects, change the
+*   MAYBE: To eliminate RAM consumed for alpaca::DeviceInfo objects, change the
     internal API for locating those to instead pass in a stack allocated
     DeviceInfo to be filled in when the info is needed.
 
-*   Maybe store some attributes of the server and/or some device types (other
-    than UUID) using mcucore::EepromTlv; for example, the location of the
-    server, or the name of a switch.
+### Completed Tasks
 
-*   DONE: the UniqueID using the mcucore::EepromTlv, with a separate
+*   DONE: Store the UniqueID using the mcucore::EepromTlv, with a separate
     mcucore::EepromDomain assigned to each device instance in the code.
 
 *   DONE: Use mcucore::JitterRandom to seed the Arduino RNG, then generate

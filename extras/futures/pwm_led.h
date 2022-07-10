@@ -6,7 +6,7 @@
 //
 // Author: james.synge@gmail.com
 
-#include <Arduino.h>
+#include "mcucore/extras/host/arduino/arduino.h"
 
 namespace astro_makers {
 

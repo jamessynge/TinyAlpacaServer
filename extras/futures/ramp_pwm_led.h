@@ -6,10 +6,10 @@
 //
 // Author: james.synge@gmail.com
 
-#include <Arduino.h>
 #include <McuCore.h>
 
 #include "extras/futures/pwm_led.h"
+#include "mcucore/extras/host/arduino/arduino.h"
 
 namespace astro_makers {
 
