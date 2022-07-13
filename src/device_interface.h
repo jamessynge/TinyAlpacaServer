@@ -27,6 +27,7 @@
 #include <McuCore.h>
 
 #include "alpaca_request.h"
+#include "constants.h"
 #include "device_info.h"
 #include "json_response.h"
 
@@ -50,8 +51,6 @@ class DeviceInterface {
   virtual ~DeviceInterface() {}
 
   virtual const DeviceInfo& device_info() const = 0;
-  virtual EDeviceType device_type() const = 0;
-  virtual uint32_t device_number() const = 0;
 
   // Called to initialize the handler and underlying device.
   virtual void Initialize() = 0;
@@ -61,15 +60,17 @@ class DeviceInterface {
   // accumulate the readings to produce an average value).
   virtual void MaintainDevice() = 0;
 
-  // Fill buffer with up to buffer_size unique bytes from the hardware, return
-  // the number of unique bytes available. Return 0 if the
-  // hardware can not provide any unique bytes. Returns 0 by default.
-  //
-  // NOTE: Ideally, we'd provide a /setup page allowing the UniqueId generated
-  // for a device to be cleared, i.e. when we have had to replace a sensor with
-  // another of the same type. Perhaps we should do this via the "actions"
-  // ASCOM method?
-  virtual size_t GetUniqueBytes(uint8_t* buffer, size_t buffer_size) = 0;
+  // Optionally add some content to specified section of the HTML home page
+  // page. We can expect every device to add at least a brief description of
+  // itself (e.g. name, device type, device number, and unique id), though it is
+  // best if the device adds additional info; for example, an Observing
+  // Conditions device could display the current temperature. An advantage of
+  // this approach is that the user can be provided with information about all
+  // devices in a single round trip, rather than requiring many round trips to
+  // fetch properties one at a time.
+  virtual void AddToHomePageHtml(const AlpacaRequest& request,
+                                 EHtmlPageSection section,
+                                 mcucore::OPrintStream& strm) = 0;
 
   // Handles an ASCOM Device API (i.e. /setup/v1/...). Returns true to indicate
   // that the response was written without error and the connection can remain
@@ -81,15 +82,14 @@ class DeviceInterface {
   virtual bool HandleDeviceSetupRequest(const AlpacaRequest& request,
                                         Print& out) = 0;
 
-  // Handles an ASCOM Device API (i.e. /api/v1/...), dispatches to the
-  // appropriate method based on the HTTP method name. Returns true to indicate
-  // that the response was written without error and the connection can remain
-  // open (which should depend in part on request.do_close); otherwise returns
-  // false, in which case the connection to the client will be closed.
+  // Handles ASCOM Alpaca Device API requests, i.e. requests of this form:
   //
-  // Default implementation delegates to HandleGetRequest for GET and HEAD
-  // requests, and to HandlePutRequest for PUT requests; for any other method,
-  // writes an error response to out and returns false.
+  //     /api/v1/{device_type}/{device_number}/{method}
+  //
+  // Returns true to indicate that a response has been successfully written
+  // without error to 'out' and that additional requests from the client may be
+  // decoded; returns false to indicate that the client connection should be
+  // closed.
   virtual bool HandleDeviceApiRequest(const AlpacaRequest& request,
                                       Print& out) = 0;
 };

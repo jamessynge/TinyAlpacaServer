@@ -29,26 +29,14 @@ class DeviceImplBase : public DeviceInterface {
 
   // Overrides of the base class methods:
   const DeviceInfo& device_info() const override { return device_info_; }
-  EDeviceType device_type() const override { return device_info_.device_type; }
-  uint32_t device_number() const override { return device_info_.device_number; }
+
   void Initialize() override {}
   void MaintainDevice() override {}
-  size_t GetUniqueBytes(uint8_t* buffer, size_t buffer_size) override {
-    return 0;
-  }
-
-  // Writes an error response to out and returns false.
+  void AddToHomePageHtml(const AlpacaRequest& request, EHtmlPageSection section,
+                         mcucore::OPrintStream& strm) override;
   bool HandleDeviceSetupRequest(const AlpacaRequest& request,
                                 Print& out) override;
 
-  // Handles ASCOM Alpaca Device API requests, i.e. requests of this form:
-  //
-  //     /api/v1/{device_type}/{device_number}/{method}
-  //
-  // Returns true to indicate that a response has been successfully written to
-  // 'out' and that additional requests from the client may be decoded; returns
-  // false to indicate that the client connection should be closed.
-  //
   // GET and HEAD requests are delegated to HandleGetRequest, and PUT requests
   // are delegated to HandlePutRequest. For any other method, writes an error
   // response to out and returns false.
@@ -61,6 +49,16 @@ class DeviceImplBase : public DeviceInterface {
 
  protected:
   // Additional methods provided by this class, can be overridden by subclass.
+
+  // These Add* methods are called by AddToHomePageHtml in order to render the
+  // appropriate sections of the body.
+  virtual void AddStartDeviceSection(mcucore::OPrintStream& strm);
+  virtual void AddDeviceBanner(mcucore::OPrintStream& strm);
+  virtual void AddDeviceSummary(mcucore::OPrintStream& strm);
+  // Adds any device type specific details after the device summary. This is
+  // intended to be overridden.
+  virtual void AddDeviceDetails(mcucore::OPrintStream& strm) {}
+  virtual void AddEndDeviceSection(mcucore::OPrintStream& strm);
 
   // Handles a subset of the "ASCOM Alpaca Methods Common To All Devices": the
   // device metadata inquiry methods, such as /interfaceversion and

@@ -23,7 +23,7 @@
 
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
-#include "device_types/device_impl_base.h"
+#include "device_interface.h"
 #include "server_description.h"
 #include "server_sockets_and_connections.h"
 
@@ -58,6 +58,7 @@ class TinyAlpacaDeviceServer : public RequestListener {
   bool HandleManagementApiVersions(AlpacaRequest& request, Print& out);
   bool HandleManagementDescription(AlpacaRequest& request, Print& out);
   bool HandleServerSetup(AlpacaRequest& request, Print& out);
+  bool HandleServerStatus(AlpacaRequest& request, Print& out);
 
   AlpacaDevices alpaca_devices_;
   const ServerDescription& server_description_;
@@ -66,8 +67,8 @@ class TinyAlpacaDeviceServer : public RequestListener {
 
 class TinyAlpacaNetworkServer {
  public:
-  TinyAlpacaNetworkServer(TinyAlpacaDeviceServer& device_server,
-                          uint16_t tcp_port = 80);
+  explicit TinyAlpacaNetworkServer(TinyAlpacaDeviceServer& device_server,
+                                   uint16_t tcp_port = 80);
 
   // Calls Initialize on the nested objects, e.g. initializes sockets so they
   // listen for connections to tcp_port. Returns true if all of the objects are

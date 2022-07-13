@@ -37,6 +37,10 @@ class AlpacaDevices {
   // caller is expected to close the connection).
   bool DispatchDeviceRequest(AlpacaRequest& request, Print& out);
 
+  // Give each device a chance to add some output to the HTML page being built.
+  void AddToHomePageHtml(const AlpacaRequest& request, EHtmlPageSection section,
+                         mcucore::OPrintStream& strm);
+
  private:
   bool DispatchDeviceRequest(AlpacaRequest& request, DeviceInterface& device,
                              Print& out);

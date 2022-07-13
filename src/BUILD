@@ -58,6 +58,7 @@ cc_library(
         ":alpaca_request",
         ":alpaca_response",
         ":constants",
+        ":device_info",
         ":device_interface",
         ":literals",
         "//mcucore/src:array_view",
@@ -177,6 +178,7 @@ cc_library(
     hdrs = ["device_interface.h"],
     deps = [
         ":alpaca_request",
+        ":constants",
         ":device_info",
         ":json_response",
         "//mcucore/src:array_view",
@@ -211,6 +213,7 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
+        "//mcucore/src:limits",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
         "//mcucore/src:progmem_string_view",
@@ -370,11 +373,11 @@ cc_library(
         ":alpaca_discovery_server",
         ":alpaca_response",
         ":constants",
+        ":device_interface",
         ":http_response_header",
         ":literals",
         ":server_description",
         ":server_sockets_and_connections",
-        "//TinyAlpacaServer/src/device_types:device_impl_base",
         "//mcucore/src:any_printable",
         "//mcucore/src:array_view",
         "//mcucore/src:counting_print",
@@ -382,5 +385,6 @@ cc_library(
         "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:printable_cat",
+        "//mcucore/src:progmem_string_data",
     ],
 )

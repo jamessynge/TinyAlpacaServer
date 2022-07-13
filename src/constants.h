@@ -33,7 +33,7 @@
 namespace alpaca {
 
 // At a high-level, what is going on with the decoder?
-enum class RequestDecoderStatus : uint8_t {
+enum class RequestDecoderStatus : uint_fast8_t {
   kReset,
   kDecoding,
   kDecoded,
@@ -41,7 +41,7 @@ enum class RequestDecoderStatus : uint8_t {
 
 // Most of these are based on HTTP Response mcucore::Status Codes, the others
 // are below 100 (HTTP's continue status).
-enum class EHttpStatusCode : uint16_t {
+enum class EHttpStatusCode : uint_fast16_t {
   // kContinueDecoding is first/zero because it will be the default value
   // returned by gmock, thus saving us the trouble of adding
   // .WillOnce(Return(...)) all over the place.
@@ -112,7 +112,7 @@ enum class EHttpStatusCode : uint16_t {
   TASENUMERATOR(kHttpVersionNotSupported, "HTTP Version Not Supported") = 505,
 };
 
-enum class EHttpMethod : uint8_t {
+enum class EHttpMethod : uint_fast8_t {
   kUnknown = 0,
   // The supported HTTP methods. Note that the the HTTP/1.1 standard requires
   // that the methods GET and HEAD are supported.
@@ -121,14 +121,15 @@ enum class EHttpMethod : uint8_t {
   HEAD = 3,
 };
 
-enum class EApiGroup : uint8_t {
+enum class EApiGroup : uint_fast8_t {
   kUnknown = 0,
-  kDevice,      // Path: /api...
-  kManagement,  // Path: /management...
-  kSetup,       // Path: /setup...
+  kDevice,        // Path: /api...
+  kManagement,    // Path: /management...
+  kSetup,         // Path: /setup...
+  kServerStatus,  // Path: /
 };
 
-enum class EAlpacaApi : uint8_t {
+enum class EAlpacaApi : uint_fast8_t {
   kUnknown = 0,
 
   // Path: /api/v1/{device_type}/{device_number}/{method}
@@ -148,15 +149,22 @@ enum class EAlpacaApi : uint8_t {
 
   // Path: /setup
   kServerSetup,
+
+  // Path: /
+  kServerStatus,
 };
 
-enum class EManagementMethod : uint8_t {
+enum class EManagementMethod : uint_fast8_t {
   kUnknown,
   kDescription,
   kConfiguredDevices,
 };
 
-enum class EDeviceType : uint8_t {
+// Note that we depend in the HTML generation code on the generated PrintValueTo
+// for EDeviceType to produce a value that can be used as part of an HTML
+// element's class name, which must not have any spaces in it. Thus you should
+// not use TASENUMERATOR here to provide an alternate string
+enum class EDeviceType : uint_fast8_t {
   kUnknown,
   kCamera,
   kCoverCalibrator,
@@ -173,7 +181,7 @@ enum class EDeviceType : uint8_t {
 // Note that for many PUT methods, the name of the method must lower case in the
 // request path (e.g. "averageperiod"), but that same name is used as a
 // case-insensitive parameter same in the body of the request.
-enum class EDeviceMethod : uint8_t {
+enum class EDeviceMethod : uint_fast8_t {
   kUnknown,
 
   // This is the only method for EAlpacaApi::kDeviceSetup:
@@ -243,7 +251,7 @@ enum class EDeviceMethod : uint8_t {
 
 // These are parameter names used in *requests*, not responses. Names such as
 // ServerTransactionID and ErrorNumber should not be in this list.
-enum class EParameter : uint8_t {
+enum class EParameter : uint_fast8_t {
   kUnknown,
 
   // Common or all method parameters.
@@ -272,7 +280,7 @@ enum class EParameter : uint8_t {
 // These are sensor names used in an ObservingConditions SensorDescription
 // requests, e.g. DewPoint or SkyBrightness. These are to be matched case
 // insensitively.
-enum class ESensorName : uint8_t {
+enum class ESensorName : uint_fast8_t {
   kUnknown,
 
   kCloudCover,
@@ -290,7 +298,7 @@ enum class ESensorName : uint8_t {
   kWindSpeed,
 };
 
-enum class EHttpHeader : uint8_t {
+enum class EHttpHeader : uint_fast8_t {
   kUnknown,
 
   kConnection,
@@ -307,10 +315,17 @@ enum class EHttpHeader : uint8_t {
 };
 
 // This is used for generating responses, not for input.
-enum class EContentType : uint8_t {
+enum class EContentType : uint_fast8_t {
   TASENUMERATOR(kApplicationJson, "application/json"),
   TASENUMERATOR(kTextPlain, "text/plain"),
   TASENUMERATOR(kTextHtml, "text/html"),
+};
+
+// This is used for generating HTML responses, not for input.
+enum class EHtmlPageSection : uint_fast8_t {
+  kHead,     // Inside the <head></head>
+  kBody,     // Inside the <body></body>
+  kTrailer,  // End of the body, before </body>
 };
 
 // Tag numbers for EEPROM entries.
@@ -338,6 +353,8 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v);
 const __FlashStringHelper* ToFlashStringHelper(ESensorName v);
 const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v);
 const __FlashStringHelper* ToFlashStringHelper(EContentType v);
+const __FlashStringHelper* ToFlashStringHelper(EHtmlPageSection v);
+const __FlashStringHelper* ToFlashStringHelper(EDeviceEepromTagId v);
 
 size_t PrintValueTo(RequestDecoderStatus v, Print& out);
 size_t PrintValueTo(EHttpStatusCode v, Print& out);
@@ -351,6 +368,8 @@ size_t PrintValueTo(EParameter v, Print& out);
 size_t PrintValueTo(ESensorName v, Print& out);
 size_t PrintValueTo(EHttpHeader v, Print& out);
 size_t PrintValueTo(EContentType v, Print& out);
+size_t PrintValueTo(EHtmlPageSection v, Print& out);
+size_t PrintValueTo(EDeviceEepromTagId v, Print& out);
 
 #if MCU_HOST_TARGET
 // Support for debug logging of enums.
@@ -366,6 +385,8 @@ std::ostream& operator<<(std::ostream& os, EParameter v);
 std::ostream& operator<<(std::ostream& os, ESensorName v);
 std::ostream& operator<<(std::ostream& os, EHttpHeader v);
 std::ostream& operator<<(std::ostream& os, EContentType v);
+std::ostream& operator<<(std::ostream& os, EHtmlPageSection v);
+std::ostream& operator<<(std::ostream& os, EDeviceEepromTagId v);
 #endif  // MCU_HOST_TARGET
 
 }  // namespace alpaca

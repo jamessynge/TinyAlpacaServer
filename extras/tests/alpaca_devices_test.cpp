@@ -93,11 +93,6 @@ TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
 void AddDefaultBehavior(const alpaca::DeviceInfo& device_info,
                         MockDeviceInterface* device_mock) {
   ON_CALL(*device_mock, device_info).WillByDefault(ReturnRef(device_info));
-  ON_CALL(*device_mock, device_type)
-      .WillByDefault(Return(device_info.device_type));
-  ON_CALL(*device_mock, device_number)
-      .WillByDefault(Return(device_info.device_number));
-
   ON_CALL(*device_mock, Initialize).WillByDefault(Return());
   ON_CALL(*device_mock, MaintainDevice).WillByDefault(Return());
 }
@@ -277,6 +272,81 @@ TEST_F(AlpacaDevicesTest, ThreeConfiguredDevices) {
     EXPECT_THAT(configured_device_jv.GetValue("UniqueID").as_string(),
                 MatchesRegex(kUuidRegex));
   }
+}
+
+TEST_F(AlpacaDevicesTest, StatusPageHead) {
+  AlpacaRequest request;
+  request.http_method = EHttpMethod::GET;
+  request.set_client_transaction_id(222);
+  request.set_server_transaction_id(111);
+  request.api_group = EApiGroup::kServerStatus;
+  request.api = EAlpacaApi::kServerStatus;
+
+  mcucore::test::PrintToStdString out;
+  mcucore::OPrintStream strm(out);
+
+  EXPECT_CALL(
+      mock_camera0_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kHead, Ref(strm)));
+  EXPECT_CALL(
+      mock_camera1_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kHead, Ref(strm)));
+  EXPECT_CALL(
+      mock_observing_conditions0_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kHead, Ref(strm)));
+
+  alpaca_devices_.AddToHomePageHtml(request, EHtmlPageSection::kHead, strm);
+  LOG(INFO) << "out:\n\n" << out.str() << "\n\n";
+}
+
+TEST_F(AlpacaDevicesTest, StatusPageBody) {
+  AlpacaRequest request;
+  request.http_method = EHttpMethod::GET;
+  request.set_client_transaction_id(222);
+  request.set_server_transaction_id(111);
+  request.api_group = EApiGroup::kServerStatus;
+  request.api = EAlpacaApi::kServerStatus;
+
+  mcucore::test::PrintToStdString out;
+  mcucore::OPrintStream strm(out);
+
+  EXPECT_CALL(
+      mock_camera0_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kBody, Ref(strm)));
+  EXPECT_CALL(
+      mock_camera1_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kBody, Ref(strm)));
+  EXPECT_CALL(
+      mock_observing_conditions0_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kBody, Ref(strm)));
+
+  alpaca_devices_.AddToHomePageHtml(request, EHtmlPageSection::kBody, strm);
+  LOG(INFO) << "out:\n\n" << out.str() << "\n\n";
+}
+
+TEST_F(AlpacaDevicesTest, StatusPageTrailer) {
+  AlpacaRequest request;
+  request.http_method = EHttpMethod::GET;
+  request.set_client_transaction_id(222);
+  request.set_server_transaction_id(111);
+  request.api_group = EApiGroup::kServerStatus;
+  request.api = EAlpacaApi::kServerStatus;
+
+  mcucore::test::PrintToStdString out;
+  mcucore::OPrintStream strm(out);
+
+  EXPECT_CALL(
+      mock_camera0_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kTrailer, Ref(strm)));
+  EXPECT_CALL(
+      mock_camera1_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kTrailer, Ref(strm)));
+  EXPECT_CALL(
+      mock_observing_conditions0_,
+      AddToHomePageHtml(Ref(request), EHtmlPageSection::kTrailer, Ref(strm)));
+
+  alpaca_devices_.AddToHomePageHtml(request, EHtmlPageSection::kTrailer, strm);
+  LOG(INFO) << "out:\n\n" << out.str() << "\n\n";
 }
 
 TEST_F(AlpacaDevicesTest, SetupUnknownDevice) {

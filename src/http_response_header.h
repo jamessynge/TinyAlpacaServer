@@ -9,12 +9,16 @@
 // Author: james.synge@gmail.com
 
 #include <McuCore.h>
+#include <stdint.h>
 
 #include "constants.h"
 
 namespace alpaca {
 
 struct HttpResponseHeader : public Printable {
+  static constexpr uint32_t kContentLengthUnknown =
+      mcucore::numeric_limits<uint32_t>::max();
+
   HttpResponseHeader();
 
   void Reset();

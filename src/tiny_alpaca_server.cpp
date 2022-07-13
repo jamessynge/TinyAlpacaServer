@@ -50,6 +50,9 @@ bool TinyAlpacaDeviceServer::OnRequestDecoded(AlpacaRequest& request,
 
     case EAlpacaApi::kServerSetup:
       return HandleServerSetup(request, out);
+
+    case EAlpacaApi::kServerStatus:
+      return HandleServerStatus(request, out);
   }
 
   auto msg = MCU_PSV("OnRequestDecoded: unknown request.api=");
@@ -98,6 +101,56 @@ bool TinyAlpacaDeviceServer::HandleServerSetup(AlpacaRequest& request,
   return WriteResponse::OkResponse(request, EContentType::kTextHtml,
                                    mcucore::AnyPrintable(body), out,
                                    /*append_http_newline=*/true);
+}
+
+bool TinyAlpacaDeviceServer::HandleServerStatus(AlpacaRequest& request,
+                                                Print& out) {
+  MCU_VLOG(3) << MCU_FLASHSTR("HandleServerStatus");
+  if (!(request.http_method == EHttpMethod::GET ||
+        request.http_method == EHttpMethod::HEAD)) {
+    WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpMethodNotAllowed,
+                                     mcucore::AnyPrintable(), out);
+    return false;
+  }
+
+  HttpResponseHeader hrh;
+  hrh.status_code = EHttpStatusCode::kHttpOk;
+  hrh.reason_phrase = ProgmemStrings::OK();
+  hrh.content_type = EContentType::kTextHtml;
+  hrh.do_close = true;
+  hrh.printTo(out);
+
+  if (request.http_method == EHttpMethod::GET) {
+    // Start html, start head, then give each device a chance to add to head.
+    mcucore::OPrintStream strm(out);
+    strm << MCU_PSD("<html><head><title>") << server_description_.server_name
+         << MCU_PSD(" (Tiny Alpaca Server)</title>\n");
+    alpaca_devices_.AddToHomePageHtml(request, EHtmlPageSection::kHead, strm);
+    strm << MCU_PSD("</head><body>\n<div class=s><h1 id=sn>")
+         << server_description_.server_name << MCU_PSD("</h1>\n<table>\n")
+         << MCU_PSD("<tr id=ss><td>Server Software:</td><td class=ss>")
+         << MCU_PSD("<a href='")
+         << MCU_PSD("https://github/jamessynge/TinyAlpacaServer")
+         << MCU_PSD("'>") << MCU_PSD("Tiny Alpaca Server") << MCU_PSD("</a>")
+         << MCU_PSD("</td></tr>\n")
+         << MCU_PSD("<tr id=sl><td>Location:</td><td class=sl>")
+         << server_description_.location << MCU_PSD("</td></tr>\n")
+         << MCU_PSD("<tr id=sm><td>Manufacturer:</td><td class=sm>")
+         << server_description_.manufacturer << MCU_PSD("</td></tr>\n")
+         << MCU_PSD("<tr id=smv><td>Version:</td><td class=smv>")
+         << server_description_.manufacturer_version << MCU_PSD("</td></tr>\n")
+         << MCU_PSD(
+                "</table>\n</div>\n<div class=d>\n<h2 id=dsl>Configured "
+                "Devices<h2>\n");
+    alpaca_devices_.AddToHomePageHtml(request, EHtmlPageSection::kBody, strm);
+    strm << MCU_PSD("\n</div>");
+    alpaca_devices_.AddToHomePageHtml(request, EHtmlPageSection::kTrailer,
+                                      strm);
+    strm << MCU_PSD("\n</body></html>");
+  }
+
+  return false;  // There is no Content-Length in the header, so we can't
+                 // continue the connection after this.
 }
 
 TinyAlpacaNetworkServer::TinyAlpacaNetworkServer(

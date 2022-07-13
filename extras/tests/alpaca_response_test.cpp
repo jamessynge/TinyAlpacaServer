@@ -5,6 +5,7 @@
 
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "absl/strings/str_cat.h"
@@ -382,7 +383,7 @@ TEST(AlpacaResponseTest, HttpErrorResponse) {
 
       // Problems with handling the request:
       {500, "Internal Server Error"},
-      {501, "Method Not Implemented"},
+      {501, "Not Implemented"},
       {505, "HTTP Version Not Supported"},
   };
   for (auto [status, reason] : test_cases) {

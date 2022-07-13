@@ -19,6 +19,7 @@ cc_test(
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/src:array_view",
         "//mcucore/src:eeprom_tag",
+        "//mcucore/src:o_print_stream",
         "//mcucore/src:progmem_string_data",
     ],
 )

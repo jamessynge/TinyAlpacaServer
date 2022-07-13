@@ -99,6 +99,34 @@ TEST_F(ObservingConditionsAdapterTest, ConfiguredDevicesMinimalRequest) {
                            Pair("UniqueID", JsonValueIsUuid())));
 }
 
+TEST_F(ObservingConditionsAdapterTest, HomePage) {
+  // If we ask for the conneciton to be closed after the request is processed,
+  // it should be at the end of the round-trip.
+  auto request = GenerateHomePageRequest();
+  ASSERT_OK_AND_ASSIGN(auto response_message, RoundTripRequest(request, false));
+  EXPECT_FALSE(server_->connection_is_open());
+
+  LOG(INFO) << "\n\n" << response_message << "\n\n";
+
+  // The response should be an HTML page.
+  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(response_message));
+  ASSERT_OK(response.IsOk());
+
+  // Case of the header names in these queries shouldn't matter.
+  EXPECT_FALSE(response.HasHeader("content-length"));
+  EXPECT_TRUE(response.HasHeaderValue("CONTENT-TYPE", "text/html"));
+
+  EXPECT_THAT(response.body_and_beyond,
+              StartsWith("<html><head><title>OurServer (Tiny Alpaca Server)"));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr(">Server Software:</"));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr(GITHUB_LINK));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr("Server Software:"));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr(DEVICE_NAME));
+  EXPECT_THAT(response.body_and_beyond,
+              HasSubstr(absl::StrCat("ObservingConditions_", kDeviceNumber)));
+  EXPECT_THAT(response.body_and_beyond, ContainsRegex("</body></html>\\s*$"));
+}
+
 TEST_F(ObservingConditionsAdapterTest, SetupDevice) {
   // If we ask for the conneciton to be closed after the request is processed,
   // it should be at the end of the round-trip.
@@ -468,6 +496,76 @@ class MockObservingConditionsTest : public DecodeAndDispatchTestBase {
   const DeviceInfo device_info_;
   MockObservingConditions device_;
 };
+
+TEST_F(MockObservingConditionsTest, HomePage) {
+  EXPECT_CALL(device_, GetAveragePeriod).WillOnce(Return(0.0));
+  EXPECT_CALL(device_, GetCloudCover).WillOnce(Return(1.1));
+  EXPECT_CALL(device_, GetDewPoint).WillOnce(Return(1.2));
+  EXPECT_CALL(device_, GetHumidity).WillOnce(Return(1.3));
+  EXPECT_CALL(device_, GetPressure).WillOnce(Return(1.4));
+  EXPECT_CALL(device_, GetRainRate).WillOnce(Return(1.5));
+  EXPECT_CALL(device_, GetSkyBrightness).WillOnce(Return(1.6));
+  EXPECT_CALL(device_, GetSkyQuality).WillOnce(Return(1.7));
+  EXPECT_CALL(device_, GetSkyTemperature).WillOnce(Return(1.8));
+  EXPECT_CALL(device_, GetStarFWHM).WillOnce(Return(1.9));
+  EXPECT_CALL(device_, GetTemperature).WillOnce(Return(2.1));
+  EXPECT_CALL(device_, GetWindDirection).WillOnce(Return(2.2));
+  EXPECT_CALL(device_, GetWindGust).WillOnce(Return(2.3));
+  EXPECT_CALL(device_, GetWindSpeed).WillOnce(Return(2.4));
+
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kCloudCover))
+      .WillOnce(Return(MCU_PSV("I am a CloudCover device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kDewPoint))
+      .WillOnce(Return(MCU_PSV("I am a DewPoint device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kHumidity))
+      .WillOnce(Return(MCU_PSV("I am a Humidity device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kPressure))
+      .WillOnce(Return(MCU_PSV("I am a Pressure device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kRainRate))
+      .WillOnce(Return(MCU_PSV("I am a RainRate device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kSkyBrightness))
+      .WillOnce(Return(MCU_PSV("I am a SkyBrightness device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kSkyQuality))
+      .WillOnce(Return(MCU_PSV("I am a SkyQuality device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kSkyTemperature))
+      .WillOnce(Return(MCU_PSV("I am a SkyTemperature device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kStarFWHM))
+      .WillOnce(Return(MCU_PSV("I am a StarFWHM device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kTemperature))
+      .WillOnce(Return(MCU_PSV("I am a Temperature device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kWindDirection))
+      .WillOnce(Return(MCU_PSV("I am a WindDirection device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kWindGust))
+      .WillOnce(Return(MCU_PSV("I am a WindGust device")));
+  EXPECT_CALL(device_, GetSensorDescription(ESensorName::kWindSpeed))
+      .WillOnce(Return(MCU_PSV("I am a WindSpeed device")));
+
+  // If we ask for the conneciton to be closed after the request is processed,
+  // it should be at the end of the round-trip.
+  auto request = GenerateHomePageRequest();
+  ASSERT_OK_AND_ASSIGN(auto response_message, RoundTripRequest(request, false));
+  EXPECT_FALSE(server_->connection_is_open());
+
+  LOG(INFO) << "\n\n" << response_message << "\n\n";
+
+  // The response should be an HTML page.
+  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(response_message));
+  ASSERT_OK(response.IsOk());
+
+  // Case of the header names in these queries shouldn't matter.
+  EXPECT_FALSE(response.HasHeader("content-length"));
+  EXPECT_TRUE(response.HasHeaderValue("CONTENT-TYPE", "text/html"));
+
+  EXPECT_THAT(response.body_and_beyond,
+              StartsWith("<html><head><title>OurServer (Tiny Alpaca Server)"));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr(">Server Software:</"));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr(GITHUB_LINK));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr("Server Software:"));
+  EXPECT_THAT(response.body_and_beyond, HasSubstr(DEVICE_NAME));
+  EXPECT_THAT(response.body_and_beyond,
+              HasSubstr(absl::StrCat("ObservingConditions_", kDeviceNumber)));
+  EXPECT_THAT(response.body_and_beyond, ContainsRegex("</body></html>\\s*$"));
+}
 
 TEST_F(MockObservingConditionsTest, Method_CloudCover) {
   EXPECT_CALL(device_, GetCloudCover).WillOnce(Return(1.1));

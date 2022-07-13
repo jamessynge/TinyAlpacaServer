@@ -16,25 +16,21 @@ namespace test {
 
 class MockDeviceInterface : public DeviceInterface {
  public:
-  MOCK_METHOD(const struct alpaca::DeviceInfo &, device_info, (),
-              (const, override));
-
-  MOCK_METHOD(enum alpaca::EDeviceType, device_type, (), (const, override));
-
-  MOCK_METHOD(uint32_t, device_number, (), (const, override));
+  MOCK_METHOD(const alpaca::DeviceInfo&, device_info, (), (const, override));
 
   MOCK_METHOD(void, Initialize, (), (override));
 
   MOCK_METHOD(void, MaintainDevice, (), (override));
 
-  MOCK_METHOD(size_t, GetUniqueBytes, (uint8_t *, size_t), (override));
-
   MOCK_METHOD(bool, HandleDeviceSetupRequest,
-              (const struct alpaca::AlpacaRequest &, class Print &),
-              (override));
+              (const alpaca::AlpacaRequest& request, Print& out), (override));
 
   MOCK_METHOD(bool, HandleDeviceApiRequest,
-              (const struct alpaca::AlpacaRequest &, class Print &),
+              (const alpaca::AlpacaRequest& request, Print& out), (override));
+
+  MOCK_METHOD(void, AddToHomePageHtml,
+              (const alpaca::AlpacaRequest& request, EHtmlPageSection section,
+               mcucore::OPrintStream& stream),
               (override));
 };
 

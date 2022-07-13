@@ -70,8 +70,12 @@ class DecodeAndDispatchTestBase : public testing::Test {
   // the correct id.
   virtual uint32_t GetNextClientTransactionId();
 
+  // Add request headers or query params to the request.
   virtual void AddCommonParts(mcucore::test::HttpRequest& request);
 
+  // Generate various kinds of requests...
+
+  virtual mcucore::test::HttpRequest GenerateHomePageRequest();
   virtual mcucore::test::HttpRequest GenerateConfiguredDevicesRequest();
 
   // These create API requests for the device specified by the methods above.

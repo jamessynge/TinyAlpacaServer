@@ -216,6 +216,38 @@ TEST(RequestDecoderTest, ResetRequired) {
   EXPECT_EQ(buffer, full_request);  // No input has been consumed.
 }
 
+TEST(RequestDecoderTest, SmallestHomePageRequest) {
+  AlpacaRequest alpaca_request;
+  StrictMock<MockRequestDecoderListener> listener;
+  RequestDecoder decoder(alpaca_request, &listener);
+
+  const std::string full_request(
+      "GET / HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    auto result = DecodePartitionedRequest(decoder, partition);
+
+    const EHttpStatusCode status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+    EXPECT_THAT(buffer, IsEmpty());
+    EXPECT_THAT(remainder, IsEmpty());
+    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+
+    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kServerStatus);
+    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kServerStatus);
+    EXPECT_FALSE(alpaca_request.have_client_id);
+    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
+
+    if (TestHasFailed()) {
+      break;
+    }
+  }
+}
+
 TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
   AlpacaRequest alpaca_request;
   StrictMock<MockRequestDecoderListener> listener;
@@ -580,6 +612,8 @@ TEST(RequestDecoderTest, RequestsWithClientTransactionId) {
   RequestDecoder decoder(alpaca_request, &listener);
 
   for (const auto& path : {
+           "/",
+           "/setup",
            "/setup/v1/safetymonitor/7777/setup",
            "/api/v1/safetymonitor/7777/connected",
        }) {
@@ -591,9 +625,6 @@ TEST(RequestDecoderTest, RequestsWithClientTransactionId) {
       EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
                 EHttpStatusCode::kHttpOk);
       EXPECT_THAT(request, IsEmpty());
-
-      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
-      EXPECT_EQ(alpaca_request.device_number, 7777);
 
       EXPECT_FALSE(alpaca_request.have_client_id);
       EXPECT_EQ(alpaca_request.client_id, kResetClientId);

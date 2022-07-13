@@ -5,15 +5,99 @@
 #include "alpaca_response.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
-#include "device_types/cover_calibrator/cover_calibrator_constants.h"
 #include "literals.h"
 
 namespace alpaca {
+namespace {
+void AddSensorTableRow(
+    mcucore::ProgmemStringView label, mcucore::ProgmemStringView html_class,
+    mcucore::StatusOr<double> status_or_value, mcucore::ProgmemStringView units,
+    mcucore::StatusOr<mcucore::ProgmemStringView> status_or_description,
+    mcucore::OPrintStream& strm) {
+  if (!status_or_value.ok()) {
+    return;
+  }
+  strm << MCU_PSD("<tr class=") << html_class << MCU_PSD("><td class=ocl>")
+       << label << MCU_PSD("</td><td class=ocv>") << status_or_value.value()
+       << MCU_PSD("&nbsp;") << units << MCU_PSD("</td><td class=ocd>");
+  if (status_or_description.ok()) {
+    strm << status_or_description.value();
+  }
+  strm << MCU_PSD("</td></tr>\n");
+}
+}  // namespace
 
 ObservingConditionsAdapter::ObservingConditionsAdapter(
     const DeviceInfo& device_info)
     : DeviceImplBase(device_info) {
   MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kObservingConditions);
+}
+
+void ObservingConditionsAdapter::AddDeviceDetails(mcucore::OPrintStream& strm) {
+  strm << MCU_PSD("<div class=ocp>\n<h4>Observing Conditions Properties</h4>\n")
+       << MCU_PSD("<table>\n");
+
+  // TODO(jamessynge): Consider whether to also render TimeSinceLastUpdate for
+  // each sensor.
+
+  AddSensorTableRow(MCU_PSV("Average Period"), MCU_PSV("averageperiod"),
+                    GetAveragePeriod(), MCU_PSV("hrs"),
+                    MCU_PSV("Period over which sensor readings are averaged."),
+                    strm);
+
+  AddSensorTableRow(MCU_PSV("Cloud Cover"), MCU_PSV("cloudcover"),
+                    GetCloudCover(), MCU_PSV("%"),
+                    GetSensorDescription(ESensorName::kCloudCover), strm);
+
+  AddSensorTableRow(MCU_PSV("Dew Point"), MCU_PSV("dewpoint"), GetDewPoint(),
+                    MCU_PSV("&#8451;"),
+                    GetSensorDescription(ESensorName::kDewPoint), strm);
+
+  AddSensorTableRow(MCU_PSV("Humidity"), MCU_PSV("humidity"), GetHumidity(),
+                    MCU_PSV("%"), GetSensorDescription(ESensorName::kHumidity),
+                    strm);
+
+  AddSensorTableRow(MCU_PSV("Pressure"), MCU_PSV("pressure"), GetPressure(),
+                    MCU_PSV("hPa"),
+                    GetSensorDescription(ESensorName::kPressure), strm);
+
+  AddSensorTableRow(MCU_PSV("Rain Rate"), MCU_PSV("rainrate"), GetRainRate(),
+                    MCU_PSV("mm/hr"),
+                    GetSensorDescription(ESensorName::kRainRate), strm);
+
+  AddSensorTableRow(MCU_PSV("Sky Brightness"), MCU_PSV("skybrightness"),
+                    GetSkyBrightness(), MCU_PSV("lx"),
+                    GetSensorDescription(ESensorName::kSkyBrightness), strm);
+
+  AddSensorTableRow(MCU_PSV("Sky Quality"), MCU_PSV("skyquality"),
+                    GetSkyQuality(), MCU_PSV(""),
+                    GetSensorDescription(ESensorName::kSkyQuality), strm);
+
+  AddSensorTableRow(MCU_PSV("Sky Temperature"), MCU_PSV("skytemperature"),
+                    GetSkyTemperature(), MCU_PSV("&#8451;"),
+                    GetSensorDescription(ESensorName::kSkyTemperature), strm);
+
+  AddSensorTableRow(MCU_PSV("Star FWHM"), MCU_PSV("starfwhm"), GetStarFWHM(),
+                    MCU_PSV("&#8243;"),
+                    GetSensorDescription(ESensorName::kStarFWHM), strm);
+
+  AddSensorTableRow(MCU_PSV("Temperature"), MCU_PSV("temperature"),
+                    GetTemperature(), MCU_PSV("&#8451;"),
+                    GetSensorDescription(ESensorName::kTemperature), strm);
+
+  AddSensorTableRow(MCU_PSV("Wind Direction"), MCU_PSV("winddirection"),
+                    GetWindDirection(), MCU_PSV("&#176;"),
+                    GetSensorDescription(ESensorName::kWindDirection), strm);
+
+  AddSensorTableRow(MCU_PSV("Wind Gust"), MCU_PSV("windgust"), GetWindGust(),
+                    MCU_PSV("m/s"),
+                    GetSensorDescription(ESensorName::kWindGust), strm);
+
+  AddSensorTableRow(MCU_PSV("Wind Speed"), MCU_PSV("windspeed"), GetWindSpeed(),
+                    MCU_PSV("m/s"),
+                    GetSensorDescription(ESensorName::kWindSpeed), strm);
+
+  strm << MCU_PSD("</table>\n</div>\n");
 }
 
 // Handle a GET 'request', write the HTTP response message to out.

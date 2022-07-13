@@ -85,10 +85,15 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
-  mcucore::LogSink() << kServerDescription.server_name;
+  // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
+  // This is first so that pins are initialized promptly.
+  device_server.Initialize();
+
+  mcucore::LogSink() << '\n' << kServerDescription.server_name;
   mcucore::LogSink() << kServerDescription.manufacturer
                      << MCU_FLASHSTR(", version ")
                      << kServerDescription.manufacturer_version;
+
   mcucore::LogSink() << MCU_FLASHSTR("Initializing networking");
   mcunet::Mega2560Eth::SetupW5500();
 
@@ -106,9 +111,6 @@ void setup() {
   mcunet::OuiPrefix oui_prefix(0x53, 0x75, 0x76);
   MCU_CHECK_OK(ip_device.InitializeNetworking(eeprom_tlv, &oui_prefix));
   announceAddresses();
-
-  // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
-  device_server.Initialize();
 
   // Initialize Tiny Alpaca Network Server, which will initialize TCP listeners
   // and the Alpaca Discovery Server.

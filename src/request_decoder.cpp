@@ -63,6 +63,8 @@ bool IsOptionalWhitespace(const char c) { return c == ' ' || c == '\t'; }
 
 bool IsParamSeparator(const char c) { return c == '&'; }
 
+bool IsEndOfPath(const char c) { return c == ' ' || c == '?'; }
+
 // Per RFC7230, Section 3.2, Header-Fields.
 bool IsFieldContent(const char c) { return isPrintable(c) || c == '\t'; }
 
@@ -656,7 +658,7 @@ EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
   // The device method is supposed to be the end of the path; it may be followed
   // by a query string, or a space and then the HTTP version.
   const char next = view.front();
-  if (next == '?' || next == ' ') {
+  if (IsEndOfPath(next)) {
     return ProcessDeviceMethod(state, matched_text, view);
   } else {
     // Doesn't end with something appropriate for the path to end in. Perhaps an
@@ -787,6 +789,13 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
   MCU_DCHECK(!view.empty());
   EApiGroup group;
   if (!MatchApiGroup(matched_text, group)) {
+    if (!view.empty() && IsEndOfPath(view.front())) {
+      // Empty path, which we'll treat as a status page request, reserving
+      // "/setup" for configuring the device.
+      state.request.api_group = EApiGroup::kServerStatus;
+      state.request.api = EAlpacaApi::kServerStatus;
+      return state.SetDecodeFunction(DecodeEndOfPath);
+    }
     return EHttpStatusCode::kHttpBadRequest;
   }
   state.request.api_group = group;

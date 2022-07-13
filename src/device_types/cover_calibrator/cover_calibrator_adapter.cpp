@@ -16,7 +16,7 @@ bool CoverCalibratorAdapter::HandleGetRequest(const AlpacaRequest& request,
                                               Print& out) {
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
-  MCU_DCHECK_EQ(request.device_number, device_number());
+  MCU_DCHECK_EQ(request.device_number, device_info().device_number);
 
   switch (request.device_method) {
     case EDeviceMethod::kBrightness:
@@ -66,7 +66,7 @@ bool CoverCalibratorAdapter::HandlePutRequest(const AlpacaRequest& request,
                                               Print& out) {
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
-  MCU_DCHECK_EQ(request.device_number, device_number());
+  MCU_DCHECK_EQ(request.device_number, device_info().device_number);
 
   switch (request.device_method) {
     case EDeviceMethod::kCalibratorOff:

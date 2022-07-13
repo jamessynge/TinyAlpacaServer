@@ -5,6 +5,7 @@
 
 #include "alpaca_response.h"
 #include "constants.h"
+#include "device_info.h"
 #include "literals.h"
 
 namespace alpaca {
@@ -25,30 +26,31 @@ bool AlpacaDevices::Initialize() {
   }
   for (int i = 0; i < devices_.size(); ++i) {
     DeviceInterface* const device1 = devices_[i];
+    const DeviceInfo& device1_info = device1->device_info();
     MCU_CHECK_OK_AND_ASSIGN(auto device1_uuid,
-                            device1->device_info().GetOrCreateUniqueId(tlv));
+                            device1_info.GetOrCreateUniqueId(tlv));
     for (int j = i + 1; j < devices_.size(); ++j) {
       DeviceInterface* const device2 = devices_[j];
+      const DeviceInfo& device2_info = device2->device_info();
       MCU_CHECK_NE(device1, device2)
           << MCU_FLASHSTR("Device appears twice in the list of devices:")
-          << MCU_FLASHSTR(" device_type=") << device1->device_type()
-          << MCU_FLASHSTR(", device_number=") << device1->device_number()
-          << MCU_FLASHSTR(", name=")
-          << mcucore::HexEscaped(device1->device_info().name);
-      MCU_CHECK_NE(device1->device_info().domain, device2->device_info().domain)
+          << MCU_FLASHSTR(" device_type=") << device1_info.device_type
+          << MCU_FLASHSTR(", device_number=") << device1_info.device_number
+          << MCU_FLASHSTR(", name=") << mcucore::HexEscaped(device1_info.name);
+      MCU_CHECK_NE(device1_info.domain, device2_info.domain)
           << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
           << MCU_FLASHSTR("] have the same domain");
       MCU_CHECK_OK_AND_ASSIGN(auto device2_uuid,
-                              device2->device_info().GetOrCreateUniqueId(tlv));
+                              device2_info.GetOrCreateUniqueId(tlv));
       MCU_CHECK_NE(device1_uuid, device2_uuid)
           << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
           << MCU_FLASHSTR("] have the same UUID: ") << device1_uuid;
 
-      if (device1->device_type() != device2->device_type()) {
+      if (device1_info.device_type != device2_info.device_type) {
         break;
       }
 
-      MCU_CHECK_NE(device1->device_number(), device2->device_number())
+      MCU_CHECK_NE(device1_info.device_number, device2_info.device_number)
           << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
           << MCU_FLASHSTR("] have the same type and number");
     }
@@ -83,8 +85,8 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
              request.api == EAlpacaApi::kDeviceSetup);
 
   for (DeviceInterface* device : devices_) {
-    if (request.device_type == device->device_type() &&
-        request.device_number == device->device_number()) {
+    if (request.device_type == device->device_info().device_type &&
+        request.device_number == device->device_info().device_number) {
       const auto result = DispatchDeviceRequest(request, *device, out);
       if (!result) {
         MCU_VLOG(3) << MCU_FLASHSTR("DispatchDeviceRequest: ")
@@ -109,6 +111,14 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
       mcucore::PrintableCat(s1, request.api, s2, request.device_type, s3,
                             request.device_number),
       out);
+}
+
+void AlpacaDevices::AddToHomePageHtml(const AlpacaRequest& request,
+                                      EHtmlPageSection section,
+                                      mcucore::OPrintStream& strm) {
+  for (DeviceInterface* device : devices_) {
+    device->AddToHomePageHtml(request, section, strm);
+  }
 }
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,

@@ -36,7 +36,9 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
                                 MCU_FLASHSTR("Decoding"),  // 1: kDecoding
                                 MCU_FLASHSTR("Decoded"),   // 2: kDecoded
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, RequestDecoderStatus::kReset,
+      RequestDecoderStatus::kDecoded, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -111,7 +113,7 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
     return MCU_FLASHSTR("Internal Server Error");
   }
   if (v == EHttpStatusCode::kHttpNotImplemented) {
-    return MCU_FLASHSTR("Method Not Implemented");
+    return MCU_FLASHSTR("Not Implemented");
   }
   if (v == EHttpStatusCode::kHttpVersionNotSupported) {
     return MCU_FLASHSTR("HTTP Version Not Supported");
@@ -154,7 +156,8 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
                                 MCU_FLASHSTR("PUT"),      // 2: PUT
                                 MCU_FLASHSTR("HEAD"),     // 3: HEAD
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EHttpMethod::kUnknown, EHttpMethod::HEAD, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -169,6 +172,8 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
       return MCU_FLASHSTR("Management");
     case EApiGroup::kSetup:
       return MCU_FLASHSTR("Setup");
+    case EApiGroup::kServerStatus:
+      return MCU_FLASHSTR("ServerStatus");
   }
   return nullptr;
 #elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
@@ -184,15 +189,21 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
   if (v == EApiGroup::kSetup) {
     return MCU_FLASHSTR("Setup");
   }
+  if (v == EApiGroup::kServerStatus) {
+    return MCU_FLASHSTR("ServerStatus");
+  }
   return nullptr;
 #else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(flash_string_table,
-                                MCU_FLASHSTR("Unknown"),     // 0: kUnknown
-                                MCU_FLASHSTR("Device"),      // 1: kDevice
-                                MCU_FLASHSTR("Management"),  // 2: kManagement
-                                MCU_FLASHSTR("Setup"),       // 3: kSetup
+  static MCU_FLASH_STRING_TABLE(
+      flash_string_table,
+      MCU_FLASHSTR("Unknown"),       // 0: kUnknown
+      MCU_FLASHSTR("Device"),        // 1: kDevice
+      MCU_FLASHSTR("Management"),    // 2: kManagement
+      MCU_FLASHSTR("Setup"),         // 3: kSetup
+      MCU_FLASHSTR("ServerStatus"),  // 4: kServerStatus
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EApiGroup::kUnknown, EApiGroup::kServerStatus, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -213,6 +224,8 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
       return MCU_FLASHSTR("ManagementConfiguredDevices");
     case EAlpacaApi::kServerSetup:
       return MCU_FLASHSTR("ServerSetup");
+    case EAlpacaApi::kServerStatus:
+      return MCU_FLASHSTR("ServerStatus");
   }
   return nullptr;
 #elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
@@ -237,6 +250,9 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
   if (v == EAlpacaApi::kServerSetup) {
     return MCU_FLASHSTR("ServerSetup");
   }
+  if (v == EAlpacaApi::kServerStatus) {
+    return MCU_FLASHSTR("ServerStatus");
+  }
   return nullptr;
 #else   // Use flash string table.
   static MCU_FLASH_STRING_TABLE(
@@ -249,8 +265,10 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
       MCU_FLASHSTR(
           "ManagementConfiguredDevices"),  // 5: kManagementConfiguredDevices
       MCU_FLASHSTR("ServerSetup"),         // 6: kServerSetup
+      MCU_FLASHSTR("ServerStatus"),        // 7: kServerStatus
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EAlpacaApi::kUnknown, EAlpacaApi::kServerStatus, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -283,7 +301,9 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
       MCU_FLASHSTR("Description"),        // 1: kDescription
       MCU_FLASHSTR("ConfiguredDevices"),  // 2: kConfiguredDevices
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EManagementMethod::kUnknown,
+      EManagementMethod::kConfiguredDevices, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -364,7 +384,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
       MCU_FLASHSTR("Switch"),               // 9: kSwitch
       MCU_FLASHSTR("Telescope"),            // 10: kTelescope
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EDeviceType::kUnknown, EDeviceType::kTelescope, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -691,7 +712,9 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
       MCU_FLASHSTR("SetSwitchValue"),        // 50: kSetSwitchValue
       MCU_FLASHSTR("SwitchStep"),            // 51: kSwitchStep
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EDeviceMethod::kUnknown, EDeviceMethod::kSwitchStep,
+      v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -796,7 +819,8 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
       MCU_FLASHSTR("State"),                // 13: kState
       MCU_FLASHSTR("Value"),                // 14: kValue
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EParameter::kUnknown, EParameter::kValue, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -895,7 +919,8 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
       MCU_FLASHSTR("WindGust"),        // 12: kWindGust
       MCU_FLASHSTR("WindSpeed"),       // 13: kWindSpeed
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, ESensorName::kUnknown, ESensorName::kWindSpeed, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -940,7 +965,8 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
       MCU_FLASHSTR("Content-Type"),    // 3: kContentType
       MCU_FLASHSTR("Date"),            // 4: kDate
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EHttpHeader::kUnknown, EHttpHeader::kDate, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -973,7 +999,65 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
       MCU_FLASHSTR("text/plain"),        // 1: kTextPlain
       MCU_FLASHSTR("text/html"),         // 2: kTextHtml
   );
-  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(flash_string_table, v);
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EContentType::kApplicationJson,
+      EContentType::kTextHtml, v);
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+}
+
+const __FlashStringHelper* ToFlashStringHelper(EHtmlPageSection v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+  switch (v) {
+    case EHtmlPageSection::kHead:
+      return MCU_FLASHSTR("Head");
+    case EHtmlPageSection::kBody:
+      return MCU_FLASHSTR("Body");
+    case EHtmlPageSection::kTrailer:
+      return MCU_FLASHSTR("Trailer");
+  }
+  return nullptr;
+#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+  if (v == EHtmlPageSection::kHead) {
+    return MCU_FLASHSTR("Head");
+  }
+  if (v == EHtmlPageSection::kBody) {
+    return MCU_FLASHSTR("Body");
+  }
+  if (v == EHtmlPageSection::kTrailer) {
+    return MCU_FLASHSTR("Trailer");
+  }
+  return nullptr;
+#else   // Use flash string table.
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("Head"),     // 0: kHead
+                                MCU_FLASHSTR("Body"),     // 1: kBody
+                                MCU_FLASHSTR("Trailer"),  // 2: kTrailer
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
+      flash_string_table, EHtmlPageSection::kHead, EHtmlPageSection::kTrailer,
+      v);
+#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+}
+
+const __FlashStringHelper* ToFlashStringHelper(EDeviceEepromTagId v) {
+#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+  switch (v) {
+    case EDeviceEepromTagId::kUniqueId:
+      return MCU_FLASHSTR("UniqueId");
+  }
+  return nullptr;
+#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+  if (v == EDeviceEepromTagId::kUniqueId) {
+    return MCU_FLASHSTR("UniqueId");
+  }
+  return nullptr;
+#else   // Use flash string table.
+  static MCU_FLASH_STRING_TABLE(flash_string_table,
+                                MCU_FLASHSTR("UniqueId"),  // 1: kUniqueId
+  );
+  return mcucore::LookupFlashStringForDenseEnum<uint8_t>(
+      flash_string_table, EDeviceEepromTagId::kUniqueId,
+      EDeviceEepromTagId::kUniqueId, v);
 #endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
 }
 
@@ -1085,6 +1169,24 @@ size_t PrintValueTo(EContentType v, Print& out) {
                                           static_cast<uint32_t>(v), out);
 }
 
+size_t PrintValueTo(EHtmlPageSection v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EHtmlPageSection"),
+                                          static_cast<uint32_t>(v), out);
+}
+
+size_t PrintValueTo(EDeviceEepromTagId v, Print& out) {
+  auto flash_string = ToFlashStringHelper(v);
+  if (flash_string != nullptr) {
+    return out.print(flash_string);
+  }
+  return mcucore::PrintUnknownEnumValueTo(MCU_FLASHSTR("EDeviceEepromTagId"),
+                                          static_cast<uint32_t>(v), out);
+}
+
 #if MCU_HOST_TARGET
 // Support for debug logging of enums.
 
@@ -1128,7 +1230,7 @@ std::ostream& operator<<(std::ostream& os, EHttpStatusCode v) {
     case EHttpStatusCode::kHttpInternalServerError:
       return os << "Internal Server Error";
     case EHttpStatusCode::kHttpNotImplemented:
-      return os << "Method Not Implemented";
+      return os << "Not Implemented";
     case EHttpStatusCode::kHttpVersionNotSupported:
       return os << "HTTP Version Not Supported";
   }
@@ -1159,6 +1261,8 @@ std::ostream& operator<<(std::ostream& os, EApiGroup v) {
       return os << "Management";
     case EApiGroup::kSetup:
       return os << "Setup";
+    case EApiGroup::kServerStatus:
+      return os << "ServerStatus";
   }
   return os << "Unknown EApiGroup, value=" << static_cast<int64_t>(v);
 }
@@ -1179,6 +1283,8 @@ std::ostream& operator<<(std::ostream& os, EAlpacaApi v) {
       return os << "ManagementConfiguredDevices";
     case EAlpacaApi::kServerSetup:
       return os << "ServerSetup";
+    case EAlpacaApi::kServerStatus:
+      return os << "ServerStatus";
   }
   return os << "Unknown EAlpacaApi, value=" << static_cast<int64_t>(v);
 }
@@ -1429,6 +1535,26 @@ std::ostream& operator<<(std::ostream& os, EContentType v) {
       return os << "text/html";
   }
   return os << "Unknown EContentType, value=" << static_cast<int64_t>(v);
+}
+
+std::ostream& operator<<(std::ostream& os, EHtmlPageSection v) {
+  switch (v) {
+    case EHtmlPageSection::kHead:
+      return os << "Head";
+    case EHtmlPageSection::kBody:
+      return os << "Body";
+    case EHtmlPageSection::kTrailer:
+      return os << "Trailer";
+  }
+  return os << "Unknown EHtmlPageSection, value=" << static_cast<int64_t>(v);
+}
+
+std::ostream& operator<<(std::ostream& os, EDeviceEepromTagId v) {
+  switch (v) {
+    case EDeviceEepromTagId::kUniqueId:
+      return os << "UniqueId";
+  }
+  return os << "Unknown EDeviceEepromTagId, value=" << static_cast<int64_t>(v);
 }
 
 #endif  // MCU_HOST_TARGET

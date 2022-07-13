@@ -8,7 +8,6 @@
 #include <McuCore.h>
 #include <stdint.h>
 
-#include "device_info.h"
 #include "device_types/observing_conditions/observing_conditions_adapter.h"
 #include "gmock/gmock.h"
 
@@ -21,20 +20,20 @@ class MockObservingConditions : public ::alpaca::ObservingConditionsAdapter {
 
   MOCK_METHOD(mcucore::StatusOr<bool>, GetConnected, (), (override));
 
-  MOCK_METHOD(bool, HandlePutAction,
-              (const struct AlpacaRequest &, class Print &), (override));
+  MOCK_METHOD(bool, HandlePutAction, (const AlpacaRequest& request, Print& out),
+              (override));
 
   MOCK_METHOD(bool, HandlePutCommandBlind,
-              (const struct AlpacaRequest &, class Print &), (override));
+              (const AlpacaRequest& request, Print& out), (override));
 
   MOCK_METHOD(bool, HandlePutCommandBool,
-              (const struct AlpacaRequest &, class Print &), (override));
+              (const AlpacaRequest& request, Print& out), (override));
 
   MOCK_METHOD(bool, HandlePutCommandString,
-              (const struct AlpacaRequest &, class Print &), (override));
+              (const AlpacaRequest& request, Print& out), (override));
 
   MOCK_METHOD(bool, HandlePutConnected,
-              (const struct AlpacaRequest &, class Print &), (override));
+              (const AlpacaRequest& request, Print& out), (override));
 
   MOCK_METHOD(class mcucore::Status, SetConnected, (bool), (override));
 
@@ -73,10 +72,10 @@ class MockObservingConditions : public ::alpaca::ObservingConditionsAdapter {
   MOCK_METHOD(mcucore::StatusOr<double>, GetWindSpeed, (), (override));
 
   MOCK_METHOD(bool, HandlePutAveragePeriod,
-              (const struct AlpacaRequest &, class Print &), (override));
+              (const AlpacaRequest& request, Print& out), (override));
 
   MOCK_METHOD(bool, HandlePutRefresh,
-              (const struct AlpacaRequest &, class Print &), (override));
+              (const AlpacaRequest& request, Print& out), (override));
 
   MOCK_METHOD(class mcucore::Status, SetAveragePeriod, (double), (override));
 

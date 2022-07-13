@@ -18,6 +18,8 @@ class ObservingConditionsAdapter : public DeviceImplBase {
   explicit ObservingConditionsAdapter(const DeviceInfo& device_info);
   ~ObservingConditionsAdapter() override {}
 
+  void AddDeviceDetails(mcucore::OPrintStream& strm) override;
+
   // Handles GET 'request', writes the HTTP response message to 'out'. Returns
   // true to indicate that the response was written without error, otherwise
   // false, in which case the connection to the client will be closed.

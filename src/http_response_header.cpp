@@ -23,7 +23,7 @@ void HttpResponseHeader::Reset() {
   status_code = EHttpStatusCode::kHttpInternalServerError;
   reason_phrase = {};
   content_type = {};
-  content_length = 0;
+  content_length = kContentLengthUnknown;
   do_close = true;
 }
 
@@ -39,7 +39,7 @@ size_t HttpResponseHeader::printTo(Print& out) const {
   count += WriteEolHeaderName(ProgmemStringViews::Server(), out);
   count += ProgmemStringViews::TinyAlpacaServer().printTo(out);
 
-  if (do_close) {
+  if (do_close || content_length == kContentLengthUnknown) {
     count += WriteEolHeaderName(ProgmemStringViews::Connection(), out);
     count += ProgmemStringViews::close().printTo(out);
   }
@@ -58,11 +58,13 @@ size_t HttpResponseHeader::printTo(Print& out) const {
       count += ProgmemStringViews::MimeTypeTextHtml().printTo(out);
       break;
   }
-  count += WriteEolHeaderName(ProgmemStringViews::HttpContentLength(), out);
-  count += out.print(content_length);
-  count += ProgmemStringViews::HttpEndOfLine().printTo(out);
+  if (content_length != kContentLengthUnknown) {
+    count += WriteEolHeaderName(ProgmemStringViews::HttpContentLength(), out);
+    count += out.print(content_length);
+  }
 
   // The end of an HTTP header is marked by a blank line.
+  count += ProgmemStringViews::HttpEndOfLine().printTo(out);
   count += ProgmemStringViews::HttpEndOfLine().printTo(out);
 
   return count;

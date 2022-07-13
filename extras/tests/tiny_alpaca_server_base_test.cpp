@@ -88,6 +88,27 @@ TEST_F(TinyAlpacaServerBaseTest, OpenAndCloseConnection) {
   EXPECT_THAT(RoundTripSoleRequest(""), IsOkAndHolds(""));
 }
 
+TEST_F(TinyAlpacaServerBaseTest, ServerStatus) {
+  // We include two unsupported (ignored) headers, including one with a very
+  // large value, to verify that they are ignored, including skipping over a
+  // header value that is too long to fit into the decoder's input buffer.
+  const auto full_request =
+      absl::StrCat("GET /?Clientid=123 HTTP/1.1\r\n",  // Line break......
+                   "Host: example.com\r\n",            // Line break
+                   "Foo-Bar-Baz:", std::string(10000, '0'), "\r\n",  //
+                   "\r\n");
+  ASSERT_OK_AND_ASSIGN(auto response_str, RoundTripSoleRequest(full_request));
+  ASSERT_OK_AND_ASSIGN(auto response, HttpResponse::Make(response_str));
+  EXPECT_EQ(response.http_version, "HTTP/1.1");
+  EXPECT_EQ(response.status_code, 200);
+  EXPECT_EQ(response.status_message, "OK");
+  EXPECT_FALSE(response.HasHeader("CONTENT-LENGTH"));
+  EXPECT_TRUE(response.HasHeaderValue("content-Type", "text/html"));
+  EXPECT_THAT(response.body_and_beyond, StartsWith("<html>"));
+  LOG(INFO) << "response.body_and_beyond:\n\n"
+            << response.body_and_beyond << "\n\n";
+}
+
 TEST_F(TinyAlpacaServerBaseTest, Setup) {
   // We include two unsupported (ignored) headers, including one with a very
   // large value, to verify that they are ignored, including skipping over a

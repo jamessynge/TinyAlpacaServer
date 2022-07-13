@@ -3,10 +3,8 @@
 #include <McuCore.h>
 
 #include "alpaca_response.h"
-#include "ascom_error_codes.h"
 #include "constants.h"
 #include "device_info.h"
-#include "http_response_header.h"
 #include "literals.h"
 
 namespace alpaca {
@@ -23,28 +21,27 @@ class DeviceInfoHtml : public Printable {
     mcucore::Uuid uuid;
     if (!status_or_uuid.ok()) {
       MCU_DCHECK_OK(status_or_uuid)
-          << MCU_FLASHSTR("Should have been able to GetOrCreateUniqueId");
+          << MCU_PSD("Should have been able to GetOrCreateUniqueId");
       uuid.Zero();
     } else {
       uuid = status_or_uuid.value();
     }
 
-    strm << MCU_FLASHSTR(
+    strm << MCU_PSD(
                 "<html><body>"
                 "<h1>Tiny Alpaca Server Device Setup</h1>\n"
                 "Type: ")
-         << info_.device_type << MCU_FLASHSTR("<br>")  //
-         << MCU_FLASHSTR("Number: ") << info_.device_number
-         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Name: ") << info_.name
-         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Description: ")
-         << info_.description << MCU_FLASHSTR("<br>")
-         << MCU_FLASHSTR("Unique ID: ") << uuid << MCU_FLASHSTR("<br>")
-         << MCU_FLASHSTR("Driver Info: ") << info_.driver_info
-         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("Driver Version: ")
-         << info_.driver_version << MCU_FLASHSTR("<br>")
-         << MCU_FLASHSTR("Interface Version: ") << info_.interface_version
-         << MCU_FLASHSTR("<br>") << MCU_FLASHSTR("EEPROM Domain: ")
-         << info_.domain.value() << MCU_FLASHSTR("</body></html>");
+         << info_.device_type << MCU_PSD("<br>")  //
+         << MCU_PSD("Number: ") << info_.device_number << MCU_PSD("<br>")
+         << MCU_PSD("Name: ") << info_.name << MCU_PSD("<br>")
+         << MCU_PSD("Description: ") << info_.description << MCU_PSD("<br>")
+         << MCU_PSD("Unique ID: ") << uuid << MCU_PSD("<br>")
+         << MCU_PSD("Driver Info: ") << info_.driver_info << MCU_PSD("<br>")
+         << MCU_PSD("Driver Version: ") << info_.driver_version
+         << MCU_PSD("<br>") << MCU_PSD("Interface Version: ")
+         << info_.interface_version << MCU_PSD("<br>")
+         << MCU_PSD("EEPROM Domain: ") << info_.domain.value()
+         << MCU_PSD("</body></html>");
     return counter.count();
   }
 
@@ -86,6 +83,55 @@ bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
       mcucore::PrintableCat(MCU_FLASHSTR("request.api: "),
                             ToFlashStringHelper(request.http_method)),
       out);
+}
+
+void DeviceImplBase::AddToHomePageHtml(const AlpacaRequest& request,
+                                       EHtmlPageSection section,
+                                       mcucore::OPrintStream& strm) {
+  if (section == EHtmlPageSection::kBody) {
+    AddStartDeviceSection(strm);
+    AddDeviceBanner(strm);
+    AddDeviceSummary(strm);
+    AddDeviceDetails(strm);
+    AddEndDeviceSection(strm);
+  }
+}
+
+void DeviceImplBase::AddStartDeviceSection(mcucore::OPrintStream& strm) {
+  strm << MCU_PSD("<div class='d ") << device_info_.device_type
+       << MCU_PSD("' id=") << device_info_.device_type << '_'
+       << device_info_.device_number << MCU_PSD(">\n");
+}
+
+void DeviceImplBase::AddEndDeviceSection(mcucore::OPrintStream& strm) {
+  strm << MCU_PSD("</div>\n");
+}
+
+void DeviceImplBase::AddDeviceBanner(mcucore::OPrintStream& strm) {
+  strm << MCU_PSD("<div class=db><h3><span class=dn>") << device_info_.name
+       << MCU_PSD("</span> <span class=dt>") << device_info_.device_type
+       << MCU_PSD(" device #") << device_info_.device_number
+       << MCU_PSD("</span></h3></div>\n");
+}
+
+void DeviceImplBase::AddDeviceSummary(mcucore::OPrintStream& strm) {
+  strm << MCU_PSD(
+              "<table class=ds>\n<tr class=dd><td>Description:</td>"
+              "<td class=dd>")
+       << device_info_.description << MCU_PSD("</td></tr>\n");
+
+  auto status_or_uuid = device_info_.GetOrCreateUniqueId();
+  if (status_or_uuid.ok()) {
+    strm << MCU_PSD("<tr class=du><td>Unique ID:</td><td class=du>")
+         << status_or_uuid.value() << MCU_PSD("</td></tr>\n");
+  }
+
+  strm << MCU_PSD("<tr class=ddi><td>Driver:</td><td class=ddi>")
+       << device_info_.driver_info << MCU_PSD("</td></tr>\n");
+  strm << MCU_PSD("<tr class=ddv><td>Driver Version:</td><td class=ddv>")
+       << device_info_.driver_version << MCU_PSD("</td></tr>\n");
+  strm << MCU_PSD("<tr class=dom><td>EEPROM Domain:</td><td class=dom>")
+       << device_info_.domain.value() << MCU_PSD("</td></tr></table>\n");
 }
 
 mcucore::EepromTag DeviceImplBase::MakeTag(uint8_t id) {
