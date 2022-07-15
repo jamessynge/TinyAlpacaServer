@@ -61,6 +61,7 @@ void announceAddresses() {
 void setup() {
   // This is first so we can (if necessary) turn off any device that turns on
   // automatically when the microcontroller is reset.
+  device_server.ValidateConfiguration();
   device_server.ResetHardware();
 
   mcucore::LogSink() << MCU_FLASHSTR(
