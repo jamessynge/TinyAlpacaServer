@@ -17,7 +17,11 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
  public:
   explicit CoverCalibrator(const alpaca::DeviceInfo& device_info);
 
-  void Initialize() override;
+  // Disables the stepper motor driver, nothing else.
+  void ResetHardware() override;
+
+  // Initialize all the pins.
+  void InitializeDevice() override;
 
   // Returns the current calibrator brightness.
   mcucore::StatusOr<int32_t> GetBrightness() override;

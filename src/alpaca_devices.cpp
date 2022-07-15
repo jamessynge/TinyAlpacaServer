@@ -13,17 +13,20 @@ namespace alpaca {
 AlpacaDevices::AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices)
     : devices_(devices) {}
 
-bool AlpacaDevices::Initialize() {
+// Before initializing the devices, we want to make sure they're valid:
+// * None of the pointers are nullptr.
+// * No two devices have the same UUID or EepromDomain.
+// * No two devices of the same type have the same device_number.
+// * Devices are numbered starting from zero.
+void AlpacaDevices::ValidateDevices() {
+  // We're going to need the EepromTlv for looking up UUIDs.
   MCU_CHECK_OK_AND_ASSIGN(auto tlv, mcucore::EepromTlv::GetIfValid());
-  // Before initializing the devices, we make sure they're valid:
-  // * None of the pointers are nullptr.
-  // * No two devices have the same UUID or EepromDomain.
-  // * No two devices of the same type have the same device_number.
+
   for (int i = 0; i < devices_.size(); ++i) {
     MCU_CHECK_NE(devices_[i], nullptr)
-        << MCU_FLASHSTR("DeviceInterface pointer [") << i
-        << MCU_FLASHSTR("] is null!");
+        << MCU_PSD("DeviceInterface pointer [") << i << MCU_PSD("] is null!");
   }
+
   for (int i = 0; i < devices_.size(); ++i) {
     DeviceInterface* const device1 = devices_[i];
     const DeviceInfo& device1_info = device1->device_info();
@@ -33,34 +36,62 @@ bool AlpacaDevices::Initialize() {
       DeviceInterface* const device2 = devices_[j];
       const DeviceInfo& device2_info = device2->device_info();
       MCU_CHECK_NE(device1, device2)
-          << MCU_FLASHSTR("Device appears twice in the list of devices:")
-          << MCU_FLASHSTR(" device_type=") << device1_info.device_type
-          << MCU_FLASHSTR(", device_number=") << device1_info.device_number
-          << MCU_FLASHSTR(", name=") << mcucore::HexEscaped(device1_info.name);
+          << MCU_PSD("Device appears twice in the list of devices:")
+          << MCU_PSD(" device_type=") << device1_info.device_type
+          << MCU_PSD(", device_number=") << device1_info.device_number
+          << MCU_PSD(", name=") << mcucore::HexEscaped(device1_info.name);
       MCU_CHECK_NE(device1_info.domain, device2_info.domain)
-          << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
-          << MCU_FLASHSTR("] have the same domain");
+          << MCU_PSD("Devices [") << i << MCU_PSD("] and [") << j
+          << MCU_PSD("] have the same domain");
       MCU_CHECK_OK_AND_ASSIGN(auto device2_uuid,
                               device2_info.GetOrCreateUniqueId(tlv));
       MCU_CHECK_NE(device1_uuid, device2_uuid)
-          << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
-          << MCU_FLASHSTR("] have the same UUID: ") << device1_uuid;
-
+          << MCU_PSD("Devices [") << i << MCU_PSD("] and [") << j
+          << MCU_PSD("] have the same UUID: ") << device1_uuid;
       if (device1_info.device_type != device2_info.device_type) {
         break;
       }
-
       MCU_CHECK_NE(device1_info.device_number, device2_info.device_number)
-          << MCU_FLASHSTR("Devices [") << i << MCU_FLASHSTR("] and [") << j
-          << MCU_FLASHSTR("] have the same type and number");
+          << MCU_PSD("Devices [") << i << MCU_PSD("] and [") << j
+          << MCU_PSD("] have the same type and number");
     }
   }
-  // TODO(jamessynge): Verify that device_numbers, within each device_type, are
-  // ascending and start at zero.
-  for (DeviceInterface* device : devices_) {
-    device->Initialize();
+
+  // Verify that device_numbers, within each device_type, are ascending and
+  // start at zero.
+  for (int i = 0; i < devices_.size(); ++i) {
+    DeviceInterface* const device = devices_[i];
+    const DeviceInfo& device_info = device->device_info();
+    if (device_info.device_number != 0) {
+      // There should be a device of the same type whose number is immediately
+      // below this one.
+      MCU_CHECK_NE(
+          FindDevice(device_info.device_type, device_info.device_number - 1),
+          nullptr)
+          << MCU_PSD_128(
+                 "Devices of each type must be numbered starting from 0, "
+                 "without any gap; ")
+          << device_info.device_type << '#' << device_info.device_number
+          << MCU_PSD(" (devices_[") << i
+          << MCU_PSD("]) doesn't have a predecessor");
+    }
   }
-  return true;
+
+  for (DeviceInterface* device : devices_) {
+    device->ValidateConfiguration();
+  }
+}
+
+void AlpacaDevices::ResetHardware() {
+  for (DeviceInterface* device : devices_) {
+    device->ResetHardware();
+  }
+}
+
+void AlpacaDevices::InitializeDevices() {
+  for (DeviceInterface* device : devices_) {
+    device->InitializeDevice();
+  }
 }
 
 void AlpacaDevices::MaintainDevices() {
@@ -72,8 +103,7 @@ void AlpacaDevices::MaintainDevices() {
 
 bool AlpacaDevices::HandleManagementConfiguredDevices(AlpacaRequest& request,
                                                       Print& out) {
-  MCU_VLOG(3) << MCU_FLASHSTR(
-      "AlpacaDevices::HandleManagementConfiguredDevices");
+  MCU_VLOG(3) << MCU_PSD("AlpacaDevices::HandleManagementConfiguredDevices");
   MCU_DCHECK_EQ(request.api_group, EApiGroup::kManagement);
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kManagementConfiguredDevices);
   ConfiguredDevicesResponse response(request, devices_);
@@ -84,16 +114,15 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request, Print& out) {
   MCU_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
              request.api == EAlpacaApi::kDeviceSetup);
 
-  for (DeviceInterface* device : devices_) {
-    if (request.device_type == device->device_info().device_type &&
-        request.device_number == device->device_info().device_number) {
-      const auto result = DispatchDeviceRequest(request, *device, out);
-      if (!result) {
-        MCU_VLOG(3) << MCU_FLASHSTR("DispatchDeviceRequest: ")
-                    << MCU_FLASHSTR("result=") << result;
-      }
-      return result;
+  DeviceInterface* device =
+      FindDevice(request.device_type, request.device_number);
+  if (device != nullptr) {
+    const auto result = DispatchDeviceRequest(request, *device, out);
+    if (!result) {
+      MCU_VLOG(3) << MCU_PSD("DispatchDeviceRequest: ") << MCU_PSD("result=")
+                  << result;
     }
+    return result;
   }
 
   const auto s1 = MCU_PSV("Not found: api=");
@@ -123,7 +152,7 @@ void AlpacaDevices::AddToHomePageHtml(const AlpacaRequest& request,
 
 bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
                                           DeviceInterface& device, Print& out) {
-  MCU_VLOG(3) << MCU_FLASHSTR("AlpacaDevices::DispatchDeviceRequest: ")
+  MCU_VLOG(3) << MCU_PSD("AlpacaDevices::DispatchDeviceRequest: ")
               << request.device_type << '/' << request.device_number << '/'
               << request.device_method;
   if (request.api == EAlpacaApi::kDeviceApi) {
@@ -134,10 +163,22 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
   // COV_NF_START
   return WriteResponse::HttpErrorResponse(
       EHttpStatusCode::kHttpInternalServerError,
-      mcucore::PrintableCat(MCU_FLASHSTR("request.api: "),
+      mcucore::PrintableCat(MCU_PSV("request.api: "),
                             ToFlashStringHelper(request.api)),
       out);
   // COV_NF_END
+}
+
+// Returns the specified device, or nullptr if not found.
+DeviceInterface* AlpacaDevices::FindDevice(EDeviceType device_type,
+                                           uint32_t device_number) {
+  for (DeviceInterface* device : devices_) {
+    if (device_type == device->device_info().device_type &&
+        device_number == device->device_info().device_number) {
+      return device;
+    }
+  }
+  return nullptr;
 }
 
 }  // namespace alpaca

@@ -50,10 +50,26 @@ class DeviceInterface {
   DeviceInterface() {}
   virtual ~DeviceInterface() {}
 
+  // Return a DeviceInfo that contains the (static) device info (e.g. device
+  // type and number).
   virtual const DeviceInfo& device_info() const = 0;
 
+  // Validates the devices' configuration. CHECK fails if there are any
+  // problems.
+  virtual void ValidateConfiguration() = 0;
+
+  // Called to disable any features that might be enabled, including by default;
+  // for example, if an output pin needs to be driven low or high to disable
+  // some connected device, this is the time to do that. This is called when the
+  // Tiny Alpaca Device Server first starts, prior to any other initialization,
+  // which was inspired by finding that the stepper motor driver for a Cover
+  // Calibrator device was enabled when the microcontroller reset such that the
+  // enable pin was floating, and this caused a bunch of noise, perhaps because
+  // the direction and step pins were also floating.
+  virtual void ResetHardware() = 0;
+
   // Called to initialize the handler and underlying device.
-  virtual void Initialize() = 0;
+  virtual void InitializeDevice() = 0;
 
   // Called periodically to enable the device to perform long running
   // operations (e.g. to measure the temperature on some schedule and

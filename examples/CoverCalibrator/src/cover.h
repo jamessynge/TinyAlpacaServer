@@ -39,8 +39,11 @@ class Cover : public alpaca::EnableableByPin, InterruptHandler {
   // Uses the values in constants.h to call the above ctor.
   Cover();
 
-  // Resets the timer/counter.
-  void Initialize();
+  // Disables the cover.
+  void ResetHardware();
+
+  // Prepares the hardware.
+  void InitializeHardware();
 
   alpaca::ECoverStatus GetCoverStatus() const;
 

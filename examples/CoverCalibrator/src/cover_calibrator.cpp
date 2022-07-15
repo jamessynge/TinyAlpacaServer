@@ -28,8 +28,10 @@ CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
                   << enableable_by_pin.enabled_pin() << MCU_FLASHSTR(")=") \
                   << enableable_by_pin.ReadPin()
 
-void CoverCalibrator::Initialize() {
-  CoverCalibratorAdapter::Initialize();
+void CoverCalibrator::ResetHardware() { cover_.ResetHardware(); }
+
+void CoverCalibrator::InitializeDevice() {
+  CoverCalibratorAdapter::InitializeDevice();
 
   pinMode(kLedChannel1PwmPin, OUTPUT);
   pinMode(kLedChannel2PwmPin, OUTPUT);
@@ -47,7 +49,7 @@ void CoverCalibrator::Initialize() {
   // TODO(jamessynge): Figure out what the initial position of the cover is,
   // OR always close it (maybe based on a choice by the end-user stored in
   // EEPROM).
-  cover_.Initialize();
+  cover_.InitializeHardware();
 
   // Announce enablement once only.
 

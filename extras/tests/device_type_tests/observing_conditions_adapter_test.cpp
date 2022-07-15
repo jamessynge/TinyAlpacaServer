@@ -43,7 +43,7 @@ using ::testing::status::IsOkAndHolds;
 
 constexpr int kAscomNotImplementedError = 1024;
 constexpr int kAscomValueNotSetError = 1026;
-constexpr int kDeviceNumber = 331;
+constexpr int kDeviceNumber = 0;
 
 #define DEVICE_NAME "WeatherOracle"
 #define GITHUB_LINK "https://github/jamessynge/TinyAlpacaServer"

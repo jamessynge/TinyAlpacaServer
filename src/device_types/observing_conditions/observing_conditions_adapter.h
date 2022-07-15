@@ -18,6 +18,11 @@ class ObservingConditionsAdapter : public DeviceImplBase {
   explicit ObservingConditionsAdapter(const DeviceInfo& device_info);
   ~ObservingConditionsAdapter() override {}
 
+  // On the assumption that sensors don't typically need to be disabled or
+  // turned off instantly when the microcontroller powers up or resets, we
+  // provide a default implementation of ResetHardware.
+  void ResetHardware() override {}
+
   void AddDeviceDetails(mcucore::OPrintStream& strm) override;
 
   // Handles GET 'request', writes the HTTP response message to 'out'. Returns

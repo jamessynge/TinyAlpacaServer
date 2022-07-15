@@ -141,7 +141,14 @@ Cover::Cover()
             kCoverMotorDirectionPin, kCoverOpenLimitPin, kCoverCloseLimitPin,
             kMaximumSteps, kMaximumStartSteps) {}
 
-void Cover::Initialize() {
+void Cover::ResetHardware() {
+  if (IsEnabled()) {
+    pinMode(stepper_enable_pin_, OUTPUT);
+    DisableStepper();
+  }
+}
+
+void Cover::InitializeHardware() {
   // TODO(jamessynge): Consider whether to do this if motor is not present.
 
   ResetTimer5();

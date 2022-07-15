@@ -11,6 +11,7 @@
 #include <McuCore.h>
 
 #include "alpaca_request.h"
+#include "constants.h"
 #include "device_interface.h"
 
 namespace alpaca {
@@ -19,9 +20,16 @@ class AlpacaDevices {
  public:
   explicit AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices);
 
-  // Prepares the server and device drivers to receive requests. Returns OK
-  // if able to do so, otherwise an error.
-  bool Initialize();
+  // Validates the devices' DeviceInfo (e.g. that there is at most one device
+  // number 0 of each device type). CHECK fails if there are any problems.
+  void ValidateDevices();
+
+  // Does the minimum necessary to reset or disable any features that might be
+  // turned on or enabled by default when the processor resets.
+  void ResetHardware();
+
+  // Calls Initialize on each device.
+  void InitializeDevices();
 
   // Delegates to device drivers so that they can perform actions other than
   // responding to a request (e.g. periodically reading sensor values).
@@ -44,6 +52,9 @@ class AlpacaDevices {
  private:
   bool DispatchDeviceRequest(AlpacaRequest& request, DeviceInterface& device,
                              Print& out);
+
+  // Returns the specified device, or nullptr if not found.
+  DeviceInterface* FindDevice(EDeviceType device_type, uint32_t device_number);
 
   mcucore::ArrayView<DeviceInterface*> devices_;
 };

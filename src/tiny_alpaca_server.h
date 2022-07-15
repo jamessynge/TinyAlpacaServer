@@ -41,12 +41,25 @@ class TinyAlpacaDeviceServer : public RequestListener {
             server_description,
             mcucore::ArrayView<DeviceInterface*>(devices, N)) {}
 
-  // Calls Initialize on the nested objects. Returns true if all of the objects
-  // are successfully initialized.
-  bool Initialize();
+  // Validates that the configuration of the server is sensible; should be
+  // called before ResetHardware. CHECK fails if there are any problems.
+  void ValidateConfiguration();
+
+  // Does the minimum necessary to reset or disable any features that might be
+  // turned on or enabled by default when the processor resets. Must be called
+  // before InitializeDevices, and preferably as soon as soon as possible after
+  // the program starts.
+  void ResetHardware();
+
+  // Initializes the server and its devices in preparation for serving requests.
+  void InitializeForServing();
 
   // Gives devices a chance to perform periodic work.
   void MaintainDevices();
+
+  const ServerDescription& server_description() const {
+    return server_description_;
+  }
 
   // RequestListener method overrides...
   void OnStartDecoding(AlpacaRequest& request) override;

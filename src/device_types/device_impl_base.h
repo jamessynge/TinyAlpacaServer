@@ -30,8 +30,17 @@ class DeviceImplBase : public DeviceInterface {
   // Overrides of the base class methods:
   const DeviceInfo& device_info() const override { return device_info_; }
 
-  void Initialize() override {}
+  // We don't override ResetHardware and InitializeDevice on the theory that all
+  // real world devices should have some reset and initialize steps to perform.
+  // However, it is quite possible that there is no device specific validation
+  // of the configuration to be performed, nor any periodic work to be done, so
+  // we do provide a default implementations of ValidateConfiguration and
+  // MaintainDevice.
+  void ValidateConfiguration() override {}
+  // void ResetHardware() override {}     // TODO REMOVE
+  void InitializeDevice() override {}  // TODO REMOVE
   void MaintainDevice() override {}
+
   void AddToHomePageHtml(const AlpacaRequest& request, EHtmlPageSection section,
                          mcucore::OPrintStream& strm) override;
   bool HandleDeviceSetupRequest(const AlpacaRequest& request,

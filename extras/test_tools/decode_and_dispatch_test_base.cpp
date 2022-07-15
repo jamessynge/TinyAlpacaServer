@@ -52,7 +52,9 @@ void DecodeAndDispatchTestBase::SetUp() {
   PrepareEeprom();
   server_ = CreateServer();
   if (InitializeServerAutomatically()) {
-    EXPECT_TRUE(server_->Initialize());
+    server_->ValidateConfiguration();
+    server_->ResetHardware();
+    server_->InitializeForServing();
     EXPECT_FALSE(server_->connection_is_open());
   }
 }

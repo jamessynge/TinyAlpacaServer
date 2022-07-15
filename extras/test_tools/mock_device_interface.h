@@ -18,7 +18,11 @@ class MockDeviceInterface : public DeviceInterface {
  public:
   MOCK_METHOD(const alpaca::DeviceInfo&, device_info, (), (const, override));
 
-  MOCK_METHOD(void, Initialize, (), (override));
+  MOCK_METHOD(void, ValidateConfiguration, (), (override));
+
+  MOCK_METHOD(void, ResetHardware, (), (override));
+
+  MOCK_METHOD(void, InitializeDevice, (), (override));
 
   MOCK_METHOD(void, MaintainDevice, (), (override));
 

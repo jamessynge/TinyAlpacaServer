@@ -16,8 +16,16 @@ TinyAlpacaDeviceServer::TinyAlpacaDeviceServer(
       server_description_(server_description),
       server_transaction_id_(0) {}
 
-bool TinyAlpacaDeviceServer::Initialize() {
-  return alpaca_devices_.Initialize();
+void TinyAlpacaDeviceServer::ValidateConfiguration() {
+  alpaca_devices_.ValidateDevices();
+}
+
+void TinyAlpacaDeviceServer::ResetHardware() {
+  alpaca_devices_.ResetHardware();
+}
+
+void TinyAlpacaDeviceServer::InitializeForServing() {
+  alpaca_devices_.InitializeDevices();
 }
 
 void TinyAlpacaDeviceServer::MaintainDevices() {

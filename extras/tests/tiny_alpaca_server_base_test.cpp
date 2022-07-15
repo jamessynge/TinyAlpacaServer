@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "absl/strings/str_cat.h"
 #include "device_interface.h"
@@ -69,7 +70,12 @@ class TinyAlpacaServerBaseExplicitLifecycleTest
 
 TEST_F(TinyAlpacaServerBaseExplicitLifecycleTest, CreateInitializeAndMaintain) {
   server_ = CreateServer();
-  EXPECT_TRUE(server_->Initialize());
+
+  server_->ValidateConfiguration();
+  server_->ResetHardware();
+  server_->InitializeForServing();
+
+  // MaintainDevices will be called many times, so let's do so more than once.
   server_->MaintainDevices();
   server_->MaintainDevices();
 }

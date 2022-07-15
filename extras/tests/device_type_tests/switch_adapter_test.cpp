@@ -66,7 +66,6 @@ class SwitchAdapterTest : public DecodeAndDispatchTestBase {
 
     InitializeRequest();
 
-    device_.Initialize();
     Mock::VerifyAndClearExpectations(&device_);
   }
 
@@ -81,30 +80,6 @@ class SwitchAdapterTest : public DecodeAndDispatchTestBase {
     request_.set_client_id(kClientId);
     request_.set_client_transaction_id(kClientTransactionId);
   }
-
-  // void VerifyResponseIsOK(const std::string& response) {
-  //   EXPECT_THAT(response, StartsWith("HTTP/1.1 200 OK\r\n"));
-  //   EXPECT_THAT(response, HasSubstr("\r\nContent-Type:
-  //   application/json\r\n")); EXPECT_THAT(response,
-  //   HasSubstr(absl::StrCat(R"("ClientTransactionID": )",
-  //                                                kClientTransactionId)));
-  //   EXPECT_THAT(response, HasSubstr(absl::StrCat(R"("ServerTransactionID":
-  //   )",
-  //                                                kServerTransactionId)));
-  // }
-
-  // void VerifyResponseIsGood(const std::string& response) {
-  //   VerifyResponseIsOK(response);
-  //   EXPECT_THAT(response, Not(HasSubstr(R"("ErrorMessage":)")));
-  //   EXPECT_THAT(response, Not(HasSubstr(R"("ErrorNumber":)")));
-  // }
-
-  // void VerifyResponseHasError(const std::string& response) {
-  //   VerifyResponseIsOK(response);
-  //   EXPECT_THAT(response, HasSubstr(R"("ErrorMessage":)"));
-  //   EXPECT_THAT(response, HasSubstr(R"("ErrorNumber":)"));
-  //   EXPECT_THAT(response, Not(HasSubstr(R"("Value":)")));
-  // }
 
   const mcucore::ProgmemString supported_actions_[1] = {
       MCU_PSD(SUPPORTED_ACTION)};

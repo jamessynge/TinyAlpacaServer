@@ -16,10 +16,10 @@ SwitchAdapter::SwitchAdapter(const DeviceInfo& device_info)
   MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kSwitch);
 }
 
-void SwitchAdapter::Initialize() {
-  DeviceImplBase::Initialize();
+void SwitchAdapter::ValidateConfiguration() {
   MCU_CHECK_LE(0, GetMaxSwitch());
   MCU_CHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
+  ValidateSwitchDeviceConfiguration();
 }
 
 bool SwitchAdapter::HandleGetRequest(const AlpacaRequest& request, Print& out) {

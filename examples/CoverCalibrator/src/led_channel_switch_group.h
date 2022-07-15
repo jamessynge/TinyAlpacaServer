@@ -21,6 +21,7 @@ class LedChannelSwitchGroup : public alpaca::SwitchAdapter {
                         CoverCalibrator& cover_calibrator);
 
   // Overridden methods.
+  void ResetHardware() override {}
   bool HandleGetSwitchDescription(const alpaca::AlpacaRequest& request,
                                   uint16_t switch_id, Print& out) override;
   bool HandleGetSwitchName(const alpaca::AlpacaRequest& request,

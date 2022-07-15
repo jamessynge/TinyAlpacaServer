@@ -32,8 +32,8 @@ Adafruit_MLX90614 ir_therm;
 AMWeatherBox::AMWeatherBox(const alpaca::DeviceInfo& device_info)
     : ObservingConditionsAdapter(device_info), ir_therm_initialized_(false) {}
 
-void AMWeatherBox::Initialize() {
-  ObservingConditionsAdapter::Initialize();
+void AMWeatherBox::InitializeDevice() {
+  ObservingConditionsAdapter::InitializeDevice();
   pinMode(kRg11SensorPin, kRg11SensorPinMode);
   if (IsIrThermInitialized()) {
     last_read_time_ = millis();

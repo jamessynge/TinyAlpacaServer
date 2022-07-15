@@ -55,9 +55,9 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
-  // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
-  // This is first so that pins are initialized promptly.
-  device_server.Initialize();
+  // This is first so we can (if necessary) turn off any device that turns on
+  // automatically when the microcontroller is reset.
+  device_server.ResetHardware();
 
   mcucore::LogSink() << '\n' << kServerDescription.server_name;
   mcucore::LogSink() << kServerDescription.manufacturer
@@ -81,6 +81,9 @@ void setup() {
   mcunet::OuiPrefix oui_prefix(0x53, 0x76, 0x77);
   MCU_CHECK_OK(ip_device.InitializeNetworking(eeprom_tlv, &oui_prefix));
   announceAddresses();
+
+  // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
+  device_server.InitializeForServing();
 
   // Initialize Tiny Alpaca Network Server, which will initialize TCP listeners.
   network_server.Initialize();

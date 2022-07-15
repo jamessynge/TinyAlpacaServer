@@ -59,6 +59,10 @@ void announceAddresses() {
 }  // namespace
 
 void setup() {
+  // This is first so we can (if necessary) turn off any device that turns on
+  // automatically when the microcontroller is reset.
+  device_server.ResetHardware();
+
   mcucore::LogSink() << MCU_FLASHSTR(
                             "\n\n#####################################\n")
                      << kServerDescription.server_name << '\n'
@@ -85,7 +89,7 @@ void setup() {
   announceAddresses();
 
   // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.
-  device_server.Initialize();
+  device_server.InitializeForServing();
 
   // Initialize Tiny Alpaca Network Server, which will initialize TCP listeners
   // and the Alpaca Discovery Server.

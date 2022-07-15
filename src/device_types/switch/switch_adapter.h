@@ -54,7 +54,9 @@ class SwitchAdapter : public DeviceImplBase {
 
   // Overrides of the base class methods:
 
-  void Initialize() override;
+  // Calls ValidateSwitchDeviceConfiguration. Declared as final to ensure that
+  // a subclass can not prevent its execution.
+  void ValidateConfiguration() final;
 
   // Handles GET 'request', writes the HTTP response message to 'out'. Returns
   // true to indicate that the response was written without error, otherwise
@@ -76,6 +78,10 @@ class SwitchAdapter : public DeviceImplBase {
   // required parameters are provided). Requests that are not specific to this
   // device type are delegated to the base class, DeviceImplBase.
   bool HandlePutRequest(const AlpacaRequest& request, Print& out) override;
+
+  // Method which a subclass may override to validate device specific aspects of
+  // the device's configuration.
+  virtual void ValidateSwitchDeviceConfiguration() {}
 
   //////////////////////////////////////////////////////////////////////////////
   // Delegatees from the above methods which allow the method to write the full

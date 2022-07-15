@@ -14,7 +14,7 @@ class AMWeatherBox : public alpaca::ObservingConditionsAdapter {
  public:
   explicit AMWeatherBox(const alpaca::DeviceInfo& device_info);
 
-  void Initialize() override;
+  void InitializeDevice() override;
 
   void MaintainDevice() override;
 

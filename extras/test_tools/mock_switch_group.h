@@ -19,6 +19,8 @@ class MockSwitchGroup : public SwitchAdapter {
   explicit MockSwitchGroup(const DeviceInfo &device_info)
       : SwitchAdapter(device_info) {}
 
+  MOCK_METHOD(void, ResetHardware, (), (override));
+
   MOCK_METHOD(bool, HandleGetSwitchDescription,
               (const struct AlpacaRequest &, uint16_t, class Print &),
               (override));
