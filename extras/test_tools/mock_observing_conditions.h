@@ -18,6 +18,10 @@ class MockObservingConditions : public ::alpaca::ObservingConditionsAdapter {
  public:
   using ObservingConditionsAdapter::ObservingConditionsAdapter;
 
+  MOCK_METHOD(void, ResetHardware, (), (override));
+
+  MOCK_METHOD(void, InitializeDevice, (), (override));
+
   MOCK_METHOD(mcucore::StatusOr<bool>, GetConnected, (), (override));
 
   MOCK_METHOD(bool, HandlePutAction, (const AlpacaRequest& request, Print& out),
@@ -35,7 +39,7 @@ class MockObservingConditions : public ::alpaca::ObservingConditionsAdapter {
   MOCK_METHOD(bool, HandlePutConnected,
               (const AlpacaRequest& request, Print& out), (override));
 
-  MOCK_METHOD(class mcucore::Status, SetConnected, (bool), (override));
+  MOCK_METHOD(mcucore::Status, SetConnected, (bool), (override));
 
   MOCK_METHOD(mcucore::StatusOr<double>, GetAveragePeriod, (), (override));
 
@@ -77,11 +81,11 @@ class MockObservingConditions : public ::alpaca::ObservingConditionsAdapter {
   MOCK_METHOD(bool, HandlePutRefresh,
               (const AlpacaRequest& request, Print& out), (override));
 
-  MOCK_METHOD(class mcucore::Status, SetAveragePeriod, (double), (override));
+  MOCK_METHOD(mcucore::Status, SetAveragePeriod, (double), (override));
 
   MOCK_METHOD(double, MaxAveragePeriod, (), (const, override));
 
-  MOCK_METHOD(class mcucore::Status, Refresh, (), (override));
+  MOCK_METHOD(mcucore::Status, Refresh, (), (override));
 };
 }  // namespace test
 }  // namespace alpaca

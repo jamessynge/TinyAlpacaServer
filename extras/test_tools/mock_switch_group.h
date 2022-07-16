@@ -21,17 +21,16 @@ class MockSwitchGroup : public SwitchAdapter {
 
   MOCK_METHOD(void, ResetHardware, (), (override));
 
+  MOCK_METHOD(void, InitializeDevice, (), (override));
+
   MOCK_METHOD(bool, HandleGetSwitchDescription,
-              (const struct AlpacaRequest &, uint16_t, class Print &),
-              (override));
+              (const AlpacaRequest &, uint16_t, class Print &), (override));
 
   MOCK_METHOD(bool, HandleGetSwitchName,
-              (const struct AlpacaRequest &, uint16_t, class Print &),
-              (override));
+              (const AlpacaRequest &, uint16_t, class Print &), (override));
 
   MOCK_METHOD(bool, HandleSetSwitchName,
-              (const struct AlpacaRequest &, uint16_t, class Print &),
-              (override));
+              (const AlpacaRequest &, uint16_t, class Print &), (override));
 
   MOCK_METHOD(uint16_t, GetMaxSwitch, (), (override));
 
@@ -48,10 +47,9 @@ class MockSwitchGroup : public SwitchAdapter {
 
   MOCK_METHOD(double, GetSwitchStep, (uint16_t), (override));
 
-  MOCK_METHOD(class mcucore::Status, SetSwitch, (uint16_t, bool), (override));
+  MOCK_METHOD(mcucore::Status, SetSwitch, (uint16_t, bool), (override));
 
-  MOCK_METHOD(class mcucore::Status, SetSwitchValue, (uint16_t, double),
-              (override));
+  MOCK_METHOD(mcucore::Status, SetSwitchValue, (uint16_t, double), (override));
 };
 
 }  // namespace test

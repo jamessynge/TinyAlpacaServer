@@ -22,6 +22,7 @@ class LedChannelSwitchGroup : public alpaca::SwitchAdapter {
 
   // Overridden methods.
   void ResetHardware() override {}
+  void InitializeDevice() override {}
   bool HandleGetSwitchDescription(const alpaca::AlpacaRequest& request,
                                   uint16_t switch_id, Print& out) override;
   bool HandleGetSwitchName(const alpaca::AlpacaRequest& request,

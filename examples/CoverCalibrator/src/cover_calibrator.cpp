@@ -31,8 +31,6 @@ CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
 void CoverCalibrator::ResetHardware() { cover_.ResetHardware(); }
 
 void CoverCalibrator::InitializeDevice() {
-  CoverCalibratorAdapter::InitializeDevice();
-
   pinMode(kLedChannel1PwmPin, OUTPUT);
   pinMode(kLedChannel2PwmPin, OUTPUT);
   pinMode(kLedChannel3PwmPin, OUTPUT);

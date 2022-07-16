@@ -51,6 +51,13 @@ constexpr int kDeviceNumber = 0;
 #define SUPPORTED_ACTION "MakeItRain"
 #define DEVICE_DRIVER_VERSION "9.0"
 
+class NoOpObservingConditions : public ObservingConditionsAdapter {
+ public:
+  using ObservingConditionsAdapter::ObservingConditionsAdapter;
+  void ResetHardware() override {}
+  void InitializeDevice() override {}
+};
+
 class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
  protected:
   ObservingConditionsAdapterTest()
@@ -73,7 +80,7 @@ class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
   const mcucore::ProgmemString supported_actions_[1] = {
       MCU_PSD(SUPPORTED_ACTION)};
   const DeviceInfo device_info_;
-  ObservingConditionsAdapter device_;
+  NoOpObservingConditions device_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

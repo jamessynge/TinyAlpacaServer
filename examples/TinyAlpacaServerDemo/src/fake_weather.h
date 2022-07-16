@@ -10,7 +10,9 @@
 
 class FakeWeather : public alpaca::ObservingConditionsAdapter {
  public:
-  FakeWeather(const alpaca::DeviceInfo& device_info);
+  explicit FakeWeather(const alpaca::DeviceInfo& device_info);
+
+  void InitializeDevice() override {}
 
   // We override some base class property members, and provide fake values;
   // those that require a sensor and which are not overridden (e.g. GetDewPoint)
