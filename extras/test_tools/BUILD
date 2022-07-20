@@ -80,7 +80,6 @@ cc_library(
     name = "mock_observing_conditions",
     hdrs = ["mock_observing_conditions.h"],
     deps = [
-        "//TinyAlpacaServer/src:device_info",
         "//TinyAlpacaServer/src/device_types/observing_conditions:observing_conditions_adapter",
         "//googletest:gunit_headers",
         "//mcucore/src:status",
