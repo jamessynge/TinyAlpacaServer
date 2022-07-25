@@ -124,9 +124,9 @@ bool ExtractMatchingPrefix(mcucore::StringView& view,
                            mcucore::StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
-  MCU_VLOG(3) << MCU_FLASHSTR("ExtractMatchingPrefix of ")
-              << mcucore::HexEscaped(view) << MCU_FLASHSTR(" found ")
-              << (beyond + 0) << MCU_FLASHSTR(" matching characters");
+  MCU_VLOG(3) << MCU_PSD("ExtractMatchingPrefix of ")
+              << mcucore::HexEscaped(view) << MCU_PSD(" found ") << (beyond + 0)
+              << MCU_PSD(" matching characters");
   if (beyond == mcucore::StringView::kMaxSize) {
     return false;
   }
@@ -215,11 +215,11 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
       !ExtractMatchingPrefix(view, value, IsFieldContent)) {
     return EHttpStatusCode::kNeedMoreInput;
   }
-  MCU_VLOG(1) << MCU_FLASHSTR("DecodeHeaderValue raw value: ")
+  MCU_VLOG(1) << MCU_PSD("DecodeHeaderValue raw value: ")
               << mcucore::HexEscaped(value);
   // Trim OWS from the end of the header value.
   TrimTrailingOptionalWhitespace(value);
-  MCU_VLOG(1) << MCU_FLASHSTR("DecodeHeaderValue trimmed value: ")
+  MCU_VLOG(1) << MCU_PSD("DecodeHeaderValue trimmed value: ")
               << mcucore::HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_header == EHttpHeader::kContentLength) {
@@ -394,8 +394,7 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   // If there are multiple separators, treat them as one.
   const auto beyond = FindFirstNotOf(view, IsParamSeparator);
   if (beyond == mcucore::StringView::kMaxSize) {
-    MCU_VLOG(3) << MCU_FLASHSTR(
-                       "DecodeParamSeparator found no non-separators in ")
+    MCU_VLOG(3) << MCU_PSD("DecodeParamSeparator found no non-separators in ")
                 << mcucore::HexEscaped(view);
     // All the available characters are separators, or the view is empty.
     if (!state.is_decoding_header && state.is_final_input) {
@@ -415,8 +414,8 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   // There are zero or more separators, followed by a non-separator. This means
   // that this isn't the body of a request with one of these separators as the
   // last char in the body, so we don't need to worry about that case.
-  MCU_VLOG(3) << MCU_FLASHSTR("DecodeParamSeparator found ") << (beyond + 0)
-              << MCU_FLASHSTR(" separators, followed by a non-separator");
+  MCU_VLOG(3) << MCU_PSD("DecodeParamSeparator found ") << (beyond + 0)
+              << MCU_PSD(" separators, followed by a non-separator");
   MCU_DCHECK(!view.empty());
 
   view.remove_prefix(beyond);
@@ -425,7 +424,7 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
       view.remove_prefix(1);
       return state.SetDecodeFunction(MatchHttpVersion);
     }
-    MCU_VLOG(3) << MCU_FLASHSTR("Found an unexpected space in body");
+    MCU_VLOG(3) << MCU_PSD("Found an unexpected space in body");
     return EHttpStatusCode::kHttpBadRequest;
   } else {
     return state.SetDecodeFunction(DecodeParamName);
@@ -434,8 +433,8 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
 
 EHttpStatusCode ReportExtraParameter(RequestDecoderState& state,
                                      mcucore::StringView value) {
-  MCU_VLOG(3) << MCU_FLASHSTR("ReportExtraParameter ")
-              << state.current_parameter << MCU_FLASHSTR(" = ") << value;
+  MCU_VLOG(3) << MCU_PSD("ReportExtraParameter ") << state.current_parameter
+              << MCU_PSD(" = ") << value;
   EHttpStatusCode status = EHttpStatusCode::kHttpBadRequest;
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
   if (state.listener) {
@@ -465,9 +464,8 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     value = view;
     view.remove_prefix(value.size());
   }
-  MCU_VLOG(1) << MCU_FLASHSTR("DecodeParamValue param: ")
-              << state.current_parameter << MCU_FLASHSTR(", value: ")
-              << mcucore::HexEscaped(value);
+  MCU_VLOG(1) << MCU_PSD("DecodeParamValue param: ") << state.current_parameter
+              << MCU_PSD(", value: ") << mcucore::HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_parameter == EParameter::kClientID) {
     uint32_t id;
@@ -622,7 +620,7 @@ EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state,
 EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
                                     const mcucore::StringView& matched_text,
                                     mcucore::StringView& view) {
-  MCU_VLOG(3) << MCU_FLASHSTR("ProcessDeviceMethod matched_text: ")
+  MCU_VLOG(3) << MCU_PSD("ProcessDeviceMethod matched_text: ")
               << mcucore::HexEscaped(matched_text);
 
   // A separator/terminating character should be present after the method.
@@ -633,12 +631,12 @@ EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
                         matched_text, method)) {
     MCU_DCHECK(method == EDeviceMethod::kSetup ||
                state.request.api == EAlpacaApi::kDeviceApi)
-        << MCU_FLASHSTR("Wrong combo: method=") << method
-        << MCU_FLASHSTR(", api=") << state.request.api;
+        << MCU_PSD("Wrong combo: method=") << method << MCU_PSD(", api=")
+        << state.request.api;
     MCU_DCHECK(method != EDeviceMethod::kSetup ||
                state.request.api == EAlpacaApi::kDeviceSetup)
-        << MCU_FLASHSTR("Wrong combo: method=") << method
-        << MCU_FLASHSTR(", api=") << state.request.api;
+        << MCU_PSD("Wrong combo: method=") << method << MCU_PSD(", api=")
+        << state.request.api;
     state.request.device_method = method;
     return state.SetDecodeFunction(DecodeEndOfPath);
   }
@@ -692,7 +690,7 @@ EHttpStatusCode ProcessDeviceType(RequestDecoderState& state,
                                   mcucore::StringView& view) {
   EDeviceType device_type;
   if (MatchDeviceType(matched_text, device_type)) {
-    MCU_VLOG(3) << MCU_FLASHSTR("device_type: ") << device_type;
+    MCU_VLOG(3) << MCU_PSD("device_type: ") << device_type;
     state.request.device_type = device_type;
     return state.SetDecodeFunction(DecodeDeviceNumber);
   }
@@ -735,15 +733,15 @@ EHttpStatusCode ProcessManagementMethod(RequestDecoderState& state,
   MCU_DCHECK(!view.empty());
   EManagementMethod method;
   if (MatchManagementMethod(matched_text, method)) {
-    MCU_VLOG(3) << MCU_FLASHSTR("method: ") << method;
+    MCU_VLOG(3) << MCU_PSD("method: ") << method;
     if (method == EManagementMethod::kDescription) {
       state.request.api = EAlpacaApi::kManagementDescription;
     } else if (method == EManagementMethod::kConfiguredDevices) {
       state.request.api = EAlpacaApi::kManagementConfiguredDevices;
     } else {
       // COV_NF_START
-      MCU_DCHECK(false) << MCU_FLASHSTR("method (") << method
-                        << MCU_FLASHSTR(") unexpected");
+      MCU_DCHECK(false) << MCU_PSD("method (") << method
+                        << MCU_PSD(") unexpected");
       return EHttpStatusCode::kHttpInternalServerError;
       // COV_NF_END
     }
@@ -816,7 +814,7 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
       state.request.api = EAlpacaApi::kDeviceApi;
     }
     MCU_DCHECK(group == EApiGroup::kDevice || group == EApiGroup::kSetup)
-        << MCU_FLASHSTR("group: ") << group;
+        << MCU_PSD("group: ") << group;
     return state.SetDecodeFunction(DecodeApiVersion);
   }
   if (group != EApiGroup::kSetup) {
@@ -858,7 +856,7 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
                                   mcucore::StringView& view) {
   EHttpMethod method;
   if (MatchHttpMethod(matched_text, method)) {
-    MCU_VLOG(3) << MCU_FLASHSTR("method: ") << method;
+    MCU_VLOG(3) << MCU_PSD("method: ") << method;
     state.request.http_method = method;
     return state.SetDecodeFunction(MatchStartOfPath);
   } else if (matched_text.empty()) {
@@ -911,8 +909,7 @@ size_t PrintValueTo(DecodeFunction decode_function, Print& out) {
 #undef OUTPUT_METHOD_NAME
 
   // COV_NF_START
-  MCU_CHECK(false) << MCU_FLASHSTR(
-      "Haven't implemented a case for decode_function");
+  MCU_CHECK(false) << MCU_PSD("Haven't implemented a case for decode_function");
   return 0;
   // COV_NF_END
 }
@@ -943,7 +940,7 @@ void RequestDecoderState::Reset() {
 EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
                                                   const bool buffer_is_full,
                                                   const bool at_end_of_input) {
-  MCU_VLOG(1) << MCU_FLASHSTR("DecodeBuffer ") << mcucore::HexEscaped(buffer);
+  MCU_VLOG(1) << MCU_PSD("DecodeBuffer ") << mcucore::HexEscaped(buffer);
   if (decode_function == nullptr) {
     // Need to call Reset first.
     //
@@ -980,7 +977,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
     decode_function = nullptr;
     decoder_status = RequestDecoderStatus::kDecoded;
   }
-  MCU_VLOG(1) << MCU_FLASHSTR("DecodeBuffer --> ") << status;
+  MCU_VLOG(1) << MCU_PSD("DecodeBuffer --> ") << status;
   return status;
 }
 
@@ -989,17 +986,16 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
 // DecodeHeaderLines to find the end.
 EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     mcucore::StringView& buffer, const bool at_end_of_input) {
-  MCU_VLOG(1) << MCU_FLASHSTR("DecodeMessageHeader ")
-              << mcucore::HexEscaped(buffer);
+  MCU_VLOG(1) << MCU_PSD("DecodeMessageHeader ") << mcucore::HexEscaped(buffer);
 
   EHttpStatusCode status;
   do {
 #ifdef REQUEST_DECODER_EXTRA_CHECKS
     const auto buffer_size_before_decode = buffer.size();
-    auto old_decode_function = decode_function;
+    const auto old_decode_function = decode_function;
     MCU_VLOG(2) << decode_function << ' ' << mcucore::HexEscaped(buffer)
-                << MCU_FLASHSTR(" (") << static_cast<size_t>(buffer.size())
-                << MCU_FLASHSTR(" chars))");
+                << MCU_PSD(" (") << static_cast<size_t>(buffer.size())
+                << MCU_PSD(" chars))");
 #endif
 
     status = decode_function(*this, buffer);
@@ -1008,10 +1004,9 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     MCU_CHECK_LE(buffer.size(), buffer_size_before_decode);
     auto consumed_chars = buffer_size_before_decode - buffer.size();
 
-    MCU_VLOG(3) << MCU_FLASHSTR("decode_function ") << MCU_FLASHSTR("returned ")
-                << status << MCU_FLASHSTR(", consumed ") << consumed_chars
-                << MCU_FLASHSTR(" characters, ")
-                << MCU_FLASHSTR("decode_function ")
+    MCU_VLOG(3) << MCU_PSD("decode_function ") << MCU_PSD("returned ") << status
+                << MCU_PSD(", consumed ") << consumed_chars
+                << MCU_PSD(" characters, ") << MCU_PSD("decode_function ")
                 << (old_decode_function == decode_function
                         ? MCU_FLASHSTR("unchanged")
                         : MCU_FLASHSTR("changed"));
@@ -1023,8 +1018,8 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
       // of the input from buffer, and then return kContinueDecoding without
       // also calling SetDecodeFunction to specify the next (different) function
       // to handle the decoding.
-      MCU_CHECK_NE(old_decode_function, decode_function) << MCU_FLASHSTR(
-          "Should have changed the decode function");  // COV_NF_LINE
+      MCU_CHECK_NE(old_decode_function, decode_function)
+          << MCU_PSD("Should have changed the decode function");  // COV_NF_LINE
     }
 #endif
   } while (status == EHttpStatusCode::kContinueDecoding);
@@ -1044,17 +1039,15 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 // (i.e. remaining_content_length tells us how many ASCII characters remain).
 EHttpStatusCode RequestDecoderState::DecodeMessageBody(
     mcucore::StringView& buffer, bool at_end_of_input) {
-  MCU_VLOG(1) << MCU_FLASHSTR("DecodeMessageBody ")
-              << mcucore::HexEscaped(buffer);
+  MCU_VLOG(1) << MCU_PSD("DecodeMessageBody ") << mcucore::HexEscaped(buffer);
   MCU_CHECK(found_content_length);
   MCU_CHECK_EQ(request.http_method, EHttpMethod::PUT);
 
   if (buffer.size() > remaining_content_length) {
     // We assume that the HTTP client has not sent pipelined requests.
-    MCU_VLOG(2) << MCU_FLASHSTR(
+    MCU_VLOG(2) << MCU_PSD(
                        "There is more input than Content-Length indicated: ")
-                << buffer.size() << MCU_FLASHSTR(" > ")
-                << remaining_content_length;
+                << buffer.size() << MCU_PSD(" > ") << remaining_content_length;
     return EHttpStatusCode::kHttpPayloadTooLarge;
   } else if (buffer.size() == remaining_content_length) {
     at_end_of_input = true;
@@ -1078,18 +1071,16 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
 #ifdef REQUEST_DECODER_EXTRA_CHECKS
     const auto old_decode_function = decode_function;
     MCU_VLOG(2) << decode_function << ' ' << mcucore::HexEscaped(buffer)
-                << MCU_FLASHSTR(" (") << (buffer.size() + 0)
-                << MCU_FLASHSTR(" chars))");
+                << MCU_PSD(" (") << (buffer.size() + 0) << MCU_PSD(" chars))");
 #endif
 
     status = decode_function(*this, buffer);
     const auto consumed_chars = buffer_size_before_decode - buffer.size();
 
 #ifdef REQUEST_DECODER_EXTRA_CHECKS
-    MCU_VLOG(3) << MCU_FLASHSTR("decode_function ") << MCU_FLASHSTR("returned ")
-                << status << MCU_FLASHSTR(", consumed ") << consumed_chars
-                << MCU_FLASHSTR(" characters, ")
-                << MCU_FLASHSTR("decode_function ")
+    MCU_VLOG(3) << MCU_PSD("decode_function ") << MCU_PSD("returned ") << status
+                << MCU_PSD(", consumed ") << consumed_chars
+                << MCU_PSD(" characters, ") << MCU_PSD("decode_function ")
                 << (old_decode_function == decode_function
                         ? MCU_FLASHSTR("unchanged")
                         : MCU_FLASHSTR("changed"));
@@ -1140,7 +1131,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
 
 EHttpStatusCode RequestDecoderState::SetDecodeFunction(
     const DecodeFunction func) {
-  MCU_VLOG(3) << MCU_FLASHSTR("SetDecodeFunction(") << func << ')';
+  MCU_VLOG(3) << MCU_PSD("SetDecodeFunction(") << func << ')';
   MCU_CHECK_NE(decode_function, nullptr);
   MCU_CHECK_NE(decode_function, func);
   decode_function = func;
