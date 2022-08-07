@@ -129,7 +129,7 @@ void ServerConnection::OnHalfClosed(mcunet::Connection& connection) {
     // We've read some data but haven't been able to decode a complete request.
     MCU_VLOG(3) << MCU_PSD("ServerConnection @ ") << this
                 << MCU_PSD(" ->::OnHalfClosed socket ") << connection.sock_num()
-                << MCU_PSD(" between_requests_=") << between_requests_;
+                << MCU_NAME_VAL(between_requests_);
     request_listener_.OnRequestDecodingError(
         request_, EHttpStatusCode::kHttpBadRequest, connection);
   } else {
@@ -143,7 +143,7 @@ void ServerConnection::OnHalfClosed(mcunet::Connection& connection) {
 
 void ServerConnection::OnDisconnect() {
   MCU_VLOG(2) << MCU_PSD("ServerConnection @ ") << this
-              << MCU_PSD(" ->::OnDisconnect, sock_num_=") << sock_num_;
+              << MCU_PSD(" ->::OnDisconnect,") << MCU_NAME_VAL(sock_num_);
   MCU_DCHECK(has_socket());
   sock_num_ = MAX_SOCK_NUM;
 }

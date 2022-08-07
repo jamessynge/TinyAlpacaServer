@@ -73,7 +73,7 @@ bool TinyAlpacaDeviceServer::OnRequestDecoded(AlpacaRequest& request,
 void TinyAlpacaDeviceServer::OnRequestDecodingError(AlpacaRequest& request,
                                                     EHttpStatusCode status,
                                                     Print& out) {
-  MCU_VLOG(3) << MCU_PSD("OnRequestDecodingError: status=") << status;
+  MCU_VLOG(3) << MCU_PSD("OnRequestDecodingError ") << MCU_NAME_VAL(status);
   WriteResponse::HttpErrorResponse(status, mcucore::AnyPrintable(), out);
 }
 
