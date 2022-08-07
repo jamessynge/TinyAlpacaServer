@@ -277,11 +277,11 @@ bool WriteResponse::AscomParameterInvalidErrorResponse(
 bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
   MCU_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
-      << MCU_FLASHSTR("mcucore::Status code should be for an error.");
+      << MCU_PSD("mcucore::Status code should be for an error.");
 
   auto phrase = ToFlashStringHelper(status_code);
   MCU_DCHECK(phrase != nullptr)
-      << MCU_FLASHSTR("Please add a case for status code ") << status_code;
+      << MCU_PSD("Please add a case for status code ") << status_code;
 
   HttpResponseHeader hrh;
   if (status_code < EHttpStatusCode::kHttpBadRequest) {

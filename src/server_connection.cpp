@@ -18,13 +18,12 @@ ServerConnection::ServerConnection(RequestListener& request_listener)
     : request_listener_(request_listener),
       request_decoder_(request_),
       sock_num_(MAX_SOCK_NUM) {
-  MCU_VLOG(4) << MCU_FLASHSTR("ServerConnection @ ") << this
-              << MCU_FLASHSTR(" ctor");
+  MCU_VLOG(4) << MCU_PSD("ServerConnection @ ") << this << MCU_PSD(" ctor");
 }
 
 void ServerConnection::OnConnect(mcunet::Connection& connection) {
-  MCU_VLOG(2) << MCU_FLASHSTR("ServerConnection @ ") << this
-              << MCU_FLASHSTR(" ->::OnConnect ") << connection.sock_num();
+  MCU_VLOG(2) << MCU_PSD("ServerConnection @ ") << this
+              << MCU_PSD(" ->::OnConnect ") << connection.sock_num();
   MCU_DCHECK(!has_socket());
   sock_num_ = connection.sock_num();
   request_decoder_.Reset();
@@ -33,8 +32,8 @@ void ServerConnection::OnConnect(mcunet::Connection& connection) {
 }
 
 void ServerConnection::OnCanRead(mcunet::Connection& connection) {
-  MCU_VLOG(5) << MCU_FLASHSTR("ServerConnection @ ") << this
-              << MCU_FLASHSTR(" ->::OnCanRead ") << MCU_FLASHSTR("socket ")
+  MCU_VLOG(5) << MCU_PSD("ServerConnection @ ") << this
+              << MCU_PSD(" ->::OnCanRead ") << MCU_PSD("socket ")
               << connection.sock_num();
   MCU_DCHECK_EQ(sock_num(), connection.sock_num());
   MCU_DCHECK(request_decoder_.status() == RequestDecoderStatus::kReset ||
@@ -89,9 +88,9 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
 
     bool close_connection = false;
     if (status_code == EHttpStatusCode::kHttpOk) {
-      MCU_VLOG(4) << MCU_FLASHSTR("ServerConnection @ ") << this
-                  << MCU_FLASHSTR(" ->::OnCanRead ")
-                  << MCU_FLASHSTR("status_code: ") << status_code;
+      MCU_VLOG(4) << MCU_PSD("ServerConnection @ ") << this
+                  << MCU_PSD(" ->::OnCanRead ") << MCU_PSD("status_code: ")
+                  << status_code;
       if (input_buffer_size_ == 0) {
         between_requests_ = true;
       }
@@ -99,9 +98,9 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
         close_connection = true;
       }
     } else {
-      MCU_VLOG(3) << MCU_FLASHSTR("ServerConnection @ ") << this
-                  << MCU_FLASHSTR(" ->::OnCanRead ")
-                  << MCU_FLASHSTR("status_code: ") << status_code;
+      MCU_VLOG(3) << MCU_PSD("ServerConnection @ ") << this
+                  << MCU_PSD(" ->::OnCanRead ") << MCU_PSD("status_code: ")
+                  << status_code;
       request_listener_.OnRequestDecodingError(request_, status_code,
                                                connection);
       close_connection = true;
@@ -110,9 +109,9 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
     // If we've returned an error, then we also close the connection so that
     // we don't require finding the end of a corrupt input request.
     if (close_connection) {
-      MCU_VLOG(3) << MCU_FLASHSTR("ServerConnection @ ") << this
-                  << MCU_FLASHSTR(" ->::OnCanRead ")
-                  << MCU_FLASHSTR("closing connection");
+      MCU_VLOG(3) << MCU_PSD("ServerConnection @ ") << this
+                  << MCU_PSD(" ->::OnCanRead ")
+                  << MCU_PSD("closing connection");
 
       connection.close();
       sock_num_ = MAX_SOCK_NUM;
@@ -128,15 +127,14 @@ void ServerConnection::OnHalfClosed(mcunet::Connection& connection) {
 
   if (!between_requests_) {
     // We've read some data but haven't been able to decode a complete request.
-    MCU_VLOG(3) << MCU_FLASHSTR("ServerConnection @ ") << this
-                << MCU_FLASHSTR(" ->::OnHalfClosed socket ")
-                << connection.sock_num() << MCU_FLASHSTR(" between_requests_=")
-                << between_requests_;
+    MCU_VLOG(3) << MCU_PSD("ServerConnection @ ") << this
+                << MCU_PSD(" ->::OnHalfClosed socket ") << connection.sock_num()
+                << MCU_PSD(" between_requests_=") << between_requests_;
     request_listener_.OnRequestDecodingError(
         request_, EHttpStatusCode::kHttpBadRequest, connection);
   } else {
-    MCU_VLOG(4) << MCU_FLASHSTR("ServerConnection @ ") << this
-                << MCU_FLASHSTR(" ->::OnHalfClosed socket ")
+    MCU_VLOG(4) << MCU_PSD("ServerConnection @ ") << this
+                << MCU_PSD(" ->::OnHalfClosed socket ")
                 << connection.sock_num();
   }
   connection.close();
@@ -144,8 +142,8 @@ void ServerConnection::OnHalfClosed(mcunet::Connection& connection) {
 }
 
 void ServerConnection::OnDisconnect() {
-  MCU_VLOG(2) << MCU_FLASHSTR("ServerConnection @ ") << this
-              << MCU_FLASHSTR(" ->::OnDisconnect, sock_num_=") << sock_num_;
+  MCU_VLOG(2) << MCU_PSD("ServerConnection @ ") << this
+              << MCU_PSD(" ->::OnDisconnect, sock_num_=") << sock_num_;
   MCU_DCHECK(has_socket());
   sock_num_ = MAX_SOCK_NUM;
 }

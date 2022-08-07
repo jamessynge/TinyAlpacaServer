@@ -73,13 +73,13 @@ bool TinyAlpacaDeviceServer::OnRequestDecoded(AlpacaRequest& request,
 void TinyAlpacaDeviceServer::OnRequestDecodingError(AlpacaRequest& request,
                                                     EHttpStatusCode status,
                                                     Print& out) {
-  MCU_VLOG(3) << MCU_FLASHSTR("OnRequestDecodingError: status=") << status;
+  MCU_VLOG(3) << MCU_PSD("OnRequestDecodingError: status=") << status;
   WriteResponse::HttpErrorResponse(status, mcucore::AnyPrintable(), out);
 }
 
 bool TinyAlpacaDeviceServer::HandleManagementApiVersions(AlpacaRequest& request,
                                                          Print& out) {
-  MCU_VLOG(3) << MCU_FLASHSTR("HandleManagementApiVersions");
+  MCU_VLOG(3) << MCU_PSD("HandleManagementApiVersions");
   uint32_t versions[] = {1};
   return WriteResponse::ArrayResponse(
       request,
@@ -89,8 +89,7 @@ bool TinyAlpacaDeviceServer::HandleManagementApiVersions(AlpacaRequest& request,
 
 bool TinyAlpacaDeviceServer::HandleManagementDescription(AlpacaRequest& request,
                                                          Print& out) {
-  MCU_VLOG(3) << MCU_FLASHSTR(
-      "TinyAlpacaDeviceServer::HandleManagementDescription");
+  MCU_VLOG(3) << MCU_PSD("TinyAlpacaDeviceServer::HandleManagementDescription");
   mcucore::JsonPropertySourceAdapter<ServerDescription> description(
       server_description_);
   return WriteResponse::ObjectResponse(request, description, out);
@@ -98,7 +97,7 @@ bool TinyAlpacaDeviceServer::HandleManagementDescription(AlpacaRequest& request,
 
 bool TinyAlpacaDeviceServer::HandleServerSetup(AlpacaRequest& request,
                                                Print& out) {
-  MCU_VLOG(3) << MCU_FLASHSTR("HandleServerSetup");
+  MCU_VLOG(3) << MCU_PSD("HandleServerSetup");
 
   auto body = MCU_FLASHSTR(
       "<html><body>"
@@ -113,7 +112,7 @@ bool TinyAlpacaDeviceServer::HandleServerSetup(AlpacaRequest& request,
 
 bool TinyAlpacaDeviceServer::HandleServerStatus(AlpacaRequest& request,
                                                 Print& out) {
-  MCU_VLOG(3) << MCU_FLASHSTR("HandleServerStatus");
+  MCU_VLOG(3) << MCU_PSD("HandleServerStatus");
   if (!(request.http_method == EHttpMethod::GET ||
         request.http_method == EHttpMethod::HEAD)) {
     WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpMethodNotAllowed,

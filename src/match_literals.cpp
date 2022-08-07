@@ -171,7 +171,7 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
         // i.e. we don't want to decide too early that a kHttpBadRequest error
         // should be returned.
         MCU_VLOG(2) << device_type
-                    << MCU_FLASHSTR(" is not supported by MatchDeviceMethod");
+                    << MCU_PSD(" is not supported by MatchDeviceMethod");
         break;
     }
     return internal::MatchCommonDeviceMethod(view, match);
@@ -181,11 +181,11 @@ bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
     return false;
   } else {
 #ifdef MCU_ENABLE_DCHECK
-    MCU_DCHECK(false) << MCU_FLASHSTR("api group (") << group
-                      << MCU_FLASHSTR(") is not device or setup");
+    MCU_DCHECK(false) << MCU_PSD("api group (") << group
+                      << MCU_PSD(") is not device or setup");
 #else
-    MCU_VLOG(1) << MCU_FLASHSTR("api group (") << group
-                << MCU_FLASHSTR(") is not device or setup");
+    MCU_VLOG(1) << MCU_PSD("api group (") << group
+                << MCU_PSD(") is not device or setup");
 #endif
     return false;
   }

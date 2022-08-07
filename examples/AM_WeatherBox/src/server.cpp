@@ -61,11 +61,10 @@ void setup() {
   device_server.ResetHardware();
 
   mcucore::LogSink() << '\n' << kServerDescription.server_name;
-  mcucore::LogSink() << kServerDescription.manufacturer
-                     << MCU_FLASHSTR(", version ")
+  mcucore::LogSink() << kServerDescription.manufacturer << MCU_PSD(", version ")
                      << kServerDescription.manufacturer_version;
 
-  mcucore::LogSink() << MCU_FLASHSTR("Initializing networking");
+  mcucore::LogSink() << MCU_PSD("Initializing networking");
   mcunet::Mega2560Eth::SetupW5500();
 
   // Get an EepromTlv instance, to be used for persistence of settings.

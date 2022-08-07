@@ -27,10 +27,10 @@ uint16_t ToClockDivisor(ClockPrescaling prescaling) {
 
 TC16ClockAndTicks TC16ClockAndTicks::FromSystemClockCycles(
     uint32_t system_clock_cycles) {
-  MCU_VLOG(5) << MCU_FLASHSTR("FromSystemClockCycles ") << system_clock_cycles;
+  MCU_VLOG(5) << MCU_PSD("FromSystemClockCycles ") << system_clock_cycles;
   MCU_DCHECK_LE(system_clock_cycles, kMaxSystemClockCycles)
-      << MCU_FLASHSTR("system_clock_cycles: ") << system_clock_cycles
-      << MCU_FLASHSTR("  kMaxSystemClockCycles: ") << kMaxSystemClockCycles;
+      << MCU_PSD("system_clock_cycles: ") << system_clock_cycles
+      << MCU_PSD("  kMaxSystemClockCycles: ") << kMaxSystemClockCycles;
   if (system_clock_cycles <= kMaxClockTicks) {
     if (system_clock_cycles == 0) {
       return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
@@ -50,9 +50,8 @@ TC16ClockAndTicks TC16ClockAndTicks::FromSystemClockCycles(
     return {.clock_select = ClockPrescaling::kDivideBy1024,
             .clock_ticks = static_cast<uint16_t>(system_clock_cycles / 1024)};
   } else {
-    MCU_DCHECK(false) << MCU_FLASHSTR("system_clock_cycles: ")
-                      << system_clock_cycles
-                      << MCU_FLASHSTR("  kMaxSystemClockCycles: ")
+    MCU_DCHECK(false) << MCU_PSD("system_clock_cycles: ") << system_clock_cycles
+                      << MCU_PSD("  kMaxSystemClockCycles: ")
                       << kMaxSystemClockCycles;
     return {.clock_select = ClockPrescaling::kDisabled, .clock_ticks = 0};
   }
@@ -136,7 +135,7 @@ size_t TC16ClockAndTicks::printTo(Print& out) const {
   static_assert(mcucore::has_print_to<decltype(*this)>{},
                 "mcucore::has_print_to should be true");
   mcucore::CountingPrint counter(out);
-  counter << MCU_FLASHSTR("{.cs=") << clock_select << MCU_FLASHSTR(", .ticks=")
+  counter << MCU_PSD("{.cs=") << clock_select << MCU_PSD(", .ticks=")
           << clock_ticks << '}';
   return counter.count();
 }
@@ -178,7 +177,7 @@ void TimerCounter1SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM1C0;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR1A = (TCCR1A & keep_mask) | set_mask;
@@ -198,7 +197,7 @@ void TimerCounter1SetOutputCompareRegister(TimerCounterChannel channel,
       OCR1C = value;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
 }
 
@@ -211,7 +210,7 @@ uint16_t TimerCounter1GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR1C;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
       return 0;
   }
 }
@@ -244,7 +243,7 @@ void TimerCounter3SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM3C0;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR3A = (TCCR3A & keep_mask) | set_mask;
@@ -264,7 +263,7 @@ void TimerCounter3SetOutputCompareRegister(TimerCounterChannel channel,
       OCR3C = value;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
 }
 
@@ -277,7 +276,7 @@ uint16_t TimerCounter3GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR3C;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
       return 0;
   }
 }
@@ -310,7 +309,7 @@ void TimerCounter4SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM4C0;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR4A = (TCCR4A & keep_mask) | set_mask;
@@ -330,7 +329,7 @@ void TimerCounter4SetOutputCompareRegister(TimerCounterChannel channel,
       OCR4C = value;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
 }
 
@@ -343,7 +342,7 @@ uint16_t TimerCounter4GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR4C;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
       return 0;
   }
 }
@@ -376,7 +375,7 @@ void TimerCounter5SetCompareOutputMode(TimerCounterChannel channel,
       set_mask = static_cast<uint8_t>(mode) << COM5C0;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
   noInterrupts();
   TCCR5A = (TCCR5A & keep_mask) | set_mask;
@@ -396,7 +395,7 @@ void TimerCounter5SetOutputCompareRegister(TimerCounterChannel channel,
       OCR5C = value;
       break;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
   }
 }
 
@@ -409,7 +408,7 @@ uint16_t TimerCounter5GetOutputCompareRegister(TimerCounterChannel channel) {
     case TimerCounterChannel::C:
       return OCR5C;
     default:
-      MCU_DCHECK(false) << MCU_FLASHSTR("Unknown channel ") << channel;
+      MCU_DCHECK(false) << MCU_PSD("Unknown channel ") << channel;
       return 0;
   }
 }
@@ -452,7 +451,7 @@ TimerCounter1Pwm16Output::TimerCounter1Pwm16Output(TimerCounterChannel channel)
 
 void TimerCounter1Pwm16Output::set_pulse_count(uint16_t value) {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 1") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 1") << MCU_PSD(" is not enabled");
   if (value == 0) {
     TimerCounter1SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -465,7 +464,7 @@ void TimerCounter1Pwm16Output::set_pulse_count(uint16_t value) {
 
 uint16_t TimerCounter1Pwm16Output::get_pulse_count() const {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 1") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 1") << MCU_PSD(" is not enabled");
   return TimerCounter1GetOutputCompareRegister(channel_);
 }
 
@@ -479,7 +478,7 @@ TimerCounter3Pwm16Output::TimerCounter3Pwm16Output(TimerCounterChannel channel)
 
 void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 3") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 3") << MCU_PSD(" is not enabled");
   if (value == 0) {
     TimerCounter3SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -492,7 +491,7 @@ void TimerCounter3Pwm16Output::set_pulse_count(uint16_t value) {
 
 uint16_t TimerCounter3Pwm16Output::get_pulse_count() const {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 3") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 3") << MCU_PSD(" is not enabled");
   return TimerCounter3GetOutputCompareRegister(channel_);
 }
 
@@ -506,7 +505,7 @@ TimerCounter4Pwm16Output::TimerCounter4Pwm16Output(TimerCounterChannel channel)
 
 void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 4") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 4") << MCU_PSD(" is not enabled");
   if (value == 0) {
     TimerCounter4SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -519,7 +518,7 @@ void TimerCounter4Pwm16Output::set_pulse_count(uint16_t value) {
 
 uint16_t TimerCounter4Pwm16Output::get_pulse_count() const {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 4") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 4") << MCU_PSD(" is not enabled");
   return TimerCounter4GetOutputCompareRegister(channel_);
 }
 
@@ -533,7 +532,7 @@ TimerCounter5Pwm16Output::TimerCounter5Pwm16Output(TimerCounterChannel channel)
 
 void TimerCounter5Pwm16Output::set_pulse_count(uint16_t value) {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 5") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 5") << MCU_PSD(" is not enabled");
   if (value == 0) {
     TimerCounter5SetCompareOutputMode(channel_,
                                       FastPwmCompareOutputMode::kDisabled);
@@ -546,7 +545,7 @@ void TimerCounter5Pwm16Output::set_pulse_count(uint16_t value) {
 
 uint16_t TimerCounter5Pwm16Output::get_pulse_count() const {
   MCU_VLOG_IF(1, !IsEnabled())
-      << MCU_FLASHSTR("T/C 5") << MCU_FLASHSTR(" is not enabled");
+      << MCU_PSD("T/C 5") << MCU_PSD(" is not enabled");
   return TimerCounter5GetOutputCompareRegister(channel_);
 }
 

@@ -13,7 +13,6 @@ MCU_DEFINE_NAMED_DOMAIN(FakeWeather, 17);
 namespace fake_weather_service {
 namespace {
 using ::alpaca::DeviceInfo;
-using ::alpaca::DeviceInterface;
 using ::alpaca::EDeviceType;
 
 const DeviceInfo kFakeWeatherDeviceInfo{
@@ -64,14 +63,12 @@ void setup() {
   device_server.ValidateConfiguration();
   device_server.ResetHardware();
 
-  mcucore::LogSink() << MCU_FLASHSTR(
-                            "\n\n#####################################\n")
+  mcucore::LogSink() << MCU_PSD("\n\n#####################################\n")
                      << kServerDescription.server_name << '\n'
-                     << kServerDescription.manufacturer
-                     << MCU_FLASHSTR(", version ")
+                     << kServerDescription.manufacturer << MCU_PSD(", version ")
                      << kServerDescription.manufacturer_version;
 
-  mcucore::LogSink() << MCU_FLASHSTR("\nInitializing networking");
+  mcucore::LogSink() << MCU_PSD("\nInitializing networking");
   mcunet::Mega2560Eth::SetupW5500();
 
   // Get an EepromTlv instance, to be used for persistence of settings.

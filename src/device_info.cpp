@@ -27,7 +27,7 @@ void DeviceInfo::AddTo(mcucore::JsonObjectEncoder& object_encoder) const {
   auto status_or_uuid = GetOrCreateUniqueId();
   if (!status_or_uuid.ok()) {
     MCU_DCHECK_OK(status_or_uuid)
-        << MCU_FLASHSTR("Should have been able to GetOrCreateUniqueId");
+        << MCU_PSD("Should have been able to GetOrCreateUniqueId");
   } else {
     auto& uuid = status_or_uuid.value();
     mcucore::AnyPrintable unique_id(PrintUuid, &uuid);

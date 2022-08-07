@@ -56,8 +56,8 @@ void ResetTimer5() {
 
 // ct represents 1/2 of the period between Timer/Counter 5 overflow interrupts.
 void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
-  MCU_VLOG(4) << MCU_FLASHSTR("StartTimer5 ct=") << ct
-              << MCU_FLASHSTR(", ct.ClockSelectBits=") << ct.ClockSelectBits();
+  MCU_VLOG(4) << MCU_PSD("StartTimer5 ct=") << ct
+              << MCU_PSD(", ct.ClockSelectBits=") << ct.ClockSelectBits();
 
   // We use Waveform Generation Mode 9, i.e. Phase and Frequency Correct PWM
   // Mode; in this mode TCNT5 is incremented by one at each clock tick until it
@@ -70,9 +70,8 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   uint8_t b = (1 << WGM53) | ct.ClockSelectBits();
   uint16_t top = ct.clock_ticks;
 
-  MCU_VLOG(4) << mcucore::BaseHex << MCU_FLASHSTR("a=") << a
-              << MCU_FLASHSTR(", b=") << b << mcucore::BaseDec
-              << MCU_FLASHSTR(", top=") << top;
+  MCU_VLOG(4) << mcucore::BaseHex << MCU_PSD("a=") << a << MCU_PSD(", b=") << b
+              << mcucore::BaseDec << MCU_PSD(", top=") << top;
 
   noInterrupts();
   OCR5A = top;
@@ -84,23 +83,21 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
   interrupts();
 
   if (MCU_VLOG_IS_ON(4)) {
-    MCU_VLOG(4) << mcucore::BaseHex << MCU_FLASHSTR("StartTimer5 TCCR5A: ")
-                << TCCR5A << MCU_FLASHSTR(", TCCR5B: ") << TCCR5B;
-    MCU_VLOG(4) << MCU_FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
-                << MCU_FLASHSTR(", OCR5A: ") << OCR5A
-                << MCU_FLASHSTR(", OCR5B: ") << OCR5B
-                << MCU_FLASHSTR(", OCR5C: ") << OCR5C;
+    MCU_VLOG(4) << mcucore::BaseHex << MCU_PSD("StartTimer5 TCCR5A: ") << TCCR5A
+                << MCU_PSD(", TCCR5B: ") << TCCR5B;
+    MCU_VLOG(4) << MCU_PSD("StartTimer5 TCNT5: ") << TCNT5
+                << MCU_PSD(", OCR5A: ") << OCR5A << MCU_PSD(", OCR5B: ")
+                << OCR5B << MCU_PSD(", OCR5C: ") << OCR5C;
 
     // If something goes wrong right away, the interrupt handler will disable
     // the counter, so log the registers again after a millisecond.
 
     delay(1);
-    MCU_VLOG(4) << mcucore::BaseHex << MCU_FLASHSTR("StartTimer5 TCCR5A: ")
-                << TCCR5A << MCU_FLASHSTR(", TCCR5B: ") << TCCR5B;
-    MCU_VLOG(4) << MCU_FLASHSTR("StartTimer5 TCNT5: ") << TCNT5
-                << MCU_FLASHSTR(", OCR5A: ") << OCR5A
-                << MCU_FLASHSTR(", OCR5B: ") << OCR5B
-                << MCU_FLASHSTR(", OCR5C: ") << OCR5C;
+    MCU_VLOG(4) << mcucore::BaseHex << MCU_PSD("StartTimer5 TCCR5A: ") << TCCR5A
+                << MCU_PSD(", TCCR5B: ") << TCCR5B;
+    MCU_VLOG(4) << MCU_PSD("StartTimer5 TCNT5: ") << TCNT5
+                << MCU_PSD(", OCR5A: ") << OCR5A << MCU_PSD(", OCR5B: ")
+                << OCR5B << MCU_PSD(", OCR5C: ") << OCR5C;
   }
 }
 
@@ -186,9 +183,8 @@ ECoverStatus Cover::GetCoverStatus() const {
   } else if (IsOpen()) {
     return ECoverStatus::kOpen;
   } else {
-    MCU_VLOG(1) << MCU_FLASHSTR("GetCoverStatus -> Unknown; motor_status=")
-                << motor_status_ << MCU_FLASHSTR(", step_count=")
-                << step_count_;
+    MCU_VLOG(1) << MCU_PSD("GetCoverStatus -> Unknown; motor_status=")
+                << motor_status_ << MCU_PSD(", step_count=") << step_count_;
     return ECoverStatus::kUnknown;
   }
 }
@@ -274,10 +270,9 @@ void Cover::StartMoving(int direction_pin_value) {
     noInterrupts();
     uint32_t step_count_copy = step_count_;
     interrupts();
-    MCU_VLOG(3) << MCU_FLASHSTR("StartMoving done, handler=")
-                << GetInterruptHandler() << MCU_FLASHSTR(", motor_status_=")
-                << motor_status_ << MCU_FLASHSTR(", step_count=")
-                << step_count_copy;
+    MCU_VLOG(3) << MCU_PSD("StartMoving done, handler=")
+                << GetInterruptHandler() << MCU_PSD(", motor_status_=")
+                << motor_status_ << MCU_PSD(", step_count=") << step_count_copy;
   }
 }
 

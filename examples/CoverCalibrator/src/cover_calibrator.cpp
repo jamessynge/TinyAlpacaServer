@@ -19,13 +19,13 @@ CoverCalibrator::CoverCalibrator(const alpaca::DeviceInfo& device_info)
       led4_(TimerCounterChannel::A, kLedChannel4EnabledPin),
       cover_() {}
 
-#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)             \
-  MCU_VLOG(level) << MCU_FLASHSTR(name)                                    \
-                  << (enableable_by_pin.IsEnabled()                        \
-                          ? MCU_FLASHSTR(" is enabled")                    \
-                          : MCU_FLASHSTR(" is not enabled"))               \
-                  << MCU_FLASHSTR("; digitalRead(")                        \
-                  << enableable_by_pin.enabled_pin() << MCU_FLASHSTR(")=") \
+#define VLOG_ENABLEABLE_BY_PIN(level, name, enableable_by_pin)        \
+  MCU_VLOG(level) << MCU_PSD(name)                                    \
+                  << (enableable_by_pin.IsEnabled()                   \
+                          ? MCU_FLASHSTR(" is enabled")               \
+                          : MCU_FLASHSTR(" is not enabled"))          \
+                  << MCU_PSD("; digitalRead(")                        \
+                  << enableable_by_pin.enabled_pin() << MCU_PSD(")=") \
                   << enableable_by_pin.ReadPin()
 
 void CoverCalibrator::ResetHardware() { cover_.ResetHardware(); }
@@ -95,19 +95,19 @@ mcucore::Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
   calibrator_on_ = true;
   brightness_ = brightness;
   if (GetLedChannelEnabled(0)) {
-    MCU_VLOG_IF(1, !led1_.IsEnabled()) << MCU_FLASHSTR("led1 not enabled!");
+    MCU_VLOG_IF(1, !led1_.IsEnabled()) << MCU_PSD("led1 not enabled!");
     led1_.set_pulse_count(brightness_);
   }
   if (GetLedChannelEnabled(1)) {
-    MCU_VLOG_IF(1, !led2_.IsEnabled()) << MCU_FLASHSTR("led2 not enabled!");
+    MCU_VLOG_IF(1, !led2_.IsEnabled()) << MCU_PSD("led2 not enabled!");
     led2_.set_pulse_count(brightness_);
   }
   if (GetLedChannelEnabled(2)) {
-    MCU_VLOG_IF(1, !led3_.IsEnabled()) << MCU_FLASHSTR("led3 not enabled!");
+    MCU_VLOG_IF(1, !led3_.IsEnabled()) << MCU_PSD("led3 not enabled!");
     led3_.set_pulse_count(brightness_);
   }
   if (GetLedChannelEnabled(3)) {
-    MCU_VLOG_IF(1, !led4_.IsEnabled()) << MCU_FLASHSTR("led4 not enabled!");
+    MCU_VLOG_IF(1, !led4_.IsEnabled()) << MCU_PSD("led4 not enabled!");
     led4_.set_pulse_count(brightness_);
   }
   return mcucore::OkStatus();
@@ -127,10 +127,9 @@ mcucore::Status CoverCalibrator::SetCalibratorOff() {
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
-  MCU_VLOG(2) << MCU_FLASHSTR("SetLedChannelEnabled(") << channel
-              << MCU_FLASHSTR(", ") << enabled
-              << MCU_FLASHSTR(") ENTER, brightness_ = ") << brightness_
-              << MCU_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
+  MCU_VLOG(2) << MCU_PSD("SetLedChannelEnabled(") << channel << MCU_PSD(", ")
+              << enabled << MCU_PSD(") ENTER, brightness_ = ") << brightness_
+              << MCU_PSD(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;
 
   if (0 <= channel && channel < 4) {
@@ -144,11 +143,9 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
     }
   }
 
-  MCU_VLOG(4) << MCU_FLASHSTR(
-                     "SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
-              << channel << MCU_FLASHSTR(") = ")
-              << GetLedChannelEnabled(channel)
-              << MCU_FLASHSTR(", enabled_led_channels_ = ") << mcucore::BaseHex
+  MCU_VLOG(4) << MCU_PSD("SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
+              << channel << MCU_PSD(") = ") << GetLedChannelEnabled(channel)
+              << MCU_PSD(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;
   return GetLedChannelEnabled(channel);
 }

@@ -16,25 +16,24 @@ ServerSocketsAndConnections::ServerSocketsAndConnections(
 }
 
 bool ServerSocketsAndConnections::Initialize() {
-  MCU_VLOG(2) << MCU_FLASHSTR("ServerSocketsAndConnections::Initialize");
+  MCU_VLOG(2) << MCU_PSD("ServerSocketsAndConnections::Initialize");
   uint8_t count = 0;
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
     if (GetServerSocketAndConnection(ndx)->Initialize()) {
       ++count;
     }
   }
-  MCU_VLOG(2) << MCU_FLASHSTR("Initialized ") << count << MCU_FLASHSTR(" of ")
-              << kNumSockets
-              << MCU_FLASHSTR(" ServerSocketAndConnection objects");
+  MCU_VLOG(2) << MCU_PSD("Initialized ") << count << MCU_PSD(" of ")
+              << kNumSockets << MCU_PSD(" ServerSocketAndConnection objects");
   return count != kNumSockets;
 }
 
 void ServerSocketsAndConnections::PerformIO() {
-  MCU_VLOG(6) << MCU_FLASHSTR("ServerSocketsAndConnections::PerformIO entry");
+  MCU_VLOG(6) << MCU_PSD("ServerSocketsAndConnections::PerformIO entry");
   for (size_t ndx = 0; ndx < kNumSockets; ++ndx) {
     GetServerSocketAndConnection(ndx)->PerformIO();
   }
-  MCU_VLOG(6) << MCU_FLASHSTR("ServerSocketsAndConnections::PerformIO exit");
+  MCU_VLOG(6) << MCU_PSD("ServerSocketsAndConnections::PerformIO exit");
 }
 
 ServerSocketAndConnection*

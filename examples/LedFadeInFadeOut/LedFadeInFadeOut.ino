@@ -85,7 +85,7 @@ void setup() {
 
   DUMP_USED_TIMER_COUNTERS;
 
-  MCU_VLOG(1) << MCU_FLASHSTR("Initializing 16-bit PWM");
+  MCU_VLOG(1) << MCU_PSD("Initializing 16-bit PWM");
 
   pinMode(kLedChannel1PwmPin, OUTPUT);
   pinMode(kLedChannel2PwmPin, OUTPUT);
@@ -95,7 +95,7 @@ void setup() {
   TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
 
-  MCU_VLOG(1) << MCU_FLASHSTR("Initialized 16-bit PWM");
+  MCU_VLOG(1) << MCU_PSD("Initialized 16-bit PWM");
   Serial.println();
 
   DUMP_USED_TIMER_COUNTERS;
@@ -105,41 +105,39 @@ template <class T>
 void Sweep16BitPwm(T& t, uint16_t increment, mcucore::MillisT delay_by,
                    const char* name) {
   if (t.IsEnabled()) {
-    MCU_VLOG(1) << name << MCU_FLASHSTR(" is enabled.");
-    MCU_VLOG(1) << MCU_FLASHSTR("Sweeping ") << name
-                << MCU_FLASHSTR(" upwards");
+    MCU_VLOG(1) << name << MCU_PSD(" is enabled.");
+    MCU_VLOG(1) << MCU_PSD("Sweeping ") << name << MCU_PSD(" upwards");
 
     int32_t value = 1;
     while (value <= t.max_count()) {
       t.set_pulse_count(static_cast<uint16_t>(value & 0xFFFF));
 
       if (value == 1 || (value + increment) >= t.max_count()) {
-        MCU_VLOG(1) << MCU_FLASHSTR("value = ") << value;
+        MCU_VLOG(1) << MCU_PSD("value = ") << value;
         DUMP_USED_TIMER_COUNTERS;
       }
 
       value += increment;
       delay(delay_by);
     }
-    MCU_VLOG(1) << MCU_FLASHSTR("Sweeping ") << name
-                << MCU_FLASHSTR(" downwards");
+    MCU_VLOG(1) << MCU_PSD("Sweeping ") << name << MCU_PSD(" downwards");
     value = t.max_count();
     while (value >= 1) {
       t.set_pulse_count(static_cast<uint16_t>(value & 0xFFFF));
       value -= increment;
       delay(delay_by);
     }
-    MCU_VLOG(1) << MCU_FLASHSTR("value = ") << value;
+    MCU_VLOG(1) << MCU_PSD("value = ") << value;
 
     DUMP_USED_TIMER_COUNTERS;
 
-    MCU_VLOG(1) << MCU_FLASHSTR("Turning ") << name << MCU_FLASHSTR(" off");
+    MCU_VLOG(1) << MCU_PSD("Turning ") << name << MCU_PSD(" off");
     t.set_pulse_count(0);
 
     DUMP_USED_TIMER_COUNTERS;
 
   } else {
-    MCU_VLOG(1) << name << MCU_FLASHSTR(" is disabled.");
+    MCU_VLOG(1) << name << MCU_PSD(" is disabled.");
   }
 }
 

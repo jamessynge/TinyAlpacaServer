@@ -24,8 +24,8 @@ void MovingAverage::RecordNewValue(double new_value, uint32_t current_time,
     // This is not a well founded adjustment; TBD later.
     time_step *= 2;
     if (average_period <= time_step) {
-      MCU_VLOG(1) << MCU_FLASHSTR("average_period (") << average_period
-                  << MCU_FLASHSTR(") should be much greater than time_step (")
+      MCU_VLOG(1) << MCU_PSD("average_period (") << average_period
+                  << MCU_PSD(") should be much greater than time_step (")
                   << time_step << ')';
       average_value_ = new_value;
     } else {

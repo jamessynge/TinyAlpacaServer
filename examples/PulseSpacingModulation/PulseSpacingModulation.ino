@@ -152,11 +152,10 @@ void AdjustTimerPeriod(uint32_t period_ns) {
   auto initial_top = top * 32UL;
   top = min(65535UL, initial_top);
 
-  MCU_VLOG(1) << MCU_FLASHSTR("period_ns=") << period_ns
-              << MCU_FLASHSTR(", target_top=") << target_top
-              << MCU_FLASHSTR(", top=") << top << MCU_FLASHSTR(" (")
-              << mcucore::BaseHex << top << MCU_FLASHSTR("), a=") << a
-              << MCU_FLASHSTR(", b=") << b;
+  MCU_VLOG(1) << MCU_PSD("period_ns=") << period_ns << MCU_PSD(", target_top=")
+              << target_top << MCU_PSD(", top=") << top << MCU_PSD(" (")
+              << mcucore::BaseHex << top << MCU_PSD("), a=") << a
+              << MCU_PSD(", b=") << b;
   delay(20);
 
   noInterrupts();
@@ -170,7 +169,7 @@ void AdjustTimerPeriod(uint32_t period_ns) {
 void StartTimer5(uint32_t period_ns) {
   DisableTimer5();
 
-  MCU_VLOG(5) << MCU_FLASHSTR("StartTimer5(") << period_ns << ')';
+  MCU_VLOG(5) << MCU_PSD("StartTimer5(") << period_ns << ')';
   delay(20);
 
   AdjustTimerPeriod(period_ns);
@@ -185,19 +184,18 @@ void StartMoving(MovementMode new_movement_mode, uint8_t limit_switch_pin,
     // Disable timer 5
     DisableTimer5();
     movement_mode = kNotMoving;
-    MCU_VLOG(1) << MCU_FLASHSTR("movement_mode was ") << copy
-                << MCU_FLASHSTR(", now ") << movement_mode;
+    MCU_VLOG(1) << MCU_PSD("movement_mode was ") << copy << MCU_PSD(", now ")
+                << movement_mode;
   }
 
-  MCU_VLOG(1) << MCU_FLASHSTR("StartMoving(") << new_movement_mode
-              << MCU_FLASHSTR(", ") << limit_switch_pin << MCU_FLASHSTR(", ")
-              << steps_per_second << ')';
+  MCU_VLOG(1) << MCU_PSD("StartMoving(") << new_movement_mode << MCU_PSD(", ")
+              << limit_switch_pin << MCU_PSD(", ") << steps_per_second << ')';
   delay(20);
 
   limit_pin = limit_switch_pin;
 
   if (digitalRead(limit_pin) == LOW) {
-    MCU_VLOG(1) << MCU_FLASHSTR("Limit switch is closed, so no need to move.");
+    MCU_VLOG(1) << MCU_PSD("Limit switch is closed, so no need to move.");
     return;
   }
 
@@ -298,11 +296,10 @@ void loop() {
       const double elapsed_s = elapsed_us / 1000000.0;
       const double steps_per_s = step_count / elapsed_s;
       const double pct_target = steps_per_s / steps_per_second * 100.0;
-      MCU_VLOG(1) << MCU_FLASHSTR("steps=") << step_count
-                  << MCU_FLASHSTR(", elapsed_us=") << elapsed_us
-                  << MCU_FLASHSTR(", elapsed_s=") << elapsed_s
-                  << MCU_FLASHSTR(", steps/s=") << steps_per_s
-                  << MCU_FLASHSTR(", % target steps/s=") << pct_target << '\n';
+      MCU_VLOG(1) << MCU_PSD("steps=") << step_count << MCU_PSD(", elapsed_us=")
+                  << elapsed_us << MCU_PSD(", elapsed_s=") << elapsed_s
+                  << MCU_PSD(", steps/s=") << steps_per_s
+                  << MCU_PSD(", % target steps/s=") << pct_target << '\n';
     }
     start_timer_micros = 0;
     stop_timer_micros = 0;

@@ -29,7 +29,7 @@ class EventInfo {
       : name_(name), pin_(pin), interrupt_(digitalPinToInterrupt(pin)) {}
 
   void Reset() {
-    MCU_VLOG(1) << MCU_FLASHSTR("\nEventInfo::Reset\n");
+    MCU_VLOG(1) << MCU_PSD("\nEventInfo::Reset\n");
 
     pinMode(pin_, INPUT);
     noInterrupts();
@@ -60,13 +60,12 @@ class EventInfo {
 
 #ifdef RECORD_RISING_AND_FALLING
     if (awaiting_falling) {
-      MCU_VLOG(1) << MCU_FLASHSTR("Awaiting ") << name_
-                  << MCU_FLASHSTR("pin FALLING");
+      MCU_VLOG(1) << MCU_PSD("Awaiting ") << name_ << MCU_PSD("pin FALLING");
     } else {
-      MCU_VLOG(1) << MCU_FLASHSTR("Awaiting pin RISING");
+      MCU_VLOG(1) << MCU_PSD("Awaiting pin RISING");
     }
 #elif defined(RECORD_CHANGE)
-    MCU_VLOG(1) << MCU_FLASHSTR("Awaiting pin CHANGE");
+    MCU_VLOG(1) << MCU_PSD("Awaiting pin CHANGE");
 #endif
   }
 
@@ -103,21 +102,20 @@ class EventInfo {
       noInterrupts();
       auto missed_count = missed_count_;
       interrupts();
-      MCU_VLOG(1) << MCU_FLASHSTR("There were ") << missed_count
-                  << MCU_FLASHSTR(" events that we didn't record.");
+      MCU_VLOG(1) << MCU_PSD("There were ") << missed_count
+                  << MCU_PSD(" events that we didn't record.");
     }
 
-    MCU_VLOG(1) << MCU_FLASHSTR("Recorded ") << count
-                << MCU_FLASHSTR(" events.");
+    MCU_VLOG(1) << MCU_PSD("Recorded ") << count << MCU_PSD(" events.");
     MCU_VLOG(1) << (event_is_falling_[0] ? MCU_FLASHSTR("Falling")
                                          : MCU_FLASHSTR("Rising"))
-                << MCU_FLASHSTR(" @ micros ") << event_micros_[0];
+                << MCU_PSD(" @ micros ") << event_micros_[0];
     for (uint8_t ndx = 1; ndx < count; ++ndx) {
       MCU_VLOG(1) << '+' << (event_micros_[ndx] - event_micros_[ndx - 1])
-                  << MCU_FLASHSTR(" micros later was ")
+                  << MCU_PSD(" micros later was ")
                   << (event_is_falling_[ndx] ? MCU_FLASHSTR("Falling")
                                              : MCU_FLASHSTR("Rising"))
-                  << MCU_FLASHSTR(" @ micros ") << event_micros_[ndx];
+                  << MCU_PSD(" @ micros ") << event_micros_[ndx];
     }
 
     Reset();

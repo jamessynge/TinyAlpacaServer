@@ -91,11 +91,10 @@ void setup() {
   device_server.ResetHardware();
 
   mcucore::LogSink() << '\n' << kServerDescription.server_name;
-  mcucore::LogSink() << kServerDescription.manufacturer
-                     << MCU_FLASHSTR(", version ")
+  mcucore::LogSink() << kServerDescription.manufacturer << MCU_PSD(", version ")
                      << kServerDescription.manufacturer_version;
 
-  mcucore::LogSink() << MCU_FLASHSTR("Initializing networking");
+  mcucore::LogSink() << MCU_PSD("Initializing networking");
   mcunet::Mega2560Eth::SetupW5500();
 
   // Get an EepromTlv instance, to be used for persistence of settings.
@@ -128,27 +127,27 @@ void loop() {
 }
 
 void logMCUStatusRegister(uint8_t mcusr) {
-  mcucore::LogSink() << MCU_FLASHSTR("MCUSR: ") << mcucore::BaseHex << mcusr;
+  mcucore::LogSink() << MCU_PSD("MCUSR: ") << mcucore::BaseHex << mcusr;
   if (MCU_VLOG_IS_ON(1)) {
     if (mcusr & _BV(JTRF)) {
       // JTAG Reset
-      MCU_VLOG(1) << MCU_FLASHSTR("JTAG") << MCU_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_PSD("JTAG") << MCU_PSD(" reset occured");
     }
     if (mcusr & _BV(WDRF)) {
       // Watchdog Reset
-      MCU_VLOG(1) << MCU_FLASHSTR("Watchdog") << MCU_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_PSD("Watchdog") << MCU_PSD(" reset occured");
     }
     if (mcusr & _BV(BORF)) {
       // Brownout Reset
-      MCU_VLOG(1) << MCU_FLASHSTR("Brownout") << MCU_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_PSD("Brownout") << MCU_PSD(" reset occured");
     }
     if (mcusr & _BV(EXTRF)) {
       // Reset button or otherwise some software reset
-      MCU_VLOG(1) << MCU_FLASHSTR("External") << MCU_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_PSD("External") << MCU_PSD(" reset occured");
     }
     if (mcusr & _BV(PORF)) {
       // Power On Reset
-      MCU_VLOG(1) << MCU_FLASHSTR("Power-on") << MCU_FLASHSTR(" reset occured");
+      MCU_VLOG(1) << MCU_PSD("Power-on") << MCU_PSD(" reset occured");
     }
   }
 }

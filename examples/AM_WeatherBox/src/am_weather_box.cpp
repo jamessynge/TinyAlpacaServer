@@ -36,9 +36,9 @@ void AMWeatherBox::InitializeDevice() {
   pinMode(kRg11SensorPin, kRg11SensorPinMode);
   if (IsIrThermInitialized()) {
     last_read_time_ = millis();
-    MCU_VLOG(1) << MCU_FLASHSTR("MLX90614 is ready");
+    MCU_VLOG(1) << MCU_PSD("MLX90614 is ready");
   } else {
-    MCU_VLOG(1) << MCU_FLASHSTR("MLX90614 is not present or ready!");
+    MCU_VLOG(1) << MCU_PSD("MLX90614 is not present or ready!");
   }
 }
 
@@ -47,14 +47,14 @@ void AMWeatherBox::MaintainDevice() {
   if ((now - last_read_time_) >= kReadIntervalMillis) {
     last_read_time_ = now;
     if (IsIrThermInitialized()) {
-      MCU_VLOG(3) << MCU_FLASHSTR("Sky: ") << GetSkyTemperature().value()
-                  << MCU_FLASHSTR(" \xE2\x84\x83, Ambient: ")
+      MCU_VLOG(3) << MCU_PSD("Sky: ") << GetSkyTemperature().value()
+                  << MCU_PSD(" \xE2\x84\x83, Ambient: ")
                   << GetTemperature().value()
-                  << MCU_FLASHSTR(" \xE2\x84\x83, Rain Detected: ")
+                  << MCU_PSD(" \xE2\x84\x83, Rain Detected: ")
                   << (GetRainRate().value() == 0 ? ProgmemStringViews::False()
                                                  : ProgmemStringViews::True());
     } else {
-      MCU_VLOG(3) << MCU_FLASHSTR("Rain Detected: ")
+      MCU_VLOG(3) << MCU_PSD("Rain Detected: ")
                   << (GetRainRate().value() == 0 ? ProgmemStringViews::False()
                                                  : ProgmemStringViews::True());
     }

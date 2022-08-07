@@ -12,43 +12,43 @@ RequestDecoderListener::~RequestDecoderListener() {}
 
 EHttpStatusCode RequestDecoderListener::OnExtraParameter(
     EParameter param, const mcucore::StringView& value) {
-  MCU_VLOG(1) << MCU_FLASHSTR("OnExtraParameter(") << param
-              << MCU_FLASHSTR(", ") << mcucore::HexEscaped(value) << ')';
+  MCU_VLOG(1) << MCU_PSD("OnExtraParameter(") << param << MCU_PSD(", ")
+              << mcucore::HexEscaped(value) << ')';
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnExtraHeader(
     EHttpHeader header, const mcucore::StringView& value) {
-  MCU_VLOG(1) << MCU_FLASHSTR("OnExtraHeader(") << header << MCU_FLASHSTR(", ")
+  MCU_VLOG(1) << MCU_PSD("OnExtraHeader(") << header << MCU_PSD(", ")
               << mcucore::HexEscaped(value) << ')';
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownParameterName(
     const mcucore::StringView& name) {
-  MCU_VLOG(1) << MCU_FLASHSTR("OnUnknownParameterName(")
-              << mcucore::HexEscaped(name) << ')';
+  MCU_VLOG(1) << MCU_PSD("OnUnknownParameterName(") << mcucore::HexEscaped(name)
+              << ')';
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownParameterValue(
     const mcucore::StringView& value) {
-  MCU_VLOG(1) << MCU_FLASHSTR("OnUnknownParameterValue(")
+  MCU_VLOG(1) << MCU_PSD("OnUnknownParameterValue(")
               << mcucore::HexEscaped(value) << ')';
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownHeaderName(
     const mcucore::StringView& name) {
-  MCU_VLOG(1) << MCU_FLASHSTR("OnUnknownHeaderName(")
-              << mcucore::HexEscaped(name) << ')';
+  MCU_VLOG(1) << MCU_PSD("OnUnknownHeaderName(") << mcucore::HexEscaped(name)
+              << ')';
   return EHttpStatusCode::kContinueDecoding;
 }
 
 EHttpStatusCode RequestDecoderListener::OnUnknownHeaderValue(
     const mcucore::StringView& value) {
-  MCU_VLOG(1) << MCU_FLASHSTR("OnUnknownHeaderValue(")
-              << mcucore::HexEscaped(value) << ')';
+  MCU_VLOG(1) << MCU_PSD("OnUnknownHeaderValue(") << mcucore::HexEscaped(value)
+              << ')';
   return EHttpStatusCode::kContinueDecoding;
 }
 

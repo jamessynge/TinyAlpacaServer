@@ -72,18 +72,18 @@ double LedChannelSwitchGroup::GetSwitchStep(uint16_t switch_id) { return 1; }
 
 mcucore::Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id,
                                                  bool state) {
-  MCU_VLOG(2) << MCU_FLASHSTR("Set switch#") << switch_id << " to " << state;
+  MCU_VLOG(2) << MCU_PSD("Set switch#") << switch_id << " to " << state;
 
   if (!GetCanWrite(switch_id)) {
-    MCU_VLOG(2) << MCU_FLASHSTR("Can NOT write switch #") << switch_id;
+    MCU_VLOG(2) << MCU_PSD("Can NOT write switch #") << switch_id;
     return ErrorCodes::NotImplemented();
   } else if (cover_calibrator_.SetLedChannelEnabled(switch_id, state) !=
              state) {
-    MCU_VLOG(1) << MCU_FLASHSTR("Failed to set channel ") << switch_id
-                << MCU_FLASHSTR(" to state ") << state;
+    MCU_VLOG(1) << MCU_PSD("Failed to set channel ") << switch_id
+                << MCU_PSD(" to state ") << state;
   } else {
-    MCU_VLOG(4) << MCU_FLASHSTR("Switch #") << switch_id
-                << MCU_FLASHSTR(" now set to ") << state;
+    MCU_VLOG(4) << MCU_PSD("Switch #") << switch_id << MCU_PSD(" now set to ")
+                << state;
   }
   return mcucore::OkStatus();
 }
