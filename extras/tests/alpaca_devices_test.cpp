@@ -127,7 +127,6 @@ class AlpacaDevicesTest : public testing::Test {
       .driver_info = MCU_FLASHSTR("Camera Driver Info"),
       .driver_version = MCU_FLASHSTR("Camera Driver Version"),
       .supported_actions = {},
-      .interface_version = 1,
   };
 
   const alpaca::DeviceInfo mock_camera1_info_{
@@ -139,7 +138,6 @@ class AlpacaDevicesTest : public testing::Test {
       .driver_info = MCU_FLASHSTR("Camera1 Driver Info"),
       .driver_version = MCU_FLASHSTR("Camera1 Driver Version"),
       .supported_actions = {},
-      .interface_version = 1,
   };
 
   const alpaca::DeviceInfo mock_observing_conditions0_info_{
@@ -151,7 +149,6 @@ class AlpacaDevicesTest : public testing::Test {
       .driver_info = MCU_FLASHSTR("WeatherStation"),
       .driver_version = MCU_FLASHSTR("Ver."),
       .supported_actions = {},
-      .interface_version = 1,
   };
 
   NiceMock<MockDeviceInterface> mock_camera0_;

@@ -24,7 +24,6 @@ const DeviceInfo kFakeWeatherDeviceInfo{
     .driver_info = MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
     .driver_version = MCU_FLASHSTR("1.0"),  // Perfection has been achieved.
     .supported_actions = {},                // No extra actions.
-    .interface_version = 1,
 };
 
 FakeWeather fake_weather_device(kFakeWeatherDeviceInfo);  // NOLINT

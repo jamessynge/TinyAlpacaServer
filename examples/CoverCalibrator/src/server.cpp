@@ -35,7 +35,6 @@ const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
         .driver_version = MCU_FLASHSTR("0.2"),
         .supported_actions = kSupportedActions,
-        .interface_version = 1,
     };
 
 CoverCalibrator cover_calibrator(kCoverCalibratorDeviceInfo);  // NOLINT
@@ -51,7 +50,6 @@ const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
         .driver_version = MCU_FLASHSTR("0.2"),
         .supported_actions = kSupportedActions,
-        .interface_version = 1,
     };
 
 LedChannelSwitchGroup led_switches(  // NOLINT

@@ -7,12 +7,6 @@
 // TODO(jamessynge): Rename DeviceInfo to DeviceDescription, which better
 // matches ServerDescription.
 //
-// TODO(jamessynge): Replace field unique_id with a `EepromDomain device_domain`
-// field, i.e. one that must be unique for each device of a single server.
-//
-// TODO(jamessynge): Use the device_domain to store and retrieve a UUID for
-// each device.
-//
 // Author: james.synge@gmail.com
 
 #include <McuCore.h>
@@ -22,7 +16,6 @@
 namespace alpaca {
 
 // There must be one instance of DeviceInfo per device in a sketch.
-// TODO(jamessynge): Come up with a way to store this in PROGMEM.
 struct DeviceInfo {
   // Write the ConfiguredDevices description of this server to the specified
   // mcucore::JsonObjectEncoder. The encoder should be for the nested object
@@ -79,7 +72,6 @@ struct DeviceInfo {
 
   // The list of device-specific action names that the device supports. This is
   // returned in the response to the /supportedactions method of the device API.
-  // TODO(jamessynge): Come up with a way to store this in PROGMEM.
   mcucore::ProgmemStringArray supported_actions;
 
   // The ASCOM Device interface version number that this device supports.
@@ -92,14 +84,13 @@ struct DeviceInfo {
   // the current version to ensure thay can use the largest number of devices.
   //
   // That can be summarized as saying that we should return 1, the current (and
-  // only) version of the ASCOM Alpaca API as of April 2021. I'd like to provide
-  // a default value here for the field, but the Arduino IDE's compiler (g++ for
-  // approximately C++ 11) doesn't tolerate that when I use designated
-  // initializers (a C++ 20 feature that g++ is supporting).
-  //
-  // TODO(jamessynge): REMOVE this field. It will be a long time before version
-  // 2 becomes a consideration for users of this code, if ever.
-  uint8_t interface_version;
+  // only) version of the ASCOM Alpaca API as of April 2021. To that end, I've
+  // decided to represent this as a function returning that value, rather than
+  // as a value that can be different for different devices. This will make it
+  // possible to find all the places referencing the version via search, while
+  // just hard coding it to one anywhere that needed the value would make that
+  // much harder.
+  static constexpr uint8_t interface_version() { return 1; }
 };
 
 }  // namespace alpaca

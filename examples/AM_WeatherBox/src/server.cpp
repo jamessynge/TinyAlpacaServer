@@ -23,7 +23,6 @@ const DeviceInfo kAMWeatherBoxDeviceInfo{
     .driver_info = MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
     .driver_version = MCU_FLASHSTR("0.2"),
     .supported_actions = {},  // No extra actions.
-    .interface_version = 1,
 };
 
 AMWeatherBox weather_box(kAMWeatherBoxDeviceInfo);  // NOLINT

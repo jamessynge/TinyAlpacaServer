@@ -71,7 +71,6 @@ class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
             .driver_version = MCU_PSD(DEVICE_DRIVER_VERSION),
             .supported_actions =
                 mcucore::ProgmemStringArray{supported_actions_},
-            .interface_version = 1,
         }),
         device_(device_info_) {
     AddDeviceInterface(device_);
@@ -492,7 +491,6 @@ class MockObservingConditionsTest : public DecodeAndDispatchTestBase {
             .driver_version = MCU_FLASHSTR(DEVICE_DRIVER_VERSION),
             .supported_actions =
                 mcucore::ProgmemStringArray{supported_actions_},
-            .interface_version = 1,
         }),
         device_(device_info_) {
     AddDeviceInterface(device_);

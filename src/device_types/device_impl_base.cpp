@@ -39,7 +39,7 @@ class DeviceInfoHtml : public Printable {
          << MCU_PSD("Driver Info: ") << info_.driver_info << MCU_PSD("<br>")
          << MCU_PSD("Driver Version: ") << info_.driver_version
          << MCU_PSD("<br>") << MCU_PSD("Interface Version: ")
-         << info_.interface_version << MCU_PSD("<br>")
+         << info_.interface_version() << MCU_PSD("<br>")
          << MCU_PSD("EEPROM Domain: ") << info_.domain.value()
          << MCU_PSD("</body></html>");
     return counter.count();
@@ -157,8 +157,8 @@ bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,
           request, device_info_.driver_version, out);
 
     case EDeviceMethod::kInterfaceVersion:
-      return WriteResponse::IntResponse(request, device_info_.interface_version,
-                                        out);
+      return WriteResponse::IntResponse(request,
+                                        device_info_.interface_version(), out);
 
     case EDeviceMethod::kName:
       return WriteResponse::AnyPrintableStringResponse(request,

@@ -31,7 +31,6 @@ constexpr alpaca::DeviceInfo kDeviceInfo{
     .driver_info = MCU_PSD("https://github/jamessynge/TinyAlpacaServer"),
     .driver_version = MCU_PSD("1"),
     .supported_actions = kSupportedActions,
-    .interface_version = 1,
 };
 
 namespace alpaca {
