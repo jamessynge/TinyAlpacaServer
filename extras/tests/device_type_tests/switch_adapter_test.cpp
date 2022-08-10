@@ -7,7 +7,7 @@
 
 #include "alpaca_request.h"
 #include "constants.h"
-#include "device_info.h"
+#include "device_description.h"
 #include "extras/test_tools/decode_and_dispatch_test_base.h"
 #include "extras/test_tools/mock_switch_group.h"
 #include "gmock/gmock.h"
@@ -42,7 +42,7 @@ constexpr int kAscomValueNotSetError = 1026;
 class SwitchAdapterTest : public DecodeAndDispatchTestBase {
  protected:
   SwitchAdapterTest()
-      : device_info_({
+      : device_description_({
             .device_type = alpaca::EDeviceType::kSwitch,
             .device_number = kDeviceNumber,
             .domain = MCU_DOMAIN(75),
@@ -52,7 +52,7 @@ class SwitchAdapterTest : public DecodeAndDispatchTestBase {
             .driver_version = MCU_FLASHSTR("Switch Driver Version"),
             .supported_actions = {},
         }),
-        device_(device_info_) {
+        device_(device_description_) {
     // Setting this very early because GetMaxSwitch is called a lot. But the
     // return value isn't cached, so it is OK to change the expectation in
     // individual tests.
@@ -82,7 +82,7 @@ class SwitchAdapterTest : public DecodeAndDispatchTestBase {
 
   const mcucore::ProgmemString supported_actions_[1] = {
       MCU_PSD(SUPPORTED_ACTION)};
-  const DeviceInfo device_info_;
+  const DeviceDescription device_description_;
   NiceMock<MockSwitchGroup> device_;
   AlpacaRequest request_;
 };

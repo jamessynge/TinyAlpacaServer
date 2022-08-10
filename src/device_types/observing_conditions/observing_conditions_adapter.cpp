@@ -28,9 +28,10 @@ void AddSensorTableRow(
 }  // namespace
 
 ObservingConditionsAdapter::ObservingConditionsAdapter(
-    const DeviceInfo& device_info)
-    : DeviceImplBase(device_info) {
-  MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kObservingConditions);
+    const DeviceDescription& device_description)
+    : DeviceImplBase(device_description) {
+  MCU_DCHECK_EQ(device_description.device_type,
+                EDeviceType::kObservingConditions);
 }
 
 void ObservingConditionsAdapter::AddDeviceDetails(mcucore::OPrintStream& strm) {

@@ -5,7 +5,7 @@
 
 #include "alpaca_response.h"
 #include "constants.h"
-#include "device_info.h"
+#include "device_description.h"
 #include "literals.h"
 
 namespace alpaca {
@@ -29,29 +29,29 @@ void AlpacaDevices::ValidateDevices() {
 
   for (int i = 0; i < devices_.size(); ++i) {
     DeviceInterface* const device1 = devices_[i];
-    const DeviceInfo& device1_info = device1->device_info();
+    const DeviceDescription& description1 = device1->device_description();
     MCU_CHECK_OK_AND_ASSIGN(auto device1_uuid,
-                            device1_info.GetOrCreateUniqueId(tlv));
+                            description1.GetOrCreateUniqueId(tlv));
     for (int j = i + 1; j < devices_.size(); ++j) {
       DeviceInterface* const device2 = devices_[j];
-      const DeviceInfo& device2_info = device2->device_info();
+      const DeviceDescription& description2 = device2->device_description();
       MCU_CHECK_NE(device1, device2)
           << MCU_PSD("Device appears twice in the list of devices:")
-          << MCU_PSD(" device_type=") << device1_info.device_type
-          << MCU_PSD(", device_number=") << device1_info.device_number
-          << MCU_PSD(", name=") << mcucore::HexEscaped(device1_info.name);
-      MCU_CHECK_NE(device1_info.domain, device2_info.domain)
+          << MCU_PSD(" device_type=") << description1.device_type
+          << MCU_PSD(", device_number=") << description1.device_number
+          << MCU_PSD(", name=") << mcucore::HexEscaped(description1.name);
+      MCU_CHECK_NE(description1.domain, description2.domain)
           << MCU_PSD("Devices [") << i << MCU_PSD("] and [") << j
           << MCU_PSD("] have the same domain");
       MCU_CHECK_OK_AND_ASSIGN(auto device2_uuid,
-                              device2_info.GetOrCreateUniqueId(tlv));
+                              description2.GetOrCreateUniqueId(tlv));
       MCU_CHECK_NE(device1_uuid, device2_uuid)
           << MCU_PSD("Devices [") << i << MCU_PSD("] and [") << j
           << MCU_PSD("] have the same UUID: ") << device1_uuid;
-      if (device1_info.device_type != device2_info.device_type) {
+      if (description1.device_type != description2.device_type) {
         break;
       }
-      MCU_CHECK_NE(device1_info.device_number, device2_info.device_number)
+      MCU_CHECK_NE(description1.device_number, description2.device_number)
           << MCU_PSD("Devices [") << i << MCU_PSD("] and [") << j
           << MCU_PSD("] have the same type and number");
     }
@@ -61,17 +61,17 @@ void AlpacaDevices::ValidateDevices() {
   // start at zero.
   for (int i = 0; i < devices_.size(); ++i) {
     DeviceInterface* const device = devices_[i];
-    const DeviceInfo& device_info = device->device_info();
-    if (device_info.device_number != 0) {
+    const DeviceDescription& description = device->device_description();
+    if (description.device_number != 0) {
       // There should be a device of the same type whose number is immediately
       // below this one.
       MCU_CHECK_NE(
-          FindDevice(device_info.device_type, device_info.device_number - 1),
+          FindDevice(description.device_type, description.device_number - 1),
           nullptr)
           << MCU_PSD_128(
                  "Devices of each type must be numbered starting from 0, "
                  "without any gap; ")
-          << device_info.device_type << '#' << device_info.device_number
+          << description.device_type << '#' << description.device_number
           << MCU_PSD(" (devices_[") << i
           << MCU_PSD("]) doesn't have a predecessor");
     }
@@ -173,8 +173,8 @@ bool AlpacaDevices::DispatchDeviceRequest(AlpacaRequest& request,
 DeviceInterface* AlpacaDevices::FindDevice(EDeviceType device_type,
                                            uint32_t device_number) {
   for (DeviceInterface* device : devices_) {
-    if (device_type == device->device_info().device_type &&
-        device_number == device->device_info().device_number) {
+    if (device_type == device->device_description().device_type &&
+        device_number == device->device_description().device_number) {
       return device;
     }
   }

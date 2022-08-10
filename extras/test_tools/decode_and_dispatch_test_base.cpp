@@ -81,7 +81,7 @@ DecodeAndDispatchTestBase::GetDeviceInterfaces() {
 
 std::string_view DecodeAndDispatchTestBase::GetDeviceTypeName() {
   MCU_CHECK_EQ(device_interfaces_.size(), 1);
-  const auto v = device_interfaces_[0]->device_info().device_type;
+  const auto v = device_interfaces_[0]->device_description().device_type;
   switch (v) {
     case EDeviceType::kUnknown:
       break;
@@ -112,7 +112,7 @@ std::string_view DecodeAndDispatchTestBase::GetDeviceTypeName() {
 
 uint32_t DecodeAndDispatchTestBase::GetDeviceNumber() {
   MCU_CHECK_EQ(device_interfaces_.size(), 1);
-  return device_interfaces_[0]->device_info().device_number;
+  return device_interfaces_[0]->device_description().device_number;
 }
 
 uint32_t DecodeAndDispatchTestBase::GetClientId() { return kClientId; }

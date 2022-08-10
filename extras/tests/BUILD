@@ -11,7 +11,7 @@ cc_test(
         "//TinyAlpacaServer/src:alpaca_devices",
         "//TinyAlpacaServer/src:alpaca_request",
         "//TinyAlpacaServer/src:constants",
-        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src:device_interface",
         "//glog:logging",
         "//googletest:gunit_main",
@@ -47,11 +47,11 @@ cc_test(
 )
 
 cc_test(
-    name = "device_info_test",
-    srcs = ["device_info_test.cc"],
+    name = "device_description_test",
+    srcs = ["device_description_test.cc"],
     deps = [
         "//TinyAlpacaServer/src:constants",
-        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:device_description",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:json_decoder",
         "//mcucore/extras/test_tools:print_to_std_string",

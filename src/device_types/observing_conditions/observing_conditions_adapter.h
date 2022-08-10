@@ -15,7 +15,8 @@ namespace alpaca {
 
 class ObservingConditionsAdapter : public DeviceImplBase {
  public:
-  explicit ObservingConditionsAdapter(const DeviceInfo& device_info);
+  explicit ObservingConditionsAdapter(
+      const DeviceDescription& device_description);
   ~ObservingConditionsAdapter() override {}
 
   // On the assumption that sensors don't typically need to be disabled or

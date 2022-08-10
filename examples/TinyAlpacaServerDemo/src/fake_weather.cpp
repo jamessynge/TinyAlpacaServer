@@ -6,8 +6,8 @@ using ::alpaca::ObservingConditionsAdapter;
 using ::mcucore::ProgmemStringView;
 using ::mcucore::StatusOr;
 
-FakeWeather::FakeWeather(const alpaca::DeviceInfo& device_info)
-    : ObservingConditionsAdapter(device_info) {}
+FakeWeather::FakeWeather(const alpaca::DeviceDescription& device_description)
+    : ObservingConditionsAdapter(device_description) {}
 
 mcucore::StatusOr<double> FakeWeather::GetTemperature() { return 20; }
 

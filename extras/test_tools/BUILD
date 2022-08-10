@@ -70,7 +70,7 @@ cc_library(
     deps = [
         "//TinyAlpacaServer/src:alpaca_request",
         "//TinyAlpacaServer/src:constants",
-        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src:device_interface",
         "//googletest:gunit_headers",
     ],
@@ -112,7 +112,7 @@ cc_library(
     name = "mock_switch_group",
     hdrs = ["mock_switch_group.h"],
     deps = [
-        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
         "//googletest:gunit_headers",
         "//mcucore/src:status",

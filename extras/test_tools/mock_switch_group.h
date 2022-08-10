@@ -7,7 +7,7 @@
 #include <McuCore.h>
 #include <stdint.h>
 
-#include "device_info.h"
+#include "device_description.h"
 #include "device_types/switch/switch_adapter.h"
 #include "gmock/gmock.h"
 
@@ -16,8 +16,8 @@ namespace test {
 
 class MockSwitchGroup : public SwitchAdapter {
  public:
-  explicit MockSwitchGroup(const DeviceInfo &device_info)
-      : SwitchAdapter(device_info) {}
+  explicit MockSwitchGroup(const DeviceDescription &device_description)
+      : SwitchAdapter(device_description) {}
 
   MOCK_METHOD(void, ResetHardware, (), (override));
 

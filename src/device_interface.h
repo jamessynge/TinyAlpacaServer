@@ -28,7 +28,7 @@
 
 #include "alpaca_request.h"
 #include "constants.h"
-#include "device_info.h"
+#include "device_description.h"
 #include "json_response.h"
 
 namespace alpaca {
@@ -50,9 +50,9 @@ class DeviceInterface {
   DeviceInterface() {}
   virtual ~DeviceInterface() {}
 
-  // Return a DeviceInfo that contains the (static) device info (e.g. device
-  // type and number).
-  virtual const DeviceInfo& device_info() const = 0;
+  // Return a DeviceDescription that contains the device's type, number,
+  // unique id, etc.
+  virtual const DeviceDescription& device_description() const = 0;
 
   // Validates the devices' configuration. CHECK fails if there are any
   // problems.
@@ -94,7 +94,8 @@ class DeviceInterface {
   // false, in which case the connection to the client will be closed.
   // TODO(jamessynge): Support returning a webpage stored on the sdcard.
   // TODO(jamessynge): Design a file system layout to support that, or require
-  // that the DeviceInfo provide the path to the file, or more likely both.
+  // that the DeviceDescription provide the path to the file, or more likely
+  // both.
   virtual bool HandleDeviceSetupRequest(const AlpacaRequest& request,
                                         Print& out) = 0;
 

@@ -8,7 +8,7 @@
 #include <string>
 
 #include "constants.h"
-#include "device_info.h"
+#include "device_description.h"
 #include "device_interface.h"
 #include "extras/test_tools/decode_and_dispatch_test_base.h"
 #include "extras/test_tools/mock_observing_conditions.h"
@@ -61,7 +61,7 @@ class NoOpObservingConditions : public ObservingConditionsAdapter {
 class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
  protected:
   ObservingConditionsAdapterTest()
-      : device_info_({
+      : device_description_({
             .device_type = EDeviceType::kObservingConditions,
             .device_number = kDeviceNumber,
             .domain = MCU_DOMAIN(FakeDevice),
@@ -72,13 +72,13 @@ class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
             .supported_actions =
                 mcucore::ProgmemStringArray{supported_actions_},
         }),
-        device_(device_info_) {
+        device_(device_description_) {
     AddDeviceInterface(device_);
   }
 
   const mcucore::ProgmemString supported_actions_[1] = {
       MCU_PSD(SUPPORTED_ACTION)};
-  const DeviceInfo device_info_;
+  const DeviceDescription device_description_;
   NoOpObservingConditions device_;
 };
 
@@ -95,10 +95,10 @@ TEST_F(ObservingConditionsAdapterTest, ConfiguredDevicesMinimalRequest) {
                        RoundTripSoleRequestWithValueResponse(request));
   ASSERT_EQ(value_jv.type(), JsonValue::kArray);
   ASSERT_THAT(value_jv, SizeIs(1));
-  auto json_device_info = value_jv.GetElement(0);
-  ASSERT_EQ(json_device_info.type(), JsonValue::kObject);
+  auto json_device_description = value_jv.GetElement(0);
+  ASSERT_EQ(json_device_description.type(), JsonValue::kObject);
   EXPECT_THAT(
-      json_device_info.as_object(),
+      json_device_description.as_object(),
       UnorderedElementsAre(Pair("DeviceName", JsonValue(DEVICE_NAME)),
                            Pair("DeviceType", JsonValue("ObservingConditions")),
                            Pair("DeviceNumber", JsonValue(kDeviceNumber)),
@@ -481,7 +481,7 @@ TEST_F(ObservingConditionsAdapterTest,
 class MockObservingConditionsTest : public DecodeAndDispatchTestBase {
  protected:
   MockObservingConditionsTest()
-      : device_info_({
+      : device_description_({
             .device_type = EDeviceType::kObservingConditions,
             .device_number = kDeviceNumber,
             .domain = MCU_DOMAIN(FakeDevice),
@@ -492,13 +492,13 @@ class MockObservingConditionsTest : public DecodeAndDispatchTestBase {
             .supported_actions =
                 mcucore::ProgmemStringArray{supported_actions_},
         }),
-        device_(device_info_) {
+        device_(device_description_) {
     AddDeviceInterface(device_);
   }
 
   const mcucore::ProgmemString supported_actions_[1] = {
       MCU_PSD(SUPPORTED_ACTION)};
-  const DeviceInfo device_info_;
+  const DeviceDescription device_description_;
   MockObservingConditions device_;
 };
 

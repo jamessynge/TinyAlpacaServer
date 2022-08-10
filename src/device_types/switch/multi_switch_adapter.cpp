@@ -1,14 +1,14 @@
 #include "device_types/switch/multi_switch_adapter.h"
 
-#include "device_info.h"
+#include "device_description.h"
 #include "literals.h"
 
 namespace alpaca {
 
 MultiSwitchAdapter::MultiSwitchAdapter(
-    const DeviceInfo& device_info,
+    const DeviceDescription& device_description,
     mcucore::ArrayView<SwitchInterface*> switches)
-    : SwitchAdapter(device_info), switches_(switches) {}
+    : SwitchAdapter(device_description), switches_(switches) {}
 
 SwitchInterface* MultiSwitchAdapter::GetSwitchInterface(
     uint16_t switch_id) const {

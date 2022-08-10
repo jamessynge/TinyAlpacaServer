@@ -20,7 +20,7 @@ cc_library(
         "//TinyAlpacaServer/src:alpaca_request",
         "//TinyAlpacaServer/src:alpaca_response",
         "//TinyAlpacaServer/src:constants",
-        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src:device_interface",
         "//TinyAlpacaServer/src:literals",
         "//mcucore/src:counting_print",

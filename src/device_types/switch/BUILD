@@ -16,7 +16,7 @@ cc_library(
     deps = [
         ":switch_adapter",
         ":switch_interface",
-        "//TinyAlpacaServer/src:device_info",
+        "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src:literals",
         "//mcucore/src:array_view",
         "//mcucore/src:mcucore_platform",

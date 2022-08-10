@@ -16,7 +16,7 @@
 #include "ascom_error_codes.h"        // IWYU pragma: export
 #include "config.h"                   // IWYU pragma: export
 #include "constants.h"                // IWYU pragma: export
-#include "device_info.h"              // IWYU pragma: export
+#include "device_description.h"       // IWYU pragma: export
 #include "device_interface.h"         // IWYU pragma: export
 #include "device_types/cover_calibrator/cover_calibrator_adapter.h"  // IWYU pragma: export
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"  // IWYU pragma: export

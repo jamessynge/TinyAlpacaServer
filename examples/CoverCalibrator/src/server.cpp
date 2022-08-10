@@ -13,7 +13,7 @@ MCU_DEFINE_NAMED_DOMAIN(LedChannelSwitch, 18);
 
 namespace astro_makers {
 namespace {
-using ::alpaca::DeviceInfo;
+using ::alpaca::DeviceDescription;
 using ::alpaca::EDeviceType;
 
 // No extra actions.
@@ -24,7 +24,7 @@ const auto kSupportedActions = mcucore::ProgmemStringArray();
 // TODO(jamessynge): Use the device_domain to store and retrieve a UUID for
 // each device.
 
-const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
+const DeviceDescription kCoverCalibratorDeviceDescription  // NOLINT
     {
         .device_type = EDeviceType::kCoverCalibrator,
         .device_number = 0,
@@ -37,9 +37,9 @@ const DeviceInfo kCoverCalibratorDeviceInfo  // NOLINT
         .supported_actions = kSupportedActions,
     };
 
-CoverCalibrator cover_calibrator(kCoverCalibratorDeviceInfo);  // NOLINT
+CoverCalibrator cover_calibrator(kCoverCalibratorDeviceDescription);  // NOLINT
 
-const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
+const DeviceDescription kLedSwitchesDeviceDescription  // NOLINT
     {
         .device_type = EDeviceType::kSwitch,
         .device_number = 0,
@@ -53,7 +53,7 @@ const DeviceInfo kLedSwitchesDeviceInfo  // NOLINT
     };
 
 LedChannelSwitchGroup led_switches(  // NOLINT
-    kLedSwitchesDeviceInfo, cover_calibrator);
+    kLedSwitchesDeviceDescription, cover_calibrator);
 
 // For responding to /management/v1/description
 const alpaca::ServerDescription kServerDescription  // NOLINT

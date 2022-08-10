@@ -7,16 +7,17 @@
 
 namespace alpaca {
 
-CoverCalibratorAdapter::CoverCalibratorAdapter(const DeviceInfo& device_info)
-    : DeviceImplBase(device_info) {
-  MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kCoverCalibrator);
+CoverCalibratorAdapter::CoverCalibratorAdapter(
+    const DeviceDescription& device_description)
+    : DeviceImplBase(device_description) {
+  MCU_DCHECK_EQ(device_description.device_type, EDeviceType::kCoverCalibrator);
 }
 
 bool CoverCalibratorAdapter::HandleGetRequest(const AlpacaRequest& request,
                                               Print& out) {
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
-  MCU_DCHECK_EQ(request.device_number, device_info().device_number);
+  MCU_DCHECK_EQ(request.device_number, device_description().device_number);
 
   switch (request.device_method) {
     case EDeviceMethod::kBrightness:
@@ -55,7 +56,7 @@ mcucore::StatusOr<ECoverStatus> CoverCalibratorAdapter::GetCoverState() {
 
 mcucore::StatusOr<int32_t> CoverCalibratorAdapter::GetMaxBrightness() {
   // NOTE: This type of fixed value could be a good candidate for recording in a
-  // Device-Type specific subclass of DeviceInfo.
+  // Device-Type specific subclass of DeviceDescription.
   return ErrorCodes::ActionNotImplemented();
 }
 
@@ -66,7 +67,7 @@ bool CoverCalibratorAdapter::HandlePutRequest(const AlpacaRequest& request,
                                               Print& out) {
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kCoverCalibrator);
-  MCU_DCHECK_EQ(request.device_number, device_info().device_number);
+  MCU_DCHECK_EQ(request.device_number, device_description().device_number);
 
   switch (request.device_method) {
     case EDeviceMethod::kCalibratorOff:

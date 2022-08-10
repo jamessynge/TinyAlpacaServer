@@ -7,7 +7,7 @@
 
 #include "alpaca_request.h"
 #include "constants.h"
-#include "device_info.h"
+#include "device_description.h"
 #include "device_interface.h"
 #include "gmock/gmock.h"
 
@@ -16,7 +16,8 @@ namespace test {
 
 class MockDeviceInterface : public DeviceInterface {
  public:
-  MOCK_METHOD(const alpaca::DeviceInfo&, device_info, (), (const, override));
+  MOCK_METHOD(const alpaca::DeviceDescription&, device_description, (),
+              (const, override));
 
   MOCK_METHOD(void, ValidateConfiguration, (), (override));
 

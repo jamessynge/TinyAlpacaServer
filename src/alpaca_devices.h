@@ -20,8 +20,9 @@ class AlpacaDevices {
  public:
   explicit AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices);
 
-  // Validates the devices' DeviceInfo (e.g. that there is at most one device
-  // number 0 of each device type). CHECK fails if there are any problems.
+  // Validates the devices' DeviceDescription (e.g. that there is at most one
+  // device number 0 of each device type). CHECK fails if there are any
+  // problems.
   void ValidateDevices();
 
   // Does the minimum necessary to reset or disable any features that might be

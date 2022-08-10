@@ -11,10 +11,10 @@ MCU_DEFINE_CONSTEXPR_NAMED_DOMAIN(ObservingConditions, 70);
 
 namespace astro_makers {
 namespace {
-using ::alpaca::DeviceInfo;
+using ::alpaca::DeviceDescription;
 using ::alpaca::EDeviceType;
 
-const DeviceInfo kAMWeatherBoxDeviceInfo{
+const DeviceDescription kAMWeatherBoxDeviceDescription{
     .device_type = EDeviceType::kObservingConditions,
     .device_number = 0,
     .domain = MCU_DOMAIN(ObservingConditions),
@@ -25,7 +25,7 @@ const DeviceInfo kAMWeatherBoxDeviceInfo{
     .supported_actions = {},  // No extra actions.
 };
 
-AMWeatherBox weather_box(kAMWeatherBoxDeviceInfo);  // NOLINT
+AMWeatherBox weather_box(kAMWeatherBoxDeviceDescription);  // NOLINT
 
 // For responding to /management/v1/description
 const alpaca::ServerDescription kServerDescription{

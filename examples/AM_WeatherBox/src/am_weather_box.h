@@ -12,7 +12,7 @@ namespace astro_makers {
 
 class AMWeatherBox : public alpaca::ObservingConditionsAdapter {
  public:
-  explicit AMWeatherBox(const alpaca::DeviceInfo& device_info);
+  explicit AMWeatherBox(const alpaca::DeviceDescription& device_description);
 
   void InitializeDevice() override;
 

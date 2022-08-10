@@ -22,7 +22,7 @@ namespace alpaca {
 
 class CoverCalibratorAdapter : public DeviceImplBase {
  public:
-  explicit CoverCalibratorAdapter(const DeviceInfo& device_info);
+  explicit CoverCalibratorAdapter(const DeviceDescription& device_description);
   ~CoverCalibratorAdapter() override {}
 
   // Handles GET 'request', writes the HTTP response message to 'out'. Returns

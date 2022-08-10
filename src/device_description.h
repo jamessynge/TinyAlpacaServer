@@ -1,10 +1,10 @@
-#ifndef TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_
-#define TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_
+#ifndef TINY_ALPACA_SERVER_SRC_DEVICE_DESCRIPTION_H_
+#define TINY_ALPACA_SERVER_SRC_DEVICE_DESCRIPTION_H_
 
-// DeviceInfo provides fixed data used to respond to many of Alpaca's "Common
-// ASCOM Methods", and to /management/v1/configureddevices requests.
+// DeviceDescription provides fixed data used to respond to many of Alpaca's
+// "Common ASCOM Methods", and to /management/v1/configureddevices requests.
 //
-// TODO(jamessynge): Rename DeviceInfo to DeviceDescription, which better
+// TODO(jamessynge): Rename DeviceDescription to DeviceDescription, which better
 // matches ServerDescription.
 //
 // Author: james.synge@gmail.com
@@ -15,8 +15,8 @@
 
 namespace alpaca {
 
-// There must be one instance of DeviceInfo per device in a sketch.
-struct DeviceInfo {
+// There must be one instance of DeviceDescription per device in a sketch.
+struct DeviceDescription {
   // Write the ConfiguredDevices description of this server to the specified
   // mcucore::JsonObjectEncoder. The encoder should be for the nested object
   // that is the value of the "Value" property of the response object, NOT the
@@ -95,4 +95,4 @@ struct DeviceInfo {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_DEVICE_INFO_H_
+#endif  // TINY_ALPACA_SERVER_SRC_DEVICE_DESCRIPTION_H_

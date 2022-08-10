@@ -10,7 +10,7 @@
 
 class FakeWeather : public alpaca::ObservingConditionsAdapter {
  public:
-  explicit FakeWeather(const alpaca::DeviceInfo& device_info);
+  explicit FakeWeather(const alpaca::DeviceDescription& device_description);
 
   void InitializeDevice() override {}
 

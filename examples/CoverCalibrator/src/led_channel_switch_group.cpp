@@ -5,15 +5,16 @@
 namespace astro_makers {
 
 using ::alpaca::AlpacaRequest;
-using ::alpaca::DeviceInfo;
+using ::alpaca::DeviceDescription;
 using ::alpaca::ErrorCodes;
 using ::alpaca::WriteResponse;
 using ::mcucore::AnyPrintable;
 using ::mcucore::StatusOr;
 
-LedChannelSwitchGroup::LedChannelSwitchGroup(const DeviceInfo& device_info,
-                                             CoverCalibrator& cover_calibrator)
-    : SwitchAdapter(device_info), cover_calibrator_(cover_calibrator) {}
+LedChannelSwitchGroup::LedChannelSwitchGroup(
+    const DeviceDescription& device_description,
+    CoverCalibrator& cover_calibrator)
+    : SwitchAdapter(device_description), cover_calibrator_(cover_calibrator) {}
 
 uint16_t LedChannelSwitchGroup::GetMaxSwitch() { return 4; }
 

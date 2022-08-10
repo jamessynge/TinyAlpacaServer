@@ -1,4 +1,4 @@
-#include "device_info.h"
+#include "device_description.h"
 
 #include <McuCore.h>
 
@@ -14,7 +14,8 @@ size_t PrintUuid(Print& out, const void* data) {
 }
 }  // namespace
 
-void DeviceInfo::AddTo(mcucore::JsonObjectEncoder& object_encoder) const {
+void DeviceDescription::AddTo(
+    mcucore::JsonObjectEncoder& object_encoder) const {
   object_encoder.AddStringProperty(ProgmemStringViews::DeviceName(), name);
 
   // TODO(jamessynge): Check on the case requirements of the device type's name.
@@ -35,7 +36,7 @@ void DeviceInfo::AddTo(mcucore::JsonObjectEncoder& object_encoder) const {
   }
 }
 
-mcucore::StatusOr<mcucore::Uuid> DeviceInfo::GetOrCreateUniqueId(
+mcucore::StatusOr<mcucore::Uuid> DeviceDescription::GetOrCreateUniqueId(
     mcucore::EepromTlv& tlv) const {
   mcucore::EepromTag tag{.domain = domain, .id = kUniqueIdTagId};
   mcucore::Uuid uuid;
@@ -43,13 +44,14 @@ mcucore::StatusOr<mcucore::Uuid> DeviceInfo::GetOrCreateUniqueId(
   return uuid;
 }
 
-mcucore::StatusOr<mcucore::Uuid> DeviceInfo::GetOrCreateUniqueId() const {
+mcucore::StatusOr<mcucore::Uuid> DeviceDescription::GetOrCreateUniqueId()
+    const {
   MCU_ASSIGN_OR_RETURN(auto tlv, mcucore::EepromTlv::GetIfValid());
   return GetOrCreateUniqueId(tlv);
 }
 
-mcucore::Status DeviceInfo::SetUuidForTest(mcucore::EepromTlv& tlv,
-                                           const mcucore::Uuid& uuid) const {
+mcucore::Status DeviceDescription::SetUuidForTest(
+    mcucore::EepromTlv& tlv, const mcucore::Uuid& uuid) const {
   mcucore::EepromTag tag{.domain = domain, .id = kUniqueIdTagId};
   return uuid.WriteToEeprom(tlv, tag);
 }

@@ -290,9 +290,9 @@ desired.
         be split or combined such that multiple references to same character
         sequence in multiple locations can be shared.
 
-*   MAYBE: To eliminate RAM consumed for alpaca::DeviceInfo objects, change the
-    internal API for locating those to instead pass in a stack allocated
-    DeviceInfo to be filled in when the info is needed.
+*   MAYBE: To eliminate RAM consumed for alpaca::DeviceDescription objects,
+    change the internal API for locating those to instead pass in a stack
+    allocated DeviceDescription to be filled in when the info is needed.
 
 ### Completed Tasks
 
@@ -329,11 +329,11 @@ device-type specific code. Ideas:
     fields, ala the existing RequestDecoderListener. Subclasses could then
     provide the implementation of those methods.
 
-*   Maybe generate a DeviceInfo subtype for each device type, with the aim of
-    automatically handling a number of requests with fixed responses (e.g.
-    telescope/canpulseguide or camera/maxadu). The yaml file doesn't necessarily
-    indicate which of these have fixed responses, so we might need to add an
-    additional file with the list of such requests.
+*   Maybe generate a DeviceDescription subtype for each device type, with the
+    aim of automatically handling a number of requests with fixed responses
+    (e.g. telescope/canpulseguide or camera/maxadu). The yaml file doesn't
+    necessarily indicate which of these have fixed responses, so we might need
+    to add an additional file with the list of such requests.
 
 *   Generate a DeviceImplBase subclass, XyzAdapter, in the style of the manually
     written ObservingConditionsAdapter and CoverCalibratorAdapter.

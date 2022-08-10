@@ -11,9 +11,9 @@ namespace alpaca {
 
 using mcucore::TinyString;
 
-SwitchAdapter::SwitchAdapter(const DeviceInfo& device_info)
-    : DeviceImplBase(device_info) {
-  MCU_DCHECK_EQ(device_info.device_type, EDeviceType::kSwitch);
+SwitchAdapter::SwitchAdapter(const DeviceDescription& device_description)
+    : DeviceImplBase(device_description) {
+  MCU_DCHECK_EQ(device_description.device_type, EDeviceType::kSwitch);
 }
 
 void SwitchAdapter::ValidateConfiguration() {
@@ -25,7 +25,7 @@ void SwitchAdapter::ValidateConfiguration() {
 bool SwitchAdapter::HandleGetRequest(const AlpacaRequest& request, Print& out) {
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
-  MCU_DCHECK_EQ(request.device_number, device_info().device_number);
+  MCU_DCHECK_EQ(request.device_number, device_description().device_number);
 
   // Except for 'maxswitch', all of the Switch-specific GET methods needs the id
   // parameter.
@@ -92,7 +92,7 @@ bool SwitchAdapter::HandleGetRequest(const AlpacaRequest& request, Print& out) {
 bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
-  MCU_DCHECK_EQ(request.device_number, device_info().device_number);
+  MCU_DCHECK_EQ(request.device_number, device_description().device_number);
 
   // All of the Switch-specific PUT methods need the id parameter, but not the
   // common methods.

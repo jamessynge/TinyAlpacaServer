@@ -1,4 +1,4 @@
-#include "device_info.h"
+#include "device_description.h"
 
 #include <McuCore.h>
 
@@ -22,7 +22,7 @@ constexpr mcucore::ProgmemString kActionLiterals[] = {MCU_PSD("ActionA"),
                                                       MCU_PSD("Action2")};
 constexpr auto kSupportedActions = mcucore::ProgmemStringArray(kActionLiterals);
 
-constexpr alpaca::DeviceInfo kDeviceInfo{
+constexpr alpaca::DeviceDescription kDeviceDescription{
     .device_type = alpaca::EDeviceType::kCamera,
     .device_number = 312,
     .domain = MCU_DOMAIN(35),
@@ -38,21 +38,24 @@ namespace test {
 namespace {
 using ::mcucore::test::JsonValue;
 
-std::string DeviceInfoToJsonText(const DeviceInfo& device_info) {
+std::string DeviceDescriptionToJsonText(
+    const DeviceDescription& device_description) {
   mcucore::test::PrintToStdString out;
-  mcucore::JsonPropertySourceAdapter<DeviceInfo> adapter(kDeviceInfo);
+  mcucore::JsonPropertySourceAdapter<DeviceDescription> adapter(
+      kDeviceDescription);
   mcucore::JsonObjectEncoder::Encode(adapter, out);
   return out.str();
 }
 
-TEST(DeviceInfoTest, Output) {
+TEST(DeviceDescriptionTest, Output) {
   mcucore::EepromTlv::ClearAndInitializeEeprom();
 
   const char kUuidRegex[] =
       R"re([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-)re"
       R"re([0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})re";
 
-  const std::string first_output = DeviceInfoToJsonText(kDeviceInfo);
+  const std::string first_output =
+      DeviceDescriptionToJsonText(kDeviceDescription);
   ASSERT_OK_AND_ASSIGN(auto json_value, JsonValue::Parse(first_output));
   ASSERT_TRUE(json_value.is_object()) << json_value.ToDebugString();
   auto json_object = json_value.as_object();
@@ -64,12 +67,13 @@ TEST(DeviceInfoTest, Output) {
   EXPECT_THAT(first_uuid, testing::MatchesRegex(kUuidRegex));
 
   // If we output again, the output should be the same.
-  EXPECT_EQ(first_output, DeviceInfoToJsonText(kDeviceInfo));
+  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(kDeviceDescription));
 
   // If we clear the EEPROM, a new and different UniqueId should be generated.
   mcucore::EepromTlv::ClearAndInitializeEeprom();
 
-  const std::string second_output = DeviceInfoToJsonText(kDeviceInfo);
+  const std::string second_output =
+      DeviceDescriptionToJsonText(kDeviceDescription);
   ASSERT_OK_AND_ASSIGN(auto json_value2, JsonValue::Parse(second_output));
   ASSERT_TRUE(json_value2.is_object()) << json_value2.ToDebugString();
   auto json_object2 = json_value2.as_object();
@@ -82,19 +86,20 @@ TEST(DeviceInfoTest, Output) {
   EXPECT_THAT(second_uuid, testing::MatchesRegex(kUuidRegex));
 }
 
-// I don't expect it to be necessary to copy DeviceInfo instances, but let's
-// make sure that it doesn't mess things up.
-TEST(DeviceInfoTest, CopyCtor) {
+// I don't expect it to be necessary to copy DeviceDescription instances, but
+// let's make sure that it doesn't mess things up.
+TEST(DeviceDescriptionTest, CopyCtor) {
   mcucore::EepromTlv::ClearAndInitializeEeprom();
-  const std::string first_output = DeviceInfoToJsonText(kDeviceInfo);
-  alpaca::DeviceInfo copy = kDeviceInfo;
-  EXPECT_EQ(first_output, DeviceInfoToJsonText(copy));
+  const std::string first_output =
+      DeviceDescriptionToJsonText(kDeviceDescription);
+  alpaca::DeviceDescription copy = kDeviceDescription;
+  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(copy));
 
   // There shouldn't have been a change to the output of the original.
-  EXPECT_EQ(first_output, DeviceInfoToJsonText(kDeviceInfo));
+  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(kDeviceDescription));
 }
 
-TEST(DeviceInfoTest, ReadsUuid) {
+TEST(DeviceDescriptionTest, ReadsUuid) {
   mcucore::EepromTlv::ClearAndInitializeEeprom();
   {
     constexpr uint8_t bytes[16] = {
@@ -104,9 +109,9 @@ TEST(DeviceInfoTest, ReadsUuid) {
     mcucore::Uuid uuid;
     uuid.SetForTest(bytes);
     auto tlv = mcucore::EepromTlv::GetOrDie();
-    kDeviceInfo.SetUuidForTest(tlv, uuid);
+    kDeviceDescription.SetUuidForTest(tlv, uuid);
   }
-  EXPECT_EQ(DeviceInfoToJsonText(kDeviceInfo),
+  EXPECT_EQ(DeviceDescriptionToJsonText(kDeviceDescription),
             R"({"DeviceName": "AbcDeviceName", )"
             R"("DeviceType": "Camera", )"
             R"("DeviceNumber": 312, )"

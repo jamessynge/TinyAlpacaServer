@@ -7,7 +7,7 @@
 
 #include "alpaca_request.h"
 #include "constants.h"
-#include "device_info.h"
+#include "device_description.h"
 #include "device_interface.h"
 #include "extras/test_tools/alpaca_response_validator.h"
 #include "extras/test_tools/mock_device_interface.h"
@@ -92,9 +92,10 @@ TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
   }
 }
 
-void AddDefaultBehavior(const alpaca::DeviceInfo& device_info,
+void AddDefaultBehavior(const alpaca::DeviceDescription& device_description,
                         MockDeviceInterface& device_mock) {
-  ON_CALL(device_mock, device_info).WillByDefault(ReturnRef(device_info));
+  ON_CALL(device_mock, device_description)
+      .WillByDefault(ReturnRef(device_description));
   ON_CALL(device_mock, MaintainDevice).WillByDefault(Return());
 }
 
@@ -111,14 +112,14 @@ void ExpectNoInitialization(MockDeviceInterface& device_mock) {
 class AlpacaDevicesTest : public testing::Test {
  protected:
   void SetUp() override {
-    AddDefaultBehavior(mock_camera0_info_, mock_camera0_);
-    AddDefaultBehavior(mock_camera1_info_, mock_camera1_);
-    AddDefaultBehavior(mock_observing_conditions0_info_,
+    AddDefaultBehavior(mock_camera0_description_, mock_camera0_);
+    AddDefaultBehavior(mock_camera1_description_, mock_camera1_);
+    AddDefaultBehavior(mock_observing_conditions0_description_,
                        mock_observing_conditions0_);
     mcucore::EepromTlv::ClearAndInitializeEeprom();
   }
 
-  const alpaca::DeviceInfo mock_camera0_info_{
+  const alpaca::DeviceDescription mock_camera0_description_{
       .device_type = alpaca::EDeviceType::kCamera,
       .device_number = 0,
       .domain = MCU_DOMAIN(SomeDeviceDomain),
@@ -129,7 +130,7 @@ class AlpacaDevicesTest : public testing::Test {
       .supported_actions = {},
   };
 
-  const alpaca::DeviceInfo mock_camera1_info_{
+  const alpaca::DeviceDescription mock_camera1_description_{
       .device_type = alpaca::EDeviceType::kCamera,
       .device_number = 1,
       .domain = MCU_DOMAIN(SecondDeviceDomain),
@@ -140,7 +141,7 @@ class AlpacaDevicesTest : public testing::Test {
       .supported_actions = {},
   };
 
-  const alpaca::DeviceInfo mock_observing_conditions0_info_{
+  const alpaca::DeviceDescription mock_observing_conditions0_description_{
       .device_type = alpaca::EDeviceType::kObservingConditions,
       .device_number = 0,
       .domain = MCU_DOMAIN(35),
@@ -179,9 +180,9 @@ TEST_F(AlpacaDevicesTest, MaintainDevices) {
 }
 
 TEST_F(AlpacaDevicesTest, OneConfiguredDevice) {
-  EXPECT_CALL(mock_camera0_, device_info)
+  EXPECT_CALL(mock_camera0_, device_description)
       .Times(2)
-      .WillRepeatedly(ReturnRef(mock_camera0_info_));
+      .WillRepeatedly(ReturnRef(mock_camera0_description_));
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_};
   AlpacaDevices devices(MakeArrayView(device_ptrs));
@@ -408,9 +409,9 @@ TEST_F(AlpacaDevicesDeathTest, SameDeviceTwice) {
 }
 
 TEST_F(AlpacaDevicesDeathTest, SameDeviceTypeAndNumber) {
-  DeviceInfo copy = mock_camera1_info_;
-  copy.device_type = mock_camera0_info_.device_type;
-  copy.device_number = mock_camera0_info_.device_number;
+  DeviceDescription copy = mock_camera1_description_;
+  copy.device_type = mock_camera0_description_.device_type;
+  copy.device_number = mock_camera0_description_.device_number;
   AddDefaultBehavior(copy, mock_camera1_);
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &mock_camera1_};
@@ -423,8 +424,8 @@ TEST_F(AlpacaDevicesDeathTest, SameDeviceTypeAndNumber) {
 }
 
 TEST_F(AlpacaDevicesDeathTest, SameDomain) {
-  DeviceInfo copy = mock_observing_conditions0_info_;
-  copy.domain = mock_camera1_info_.domain;
+  DeviceDescription copy = mock_observing_conditions0_description_;
+  copy.domain = mock_camera1_description_.domain;
   AddDefaultBehavior(copy, mock_observing_conditions0_);
 
   DeviceInterface* device_ptrs[] = {&mock_camera1_,
@@ -448,8 +449,8 @@ TEST_F(AlpacaDevicesDeathTest, SameUuid) {
     mcucore::Uuid uuid;
     uuid.SetForTest(bytes);
     auto tlv = mcucore::EepromTlv::GetOrDie();
-    mock_camera0_info_.SetUuidForTest(tlv, uuid);
-    mock_camera1_info_.SetUuidForTest(tlv, uuid);
+    mock_camera0_description_.SetUuidForTest(tlv, uuid);
+    mock_camera1_description_.SetUuidForTest(tlv, uuid);
   }
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &mock_camera1_};
@@ -462,9 +463,9 @@ TEST_F(AlpacaDevicesDeathTest, SameUuid) {
 }
 
 TEST_F(AlpacaDevicesDeathTest, DeviceNumberGap) {
-  DeviceInfo mock_camera2_info_ = mock_camera1_info_;
-  mock_camera2_info_.device_number = 2;
-  AddDefaultBehavior(mock_camera2_info_, mock_camera1_);
+  DeviceDescription mock_camera2_description_ = mock_camera1_description_;
+  mock_camera2_description_.device_number = 2;
+  AddDefaultBehavior(mock_camera2_description_, mock_camera1_);
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &mock_camera1_};
   AlpacaDevices devices(MakeArrayView(device_ptrs));

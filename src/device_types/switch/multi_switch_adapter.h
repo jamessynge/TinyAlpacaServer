@@ -16,7 +16,7 @@ class MultiSwitchAdapter : public SwitchAdapter {
  public:
   static constexpr uint8_t kMaxSwitchesForName = 10;
 
-  MultiSwitchAdapter(const DeviceInfo& device_info,
+  MultiSwitchAdapter(const DeviceDescription& device_description,
                      mcucore::ArrayView<SwitchInterface*> switches);
   // ~MultiSwitchAdapter() override {}
 

@@ -12,10 +12,10 @@ MCU_DEFINE_NAMED_DOMAIN(FakeWeather, 17);
 
 namespace fake_weather_service {
 namespace {
-using ::alpaca::DeviceInfo;
+using ::alpaca::DeviceDescription;
 using ::alpaca::EDeviceType;
 
-const DeviceInfo kFakeWeatherDeviceInfo{
+const DeviceDescription kFakeWeatherDeviceDescription{
     .device_type = EDeviceType::kObservingConditions,
     .device_number = 0,
     .domain = MCU_DOMAIN(FakeWeather),
@@ -26,7 +26,7 @@ const DeviceInfo kFakeWeatherDeviceInfo{
     .supported_actions = {},                // No extra actions.
 };
 
-FakeWeather fake_weather_device(kFakeWeatherDeviceInfo);  // NOLINT
+FakeWeather fake_weather_device(kFakeWeatherDeviceDescription);  // NOLINT
 
 // For responding to /management/v1/description.
 // Note that this is using C++ 20's designated initializers, which shouldn't be

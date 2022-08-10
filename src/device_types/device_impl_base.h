@@ -16,19 +16,21 @@
 #include <McuCore.h>
 
 #include "alpaca_request.h"
-#include "device_info.h"
+#include "device_description.h"
 #include "device_interface.h"
 
 namespace alpaca {
 
 class DeviceImplBase : public DeviceInterface {
  public:
-  explicit DeviceImplBase(const DeviceInfo& device_info)
-      : device_info_(device_info) {}
+  explicit DeviceImplBase(const DeviceDescription& device_description)
+      : device_description_(device_description) {}
   ~DeviceImplBase() override {}
 
   // Overrides of the base class methods:
-  const DeviceInfo& device_info() const override { return device_info_; }
+  const DeviceDescription& device_description() const override {
+    return device_description_;
+  }
 
   // We don't override ResetHardware and InitializeDevice on the theory that
   // most real world devices will have some reset and initialize steps to
@@ -71,8 +73,8 @@ class DeviceImplBase : public DeviceInterface {
 
   // Handles a subset of the "ASCOM Alpaca Methods Common To All Devices": the
   // device metadata inquiry methods, such as /interfaceversion and
-  // /supportedactions, which can be answered using the DeviceInfo instance
-  // passed to the constructor.
+  // /supportedactions, which can be answered using the DeviceDescription
+  // instance passed to the constructor.
 
   // Handles a GET 'request', writing the HTTP response message to out. Returns
   // true to indicate that the response was written without error and the
@@ -125,7 +127,7 @@ class DeviceImplBase : public DeviceInterface {
   virtual mcucore::Status SetConnected(bool value);
 
  private:
-  const DeviceInfo& device_info_;
+  const DeviceDescription& device_description_;
 };
 
 }  // namespace alpaca

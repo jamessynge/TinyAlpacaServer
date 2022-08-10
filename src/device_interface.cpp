@@ -2,7 +2,7 @@
 
 #include <McuCore.h>
 
-#include "device_info.h"
+#include "device_description.h"
 
 namespace alpaca {
 
@@ -14,8 +14,8 @@ class ConfiguredDevicesResponseValue : public mcucore::JsonElementSource {
 
   void AddTo(mcucore::JsonArrayEncoder& array_encoder) const override {
     for (auto device_ptr : devices_) {
-      mcucore::JsonPropertySourceAdapter<DeviceInfo> property_source(
-          device_ptr->device_info());
+      mcucore::JsonPropertySourceAdapter<DeviceDescription> property_source(
+          device_ptr->device_description());
       array_encoder.AddObjectElement(property_source);
     }
   }

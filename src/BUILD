@@ -21,7 +21,7 @@ cc_library(
         ":ascom_error_codes",
         ":config",
         ":constants",
-        ":device_info",
+        ":device_description",
         ":device_interface",
         ":eeprom_ids",
         ":extra_parameters",
@@ -58,7 +58,7 @@ cc_library(
         ":alpaca_request",
         ":alpaca_response",
         ":constants",
-        ":device_info",
+        ":device_description",
         ":device_interface",
         ":literals",
         "//mcucore/src:array_view",
@@ -156,9 +156,9 @@ cc_library(
 )
 
 cc_library(
-    name = "device_info",
-    srcs = ["device_info.cc"],
-    hdrs = ["device_info.h"],
+    name = "device_description",
+    srcs = ["device_description.cc"],
+    hdrs = ["device_description.h"],
     deps = [
         ":constants",
         ":eeprom_ids",
@@ -179,7 +179,7 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":constants",
-        ":device_info",
+        ":device_description",
         ":json_response",
         "//mcucore/src:array_view",
         "//mcucore/src:json_encoder",
