@@ -4,9 +4,6 @@
 // DeviceDescription provides fixed data used to respond to many of Alpaca's
 // "Common ASCOM Methods", and to /management/v1/configureddevices requests.
 //
-// TODO(jamessynge): Rename DeviceDescription to DeviceDescription, which better
-// matches ServerDescription.
-//
 // Author: james.synge@gmail.com
 
 #include <McuCore.h>
