@@ -213,10 +213,10 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
-        "//mcucore/src:limits",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:progmem_string",
         "//mcucore/src:progmem_string_view",
+        "//mcucore/src/semistd:limits",
     ],
 )
 

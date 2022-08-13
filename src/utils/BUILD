@@ -24,7 +24,7 @@ cc_library(
         "//mcucore/src:print_misc",
         "//mcucore/src:progmem_string_data",
         "//mcucore/src:stream_to_print",
-        "//mcucore/src:type_traits",
+        "//mcucore/src/semistd:type_traits",
     ],
 )
 
