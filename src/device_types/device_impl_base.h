@@ -18,13 +18,16 @@
 #include "alpaca_request.h"
 #include "device_description.h"
 #include "device_interface.h"
+#include "server_context.h"
 
 namespace alpaca {
 
 class DeviceImplBase : public DeviceInterface {
  public:
-  explicit DeviceImplBase(const DeviceDescription& device_description)
-      : device_description_(device_description) {}
+  explicit DeviceImplBase(ServerContext& server_context,
+                          const DeviceDescription& device_description)
+      : server_context_(server_context),
+        device_description_(device_description) {}
   ~DeviceImplBase() override {}
 
   // Overrides of the base class methods:
@@ -43,6 +46,8 @@ class DeviceImplBase : public DeviceInterface {
   void ValidateConfiguration() override {}
   void MaintainDevice() override {}
 
+  void AddConfiguredDeviceTo(
+      mcucore::JsonObjectEncoder& object_encoder) const override;
   void AddToHomePageHtml(const AlpacaRequest& request, EHtmlPageSection section,
                          mcucore::OPrintStream& strm) override;
   bool HandleDeviceSetupRequest(const AlpacaRequest& request,
@@ -57,6 +62,11 @@ class DeviceImplBase : public DeviceInterface {
   // Create a tag for reading data stored in EEPROM using this device's
   // EepromDomain.
   mcucore::EepromTag MakeTag(uint8_t id);
+
+  // Implements the core of HandleDeviceSetupRequest, i.e. writing the HTML body
+  // of the response.
+  virtual void WriteDeviceSetupHtml(const AlpacaRequest& request,
+                                    mcucore::OPrintStream& strm) const;
 
  protected:
   // Additional methods provided by this class, can be overridden by subclass.
@@ -126,7 +136,7 @@ class DeviceImplBase : public DeviceInterface {
   // Default implementation returns an error.
   virtual mcucore::Status SetConnected(bool value);
 
- private:
+  ServerContext& server_context_;
   const DeviceDescription& device_description_;
 };
 

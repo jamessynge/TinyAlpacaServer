@@ -8,10 +8,12 @@
 namespace alpaca {
 
 CoverCalibratorAdapter::CoverCalibratorAdapter(
-    const DeviceDescription& device_description)
-    : DeviceImplBase(device_description) {
+    ServerContext& server_context, const DeviceDescription& device_description)
+    : DeviceImplBase(server_context, device_description) {
   MCU_DCHECK_EQ(device_description.device_type, EDeviceType::kCoverCalibrator);
 }
+
+CoverCalibratorAdapter::~CoverCalibratorAdapter() {}
 
 bool CoverCalibratorAdapter::HandleGetRequest(const AlpacaRequest& request,
                                               Print& out) {

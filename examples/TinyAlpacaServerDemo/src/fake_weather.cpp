@@ -2,12 +2,9 @@
 
 #include <McuCore.h>
 
-using ::alpaca::ObservingConditionsAdapter;
-using ::mcucore::ProgmemStringView;
-using ::mcucore::StatusOr;
-
-FakeWeather::FakeWeather(const alpaca::DeviceDescription& device_description)
-    : ObservingConditionsAdapter(device_description) {}
+FakeWeather::FakeWeather(alpaca::ServerContext& server_context,
+                         const alpaca::DeviceDescription& device_description)
+    : alpaca::ObservingConditionsAdapter(server_context, device_description) {}
 
 mcucore::StatusOr<double> FakeWeather::GetTemperature() { return 20; }
 

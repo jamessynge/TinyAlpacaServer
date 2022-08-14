@@ -8,14 +8,17 @@
 
 namespace alpaca {
 namespace {
+using ::mcucore::EepromTlv;
+using ::mcucore::Uuid;
+
 size_t PrintUuid(Print& out, const void* data) {
-  auto* uuid = reinterpret_cast<const mcucore::Uuid*>(data);
+  auto* uuid = reinterpret_cast<const Uuid*>(data);
   return uuid->printTo(out);
 }
 }  // namespace
 
-void DeviceDescription::AddTo(
-    mcucore::JsonObjectEncoder& object_encoder) const {
+void DeviceDescription::AddConfiguredDeviceTo(
+    mcucore::JsonObjectEncoder& object_encoder, EepromTlv& tlv) const {
   object_encoder.AddStringProperty(ProgmemStringViews::DeviceName(), name);
 
   // TODO(jamessynge): Check on the case requirements of the device type's name.
@@ -25,7 +28,7 @@ void DeviceDescription::AddTo(
   object_encoder.AddUIntProperty(ProgmemStringViews::DeviceNumber(),
                                  device_number);
 
-  auto status_or_uuid = GetOrCreateUniqueId();
+  auto status_or_uuid = GetOrCreateUniqueId(tlv);
   if (!status_or_uuid.ok()) {
     MCU_DCHECK_OK(status_or_uuid)
         << MCU_PSD("Should have been able to GetOrCreateUniqueId");
@@ -36,22 +39,16 @@ void DeviceDescription::AddTo(
   }
 }
 
-mcucore::StatusOr<mcucore::Uuid> DeviceDescription::GetOrCreateUniqueId(
-    mcucore::EepromTlv& tlv) const {
+mcucore::StatusOr<Uuid> DeviceDescription::GetOrCreateUniqueId(
+    EepromTlv& tlv) const {
   mcucore::EepromTag tag{.domain = domain, .id = kUniqueIdTagId};
-  mcucore::Uuid uuid;
+  Uuid uuid;
   MCU_RETURN_IF_ERROR(uuid.ReadOrStoreEntry(tlv, tag));
   return uuid;
 }
 
-mcucore::StatusOr<mcucore::Uuid> DeviceDescription::GetOrCreateUniqueId()
-    const {
-  MCU_ASSIGN_OR_RETURN(auto tlv, mcucore::EepromTlv::GetIfValid());
-  return GetOrCreateUniqueId(tlv);
-}
-
-mcucore::Status DeviceDescription::SetUuidForTest(
-    mcucore::EepromTlv& tlv, const mcucore::Uuid& uuid) const {
+mcucore::Status DeviceDescription::SetUuidForTest(EepromTlv& tlv,
+                                                  const Uuid& uuid) const {
   mcucore::EepromTag tag{.domain = domain, .id = kUniqueIdTagId};
   return uuid.WriteToEeprom(tlv, tag);
 }

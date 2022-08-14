@@ -15,6 +15,9 @@ namespace {
 using ::alpaca::DeviceDescription;
 using ::alpaca::EDeviceType;
 
+// Shared context provided to devices.
+alpaca::ServerContext server_context;  // NOLINT
+
 const DeviceDescription kFakeWeatherDeviceDescription{
     .device_type = EDeviceType::kObservingConditions,
     .device_number = 0,
@@ -26,7 +29,8 @@ const DeviceDescription kFakeWeatherDeviceDescription{
     .supported_actions = {},                // No extra actions.
 };
 
-FakeWeather fake_weather_device(kFakeWeatherDeviceDescription);  // NOLINT
+FakeWeather fake_weather_device(server_context,  // NOLINT
+                                kFakeWeatherDeviceDescription);
 
 // For responding to /management/v1/description.
 // Note that this is using C++ 20's designated initializers, which shouldn't be
@@ -39,10 +43,11 @@ const alpaca::ServerDescription kServerDescription{
     .location = MCU_FLASHSTR("Atlantis"),
 };
 
+// The array of devices that this server will have.
 alpaca::DeviceInterface* kDevices[] = {&fake_weather_device};
 
 alpaca::TinyAlpacaDeviceServer device_server(  // NOLINT
-    kServerDescription, kDevices);
+    server_context, kServerDescription, kDevices);
 
 alpaca::TinyAlpacaNetworkServer network_server(device_server);  // NOLINT
 
@@ -59,8 +64,7 @@ void announceAddresses() {
 void setup() {
   // This is first so we can (if necessary) turn off any device that turns on
   // automatically when the microcontroller is reset.
-  device_server.ValidateConfiguration();
-  device_server.ResetHardware();
+  device_server.ValidateAndReset();
 
   mcucore::LogSink() << MCU_PSD("\n\n#####################################\n")
                      << kServerDescription.server_name << '\n'
@@ -69,9 +73,6 @@ void setup() {
 
   mcucore::LogSink() << MCU_PSD("\nInitializing networking");
   mcunet::Mega2560Eth::SetupW5500();
-
-  // Get an EepromTlv instance, to be used for persistence of settings.
-  auto eeprom_tlv = mcucore::EepromTlv::GetOrDie();
 
   // Initialize the pseudo-random number generator with a random number
   // generated based on clock jitter.
@@ -82,7 +83,8 @@ void setup() {
   // running this sketch will share the first 3 bytes of their MAC addresses,
   // which may help with locating them.
   mcunet::OuiPrefix oui_prefix(0x53, 0x76, 0x67);
-  MCU_CHECK_OK(ip_device.InitializeNetworking(eeprom_tlv, &oui_prefix));
+  MCU_CHECK_OK(
+      ip_device.InitializeNetworking(server_context.eeprom_tlv(), &oui_prefix));
   announceAddresses();
 
   // Initialize Tiny Alpaca Device Server, which will initialize sensors, etc.

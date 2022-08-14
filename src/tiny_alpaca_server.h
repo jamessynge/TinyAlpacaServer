@@ -24,6 +24,7 @@
 #include "alpaca_devices.h"
 #include "alpaca_discovery_server.h"
 #include "device_interface.h"
+#include "server_context.h"
 #include "server_description.h"
 #include "server_sockets_and_connections.h"
 
@@ -31,31 +32,34 @@ namespace alpaca {
 
 class TinyAlpacaDeviceServer : public RequestListener {
  public:
-  TinyAlpacaDeviceServer(const ServerDescription& server_description,
+  TinyAlpacaDeviceServer(ServerContext& server_context,
+                         const ServerDescription& server_description,
                          mcucore::ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
-  TinyAlpacaDeviceServer(const ServerDescription& server_description,
+  TinyAlpacaDeviceServer(ServerContext& server_context,
+                         const ServerDescription& server_description,
                          DeviceInterface* (&devices)[N])
       : TinyAlpacaDeviceServer(
-            server_description,
+            server_context, server_description,
             mcucore::ArrayView<DeviceInterface*>(devices, N)) {}
 
-  // Validates that the configuration of the server is sensible; should be
-  // called before ResetHardware. CHECK fails if there are any problems.
-  void ValidateConfiguration();
-
-  // Does the minimum necessary to reset or disable any features that might be
-  // turned on or enabled by default when the processor resets. Must be called
-  // before InitializeDevices, and preferably as soon as soon as possible after
-  // the program starts.
-  void ResetHardware();
+  // Validates the set of devices (e.g. that the first device of each type has
+  // device number 0), and does the minimum necessary to reset or disable any
+  // features that might be turned on or enabled by default when the processor
+  // resets. Must be called before InitializeDevices, and preferably as soon as
+  // soon as possible after the program starts. CHECK fails (crashes) if the
+  // configuration is not valid.
+  void ValidateAndReset();
 
   // Initializes the server and its devices in preparation for serving requests.
   void InitializeForServing();
 
-  // Gives devices a chance to perform periodic work.
+  // Gives devices a chance to perform periodic work. In the Arduino context,
+  // this should be called from loop().
   void MaintainDevices();
+
+  ServerContext& server_context() { return server_context_; }
 
   const ServerDescription& server_description() const {
     return server_description_;
@@ -73,7 +77,10 @@ class TinyAlpacaDeviceServer : public RequestListener {
   bool HandleServerSetup(AlpacaRequest& request, Print& out);
   bool HandleServerStatus(AlpacaRequest& request, Print& out);
 
+  ServerContext server_context_;
   AlpacaDevices alpaca_devices_;
+
+  // Maybe move the following into ServerContext?
   const ServerDescription& server_description_;
   uint32_t server_transaction_id_;
 };

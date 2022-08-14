@@ -27,6 +27,9 @@ class MockDeviceInterface : public DeviceInterface {
 
   MOCK_METHOD(void, MaintainDevice, (), (override));
 
+  MOCK_METHOD(void, AddConfiguredDeviceTo,
+              (mcucore::JsonObjectEncoder & encoder), (const, override));
+
   MOCK_METHOD(bool, HandleDeviceSetupRequest,
               (const alpaca::AlpacaRequest& request, Print& out), (override));
 

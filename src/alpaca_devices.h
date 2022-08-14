@@ -13,12 +13,14 @@
 #include "alpaca_request.h"
 #include "constants.h"
 #include "device_interface.h"
+#include "server_context.h"
 
 namespace alpaca {
 
 class AlpacaDevices {
  public:
-  explicit AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices);
+  explicit AlpacaDevices(ServerContext& server_context,
+                         mcucore::ArrayView<DeviceInterface*> devices);
 
   // Validates the devices' DeviceDescription (e.g. that there is at most one
   // device number 0 of each device type). CHECK fails if there are any
@@ -57,6 +59,7 @@ class AlpacaDevices {
   // Returns the specified device, or nullptr if not found.
   DeviceInterface* FindDevice(EDeviceType device_type, uint32_t device_number);
 
+  ServerContext& server_context_;
   mcucore::ArrayView<DeviceInterface*> devices_;
 };
 

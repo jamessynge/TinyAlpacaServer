@@ -11,10 +11,13 @@ namespace alpaca {
 
 using mcucore::TinyString;
 
-SwitchAdapter::SwitchAdapter(const DeviceDescription& device_description)
-    : DeviceImplBase(device_description) {
+SwitchAdapter::SwitchAdapter(ServerContext& server_context,
+                             const DeviceDescription& device_description)
+    : DeviceImplBase(server_context, device_description) {
   MCU_DCHECK_EQ(device_description.device_type, EDeviceType::kSwitch);
 }
+
+SwitchAdapter::~SwitchAdapter() {}
 
 void SwitchAdapter::ValidateConfiguration() {
   MCU_CHECK_LE(0, GetMaxSwitch());

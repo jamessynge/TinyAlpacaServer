@@ -18,6 +18,7 @@
 #include "device_interface.h"
 #include "mcunet/extras/test_tools/string_io_stream_impl.h"
 #include "server_connection.h"
+#include "server_context.h"
 #include "server_description.h"
 #include "tiny_alpaca_server.h"
 
@@ -41,13 +42,15 @@ struct ConnectionResult {
 
 class TestTinyAlpacaServer : public TinyAlpacaDeviceServer {
  public:
-  TestTinyAlpacaServer(const ServerDescription& server_description,
+  TestTinyAlpacaServer(ServerContext& server_context,
+                       const ServerDescription& server_description,
                        mcucore::ArrayView<DeviceInterface*> devices);
 
   template <size_t N>
-  TestTinyAlpacaServer(const ServerDescription& server_description,
+  TestTinyAlpacaServer(ServerContext& server_context,
+                       const ServerDescription& server_description,
                        DeviceInterface* (&devices)[N])
-      : TestTinyAlpacaServer(server_description,
+      : TestTinyAlpacaServer(server_context, server_description,
                              mcucore::ArrayView<DeviceInterface*>(devices, N)) {
   }
 

@@ -20,9 +20,9 @@ namespace test {
 using ::mcunet::test::StringIoConnection;
 
 TestTinyAlpacaServer::TestTinyAlpacaServer(
-    const ServerDescription& server_description,
+    ServerContext& server_context, const ServerDescription& server_description,
     mcucore::ArrayView<DeviceInterface*> devices)
-    : TinyAlpacaDeviceServer(server_description, devices),
+    : TinyAlpacaDeviceServer(server_context, server_description, devices),
       server_connection_(*this),
       sock_num_(0) {}
 

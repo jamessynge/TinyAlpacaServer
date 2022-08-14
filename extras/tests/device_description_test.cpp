@@ -8,7 +8,10 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extras/test_tools/json_decoder.h"
+#include "mcucore/extras/test_tools/json_test_utils.h"
 #include "mcucore/extras/test_tools/print_to_std_string.h"
+#include "mcucore/extras/test_tools/status_or_test_utils.h"
+#include "mcucore/extras/test_tools/uuid_utils.h"
 
 // Defining everything outside of the alpaca namespace as is expected for a real
 // device; i.e. we reserve the alpaca namespace for the generic ASCOM Alpaca
@@ -36,26 +39,72 @@ constexpr alpaca::DeviceDescription kDeviceDescription{
 namespace alpaca {
 namespace test {
 namespace {
+
+using ::mcucore::EepromTlv;
+using ::mcucore::Uuid;
+using ::mcucore::test::IsOkAndHolds;
 using ::mcucore::test::JsonValue;
+using ::mcucore::test::kUuidRegex;
+using ::mcucore::test::MakeUuid;
 
 std::string DeviceDescriptionToJsonText(
-    const DeviceDescription& device_description) {
+    const DeviceDescription& device_description, EepromTlv& tlv) {
   mcucore::test::PrintToStdString out;
-  mcucore::JsonPropertySourceAdapter<DeviceDescription> adapter(
-      kDeviceDescription);
-  mcucore::JsonObjectEncoder::Encode(adapter, out);
+  auto property_source_function =
+      [&](mcucore::JsonObjectEncoder& object_encoder) {
+        device_description.AddConfiguredDeviceTo(object_encoder, tlv);
+      };
+  mcucore::test::JsonEncodeObject(property_source_function, out);
   return out.str();
 }
 
-TEST(DeviceDescriptionTest, Output) {
-  mcucore::EepromTlv::ClearAndInitializeEeprom();
+TEST(DeviceDescriptionTest, ReadStoredUniqueIdRepeatedly) {
+  const auto kUuid = MakeUuid({0x46, 0xb4, 0xd9, 0x5c, 0x53, 0x88, 0x43, 0x38,
+                               0x91, 0xb9, 0x05, 0x1c, 0x5d, 0xab, 0xc0, 0x9d});
 
-  const char kUuidRegex[] =
-      R"re([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-)re"
-      R"re([0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})re";
+  EepromTlv::ClearAndInitializeEeprom();
+  auto tlv = EepromTlv::GetOrDie();
+  kDeviceDescription.SetUuidForTest(tlv, kUuid);
+
+  ASSERT_THAT(kDeviceDescription.GetOrCreateUniqueId(tlv), IsOkAndHolds(kUuid));
+  ASSERT_THAT(kDeviceDescription.GetOrCreateUniqueId(tlv), IsOkAndHolds(kUuid));
+}
+
+TEST(DeviceDescriptionTest, CreateUniqueIdRepeatedly) {
+  Uuid uuid1;
+  {
+    EepromTlv::ClearAndInitializeEeprom();
+    auto tlv = EepromTlv::GetOrDie();
+    ASSERT_STATUS_OK_AND_ASSIGN(uuid1,
+                                kDeviceDescription.GetOrCreateUniqueId(tlv));
+    // Read again, it will be unchanged.
+    ASSERT_THAT(kDeviceDescription.GetOrCreateUniqueId(tlv),
+                IsOkAndHolds(uuid1));
+  }
+
+  // If the EEPROM is cleared, then GetOrCreateUniqueId will need to generate a
+  // new UUID.
+
+  Uuid uuid2;
+  {
+    EepromTlv::ClearAndInitializeEeprom();
+    auto tlv = EepromTlv::GetOrDie();
+    ASSERT_STATUS_OK_AND_ASSIGN(uuid2,
+                                kDeviceDescription.GetOrCreateUniqueId(tlv));
+    // Read again, it will be unchanged.
+    ASSERT_THAT(kDeviceDescription.GetOrCreateUniqueId(tlv),
+                IsOkAndHolds(uuid2));
+  }
+
+  EXPECT_NE(uuid1, uuid2);
+}
+
+TEST(DeviceDescriptionTest, Output) {
+  EepromTlv::ClearAndInitializeEeprom();
+  auto tlv = EepromTlv::GetOrDie();
 
   const std::string first_output =
-      DeviceDescriptionToJsonText(kDeviceDescription);
+      DeviceDescriptionToJsonText(kDeviceDescription, tlv);
   ASSERT_OK_AND_ASSIGN(auto json_value, JsonValue::Parse(first_output));
   ASSERT_TRUE(json_value.is_object()) << json_value.ToDebugString();
   auto json_object = json_value.as_object();
@@ -67,13 +116,13 @@ TEST(DeviceDescriptionTest, Output) {
   EXPECT_THAT(first_uuid, testing::MatchesRegex(kUuidRegex));
 
   // If we output again, the output should be the same.
-  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(kDeviceDescription));
+  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(kDeviceDescription, tlv));
 
   // If we clear the EEPROM, a new and different UniqueId should be generated.
-  mcucore::EepromTlv::ClearAndInitializeEeprom();
+  EepromTlv::ClearAndInitializeEeprom();
 
   const std::string second_output =
-      DeviceDescriptionToJsonText(kDeviceDescription);
+      DeviceDescriptionToJsonText(kDeviceDescription, tlv);
   ASSERT_OK_AND_ASSIGN(auto json_value2, JsonValue::Parse(second_output));
   ASSERT_TRUE(json_value2.is_object()) << json_value2.ToDebugString();
   auto json_object2 = json_value2.as_object();
@@ -86,32 +135,31 @@ TEST(DeviceDescriptionTest, Output) {
   EXPECT_THAT(second_uuid, testing::MatchesRegex(kUuidRegex));
 }
 
-// I don't expect it to be necessary to copy DeviceDescription instances, but
-// let's make sure that it doesn't mess things up.
+// I don't expect it to be necessary to copy DeviceDescription instances (unless
+// I come up with a way to store them in Flash), but let's make sure that it
+// doesn't mess things up.
 TEST(DeviceDescriptionTest, CopyCtor) {
-  mcucore::EepromTlv::ClearAndInitializeEeprom();
+  EepromTlv::ClearAndInitializeEeprom();
+  auto tlv = EepromTlv::GetOrDie();
+
   const std::string first_output =
-      DeviceDescriptionToJsonText(kDeviceDescription);
+      DeviceDescriptionToJsonText(kDeviceDescription, tlv);
   alpaca::DeviceDescription copy = kDeviceDescription;
-  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(copy));
+  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(copy, tlv));
 
   // There shouldn't have been a change to the output of the original.
-  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(kDeviceDescription));
+  EXPECT_EQ(first_output, DeviceDescriptionToJsonText(kDeviceDescription, tlv));
 }
 
 TEST(DeviceDescriptionTest, ReadsUuid) {
-  mcucore::EepromTlv::ClearAndInitializeEeprom();
-  {
-    constexpr uint8_t bytes[16] = {
-        0x46, 0xb4, 0xd9, 0x5c, 0x53, 0x88, 0x43, 0x38,
-        0x91, 0xb9, 0x05, 0x1c, 0x5d, 0xab, 0xc0, 0x9d,
-    };
-    mcucore::Uuid uuid;
-    uuid.SetForTest(bytes);
-    auto tlv = mcucore::EepromTlv::GetOrDie();
-    kDeviceDescription.SetUuidForTest(tlv, uuid);
-  }
-  EXPECT_EQ(DeviceDescriptionToJsonText(kDeviceDescription),
+  const auto kUuid = MakeUuid({0x46, 0xb4, 0xd9, 0x5c, 0x53, 0x88, 0x43, 0x38,
+                               0x91, 0xb9, 0x05, 0x1c, 0x5d, 0xab, 0xc0, 0x9d});
+
+  EepromTlv::ClearAndInitializeEeprom();
+  auto tlv = EepromTlv::GetOrDie();
+  kDeviceDescription.SetUuidForTest(tlv, kUuid);
+
+  EXPECT_EQ(DeviceDescriptionToJsonText(kDeviceDescription, tlv),
             R"({"DeviceName": "AbcDeviceName", )"
             R"("DeviceType": "Camera", )"
             R"("DeviceNumber": 312, )"

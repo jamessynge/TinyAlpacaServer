@@ -29,8 +29,9 @@ Adafruit_MLX90614 ir_therm;
 
 }  // namespace
 
-AMWeatherBox::AMWeatherBox(const alpaca::DeviceDescription& device_description)
-    : ObservingConditionsAdapter(device_description),
+AMWeatherBox::AMWeatherBox(alpaca::ServerContext& server_context,
+                           const alpaca::DeviceDescription& device_description)
+    : ObservingConditionsAdapter(server_context, device_description),
       ir_therm_initialized_(false) {}
 
 void AMWeatherBox::InitializeDevice() {

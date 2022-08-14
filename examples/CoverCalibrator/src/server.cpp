@@ -16,13 +16,8 @@ namespace {
 using ::alpaca::DeviceDescription;
 using ::alpaca::EDeviceType;
 
-// No extra actions.
-const auto kSupportedActions = mcucore::ProgmemStringArray();
-
-// TODO(jamessynge): Replace field unique_id with a `EepromDomain device_domain`
-// field, i.e. one that must be unique for each device of a single server.
-// TODO(jamessynge): Use the device_domain to store and retrieve a UUID for
-// each device.
+// Shared context provided to devices.
+alpaca::ServerContext server_context;  // NOLINT
 
 const DeviceDescription kCoverCalibratorDeviceDescription  // NOLINT
     {
@@ -34,10 +29,11 @@ const DeviceDescription kCoverCalibratorDeviceDescription  // NOLINT
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
         .driver_version = MCU_FLASHSTR("0.2"),
-        .supported_actions = kSupportedActions,
+        .supported_actions = {},  // No extra actions.
     };
 
-CoverCalibrator cover_calibrator(kCoverCalibratorDeviceDescription);  // NOLINT
+CoverCalibrator cover_calibrator(  // NOLINT
+    server_context, kCoverCalibratorDeviceDescription);
 
 const DeviceDescription kLedSwitchesDeviceDescription  // NOLINT
     {
@@ -49,11 +45,11 @@ const DeviceDescription kLedSwitchesDeviceDescription  // NOLINT
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
         .driver_version = MCU_FLASHSTR("0.2"),
-        .supported_actions = kSupportedActions,
+        .supported_actions = {},  // No extra actions.
     };
 
 LedChannelSwitchGroup led_switches(  // NOLINT
-    kLedSwitchesDeviceDescription, cover_calibrator);
+    server_context, kLedSwitchesDeviceDescription, cover_calibrator);
 
 // For responding to /management/v1/description
 const alpaca::ServerDescription kServerDescription  // NOLINT
@@ -68,7 +64,7 @@ const alpaca::ServerDescription kServerDescription  // NOLINT
 alpaca::DeviceInterface* kDevices[] = {&cover_calibrator, &led_switches};
 
 alpaca::TinyAlpacaDeviceServer device_server(  // NOLINT
-    kServerDescription, kDevices);
+    server_context, kServerDescription, kDevices);
 
 alpaca::TinyAlpacaNetworkServer network_server(device_server);  // NOLINT
 
@@ -85,8 +81,7 @@ void announceAddresses() {
 void setup() {
   // This is first so we can (if necessary) turn off any device that turns on
   // automatically when the microcontroller is reset.
-  device_server.ValidateConfiguration();
-  device_server.ResetHardware();
+  device_server.ValidateAndReset();
 
   mcucore::LogSink() << '\n' << kServerDescription.server_name;
   mcucore::LogSink() << kServerDescription.manufacturer << MCU_PSD(", version ")

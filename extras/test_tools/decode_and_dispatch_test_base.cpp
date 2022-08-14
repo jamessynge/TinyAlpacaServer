@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
@@ -11,6 +12,7 @@
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 #include "mcucore/extras/test_tools/http_request.h"
 #include "mcucore/extras/test_tools/json_decoder.h"
+#include "mcucore/extras/test_tools/status_test_utils.h"
 #include "util/task/status_macros.h"
 
 namespace alpaca {
@@ -52,8 +54,7 @@ void DecodeAndDispatchTestBase::SetUp() {
   PrepareEeprom();
   server_ = CreateServer();
   if (InitializeServerAutomatically()) {
-    server_->ValidateConfiguration();
-    server_->ResetHardware();
+    server_->ValidateAndReset();
     server_->InitializeForServing();
     EXPECT_FALSE(server_->connection_is_open());
   }
@@ -61,6 +62,7 @@ void DecodeAndDispatchTestBase::SetUp() {
 
 void DecodeAndDispatchTestBase::PrepareEeprom() {
   mcucore::EepromTlv::ClearAndInitializeEeprom();
+  ASSERT_STATUS_OK(server_context_.Initialize());
 }
 
 const ServerDescription& DecodeAndDispatchTestBase::GetServerDescription() {
@@ -69,8 +71,8 @@ const ServerDescription& DecodeAndDispatchTestBase::GetServerDescription() {
 
 std::unique_ptr<TestTinyAlpacaServer>
 DecodeAndDispatchTestBase::CreateServer() {
-  return std::make_unique<TestTinyAlpacaServer>(GetServerDescription(),
-                                                GetDeviceInterfaces());
+  return std::make_unique<TestTinyAlpacaServer>(
+      server_context_, GetServerDescription(), GetDeviceInterfaces());
 }
 
 mcucore::ArrayView<DeviceInterface*>

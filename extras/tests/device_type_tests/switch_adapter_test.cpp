@@ -52,7 +52,7 @@ class SwitchAdapterTest : public DecodeAndDispatchTestBase {
             .driver_version = MCU_FLASHSTR("Switch Driver Version"),
             .supported_actions = {},
         }),
-        device_(device_description_) {
+        device_(server_context_, device_description_) {
     // Setting this very early because GetMaxSwitch is called a lot. But the
     // return value isn't cached, so it is OK to change the expectation in
     // individual tests.

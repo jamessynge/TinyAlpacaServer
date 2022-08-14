@@ -17,7 +17,8 @@ namespace astro_makers {
 
 class LedChannelSwitchGroup : public alpaca::SwitchAdapter {
  public:
-  LedChannelSwitchGroup(const alpaca::DeviceDescription& device_description,
+  LedChannelSwitchGroup(alpaca::ServerContext& server_context,
+                        const alpaca::DeviceDescription& device_description,
                         CoverCalibrator& cover_calibrator);
 
   // Overridden methods.

@@ -28,11 +28,13 @@ void AddSensorTableRow(
 }  // namespace
 
 ObservingConditionsAdapter::ObservingConditionsAdapter(
-    const DeviceDescription& device_description)
-    : DeviceImplBase(device_description) {
+    ServerContext& server_context, const DeviceDescription& device_description)
+    : DeviceImplBase(server_context, device_description) {
   MCU_DCHECK_EQ(device_description.device_type,
                 EDeviceType::kObservingConditions);
 }
+
+ObservingConditionsAdapter::~ObservingConditionsAdapter() {}
 
 void ObservingConditionsAdapter::AddDeviceDetails(mcucore::OPrintStream& strm) {
   strm << MCU_PSD("<div class=ocp>\n<h4>Observing Conditions Properties</h4>\n")

@@ -10,17 +10,16 @@
 namespace alpaca {
 
 TinyAlpacaDeviceServer::TinyAlpacaDeviceServer(
-    const ServerDescription& server_description,
+    ServerContext& server_context, const ServerDescription& server_description,
     mcucore::ArrayView<DeviceInterface*> devices)
-    : alpaca_devices_(devices),
+    : server_context_(server_context),
+      alpaca_devices_(server_context, devices),
       server_description_(server_description),
       server_transaction_id_(0) {}
 
-void TinyAlpacaDeviceServer::ValidateConfiguration() {
+void TinyAlpacaDeviceServer::ValidateAndReset() {
+  MCU_CHECK_OK(server_context_.Initialize());
   alpaca_devices_.ValidateDevices();
-}
-
-void TinyAlpacaDeviceServer::ResetHardware() {
   alpaca_devices_.ResetHardware();
 }
 

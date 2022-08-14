@@ -6,9 +6,9 @@
 namespace alpaca {
 
 MultiSwitchAdapter::MultiSwitchAdapter(
-    const DeviceDescription& device_description,
+    ServerContext& server_context, const DeviceDescription& device_description,
     mcucore::ArrayView<SwitchInterface*> switches)
-    : SwitchAdapter(device_description), switches_(switches) {}
+    : SwitchAdapter(server_context, device_description), switches_(switches) {}
 
 SwitchInterface* MultiSwitchAdapter::GetSwitchInterface(
     uint16_t switch_id) const {

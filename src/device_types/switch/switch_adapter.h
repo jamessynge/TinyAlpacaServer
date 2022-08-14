@@ -49,8 +49,9 @@ class SwitchAdapter : public DeviceImplBase {
   // Max supported name length for storage in EEPROM.
   static constexpr uint8_t kMaxNameLength = 32;
 
-  explicit SwitchAdapter(const DeviceDescription& device_description);
-  // ~SwitchAdapter() override {}
+  SwitchAdapter(ServerContext& server_context,
+                const DeviceDescription& device_description);
+  ~SwitchAdapter() override;
 
   // Overrides of the base class methods:
 

@@ -71,8 +71,7 @@ class TinyAlpacaServerBaseExplicitLifecycleTest
 TEST_F(TinyAlpacaServerBaseExplicitLifecycleTest, CreateInitializeAndMaintain) {
   server_ = CreateServer();
 
-  server_->ValidateConfiguration();
-  server_->ResetHardware();
+  server_->ValidateAndReset();
   server_->InitializeForServing();
 
   // MaintainDevices will be called many times, so let's do so more than once.

@@ -15,7 +15,8 @@ namespace astro_makers {
 
 class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
  public:
-  explicit CoverCalibrator(const alpaca::DeviceDescription& device_description);
+  explicit CoverCalibrator(alpaca::ServerContext& server_context,
+                           const alpaca::DeviceDescription& device_description);
 
   // Disables the stepper motor driver, nothing else.
   void ResetHardware() override;

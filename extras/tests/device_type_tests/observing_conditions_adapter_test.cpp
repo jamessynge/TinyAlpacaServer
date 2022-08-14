@@ -72,7 +72,7 @@ class ObservingConditionsAdapterTest : public DecodeAndDispatchTestBase {
             .supported_actions =
                 mcucore::ProgmemStringArray{supported_actions_},
         }),
-        device_(device_description_) {
+        device_(server_context_, device_description_) {
     AddDeviceInterface(device_);
   }
 
@@ -492,7 +492,7 @@ class MockObservingConditionsTest : public DecodeAndDispatchTestBase {
             .supported_actions =
                 mcucore::ProgmemStringArray{supported_actions_},
         }),
-        device_(device_description_) {
+        device_(server_context_, device_description_) {
     AddDeviceInterface(device_);
   }
 

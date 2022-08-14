@@ -26,6 +26,7 @@
 #include "literals.h"
 #include "mcucore/extras/test_tools/http_request.h"
 #include "mcunet/extras/test_tools/mock_platform_network.h"
+#include "server_context.h"
 #include "server_description.h"
 
 namespace alpaca {
@@ -124,6 +125,7 @@ class DecodeAndDispatchTestBase : public testing::Test {
   virtual absl::StatusOr<mcucore::test::JsonValue>
   RoundTripSoleRequestWithValueResponse(mcucore::test::HttpRequest& request);
 
+  ServerContext server_context_;
   mcunet::PlatformNetworkLifetime<mcunet::test::MockPlatformNetwork>
       mock_platform_network_lifetime_;
   std::unique_ptr<TestTinyAlpacaServer> server_;

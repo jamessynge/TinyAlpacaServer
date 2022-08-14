@@ -14,19 +14,17 @@ namespace alpaca {
 
 // There must be one instance of DeviceDescription per device in a sketch.
 struct DeviceDescription {
-  // Write the ConfiguredDevices description of this server to the specified
-  // mcucore::JsonObjectEncoder. The encoder should be for the nested object
-  // that is the value of the "Value" property of the response object, NOT the
-  // outermost object that is the body of the response to /man
-  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const;
+  // Write the ConfiguredDevices description of this device to the specified
+  // mcucore::JsonObjectEncoder, using the provided EepromTlv to read the unique
+  // id. The properties added match those required for a Value array element of
+  // the response to a request for "/management/v1/configureddevices".
+  void AddConfiguredDeviceTo(mcucore::JsonObjectEncoder& object_encoder,
+                             mcucore::EepromTlv& tlv) const;
 
   // Get the UUID for this device; this may require generating it, and storing
   // it in EEPROM, if it isn't yet stored in EEPROM.
   mcucore::StatusOr<mcucore::Uuid> GetOrCreateUniqueId(
       mcucore::EepromTlv& tlv) const;
-
-  // As above, but calls EepromTlv::GetIfValid to get the tlv value.
-  mcucore::StatusOr<mcucore::Uuid> GetOrCreateUniqueId() const;
 
   mcucore::Status SetUuidForTest(mcucore::EepromTlv& tlv,
                                  const mcucore::Uuid& uuid) const;

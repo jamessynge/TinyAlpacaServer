@@ -48,12 +48,14 @@ cc_library(
         ":test_tiny_alpaca_server",
         "//TinyAlpacaServer/src:device_interface",
         "//TinyAlpacaServer/src:literals",
+        "//TinyAlpacaServer/src:server_context",
         "//TinyAlpacaServer/src:server_description",
         "//absl/status",
         "//absl/strings",
         "//googletest:gunit_headers",
         "//mcucore/extras/test_tools:http_request",
         "//mcucore/extras/test_tools:json_decoder",
+        "//mcucore/extras/test_tools:status_test_utils",
         "//mcucore/src:array_view",
         "//mcucore/src:eeprom_tlv",
         "//mcucore/src:logging",
@@ -61,6 +63,16 @@ cc_library(
         "//mcunet/extras/test_tools:mock_platform_network",
         "//mcunet/src:platform_network",
         "//util/task:status",
+    ],
+)
+
+cc_library(
+    name = "minimal_device",
+    hdrs = ["minimal_device.h"],
+    deps = [
+        "//TinyAlpacaServer/src:device_description",
+        "//TinyAlpacaServer/src:server_context",
+        "//TinyAlpacaServer/src/device_types:device_impl_base",
     ],
 )
 
@@ -112,7 +124,6 @@ cc_library(
     name = "mock_switch_group",
     hdrs = ["mock_switch_group.h"],
     deps = [
-        "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
         "//googletest:gunit_headers",
         "//mcucore/src:status",
@@ -128,6 +139,7 @@ cc_library(
     deps = [
         "//TinyAlpacaServer/src:device_interface",
         "//TinyAlpacaServer/src:server_connection",
+        "//TinyAlpacaServer/src:server_context",
         "//TinyAlpacaServer/src:server_description",
         "//TinyAlpacaServer/src:tiny_alpaca_server",
         "//absl/strings",

@@ -12,51 +12,37 @@ namespace {
 
 class DeviceDescriptionHtml : public Printable {
  public:
-  explicit DeviceDescriptionHtml(const DeviceDescription& description)
-      : description_(description) {}
+  explicit DeviceDescriptionHtml(const AlpacaRequest& request,
+                                 const DeviceImplBase& device)
+      : request_(request), device_(device) {}
 
   size_t printTo(Print& out) const override {
     mcucore::CountingPrint counter(out);
-    mcucore::OPrintStream strm(counter);
-    auto status_or_uuid = description_.GetOrCreateUniqueId();
-    mcucore::Uuid uuid;
-    if (!status_or_uuid.ok()) {
-      MCU_DCHECK_OK(status_or_uuid)
-          << MCU_PSD("Should have been able to GetOrCreateUniqueId");
-      uuid.Zero();
-    } else {
-      uuid = status_or_uuid.value();
+    {
+      mcucore::OPrintStream strm(counter);
+      device_.WriteDeviceSetupHtml(request_, strm);
     }
-
-    strm << MCU_PSD(
-                "<html><body>"
-                "<h1>Tiny Alpaca Server Device Setup</h1>\n"
-                "Type: ")
-         << description_.device_type << MCU_PSD("<br>")  //
-         << MCU_PSD("Number: ") << description_.device_number << MCU_PSD("<br>")
-         << MCU_PSD("Name: ") << description_.name << MCU_PSD("<br>")
-         << MCU_PSD("Description: ") << description_.description
-         << MCU_PSD("<br>") << MCU_PSD("Unique ID: ") << uuid << MCU_PSD("<br>")
-         << MCU_PSD("Driver Info: ") << description_.driver_info
-         << MCU_PSD("<br>") << MCU_PSD("Driver Version: ")
-         << description_.driver_version << MCU_PSD("<br>")
-         << MCU_PSD("Interface Version: ") << description_.interface_version()
-         << MCU_PSD("<br>") << MCU_PSD("EEPROM Domain: ")
-         << description_.domain.value() << MCU_PSD("</body></html>");
     return counter.count();
   }
 
  private:
-  const DeviceDescription& description_;
+  const AlpacaRequest& request_;
+  const DeviceImplBase& device_;
 };
 
 }  // namespace
+
+void DeviceImplBase::AddConfiguredDeviceTo(
+    mcucore::JsonObjectEncoder& object_encoder) const {
+  device_description_.AddConfiguredDeviceTo(object_encoder,
+                                            server_context_.eeprom_tlv());
+}
 
 bool DeviceImplBase::HandleDeviceSetupRequest(const AlpacaRequest& request,
                                               Print& out) {
   // Produce a default response indicating that there is no custom setup for
   // this device.
-  DeviceDescriptionHtml html(device_description_);
+  DeviceDescriptionHtml html(request, *this);
   return WriteResponse::OkResponse(request, EContentType::kTextHtml, html, out,
                                    /*append_http_newline=*/true);
 }
@@ -84,6 +70,10 @@ bool DeviceImplBase::HandleDeviceApiRequest(const AlpacaRequest& request,
       mcucore::PrintableCat(MCU_FLASHSTR("request.api: "),
                             ToFlashStringHelper(request.http_method)),
       out);
+}
+
+mcucore::EepromTag DeviceImplBase::MakeTag(uint8_t id) {
+  return {.domain = device_description_.domain, .id = id};
 }
 
 void DeviceImplBase::AddToHomePageHtml(const AlpacaRequest& request,
@@ -121,7 +111,8 @@ void DeviceImplBase::AddDeviceSummary(mcucore::OPrintStream& strm) {
               "<td class=dd>")
        << device_description_.description << MCU_PSD("</td></tr>\n");
 
-  auto status_or_uuid = device_description_.GetOrCreateUniqueId();
+  auto status_or_uuid =
+      device_description_.GetOrCreateUniqueId(server_context_.eeprom_tlv());
   if (status_or_uuid.ok()) {
     strm << MCU_PSD("<tr class=du><td>Unique ID:</td><td class=du>")
          << status_or_uuid.value() << MCU_PSD("</td></tr>\n");
@@ -135,8 +126,35 @@ void DeviceImplBase::AddDeviceSummary(mcucore::OPrintStream& strm) {
        << device_description_.domain.value() << MCU_PSD("</td></tr></table>\n");
 }
 
-mcucore::EepromTag DeviceImplBase::MakeTag(uint8_t id) {
-  return {.domain = device_description_.domain, .id = id};
+void DeviceImplBase::WriteDeviceSetupHtml(const AlpacaRequest& request,
+                                          mcucore::OPrintStream& strm) const {
+  auto& description = device_description();
+  auto status_or_uuid =
+      description.GetOrCreateUniqueId(server_context_.eeprom_tlv());
+  mcucore::Uuid uuid;
+  if (!status_or_uuid.ok()) {
+    MCU_DCHECK_OK(status_or_uuid)
+        << MCU_PSD("Should have been able to GetOrCreateUniqueId");
+    uuid.Zero();
+  } else {
+    uuid = status_or_uuid.value();
+  }
+
+  strm << MCU_PSD(
+              "<html><body>"
+              "<h1>Tiny Alpaca Server Device Setup</h1>\n"
+              "Type: ")
+       << description.device_type << MCU_PSD("<br>")  //
+       << MCU_PSD("Number: ") << description.device_number << MCU_PSD("<br>")
+       << MCU_PSD("Name: ") << description.name << MCU_PSD("<br>")
+       << MCU_PSD("Description: ") << description.description << MCU_PSD("<br>")
+       << MCU_PSD("Unique ID: ") << uuid << MCU_PSD("<br>")
+       << MCU_PSD("Driver Info: ") << description.driver_info << MCU_PSD("<br>")
+       << MCU_PSD("Driver Version: ") << description.driver_version
+       << MCU_PSD("<br>") << MCU_PSD("Interface Version: ")
+       << description.interface_version() << MCU_PSD("<br>")
+       << MCU_PSD("EEPROM Domain: ") << description.domain.value()
+       << MCU_PSD("</body></html>");
 }
 
 bool DeviceImplBase::HandleGetRequest(const AlpacaRequest& request,

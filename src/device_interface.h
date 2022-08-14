@@ -29,7 +29,6 @@
 #include "alpaca_request.h"
 #include "constants.h"
 #include "device_description.h"
-#include "json_response.h"
 
 namespace alpaca {
 
@@ -47,8 +46,7 @@ namespace alpaca {
 
 class DeviceInterface {
  public:
-  DeviceInterface() {}
-  virtual ~DeviceInterface() {}
+  virtual ~DeviceInterface();
 
   // Return a DeviceDescription that contains the device's type, number,
   // unique id, etc.
@@ -75,6 +73,11 @@ class DeviceInterface {
   // operations (e.g. to measure the temperature on some schedule and
   // accumulate the readings to produce an average value).
   virtual void MaintainDevice() = 0;
+
+  // Writes the properties for one entry in the Value array of the response to a
+  // request for "/management/v1/configureddevices".
+  virtual void AddConfiguredDeviceTo(
+      mcucore::JsonObjectEncoder& encoder) const = 0;
 
   // Optionally add some content to specified section of the HTML home page
   // page. We can expect every device to add at least a brief description of
@@ -109,18 +112,6 @@ class DeviceInterface {
   // closed.
   virtual bool HandleDeviceApiRequest(const AlpacaRequest& request,
                                       Print& out) = 0;
-};
-
-class ConfiguredDevicesResponse : public JsonMethodResponse {
- public:
-  ConfiguredDevicesResponse(const AlpacaRequest& request,
-                            mcucore::ArrayView<DeviceInterface*> devices)
-      : JsonMethodResponse(request), devices_(devices) {}
-
-  void AddTo(mcucore::JsonObjectEncoder& object_encoder) const override;
-
- private:
-  mcucore::ArrayView<DeviceInterface*> devices_;
 };
 
 }  // namespace alpaca

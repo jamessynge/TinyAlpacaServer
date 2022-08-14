@@ -10,12 +10,16 @@
 #include "device_description.h"
 #include "device_interface.h"
 #include "extras/test_tools/alpaca_response_validator.h"
+#include "extras/test_tools/minimal_device.h"
 #include "extras/test_tools/mock_device_interface.h"
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extras/test_tools/http_response.h"
 #include "mcucore/extras/test_tools/print_to_std_string.h"
+#include "mcucore/extras/test_tools/status_test_utils.h"
+#include "mcucore/extras/test_tools/uuid_utils.h"
+#include "server_context.h"
 
 MCU_DEFINE_NAMED_DOMAIN(SomeDeviceDomain, 33);
 MCU_DEFINE_NAMED_DOMAIN(SecondDeviceDomain, 34);
@@ -27,6 +31,7 @@ namespace {
 
 using ::mcucore::MakeArrayView;
 using ::mcucore::test::JsonValue;
+using ::mcucore::test::kUuidRegex;
 using ::testing::EndsWith;
 using ::testing::HasSubstr;
 using ::testing::IsEmpty;
@@ -36,13 +41,12 @@ using ::testing::Ref;
 using ::testing::Return;
 using ::testing::ReturnRef;
 
-const char kUuidRegex[] = R"re([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-)re"
-                          R"re([0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})re";
-
 TEST(AlpacaDevicesNoFixtureTest, NoDevices) {
+  ServerContext server_context;
+  ASSERT_STATUS_OK(server_context.Initialize());
   DeviceInterface* device_ptrs[] = {nullptr};
   mcucore::ArrayView<DeviceInterface*> view(device_ptrs, 0);
-  AlpacaDevices devices(view);
+  AlpacaDevices devices(server_context, view);
   devices.ValidateDevices();
   devices.ResetHardware();
   devices.InitializeDevices();
@@ -112,6 +116,7 @@ void ExpectNoInitialization(MockDeviceInterface& device_mock) {
 class AlpacaDevicesTest : public testing::Test {
  protected:
   void SetUp() override {
+    EXPECT_STATUS_OK(server_context_.Initialize());
     AddDefaultBehavior(mock_camera0_description_, mock_camera0_);
     AddDefaultBehavior(mock_camera1_description_, mock_camera1_);
     AddDefaultBehavior(mock_observing_conditions0_description_,
@@ -155,10 +160,11 @@ class AlpacaDevicesTest : public testing::Test {
   NiceMock<MockDeviceInterface> mock_camera0_;
   NiceMock<MockDeviceInterface> mock_camera1_;
   NiceMock<MockDeviceInterface> mock_observing_conditions0_;
-
   DeviceInterface* device_ptrs_[3] = {&mock_camera0_, &mock_camera1_,
                                       &mock_observing_conditions0_};
-  AlpacaDevices alpaca_devices_{MakeArrayView(device_ptrs_)};
+
+  ServerContext server_context_;
+  AlpacaDevices alpaca_devices_{server_context_, MakeArrayView(device_ptrs_)};
   AlpacaResponseValidator alpaca_response_validator_;
 };
 
@@ -180,12 +186,9 @@ TEST_F(AlpacaDevicesTest, MaintainDevices) {
 }
 
 TEST_F(AlpacaDevicesTest, OneConfiguredDevice) {
-  EXPECT_CALL(mock_camera0_, device_description)
-      .Times(2)
-      .WillRepeatedly(ReturnRef(mock_camera0_description_));
-
-  DeviceInterface* device_ptrs[] = {&mock_camera0_};
-  AlpacaDevices devices(MakeArrayView(device_ptrs));
+  MinimalDevice minimal_camera0_{server_context_, mock_camera0_description_};
+  DeviceInterface* device_ptrs[] = {&minimal_camera0_};
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
 
   AlpacaRequest request;
   request.http_method = EHttpMethod::GET;
@@ -219,6 +222,14 @@ TEST_F(AlpacaDevicesTest, OneConfiguredDevice) {
 }
 
 TEST_F(AlpacaDevicesTest, ThreeConfiguredDevices) {
+  MinimalDevice minimal_camera0{server_context_, mock_camera0_description_};
+  MinimalDevice minimal_camera1{server_context_, mock_camera1_description_};
+  MinimalDevice minimal_observing_conditions0{
+      server_context_, mock_observing_conditions0_description_};
+  DeviceInterface* device_ptrs[] = {&minimal_camera0, &minimal_camera1,
+                                    &minimal_observing_conditions0};
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
+
   AlpacaRequest request;
   request.http_method = EHttpMethod::GET;
   request.set_client_transaction_id(222);
@@ -230,7 +241,7 @@ TEST_F(AlpacaDevicesTest, ThreeConfiguredDevices) {
   alpaca_response_validator_.expected_server_transaction_id = 111;
 
   mcucore::test::PrintToStdString out;
-  EXPECT_TRUE(alpaca_devices_.HandleManagementConfiguredDevices(request, out));
+  EXPECT_TRUE(devices.HandleManagementConfiguredDevices(request, out));
   VLOG(1) << "out:\n\n" << out.str() << "\n\n";
 
   ASSERT_OK_AND_ASSIGN(
@@ -396,14 +407,14 @@ using AlpacaDevicesDeathTest = AlpacaDevicesTest;
 
 TEST_F(AlpacaDevicesDeathTest, NullDevice) {
   DeviceInterface* device_ptrs[] = {&mock_camera0_, nullptr};
-  AlpacaDevices devices(MakeArrayView(device_ptrs));
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
   ExpectNoInitialization(mock_camera0_);
   EXPECT_DEATH(devices.ValidateDevices(), "\\[1\\] is null");
 }
 
 TEST_F(AlpacaDevicesDeathTest, SameDeviceTwice) {
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &mock_camera0_};
-  AlpacaDevices devices(MakeArrayView(device_ptrs));
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
   ExpectNoInitialization(mock_camera0_);
   EXPECT_DEATH(devices.ValidateDevices(), "Device appears twice");
 }
@@ -415,7 +426,7 @@ TEST_F(AlpacaDevicesDeathTest, SameDeviceTypeAndNumber) {
   AddDefaultBehavior(copy, mock_camera1_);
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &mock_camera1_};
-  AlpacaDevices devices(MakeArrayView(device_ptrs));
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
 
   ExpectNoInitialization(mock_camera0_);
   ExpectNoInitialization(mock_camera1_);
@@ -430,7 +441,7 @@ TEST_F(AlpacaDevicesDeathTest, SameDomain) {
 
   DeviceInterface* device_ptrs[] = {&mock_camera1_,
                                     &mock_observing_conditions0_};
-  AlpacaDevices devices(MakeArrayView(device_ptrs));
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
 
   ExpectNoInitialization(mock_camera1_);
   ExpectNoInitialization(mock_observing_conditions0_);
@@ -454,7 +465,7 @@ TEST_F(AlpacaDevicesDeathTest, SameUuid) {
   }
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &mock_camera1_};
-  AlpacaDevices devices(MakeArrayView(device_ptrs));
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
 
   ExpectNoInitialization(mock_camera0_);
   ExpectNoInitialization(mock_camera1_);
@@ -468,7 +479,7 @@ TEST_F(AlpacaDevicesDeathTest, DeviceNumberGap) {
   AddDefaultBehavior(mock_camera2_description_, mock_camera1_);
 
   DeviceInterface* device_ptrs[] = {&mock_camera0_, &mock_camera1_};
-  AlpacaDevices devices(MakeArrayView(device_ptrs));
+  AlpacaDevices devices(server_context_, MakeArrayView(device_ptrs));
 
   // Expect NO initialization.
   ExpectNoInitialization(mock_camera0_);

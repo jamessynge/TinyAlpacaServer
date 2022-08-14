@@ -20,6 +20,7 @@ cc_library(
         ":alpaca_response",
         ":ascom_error_codes",
         ":config",
+        ":configured_devices_response",
         ":constants",
         ":device_description",
         ":device_interface",
@@ -33,6 +34,7 @@ cc_library(
         ":request_decoder_listener",
         ":request_listener",
         ":server_connection",
+        ":server_context",
         ":server_description",
         ":server_socket_and_connection",
         ":server_sockets_and_connections",
@@ -57,10 +59,12 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":alpaca_response",
+        ":configured_devices_response",
         ":constants",
         ":device_description",
         ":device_interface",
         ":literals",
+        ":server_context",
         "//mcucore/src:array_view",
         "//mcucore/src:hex_escape",
         "//mcucore/src:json_encoder",
@@ -144,6 +148,18 @@ cc_library(
 )
 
 cc_library(
+    name = "configured_devices_response",
+    srcs = ["configured_devices_response.cc"],
+    hdrs = ["configured_devices_response.h"],
+    deps = [
+        ":alpaca_request",
+        ":device_interface",
+        ":json_response",
+        "//mcucore/src:array_view",
+    ],
+)
+
+cc_library(
     name = "constants",
     srcs = ["constants.cc"],
     hdrs = ["constants.h"],
@@ -180,10 +196,7 @@ cc_library(
         ":alpaca_request",
         ":constants",
         ":device_description",
-        ":json_response",
-        "//mcucore/src:array_view",
         "//mcucore/src:json_encoder",
-        "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
     ],
 )
@@ -327,6 +340,16 @@ cc_library(
 )
 
 cc_library(
+    name = "server_context",
+    srcs = ["server_context.cc"],
+    hdrs = ["server_context.h"],
+    deps = [
+        "//mcucore/src:eeprom_tlv",
+        "//mcucore/src:mcucore_platform",
+    ],
+)
+
+cc_library(
     name = "server_description",
     srcs = ["server_description.cc"],
     hdrs = ["server_description.h"],
@@ -376,11 +399,11 @@ cc_library(
         ":device_interface",
         ":http_response_header",
         ":literals",
+        ":server_context",
         ":server_description",
         ":server_sockets_and_connections",
         "//mcucore/src:any_printable",
         "//mcucore/src:array_view",
-        "//mcucore/src:counting_print",
         "//mcucore/src:json_encoder",
         "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",

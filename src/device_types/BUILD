@@ -23,6 +23,7 @@ cc_library(
         "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src:device_interface",
         "//TinyAlpacaServer/src:literals",
+        "//TinyAlpacaServer/src:server_context",
         "//mcucore/src:counting_print",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src:o_print_stream",
@@ -31,6 +32,5 @@ cc_library(
         "//mcucore/src:progmem_string_view",
         "//mcucore/src:status",
         "//mcucore/src:status_or",
-        "//mcucore/src:uuid",
     ],
 )

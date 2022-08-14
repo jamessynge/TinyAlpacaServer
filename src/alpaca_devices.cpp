@@ -4,14 +4,16 @@
 #include <McuNet.h>
 
 #include "alpaca_response.h"
+#include "configured_devices_response.h"
 #include "constants.h"
 #include "device_description.h"
 #include "literals.h"
 
 namespace alpaca {
 
-AlpacaDevices::AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices)
-    : devices_(devices) {}
+AlpacaDevices::AlpacaDevices(ServerContext& server_context,
+                             mcucore::ArrayView<DeviceInterface*> devices)
+    : server_context_(server_context), devices_(devices) {}
 
 // Before initializing the devices, we want to make sure they're valid:
 // * None of the pointers are nullptr.
@@ -20,7 +22,7 @@ AlpacaDevices::AlpacaDevices(mcucore::ArrayView<DeviceInterface*> devices)
 // * Devices are numbered starting from zero.
 void AlpacaDevices::ValidateDevices() {
   // We're going to need the EepromTlv for looking up UUIDs.
-  MCU_CHECK_OK_AND_ASSIGN(auto tlv, mcucore::EepromTlv::GetIfValid());
+  auto& tlv = server_context_.eeprom_tlv();
 
   for (int i = 0; i < devices_.size(); ++i) {
     MCU_CHECK_NE(devices_[i], nullptr)

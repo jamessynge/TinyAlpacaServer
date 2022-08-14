@@ -9,15 +9,16 @@
 // TODO(jamessynge): (Maybe) Reduce this list to just the necessary headers,
 // i.e. those that will be used by sketches using Tiny Alpaca Server.
 
-#include "alpaca_devices.h"           // IWYU pragma: export
-#include "alpaca_discovery_server.h"  // IWYU pragma: export
-#include "alpaca_request.h"           // IWYU pragma: export
-#include "alpaca_response.h"          // IWYU pragma: export
-#include "ascom_error_codes.h"        // IWYU pragma: export
-#include "config.h"                   // IWYU pragma: export
-#include "constants.h"                // IWYU pragma: export
-#include "device_description.h"       // IWYU pragma: export
-#include "device_interface.h"         // IWYU pragma: export
+#include "alpaca_devices.h"               // IWYU pragma: export
+#include "alpaca_discovery_server.h"      // IWYU pragma: export
+#include "alpaca_request.h"               // IWYU pragma: export
+#include "alpaca_response.h"              // IWYU pragma: export
+#include "ascom_error_codes.h"            // IWYU pragma: export
+#include "config.h"                       // IWYU pragma: export
+#include "configured_devices_response.h"  // IWYU pragma: export
+#include "constants.h"                    // IWYU pragma: export
+#include "device_description.h"           // IWYU pragma: export
+#include "device_interface.h"             // IWYU pragma: export
 #include "device_types/cover_calibrator/cover_calibrator_adapter.h"  // IWYU pragma: export
 #include "device_types/cover_calibrator/cover_calibrator_constants.h"  // IWYU pragma: export
 #include "device_types/device_impl_base.h"  // IWYU pragma: export
@@ -36,6 +37,7 @@
 #include "request_decoder_listener.h"                  // IWYU pragma: export
 #include "request_listener.h"                          // IWYU pragma: export
 #include "server_connection.h"                         // IWYU pragma: export
+#include "server_context.h"                            // IWYU pragma: export
 #include "server_description.h"                        // IWYU pragma: export
 #include "server_socket_and_connection.h"              // IWYU pragma: export
 #include "server_sockets_and_connections.h"            // IWYU pragma: export

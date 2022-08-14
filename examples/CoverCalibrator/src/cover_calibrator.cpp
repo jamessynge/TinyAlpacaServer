@@ -12,8 +12,9 @@ using ::alpaca::TimerCounterChannel;
 using ::mcucore::StatusOr;
 
 CoverCalibrator::CoverCalibrator(
+    alpaca::ServerContext& server_context,
     const alpaca::DeviceDescription& device_description)
-    : CoverCalibratorAdapter(device_description),
+    : CoverCalibratorAdapter(server_context, device_description),
       led1_(TimerCounterChannel::B, kLedChannel1EnabledPin),
       led2_(TimerCounterChannel::C, kLedChannel2EnabledPin),
       led3_(TimerCounterChannel::A, kLedChannel3EnabledPin),

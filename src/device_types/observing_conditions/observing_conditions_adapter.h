@@ -15,9 +15,9 @@ namespace alpaca {
 
 class ObservingConditionsAdapter : public DeviceImplBase {
  public:
-  explicit ObservingConditionsAdapter(
-      const DeviceDescription& device_description);
-  ~ObservingConditionsAdapter() override {}
+  ObservingConditionsAdapter(ServerContext& server_context,
+                             const DeviceDescription& device_description);
+  ~ObservingConditionsAdapter() override;
 
   // On the assumption that sensors don't typically need to be disabled or
   // turned off instantly when the microcontroller powers up or resets, we
