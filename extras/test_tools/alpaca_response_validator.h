@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "absl/status/statusor.h"
 #include "alpaca_request.h"

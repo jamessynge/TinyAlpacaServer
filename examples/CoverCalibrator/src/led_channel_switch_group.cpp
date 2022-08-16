@@ -7,7 +7,6 @@ namespace astro_makers {
 using ::alpaca::AlpacaRequest;
 using ::alpaca::ErrorCodes;
 using ::alpaca::WriteResponse;
-using ::mcucore::AnyPrintable;
 using ::mcucore::StatusOr;
 
 LedChannelSwitchGroup::LedChannelSwitchGroup(
