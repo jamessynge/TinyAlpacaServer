@@ -65,13 +65,13 @@ cc_library(
         ":device_interface",
         ":literals",
         ":server_context",
-        "//mcucore/src:array_view",
-        "//mcucore/src:hex_escape",
-        "//mcucore/src:json_encoder",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:printable_cat",
-        "//mcucore/src:progmem_string_data",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/log",
+        "//mcucore/src/print:hex_escape",
+        "//mcucore/src/print:printable_cat",
+        "//mcucore/src/strings:progmem_string_data",
         "//mcunet/src:platform_network",
     ],
 )
@@ -81,12 +81,12 @@ cc_library(
     srcs = ["alpaca_discovery_server.cc"],
     hdrs = ["alpaca_discovery_server.h"],
     deps = [
-        "//mcucore/src:hex_escape",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:progmem_string_data",
-        "//mcucore/src:string_compare",
-        "//mcucore/src:string_view",
+        "//mcucore/src/log",
+        "//mcucore/src/print:hex_escape",
+        "//mcucore/src/strings:progmem_string_data",
+        "//mcucore/src/strings:string_compare",
+        "//mcucore/src/strings:string_view",
         "//mcunet/src:platform_network",
     ],
 )
@@ -99,10 +99,10 @@ cc_library(
         ":config",
         ":constants",
         ":extra_parameters",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:string_view",
-        "//mcucore/src:tiny_string",
+        "//mcucore/src/log",
+        "//mcucore/src/strings:string_view",
+        "//mcucore/src/strings:tiny_string",
     ],
 )
 
@@ -117,15 +117,15 @@ cc_library(
         ":http_response_header",
         ":json_response",
         ":literals",
-        "//mcucore/src:any_printable",
-        "//mcucore/src:array_view",
-        "//mcucore/src:counting_print",
-        "//mcucore/src:json_encoder",
-        "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:printable_cat",
-        "//mcucore/src:progmem_string",
-        "//mcucore/src:status_or",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/json:json_encoder_helpers",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/print:counting_print",
+        "//mcucore/src/print:printable_cat",
+        "//mcucore/src/status:status_or",
+        "//mcucore/src/strings:progmem_string",
     ],
 )
 
@@ -136,7 +136,7 @@ cc_library(
     deps = [
         ":literals",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:status",
+        "//mcucore/src/status",
     ],
 )
 
@@ -155,7 +155,7 @@ cc_library(
         ":alpaca_request",
         ":device_interface",
         ":json_response",
-        "//mcucore/src:array_view",
+        "//mcucore/src/container:array_view",
     ],
 )
 
@@ -164,10 +164,10 @@ cc_library(
     srcs = ["constants.cc"],
     hdrs = ["constants.h"],
     deps = [
-        "//mcucore/src:flash_string_table",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:print_misc",
-        "//mcucore/src:progmem_string_data",
+        "//mcucore/src/container:flash_string_table",
+        "//mcucore/src/print:print_misc",
+        "//mcucore/src/strings:progmem_string_data",
     ],
 )
 
@@ -179,12 +179,12 @@ cc_library(
         ":constants",
         ":eeprom_ids",
         ":literals",
-        "//mcucore/src:eeprom_tlv",
-        "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:progmem_string",
-        "//mcucore/src:status_or",
-        "//mcucore/src:uuid",
+        "//mcucore/src/eeprom:eeprom_tlv",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/misc:uuid",
+        "//mcucore/src/status:status_or",
+        "//mcucore/src/strings:progmem_string",
     ],
 )
 
@@ -196,8 +196,8 @@ cc_library(
         ":alpaca_request",
         ":constants",
         ":device_description",
-        "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/json:json_encoder",
     ],
 )
 
@@ -214,8 +214,8 @@ cc_library(
         ":config",
         ":constants",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:string_view",
-        "//mcucore/src:tiny_string",
+        "//mcucore/src/strings:string_view",
+        "//mcucore/src/strings:tiny_string",
     ],
 )
 
@@ -227,9 +227,9 @@ cc_library(
         ":constants",
         ":literals",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:progmem_string",
-        "//mcucore/src:progmem_string_view",
         "//mcucore/src/semistd:limits",
+        "//mcucore/src/strings:progmem_string",
+        "//mcucore/src/strings:progmem_string_view",
     ],
 )
 
@@ -239,10 +239,10 @@ cc_library(
     deps = [
         ":alpaca_request",
         ":literals",
-        "//mcucore/src:any_printable",
-        "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:progmem_string_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/strings:progmem_string_view",
     ],
 )
 
@@ -254,8 +254,8 @@ cc_library(
     deps = [
         "//mcucore/src:McuCore",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:progmem_string",
-        "//mcucore/src:progmem_string_view",
+        "//mcucore/src/strings:progmem_string",
+        "//mcucore/src/strings:progmem_string_view",
     ],
 )
 
@@ -266,12 +266,12 @@ cc_library(
     deps = [
         ":constants",
         ":literals",
-        "//mcucore/src:array_view",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_config",
-        "//mcucore/src:printable_cat",
-        "//mcucore/src:string_compare",
-        "//mcucore/src:string_view",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/log",
+        "//mcucore/src/print:printable_cat",
+        "//mcucore/src/strings:string_compare",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -286,13 +286,13 @@ cc_library(
         ":literals",
         ":match_literals",
         ":request_decoder_listener",
-        "//mcucore/src:hex_escape",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:progmem_string_data",
-        "//mcucore/src:progmem_string_view",
-        "//mcucore/src:string_compare",
-        "//mcucore/src:string_view",
+        "//mcucore/src/log",
+        "//mcucore/src/print:hex_escape",
+        "//mcucore/src/strings:progmem_string_data",
+        "//mcucore/src/strings:progmem_string_view",
+        "//mcucore/src/strings:string_compare",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -302,10 +302,10 @@ cc_library(
     hdrs = ["request_decoder_listener.h"],
     deps = [
         ":constants",
-        "//mcucore/src:hex_escape",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:string_view",
+        "//mcucore/src/log",
+        "//mcucore/src/print:hex_escape",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -332,7 +332,7 @@ cc_library(
         ":request_decoder",
         ":request_listener",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:string_view",
+        "//mcucore/src/strings:string_view",
         "//mcunet/src:connection",
         "//mcunet/src:platform_network",
         "//mcunet/src:socket_listener",
@@ -344,8 +344,8 @@ cc_library(
     srcs = ["server_context.cc"],
     hdrs = ["server_context.h"],
     deps = [
-        "//mcucore/src:eeprom_tlv",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/eeprom:eeprom_tlv",
     ],
 )
 
@@ -355,10 +355,10 @@ cc_library(
     hdrs = ["server_description.h"],
     deps = [
         ":literals",
-        "//mcucore/src:json_encoder",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:progmem_string",
-        "//mcucore/src:string_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/strings:progmem_string",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -382,8 +382,8 @@ cc_library(
         ":config",
         ":request_listener",
         ":server_socket_and_connection",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/log",
     ],
 )
 
@@ -402,12 +402,12 @@ cc_library(
         ":server_context",
         ":server_description",
         ":server_sockets_and_connections",
-        "//mcucore/src:any_printable",
-        "//mcucore/src:array_view",
-        "//mcucore/src:json_encoder",
-        "//mcucore/src:json_encoder_helpers",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:printable_cat",
-        "//mcucore/src:progmem_string_data",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/json:json_encoder_helpers",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/print:printable_cat",
+        "//mcucore/src/strings:progmem_string_data",
     ],
 )

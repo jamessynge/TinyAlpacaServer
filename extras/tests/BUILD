@@ -21,10 +21,10 @@ cc_test(
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/extras/test_tools:status_test_utils",
         "//mcucore/extras/test_tools:uuid_utils",
-        "//mcucore/src:array_view",
-        "//mcucore/src:eeprom_tag",
-        "//mcucore/src:o_print_stream",
-        "//mcucore/src:progmem_string_data",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/eeprom:eeprom_tag",
+        "//mcucore/src/print:o_print_stream",
+        "//mcucore/src/strings:progmem_string_data",
     ],
 )
 
@@ -43,10 +43,10 @@ cc_test(
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/extras/test_tools:print_value_to_std_string",
         "//mcucore/extras/test_tools:sample_printable",
-        "//mcucore/src:any_printable",
-        "//mcucore/src:array_view",
-        "//mcucore/src:json_encoder",
-        "//mcucore/src:status_or",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/status:status_or",
     ],
 )
 
@@ -62,10 +62,10 @@ cc_test(
         "//mcucore/extras/test_tools:print_to_std_string",
         "//mcucore/extras/test_tools:status_or_test_utils",
         "//mcucore/extras/test_tools:uuid_utils",
-        "//mcucore/src:eeprom_tlv",
-        "//mcucore/src:json_encoder",
-        "//mcucore/src:progmem_string_data",
-        "//mcucore/src:uuid",
+        "//mcucore/src/eeprom:eeprom_tlv",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/misc:uuid",
+        "//mcucore/src/strings:progmem_string_data",
     ],
 )
 
@@ -79,7 +79,7 @@ cc_test(
         "//absl/strings",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
-        "//mcucore/src:progmem_string_data",
+        "//mcucore/src/strings:progmem_string_data",
     ],
 )
 
@@ -92,9 +92,9 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:json_test_utils",
         "//mcucore/extras/test_tools:print_to_std_string",
-        "//mcucore/src:any_printable",
-        "//mcucore/src:json_encoder",
-        "//mcucore/src:string_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -106,8 +106,8 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_value_to_std_string",
         "//mcucore/extras/test_tools:string_view_utils",
-        "//mcucore/src:string_compare",
-        "//mcucore/src:string_view",
+        "//mcucore/src/strings:string_compare",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -121,7 +121,7 @@ cc_test(
         "//glog:logging",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:string_view_utils",
-        "//mcucore/src:string_view",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -141,7 +141,7 @@ cc_test(
         "//glog:logging",
         "//googletest:gunit_main",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:string_view",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -152,8 +152,8 @@ cc_test(
         "//TinyAlpacaServer/src:server_description",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:print_to_std_string",
-        "//mcucore/src:json_encoder",
-        "//mcucore/src:json_encoder_helpers",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/json:json_encoder_helpers",
     ],
 )
 
@@ -171,8 +171,8 @@ cc_test(
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:http_request",
         "//mcucore/extras/test_tools:http_response",
-        "//mcucore/src:array_view",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/container:array_view",
         "//mcunet/src:platform_network",
     ],
 )

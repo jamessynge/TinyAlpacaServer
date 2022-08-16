@@ -18,9 +18,9 @@ cc_library(
         ":switch_interface",
         "//TinyAlpacaServer/src:device_description",
         "//TinyAlpacaServer/src:literals",
-        "//mcucore/src:array_view",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:status_or",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/status:status_or",
     ],
 )
 
@@ -34,12 +34,12 @@ cc_library(
         "//TinyAlpacaServer/src:eeprom_ids",
         "//TinyAlpacaServer/src:literals",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
-        "//mcucore/src:any_printable",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:print_to_buffer",
-        "//mcucore/src:status_or",
-        "//mcucore/src:string_view",
+        "//mcucore/src/log",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/print:print_to_buffer",
+        "//mcucore/src/status:status_or",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -49,8 +49,8 @@ cc_library(
     deps = [
         "//TinyAlpacaServer/src:alpaca_request",
         "//mcucore/src:mcucore_platform",
-        "//mcucore/src:status",
-        "//mcucore/src:status_or",
+        "//mcucore/src/status",
+        "//mcucore/src/status:status_or",
     ],
 )
 

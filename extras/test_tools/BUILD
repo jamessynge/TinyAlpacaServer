@@ -20,7 +20,7 @@ cc_library(
         "//mcucore/extras/test_tools:http_request",
         "//mcucore/extras/test_tools:http_response",
         "//mcucore/extras/test_tools:json_decoder",
-        "//mcucore/src:logging",
+        "//mcucore/src/log",
         "//util/task:status",
     ],
 )
@@ -56,10 +56,10 @@ cc_library(
         "//mcucore/extras/test_tools:http_request",
         "//mcucore/extras/test_tools:json_decoder",
         "//mcucore/extras/test_tools:status_test_utils",
-        "//mcucore/src:array_view",
-        "//mcucore/src:eeprom_tlv",
-        "//mcucore/src:logging",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/eeprom:eeprom_tlv",
+        "//mcucore/src/log",
         "//mcunet/extras/test_tools:mock_platform_network",
         "//mcunet/src:platform_network",
         "//util/task:status",
@@ -94,8 +94,8 @@ cc_library(
     deps = [
         "//TinyAlpacaServer/src/device_types/observing_conditions:observing_conditions_adapter",
         "//googletest:gunit_headers",
-        "//mcucore/src:status",
-        "//mcucore/src:status_or",
+        "//mcucore/src/status",
+        "//mcucore/src/status:status_or",
     ],
 )
 
@@ -106,7 +106,7 @@ cc_library(
         "//TinyAlpacaServer/src:constants",
         "//TinyAlpacaServer/src:request_decoder_listener",
         "//googletest:gunit_headers",
-        "//mcucore/src:string_view",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -126,8 +126,8 @@ cc_library(
     deps = [
         "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
         "//googletest:gunit_headers",
-        "//mcucore/src:status",
-        "//mcucore/src:status_or",
+        "//mcucore/src/status",
+        "//mcucore/src/status:status_or",
     ],
 )
 
@@ -143,10 +143,10 @@ cc_library(
         "//TinyAlpacaServer/src:server_description",
         "//TinyAlpacaServer/src:tiny_alpaca_server",
         "//absl/strings",
-        "//mcucore/src:array_view",
-        "//mcucore/src:logging",
-        "//mcucore/src:o_print_stream",
-        "//mcucore/src:progmem_string_data",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/log",
+        "//mcucore/src/print:o_print_stream",
+        "//mcucore/src/strings:progmem_string_data",
         "//mcunet/extras/host/ethernet5500:ethernet_config",
         "//mcunet/extras/test_tools:string_io_stream_impl",
     ],
