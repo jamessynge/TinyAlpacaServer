@@ -166,7 +166,7 @@ cc_test(
         "//TinyAlpacaServer/src:device_interface",
         "//TinyAlpacaServer/src:literals",
         "//TinyAlpacaServer/src:server_description",
-        "//TinyAlpacaServer/src:tiny_alpaca_server",
+        "//TinyAlpacaServer/src:tiny_alpaca_network_server",
         "//absl/strings",
         "//googletest:gunit_main",
         "//mcucore/extras/test_tools:http_request",

@@ -18,7 +18,7 @@
 #include "mcucore/extras/test_tools/http_request.h"
 #include "mcucore/extras/test_tools/http_response.h"
 #include "server_description.h"
-#include "tiny_alpaca_server.h"
+#include "tiny_alpaca_network_server.h"
 
 namespace alpaca {
 namespace test {

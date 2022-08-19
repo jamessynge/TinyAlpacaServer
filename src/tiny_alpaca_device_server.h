@@ -85,25 +85,6 @@ class TinyAlpacaDeviceServer : public RequestListener {
   uint32_t server_transaction_id_;
 };
 
-class TinyAlpacaNetworkServer {
- public:
-  explicit TinyAlpacaNetworkServer(TinyAlpacaDeviceServer& device_server,
-                                   uint16_t tcp_port = 80);
-
-  // Calls Initialize on the nested objects, e.g. initializes sockets so they
-  // listen for connections to tcp_port. Returns true if all of the objects are
-  // successfully initialized.
-  bool Initialize();
-
-  // Performs network IO as appropriate, and gives handlers a chance
-  // to perform periodic work.
-  void PerformIO();
-
- private:
-  ServerSocketsAndConnections sockets_;
-  TinyAlpacaDiscoveryServer discovery_server_;
-};
-
 }  // namespace alpaca
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_

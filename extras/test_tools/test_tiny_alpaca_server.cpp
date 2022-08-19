@@ -12,7 +12,7 @@
 #include "mcunet/extras/test_tools/string_io_stream_impl.h"
 #include "server_connection.h"
 #include "server_description.h"
-#include "tiny_alpaca_server.h"
+#include "tiny_alpaca_network_server.h"
 
 namespace alpaca {
 namespace test {

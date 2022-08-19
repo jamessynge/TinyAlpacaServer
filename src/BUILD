@@ -38,7 +38,8 @@ cc_library(
         ":server_description",
         ":server_socket_and_connection",
         ":server_sockets_and_connections",
-        ":tiny_alpaca_server",
+        ":tiny_alpaca_device_server",
+        ":tiny_alpaca_network_server",
         "//TinyAlpacaServer/src/device_types:device_impl_base",
         "//TinyAlpacaServer/src/device_types/cover_calibrator:cover_calibrator_adapter",
         "//TinyAlpacaServer/src/device_types/cover_calibrator:cover_calibrator_constants",
@@ -388,9 +389,9 @@ cc_library(
 )
 
 cc_library(
-    name = "tiny_alpaca_server",
-    srcs = ["tiny_alpaca_server.cc"],
-    hdrs = ["tiny_alpaca_server.h"],
+    name = "tiny_alpaca_device_server",
+    srcs = ["tiny_alpaca_device_server.cc"],
+    hdrs = ["tiny_alpaca_device_server.h"],
     deps = [
         ":alpaca_devices",
         ":alpaca_discovery_server",
@@ -402,6 +403,32 @@ cc_library(
         ":server_context",
         ":server_description",
         ":server_sockets_and_connections",
+        "//mcucore/src:mcucore_platform",
+        "//mcucore/src/container:array_view",
+        "//mcucore/src/json:json_encoder",
+        "//mcucore/src/json:json_encoder_helpers",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/print:printable_cat",
+        "//mcucore/src/strings:progmem_string_data",
+    ],
+)
+
+cc_library(
+    name = "tiny_alpaca_network_server",
+    srcs = ["tiny_alpaca_network_server.cc"],
+    hdrs = ["tiny_alpaca_network_server.h"],
+    deps = [
+        ":alpaca_devices",
+        ":alpaca_discovery_server",
+        ":alpaca_response",
+        ":constants",
+        ":device_interface",
+        ":http_response_header",
+        ":literals",
+        ":server_context",
+        ":server_description",
+        ":server_sockets_and_connections",
+        ":tiny_alpaca_device_server",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/container:array_view",
         "//mcucore/src/json:json_encoder",

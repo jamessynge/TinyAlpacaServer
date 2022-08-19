@@ -41,7 +41,8 @@
 #include "server_description.h"                        // IWYU pragma: export
 #include "server_socket_and_connection.h"              // IWYU pragma: export
 #include "server_sockets_and_connections.h"            // IWYU pragma: export
-#include "tiny_alpaca_server.h"                        // IWYU pragma: export
+#include "tiny_alpaca_device_server.h"                 // IWYU pragma: export
+#include "tiny_alpaca_network_server.h"                // IWYU pragma: export
 #include "utils/avr_timer_counter.h"                   // IWYU pragma: export
 #include "utils/moving_average.h"                      // IWYU pragma: export
 
