@@ -204,20 +204,12 @@ def define_stream_insert(enum_def: EnumerationDefinition) -> None:
   """Print the definition of operator<< for an enum."""
   name = enum_def.name
 
-  print(
-      f"""
-std::ostream& operator<<(std::ostream& os, {name} v) {{
-  switch (v) {{""",
-      end='')
-  for enumerator in enum_def.enumerators:
-    print(
-        f"""
-    case {name}::{enumerator.name}:
-      return os << {enumerator.get_dq_print_name()};""",
-        end='')
   print(f"""
-  }}
-  return os << "Unknown {name}, value=" << static_cast<int64_t>(v);
+std::ostream& operator<<(std::ostream& os, {name} v) {{
+  char buffer[256];
+  mcucore::PrintToBuffer print(buffer);
+  PrintValueTo(v, print);
+  return os << std::string_view(buffer, print.bytes_written());
 }}""")
 
 
@@ -302,6 +294,7 @@ END_HEADER_TAG = '// END_HEADER_' + TAG_SUFFIX
 BEGIN_SOURCE_TAG = '// BEGIN_SOURCE_' + TAG_SUFFIX
 END_SOURCE_TAG = '// END_SOURCE_' + TAG_SUFFIX
 INCLUDES = """
+#include <McuCore.h>
 #include <McuCore.h>
 #include <McuCore.h>
 #include <McuCore.h>
