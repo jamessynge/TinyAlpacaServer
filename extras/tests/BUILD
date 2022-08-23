@@ -140,6 +140,7 @@ cc_test(
         "//absl/strings",
         "//glog:logging",
         "//googletest:gunit_main",
+        "//mcucore/extras/test_tools/http1:string_utils",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/strings:string_view",
     ],
