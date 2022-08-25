@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 
+#include "absl/log/log.h"
 #include "alpaca_request.h"
 #include "constants.h"
 #include "device_description.h"
@@ -12,7 +13,6 @@
 #include "extras/test_tools/alpaca_response_validator.h"
 #include "extras/test_tools/minimal_device.h"
 #include "extras/test_tools/mock_device_interface.h"
-#include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extras/test_tools/http_response.h"

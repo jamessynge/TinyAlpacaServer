@@ -14,19 +14,22 @@
 
 #include "absl/flags/declare.h"
 #include "absl/flags/flag.h"
+#include "absl/log/log.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "alpaca_request.h"
 #include "config.h"
 #include "constants.h"
-#include "extra_parameters.h"
 #include "extras/test_tools/mock_request_decoder_listener.h"
-#include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extras/test_tools/http1/string_utils.h"
 #include "request_decoder_listener.h"
+
+#if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
+#include "extra_parameters.h"
+#endif
 
 ABSL_DECLARE_FLAG(int, v);
 

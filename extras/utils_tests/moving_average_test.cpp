@@ -8,11 +8,11 @@
 #include <memory>
 #include <vector>
 
+#include "absl/log/log.h"
 #include "absl/random/random.h"
 #include "absl/random/uniform_real_distribution.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
-#include "glog/logging.h"
 #include "gtest/gtest.h"
 
 namespace alpaca {
