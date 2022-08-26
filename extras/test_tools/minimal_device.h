@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MINIMAL_DEVICE_H_
 
 // Supports testing some aspects of DeviceImplBase.
+//
+// Author: james.synge@gmail.com
 
 #include "device_description.h"
 #include "device_types/device_impl_base.h"

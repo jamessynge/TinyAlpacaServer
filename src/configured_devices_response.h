@@ -2,6 +2,8 @@
 #define TINY_ALPACA_SERVER_SRC_CONFIGURED_DEVICES_RESPONSE_H_
 
 // Generates the JSON body for "/management/v1/configureddevices" requests.
+//
+// Author: james.synge@gmail.com
 
 #include <McuCore.h>
 

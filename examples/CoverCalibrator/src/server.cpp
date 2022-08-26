@@ -54,7 +54,7 @@ LedChannelSwitchGroup led_switches(  // NOLINT
 // For responding to /management/v1/description
 const alpaca::ServerDescription kServerDescription  // NOLINT
     {
-        .server_name = MCU_FLASHSTR_128(
+        .server_name = MCU_FLASHSTR_64(
             "AstroMakers Cover Calibrator Server, based on Tiny Alpaca Server"),
         .manufacturer = MCU_FLASHSTR("Friends of AAVSO & ATMoB, 2022-05-29"),
         .manufacturer_version = MCU_FLASHSTR("0.2"),

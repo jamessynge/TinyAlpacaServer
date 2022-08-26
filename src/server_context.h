@@ -1,7 +1,9 @@
 #ifndef TINY_ALPACA_SERVER_SRC_SERVER_CONTEXT_H_
 #define TINY_ALPACA_SERVER_SRC_SERVER_CONTEXT_H_
 
-// Data that is shared between different connections.
+// Data that is shared between different connections of a Tiny Alpaca Server.
+//
+// Author: james.synge@gmail.com
 
 #include <McuCore.h>
 

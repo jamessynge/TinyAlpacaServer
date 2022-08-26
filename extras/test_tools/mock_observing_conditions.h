@@ -4,6 +4,8 @@
 // Mock version of an ObservingConditionsAdapter subclass. Only mocks those
 // methods that a subclass must override in order to enable interacting with
 // sensors, not methods like HandleGetRequest.
+//
+// Author: james.synge@gmail.com
 
 #include <McuCore.h>
 #include <stdint.h>

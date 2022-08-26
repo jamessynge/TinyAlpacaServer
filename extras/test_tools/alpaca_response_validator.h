@@ -3,6 +3,8 @@
 
 // Test helper for validating HTTP responses from Tiny Alpaca Server, and for
 // extracting information (e.g. the Value property from the JSON body).
+//
+// Author: james.synge@gmail.com
 
 #include <cstdint>
 #include <optional>

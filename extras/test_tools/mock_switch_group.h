@@ -3,6 +3,8 @@
 
 // Mock version of a SwitchAdapter subclass, where only the pure virtual methods
 // of SwitchAdapter are mocked.
+//
+// Author: james.synge@gmail.com
 
 #include <McuCore.h>
 #include <stdint.h>

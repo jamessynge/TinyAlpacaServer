@@ -1,6 +1,11 @@
 #ifndef TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_REQUEST_LISTENER_H_
 #define TINY_ALPACA_SERVER_EXTRAS_TEST_TOOLS_MOCK_REQUEST_LISTENER_H_
 
+// Mock version of alpaca::RequestListener, where only the pure virtual methods
+// are mocked.
+//
+// Author: james.synge@gmail.com
+
 #include "constants.h"
 #include "gmock/gmock.h"
 #include "request_listener.h"

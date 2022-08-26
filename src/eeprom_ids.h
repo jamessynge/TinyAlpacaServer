@@ -5,6 +5,8 @@
 // different pieces of code. For TinyAlpacaServer, I'm recording the ids used
 // here. Note that there can be multiple uses for the same id value, as long as
 // the domain is different.
+//
+// Author: james.synge@gmail.com
 
 #include <McuCore.h>
 
