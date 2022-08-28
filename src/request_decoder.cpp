@@ -51,6 +51,29 @@ using CharMatchFunction = bool (*)(char c);
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
 
+bool DecodeTrueFalse(const mcucore::StringView& value, bool& output) {
+  if (mcucore::CaseEqual(value, ProgmemStringViews::False())) {
+    output = false;
+    return true;
+  } else if (mcucore::CaseEqual(value, ProgmemStringViews::True())) {
+    output = true;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+EHttpStatusCode EnsureIsError(
+    EHttpStatusCode status,
+    EHttpStatusCode default_code = EHttpStatusCode::kHttpBadRequest) {
+  MCU_DCHECK_NE(status, EHttpStatusCode::kNeedMoreInput);
+  if (status < EHttpStatusCode::kHttpBadRequest) {
+    return default_code;
+  } else {
+    return status;
+  }
+}
+
 bool HttpMethodIsRead(EHttpMethod method) {
   return method == EHttpMethod::GET || method == EHttpMethod::HEAD;
 }
@@ -204,6 +227,21 @@ EHttpStatusCode DecodeHeaderLineEnd(RequestDecoderState& state,
   }
 }
 
+EHttpStatusCode ReportInvalidHeaderValue(
+    RequestDecoderState& state, mcucore::StringView& value,
+    EHttpStatusCode default_code = EHttpStatusCode::kHttpBadRequest) {
+#if TAS_ENABLE_EXTRA_PARAMETER_DECODING
+  if (state.listener) {
+    return EnsureIsError(
+        state.listener->OnExtraHeader(state.current_header, value),
+        default_code);
+  }
+#endif  // TAS_ENABLE_EXTRA_PARAMETER_DECODING
+  return default_code;
+}
+
+// TODO(jamessynge): Define a better API for handling LONG header values without
+// having to buffer them, i.e. those which can be quite long, such as Accept.
 EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
                                   mcucore::StringView& view) {
   // Skip leading OWS (optional whitespace: space or horizontal tab), then take
@@ -223,76 +261,74 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
               << mcucore::HexEscaped(value);
   EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
   if (state.current_header == EHttpHeader::kContentLength) {
+    if (state.found_content_length) {
+      // Can't combine two Content-Length header fields.
+      return ReportInvalidHeaderValue(state, value);
+    }
     uint32_t content_length = 0;
     const bool converted_ok = value.to_uint32(content_length);
-    if (state.found_content_length || !converted_ok ||
-        content_length > RequestDecoderState::kMaxPayloadSize) {
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      if (state.listener) {
-        status = state.listener->OnExtraHeader(EHttpHeader::kHttpContentLength,
-                                               value);
-      }
-      if (status <= EHttpStatusCode::kHttpOk) {
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-        if (content_length > 0) {
-          // It's out of range for our decoder.
-          status = EHttpStatusCode::kHttpPayloadTooLarge;
-        } else {
-          status = EHttpStatusCode::kHttpBadRequest;
-        }
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+    if (!converted_ok) {
+      // Illformed.
+      return ReportInvalidHeaderValue(state, value);
     } else if (content_length > 0 &&
                !HttpMethodHasBody(state.request.http_method)) {
       // We could choose to skip over the payload of the request, but we don't
       // know if the client intended the payload to have meaning. Thus, we
       // reject a request with an unexpected payload. For more info, see:
       // https://tools.ietf.org/html/rfc7231#section-4.3.1
-      status = EHttpStatusCode::kHttpBadRequest;
+      return ReportInvalidHeaderValue(state, value);
+    } else if (content_length > RequestDecoderState::kMaxPayloadSize) {
+      // It's out of range for our decoder.
+      return ReportInvalidHeaderValue(state, value,
+                                      EHttpStatusCode::kHttpPayloadTooLarge);
     } else {
+      // Looks OK. Note that this isn't stored in the AlpacaRequest because the
+      // decoder takes care of processing the body and extracting parameters
+      // from it.
       state.remaining_content_length = content_length;
       state.found_content_length = true;
     }
   } else if (state.current_header == EHttpHeader::kContentType) {
     // Note that the syntax for the Content-Type header is more complex than
     // allowed for here; after the media-type there may be a semi-colon and some
-    // additional details (charset and boundary).
-    if (state.request.http_method == EHttpMethod::PUT &&
-        value != ProgmemStringViews::MimeTypeWwwFormUrlEncoded()) {
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      if (state.listener) {
-        status =
-            state.listener->OnExtraHeader(EHttpHeader::kHttpContentType, value);
-      } else {
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-        status = EHttpStatusCode::kHttpUnsupportedMediaType;
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+    // additional details (charset and boundary). So far we only support
+    // url-encoded, so if any other value is provided, return an error.
+    if (value != ProgmemStringViews::MimeTypeWwwFormUrlEncoded()) {
+      return ReportInvalidHeaderValue(
+          state, value, EHttpStatusCode::kHttpUnsupportedMediaType);
     }
+    if (!HttpMethodHasBody(state.request.http_method)) {
+      // Don't expect this header for GET requests.
+      return ReportInvalidHeaderValue(state, value);
+    }
+    // Note that we don't store the value, just validate it. If it isn't
+    // provided, we assume the body will have the correct type. The HTTP RFC
+    // says that the header field should be provided, but doesn't say that it
+    // must be.
   } else if (state.current_header == EHttpHeader::kConnection) {
     if (mcucore::CaseEqual(ProgmemStringViews::close(), value)) {
       state.request.do_close = true;
     }
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  } else if (state.current_header == EHttpHeader::kUnknown) {
-    if (state.listener) {
-      status = state.listener->OnUnknownHeaderValue(value);
-    }
-  } else {
+  } else if (state.current_header != EHttpHeader::kUnknown) {
+#if TAS_ENABLE_EXTRA_HEADER_DECODING
     // Recognized but no built-in support.
     if (state.listener) {
       status = state.listener->OnExtraHeader(state.current_header, value);
     }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+#endif  // TAS_ENABLE_EXTRA_HEADER_DECODING
+#if TAS_ENABLE_UNKNOWN_HEADER_DECODING
+  } else if (state.current_header == EHttpHeader::kUnknown) {
+    if (state.listener) {
+      status = state.listener->OnUnknownHeaderValue(value);
+    }
+#endif  // TAS_ENABLE_UNKNOWN_HEADER_DECODING
   }
   return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderLineEnd, status);
 }
 
-// We've determined that we don't need to examine the value of this header, so
-// we just skip forward to the end of the line. This allows us to skip past
-// large headers (e.g. User-Agent) whose value we don't care about.
+// We've determined that we don't need to examine the value of this header,
+// so we just skip forward to the end of the line. This allows us to skip
+// past large headers (e.g. User-Agent) whose value we don't care about.
 EHttpStatusCode SkipHeaderValue(RequestDecoderState& state,
                                 mcucore::StringView& view) {
   while (!view.empty()) {
@@ -307,24 +343,20 @@ EHttpStatusCode SkipHeaderValue(RequestDecoderState& state,
 EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
                                   const mcucore::StringView& matched_text,
                                   mcucore::StringView& view) {
+  if (MatchHttpHeader(matched_text, state.current_header)) {
+    return state.SetDecodeFunction(DecodeHeaderValue);
+  }
   if (matched_text.empty()) {
     return EHttpStatusCode::kHttpBadRequest;
   }
   state.current_header = EHttpHeader::kUnknown;
-  if (!MatchHttpHeader(matched_text, state.current_header)) {
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-    EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
-    if (state.listener) {
-      status = state.listener->OnUnknownHeaderName(matched_text);
-    }
-    // TODO(jamessynge): Define a better API for handling LONG header values,
-    // i.e. those which can not be buffered on an Arduino, such as Accept.
+#if TAS_ENABLE_UNKNOWN_HEADER_DECODING
+  if (state.listener) {
+    EHttpStatusCode status = state.listener->OnUnknownHeaderName(matched_text);
     return state.SetDecodeFunctionAfterListenerCall(DecodeHeaderValue, status);
-#else
-    return state.SetDecodeFunction(SkipHeaderValue);
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   }
-  return state.SetDecodeFunction(DecodeHeaderValue);
+#endif  // TAS_ENABLE_UNKNOWN_HEADER_DECODING
+  return state.SetDecodeFunction(SkipHeaderValue);
 }
 
 EHttpStatusCode DecodeHeaderName(RequestDecoderState& state,
@@ -342,8 +374,8 @@ EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
   if (mcucore::SkipPrefix(view, kEndOfHeaderLine)) {
     // We've reached the end of the headers.
     if (state.request.http_method == EHttpMethod::GET) {
-      // The standard requires that we not examine the body of a GET request,
-      // if present, so we're done.
+      // The standard requires that we not examine the body of a GET
+      // request, if present, so we're done.
       return EHttpStatusCode::kHttpOk;
     } else if (state.request.http_method != EHttpMethod::PUT) {
       // Shouldn't get here unless support for a new method is added to
@@ -355,8 +387,8 @@ EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
     } else if (state.remaining_content_length == 0) {
       // Very odd, but it is possible that all of the parameters are in the
       // query parameters in the start line of the request. For example, the
-      // "refresh" method of the "observingconditions" device type requires no
-      // parameters.
+      // "refresh" method of the "observingconditions" device type requires
+      // no parameters.
       return EHttpStatusCode::kHttpOk;
     } else {
       // There is a body of known length to be decoded.
@@ -391,6 +423,9 @@ EHttpStatusCode MatchHttpVersion(RequestDecoderState& state,
 
 EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
                                      mcucore::StringView& view) {
+  // Forget what we were decoding previously.
+  state.current_parameter = EParameter::kUnknown;
+
   // If there are multiple separators, treat them as one.
   const auto beyond = FindFirstNotOf(view, IsParamSeparator);
   if (beyond == mcucore::StringView::kMaxSize) {
@@ -402,18 +437,19 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
       view.remove_prefix(view.size());
       return EHttpStatusCode::kHttpOk;
     }
-    // We don't know if the next character will also be a separator or not, so
-    // we remove all but one of the separator characters, and return here next
-    // time when there is more input.
+    // We don't know if the next character will also be a separator or not,
+    // so we remove all but one of the separator characters, and return here
+    // next time when there is more input.
     if (view.size() > 1) {
       view.remove_prefix(view.size() - 1);
     }
     return EHttpStatusCode::kNeedMoreInput;
   }
 
-  // There are zero or more separators, followed by a non-separator. This means
-  // that this isn't the body of a request with one of these separators as the
-  // last char in the body, so we don't need to worry about that case.
+  // There are zero or more separators, followed by a non-separator. This
+  // means that this isn't the body of a request with one of these
+  // separators as the last char in the body, so we don't need to worry
+  // about that case.
   MCU_VLOG(3) << MCU_PSD("DecodeParamSeparator found ") << (beyond + 0)
               << MCU_PSD(" separators, followed by a non-separator");
   MCU_DCHECK(!view.empty());
@@ -431,35 +467,31 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   }
 }
 
-EHttpStatusCode ReportExtraParameter(RequestDecoderState& state,
-                                     mcucore::StringView value) {
-  MCU_VLOG(3) << MCU_PSD("ReportExtraParameter ") << state.current_parameter
-              << MCU_PSD(" = ") << value;
-  EHttpStatusCode status = EHttpStatusCode::kHttpBadRequest;
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+EHttpStatusCode ReportMalformedParamValue(RequestDecoderState& state,
+                                          mcucore::StringView& view) {
+#if TAS_ENABLE_EXTRA_PARAMETER_DECODING
   if (state.listener) {
-    status = state.listener->OnExtraParameter(state.current_parameter, value);
-    if (status <= EHttpStatusCode::kHttpOk) {
-      status = EHttpStatusCode::kHttpBadRequest;
-    }
+    return EnsureIsError(
+        state.listener->OnExtraParameter(state.current_parameter, view));
   }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-  return status;
+#endif  // TAS_ENABLE_EXTRA_PARAMETER_DECODING
+  return EHttpStatusCode::kHttpBadRequest;
 }
 
-// Note that a parameter value may be empty, which makes detecting the end of it
-// tricky if also at the end of the body of a request.
+// Note that a parameter value may be empty, which makes detecting the end
+// of it tricky if also at the end of the body of a request.
 EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
                                  mcucore::StringView& view) {
   mcucore::StringView value;
   if (!ExtractMatchingPrefix(view, value, IsParamValueChar)) {
-    // view doesn't contain a character that can't be in a parameter value. We
-    // may need more input.
+    // view doesn't contain a character that can't be in a parameter value.
+    // We may need more input.
     if (state.is_decoding_header || !state.is_final_input) {
       return EHttpStatusCode::kNeedMoreInput;
     }
-    // Ah, we're decoding the body of the request, and this is last buffer of
-    // input from the client, so we can treat the end of input as the separator.
+    // Ah, we're decoding the body of the request, and this is last buffer
+    // of input from the client, so we can treat the end of input as the
+    // separator.
     MCU_DCHECK_EQ(state.remaining_content_length, view.size());
     value = view;
     view.remove_prefix(value.size());
@@ -470,94 +502,106 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
   if (state.current_parameter == EParameter::kClientID) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
-    if (state.request.have_client_id || !converted_ok) {
-      status = ReportExtraParameter(state, value);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
+      // If already decoded, then we overwrite the previous value.
       state.request.set_client_id(id);
     }
   } else if (state.current_parameter == EParameter::kClientTransactionID) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
-    if (state.request.have_client_transaction_id || !converted_ok) {
-      status = ReportExtraParameter(state, value);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
+      // If already decoded, then we overwrite the previous value.
       state.request.set_client_transaction_id(id);
     }
   } else if (state.current_parameter == EParameter::kId) {
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
-    if (state.request.have_id || !converted_ok) {
-      status = ReportExtraParameter(state, value);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
+      // If already decoded, then we overwrite the previous value.
       state.request.set_id(id);
     }
   } else if (state.current_parameter == EParameter::kBrightness) {
     int32_t brightness;
     bool converted_ok = value.to_int32(brightness);
-    if (state.request.have_brightness || !converted_ok) {
-      status = ReportExtraParameter(state, value);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
+      // If already decoded, then we overwrite the previous value.
       state.request.set_brightness(brightness);
     }
   } else if (state.current_parameter == EParameter::kValue) {
     double d;
     bool converted_ok = value.to_double(d);
-    if (state.request.have_value || !converted_ok) {
-      status = ReportExtraParameter(state, value);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
+      // If already decoded, then we overwrite the previous value.
       state.request.set_value(d);
     }
   } else if (state.current_parameter == EParameter::kAveragePeriod) {
     double d;
     bool converted_ok = value.to_double(d);
-    if (state.request.have_average_period || !converted_ok) {
-      status = ReportExtraParameter(state, value);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
+      // If already decoded, then we overwrite the previous value.
       state.request.set_average_period(d);
     }
   } else if (state.current_parameter == EParameter::kConnected) {
-    if (mcucore::CaseEqual(value, ProgmemStringViews::False()) &&
-        !state.request.have_connected) {
-      state.request.set_connected(false);
-    } else if (mcucore::CaseEqual(value, ProgmemStringViews::True()) &&
-               !state.request.have_connected) {
-      state.request.set_connected(true);
+    bool b;
+    bool converted_ok = DecodeTrueFalse(value, b);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
-      status = ReportExtraParameter(state, value);
+      // If already decoded, then we overwrite the previous value.
+      state.request.set_connected(b);
     }
   } else if (state.current_parameter == EParameter::kState) {
-    if (mcucore::CaseEqual(value, ProgmemStringViews::False()) &&
-        !state.request.have_state) {
-      state.request.set_state(false);
-    } else if (mcucore::CaseEqual(value, ProgmemStringViews::True()) &&
-               !state.request.have_state) {
-      state.request.set_state(true);
+    bool b;
+    bool converted_ok = DecodeTrueFalse(value, b);
+    if (!converted_ok) {
+      return ReportMalformedParamValue(state, value);
     } else {
-      status = ReportExtraParameter(state, value);
+      // If already decoded, then we overwrite the previous value.
+      state.request.set_state(b);
     }
   } else if (state.current_parameter == EParameter::kSensorName) {
     ESensorName matched;
-    if (state.request.sensor_name != ESensorName::kUnknown ||
-        !MatchSensorName(value, matched)) {
-      status = ReportExtraParameter(state, value);
+    if (!MatchSensorName(value, matched)) {
+      return ReportMalformedParamValue(state, value);
     } else {
       state.request.sensor_name = matched;
     }
   } else if (state.current_parameter == EParameter::kName) {
+    // We don't yet have have unique storage for name, vs. any other
+    // parameter that might need to use the AlpacaRequest.string_value field
+    // (none so far). Throwing caution to the wind, I'm just assuming
+    // another use won't be added soon.
+    // TODO(jamessynge): Switch to using SerialMap<EParameter> (or similar)
+    // for storing the values of parameters.
+    state.request.have_string_value = 0;
     if (!state.request.set_string_value(value)) {
-      status = ReportExtraParameter(state, value);
+      return ReportMalformedParamValue(state, value);
     }
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  } else if (state.current_parameter == EParameter::kUnknown) {
-    if (state.listener) {
-      status = state.listener->OnUnknownParameterValue(value);
-    }
-  } else {
+#if TAS_ENABLE_EXTRA_PARAMETER_DECODING
+  } else if (state.current_parameter != EParameter::kUnknown) {
     // Recognized but no built-in support.
     if (state.listener) {
       status = state.listener->OnExtraParameter(state.current_parameter, value);
     }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+#endif  // TAS_ENABLE_EXTRA_PARAMETER_DECODING
+#if TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
+  } else if (state.current_parameter == EParameter::kUnknown) {
+    if (state.listener) {
+      status = state.listener->OnUnknownParameterValue(value);
+    }
+#endif  // TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
   }
   return state.SetDecodeFunctionAfterListenerCall(DecodeParamSeparator, status);
 }
@@ -574,21 +618,22 @@ EHttpStatusCode ProcessParamName(RequestDecoderState& state,
     return EHttpStatusCode::kHttpBadRequest;
   }
   // Unrecognized parameter name.
-  EHttpStatusCode status = EHttpStatusCode::kContinueDecoding;
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+#if TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
   if (state.listener) {
-    status = state.listener->OnUnknownParameterName(matched_text);
+    EHttpStatusCode status =
+        state.listener->OnUnknownParameterName(matched_text);
+    return state.SetDecodeFunctionAfterListenerCall(DecodeParamValue, status);
   }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-  return state.SetDecodeFunctionAfterListenerCall(DecodeParamValue, status);
+#endif  // TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
+  return state.SetDecodeFunction(DecodeParamValue);
 }
 
 EHttpStatusCode DecodeParamName(RequestDecoderState& state,
                                 mcucore::StringView& view) {
-  // Not supporting the case here of a param without a value, i.e. followed by
-  // a space marking the end of the path, a '&' separating it from the next
-  // param, or end-of-input in the body. Not needed for ASCOM, but would be for
-  // a somewhat more general decoder.
+  // Not supporting the case here of a param without a value, i.e. followed
+  // by a space marking the end of the path, a '&' separating it from the
+  // next param, or end-of-input in the body. Not needed for ASCOM, but
+  // would be for a somewhat more general decoder.
   const char kParamNameValueSeparator = '=';
   return ExtractAndProcessName(
       state, view, kParamNameValueSeparator, ProcessParamName,
@@ -596,13 +641,14 @@ EHttpStatusCode DecodeParamName(RequestDecoderState& state,
       /*bad_terminator_error=*/EHttpStatusCode::kHttpBadRequest);
 }
 
-// We've read what should be the final segment of the path, and expect either a
-// '?' marking the beginning of a query (i.e. parameter names and values), or
-// the ' ' (space) that appears before the HTTP version number.
+// We've read what should be the final segment of the path, and expect
+// either a
+// '?' marking the beginning of a query (i.e. parameter names and values),
+// or the ' ' (space) that appears before the HTTP version number.
 EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state,
                                 mcucore::StringView& view) {
-  // A separator/terminating character should be present, else we would not have
-  // been able to determine that the previous segment was done.
+  // A separator/terminating character should be present, else we would not
+  // have been able to determine that the previous segment was done.
   MCU_DCHECK(!view.empty());
   DecodeFunction next_decode_function;
   if (view.match_and_consume('?')) {
@@ -653,16 +699,17 @@ EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
   }
   MCU_DCHECK(!view.empty());
 
-  // The device method is supposed to be the end of the path; it may be followed
-  // by a query string, or a space and then the HTTP version.
+  // The device method is supposed to be the end of the path; it may be
+  // followed by a query string, or a space and then the HTTP version.
   const char next = view.front();
   if (IsEndOfPath(next)) {
     return ProcessDeviceMethod(state, matched_text, view);
   } else {
-    // Doesn't end with something appropriate for the path to end in. Perhaps an
-    // unexpected/unsupported delimiter. Reporting Bad Request because the error
-    // is with the format of the request... though we could report Not Found if
-    // what follows is a '/' and another well-formed but invalid path element.
+    // Doesn't end with something appropriate for the path to end in.
+    // Perhaps an unexpected/unsupported delimiter. Reporting Bad Request
+    // because the error is with the format of the request... though we
+    // could report Not Found if what follows is a '/' and another
+    // well-formed but invalid path element.
     return EHttpStatusCode::kHttpBadRequest;
   }
 }
@@ -800,7 +847,8 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
   if (view.match_and_consume('/')) {
     // The path continues.
     // NOTE: If adding support for more paths (e.g. a PUT or POST request to
-    // handle updating parameters in EEPROM), we'll need to adjust this code.
+    // handle updating parameters in EEPROM), we'll need to adjust this
+    // code.
     if (!HttpMethodIsRead(state.request.http_method) &&
         group != EApiGroup::kDevice) {
       return EHttpStatusCode::kHttpMethodNotAllowed;
@@ -849,8 +897,8 @@ EHttpStatusCode MatchStartOfPath(RequestDecoderState& state,
 }
 
 // Process the word at the start of the request, which should be the HTTP
-// method name. The space following matched_text has already been removed from
-// the start of view.
+// method name. The space following matched_text has already been removed
+// from the start of view.
 EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
                                   const mcucore::StringView& matched_text,
                                   mcucore::StringView& view) {
@@ -869,8 +917,9 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
 // Decode one of the few supported HTTP methods. If definitely not present,
 // returns an error. We *could* allow for leading whitespace, which has been
 // supported implementations in the past, perhaps to deal with multiple
-// requests (or multiple responses) in a row without clear delimiters. However
-// HTTP/1.1 requires clear delimiters, so we won't tolerate extra whitespace.
+// requests (or multiple responses) in a row without clear delimiters.
+// However HTTP/1.1 requires clear delimiters, so we won't tolerate extra
+// whitespace.
 EHttpStatusCode DecodeHttpMethod(RequestDecoderState& state,
                                  mcucore::StringView& view) {
   const char kHttpMethodTerminator = ' ';
@@ -914,20 +963,22 @@ size_t PrintValueTo(DecodeFunction decode_function, Print& out) {
   // COV_NF_END
 }
 
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+RequestDecoderState::RequestDecoderState(AlpacaRequest& request)
+    : decode_function(nullptr), request(request), listener(nullptr) {}
+
 RequestDecoderState::RequestDecoderState(AlpacaRequest& request,
                                          RequestDecoderListener* listener)
-    : decode_function(nullptr),
-      request(request)
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-      ,
-      listener(listener)
+    : decode_function(nullptr), request(request), listener(listener) {}
+#else
+RequestDecoderState::RequestDecoderState(AlpacaRequest& request)
+    : decode_function(nullptr), request(request) {}
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-{
-}
 
 void RequestDecoderState::Reset() {
   MCU_VLOG(1) << MCU_FLASHSTR_128(
-      "Reset ################################################################");
+      "Reset "
+      "################################################################");
   decode_function = DecodeHttpMethod;
   request.Reset();
   is_decoding_header = true;
@@ -1012,12 +1063,12 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
                         : MCU_FLASHSTR("changed"));
 
     if (status == EHttpStatusCode::kContinueDecoding) {
-      // This is a check on the currently expected behavior; none of the current
-      // decode functions represents a loop all by itself, which isn't handled
-      // inside the decode function; i.e. none of them remove some, but not all,
-      // of the input from buffer, and then return kContinueDecoding without
-      // also calling SetDecodeFunction to specify the next (different) function
-      // to handle the decoding.
+      // This is a check on the currently expected behavior; none of the
+      // current decode functions represents a loop all by itself, which isn't
+      // handled inside the decode function; i.e. none of them remove some,
+      // but not all, of the input from buffer, and then return
+      // kContinueDecoding without also calling SetDecodeFunction to specify
+      // the next (different) function to handle the decoding.
       MCU_CHECK_NE(old_decode_function, decode_function)
           << MCU_PSD("Should have changed the decode function");  // COV_NF_LINE
     }
@@ -1087,12 +1138,12 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
     MCU_CHECK_LE(buffer.size(), buffer_size_before_decode);
     MCU_CHECK_LE(consumed_chars, remaining_content_length);
     if (decode_function == old_decode_function) {
-      // This is a check on the currently expected behavior; none of the current
-      // decode functions represents a loop all by itself, which isn't handled
-      // inside the decode function; i.e. none of them remove some, but not all,
-      // of the input from buffer, and then return kContinueDecoding without
-      // also calling SetDecodeFunction to specify the next (different) function
-      // to handle the decoding.
+      // This is a check on the currently expected behavior; none of the
+      // current decode functions represents a loop all by itself, which isn't
+      // handled inside the decode function; i.e. none of them remove some,
+      // but not all, of the input from buffer, and then return
+      // kContinueDecoding without also calling SetDecodeFunction to specify
+      // the next (different) function to handle the decoding.
       MCU_CHECK_NE(status, EHttpStatusCode::kContinueDecoding);
     }
     if (buffer_size_before_decode == 0) {

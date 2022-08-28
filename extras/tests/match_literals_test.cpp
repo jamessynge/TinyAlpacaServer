@@ -126,6 +126,10 @@ using DeviceMethodTestCases =
 
 void PrependCommonDeviceMethodTestCases(DeviceMethodTestCases& test_cases) {
   const DeviceMethodTestCases kCommonDeviceMethods = {
+      {"action", EDeviceMethod::kAction},
+      {"commandblind", EDeviceMethod::kCommandBlind},
+      {"commandbool", EDeviceMethod::kCommandBool},
+      {"commandstring", EDeviceMethod::kCommandString},
       {"connected", EDeviceMethod::kConnected},
       {"description", EDeviceMethod::kDescription},
       {"driverinfo", EDeviceMethod::kDriverInfo},

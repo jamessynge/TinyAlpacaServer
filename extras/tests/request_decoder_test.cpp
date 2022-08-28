@@ -1,5 +1,10 @@
 // Tests of RequestDecoder, AlpacaRequest and RequestDecoderListener.
 //
+// After a bunch of changes, I think there are too many test cases (i.e. they
+// overlap in what they test); in addition, I think the individual test cases
+// likely test too many things (i.e. aren't well focused).
+// TODO(jamessynge): Reduce overlap, increase focus.
+//
 // Author: james.synge@gmail.com
 
 #include "request_decoder.h"
@@ -8,7 +13,9 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -25,6 +32,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "mcucore/extras/test_tools/http1/string_utils.h"
+#include "mcucore/extras/test_tools/string_view_utils.h"  // IWYU pragma: keep (yes, really used via gtest-matchers.h).
 #include "request_decoder_listener.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
@@ -49,7 +57,6 @@ using ::testing::StartsWith;
 using ::testing::StrictMock;
 
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
-using ::testing::AnyNumber;
 using ::testing::Eq;
 using ::testing::InSequence;
 using ::testing::Return;
@@ -148,52 +155,227 @@ size_t GetNumExtraParameters(const AlpacaRequest& request) {
 #endif
 }
 
-TEST(RequestDecoderTest, LogSizes) {
+// TODO(jamessynge): Add parameter to test that controls whether the listener is
+// installed. Use TAS_ENABLE_REQUEST_DECODER_LISTENER to decide whether the test
+// cases are executed just once (i.e. if it equals 0), or are executed twice,
+// once with and once without a listener.
+class RequestDecoderTest : public ::testing::Test {
+ public:
+  RequestDecoderTest()
+      :
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+        decoder_(alpaca_request_, &listener_)
+#else
+        decoder_(alpaca_request_)
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+  {
+    // ctor body.
+  }
+
+ protected:
+  // TODO(jamessynge): Adjust based on the parameter.
+  bool HasListener() const { return TAS_ENABLE_REQUEST_DECODER_LISTENER != 0; }
+
+  EHttpStatusCode MaybeExpectAssetPathSegment(
+      std::string_view segment,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+#if TAS_ENABLE_ASSET_PATH_DECODING
+    if (HasListener()) {
+      EXPECT_CALL(listener_, OnAssetPathSegment(Eq(segment)))
+          .WillOnce(Return(listener_return_value));
+      return listener_return_value;
+    }
+#endif  // TAS_ENABLE_ASSET_PATH_DECODING
+    return non_listener_return_value;
+  }
+
+  EHttpStatusCode MaybeExpectExtraParameter(
+      EParameter parameter, std::string_view value,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+#if TAS_ENABLE_EXTRA_PARAMETER_DECODING
+    if (HasListener()) {
+      EXPECT_CALL(listener_, OnExtraParameter(parameter, Eq(value)))
+          .WillOnce(Return(listener_return_value));
+      return listener_return_value;
+    }
+#endif  // TAS_ENABLE_EXTRA_PARAMETER_DECODING
+    return non_listener_return_value;
+  }
+
+  EHttpStatusCode MaybeExpectUnknownParameterName(
+      std::string_view name,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+#if TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
+    if (HasListener()) {
+      EXPECT_CALL(listener_, OnUnknownParameterName(Eq(name)))
+          .WillOnce(Return(listener_return_value));
+      return listener_return_value;
+    }
+#endif  // TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
+    return non_listener_return_value;
+  }
+
+  EHttpStatusCode MaybeExpectUnknownParameterValue(
+      std::string_view value,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+#if TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
+    if (HasListener()) {
+      EXPECT_CALL(listener_, OnUnknownParameterValue(Eq(value)))
+          .WillOnce(Return(listener_return_value));
+      return listener_return_value;
+    }
+#endif  // TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
+    return non_listener_return_value;
+  }
+
+  EHttpStatusCode MaybeExpectUnknownParameter(
+      std::string name, std::string_view value,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+    MaybeExpectUnknownParameterName(name);
+    return MaybeExpectUnknownParameterValue(value, listener_return_value,
+                                            non_listener_return_value);
+  }
+
+  EHttpStatusCode MaybeExpectExtraHeader(
+      EHttpHeader header, std::string_view value,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+#if TAS_ENABLE_EXTRA_HEADER_DECODING
+    if (HasListener()) {
+      EXPECT_CALL(listener_, OnExtraHeader(header, Eq(value)))
+          .WillOnce(Return(listener_return_value));
+      return listener_return_value;
+    }
+#endif  // TAS_ENABLE_EXTRA_HEADER_DECODING
+    return non_listener_return_value;
+  }
+
+  EHttpStatusCode MaybeExpectUnknownHeaderName(
+      std::string_view name,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+#if TAS_ENABLE_UNKNOWN_HEADER_DECODING
+    if (HasListener()) {
+      EXPECT_CALL(listener_, OnUnknownHeaderName(Eq(name)))
+          .WillOnce(Return(listener_return_value));
+      return listener_return_value;
+    }
+#endif  // TAS_ENABLE_UNKNOWN_HEADER_DECODING
+    return non_listener_return_value;
+  }
+
+  EHttpStatusCode MaybeExpectUnknownHeaderValue(
+      std::string_view value,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+#if TAS_ENABLE_UNKNOWN_HEADER_DECODING
+    if (HasListener()) {
+      EXPECT_CALL(listener_, OnUnknownHeaderValue(Eq(value)))
+          .WillOnce(Return(listener_return_value));
+      return listener_return_value;
+    }
+#endif  // TAS_ENABLE_UNKNOWN_HEADER_DECODING
+    return non_listener_return_value;
+  }
+
+  EHttpStatusCode MaybeExpectUnknownHeader(
+      std::string name, std::string_view value,
+      EHttpStatusCode listener_return_value =
+          EHttpStatusCode::kContinueDecoding,
+      EHttpStatusCode non_listener_return_value =
+          EHttpStatusCode::kContinueDecoding) {
+    MaybeExpectUnknownHeaderName(name);
+    return MaybeExpectUnknownHeaderValue(value, listener_return_value,
+                                         non_listener_return_value);
+  }
+
+  void VerifyAndClearListenerExpectations() {
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+    Mock::VerifyAndClearExpectations(&listener_);
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+  }
+
+  AlpacaRequest alpaca_request_;
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+  StrictMock<MockRequestDecoderListener> listener_;
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+  RequestDecoder decoder_;
+};
+
+// Death tests are executed first, so I'm placing such tests first.
+using RequestDecoderDeathTest = RequestDecoderTest;
+
+#if TAS_ENABLE_EXTRA_HEADER_DECODING
+// kNeedMoreInput is not allowed as a return status from a listener method, as
+// it is intended to mean that the current buffer doesn't hold an entire 'token'
+// to be decoded. If the listener returns that, it is converted to an internal
+// error.
+TEST_F(RequestDecoderDeathTest, OnExtraHeaderReturnsInvalidStatus) {
+  std::string request(
+      "GET /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
+      "Date: anything\r\n"
+      "\r\n");
+
+  EXPECT_DEBUG_DEATH(
+      {
+        MaybeExpectExtraHeader(EHttpHeader::kDate, "anything",
+                               EHttpStatusCode::kNeedMoreInput);
+        EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
+                  EHttpStatusCode::kHttpInternalServerError);
+        EXPECT_EQ(request, "\r\n\r\n");
+      },
+      "kNeedMoreInput");
+}
+#endif  // TAS_ENABLE_EXTRA_HEADER_DECODING
+
+TEST_F(RequestDecoderTest, UnusedDecoder) {
   LOG(INFO) << "sizeof(AlpacaRequest) " << sizeof(AlpacaRequest);
   LOG(INFO) << "sizeof(RequestDecoderListener) "
             << sizeof(RequestDecoderListener);
   LOG(INFO) << "sizeof(RequestDecoder) " << sizeof(RequestDecoder);
 }
 
-TEST(RequestDecoderTest, UnusedDecoder) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-}
+TEST_F(RequestDecoderTest, ResetOnly) { decoder_.Reset(); }
 
-TEST(RequestDecoderTest, ResetOnly) {
-  AlpacaRequest alpaca_request;
-  StrictMock<RequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-  decoder.Reset();
-}
-
-TEST(RequestDecoderTest, ResetRequired) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, ResetRequiredBeforeDecoding) {
   const std::string full_request(
       "GET /api/v1/safetymonitor/0/issafe HTTP/1.1\r\n"
       "\r\n");
   auto buffer = full_request;
 
-  EXPECT_EQ(DecodeBuffer(decoder, buffer, /*at_end=*/true),
+  EXPECT_EQ(DecodeBuffer(decoder_, buffer, /*at_end=*/true),
             EHttpStatusCode::kHttpInternalServerError);
   EXPECT_EQ(buffer, full_request);  // No input has been consumed.
 }
 
-TEST(RequestDecoderTest, SmallestHomePageRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestHomePageRequest) {
   const std::string full_request(
       "GET / HTTP/1.1\r\n"
       "\r\n");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -202,12 +384,12 @@ TEST(RequestDecoderTest, SmallestHomePageRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
 
-    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kServerStatus);
-    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kServerStatus);
-    EXPECT_FALSE(alpaca_request.have_client_id);
-    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kServerStatus);
+    EXPECT_EQ(alpaca_request_.api, EAlpacaApi::kServerStatus);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
 
     if (TestHasFailed()) {
       break;
@@ -215,17 +397,13 @@ TEST(RequestDecoderTest, SmallestHomePageRequest) {
   }
 }
 
-TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestDeviceApiGetRequest) {
   const std::string full_request(
       "GET /api/v1/safetymonitor/0/issafe HTTP/1.1\r\n"
       "\r\n");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -234,15 +412,15 @@ TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
 
-    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kDevice);
-    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kDeviceApi);
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
-    EXPECT_EQ(alpaca_request.device_number, 0);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
-    EXPECT_FALSE(alpaca_request.have_client_id);
-    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kDevice);
+    EXPECT_EQ(alpaca_request_.api, EAlpacaApi::kDeviceApi);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSafetyMonitor);
+    EXPECT_EQ(alpaca_request_.device_number, 0);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kIsSafe);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
 
     if (TestHasFailed()) {
       break;
@@ -250,17 +428,13 @@ TEST(RequestDecoderTest, SmallestDeviceApiGetRequest) {
   }
 }
 
-TEST(RequestDecoderTest, SmallestDeviceSetupRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestDeviceSetupRequest) {
   const std::string full_request(
       "GET /setup/v1/safetymonitor/9/setup HTTP/1.1\r\n"
       "\r\n");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -269,15 +443,15 @@ TEST(RequestDecoderTest, SmallestDeviceSetupRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
-    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kSetup);
-    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kDeviceSetup);
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
-    EXPECT_EQ(alpaca_request.device_number, 9);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kSetup);
-    EXPECT_FALSE(alpaca_request.have_client_id);
-    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kSetup);
+    EXPECT_EQ(alpaca_request_.api, EAlpacaApi::kDeviceSetup);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSafetyMonitor);
+    EXPECT_EQ(alpaca_request_.device_number, 9);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kSetup);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request_), 0);
 
     if (TestHasFailed()) {
       break;
@@ -285,17 +459,13 @@ TEST(RequestDecoderTest, SmallestDeviceSetupRequest) {
   }
 }
 
-TEST(RequestDecoderTest, SmallestApiVersionsRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestApiVersionsRequest) {
   const std::string full_request(
       "GET /management/apiversions HTTP/1.1\r\n"
       "\r\n");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -304,16 +474,16 @@ TEST(RequestDecoderTest, SmallestApiVersionsRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
-    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kManagement);
-    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kManagementApiVersions);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kManagement);
+    EXPECT_EQ(alpaca_request_.api, EAlpacaApi::kManagementApiVersions);
 
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
-    EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.have_client_id);
-    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request_.device_number, kResetDeviceNumber);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request_), 0);
 
     if (TestHasFailed()) {
       break;
@@ -321,17 +491,13 @@ TEST(RequestDecoderTest, SmallestApiVersionsRequest) {
   }
 }
 
-TEST(RequestDecoderTest, SmallestConfiguredDevicesRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestConfiguredDevicesRequest) {
   const std::string full_request(
       "GET /management/v1/configureddevices HTTP/1.1\r\n"
       "\r\n");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -340,16 +506,16 @@ TEST(RequestDecoderTest, SmallestConfiguredDevicesRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
-    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kManagement);
-    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kManagementConfiguredDevices);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kManagement);
+    EXPECT_EQ(alpaca_request_.api, EAlpacaApi::kManagementConfiguredDevices);
 
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
-    EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.have_client_id);
-    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request_.device_number, kResetDeviceNumber);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request_), 0);
 
     if (TestHasFailed()) {
       break;
@@ -357,11 +523,7 @@ TEST(RequestDecoderTest, SmallestConfiguredDevicesRequest) {
   }
 }
 
-TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestServerDescriptionRequest) {
   const std::string full_request(
       "GET /management/v1/description HTTP/1.1\r\n"
       "\r\n");
@@ -370,7 +532,7 @@ TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
     if (TestHasFailed()) {
       break;
     }
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -379,16 +541,16 @@ TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
-    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kManagement);
-    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kManagementDescription);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kManagement);
+    EXPECT_EQ(alpaca_request_.api, EAlpacaApi::kManagementDescription);
 
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
-    EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.have_client_id);
-    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request_.device_number, kResetDeviceNumber);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request_), 0);
 
     if (TestHasFailed()) {
       break;
@@ -396,17 +558,13 @@ TEST(RequestDecoderTest, SmallestServerDescriptionRequest) {
   }
 }
 
-TEST(RequestDecoderTest, SmallestServerSetupRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestServerSetupRequest) {
   const std::string full_request(
       "GET /setup HTTP/1.1\r\n"
       "\r\n");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -415,16 +573,16 @@ TEST(RequestDecoderTest, SmallestServerSetupRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
-    EXPECT_EQ(alpaca_request.api_group, EApiGroup::kSetup);
-    EXPECT_EQ(alpaca_request.api, EAlpacaApi::kServerSetup);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kSetup);
+    EXPECT_EQ(alpaca_request_.api, EAlpacaApi::kServerSetup);
 
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kUnknown);
-    EXPECT_EQ(alpaca_request.device_number, kResetDeviceNumber);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kUnknown);
-    EXPECT_FALSE(alpaca_request.have_client_id);
-    EXPECT_FALSE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request_.device_number, kResetDeviceNumber);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request_), 0);
 
     if (TestHasFailed()) {
       break;
@@ -432,11 +590,7 @@ TEST(RequestDecoderTest, SmallestServerSetupRequest) {
   }
 }
 
-TEST(RequestDecoderTest, SmallestPutRequest) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, SmallestPutRequest) {
   const std::string full_request(
       "PUT /api/v1/observingconditions/0/refresh"
       "?ClientID=123&clienttransactionid=432 "
@@ -445,7 +599,7 @@ TEST(RequestDecoderTest, SmallestPutRequest) {
       "\r\n");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -454,14 +608,14 @@ TEST(RequestDecoderTest, SmallestPutRequest) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kObservingConditions);
-    EXPECT_EQ(alpaca_request.device_number, 0);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kRefresh);
-    EXPECT_TRUE(alpaca_request.have_client_id);
-    EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(alpaca_request.client_id, 123);
-    EXPECT_EQ(alpaca_request.client_transaction_id, 432);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kObservingConditions);
+    EXPECT_EQ(alpaca_request_.device_number, 0);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kRefresh);
+    EXPECT_TRUE(alpaca_request_.have_client_id);
+    EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(alpaca_request_.client_id, 123);
+    EXPECT_EQ(alpaca_request_.client_transaction_id, 432);
 
     if (TestHasFailed()) {
       break;
@@ -469,11 +623,7 @@ TEST(RequestDecoderTest, SmallestPutRequest) {
   }
 }
 
-TEST(RequestDecoderTest, AllSupportedFeatures) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, AllSupportedFeatures) {
   const std::string body = "a=1&raw=true&&ClienttransACTIONid=9";
   const std::string full_request = absl::StrCat(
       "PUT /api/v1/safetymonitor/9999/connected?ClientID=321&AbC=xYz "
@@ -490,25 +640,20 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
   LOG(INFO) << "full_request:\n" << full_request << "\n";
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-    InSequence s;
-    EXPECT_CALL(listener, OnUnknownParameterName(Eq("AbC")));
-    EXPECT_CALL(listener, OnUnknownParameterValue(Eq("xYz")));
-    EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Host")));
-    EXPECT_CALL(listener, OnUnknownHeaderValue(Eq("example.com")));
-    EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Connection")));
-    EXPECT_CALL(listener, OnUnknownHeaderValue(Eq("keep-alive")));
-    EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Another-Header")));
-    EXPECT_CALL(listener,
-                OnUnknownHeaderValue(Eq("Some Text, e.g. foo@example.com!")));
-    EXPECT_CALL(listener, OnUnknownParameterName(Eq("a")));
-    EXPECT_CALL(listener, OnUnknownParameterValue(Eq("1")));
-    EXPECT_CALL(listener, OnExtraParameter(EParameter::kRaw, Eq("true")));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+    {
+      InSequence s;
+      MaybeExpectUnknownParameter("AbC", "xYz");
+      MaybeExpectUnknownHeader("Host", "example.com");
+      MaybeExpectUnknownHeader("Another-Header",
+                               "Some Text, e.g. foo@example.com!");
+      MaybeExpectUnknownHeader("accept", "application/json");
+      MaybeExpectUnknownParameter("a", "1");
+      MaybeExpectExtraParameter(EParameter::kRaw, "true");
+    }
 
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
-    Mock::VerifyAndClearExpectations(&listener);
+    VerifyAndClearListenerExpectations();
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -517,24 +662,25 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
-    EXPECT_EQ(alpaca_request.device_number, 9999);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
-    EXPECT_TRUE(alpaca_request.have_client_id);
-    EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(alpaca_request.client_id, 321);
-    EXPECT_EQ(alpaca_request.client_transaction_id, 9);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSafetyMonitor);
+    EXPECT_EQ(alpaca_request_.device_number, 9999);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kConnected);
+    EXPECT_TRUE(alpaca_request_.have_client_id);
+    EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(alpaca_request_.client_id, 321);
+    EXPECT_EQ(alpaca_request_.client_transaction_id, 9);
+    EXPECT_FALSE(alpaca_request_.do_close);
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
     // TODO(jamessynge): Implement this feature.
-    // EXPECT_EQ(GetNumExtraParameters(alpaca_request), 1);
+    // EXPECT_EQ(GetNumExtraParameters(alpaca_request_), 1);
     // EXPECT_TRUE(
-    //     alpaca_request.extra_parameters.contains(EParameter::kConnected));
-    // EXPECT_EQ(alpaca_request.extra_parameters.find(EParameter::kConnected),
+    //     alpaca_request_.extra_parameters.contains(EParameter::kConnected));
+    // EXPECT_EQ(alpaca_request_.extra_parameters.find(EParameter::kConnected),
     //           mcucore::StringView("abc"));
 #else
-    EXPECT_EQ(GetNumExtraParameters(alpaca_request), 0);
+    EXPECT_EQ(GetNumExtraParameters(alpaca_request_), 0);
 #endif
 
     if (TestHasFailed()) {
@@ -543,11 +689,7 @@ TEST(RequestDecoderTest, AllSupportedFeatures) {
   }
 }
 
-TEST(RequestDecoderTest, RequestsWithClientId) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RequestsWithClientId) {
   for (const auto& path : {
            "/setup/v1/observingconditions/987654/setup",
            "/api/v1/observingconditions/987654/connected",
@@ -556,28 +698,37 @@ TEST(RequestDecoderTest, RequestsWithClientId) {
       const auto full_request =
           absl::StrCat("GET ", path, "?", param_name, "=3456 HTTP/1.1\r\n\r\n");
       auto request = full_request;
-      EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+      EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
                 EHttpStatusCode::kHttpOk);
       EXPECT_THAT(request, IsEmpty());
 
-      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kObservingConditions);
-      EXPECT_EQ(alpaca_request.device_number, 987654);
+      EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kObservingConditions);
+      EXPECT_EQ(alpaca_request_.device_number, 987654);
 
-      EXPECT_TRUE(alpaca_request.have_client_id);
-      EXPECT_EQ(alpaca_request.client_id, 3456);
+      EXPECT_TRUE(alpaca_request_.have_client_id);
+      EXPECT_EQ(alpaca_request_.client_id, 3456);
 
-      EXPECT_FALSE(alpaca_request.have_client_transaction_id);
-      EXPECT_EQ(alpaca_request.client_transaction_id,
+      EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+      EXPECT_EQ(alpaca_request_.client_transaction_id,
                 kResetClientTransactionId);
     }
   }
 }
 
-TEST(RequestDecoderTest, RequestsWithClientTransactionId) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
+TEST_F(RequestDecoderTest, RequestWithoutClientId) {
+  decoder_.Reset();
+  EXPECT_FALSE(alpaca_request_.have_client_id);
 
+  std::string full_request(
+      "GET /setup HTTP/1.1\r\n"
+      "\r\n");
+
+  EXPECT_EQ(DecodeBuffer(decoder_, full_request, true, kDecodeBufferSize),
+            EHttpStatusCode::kHttpOk);
+  EXPECT_FALSE(alpaca_request_.have_client_id);
+}
+
+TEST_F(RequestDecoderTest, RequestsWithClientTransactionId) {
   for (const auto& path : {
            "/",
            "/setup",
@@ -589,60 +740,51 @@ TEST(RequestDecoderTest, RequestsWithClientTransactionId) {
       const auto full_request =
           absl::StrCat("GET ", path, "?", param_name, "=0 HTTP/1.1\r\n\r\n");
       auto request = full_request;
-      EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+      EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
                 EHttpStatusCode::kHttpOk);
       EXPECT_THAT(request, IsEmpty());
 
-      EXPECT_FALSE(alpaca_request.have_client_id);
-      EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+      EXPECT_FALSE(alpaca_request_.have_client_id);
+      EXPECT_EQ(alpaca_request_.client_id, kResetClientId);
 
-      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-      EXPECT_EQ(alpaca_request.client_transaction_id, 0);
+      EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+      EXPECT_EQ(alpaca_request_.client_transaction_id, 0);
     }
   }
 }
 
-TEST(RequestDecoderTest, ParamSeparatorsAtEndOfBody) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, ParamSeparatorsAtEndOfBody) {
   std::string body = "ClientId=876&&&&&&&&&";
 
   std::string request =
       absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
                    "Content-Length: ", body.size(), "\r\n", "\r\n", body);
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpOk);
-  EXPECT_TRUE(alpaca_request.have_client_id);
-  EXPECT_EQ(alpaca_request.client_id, 876);
-  EXPECT_FALSE(alpaca_request.have_client_transaction_id);
+  EXPECT_TRUE(alpaca_request_.have_client_id);
+  EXPECT_EQ(alpaca_request_.client_id, 876);
+  EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
 
   // Extra spaces at the end, not acceptable.
   body = "ClientId=654&&&&&&&&&   ";
   request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
                          "Content-Length: ", body.size(), "\r\n", "\r\n", body);
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
-  EXPECT_TRUE(alpaca_request.have_client_id);
-  EXPECT_EQ(alpaca_request.client_id, 654);
-  EXPECT_FALSE(alpaca_request.have_client_transaction_id);
+  EXPECT_TRUE(alpaca_request_.have_client_id);
+  EXPECT_EQ(alpaca_request_.client_id, 654);
+  EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
 }
 
-TEST(RequestDecoderTest, DetectsOutOfRangeDeviceNumber) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-  decoder.Reset();
-
+TEST_F(RequestDecoderTest, RejectsOutOfRangeDeviceNumber) {
   std::string full_request(
       "GET /api/v1/safetymonitor/4294967300/issafe "
       "HTTP/1.1\r\n\r\n");
 
-  alpaca_request.client_id = kResetClientId;
-  EXPECT_EQ(DecodeBuffer(decoder, full_request, true, kDecodeBufferSize),
+  alpaca_request_.client_id = kResetClientId;
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, full_request),
             EHttpStatusCode::kHttpBadRequest);
-  EXPECT_EQ(alpaca_request.client_id,
+  EXPECT_EQ(alpaca_request_.client_id,
             kResetClientId);  // Hasn't been overwritten.
   // It isn't important how much of the request has been processed, however we
   // don't otherwise have a great way to confirm that the reason for the failure
@@ -650,173 +792,174 @@ TEST(RequestDecoderTest, DetectsOutOfRangeDeviceNumber) {
   EXPECT_THAT(full_request, EndsWith("issafe HTTP/1.1\r\n\r\n"));
 }
 
-TEST(RequestDecoderTest, DetectsOutOfRangeClientId) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-  decoder.Reset();
-
+TEST_F(RequestDecoderTest, RejectsOutOfRangeClientId) {
   std::string full_request(
       "GET /api/v1/safetymonitor/0000004294967295/issafe?ClientId=4294967296 "
       "HTTP/1.1\r\n\r\n");
+  alpaca_request_.client_id = kResetClientId;
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener,
-              OnExtraParameter(EParameter::kClientID, Eq("4294967296")));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-  alpaca_request.client_id = kResetClientId;
-  EXPECT_EQ(DecodeBuffer(decoder, full_request, true, kDecodeBufferSize),
-            EHttpStatusCode::kHttpBadRequest);
-  EXPECT_EQ(alpaca_request.device_number, 4294967295UL);
-  EXPECT_FALSE(alpaca_request.have_client_id);
-  EXPECT_EQ(alpaca_request.client_id,
+  const auto expected_status = MaybeExpectExtraParameter(
+      EParameter::kClientID, "4294967296",
+      EHttpStatusCode::kHttpPayloadTooLarge, EHttpStatusCode::kHttpBadRequest);
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, full_request), expected_status);
+  EXPECT_EQ(alpaca_request_.device_number, 4294967295UL);
+  EXPECT_FALSE(alpaca_request_.have_client_id);
+  EXPECT_EQ(alpaca_request_.client_id,
             kResetClientId);  // Hasn't been overwritten.
 }
 
-TEST(RequestDecoderTest, DetectsOutOfRangeClientTransactionId) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
-  // Initially OK
+TEST_F(RequestDecoderTest, RejectsOutOfRangeClientTransactionId) {
+  // ClientTransactionId fits in a uint32_t.
   std::string body = "ClientTransactionId=444444444&ClientId=1";
   std::string request =
       absl::StrCat("PUT /api/v1/safetymonitor/7/connected HTTP/1.1\r\n",
                    "Content-Length:", body.size(), "\r\n\r\n", body);
 
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpOk);
-  EXPECT_EQ(alpaca_request.device_number, 7);
-  EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-  EXPECT_EQ(alpaca_request.client_transaction_id, 444444444);
-  EXPECT_TRUE(alpaca_request.have_client_id);
-  EXPECT_EQ(alpaca_request.client_id, 1);
+  EXPECT_EQ(alpaca_request_.device_number, 7);
+  EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+  EXPECT_EQ(alpaca_request_.client_transaction_id, 444444444);
+  EXPECT_TRUE(alpaca_request_.have_client_id);
+  EXPECT_EQ(alpaca_request_.client_id, 1);
 
   // Append another digit, now too big to fit in a uint32_t. This will prevent
   // ClientId from ever being examined.
   body = "ClientTransactionId=4444444444&ClientId=1";
   request = absl::StrCat("PUT /api/v1/safetymonitor/7/connected HTTP/1.1\r\n",
                          "Content-Length:", body.size(), "\r\n\r\n", body);
+  alpaca_request_.client_id = kResetClientId;
+  alpaca_request_.client_transaction_id = kResetClientTransactionId;
 
-  alpaca_request.client_id = kResetClientId;
-  alpaca_request.client_transaction_id = kResetClientTransactionId;
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener, OnExtraParameter(EParameter::kClientTransactionId,
-                                         Eq("4444444444")));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  MaybeExpectExtraParameter(EParameter::kClientTransactionID, "4444444444");
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
-  EXPECT_EQ(alpaca_request.device_number, 7);
-  EXPECT_FALSE(alpaca_request.have_client_id);
-  EXPECT_FALSE(alpaca_request.have_client_transaction_id);
+  EXPECT_THAT(request, StartsWith("&ClientId"));
+  EXPECT_EQ(alpaca_request_.device_number, 7);
+  EXPECT_FALSE(alpaca_request_.have_client_id);
+  EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
   // Confirm that neither client id hasn't been overwritten.
-  EXPECT_EQ(alpaca_request.client_id, kResetClientId);
-  EXPECT_EQ(alpaca_request.client_transaction_id, kResetClientTransactionId);
+  EXPECT_EQ(alpaca_request_.client_id, kResetClientId);
+  EXPECT_EQ(alpaca_request_.client_transaction_id, kResetClientTransactionId);
 }
 
-// The decoder can only read short (<=255 chars) bodies... else we'd have to
-// have a bigger var for tracking how far through twe are OR we'd have to ignore
-// the length and simply decode until there was no more input.
-TEST(RequestDecoderTest, DetectsOutOfRangeContentLength) {
-  const auto kTooLong =  // Too long for the decoder to keep track of.
-      absl::StrCat(RequestDecoderState::kMaxPayloadSize + 1LL);
-  const auto kWayTooLong = "4294967296";  // Can't be decoded.
-
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+// We require the content length so that we will know when the end of the body
+// has been reached; otherwise we'd need to support more complex encodings, such
+// as with boundary markers for which we'd need storage.
+TEST_F(RequestDecoderTest, MissingContentLength) {
   // Start with a missing Content-Length.
   std::string request =
       "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
       "\r\n";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpLengthRequired);
-  EXPECT_EQ(alpaca_request.device_number, 1);
-  EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
-
-  // Provide a non-integer Content-Length.
-  request =
-      "PUT /api/v1/safetymonitor/2/issafe HTTP/1.1\r\n"
-      "Content-Length: .0\r\n"
-      "\r\n";
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentLength, Eq(".0")));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpBadRequest);
-  EXPECT_EQ(alpaca_request.device_number, 2);
-  EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kIsSafe);
-
-  // Provide a size that is too large to be decoded.
-  request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
-                         "CONTENT-LENGTH: ", kWayTooLong, "\r\n",  //
-                         "\r\n");
-
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentLength, Eq(kWayTooLong)));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpBadRequest);
-  Mock::VerifyAndClearExpectations(&listener);
-  EXPECT_EQ(alpaca_request.device_number, 1);
-
-  // Provide a size that is too large to keep track of.
-  request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",  //
-                         "content-LENGTH: ", kTooLong, "\r\n",               //
-                         "\r\n");
-
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentLength, Eq(kTooLong)));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpPayloadTooLarge);
-  Mock::VerifyAndClearExpectations(&listener);
-  EXPECT_EQ(alpaca_request.device_number, 1);
-
-  // A 255 char length can be decoded. Need to make a body of that size which is
-  // valid.
-  ASSERT_LE(255, RequestDecoderState::kMaxPayloadSize);
-  const std::string frag39 = "nineteen_characters=nineteen_characters";
-  const std::string frag239 =
-      absl::StrJoin({frag39, frag39, frag39, frag39, frag39, frag39}, "&");
-  EXPECT_EQ(frag239.size(), 239);
-  std::string body = frag239 + "&a=0124567890123";
-  EXPECT_EQ(body.size(), 255);
-  request = absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
-                         "CONTENT-LENGTH: 255\r\n", "\r\n", body);
-
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener, OnUnknownParameterName(Eq("nineteen_characters")))
-      .Times(AnyNumber());
-  EXPECT_CALL(listener, OnUnknownParameterValue(Eq("nineteen_characters")))
-      .Times(AnyNumber());
-  EXPECT_CALL(listener, OnUnknownParameterName(Eq("a")));
-  EXPECT_CALL(listener, OnUnknownParameterValue(Eq("0124567890123")));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpOk);
-  EXPECT_EQ(alpaca_request.device_number, 1);
+  EXPECT_EQ(alpaca_request_.device_number, 1);
+  EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kIsSafe);
 }
 
-TEST(RequestDecoderTest, DetectsPayloadTruncated) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
+TEST_F(RequestDecoderTest, ContentLengthNotAnInteger) {
+  std::string request =
+      "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
+      "Content-Length: .0\r\n"
+      "\r\n";
 
+  const auto expected_status = MaybeExpectExtraHeader(
+      EHttpHeader::kContentLength, ".0", EHttpStatusCode::kHttpNotAcceptable,
+      EHttpStatusCode::kHttpLengthRequired);
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
+  EXPECT_EQ(alpaca_request_.device_number, 1);
+  EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kIsSafe);
+}
+
+TEST_F(RequestDecoderTest, ContentLengthTooLargeToStore) {
+  const auto kTooLong =
+      absl::StrCat(RequestDecoderState::kMaxPayloadSize + 1LL);
+  auto request =
+      absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",  //
+                   "content-LENGTH: ", kTooLong, "\r\n",               //
+                   "\r\n");
+
+  const auto expected_status =
+      MaybeExpectExtraHeader(EHttpHeader::kContentLength, kTooLong,
+                             EHttpStatusCode::kHttpUnsupportedMediaType,
+                             EHttpStatusCode::kHttpPayloadTooLarge);
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
+  EXPECT_EQ(alpaca_request_.device_number, 1);
+  EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kIsSafe);
+  EXPECT_EQ(request, "\r\n\r\n");
+}
+
+TEST_F(RequestDecoderTest, ContentLengthTooLargeToDecode) {
+  // Provide a Content-Length that is too large to decode.
+  const auto kTooLong = absl::StrCat(std::numeric_limits<uint64_t>::max());
+  auto request =
+      absl::StrCat("PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",  //
+                   "content-LENGTH: ", kTooLong, "\r\n",               //
+                   "\r\n");
+
+  const auto expected_status = MaybeExpectExtraHeader(
+      EHttpHeader::kContentLength, kTooLong,
+      EHttpStatusCode::kHttpMethodNotAllowed, EHttpStatusCode::kHttpBadRequest);
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
+  EXPECT_EQ(alpaca_request_.device_number, 1);
+  EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kIsSafe);
+  EXPECT_EQ(request, "\r\n\r\n");
+}
+
+TEST_F(RequestDecoderTest, DecodeMaxStringViewBody) {
+  // A body of length 255 can be decoded.
+  ASSERT_LE(255, RequestDecoderState::kMaxPayloadSize);
+  // Need to make a body of that size which is valid.
+  const std::string frag39 = "nineteen_characters=nineteen_characters";
+  const auto frag239 =
+      absl::StrJoin({frag39, frag39, frag39, frag39, frag39, frag39}, "&");
+  EXPECT_EQ(frag239.size(), 239);
+  const auto body = frag239 + "&a=0124567890123";
+  EXPECT_EQ(body.size(), 255);
+  const auto full_request =
+      absl::StrCat("PUT /api/v1/camera/1/action HTTP/1.1\r\n",
+                   "CONTENT-LENGTH: 255\r\n", "\r\n", body);
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    InSequence s;
+    MaybeExpectUnknownParameter("nineteen_characters", "nineteen_characters");
+    MaybeExpectUnknownParameter("nineteen_characters", "nineteen_characters");
+    MaybeExpectUnknownParameter("nineteen_characters", "nineteen_characters");
+    MaybeExpectUnknownParameter("nineteen_characters", "nineteen_characters");
+    MaybeExpectUnknownParameter("nineteen_characters", "nineteen_characters");
+    MaybeExpectUnknownParameter("nineteen_characters", "nineteen_characters");
+    MaybeExpectUnknownParameter("a", "0124567890123");
+
+    auto result = DecodePartitionedRequest(decoder_, partition);
+
+    const EHttpStatusCode status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+    EXPECT_THAT(buffer, IsEmpty());
+    EXPECT_THAT(remainder, IsEmpty());
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kCamera);
+    EXPECT_EQ(alpaca_request_.device_number, 1);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kAction);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    EXPECT_FALSE(alpaca_request_.do_close);
+  }
+}
+
+TEST_F(RequestDecoderTest, DetectsPayloadTruncated) {
   // Body is missing. There doesn't appear to be a better response code than
   // 400 for missing data.
   std::string request =
       "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
       "Content-Length: 1\r\n"
       "\r\n";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
 
   // "=value" is missing after a parameter name.
@@ -825,29 +968,21 @@ TEST(RequestDecoderTest, DetectsPayloadTruncated) {
       "Content-Length: 10\r\n"
       "\r\n"
       "param_name";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
 }
 
-TEST(RequestDecoderTest, DetectsPayloadTooLong) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, DetectsPayloadTooLong) {
   std::string request =
       "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
       "Content-Length: 1\r\n"
       "\r\n"
       "12";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpPayloadTooLarge);
 }
 
-TEST(RequestDecoderTest, DetectsParameterValueIsTooLong) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, DetectsParameterValueIsTooLong) {
   for (int max_size = 20; max_size <= kDecodeBufferSize; ++max_size) {
     std::string long_value = absl::StrCat(std::string(max_size, '0'), max_size);
     long_value.erase(0, long_value.size() - max_size);
@@ -858,33 +993,30 @@ TEST(RequestDecoderTest, DetectsParameterValueIsTooLong) {
         absl::StrCat("GET /api/v1/safetymonitor/1/issafe?ClientId=", ok_value,
                      " HTTP/1.1\r\n\r\n");
 
-    alpaca_request.client_id = kResetClientId;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
+    alpaca_request_.client_id = kResetClientId;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, ok_request, max_size),
               EHttpStatusCode::kHttpOk);
-    EXPECT_EQ(alpaca_request.client_id, max_size);
+    EXPECT_EQ(alpaca_request_.client_id, max_size);
     EXPECT_THAT(ok_request, IsEmpty());
 
     std::string long_request =
         absl::StrCat("GET /api/v1/safetymonitor/1/issafe?ClientId=", long_value,
                      " HTTP/1.1\r\n\r\n");
 
-    alpaca_request.client_id = kResetClientId;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request, max_size),
+    alpaca_request_.client_id = kResetClientId;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, long_request, max_size),
               EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
-    EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+    EXPECT_EQ(alpaca_request_.client_id, kResetClientId);
     EXPECT_THAT(long_request, StartsWith(long_value));
   }
 }
 
-TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
+TEST_F(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
   // For header names that are known, the decoder requires that the longest
   // value fits into the input buffer; that includes any trailing whitespace
   // because some values are allowed to have embedded whitespace, so the decoder
   // must find a '\r' in order to determine that the end of the value is in the
   // input buffer.
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
 
   std::string long_whitespace;
   while (long_whitespace.size() <= kDecodeBufferSize) {
@@ -897,11 +1029,11 @@ TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
         absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
                      "Content-Length:", long_whitespace, ok_value, "\r\n\r\n");
 
-    alpaca_request.client_id = kResetClientId;
+    alpaca_request_.client_id = kResetClientId;
 
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, ok_request),
               EHttpStatusCode::kHttpOk);
-    EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+    EXPECT_EQ(alpaca_request_.client_id, kResetClientId);
     EXPECT_THAT(ok_request, IsEmpty());
 
     std::string long_request =
@@ -909,11 +1041,11 @@ TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
                      "Content-Length:", long_whitespace, ok_value,
                      long_whitespace, "\r\n\r\n");
 
-    alpaca_request.client_id = kResetClientId;
+    alpaca_request_.client_id = kResetClientId;
 
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, long_request),
               EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
-    EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+    EXPECT_EQ(alpaca_request_.client_id, kResetClientId);
     EXPECT_THAT(long_request, StartsWith(ok_value));
   }
 
@@ -924,46 +1056,45 @@ TEST(RequestDecoderTest, DetectsHeaderValueIsTooLong) {
       absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
                    "Content-Length:", long_whitespace, long_value, "\r\n\r\n");
 
-  alpaca_request.client_id = kResetClientId;
+  alpaca_request_.client_id = kResetClientId;
 
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, long_request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, long_request),
             EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
-  EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+  EXPECT_EQ(alpaca_request_.client_id, kResetClientId);
   EXPECT_THAT(long_request, StartsWith(long_value));
 }
 
-TEST(RequestDecoderTest, SkipsValueOfUnknownHeader) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
-  std::string ok_request =
+TEST_F(RequestDecoderTest, WithoutListenerSkipsValueOfUnknownHeader) {
+  // If the decoder encounters an unknown header, and has a listener with
+  // support for receiving unknown headers, it will attempt to deliver the name
+  // and value in separate calls to the listener. However, if the value is too
+  // long, then the caller and decoder will not be able to store it in a single
+  // buffer, at which point kHttpRequestHeaderFieldsTooLarge should be returned
+  // as the status.
+  // OTOH, if there is no listener setup to receive unknown headers, the value
+  // will just be skipped.
+  std::string request =
       absl::StrCat("GET /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n",
                    "Foo-Bar-Baz:", std::string(kDecodeBufferSize + 1, ' '),
                    std::string(kDecodeBufferSize + 1, 'X'),
                    std::string(kDecodeBufferSize + 1, ' '), "\r\n\r\n");
+  alpaca_request_.client_id = kResetClientId;
 
-  alpaca_request.client_id = kResetClientId;
+  MaybeExpectUnknownHeaderName("Foo-Bar-Baz");
+  if (HasListener() && TAS_ENABLE_UNKNOWN_HEADER_DECODING != 0) {
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
+              EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
+    EXPECT_THAT(request, StartsWith("X"));
+  } else {
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
+              EHttpStatusCode::kHttpOk);
+    EXPECT_THAT(request, IsEmpty());
+  }
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Foo-Bar-Baz")));
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request, max_size),
-            EHttpStatusCode::kHttpRequestHeaderFieldsTooLarge);
-  EXPECT_THAT(ok_request, StartsWith("X"));
-#else
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, ok_request),
-            EHttpStatusCode::kHttpOk);
-  EXPECT_THAT(ok_request, IsEmpty());
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-
-  EXPECT_EQ(alpaca_request.client_id, kResetClientId);
+  EXPECT_EQ(alpaca_request_.client_id, kResetClientId);
 }
 
-TEST(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
   const std::string request_after_method =
       "/api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
       "Content-Length: 0\r\n"
@@ -973,17 +1104,13 @@ TEST(RequestDecoderTest, RejectsUnsupportedHttpMethod) {
        {"CONNECT", "DELETE", "OPTIONS", "PATCH", "POST", "TRACE"}) {
     const std::string full_request = method + " " + request_after_method;
     auto request = full_request;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpNotImplemented);
     EXPECT_THAT(request, EndsWith(request_after_method));
   }
 }
 
-TEST(RequestDecoderTest, WhitespaceBeforeHttpMethod) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, WhitespaceBeforeHttpMethod) {
   const std::string request_after_method =
       "/api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
       "Content-Length: 0\r\n"
@@ -995,18 +1122,14 @@ TEST(RequestDecoderTest, WhitespaceBeforeHttpMethod) {
       const std::string full_request =
           prefix + method + " " + request_after_method;
       auto request = full_request;
-      EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+      EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
                 EHttpStatusCode::kHttpBadRequest);
       EXPECT_THAT(request, EndsWith(method + " " + request_after_method));
     }
   }
 }
 
-TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
   const std::string request_before_ascom_method("GET /api/v1/safetymonitor/1");
   const std::string request_after_ascom_method(
       " HTTP/1.1\r\n"
@@ -1025,7 +1148,7 @@ TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
                                      bogus_ascom_method +
                                      request_after_ascom_method;
     auto request = full_request;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpBadRequest)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
@@ -1033,11 +1156,7 @@ TEST(RequestDecoderTest, RejectsUnsupportedAscomMethod) {
   }
 }
 
-TEST(RequestDecoderTest, NotFoundPaths) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, NotFoundPaths) {
   for (const auto& path : {
            "/api",
            "/api/",
@@ -1070,18 +1189,14 @@ TEST(RequestDecoderTest, NotFoundPaths) {
        }) {
     const auto full_request = absl::StrCat("GET ", path, " HTTP/1.1\r\n\r\n");
     auto request = full_request;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpBadRequest)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
   }
 }
 
-TEST(RequestDecoderTest, MethodNotAllowedPaths) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, MethodNotAllowedPaths) {
   for (const auto& path : {
            "/management/",
            "/setup",
@@ -1089,18 +1204,14 @@ TEST(RequestDecoderTest, MethodNotAllowedPaths) {
        }) {
     const auto full_request = absl::StrCat("PUT ", path, " HTTP/1.1\r\n\r\n");
     auto request = full_request;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpMethodNotAllowed)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
   }
 }
 
-TEST(RequestDecoderTest, RejectsInvalidPathStart) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsInvalidPathStart) {
   const std::string request_after_path_start =
       "safetymonitor/1/issafe HTTP/1.1\r\n"
       "Content-Length: 0\r\n"
@@ -1118,7 +1229,7 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
     const std::string full_request =
         "GET" + bogus_path_start + request_after_path_start;
     auto request = full_request;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpBadRequest);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_path_start));
@@ -1134,7 +1245,7 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
     const std::string full_request =
         "GET" + bogus_path_start + request_after_path_start;
     auto request = full_request;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpBadRequest)
         << "\nfull_request: " << absl::CHexEscape(full_request);
     EXPECT_THAT(full_request, EndsWith(request));
@@ -1142,11 +1253,7 @@ TEST(RequestDecoderTest, RejectsInvalidPathStart) {
   }
 }
 
-TEST(RequestDecoderTest, RejectsUnknownOrMalformedDeviceType) {
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsUnknownOrMalformedDeviceType) {
   const std::string request_before_device_type = "GET /api/v1";
   const std::string request_after_device_number =
       "issafe HTTP/1.1\r\n"
@@ -1166,95 +1273,67 @@ TEST(RequestDecoderTest, RejectsUnknownOrMalformedDeviceType) {
                                      bogus_device_type + "1/" +
                                      request_after_device_number;
     auto request = full_request;
-    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpBadRequest);
     EXPECT_THAT(full_request, EndsWith(request));
     EXPECT_THAT(request, EndsWith(request_after_device_number));
   }
 }
 
-TEST(RequestDecoderTest, RejectsUnsupportedHttpVersion) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsUnsupportedHttpVersion) {
   std::string request(
       "GET /api/v1/safetymonitor/0/name HTTP/1.0\r\n"
       "\r\n");
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpVersionNotSupported);
 }
 
-TEST(RequestDecoderTest, RejectsMissingParamName) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsMissingParamName) {
   std::string request(
       "GET /api/v1/safetymonitor/0/name?=1 HTTP/1.1\r\n"
       "\r\n");
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
 }
 
-TEST(RequestDecoderTest, RejectsInvalidParamNameValueSeparator) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsInvalidParamNameValueSeparator) {
   std::string request(
       "GET /api/v1/safetymonitor/0/name?ClientId:1 HTTP/1.1\r\n"
       "\r\n");
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
 }
 
-TEST(RequestDecoderTest, RejectsInvalidParamSeparator) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, RejectsInvalidParamSeparator) {
   std::string request(
       "GET /api/v1/safetymonitor/0/name?ClientId=1] HTTP/1.1\r\n"
       "\r\n");
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
 }
 
-TEST(RequestDecoderTest, MissingHeaderName) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, MissingHeaderName) {
   std::string request(
       "GET /api/v1/safetymonitor/0/name HTTP/1.1\r\n"
       ": 123\r\n"
       "\r\n");
 
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
   EXPECT_THAT(request, HasSubstr(" 123"));
 }
 
-TEST(RequestDecoderTest, BadHeaderNameEnd) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, BadHeaderNameEnd) {
   std::string request(
       "GET /api/v1/safetymonitor/0/name HTTP/1.1\r\n"
       "Content-Length : ");
 
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpBadRequest);
   EXPECT_EQ(request, " : ");
 }
 
-TEST(RequestDecoderTest, BadHeaderLineEnd) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, BadHeaderLineEnd) {
   const std::string full_request(
       "PUT /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
       "Content-Length: 10\n\r"
@@ -1262,7 +1341,7 @@ TEST(RequestDecoderTest, BadHeaderLineEnd) {
       "abc=123456");
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
 
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
@@ -1270,10 +1349,10 @@ TEST(RequestDecoderTest, BadHeaderLineEnd) {
 
     EXPECT_EQ(status, EHttpStatusCode::kHttpBadRequest);
     EXPECT_EQ(remainder, "\n\r\r\nabc=123456");
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
-    EXPECT_EQ(alpaca_request.device_number, 0);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSafetyMonitor);
+    EXPECT_EQ(alpaca_request_.device_number, 0);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kConnected);
 
     if (TestHasFailed()) {
       return;
@@ -1281,77 +1360,65 @@ TEST(RequestDecoderTest, BadHeaderLineEnd) {
   }
 }
 
-TEST(RequestDecoderTest, NotifiesListenerOfUnexpectedAccept) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
-  const std::string full_request(
-      "GET /api/v1/safetymonitor/0/supportedactions HTTP/1.1\r\n"
-      "Content-Length:0\r\n"
-      "Accept:  application/x-www-form-urlencoded  \r\n"
-      "\r\n");
-
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpAccept,
-                                      Eq("application/x-www-form-urlencoded")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-
-  auto request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpOk);
-
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpAccept,
-                                      Eq("application/x-www-form-urlencoded")))
-      .WillOnce(Return(EHttpStatusCode::kHttpUnsupportedMediaType));
-  request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpUnsupportedMediaType);
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
-}
-
-TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedContentType) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
+TEST_F(RequestDecoderTest, ContentTypeUnsupported) {
   const std::string full_request(
       "PUT /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
       "Content-Length: 0\r\n"
-      "Accept: application/json\r\n"
       "Content-Type: application/json\r\n"
+      "Accept: application/json\r\n"
       "\r\n");
+  {
+    // Decoder will override status if listener doesn't return an error status.
+    MaybeExpectExtraHeader(EHttpHeader::kContentType, "application/json",
+                           EHttpStatusCode::kContinueDecoding);
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  // Decoder will override status if listener doesn't return an error status.
-  EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpContentType,
-                                      Eq("application/json")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+    auto request = full_request;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
+              EHttpStatusCode::kHttpUnsupportedMediaType);
+    Mock::VerifyAndClearExpectations(&listener_);
+  }
 
-  auto request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpUnsupportedMediaType);
+  {
+    // But will return an error status provided by the listener.
+    const auto expected_status =
+        MaybeExpectExtraHeader(EHttpHeader::kContentType, "application/json",
+                               EHttpStatusCode::kHttpMethodNotAllowed,
+                               EHttpStatusCode::kHttpUnsupportedMediaType);
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-  // But will return an error status provided by the listener.
-  EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpContentType,
-                                      Eq("application/json")))
-      .WillOnce(Return(EHttpStatusCode::kHttpBadRequest));
-  request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpBadRequest);
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
+    auto request = full_request;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
+    Mock::VerifyAndClearExpectations(&listener_);
+  }
 }
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedAndUnknownHeaders) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
+TEST_F(RequestDecoderTest, CallsOnExtraHeaderIfEnabled) {
+  const std::string full_request(
+      "GET /api/v1/safetymonitor/0/supportedactions HTTP/1.1\r\n"
+      "Content-Length:0\r\n"
+      "Date:  Star Wars Day  \r\n"
+      "\r\n");
+  {
+    // First time return no error.
+    MaybeExpectExtraHeader(EHttpHeader::kDate, "Star Wars Day");
+    auto request = full_request;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
+              EHttpStatusCode::kHttpOk);
+    VerifyAndClearListenerExpectations();
+  }
 
+  // Try again, but this time return an error code from the listener (if it
+  // exists).
+  if (HasListener()) {
+    const auto expected_status =
+        MaybeExpectExtraHeader(EHttpHeader::kDate, "Star Wars Day",
+                               EHttpStatusCode::kHttpUnsupportedMediaType);
+    auto request = full_request;
+    EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
+    VerifyAndClearListenerExpectations();
+  }
+}
+
+TEST_F(RequestDecoderTest, CallsOnExtraOrUnknownHeaderIfEnabled) {
   const std::string full_request(
       "GET /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
       "Date: today\r\n"
@@ -1359,81 +1426,206 @@ TEST(RequestDecoderTest, NotifiesListenerOfUnsupportedAndUnknownHeaders) {
       "\r\n");
 
   // OK if the listener says "continue decoding".
-  EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kDate, Eq("today")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
-  EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
-  EXPECT_CALL(listener, OnUnknownHeaderValue(Eq("deflate")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
+  MaybeExpectExtraHeader(EHttpHeader::kDate, "today");
+  MaybeExpectUnknownHeader("Accept-Encoding", "deflate");
+
   auto request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
             EHttpStatusCode::kHttpOk);
-
-  EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
-  EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
-  EXPECT_CALL(listener, OnUnknownHeaderValue(Eq("deflate")))
-      .WillOnce(Return(EHttpStatusCode::kHttpNotImplemented));
-  request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpNotImplemented);
-
-  EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
-      .WillOnce(Return(EHttpStatusCode::kContinueDecoding));
-  EXPECT_CALL(listener, OnUnknownHeaderName(Eq("Accept-Encoding")))
-      .WillOnce(Return(EHttpStatusCode::kHttpInternalServerError));
-  request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpInternalServerError);
-
-  EXPECT_CALL(listener,
-              OnExtraHeader(EHttpHeader::kHttpContentEncoding, Eq("gzip")))
-      .WillOnce(Return(EHttpStatusCode::kHttpPayloadTooLarge));
-  request = full_request;
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-            EHttpStatusCode::kHttpPayloadTooLarge);
 }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 
-#if TAS_ENABLE_REQUEST_DECODER_LISTENER
-TEST(RequestDecoderDeathTest, ListenerReturnsInvalidResponse) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-
-  std::string request(
+TEST_F(RequestDecoderTest, StopsIfListenerRejectsExtraHeader) {
+  const std::string full_request(
       "GET /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
-      "Content-Encoding: gzip\r\n"
+      "Accept-Encoding: deflate\r\n"
+      "Date: today\r\n"
       "\r\n");
 
-  // kNeedMoreInput is not allowed as a status for a listener, as it is intended
-  // to mean that the current buffer doesn't hold an entire 'token' to be
-  // decoded. If the listener returns that, it is converted to an internal
-  // error.
-  EXPECT_DEBUG_DEATH(
-      {
-        EXPECT_CALL(listener, OnExtraHeader(EHttpHeader::kHttpContentEncoding,
-                                            Eq("gzip")))
-            .WillOnce(Return(EHttpStatusCode::kNeedMoreInput));
-        EXPECT_EQ(ResetAndDecodeFullBuffer(decoder, request),
-                  EHttpStatusCode::kHttpInternalServerError);
-        EXPECT_EQ(request, "\r\n\r\n");
-      },
-      "kNeedMoreInput");
+  InSequence seq;
+  MaybeExpectUnknownHeader("Accept-Encoding", "deflate");
+  const auto expected_status = MaybeExpectExtraHeader(
+      EHttpHeader::kDate, "today", EHttpStatusCode::kHttpPayloadTooLarge);
+
+  auto request = full_request;
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
 }
-#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 
-// Ideally we'd have a way to divert the logs elsewhere for this test so they
-// don't swamp the log file.
-TEST(RequestDecoderTest, VerboseLogging) {
+TEST_F(RequestDecoderTest, ListenerRejectsUnknownHeaderName) {
+  std::string request(
+      "GET /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
+      "Date: today\r\n"
+      "Accept-Encoding: deflate\r\n"
+      "\r\n");
+
+  InSequence seq;
+  MaybeExpectExtraHeader(EHttpHeader::kDate, "today");
+  auto expected_status = MaybeExpectUnknownHeaderName(
+      "Accept-Encoding", EHttpStatusCode::kHttpNotAcceptable,
+      EHttpStatusCode::kHttpOk);
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
+}
+
+TEST_F(RequestDecoderTest, ListenerRejectsUnknownHeaderValue) {
+  std::string request(
+      "GET /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
+      "Date: today\r\n"
+      "Accept-Encoding: deflate\r\n"
+      "\r\n");
+
+  InSequence seq;
+  MaybeExpectExtraHeader(EHttpHeader::kDate, "today");
+  MaybeExpectUnknownHeaderName("Accept-Encoding");
+  auto expected_status = MaybeExpectUnknownHeaderValue(
+      "deflate", EHttpStatusCode::kHttpNotAcceptable, EHttpStatusCode::kHttpOk);
+
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
+}
+
+TEST_F(RequestDecoderTest, ListenerAcceptsUnknownHeader) {
+  std::string request(
+      "GET /api/v1/safetymonitor/0/connected HTTP/1.1\r\n"
+      "Date: today\r\n"
+      "Accept-Encoding: deflate\r\n"
+      "\r\n");
+
+  InSequence seq;
+  MaybeExpectExtraHeader(EHttpHeader::kDate, "today");
+  MaybeExpectUnknownHeaderName("Accept-Encoding");
+  MaybeExpectUnknownHeaderValue("deflate");
+  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
+            EHttpStatusCode::kHttpOk);
+}
+
+TEST_F(RequestDecoderTest, SwitchDeviceRequests) {
+  {
+    const std::string full_request(
+        "GET /api/v1/switch/9999/getswitchvalue"
+        "?ClientID=123&clienttransactionid=432&Id=789 "
+        "HTTP/1.1\r\n"
+        "Content-Length: 0\r\n"
+        "\r\n");
+    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+      auto result = DecodePartitionedRequest(decoder_, partition);
+
+      const EHttpStatusCode status = std::get<0>(result);
+      const std::string buffer = std::get<1>(result);
+      const std::string remainder = std::get<2>(result);
+
+      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+      EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+      EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSwitch);
+      EXPECT_EQ(alpaca_request_.device_number, 9999);
+      EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kGetSwitchValue);
+      EXPECT_TRUE(alpaca_request_.have_client_id);
+      EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+      EXPECT_TRUE(alpaca_request_.have_id);
+      EXPECT_FALSE(alpaca_request_.have_state);
+      EXPECT_FALSE(alpaca_request_.have_value);
+      EXPECT_EQ(alpaca_request_.client_id, 123);
+      EXPECT_EQ(alpaca_request_.client_transaction_id, 432);
+      EXPECT_EQ(alpaca_request_.id, 789);
+
+      if (TestHasFailed()) {
+        return;
+      }
+    }
+  }
+  {
+    const std::string body =
+        "state=false&id=9&clienttransactionid=8&clientid=7";
+
+    const std::string full_request = absl::StrCat(
+        "PUT /api/v1/switch/0/setswitch "
+        "HTTP/1.1\r\n",
+        "content-TYPE:application/x-www-form-urlencoded\r\n",
+        "Content-Length:", body.size(), "\r\n",  // Last header line.
+        "\r\n",  // End of headers, separator between message header and body.
+        body);
+
+    LOG(INFO) << "full_request:\n" << full_request << "\n";
+
+    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+      auto result = DecodePartitionedRequest(decoder_, partition);
+
+      const EHttpStatusCode status = std::get<0>(result);
+      const std::string buffer = std::get<1>(result);
+      const std::string remainder = std::get<2>(result);
+
+      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+      EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
+      EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSwitch);
+      EXPECT_EQ(alpaca_request_.device_number, 0);
+      EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kSetSwitch);
+      EXPECT_TRUE(alpaca_request_.have_client_id);
+      EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+      EXPECT_TRUE(alpaca_request_.have_id);
+      EXPECT_TRUE(alpaca_request_.have_state);
+      EXPECT_FALSE(alpaca_request_.have_value);
+      EXPECT_EQ(alpaca_request_.client_id, 7);
+      EXPECT_EQ(alpaca_request_.client_transaction_id, 8);
+      EXPECT_EQ(alpaca_request_.id, 9);
+      EXPECT_EQ(alpaca_request_.state, false);
+
+      if (TestHasFailed()) {
+        return;
+      }
+    }
+  }
+  {
+    const std::string body =
+        "value=0.99999&id=0&clienttransactionid=9&clientid=7";
+
+    const std::string full_request = absl::StrCat(
+        "PUT /api/v1/switch/0/setswitchvalue "
+        "HTTP/1.1\r\n",
+        "content-TYPE:application/x-www-form-urlencoded\r\n",
+        "Content-Length:", body.size(), "\r\n",  // Last header line.
+        "\r\n",  // End of headers, separator between message header and body.
+        body);
+
+    LOG(INFO) << "full_request:\n" << full_request << "\n";
+
+    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+      auto result = DecodePartitionedRequest(decoder_, partition);
+
+      const EHttpStatusCode status = std::get<0>(result);
+      const std::string buffer = std::get<1>(result);
+      const std::string remainder = std::get<2>(result);
+
+      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+      EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
+      EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSwitch);
+      EXPECT_EQ(alpaca_request_.device_number, 0);
+      EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kSetSwitchValue);
+      EXPECT_TRUE(alpaca_request_.have_client_id);
+      EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+      EXPECT_TRUE(alpaca_request_.have_id);
+      EXPECT_TRUE(alpaca_request_.have_value);
+      EXPECT_FALSE(alpaca_request_.have_state);
+      EXPECT_EQ(alpaca_request_.client_id, 7);
+      EXPECT_EQ(alpaca_request_.client_transaction_id, 9);
+      EXPECT_EQ(alpaca_request_.id, 0);
+      EXPECT_EQ(alpaca_request_.value, 0.99999);
+
+      if (TestHasFailed()) {
+        return;
+      }
+    }
+  }
+}
+
+// This is for helping debug the handling of partitioned requests, both by the
+// decoder, and also by the test infrastructure. Ideally we'd have a way to
+// divert the logs elsewhere for this test so they don't swamp the log file.
+TEST_F(RequestDecoderTest, DISABLED_VerboseLogging) {
   absl::SetFlag(&FLAGS_v, 10);
-
-  AlpacaRequest alpaca_request;
-  RequestDecoderListener listener;
-  RequestDecoder decoder(alpaca_request, &listener);
 
   const std::string body = "a=1&ClienttransACTIONid=9";
   const std::string full_request = absl::StrCat(
@@ -1459,7 +1651,7 @@ TEST(RequestDecoderTest, VerboseLogging) {
       continue;
     }
 
-    auto result = DecodePartitionedRequest(decoder, partition);
+    auto result = DecodePartitionedRequest(decoder_, partition);
     const EHttpStatusCode status = std::get<0>(result);
     const std::string buffer = std::get<1>(result);
     const std::string remainder = std::get<2>(result);
@@ -1467,144 +1659,17 @@ TEST(RequestDecoderTest, VerboseLogging) {
     EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
-    EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
-    EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSafetyMonitor);
-    EXPECT_EQ(alpaca_request.device_number, 9999);
-    EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kConnected);
-    EXPECT_TRUE(alpaca_request.have_client_id);
-    EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-    EXPECT_EQ(alpaca_request.client_id, 321);
-    EXPECT_EQ(alpaca_request.client_transaction_id, 9);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kSafetyMonitor);
+    EXPECT_EQ(alpaca_request_.device_number, 9999);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kConnected);
+    EXPECT_TRUE(alpaca_request_.have_client_id);
+    EXPECT_TRUE(alpaca_request_.have_client_transaction_id);
+    EXPECT_EQ(alpaca_request_.client_id, 321);
+    EXPECT_EQ(alpaca_request_.client_transaction_id, 9);
 
     if (TestHasFailed()) {
       return;
-    }
-  }
-}
-
-TEST(RequestDecoderTest, SwitchRequests) {
-  AlpacaRequest alpaca_request;
-  StrictMock<MockRequestDecoderListener> listener;
-  RequestDecoder decoder(alpaca_request, &listener);
-  {
-    const std::string full_request(
-        "GET /api/v1/switch/9999/getswitchvalue"
-        "?ClientID=123&clienttransactionid=432&Id=789 "
-        "HTTP/1.1\r\n"
-        "Content-Length: 0\r\n"
-        "\r\n");
-    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-      auto result = DecodePartitionedRequest(decoder, partition);
-
-      const EHttpStatusCode status = std::get<0>(result);
-      const std::string buffer = std::get<1>(result);
-      const std::string remainder = std::get<2>(result);
-
-      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
-      EXPECT_THAT(buffer, IsEmpty());
-      EXPECT_THAT(remainder, IsEmpty());
-      EXPECT_EQ(alpaca_request.http_method, EHttpMethod::GET);
-      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSwitch);
-      EXPECT_EQ(alpaca_request.device_number, 9999);
-      EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kGetSwitchValue);
-      EXPECT_TRUE(alpaca_request.have_client_id);
-      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-      EXPECT_TRUE(alpaca_request.have_id);
-      EXPECT_FALSE(alpaca_request.have_state);
-      EXPECT_FALSE(alpaca_request.have_value);
-      EXPECT_EQ(alpaca_request.client_id, 123);
-      EXPECT_EQ(alpaca_request.client_transaction_id, 432);
-      EXPECT_EQ(alpaca_request.id, 789);
-
-      if (TestHasFailed()) {
-        return;
-      }
-    }
-  }
-  {
-    const std::string body =
-        "state=false&id=9&clienttransactionid=8&clientid=7";
-
-    const std::string full_request = absl::StrCat(
-        "PUT /api/v1/switch/0/setswitch "
-        "HTTP/1.1\r\n",
-        "content-TYPE:application/x-www-form-urlencoded\r\n",
-        "Content-Length:", body.size(), "\r\n",  // Last header line.
-        "\r\n",  // End of headers, separator between message header and body.
-        body);
-
-    LOG(INFO) << "full_request:\n" << full_request << "\n";
-
-    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-      auto result = DecodePartitionedRequest(decoder, partition);
-
-      const EHttpStatusCode status = std::get<0>(result);
-      const std::string buffer = std::get<1>(result);
-      const std::string remainder = std::get<2>(result);
-
-      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
-      EXPECT_THAT(buffer, IsEmpty());
-      EXPECT_THAT(remainder, IsEmpty());
-      EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
-      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSwitch);
-      EXPECT_EQ(alpaca_request.device_number, 0);
-      EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kSetSwitch);
-      EXPECT_TRUE(alpaca_request.have_client_id);
-      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-      EXPECT_TRUE(alpaca_request.have_id);
-      EXPECT_TRUE(alpaca_request.have_state);
-      EXPECT_FALSE(alpaca_request.have_value);
-      EXPECT_EQ(alpaca_request.client_id, 7);
-      EXPECT_EQ(alpaca_request.client_transaction_id, 8);
-      EXPECT_EQ(alpaca_request.id, 9);
-      EXPECT_EQ(alpaca_request.state, false);
-
-      if (TestHasFailed()) {
-        return;
-      }
-    }
-  }
-  {
-    const std::string body =
-        "value=0.99999&id=0&clienttransactionid=9&clientid=7";
-
-    const std::string full_request = absl::StrCat(
-        "PUT /api/v1/switch/0/setswitchvalue "
-        "HTTP/1.1\r\n",
-        "content-TYPE:application/x-www-form-urlencoded\r\n",
-        "Content-Length:", body.size(), "\r\n",  // Last header line.
-        "\r\n",  // End of headers, separator between message header and body.
-        body);
-
-    LOG(INFO) << "full_request:\n" << full_request << "\n";
-
-    for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
-      auto result = DecodePartitionedRequest(decoder, partition);
-
-      const EHttpStatusCode status = std::get<0>(result);
-      const std::string buffer = std::get<1>(result);
-      const std::string remainder = std::get<2>(result);
-
-      EXPECT_EQ(status, EHttpStatusCode::kHttpOk);
-      EXPECT_THAT(buffer, IsEmpty());
-      EXPECT_THAT(remainder, IsEmpty());
-      EXPECT_EQ(alpaca_request.http_method, EHttpMethod::PUT);
-      EXPECT_EQ(alpaca_request.device_type, EDeviceType::kSwitch);
-      EXPECT_EQ(alpaca_request.device_number, 0);
-      EXPECT_EQ(alpaca_request.device_method, EDeviceMethod::kSetSwitchValue);
-      EXPECT_TRUE(alpaca_request.have_client_id);
-      EXPECT_TRUE(alpaca_request.have_client_transaction_id);
-      EXPECT_TRUE(alpaca_request.have_id);
-      EXPECT_TRUE(alpaca_request.have_value);
-      EXPECT_FALSE(alpaca_request.have_state);
-      EXPECT_EQ(alpaca_request.client_id, 7);
-      EXPECT_EQ(alpaca_request.client_transaction_id, 9);
-      EXPECT_EQ(alpaca_request.id, 0);
-      EXPECT_EQ(alpaca_request.value, 0.99999);
-
-      if (TestHasFailed()) {
-        return;
-      }
     }
   }
 }

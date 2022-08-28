@@ -150,6 +150,10 @@ struct AlpacaRequest {
   unsigned int have_average_period : 1;
   unsigned int have_string_value : 1;
 
+  // So far we only support a single content type for PUT requests, so don't
+  // store it.
+  unsigned int saw_content_type : 1;
+
   unsigned int do_close : 1;  // Set to true if client requests it.
 };
 

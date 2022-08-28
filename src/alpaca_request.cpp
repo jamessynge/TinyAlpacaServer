@@ -25,6 +25,8 @@ void AlpacaRequest::Reset() {
   have_state = false;
   have_value = false;
   have_average_period = false;
+  have_string_value = false;
+  saw_content_type = false;
 
   do_close = false;
 

@@ -146,6 +146,7 @@ cc_library(
 cc_library(
     name = "config",
     hdrs = ["config.h"],
+    deps = ["//mcucore/src:mcucore_platform"],
 )
 
 cc_library(
@@ -302,6 +303,7 @@ cc_library(
     srcs = ["request_decoder_listener.cc"],
     hdrs = ["request_decoder_listener.h"],
     deps = [
+        ":config",
         ":constants",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/log",

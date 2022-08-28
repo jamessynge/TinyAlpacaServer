@@ -23,9 +23,10 @@ namespace alpaca {
 struct RequestDecoderState {
   using DecodeFunction = EHttpStatusCode (*)(RequestDecoderState&,
                                              mcucore::StringView&);
-
-  explicit RequestDecoderState(AlpacaRequest& request,
-                               RequestDecoderListener* listener = nullptr);
+  explicit RequestDecoderState(AlpacaRequest& request);
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
+  RequestDecoderState(AlpacaRequest& request, RequestDecoderListener* listener);
+#endif
 
   // Prepares for decoding a new request
   void Reset();

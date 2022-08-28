@@ -60,6 +60,10 @@ namespace internal {
 // Exposed for testing.
 bool MatchCommonDeviceMethod(const mcucore::StringView& view,
                              EDeviceMethod& match) {
+  MATCH_ONE_LITERAL_EXACTLY(action, EDeviceMethod::kAction);
+  MATCH_ONE_LITERAL_EXACTLY(commandblind, EDeviceMethod::kCommandBlind);
+  MATCH_ONE_LITERAL_EXACTLY(commandbool, EDeviceMethod::kCommandBool);
+  MATCH_ONE_LITERAL_EXACTLY(commandstring, EDeviceMethod::kCommandString);
   MATCH_ONE_LITERAL_EXACTLY(connected, EDeviceMethod::kConnected);
   MATCH_ONE_LITERAL_EXACTLY(description, EDeviceMethod::kDescription);
   MATCH_ONE_LITERAL_EXACTLY(driverinfo, EDeviceMethod::kDriverInfo);
