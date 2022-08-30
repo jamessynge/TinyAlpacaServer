@@ -30,6 +30,7 @@ bool MatchApiGroup(const mcucore::StringView& view, EApiGroup& match) {
   MATCH_ONE_LITERAL_EXACTLY(api, EApiGroup::kDevice);
   MATCH_ONE_LITERAL_EXACTLY(management, EApiGroup::kManagement);
   MATCH_ONE_LITERAL_EXACTLY(setup, EApiGroup::kSetup);
+  MATCH_ONE_LITERAL_EXACTLY(asset, EApiGroup::kAsset);
   return false;
 }
 

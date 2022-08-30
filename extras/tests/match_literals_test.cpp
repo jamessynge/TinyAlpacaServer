@@ -46,10 +46,14 @@ TEST(MatchLiteralsTest, EApiGroup) {
   const std::vector<std::pair<std::string, EApiGroup>> test_cases = {
       {"api", EApiGroup::kDevice},
       {"management", EApiGroup::kManagement},
+      {"asset", EApiGroup::kAsset},
       {"setup", EApiGroup::kSetup},
       {"API", EApiGroup::kUnknown},
+      {"Asset", EApiGroup::kUnknown},
       {"managements", EApiGroup::kUnknown},
       {"SetUp", EApiGroup::kUnknown},
+      {"assets", EApiGroup::kUnknown},
+      {"", EApiGroup::kUnknown},
   };
   const EApiGroup kBogusEnum = static_cast<EApiGroup>(0xff);
   for (const auto [text, expected_enum] : test_cases) {

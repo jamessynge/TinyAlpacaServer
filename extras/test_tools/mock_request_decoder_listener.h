@@ -19,8 +19,8 @@ namespace test {
 class MockRequestDecoderListener : public RequestDecoderListener {
  public:
 #if TAS_ENABLE_ASSET_PATH_DECODING
-  MOCK_METHOD(EHttpStatusCode, OnAssetPathSegment, (const mcucore::StringView&),
-              (override));
+  MOCK_METHOD(EHttpStatusCode, OnAssetPathSegment,
+              (const mcucore::StringView&, bool), (override));
 #endif  // TAS_ENABLE_ASSET_PATH_DECODING
 
 #if TAS_ENABLE_EXTRA_PARAMETER_DECODING

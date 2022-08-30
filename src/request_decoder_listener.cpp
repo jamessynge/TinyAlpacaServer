@@ -14,9 +14,9 @@ RequestDecoderListener::~RequestDecoderListener() {}
 
 #if TAS_ENABLE_ASSET_PATH_DECODING
 EHttpStatusCode RequestDecoderListener::OnAssetPathSegment(
-    const mcucore::StringView& segment) {
+    const mcucore::StringView& segment, bool is_last_segment) {
   MCU_VLOG(1) << MCU_PSD("OnAssetPathSegment(") << mcucore::HexEscaped(segment)
-              << ')';
+              << MCU_PSD(", ") << is_last_segment << ')';
   return EHttpStatusCode::kContinueDecoding;
 }
 #endif  // TAS_ENABLE_ASSET_PATH_DECODING

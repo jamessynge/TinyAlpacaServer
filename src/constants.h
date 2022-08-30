@@ -126,6 +126,7 @@ enum class EApiGroup : uint_fast8_t {
   kDevice,        // Path: /api...
   kManagement,    // Path: /management...
   kSetup,         // Path: /setup...
+  kAsset,         // Path: /asset...
   kServerStatus,  // Path: /
 };
 
@@ -146,6 +147,9 @@ enum class EAlpacaApi : uint_fast8_t {
 
   // Path: /management/v1/configureddevices
   kManagementConfiguredDevices,
+
+  // Path: /asset/...
+  kAsset,
 
   // Path: /setup
   kServerSetup,

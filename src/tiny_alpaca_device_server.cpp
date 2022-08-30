@@ -60,6 +60,9 @@ bool TinyAlpacaDeviceServer::OnRequestDecoded(AlpacaRequest& request,
 
     case EAlpacaApi::kServerStatus:
       return HandleServerStatus(request, out);
+
+    case EAlpacaApi::kAsset:
+      return HandleAsset(request, out);
   }
 
   auto msg = MCU_PSV("OnRequestDecoded: unknown request.api=");
@@ -157,6 +160,12 @@ bool TinyAlpacaDeviceServer::HandleServerStatus(AlpacaRequest& request,
 
   return false;  // There is no Content-Length in the header, so we can't
                  // continue the connection after this.
+}
+
+bool TinyAlpacaDeviceServer::HandleAsset(AlpacaRequest& request, Print& out) {
+  return WriteResponse::HttpErrorResponse(
+      EHttpStatusCode::kHttpInternalServerError,
+      mcucore::AnyPrintable(MCU_PSD("Asset lookup not yet implemented")), out);
 }
 
 }  // namespace alpaca

@@ -76,6 +76,7 @@ class TinyAlpacaDeviceServer : public RequestListener {
   bool HandleManagementDescription(AlpacaRequest& request, Print& out);
   bool HandleServerSetup(AlpacaRequest& request, Print& out);
   bool HandleServerStatus(AlpacaRequest& request, Print& out);
+  bool HandleAsset(AlpacaRequest& request, Print& out);
 
   ServerContext server_context_;
   AlpacaDevices alpaca_devices_;

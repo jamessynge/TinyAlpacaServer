@@ -22,6 +22,14 @@
 #endif
 #endif
 
+#ifndef TAS_ENABLE_TESTING_OF_ALL_REQUEST_DECODER_LISTENER_FEATURES
+#if MCU_HOST_TARGET && !defined(NDEBUG)
+#define TAS_ENABLE_TESTING_OF_ALL_REQUEST_DECODER_LISTENER_FEATURES 1
+#else
+#define TAS_ENABLE_TESTING_OF_ALL_REQUEST_DECODER_LISTENER_FEATURES 0
+#endif
+#endif
+
 // The number of hardware sockets we'll dedicate to listening for TCP
 // connections to the Tiny Alpaca Server.
 #ifndef TAS_NUM_SERVER_CONNECTIONS
@@ -41,7 +49,8 @@
 // defined, so there is no space taken up for (stub) implementations of the
 // method, nor in the vtable.
 #ifndef TAS_ENABLE_EXTRA_PARAMETER_DECODING
-#define TAS_ENABLE_EXTRA_PARAMETER_DECODING 1
+#define TAS_ENABLE_EXTRA_PARAMETER_DECODING \
+  TAS_ENABLE_TESTING_OF_ALL_REQUEST_DECODER_LISTENER_FEATURES
 #endif
 
 // If non-zero, RequestDecoder will make calls to the OnUnknownParameterName and
@@ -49,7 +58,8 @@
 // If zero, then the methods are not defined, so there is no space taken up for
 // (stub) implementations of the methods, nor in the vtable.
 #ifndef TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
-#define TAS_ENABLE_UNKNOWN_PARAMETER_DECODING 1
+#define TAS_ENABLE_UNKNOWN_PARAMETER_DECODING \
+  TAS_ENABLE_TESTING_OF_ALL_REQUEST_DECODER_LISTENER_FEATURES
 #endif
 
 // If non-zero, RequestDecoder will make calls to the OnExtraHeader method
@@ -57,7 +67,8 @@
 // defined, so there is no space taken up for (stub) implementations of the
 // method, nor in the vtable.
 #ifndef TAS_ENABLE_EXTRA_HEADER_DECODING
-#define TAS_ENABLE_EXTRA_HEADER_DECODING 1
+#define TAS_ENABLE_EXTRA_HEADER_DECODING \
+  TAS_ENABLE_TESTING_OF_ALL_REQUEST_DECODER_LISTENER_FEATURES
 #endif
 
 // If non-zero, RequestDecoder will make calls to the OnUnknownHeaderName and
@@ -65,7 +76,8 @@
 // If zero, then the methods are not defined, so there is no space taken up for
 // (stub) implementations of the methods, nor in the vtable.
 #ifndef TAS_ENABLE_UNKNOWN_HEADER_DECODING
-#define TAS_ENABLE_UNKNOWN_HEADER_DECODING 1
+#define TAS_ENABLE_UNKNOWN_HEADER_DECODING \
+  TAS_ENABLE_TESTING_OF_ALL_REQUEST_DECODER_LISTENER_FEATURES
 #endif
 
 // Number of bytes for storage of incoming request bytes. This needs to be 1

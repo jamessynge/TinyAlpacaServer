@@ -51,6 +51,7 @@ using ::mcucore::test::AppendRemainder;
 using ::mcucore::test::GenerateMultipleRequestPartitions;
 using ::testing::EndsWith;
 using ::testing::HasSubstr;
+using ::testing::InSequence;
 using ::testing::IsEmpty;
 using ::testing::Mock;
 using ::testing::StartsWith;
@@ -58,7 +59,6 @@ using ::testing::StrictMock;
 
 #if TAS_ENABLE_REQUEST_DECODER_LISTENER
 using ::testing::Eq;
-using ::testing::InSequence;
 using ::testing::Return;
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
 
@@ -71,6 +71,10 @@ std::vector<std::vector<std::string>> GenerateMultipleRequestPartitions(
 bool TestHasFailed() {
   auto test_info = testing::UnitTest::GetInstance()->current_test_info();
   return test_info->result()->Failed();
+}
+
+bool IsErrorStatus(EHttpStatusCode status) {
+  return status >= EHttpStatusCode::kHttpBadRequest;
 }
 
 // Decode the contents of buffer until the decoder needs more input or returns
@@ -176,118 +180,127 @@ class RequestDecoderTest : public ::testing::Test {
   // TODO(jamessynge): Adjust based on the parameter.
   bool HasListener() const { return TAS_ENABLE_REQUEST_DECODER_LISTENER != 0; }
 
+  // Returns the implied expectation on the final decoder result.
   EHttpStatusCode MaybeExpectAssetPathSegment(
-      std::string_view segment,
+      std::string_view segment, bool is_last_segment,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
 #if TAS_ENABLE_ASSET_PATH_DECODING
     if (HasListener()) {
-      EXPECT_CALL(listener_, OnAssetPathSegment(Eq(segment)))
+      EXPECT_CALL(listener_, OnAssetPathSegment(Eq(segment), is_last_segment))
           .WillOnce(Return(listener_return_value));
-      return listener_return_value;
+      // If there is no listener
+      return ToImpliedDecoderStatus(listener_return_value,
+                                    non_listener_decode_status);
     }
 #endif  // TAS_ENABLE_ASSET_PATH_DECODING
-    return non_listener_return_value;
+    // If there is no listener, then a Not Found status is returned.
+    return EHttpStatusCode::kHttpNotFound;
   }
 
   EHttpStatusCode MaybeExpectExtraParameter(
       EParameter parameter, std::string_view value,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
 #if TAS_ENABLE_EXTRA_PARAMETER_DECODING
     if (HasListener()) {
       EXPECT_CALL(listener_, OnExtraParameter(parameter, Eq(value)))
           .WillOnce(Return(listener_return_value));
-      return listener_return_value;
+      return ToImpliedDecoderStatus(listener_return_value,
+                                    non_listener_decode_status);
     }
 #endif  // TAS_ENABLE_EXTRA_PARAMETER_DECODING
-    return non_listener_return_value;
+    return non_listener_decode_status;
   }
 
   EHttpStatusCode MaybeExpectUnknownParameterName(
       std::string_view name,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
 #if TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
     if (HasListener()) {
       EXPECT_CALL(listener_, OnUnknownParameterName(Eq(name)))
           .WillOnce(Return(listener_return_value));
-      return listener_return_value;
+      return ToImpliedDecoderStatus(listener_return_value,
+                                    non_listener_decode_status);
     }
 #endif  // TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
-    return non_listener_return_value;
+    return non_listener_decode_status;
   }
 
   EHttpStatusCode MaybeExpectUnknownParameterValue(
       std::string_view value,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
 #if TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
     if (HasListener()) {
       EXPECT_CALL(listener_, OnUnknownParameterValue(Eq(value)))
           .WillOnce(Return(listener_return_value));
-      return listener_return_value;
+      return ToImpliedDecoderStatus(listener_return_value,
+                                    non_listener_decode_status);
     }
 #endif  // TAS_ENABLE_UNKNOWN_PARAMETER_DECODING
-    return non_listener_return_value;
+    return non_listener_decode_status;
   }
 
   EHttpStatusCode MaybeExpectUnknownParameter(
       std::string name, std::string_view value,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
     MaybeExpectUnknownParameterName(name);
     return MaybeExpectUnknownParameterValue(value, listener_return_value,
-                                            non_listener_return_value);
+                                            non_listener_decode_status);
   }
 
   EHttpStatusCode MaybeExpectExtraHeader(
       EHttpHeader header, std::string_view value,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
 #if TAS_ENABLE_EXTRA_HEADER_DECODING
     if (HasListener()) {
       EXPECT_CALL(listener_, OnExtraHeader(header, Eq(value)))
           .WillOnce(Return(listener_return_value));
-      return listener_return_value;
+      return ToImpliedDecoderStatus(listener_return_value,
+                                    non_listener_decode_status);
     }
 #endif  // TAS_ENABLE_EXTRA_HEADER_DECODING
-    return non_listener_return_value;
+    return ToImpliedDecoderStatus(EHttpStatusCode::kContinueDecoding,
+                                  non_listener_decode_status);
   }
 
   EHttpStatusCode MaybeExpectUnknownHeaderName(
       std::string_view name,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
-          EHttpStatusCode::kContinueDecoding) {
+      EHttpStatusCode non_listener_decode_status = EHttpStatusCode::kHttpOk) {
 #if TAS_ENABLE_UNKNOWN_HEADER_DECODING
     if (HasListener()) {
       EXPECT_CALL(listener_, OnUnknownHeaderName(Eq(name)))
           .WillOnce(Return(listener_return_value));
-      return listener_return_value;
+      return ToImpliedDecoderStatus(listener_return_value,
+                                    non_listener_decode_status);
     }
 #endif  // TAS_ENABLE_UNKNOWN_HEADER_DECODING
-    return non_listener_return_value;
+    return non_listener_decode_status;
   }
 
   EHttpStatusCode MaybeExpectUnknownHeaderValue(
       std::string_view value,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
 #if TAS_ENABLE_UNKNOWN_HEADER_DECODING
     if (HasListener()) {
@@ -296,18 +309,20 @@ class RequestDecoderTest : public ::testing::Test {
       return listener_return_value;
     }
 #endif  // TAS_ENABLE_UNKNOWN_HEADER_DECODING
-    return non_listener_return_value;
+    return EHttpStatusCode::kHttpOk;
+    // return ToImpliedDecoderStatus(EHttpStatusCode::kContinueDecoding,
+    //                               non_listener_decode_status);
   }
 
   EHttpStatusCode MaybeExpectUnknownHeader(
       std::string name, std::string_view value,
       EHttpStatusCode listener_return_value =
           EHttpStatusCode::kContinueDecoding,
-      EHttpStatusCode non_listener_return_value =
+      EHttpStatusCode non_listener_decode_status =
           EHttpStatusCode::kContinueDecoding) {
     MaybeExpectUnknownHeaderName(name);
     return MaybeExpectUnknownHeaderValue(value, listener_return_value,
-                                         non_listener_return_value);
+                                         non_listener_decode_status);
   }
 
   void VerifyAndClearListenerExpectations() {
@@ -321,6 +336,27 @@ class RequestDecoderTest : public ::testing::Test {
   StrictMock<MockRequestDecoderListener> listener_;
 #endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   RequestDecoder decoder_;
+
+ private:
+  EHttpStatusCode ToImpliedDecoderStatus(
+      EHttpStatusCode listener_return_value,
+      EHttpStatusCode non_listener_decode_status) {
+    EXPECT_NE(non_listener_decode_status, EHttpStatusCode::kNeedMoreInput);
+    if (listener_return_value == EHttpStatusCode::kNeedMoreInput) {
+      LOG(INFO) << "MCU DCHECK expected";
+    }
+    if (IsErrorStatus(listener_return_value)) {
+      return listener_return_value;
+    } else if (IsErrorStatus(non_listener_decode_status)) {
+      // The non_listener_decode_status implies that a failure is going to be
+      // forced by the decoder if the listener doesn't return an error.
+      return non_listener_decode_status;
+    } else {
+      // Implies that (so far) the request is OK, so unless things change after
+      // this listener call, the decoder should return OK.
+      return EHttpStatusCode::kHttpOk;
+    }
+  }
 };
 
 // Death tests are executed first, so I'm placing such tests first.
@@ -351,8 +387,10 @@ TEST_F(RequestDecoderDeathTest, OnExtraHeaderReturnsInvalidStatus) {
 
 TEST_F(RequestDecoderTest, UnusedDecoder) {
   LOG(INFO) << "sizeof(AlpacaRequest) " << sizeof(AlpacaRequest);
+#if TAS_ENABLE_REQUEST_DECODER_LISTENER
   LOG(INFO) << "sizeof(RequestDecoderListener) "
             << sizeof(RequestDecoderListener);
+#endif  // TAS_ENABLE_REQUEST_DECODER_LISTENER
   LOG(INFO) << "sizeof(RequestDecoder) " << sizeof(RequestDecoder);
 }
 
@@ -623,6 +661,116 @@ TEST_F(RequestDecoderTest, SmallestPutRequest) {
   }
 }
 
+TEST_F(RequestDecoderTest, SmallestAssetRequest) {
+  const std::string full_request(
+      "GET /asset/ HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    const auto expected_status = MaybeExpectAssetPathSegment("", true);
+
+    auto result = DecodePartitionedRequest(decoder_, partition);
+
+    const EHttpStatusCode status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    VerifyAndClearListenerExpectations();
+    EXPECT_EQ(status, expected_status);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kAsset);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    if (expected_status == EHttpStatusCode::kHttpOk) {
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+    } else {
+      EXPECT_THAT(remainder, StartsWith(" HTTP"));
+    }
+    if (TestHasFailed()) {
+      break;
+    }
+  }
+}
+
+TEST_F(RequestDecoderTest, AssetRequest) {
+  const std::string full_request(
+      "GET /asset/html/setup.html HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    InSequence s;
+    MaybeExpectAssetPathSegment("html", false);
+    const auto expected_status =
+        MaybeExpectAssetPathSegment("setup.html", true);
+
+    auto result = DecodePartitionedRequest(decoder_, partition);
+
+    const EHttpStatusCode status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    VerifyAndClearListenerExpectations();
+    EXPECT_EQ(status, expected_status);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kAsset);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    if (expected_status == EHttpStatusCode::kHttpOk) {
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+    } else {
+      EXPECT_THAT(remainder, StartsWith("html/setup.html"));
+    }
+    if (TestHasFailed()) {
+      break;
+    }
+  }
+}
+
+TEST_F(RequestDecoderTest, RejectAssetRequest) {
+  const std::string full_request(
+      "GET /asset/html/setup.html HTTP/1.1\r\n"
+      "\r\n");
+
+  for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
+    InSequence s;
+    MaybeExpectAssetPathSegment("html", false);
+    const auto expected_status = MaybeExpectAssetPathSegment(
+        "setup.html", true, EHttpStatusCode::kHttpNotAcceptable);
+
+    auto result = DecodePartitionedRequest(decoder_, partition);
+
+    const EHttpStatusCode status = std::get<0>(result);
+    const std::string buffer = std::get<1>(result);
+    const std::string remainder = std::get<2>(result);
+
+    VerifyAndClearListenerExpectations();
+    EXPECT_EQ(status, expected_status);
+    EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::GET);
+    EXPECT_EQ(alpaca_request_.api_group, EApiGroup::kAsset);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kUnknown);
+    EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kUnknown);
+    EXPECT_FALSE(alpaca_request_.have_client_id);
+    EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
+    if (expected_status == EHttpStatusCode::kHttpOk) {
+      EXPECT_THAT(buffer, IsEmpty());
+      EXPECT_THAT(remainder, IsEmpty());
+    } else if (expected_status == EHttpStatusCode::kHttpNotAcceptable) {
+      EXPECT_THAT(remainder, StartsWith(" HTTP/1.1"));
+    } else {
+      EXPECT_THAT(remainder, StartsWith("html/setup.html"));
+    }
+    if (TestHasFailed()) {
+      break;
+    }
+  }
+}
+
 TEST_F(RequestDecoderTest, AllSupportedFeatures) {
   const std::string body = "a=1&raw=true&&ClienttransACTIONid=9";
   const std::string full_request = absl::StrCat(
@@ -865,7 +1013,7 @@ TEST_F(RequestDecoderTest, ContentLengthNotAnInteger) {
 
   const auto expected_status = MaybeExpectExtraHeader(
       EHttpHeader::kContentLength, ".0", EHttpStatusCode::kHttpNotAcceptable,
-      EHttpStatusCode::kHttpLengthRequired);
+      EHttpStatusCode::kHttpBadRequest);
 
   EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
   EXPECT_EQ(alpaca_request_.device_number, 1);
@@ -920,7 +1068,7 @@ TEST_F(RequestDecoderTest, DecodeMaxStringViewBody) {
   const auto body = frag239 + "&a=0124567890123";
   EXPECT_EQ(body.size(), 255);
   const auto full_request =
-      absl::StrCat("PUT /api/v1/camera/1/action HTTP/1.1\r\n",
+      absl::StrCat("PUT /api/v1/observingconditions/1/action HTTP/1.1\r\n",
                    "CONTENT-LENGTH: 255\r\n", "\r\n", body);
 
   for (auto partition : GenerateMultipleRequestPartitions(full_request)) {
@@ -943,7 +1091,7 @@ TEST_F(RequestDecoderTest, DecodeMaxStringViewBody) {
     EXPECT_THAT(buffer, IsEmpty());
     EXPECT_THAT(remainder, IsEmpty());
     EXPECT_EQ(alpaca_request_.http_method, EHttpMethod::PUT);
-    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kCamera);
+    EXPECT_EQ(alpaca_request_.device_type, EDeviceType::kObservingConditions);
     EXPECT_EQ(alpaca_request_.device_number, 1);
     EXPECT_EQ(alpaca_request_.device_method, EDeviceMethod::kAction);
     EXPECT_FALSE(alpaca_request_.have_client_id);
@@ -1368,18 +1516,19 @@ TEST_F(RequestDecoderTest, ContentTypeUnsupported) {
       "Accept: application/json\r\n"
       "\r\n");
   {
-    // Decoder will override status if listener doesn't return an error status.
+    // Confirm that the decoder overrides the status if the listener doesn't
+    // return an error status by returning kContinueDecoding.
     MaybeExpectExtraHeader(EHttpHeader::kContentType, "application/json",
                            EHttpStatusCode::kContinueDecoding);
 
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
               EHttpStatusCode::kHttpUnsupportedMediaType);
-    Mock::VerifyAndClearExpectations(&listener_);
+    VerifyAndClearListenerExpectations();
   }
 
   {
-    // But will return an error status provided by the listener.
+    // But the decoder will return an error status returned by the listener.
     const auto expected_status =
         MaybeExpectExtraHeader(EHttpHeader::kContentType, "application/json",
                                EHttpStatusCode::kHttpMethodNotAllowed,
@@ -1387,7 +1536,7 @@ TEST_F(RequestDecoderTest, ContentTypeUnsupported) {
 
     auto request = full_request;
     EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request), expected_status);
-    Mock::VerifyAndClearExpectations(&listener_);
+    VerifyAndClearListenerExpectations();
   }
 }
 

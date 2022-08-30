@@ -32,9 +32,10 @@ class RequestDecoderListener {
 
 #if TAS_ENABLE_ASSET_PATH_DECODING
   // If the path starts /asset/, then subsequent segments of the path are passed
-  // to this method.
-  virtual EHttpStatusCode OnAssetPathSegment(
-      const mcucore::StringView& segment);
+  // to this method. is_last==true only for the last segment of the path; and if
+  // the path ends with a slash, segment will be empty.
+  virtual EHttpStatusCode OnAssetPathSegment(const mcucore::StringView& segment,
+                                             bool is_last_segment);
 #endif  // TAS_ENABLE_ASSET_PATH_DECODING
 
 #if TAS_ENABLE_EXTRA_PARAMETER_DECODING

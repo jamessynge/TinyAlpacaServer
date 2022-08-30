@@ -96,7 +96,7 @@ bool IsFieldContent(const char c) { return isPrintable(c) || c == '\t'; }
 // compare matching strings against tokens to find those we're interested in,
 // having this set contain extra characters for some context doesn't really
 // matter.
-MCU_CONSTEXPR_VAR mcucore::StringView kExtraNameChars("-_");
+MCU_CONSTEXPR_VAR mcucore::StringView kExtraNameChars("-_.");
 bool IsNameChar(const char c) {
   return isAlphaNumeric(c) || kExtraNameChars.contains(c);
 }
@@ -206,6 +206,10 @@ EHttpStatusCode ExtractAndProcessName(RequestDecoderState& state,
 // order to avoid forward declarations.
 
 // Necessary forward declarations (whereever we have a cycle in the grammar).
+#if TAS_ENABLE_ASSET_PATH_DECODING
+EHttpStatusCode DecodeAssetPath(RequestDecoderState& state,
+                                mcucore::StringView& view);
+#endif  // TAS_ENABLE_ASSET_PATH_DECODING
 EHttpStatusCode DecodeParamName(RequestDecoderState& state,
                                 mcucore::StringView& view);
 EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
@@ -230,13 +234,13 @@ EHttpStatusCode DecodeHeaderLineEnd(RequestDecoderState& state,
 EHttpStatusCode ReportInvalidHeaderValue(
     RequestDecoderState& state, mcucore::StringView& value,
     EHttpStatusCode default_code = EHttpStatusCode::kHttpBadRequest) {
-#if TAS_ENABLE_EXTRA_PARAMETER_DECODING
+#if TAS_ENABLE_EXTRA_HEADER_DECODING
   if (state.listener) {
     return EnsureIsError(
         state.listener->OnExtraHeader(state.current_header, value),
         default_code);
   }
-#endif  // TAS_ENABLE_EXTRA_PARAMETER_DECODING
+#endif  // TAS_ENABLE_EXTRA_HEADER_DECODING
   return default_code;
 }
 
@@ -467,8 +471,8 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
   }
 }
 
-EHttpStatusCode ReportMalformedParamValue(RequestDecoderState& state,
-                                          mcucore::StringView& view) {
+EHttpStatusCode RemoveInvalidParamValue(RequestDecoderState& state,
+                                        mcucore::StringView& view) {
 #if TAS_ENABLE_EXTRA_PARAMETER_DECODING
   if (state.listener) {
     return EnsureIsError(
@@ -503,7 +507,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_client_id(id);
@@ -512,7 +516,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_client_transaction_id(id);
@@ -521,7 +525,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     uint32_t id;
     bool converted_ok = value.to_uint32(id);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_id(id);
@@ -530,7 +534,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     int32_t brightness;
     bool converted_ok = value.to_int32(brightness);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_brightness(brightness);
@@ -539,7 +543,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     double d;
     bool converted_ok = value.to_double(d);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_value(d);
@@ -548,7 +552,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     double d;
     bool converted_ok = value.to_double(d);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_average_period(d);
@@ -557,7 +561,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     bool b;
     bool converted_ok = DecodeTrueFalse(value, b);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_connected(b);
@@ -566,7 +570,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     bool b;
     bool converted_ok = DecodeTrueFalse(value, b);
     if (!converted_ok) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       // If already decoded, then we overwrite the previous value.
       state.request.set_state(b);
@@ -574,7 +578,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
   } else if (state.current_parameter == EParameter::kSensorName) {
     ESensorName matched;
     if (!MatchSensorName(value, matched)) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     } else {
       state.request.sensor_name = matched;
     }
@@ -587,7 +591,7 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
     // for storing the values of parameters.
     state.request.have_string_value = 0;
     if (!state.request.set_string_value(value)) {
-      return ReportMalformedParamValue(state, value);
+      return RemoveInvalidParamValue(state, value);
     }
 #if TAS_ENABLE_EXTRA_PARAMETER_DECODING
   } else if (state.current_parameter != EParameter::kUnknown) {
@@ -827,6 +831,64 @@ EHttpStatusCode DecodeManagementType(RequestDecoderState& state,
   return ExtractAndProcessName(state, view, ProcessManagementType);
 }
 
+#if TAS_ENABLE_ASSET_PATH_DECODING
+// We use this method, rather than having DecodeAssetPath act as a single
+// function loop, so as to avoid violating the expectation below that
+// kContinueDecoding is only returned when the decode function has changed.
+EHttpStatusCode DecodeAssetPathSeparator(RequestDecoderState& state,
+                                         mcucore::StringView& view) {
+  if (view.match_and_consume('/')) {
+    return state.SetDecodeFunction(DecodeAssetPath);
+  } else if (view.empty()) {
+    return EHttpStatusCode::kNeedMoreInput;
+  } else {
+    return state.SetDecodeFunction(DecodeEndOfPath);
+  }
+}
+
+// Handle the next segment in the path under /asset/. The preceding character
+// was a slash.
+EHttpStatusCode ProcessAssetPath(RequestDecoderState& state,
+                                 const mcucore::StringView& matched_text,
+                                 mcucore::StringView& view) {
+  MCU_DCHECK(!view.empty());
+  MCU_DCHECK_NE(state.listener, nullptr);
+
+  // Check for probing of the file system. For example, don't want a long path
+  // with many segments all equal ".", nor trying to go upwards with "..".
+  if (matched_text.starts_with('.')) {
+    if (matched_text.size() == 1) {
+      // "." not allowed.
+      return EHttpStatusCode::kHttpBadRequest;
+    } else if (matched_text.size() == 2 && matched_text.at(1) == '.') {
+      // ".." not allowed.
+      return EHttpStatusCode::kHttpBadRequest;
+    }
+  }
+
+  bool is_last_segment = true;
+  if (view.starts_with('/')) {
+    // Not the end of the path.
+    if (matched_text.empty()) {
+      // Two slashes in a row, not valid.
+      return EHttpStatusCode::kHttpBadRequest;
+    }
+    is_last_segment = false;
+  }
+  return state.SetDecodeFunctionAfterListenerCall(
+      DecodeAssetPathSeparator,
+      state.listener->OnAssetPathSegment(matched_text, is_last_segment));
+}
+
+// Handle the next segment in the path under /asset/. The preceding character
+// was a slash.
+EHttpStatusCode DecodeAssetPath(RequestDecoderState& state,
+                                mcucore::StringView& view) {
+  MCU_DCHECK_NE(state.listener, nullptr);
+  return ExtractAndProcessName(state, view, ProcessAssetPath);
+}
+#endif  // TAS_ENABLE_ASSET_PATH_DECODING
+
 // Process the word that starts the path, right after the leading '/'.
 EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
                                 const mcucore::StringView& matched_text,
@@ -853,13 +915,21 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
         group != EApiGroup::kDevice) {
       return EHttpStatusCode::kHttpMethodNotAllowed;
     }
-    if (group == EApiGroup::kManagement) {
+    if (group == EApiGroup::kDevice) {
+      MCU_DCHECK_EQ(group, EApiGroup::kDevice);
+      state.request.api = EAlpacaApi::kDeviceApi;
+    } else if (group == EApiGroup::kManagement) {
       return state.SetDecodeFunction(DecodeManagementType);
     } else if (group == EApiGroup::kSetup) {
       state.request.api = EAlpacaApi::kDeviceSetup;
-    } else {
-      MCU_DCHECK_EQ(group, EApiGroup::kDevice);
-      state.request.api = EAlpacaApi::kDeviceApi;
+    } else if (group == EApiGroup::kAsset) {
+#if TAS_ENABLE_ASSET_PATH_DECODING
+      if (state.listener != nullptr) {
+        state.request.api = EAlpacaApi::kAsset;
+        return state.SetDecodeFunction(DecodeAssetPath);
+      }
+#endif  // TAS_ENABLE_ASSET_PATH_DECODING
+      return EHttpStatusCode::kHttpNotFound;
     }
     MCU_DCHECK(group == EApiGroup::kDevice || group == EApiGroup::kSetup)
         << MCU_PSD("group: ") << group;
@@ -954,6 +1024,10 @@ size_t PrintValueTo(DecodeFunction decode_function, Print& out) {
   OUTPUT_METHOD_NAME(MatchHttpVersion);
   OUTPUT_METHOD_NAME(MatchStartOfPath);
   OUTPUT_METHOD_NAME(SkipHeaderValue);
+
+#if TAS_ENABLE_ASSET_PATH_DECODING
+  OUTPUT_METHOD_NAME(DecodeAssetPath);
+#endif  // TAS_ENABLE_ASSET_PATH_DECODING
 
 #undef OUTPUT_METHOD_NAME
 
@@ -1191,7 +1265,7 @@ EHttpStatusCode RequestDecoderState::SetDecodeFunction(
 
 EHttpStatusCode RequestDecoderState::SetDecodeFunctionAfterListenerCall(
     DecodeFunction func, EHttpStatusCode status) {
-  MCU_CHECK_NE(status, EHttpStatusCode::kNeedMoreInput);
+  MCU_DCHECK_NE(status, EHttpStatusCode::kNeedMoreInput);
   if (status == EHttpStatusCode::kContinueDecoding) {
     return SetDecodeFunction(func);
   } else if (status < EHttpStatusCode::kHttpOk) {
