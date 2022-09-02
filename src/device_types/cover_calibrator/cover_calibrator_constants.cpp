@@ -2,6 +2,10 @@
 
 // (Mostly) GENERATED FILE. See make_enum_to_string.py
 
+#if MCU_HOST_TARGET
+#include <ostream>  // pragma: keep standard include
+#endif
+
 // BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
 
 #include <McuCore.h>
@@ -134,39 +138,17 @@ size_t PrintValueTo(ECoverStatus v, Print& out) {
 // Support for debug logging of enums.
 
 std::ostream& operator<<(std::ostream& os, ECalibratorStatus v) {
-  switch (v) {
-    case ECalibratorStatus::kNotPresent:
-      return os << "NotPresent";
-    case ECalibratorStatus::kOff:
-      return os << "Off";
-    case ECalibratorStatus::kNotReady:
-      return os << "NotReady";
-    case ECalibratorStatus::kReady:
-      return os << "Ready";
-    case ECalibratorStatus::kUnknown:
-      return os << "Unknown";
-    case ECalibratorStatus::kError:
-      return os << "Error";
-  }
-  return os << "Unknown ECalibratorStatus, value=" << static_cast<int64_t>(v);
+  char buffer[256];
+  mcucore::PrintToBuffer print(buffer);
+  PrintValueTo(v, print);
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, ECoverStatus v) {
-  switch (v) {
-    case ECoverStatus::kNotPresent:
-      return os << "NotPresent";
-    case ECoverStatus::kClosed:
-      return os << "Closed";
-    case ECoverStatus::kMoving:
-      return os << "Moving";
-    case ECoverStatus::kOpen:
-      return os << "Open";
-    case ECoverStatus::kUnknown:
-      return os << "Unknown";
-    case ECoverStatus::kError:
-      return os << "Error";
-  }
-  return os << "Unknown ECoverStatus, value=" << static_cast<int64_t>(v);
+  char buffer[256];
+  mcucore::PrintToBuffer print(buffer);
+  PrintValueTo(v, print);
+  return os << std::string_view(buffer, print.data_size());
 }
 
 #endif  // MCU_HOST_TARGET

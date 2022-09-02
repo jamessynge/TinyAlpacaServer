@@ -33,6 +33,7 @@ cc_library(
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/container:flash_string_table",
         "//mcucore/src/print:print_misc",
+        "//mcucore/src/print:print_to_buffer",
         "//mcucore/src/strings:progmem_string_data",
     ],
 )

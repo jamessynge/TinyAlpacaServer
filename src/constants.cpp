@@ -1210,98 +1210,98 @@ std::ostream& operator<<(std::ostream& os, RequestDecoderStatus v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EHttpStatusCode v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EHttpMethod v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EApiGroup v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EAlpacaApi v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EManagementMethod v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EDeviceType v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EDeviceMethod v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EParameter v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, ESensorName v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EHttpHeader v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EContentType v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EHtmlPageSection v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, EDeviceEepromTagId v) {
   char buffer[256];
   mcucore::PrintToBuffer print(buffer);
   PrintValueTo(v, print);
-  return os << std::string_view(buffer, print.bytes_written());
+  return os << std::string_view(buffer, print.data_size());
 }
 
 #endif  // MCU_HOST_TARGET

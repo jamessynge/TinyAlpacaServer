@@ -224,11 +224,7 @@ void SwitchAdapter::GenerateSwitchName(uint16_t switch_id,
   mcucore::PrintToBuffer p2b(name);
   p2b.print(MCU_FLASHSTR("Switch #"));
   p2b.print(switch_id);
-  MCU_DCHECK(!p2b.has_buffer_overflow())
-      << p2b.buffer_size() << '<' << p2b.data_size();
-  const auto size =
-      p2b.has_buffer_overflow() ? p2b.buffer_size() : p2b.data_size();
-  name.set_size(name.size() + size);
+  name.set_size(name.size() + p2b.data_size());
 }
 
 bool SwitchAdapter::WriteSwitchName(const AlpacaRequest& request,

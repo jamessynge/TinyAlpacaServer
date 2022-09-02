@@ -4,6 +4,10 @@
 
 #include "utils/avr_timer_counter.h"
 
+#if MCU_HOST_TARGET
+#include <ostream>  // pragma: keep standard include
+#endif
+
 #include <McuCore.h>
 
 namespace alpaca {
@@ -553,6 +557,8 @@ uint16_t TimerCounter5Pwm16Output::get_pulse_count() const {
 
 // BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
 
+#include <McuCore.h>
+
 namespace alpaca {
 
 const __FlashStringHelper* ToFlashStringHelper(ClockPrescaling v) {
@@ -694,46 +700,24 @@ size_t PrintValueTo(TimerCounterChannel v, Print& out) {
 // Support for debug logging of enums.
 
 std::ostream& operator<<(std::ostream& os, ClockPrescaling v) {
-  switch (v) {
-    case ClockPrescaling::kDisabled:
-      return os << "Disabled";
-    case ClockPrescaling::kDivideBy1:
-      return os << "DivideBy1";
-    case ClockPrescaling::kDivideBy8:
-      return os << "DivideBy8";
-    case ClockPrescaling::kDivideBy64:
-      return os << "DivideBy64";
-    case ClockPrescaling::kDivideBy256:
-      return os << "DivideBy256";
-    case ClockPrescaling::kDivideBy1024:
-      return os << "DivideBy1024";
-  }
-  return os << "Unknown ClockPrescaling, value=" << static_cast<int64_t>(v);
+  char buffer[256];
+  mcucore::PrintToBuffer print(buffer);
+  PrintValueTo(v, print);
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, FastPwmCompareOutputMode v) {
-  switch (v) {
-    case FastPwmCompareOutputMode::kDisabled:
-      return os << "Disabled";
-    case FastPwmCompareOutputMode::kNonInvertingMode:
-      return os << "NonInvertingMode";
-    case FastPwmCompareOutputMode::kInvertingMode:
-      return os << "InvertingMode";
-  }
-  return os << "Unknown FastPwmCompareOutputMode, value="
-            << static_cast<int64_t>(v);
+  char buffer[256];
+  mcucore::PrintToBuffer print(buffer);
+  PrintValueTo(v, print);
+  return os << std::string_view(buffer, print.data_size());
 }
 
 std::ostream& operator<<(std::ostream& os, TimerCounterChannel v) {
-  switch (v) {
-    case TimerCounterChannel::A:
-      return os << "A";
-    case TimerCounterChannel::B:
-      return os << "B";
-    case TimerCounterChannel::C:
-      return os << "C";
-  }
-  return os << "Unknown TimerCounterChannel, value=" << static_cast<int64_t>(v);
+  char buffer[256];
+  mcucore::PrintToBuffer print(buffer);
+  PrintValueTo(v, print);
+  return os << std::string_view(buffer, print.data_size());
 }
 
 #endif  // MCU_HOST_TARGET

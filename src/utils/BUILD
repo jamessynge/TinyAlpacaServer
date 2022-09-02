@@ -22,6 +22,7 @@ cc_library(
         "//mcucore/src/print:counting_print",
         "//mcucore/src/print:has_print_to",
         "//mcucore/src/print:print_misc",
+        "//mcucore/src/print:print_to_buffer",
         "//mcucore/src/print:stream_to_print",
         "//mcucore/src/semistd:type_traits",
         "//mcucore/src/strings:progmem_string_data",
