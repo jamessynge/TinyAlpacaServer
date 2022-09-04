@@ -13,8 +13,8 @@
 namespace alpaca {
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(ECalibratorStatus v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(ECalibratorStatus v) {
   switch (v) {
     case ECalibratorStatus::kNotPresent:
       return MCU_FLASHSTR("NotPresent");
@@ -88,8 +88,8 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(ECoverStatus v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(ECoverStatus v) {
   switch (v) {
     case ECoverStatus::kNotPresent:
       return MCU_FLASHSTR("NotPresent");

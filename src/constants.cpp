@@ -13,8 +13,8 @@
 namespace alpaca {
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(RequestDecoderStatus v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(RequestDecoderStatus v) {
   switch (v) {
     case RequestDecoderStatus::kReset:
       return MCU_FLASHSTR("Reset");
@@ -66,8 +66,8 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EHttpStatusCode v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHttpStatusCode v) {
   switch (v) {
     case EHttpStatusCode::kContinueDecoding:
       return MCU_FLASHSTR("ContinueDecoding");
@@ -155,8 +155,8 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EHttpMethod v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHttpMethod v) {
   switch (v) {
     case EHttpMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -211,8 +211,8 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EApiGroup v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EApiGroup v) {
   switch (v) {
     case EApiGroup::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -281,8 +281,8 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EAlpacaApi v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EAlpacaApi v) {
   switch (v) {
     case EAlpacaApi::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -376,8 +376,8 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EManagementMethod v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EManagementMethod v) {
   switch (v) {
     case EManagementMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -429,8 +429,8 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EDeviceType v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EDeviceType v) {
   switch (v) {
     case EDeviceType::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -535,8 +535,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EDeviceMethod v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EDeviceMethod v) {
   switch (v) {
     case EDeviceMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -946,8 +946,8 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EParameter v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EParameter v) {
   switch (v) {
     case EParameter::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -1079,8 +1079,8 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(ESensorName v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(ESensorName v) {
   switch (v) {
     case ESensorName::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -1205,8 +1205,8 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EHttpHeader v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHttpHeader v) {
   switch (v) {
     case EHttpHeader::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -1268,8 +1268,8 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EContentType v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EContentType v) {
   switch (v) {
     case EContentType::kApplicationJson:
       return MCU_FLASHSTR("application/json");
@@ -1318,8 +1318,8 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EHtmlPageSection v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHtmlPageSection v) {
   switch (v) {
     case EHtmlPageSection::kHead:
       return MCU_FLASHSTR("Head");
@@ -1368,8 +1368,8 @@ const __FlashStringHelper* ToFlashStringHelper(EHtmlPageSection v) {
 
 namespace {
 
-MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
-_ToFlashStringHelperViaSwitch(EDeviceEepromTagId v) MCU_GCC_ATTRIBUTE_UNUSED {
+MCU_MAYBE_UNUSED_FUNCTION inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EDeviceEepromTagId v) {
   switch (v) {
     case EDeviceEepromTagId::kUniqueId:
       return MCU_FLASHSTR("UniqueId");
