@@ -1,10 +1,12 @@
 #include "cover.h"
 
 #include <Arduino.h>
+#include <McuCore.h>
 
 #include "constants.h"
 
 namespace {
+using ::mcucore::TC16ClockAndTicks;
 
 // The cover instance that is moving. Note that while multiple Cover instances
 // can be created, only a single Timer/Counter is used on the ATmega2560 (number
@@ -55,7 +57,7 @@ void ResetTimer5() {
 }
 
 // ct represents 1/2 of the period between Timer/Counter 5 overflow interrupts.
-void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
+void StartTimer5(const TC16ClockAndTicks& ct) {
   MCU_VLOG(4) << MCU_PSD("StartTimer5 ct=") << ct
               << MCU_PSD(", ct.ClockSelectBits=") << ct.ClockSelectBits();
 
@@ -102,8 +104,8 @@ void StartTimer5(const alpaca::TC16ClockAndTicks& ct) {
 }
 
 void StartTimer5(uint16_t interrupts_per_second) {
-  StartTimer5(alpaca::TC16ClockAndTicks::FromIntegerEventsPerSecond(
-      interrupts_per_second));
+  StartTimer5(
+      TC16ClockAndTicks::FromIntegerEventsPerSecond(interrupts_per_second));
 }
 
 }  // namespace
@@ -123,7 +125,7 @@ Cover::Cover(uint8_t cover_present_pin, uint8_t stepper_enable_pin,
              uint8_t step_pin, uint8_t direction_pin, uint8_t open_limit_pin,
              uint8_t closed_limit_pin, uint32_t allowed_steps,
              uint32_t allowed_start_steps)
-    : alpaca::EnableableByPin(cover_present_pin),
+    : mcucore::EnableableByPin(cover_present_pin),
       stepper_enable_pin_(stepper_enable_pin),
       step_pin_(step_pin),
       direction_pin_(direction_pin),

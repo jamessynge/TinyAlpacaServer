@@ -7,6 +7,7 @@
 // Author: james.synge@gmail.com
 
 #include <Arduino.h>
+#include <McuCore.h>
 #include <TinyAlpacaServer.h>
 
 #include "cover.h"
@@ -68,10 +69,10 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   // TODO(jamessynge): Need something like template specialization to select the
   // timer/counter number and channel given the kLedChannel1PwmPin macro (and
   // other such macros). Doing so could avoid linking in unused objects.
-  alpaca::TimerCounter3Pwm16Output led1_;
-  alpaca::TimerCounter3Pwm16Output led2_;
-  alpaca::TimerCounter3Pwm16Output led3_;
-  alpaca::TimerCounter4Pwm16Output led4_;
+  mcucore::TimerCounter3Pwm16Output led1_;
+  mcucore::TimerCounter3Pwm16Output led2_;
+  mcucore::TimerCounter3Pwm16Output led3_;
+  mcucore::TimerCounter4Pwm16Output led4_;
 
   Cover cover_;
 

@@ -2,6 +2,7 @@
 // my remapping of the pins.
 
 #include <Arduino.h>
+#include <McuCore.h>
 #include <TinyAlpacaServer.h>
 
 // Modified pin selection to avoid pins used for other purposes.
@@ -28,9 +29,9 @@
 #define kCoverCloseLimitPin 21         //           unchanged
 #define kCoverEnabledPin PIN_A4        //           was 13
 
-using ::alpaca::TimerCounter3Pwm16Output;
-using ::alpaca::TimerCounter4Pwm16Output;
-using ::alpaca::TimerCounterChannel;
+using ::mcucore::TimerCounter3Pwm16Output;
+using ::mcucore::TimerCounter4Pwm16Output;
+using ::mcucore::TimerCounterChannel;
 
 TimerCounter3Pwm16Output led1(TimerCounterChannel::A);
 TimerCounter4Pwm16Output led2(
@@ -92,8 +93,8 @@ void setup() {
   pinMode(kLedChannel3PwmPin, OUTPUT);
   pinMode(kLedChannel4PwmPin, OUTPUT);
 
-  TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
-  TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
+  TimerCounter3Initialize16BitFastPwm(mcucore::ClockPrescaling::kDivideBy1);
+  TimerCounter4Initialize16BitFastPwm(mcucore::ClockPrescaling::kDivideBy1);
 
   MCU_VLOG(1) << MCU_PSD("Initialized 16-bit PWM");
   Serial.println();

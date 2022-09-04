@@ -43,7 +43,6 @@
 #include "server_sockets_and_connections.h"            // IWYU pragma: export
 #include "tiny_alpaca_device_server.h"                 // IWYU pragma: export
 #include "tiny_alpaca_network_server.h"                // IWYU pragma: export
-#include "utils/avr_timer_counter.h"                   // IWYU pragma: export
 #include "utils/moving_average.h"                      // IWYU pragma: export
 
 #endif  // TINY_ALPACA_SERVER_SRC_TINYALPACASERVER_H_

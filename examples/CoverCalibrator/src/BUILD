@@ -24,6 +24,7 @@ cc_library(
         ":constants",
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
+        "//mcucore/src:McuCore",
     ],
 )
 
@@ -37,7 +38,6 @@ cc_library(
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/src:McuCore",
-        "//mcucore/src/strings:progmem_string_data",
     ],
 )
 

@@ -48,7 +48,6 @@ cc_library(
         "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
         "//TinyAlpacaServer/src/device_types/switch:switch_interface",
         "//TinyAlpacaServer/src/device_types/switch:toggle_switch_base",
-        "//TinyAlpacaServer/src/utils:avr_timer_counter",
         "//TinyAlpacaServer/src/utils:moving_average",
     ],
 )

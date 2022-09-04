@@ -7,6 +7,7 @@
 // Author: james.synge@gmail.com
 
 #include <Arduino.h>
+#include <McuCore.h>
 #include <TinyAlpacaServer.h>
 
 namespace astro_makers {
@@ -20,7 +21,7 @@ class InterruptHandler {
   virtual void HandleInterrupt() = 0;
 };
 
-class Cover : public alpaca::EnableableByPin, InterruptHandler {
+class Cover : public mcucore::EnableableByPin, InterruptHandler {
  public:
   enum MotorStatus : uint8_t {
     kNotMoving,

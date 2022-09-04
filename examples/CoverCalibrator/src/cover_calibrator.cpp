@@ -8,8 +8,8 @@
 namespace astro_makers {
 
 using ::alpaca::ECalibratorStatus;
-using ::alpaca::TimerCounterChannel;
 using ::mcucore::StatusOr;
+using ::mcucore::TimerCounterChannel;
 
 CoverCalibrator::CoverCalibrator(
     alpaca::ServerContext& server_context,
@@ -39,8 +39,8 @@ void CoverCalibrator::InitializeDevice() {
   pinMode(kLedChannel4PwmPin, OUTPUT);
 
   // Fastest clock mode.
-  TimerCounter3Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
-  TimerCounter4Initialize16BitFastPwm(alpaca::ClockPrescaling::kDivideBy1);
+  TimerCounter3Initialize16BitFastPwm(mcucore::ClockPrescaling::kDivideBy1);
+  TimerCounter4Initialize16BitFastPwm(mcucore::ClockPrescaling::kDivideBy1);
 
   calibrator_on_ = false;
   brightness_ = 0;
