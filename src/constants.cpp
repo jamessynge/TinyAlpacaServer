@@ -11,9 +11,10 @@
 #include <McuCore.h>
 
 namespace alpaca {
+namespace {
 
-const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(RequestDecoderStatus v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case RequestDecoderStatus::kReset:
       return MCU_FLASHSTR("Reset");
@@ -23,7 +24,15 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
       return MCU_FLASHSTR("Decoded");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == RequestDecoderStatus::kReset) {
     return MCU_FLASHSTR("Reset");
   }
@@ -34,20 +43,31 @@ const __FlashStringHelper* ToFlashStringHelper(RequestDecoderStatus v) {
     return MCU_FLASHSTR("Decoded");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(flash_string_table,
-                                MCU_FLASHSTR("Reset"),     // 0: kReset
-                                MCU_FLASHSTR("Decoding"),  // 1: kDecoding
-                                MCU_FLASHSTR("Decoded"),   // 2: kDecoded
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(RequestDecoderStatus::kReset ==
+                static_cast<RequestDecoderStatus>(0));
+  static_assert(RequestDecoderStatus::kDecoding ==
+                static_cast<RequestDecoderStatus>(1));
+  static_assert(RequestDecoderStatus::kDecoded ==
+                static_cast<RequestDecoderStatus>(2));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
+      flash_string_table,
+      MCU_PSD("Reset"),     // 0: kReset
+      MCU_PSD("Decoding"),  // 1: kDecoding
+      MCU_PSD("Decoded"),   // 2: kDecoded
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, RequestDecoderStatus::kReset,
       RequestDecoderStatus::kDecoded, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHttpStatusCode v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EHttpStatusCode::kContinueDecoding:
       return MCU_FLASHSTR("ContinueDecoding");
@@ -79,7 +99,14 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
       return MCU_FLASHSTR("HTTP Version Not Supported");
   }
   return nullptr;
-#else   // Use if statements.
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else   // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
   if (v == EHttpStatusCode::kContinueDecoding) {
     return MCU_FLASHSTR("ContinueDecoding");
   }
@@ -123,11 +150,13 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpStatusCode v) {
     return MCU_FLASHSTR("HTTP Version Not Supported");
   }
   return nullptr;
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHttpMethod v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EHttpMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -139,7 +168,15 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
       return MCU_FLASHSTR("HEAD");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EHttpMethod::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -153,20 +190,29 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpMethod v) {
     return MCU_FLASHSTR("HEAD");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(flash_string_table,
-                                MCU_FLASHSTR("Unknown"),  // 0: kUnknown
-                                MCU_FLASHSTR("GET"),      // 1: GET
-                                MCU_FLASHSTR("PUT"),      // 2: PUT
-                                MCU_FLASHSTR("HEAD"),     // 3: HEAD
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EHttpMethod::kUnknown == static_cast<EHttpMethod>(0));
+  static_assert(EHttpMethod::GET == static_cast<EHttpMethod>(1));
+  static_assert(EHttpMethod::PUT == static_cast<EHttpMethod>(2));
+  static_assert(EHttpMethod::HEAD == static_cast<EHttpMethod>(3));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
+      flash_string_table,
+      MCU_PSD("Unknown"),  // 0: kUnknown
+      MCU_PSD("GET"),      // 1: GET
+      MCU_PSD("PUT"),      // 2: PUT
+      MCU_PSD("HEAD"),     // 3: HEAD
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EHttpMethod::kUnknown, EHttpMethod::HEAD, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EApiGroup v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EApiGroup::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -182,7 +228,15 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
       return MCU_FLASHSTR("ServerStatus");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EApiGroup::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -202,23 +256,33 @@ const __FlashStringHelper* ToFlashStringHelper(EApiGroup v) {
     return MCU_FLASHSTR("ServerStatus");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EApiGroup::kUnknown == static_cast<EApiGroup>(0));
+  static_assert(EApiGroup::kDevice == static_cast<EApiGroup>(1));
+  static_assert(EApiGroup::kManagement == static_cast<EApiGroup>(2));
+  static_assert(EApiGroup::kSetup == static_cast<EApiGroup>(3));
+  static_assert(EApiGroup::kAsset == static_cast<EApiGroup>(4));
+  static_assert(EApiGroup::kServerStatus == static_cast<EApiGroup>(5));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),       // 0: kUnknown
-      MCU_FLASHSTR("Device"),        // 1: kDevice
-      MCU_FLASHSTR("Management"),    // 2: kManagement
-      MCU_FLASHSTR("Setup"),         // 3: kSetup
-      MCU_FLASHSTR("Asset"),         // 4: kAsset
-      MCU_FLASHSTR("ServerStatus"),  // 5: kServerStatus
+      MCU_PSD("Unknown"),       // 0: kUnknown
+      MCU_PSD("Device"),        // 1: kDevice
+      MCU_PSD("Management"),    // 2: kManagement
+      MCU_PSD("Setup"),         // 3: kSetup
+      MCU_PSD("Asset"),         // 4: kAsset
+      MCU_PSD("ServerStatus"),  // 5: kServerStatus
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EApiGroup::kUnknown, EApiGroup::kServerStatus, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EAlpacaApi v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EAlpacaApi::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -240,7 +304,15 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
       return MCU_FLASHSTR("ServerStatus");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EAlpacaApi::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -269,27 +341,43 @@ const __FlashStringHelper* ToFlashStringHelper(EAlpacaApi v) {
     return MCU_FLASHSTR("ServerStatus");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EAlpacaApi::kUnknown == static_cast<EAlpacaApi>(0));
+  static_assert(EAlpacaApi::kDeviceApi == static_cast<EAlpacaApi>(1));
+  static_assert(EAlpacaApi::kDeviceSetup == static_cast<EAlpacaApi>(2));
+  static_assert(EAlpacaApi::kManagementApiVersions ==
+                static_cast<EAlpacaApi>(3));
+  static_assert(EAlpacaApi::kManagementDescription ==
+                static_cast<EAlpacaApi>(4));
+  static_assert(EAlpacaApi::kManagementConfiguredDevices ==
+                static_cast<EAlpacaApi>(5));
+  static_assert(EAlpacaApi::kAsset == static_cast<EAlpacaApi>(6));
+  static_assert(EAlpacaApi::kServerSetup == static_cast<EAlpacaApi>(7));
+  static_assert(EAlpacaApi::kServerStatus == static_cast<EAlpacaApi>(8));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),                // 0: kUnknown
-      MCU_FLASHSTR("DeviceApi"),              // 1: kDeviceApi
-      MCU_FLASHSTR("DeviceSetup"),            // 2: kDeviceSetup
-      MCU_FLASHSTR("ManagementApiVersions"),  // 3: kManagementApiVersions
-      MCU_FLASHSTR("ManagementDescription"),  // 4: kManagementDescription
-      MCU_FLASHSTR(
+      MCU_PSD("Unknown"),                // 0: kUnknown
+      MCU_PSD("DeviceApi"),              // 1: kDeviceApi
+      MCU_PSD("DeviceSetup"),            // 2: kDeviceSetup
+      MCU_PSD("ManagementApiVersions"),  // 3: kManagementApiVersions
+      MCU_PSD("ManagementDescription"),  // 4: kManagementDescription
+      MCU_PSD(
           "ManagementConfiguredDevices"),  // 5: kManagementConfiguredDevices
-      MCU_FLASHSTR("Asset"),               // 6: kAsset
-      MCU_FLASHSTR("ServerSetup"),         // 7: kServerSetup
-      MCU_FLASHSTR("ServerStatus"),        // 8: kServerStatus
+      MCU_PSD("Asset"),                    // 6: kAsset
+      MCU_PSD("ServerSetup"),              // 7: kServerSetup
+      MCU_PSD("ServerStatus"),             // 8: kServerStatus
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EAlpacaApi::kUnknown, EAlpacaApi::kServerStatus, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EManagementMethod v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EManagementMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -299,7 +387,15 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
       return MCU_FLASHSTR("ConfiguredDevices");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EManagementMethod::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -310,21 +406,31 @@ const __FlashStringHelper* ToFlashStringHelper(EManagementMethod v) {
     return MCU_FLASHSTR("ConfiguredDevices");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EManagementMethod::kUnknown ==
+                static_cast<EManagementMethod>(0));
+  static_assert(EManagementMethod::kDescription ==
+                static_cast<EManagementMethod>(1));
+  static_assert(EManagementMethod::kConfiguredDevices ==
+                static_cast<EManagementMethod>(2));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),            // 0: kUnknown
-      MCU_FLASHSTR("Description"),        // 1: kDescription
-      MCU_FLASHSTR("ConfiguredDevices"),  // 2: kConfiguredDevices
+      MCU_PSD("Unknown"),            // 0: kUnknown
+      MCU_PSD("Description"),        // 1: kDescription
+      MCU_PSD("ConfiguredDevices"),  // 2: kConfiguredDevices
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EManagementMethod::kUnknown,
       EManagementMethod::kConfiguredDevices, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EDeviceType v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EDeviceType::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -350,7 +456,15 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
       return MCU_FLASHSTR("Telescope");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EDeviceType::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -385,28 +499,44 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceType v) {
     return MCU_FLASHSTR("Telescope");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EDeviceType::kUnknown == static_cast<EDeviceType>(0));
+  static_assert(EDeviceType::kCamera == static_cast<EDeviceType>(1));
+  static_assert(EDeviceType::kCoverCalibrator == static_cast<EDeviceType>(2));
+  static_assert(EDeviceType::kDome == static_cast<EDeviceType>(3));
+  static_assert(EDeviceType::kFilterWheel == static_cast<EDeviceType>(4));
+  static_assert(EDeviceType::kFocuser == static_cast<EDeviceType>(5));
+  static_assert(EDeviceType::kObservingConditions ==
+                static_cast<EDeviceType>(6));
+  static_assert(EDeviceType::kRotator == static_cast<EDeviceType>(7));
+  static_assert(EDeviceType::kSafetyMonitor == static_cast<EDeviceType>(8));
+  static_assert(EDeviceType::kSwitch == static_cast<EDeviceType>(9));
+  static_assert(EDeviceType::kTelescope == static_cast<EDeviceType>(10));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),              // 0: kUnknown
-      MCU_FLASHSTR("Camera"),               // 1: kCamera
-      MCU_FLASHSTR("CoverCalibrator"),      // 2: kCoverCalibrator
-      MCU_FLASHSTR("Dome"),                 // 3: kDome
-      MCU_FLASHSTR("FilterWheel"),          // 4: kFilterWheel
-      MCU_FLASHSTR("Focuser"),              // 5: kFocuser
-      MCU_FLASHSTR("ObservingConditions"),  // 6: kObservingConditions
-      MCU_FLASHSTR("Rotator"),              // 7: kRotator
-      MCU_FLASHSTR("SafetyMonitor"),        // 8: kSafetyMonitor
-      MCU_FLASHSTR("Switch"),               // 9: kSwitch
-      MCU_FLASHSTR("Telescope"),            // 10: kTelescope
+      MCU_PSD("Unknown"),              // 0: kUnknown
+      MCU_PSD("Camera"),               // 1: kCamera
+      MCU_PSD("CoverCalibrator"),      // 2: kCoverCalibrator
+      MCU_PSD("Dome"),                 // 3: kDome
+      MCU_PSD("FilterWheel"),          // 4: kFilterWheel
+      MCU_PSD("Focuser"),              // 5: kFocuser
+      MCU_PSD("ObservingConditions"),  // 6: kObservingConditions
+      MCU_PSD("Rotator"),              // 7: kRotator
+      MCU_PSD("SafetyMonitor"),        // 8: kSafetyMonitor
+      MCU_PSD("Switch"),               // 9: kSwitch
+      MCU_PSD("Telescope"),            // 10: kTelescope
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EDeviceType::kUnknown, EDeviceType::kTelescope, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EDeviceMethod v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EDeviceMethod::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -514,7 +644,15 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
       return MCU_FLASHSTR("SwitchStep");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EDeviceMethod::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -672,70 +810,144 @@ const __FlashStringHelper* ToFlashStringHelper(EDeviceMethod v) {
     return MCU_FLASHSTR("SwitchStep");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EDeviceMethod::kUnknown == static_cast<EDeviceMethod>(0));
+  static_assert(EDeviceMethod::kSetup == static_cast<EDeviceMethod>(1));
+  static_assert(EDeviceMethod::kAction == static_cast<EDeviceMethod>(2));
+  static_assert(EDeviceMethod::kCommandBlind == static_cast<EDeviceMethod>(3));
+  static_assert(EDeviceMethod::kCommandBool == static_cast<EDeviceMethod>(4));
+  static_assert(EDeviceMethod::kCommandString == static_cast<EDeviceMethod>(5));
+  static_assert(EDeviceMethod::kConnected == static_cast<EDeviceMethod>(6));
+  static_assert(EDeviceMethod::kDescription == static_cast<EDeviceMethod>(7));
+  static_assert(EDeviceMethod::kDriverInfo == static_cast<EDeviceMethod>(8));
+  static_assert(EDeviceMethod::kDriverVersion == static_cast<EDeviceMethod>(9));
+  static_assert(EDeviceMethod::kInterfaceVersion ==
+                static_cast<EDeviceMethod>(10));
+  static_assert(EDeviceMethod::kName == static_cast<EDeviceMethod>(11));
+  static_assert(EDeviceMethod::kSupportedActions ==
+                static_cast<EDeviceMethod>(12));
+  static_assert(EDeviceMethod::kBrightness == static_cast<EDeviceMethod>(13));
+  static_assert(EDeviceMethod::kCalibratorState ==
+                static_cast<EDeviceMethod>(14));
+  static_assert(EDeviceMethod::kCoverState == static_cast<EDeviceMethod>(15));
+  static_assert(EDeviceMethod::kMaxBrightness ==
+                static_cast<EDeviceMethod>(16));
+  static_assert(EDeviceMethod::kCalibratorOff ==
+                static_cast<EDeviceMethod>(17));
+  static_assert(EDeviceMethod::kCalibratorOn == static_cast<EDeviceMethod>(18));
+  static_assert(EDeviceMethod::kCloseCover == static_cast<EDeviceMethod>(19));
+  static_assert(EDeviceMethod::kHaltCover == static_cast<EDeviceMethod>(20));
+  static_assert(EDeviceMethod::kOpenCover == static_cast<EDeviceMethod>(21));
+  static_assert(EDeviceMethod::kAveragePeriod ==
+                static_cast<EDeviceMethod>(22));
+  static_assert(EDeviceMethod::kCloudCover == static_cast<EDeviceMethod>(23));
+  static_assert(EDeviceMethod::kDewPoint == static_cast<EDeviceMethod>(24));
+  static_assert(EDeviceMethod::kHumidity == static_cast<EDeviceMethod>(25));
+  static_assert(EDeviceMethod::kPressure == static_cast<EDeviceMethod>(26));
+  static_assert(EDeviceMethod::kRainRate == static_cast<EDeviceMethod>(27));
+  static_assert(EDeviceMethod::kRefresh == static_cast<EDeviceMethod>(28));
+  static_assert(EDeviceMethod::kSensorDescription ==
+                static_cast<EDeviceMethod>(29));
+  static_assert(EDeviceMethod::kSkyBrightness ==
+                static_cast<EDeviceMethod>(30));
+  static_assert(EDeviceMethod::kSkyQuality == static_cast<EDeviceMethod>(31));
+  static_assert(EDeviceMethod::kSkyTemperature ==
+                static_cast<EDeviceMethod>(32));
+  static_assert(EDeviceMethod::kStarFWHM == static_cast<EDeviceMethod>(33));
+  static_assert(EDeviceMethod::kTemperature == static_cast<EDeviceMethod>(34));
+  static_assert(EDeviceMethod::kTimeSinceLastUpdate ==
+                static_cast<EDeviceMethod>(35));
+  static_assert(EDeviceMethod::kWindDirection ==
+                static_cast<EDeviceMethod>(36));
+  static_assert(EDeviceMethod::kWindGust == static_cast<EDeviceMethod>(37));
+  static_assert(EDeviceMethod::kWindSpeed == static_cast<EDeviceMethod>(38));
+  static_assert(EDeviceMethod::kIsSafe == static_cast<EDeviceMethod>(39));
+  static_assert(EDeviceMethod::kMaxSwitch == static_cast<EDeviceMethod>(40));
+  static_assert(EDeviceMethod::kCanWrite == static_cast<EDeviceMethod>(41));
+  static_assert(EDeviceMethod::kGetSwitch == static_cast<EDeviceMethod>(42));
+  static_assert(EDeviceMethod::kGetSwitchDescription ==
+                static_cast<EDeviceMethod>(43));
+  static_assert(EDeviceMethod::kGetSwitchName ==
+                static_cast<EDeviceMethod>(44));
+  static_assert(EDeviceMethod::kGetSwitchValue ==
+                static_cast<EDeviceMethod>(45));
+  static_assert(EDeviceMethod::kMinSwitchValue ==
+                static_cast<EDeviceMethod>(46));
+  static_assert(EDeviceMethod::kMaxSwitchValue ==
+                static_cast<EDeviceMethod>(47));
+  static_assert(EDeviceMethod::kSetSwitch == static_cast<EDeviceMethod>(48));
+  static_assert(EDeviceMethod::kSetSwitchName ==
+                static_cast<EDeviceMethod>(49));
+  static_assert(EDeviceMethod::kSetSwitchValue ==
+                static_cast<EDeviceMethod>(50));
+  static_assert(EDeviceMethod::kSwitchStep == static_cast<EDeviceMethod>(51));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),               // 0: kUnknown
-      MCU_FLASHSTR("Setup"),                 // 1: kSetup
-      MCU_FLASHSTR("Action"),                // 2: kAction
-      MCU_FLASHSTR("CommandBlind"),          // 3: kCommandBlind
-      MCU_FLASHSTR("CommandBool"),           // 4: kCommandBool
-      MCU_FLASHSTR("CommandString"),         // 5: kCommandString
-      MCU_FLASHSTR("Connected"),             // 6: kConnected
-      MCU_FLASHSTR("Description"),           // 7: kDescription
-      MCU_FLASHSTR("DriverInfo"),            // 8: kDriverInfo
-      MCU_FLASHSTR("DriverVersion"),         // 9: kDriverVersion
-      MCU_FLASHSTR("InterfaceVersion"),      // 10: kInterfaceVersion
-      MCU_FLASHSTR("Name"),                  // 11: kName
-      MCU_FLASHSTR("SupportedActions"),      // 12: kSupportedActions
-      MCU_FLASHSTR("Brightness"),            // 13: kBrightness
-      MCU_FLASHSTR("CalibratorState"),       // 14: kCalibratorState
-      MCU_FLASHSTR("CoverState"),            // 15: kCoverState
-      MCU_FLASHSTR("MaxBrightness"),         // 16: kMaxBrightness
-      MCU_FLASHSTR("CalibratorOff"),         // 17: kCalibratorOff
-      MCU_FLASHSTR("CalibratorOn"),          // 18: kCalibratorOn
-      MCU_FLASHSTR("CloseCover"),            // 19: kCloseCover
-      MCU_FLASHSTR("HaltCover"),             // 20: kHaltCover
-      MCU_FLASHSTR("OpenCover"),             // 21: kOpenCover
-      MCU_FLASHSTR("AveragePeriod"),         // 22: kAveragePeriod
-      MCU_FLASHSTR("CloudCover"),            // 23: kCloudCover
-      MCU_FLASHSTR("DewPoint"),              // 24: kDewPoint
-      MCU_FLASHSTR("Humidity"),              // 25: kHumidity
-      MCU_FLASHSTR("Pressure"),              // 26: kPressure
-      MCU_FLASHSTR("RainRate"),              // 27: kRainRate
-      MCU_FLASHSTR("Refresh"),               // 28: kRefresh
-      MCU_FLASHSTR("SensorDescription"),     // 29: kSensorDescription
-      MCU_FLASHSTR("SkyBrightness"),         // 30: kSkyBrightness
-      MCU_FLASHSTR("SkyQuality"),            // 31: kSkyQuality
-      MCU_FLASHSTR("SkyTemperature"),        // 32: kSkyTemperature
-      MCU_FLASHSTR("StarFWHM"),              // 33: kStarFWHM
-      MCU_FLASHSTR("Temperature"),           // 34: kTemperature
-      MCU_FLASHSTR("TimeSinceLastUpdate"),   // 35: kTimeSinceLastUpdate
-      MCU_FLASHSTR("WindDirection"),         // 36: kWindDirection
-      MCU_FLASHSTR("WindGust"),              // 37: kWindGust
-      MCU_FLASHSTR("WindSpeed"),             // 38: kWindSpeed
-      MCU_FLASHSTR("IsSafe"),                // 39: kIsSafe
-      MCU_FLASHSTR("MaxSwitch"),             // 40: kMaxSwitch
-      MCU_FLASHSTR("CanWrite"),              // 41: kCanWrite
-      MCU_FLASHSTR("GetSwitch"),             // 42: kGetSwitch
-      MCU_FLASHSTR("GetSwitchDescription"),  // 43: kGetSwitchDescription
-      MCU_FLASHSTR("GetSwitchName"),         // 44: kGetSwitchName
-      MCU_FLASHSTR("GetSwitchValue"),        // 45: kGetSwitchValue
-      MCU_FLASHSTR("MinSwitchValue"),        // 46: kMinSwitchValue
-      MCU_FLASHSTR("MaxSwitchValue"),        // 47: kMaxSwitchValue
-      MCU_FLASHSTR("SetSwitch"),             // 48: kSetSwitch
-      MCU_FLASHSTR("SetSwitchName"),         // 49: kSetSwitchName
-      MCU_FLASHSTR("SetSwitchValue"),        // 50: kSetSwitchValue
-      MCU_FLASHSTR("SwitchStep"),            // 51: kSwitchStep
+      MCU_PSD("Unknown"),               // 0: kUnknown
+      MCU_PSD("Setup"),                 // 1: kSetup
+      MCU_PSD("Action"),                // 2: kAction
+      MCU_PSD("CommandBlind"),          // 3: kCommandBlind
+      MCU_PSD("CommandBool"),           // 4: kCommandBool
+      MCU_PSD("CommandString"),         // 5: kCommandString
+      MCU_PSD("Connected"),             // 6: kConnected
+      MCU_PSD("Description"),           // 7: kDescription
+      MCU_PSD("DriverInfo"),            // 8: kDriverInfo
+      MCU_PSD("DriverVersion"),         // 9: kDriverVersion
+      MCU_PSD("InterfaceVersion"),      // 10: kInterfaceVersion
+      MCU_PSD("Name"),                  // 11: kName
+      MCU_PSD("SupportedActions"),      // 12: kSupportedActions
+      MCU_PSD("Brightness"),            // 13: kBrightness
+      MCU_PSD("CalibratorState"),       // 14: kCalibratorState
+      MCU_PSD("CoverState"),            // 15: kCoverState
+      MCU_PSD("MaxBrightness"),         // 16: kMaxBrightness
+      MCU_PSD("CalibratorOff"),         // 17: kCalibratorOff
+      MCU_PSD("CalibratorOn"),          // 18: kCalibratorOn
+      MCU_PSD("CloseCover"),            // 19: kCloseCover
+      MCU_PSD("HaltCover"),             // 20: kHaltCover
+      MCU_PSD("OpenCover"),             // 21: kOpenCover
+      MCU_PSD("AveragePeriod"),         // 22: kAveragePeriod
+      MCU_PSD("CloudCover"),            // 23: kCloudCover
+      MCU_PSD("DewPoint"),              // 24: kDewPoint
+      MCU_PSD("Humidity"),              // 25: kHumidity
+      MCU_PSD("Pressure"),              // 26: kPressure
+      MCU_PSD("RainRate"),              // 27: kRainRate
+      MCU_PSD("Refresh"),               // 28: kRefresh
+      MCU_PSD("SensorDescription"),     // 29: kSensorDescription
+      MCU_PSD("SkyBrightness"),         // 30: kSkyBrightness
+      MCU_PSD("SkyQuality"),            // 31: kSkyQuality
+      MCU_PSD("SkyTemperature"),        // 32: kSkyTemperature
+      MCU_PSD("StarFWHM"),              // 33: kStarFWHM
+      MCU_PSD("Temperature"),           // 34: kTemperature
+      MCU_PSD("TimeSinceLastUpdate"),   // 35: kTimeSinceLastUpdate
+      MCU_PSD("WindDirection"),         // 36: kWindDirection
+      MCU_PSD("WindGust"),              // 37: kWindGust
+      MCU_PSD("WindSpeed"),             // 38: kWindSpeed
+      MCU_PSD("IsSafe"),                // 39: kIsSafe
+      MCU_PSD("MaxSwitch"),             // 40: kMaxSwitch
+      MCU_PSD("CanWrite"),              // 41: kCanWrite
+      MCU_PSD("GetSwitch"),             // 42: kGetSwitch
+      MCU_PSD("GetSwitchDescription"),  // 43: kGetSwitchDescription
+      MCU_PSD("GetSwitchName"),         // 44: kGetSwitchName
+      MCU_PSD("GetSwitchValue"),        // 45: kGetSwitchValue
+      MCU_PSD("MinSwitchValue"),        // 46: kMinSwitchValue
+      MCU_PSD("MaxSwitchValue"),        // 47: kMaxSwitchValue
+      MCU_PSD("SetSwitch"),             // 48: kSetSwitch
+      MCU_PSD("SetSwitchName"),         // 49: kSetSwitchName
+      MCU_PSD("SetSwitchValue"),        // 50: kSetSwitchValue
+      MCU_PSD("SwitchStep"),            // 51: kSwitchStep
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EDeviceMethod::kUnknown, EDeviceMethod::kSwitchStep,
       v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EParameter v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EParameter::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -769,7 +981,15 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
       return MCU_FLASHSTR("Value");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EParameter::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -816,32 +1036,51 @@ const __FlashStringHelper* ToFlashStringHelper(EParameter v) {
     return MCU_FLASHSTR("Value");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EParameter::kUnknown == static_cast<EParameter>(0));
+  static_assert(EParameter::kAction == static_cast<EParameter>(1));
+  static_assert(EParameter::kClientID == static_cast<EParameter>(2));
+  static_assert(EParameter::kClientTransactionID == static_cast<EParameter>(3));
+  static_assert(EParameter::kCommand == static_cast<EParameter>(4));
+  static_assert(EParameter::kConnected == static_cast<EParameter>(5));
+  static_assert(EParameter::kParameters == static_cast<EParameter>(6));
+  static_assert(EParameter::kRaw == static_cast<EParameter>(7));
+  static_assert(EParameter::kBrightness == static_cast<EParameter>(8));
+  static_assert(EParameter::kAveragePeriod == static_cast<EParameter>(9));
+  static_assert(EParameter::kSensorName == static_cast<EParameter>(10));
+  static_assert(EParameter::kId == static_cast<EParameter>(11));
+  static_assert(EParameter::kName == static_cast<EParameter>(12));
+  static_assert(EParameter::kState == static_cast<EParameter>(13));
+  static_assert(EParameter::kValue == static_cast<EParameter>(14));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),              // 0: kUnknown
-      MCU_FLASHSTR("Action"),               // 1: kAction
-      MCU_FLASHSTR("ClientID"),             // 2: kClientID
-      MCU_FLASHSTR("ClientTransactionID"),  // 3: kClientTransactionID
-      MCU_FLASHSTR("Command"),              // 4: kCommand
-      MCU_FLASHSTR("Connected"),            // 5: kConnected
-      MCU_FLASHSTR("Parameters"),           // 6: kParameters
-      MCU_FLASHSTR("Raw"),                  // 7: kRaw
-      MCU_FLASHSTR("Brightness"),           // 8: kBrightness
-      MCU_FLASHSTR("AveragePeriod"),        // 9: kAveragePeriod
-      MCU_FLASHSTR("SensorName"),           // 10: kSensorName
-      MCU_FLASHSTR("Id"),                   // 11: kId
-      MCU_FLASHSTR("Name"),                 // 12: kName
-      MCU_FLASHSTR("State"),                // 13: kState
-      MCU_FLASHSTR("Value"),                // 14: kValue
+      MCU_PSD("Unknown"),              // 0: kUnknown
+      MCU_PSD("Action"),               // 1: kAction
+      MCU_PSD("ClientID"),             // 2: kClientID
+      MCU_PSD("ClientTransactionID"),  // 3: kClientTransactionID
+      MCU_PSD("Command"),              // 4: kCommand
+      MCU_PSD("Connected"),            // 5: kConnected
+      MCU_PSD("Parameters"),           // 6: kParameters
+      MCU_PSD("Raw"),                  // 7: kRaw
+      MCU_PSD("Brightness"),           // 8: kBrightness
+      MCU_PSD("AveragePeriod"),        // 9: kAveragePeriod
+      MCU_PSD("SensorName"),           // 10: kSensorName
+      MCU_PSD("Id"),                   // 11: kId
+      MCU_PSD("Name"),                 // 12: kName
+      MCU_PSD("State"),                // 13: kState
+      MCU_PSD("Value"),                // 14: kValue
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EParameter::kUnknown, EParameter::kValue, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(ESensorName v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case ESensorName::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -873,7 +1112,15 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
       return MCU_FLASHSTR("WindSpeed");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == ESensorName::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -917,31 +1164,49 @@ const __FlashStringHelper* ToFlashStringHelper(ESensorName v) {
     return MCU_FLASHSTR("WindSpeed");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(ESensorName::kUnknown == static_cast<ESensorName>(0));
+  static_assert(ESensorName::kCloudCover == static_cast<ESensorName>(1));
+  static_assert(ESensorName::kDewPoint == static_cast<ESensorName>(2));
+  static_assert(ESensorName::kHumidity == static_cast<ESensorName>(3));
+  static_assert(ESensorName::kPressure == static_cast<ESensorName>(4));
+  static_assert(ESensorName::kRainRate == static_cast<ESensorName>(5));
+  static_assert(ESensorName::kSkyBrightness == static_cast<ESensorName>(6));
+  static_assert(ESensorName::kSkyQuality == static_cast<ESensorName>(7));
+  static_assert(ESensorName::kSkyTemperature == static_cast<ESensorName>(8));
+  static_assert(ESensorName::kStarFWHM == static_cast<ESensorName>(9));
+  static_assert(ESensorName::kTemperature == static_cast<ESensorName>(10));
+  static_assert(ESensorName::kWindDirection == static_cast<ESensorName>(11));
+  static_assert(ESensorName::kWindGust == static_cast<ESensorName>(12));
+  static_assert(ESensorName::kWindSpeed == static_cast<ESensorName>(13));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),         // 0: kUnknown
-      MCU_FLASHSTR("CloudCover"),      // 1: kCloudCover
-      MCU_FLASHSTR("DewPoint"),        // 2: kDewPoint
-      MCU_FLASHSTR("Humidity"),        // 3: kHumidity
-      MCU_FLASHSTR("Pressure"),        // 4: kPressure
-      MCU_FLASHSTR("RainRate"),        // 5: kRainRate
-      MCU_FLASHSTR("SkyBrightness"),   // 6: kSkyBrightness
-      MCU_FLASHSTR("SkyQuality"),      // 7: kSkyQuality
-      MCU_FLASHSTR("SkyTemperature"),  // 8: kSkyTemperature
-      MCU_FLASHSTR("StarFWHM"),        // 9: kStarFWHM
-      MCU_FLASHSTR("Temperature"),     // 10: kTemperature
-      MCU_FLASHSTR("WindDirection"),   // 11: kWindDirection
-      MCU_FLASHSTR("WindGust"),        // 12: kWindGust
-      MCU_FLASHSTR("WindSpeed"),       // 13: kWindSpeed
+      MCU_PSD("Unknown"),         // 0: kUnknown
+      MCU_PSD("CloudCover"),      // 1: kCloudCover
+      MCU_PSD("DewPoint"),        // 2: kDewPoint
+      MCU_PSD("Humidity"),        // 3: kHumidity
+      MCU_PSD("Pressure"),        // 4: kPressure
+      MCU_PSD("RainRate"),        // 5: kRainRate
+      MCU_PSD("SkyBrightness"),   // 6: kSkyBrightness
+      MCU_PSD("SkyQuality"),      // 7: kSkyQuality
+      MCU_PSD("SkyTemperature"),  // 8: kSkyTemperature
+      MCU_PSD("StarFWHM"),        // 9: kStarFWHM
+      MCU_PSD("Temperature"),     // 10: kTemperature
+      MCU_PSD("WindDirection"),   // 11: kWindDirection
+      MCU_PSD("WindGust"),        // 12: kWindGust
+      MCU_PSD("WindSpeed"),       // 13: kWindSpeed
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, ESensorName::kUnknown, ESensorName::kWindSpeed, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHttpHeader v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EHttpHeader::kUnknown:
       return MCU_FLASHSTR("Unknown");
@@ -955,7 +1220,15 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
       return MCU_FLASHSTR("Date");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EHttpHeader::kUnknown) {
     return MCU_FLASHSTR("Unknown");
   }
@@ -972,22 +1245,31 @@ const __FlashStringHelper* ToFlashStringHelper(EHttpHeader v) {
     return MCU_FLASHSTR("Date");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EHttpHeader::kUnknown == static_cast<EHttpHeader>(0));
+  static_assert(EHttpHeader::kConnection == static_cast<EHttpHeader>(1));
+  static_assert(EHttpHeader::kContentLength == static_cast<EHttpHeader>(2));
+  static_assert(EHttpHeader::kContentType == static_cast<EHttpHeader>(3));
+  static_assert(EHttpHeader::kDate == static_cast<EHttpHeader>(4));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("Unknown"),         // 0: kUnknown
-      MCU_FLASHSTR("Connection"),      // 1: kConnection
-      MCU_FLASHSTR("Content-Length"),  // 2: kContentLength
-      MCU_FLASHSTR("Content-Type"),    // 3: kContentType
-      MCU_FLASHSTR("Date"),            // 4: kDate
+      MCU_PSD("Unknown"),         // 0: kUnknown
+      MCU_PSD("Connection"),      // 1: kConnection
+      MCU_PSD("Content-Length"),  // 2: kContentLength
+      MCU_PSD("Content-Type"),    // 3: kContentType
+      MCU_PSD("Date"),            // 4: kDate
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EHttpHeader::kUnknown, EHttpHeader::kDate, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EContentType v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EContentType::kApplicationJson:
       return MCU_FLASHSTR("application/json");
@@ -997,7 +1279,15 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
       return MCU_FLASHSTR("text/html");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EContentType::kApplicationJson) {
     return MCU_FLASHSTR("application/json");
   }
@@ -1008,21 +1298,28 @@ const __FlashStringHelper* ToFlashStringHelper(EContentType v) {
     return MCU_FLASHSTR("text/html");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EContentType::kApplicationJson == static_cast<EContentType>(0));
+  static_assert(EContentType::kTextPlain == static_cast<EContentType>(1));
+  static_assert(EContentType::kTextHtml == static_cast<EContentType>(2));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
       flash_string_table,
-      MCU_FLASHSTR("application/json"),  // 0: kApplicationJson
-      MCU_FLASHSTR("text/plain"),        // 1: kTextPlain
-      MCU_FLASHSTR("text/html"),         // 2: kTextHtml
+      MCU_PSD("application/json"),  // 0: kApplicationJson
+      MCU_PSD("text/plain"),        // 1: kTextPlain
+      MCU_PSD("text/html"),         // 2: kTextHtml
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EContentType::kApplicationJson,
       EContentType::kTextHtml, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EHtmlPageSection v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EHtmlPageSection v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EHtmlPageSection::kHead:
       return MCU_FLASHSTR("Head");
@@ -1032,7 +1329,15 @@ const __FlashStringHelper* ToFlashStringHelper(EHtmlPageSection v) {
       return MCU_FLASHSTR("Trailer");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EHtmlPageSection v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EHtmlPageSection::kHead) {
     return MCU_FLASHSTR("Head");
   }
@@ -1043,38 +1348,59 @@ const __FlashStringHelper* ToFlashStringHelper(EHtmlPageSection v) {
     return MCU_FLASHSTR("Trailer");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(flash_string_table,
-                                MCU_FLASHSTR("Head"),     // 0: kHead
-                                MCU_FLASHSTR("Body"),     // 1: kBody
-                                MCU_FLASHSTR("Trailer"),  // 2: kTrailer
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EHtmlPageSection::kHead == static_cast<EHtmlPageSection>(0));
+  static_assert(EHtmlPageSection::kBody == static_cast<EHtmlPageSection>(1));
+  static_assert(EHtmlPageSection::kTrailer == static_cast<EHtmlPageSection>(2));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
+      flash_string_table,
+      MCU_PSD("Head"),     // 0: kHead
+      MCU_PSD("Body"),     // 1: kBody
+      MCU_PSD("Trailer"),  // 2: kTrailer
   );
   return mcucore::LookupFlashStringForDenseEnum<uint_fast8_t>(
       flash_string_table, EHtmlPageSection::kHead, EHtmlPageSection::kTrailer,
       v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(EDeviceEepromTagId v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(EDeviceEepromTagId v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case EDeviceEepromTagId::kUniqueId:
       return MCU_FLASHSTR("UniqueId");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(EDeviceEepromTagId v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == EDeviceEepromTagId::kUniqueId) {
     return MCU_FLASHSTR("UniqueId");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(flash_string_table,
-                                MCU_FLASHSTR("UniqueId"),  // 1: kUniqueId
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(EDeviceEepromTagId::kUniqueId ==
+                static_cast<EDeviceEepromTagId>(1));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
+      flash_string_table,
+      MCU_PSD("UniqueId"),  // 1: kUniqueId
   );
   return mcucore::LookupFlashStringForDenseEnum<uint8_t>(
       flash_string_table, EDeviceEepromTagId::kUniqueId,
       EDeviceEepromTagId::kUniqueId, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
 size_t PrintValueTo(RequestDecoderStatus v, Print& out) {
@@ -1305,7 +1631,6 @@ std::ostream& operator<<(std::ostream& os, EDeviceEepromTagId v) {
 }
 
 #endif  // MCU_HOST_TARGET
-
 }  // namespace alpaca
 
 // END_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING

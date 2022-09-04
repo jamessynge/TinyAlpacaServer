@@ -11,9 +11,10 @@
 #include <McuCore.h>
 
 namespace alpaca {
+namespace {
 
-const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(ECalibratorStatus v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case ECalibratorStatus::kNotPresent:
       return MCU_FLASHSTR("NotPresent");
@@ -29,7 +30,15 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
       return MCU_FLASHSTR("Error");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == ECalibratorStatus::kNotPresent) {
     return MCU_FLASHSTR("NotPresent");
   }
@@ -49,24 +58,38 @@ const __FlashStringHelper* ToFlashStringHelper(ECalibratorStatus v) {
     return MCU_FLASHSTR("Error");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(flash_string_table,
-                                MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
-                                MCU_FLASHSTR("Off"),         // 1: kOff
-                                MCU_FLASHSTR("NotReady"),    // 2: kNotReady
-                                MCU_FLASHSTR("Ready"),       // 3: kReady
-                                MCU_FLASHSTR("Unknown"),     // 4: kUnknown
-                                MCU_FLASHSTR("Error"),       // 5: kError
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(ECalibratorStatus::kNotPresent ==
+                static_cast<ECalibratorStatus>(0));
+  static_assert(ECalibratorStatus::kOff == static_cast<ECalibratorStatus>(1));
+  static_assert(ECalibratorStatus::kNotReady ==
+                static_cast<ECalibratorStatus>(2));
+  static_assert(ECalibratorStatus::kReady == static_cast<ECalibratorStatus>(3));
+  static_assert(ECalibratorStatus::kUnknown ==
+                static_cast<ECalibratorStatus>(4));
+  static_assert(ECalibratorStatus::kError == static_cast<ECalibratorStatus>(5));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
+      flash_string_table,
+      MCU_PSD("NotPresent"),  // 0: kNotPresent
+      MCU_PSD("Off"),         // 1: kOff
+      MCU_PSD("NotReady"),    // 2: kNotReady
+      MCU_PSD("Ready"),       // 3: kReady
+      MCU_PSD("Unknown"),     // 4: kUnknown
+      MCU_PSD("Error"),       // 5: kError
   );
   return mcucore::LookupFlashStringForDenseEnum<
       ECalibratorStatus_UnderlyingType>(flash_string_table,
                                         ECalibratorStatus::kNotPresent,
                                         ECalibratorStatus::kError, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
-const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
-#ifdef TO_FLASH_STRING_HELPER_USE_SWITCH
+namespace {
+
+MCU_MAYBE_UNUSED_ATTRIBUTE inline const __FlashStringHelper*
+_ToFlashStringHelperViaSwitch(ECoverStatus v) MCU_GCC_ATTRIBUTE_UNUSED {
   switch (v) {
     case ECoverStatus::kNotPresent:
       return MCU_FLASHSTR("NotPresent");
@@ -82,7 +105,15 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
       return MCU_FLASHSTR("Error");
   }
   return nullptr;
-#elif defined(TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS)
+}
+
+}  // namespace
+
+const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
+#ifdef TO_FLASH_STRING_HELPER_PREFER_SWITCH
+  return _ToFlashStringHelperViaSwitch(v);
+#else  // not TO_FLASH_STRING_HELPER_PREFER_SWITCH
+#ifdef TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
   if (v == ECoverStatus::kNotPresent) {
     return MCU_FLASHSTR("NotPresent");
   }
@@ -102,18 +133,27 @@ const __FlashStringHelper* ToFlashStringHelper(ECoverStatus v) {
     return MCU_FLASHSTR("Error");
   }
   return nullptr;
-#else   // Use flash string table.
-  static MCU_FLASH_STRING_TABLE(flash_string_table,
-                                MCU_FLASHSTR("NotPresent"),  // 0: kNotPresent
-                                MCU_FLASHSTR("Closed"),      // 1: kClosed
-                                MCU_FLASHSTR("Moving"),      // 2: kMoving
-                                MCU_FLASHSTR("Open"),        // 3: kOpen
-                                MCU_FLASHSTR("Unknown"),     // 4: kUnknown
-                                MCU_FLASHSTR("Error"),       // 5: kError
+#else   // not TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+  // Protection against enumerator definitions changing:
+  static_assert(ECoverStatus::kNotPresent == static_cast<ECoverStatus>(0));
+  static_assert(ECoverStatus::kClosed == static_cast<ECoverStatus>(1));
+  static_assert(ECoverStatus::kMoving == static_cast<ECoverStatus>(2));
+  static_assert(ECoverStatus::kOpen == static_cast<ECoverStatus>(3));
+  static_assert(ECoverStatus::kUnknown == static_cast<ECoverStatus>(4));
+  static_assert(ECoverStatus::kError == static_cast<ECoverStatus>(5));
+  static MCU_FLASH_STRING_TABLE(  // Force new line.
+      flash_string_table,
+      MCU_PSD("NotPresent"),  // 0: kNotPresent
+      MCU_PSD("Closed"),      // 1: kClosed
+      MCU_PSD("Moving"),      // 2: kMoving
+      MCU_PSD("Open"),        // 3: kOpen
+      MCU_PSD("Unknown"),     // 4: kUnknown
+      MCU_PSD("Error"),       // 5: kError
   );
   return mcucore::LookupFlashStringForDenseEnum<ECoverStatus_UnderlyingType>(
       flash_string_table, ECoverStatus::kNotPresent, ECoverStatus::kError, v);
-#endif  // TO_FLASH_STRING_HELPER_USE_SWITCH
+#endif  // TO_FLASH_STRING_HELPER_PREFER_IF_STATEMENTS
+#endif  // TO_FLASH_STRING_HELPER_PREFER_SWITCH
 }
 
 size_t PrintValueTo(ECalibratorStatus v, Print& out) {
@@ -152,7 +192,6 @@ std::ostream& operator<<(std::ostream& os, ECoverStatus v) {
 }
 
 #endif  // MCU_HOST_TARGET
-
 }  // namespace alpaca
 
 // END_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
