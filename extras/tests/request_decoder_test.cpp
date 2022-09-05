@@ -33,6 +33,7 @@
 #include "gtest/gtest.h"
 #include "mcucore/extras/test_tools/http1/string_utils.h"
 #include "mcucore/extras/test_tools/string_view_utils.h"  // IWYU pragma: keep (yes, really used via gtest-matchers.h).
+#include "mcucore/extras/test_tools/test_has_failed.h"
 #include "request_decoder_listener.h"
 
 #if TAS_ENABLE_EXTRA_REQUEST_PARAMETERS
@@ -49,6 +50,7 @@ constexpr const size_t kDecodeBufferSize = 40;
 
 using ::mcucore::test::AppendRemainder;
 using ::mcucore::test::GenerateMultipleRequestPartitions;
+using ::mcucore::test::TestHasFailed;
 using ::testing::EndsWith;
 using ::testing::HasSubstr;
 using ::testing::InSequence;
@@ -66,11 +68,6 @@ std::vector<std::vector<std::string>> GenerateMultipleRequestPartitions(
     const std::string& full_request) {
   return GenerateMultipleRequestPartitions(full_request, kDecodeBufferSize,
                                            kDecodeBufferSize);
-}
-
-bool TestHasFailed() {
-  auto test_info = testing::UnitTest::GetInstance()->current_test_info();
-  return test_info->result()->Failed();
 }
 
 bool IsErrorStatus(EHttpStatusCode status) {
