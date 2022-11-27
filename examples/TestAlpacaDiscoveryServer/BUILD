@@ -15,8 +15,8 @@ cc_binary(
     deps = [
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
-        "//mcucore/extras/host/arduino:arduino_main",
         "//mcucore/src:McuCore",
+        "//mcunet/extras/host/ethernet5500:host_network_main",
         "//mcunet/src:mcu_net",
     ],
 )

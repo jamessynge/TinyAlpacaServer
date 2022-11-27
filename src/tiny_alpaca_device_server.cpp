@@ -12,8 +12,8 @@ namespace alpaca {
 TinyAlpacaDeviceServer::TinyAlpacaDeviceServer(
     ServerContext& server_context, const ServerDescription& server_description,
     mcucore::ArrayView<DeviceInterface*> devices)
-    : server_context_(server_context),
-      alpaca_devices_(server_context, devices),
+    : alpaca_devices_(server_context, devices),
+      server_context_(server_context),
       server_description_(server_description),
       server_transaction_id_(0) {}
 

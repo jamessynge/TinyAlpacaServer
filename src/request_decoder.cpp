@@ -63,9 +63,9 @@ bool DecodeTrueFalse(const mcucore::StringView& value, bool& output) {
   }
 }
 
-EHttpStatusCode EnsureIsError(
-    EHttpStatusCode status,
-    EHttpStatusCode default_code = EHttpStatusCode::kHttpBadRequest) {
+MCU_MAYBE_UNUSED_FUNCTION EHttpStatusCode
+EnsureIsError(EHttpStatusCode status,
+              EHttpStatusCode default_code = EHttpStatusCode::kHttpBadRequest) {
   MCU_DCHECK_NE(status, EHttpStatusCode::kNeedMoreInput);
   if (status < EHttpStatusCode::kHttpBadRequest) {
     return default_code;

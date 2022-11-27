@@ -11,7 +11,8 @@ namespace alpaca {
 
 class ServerContext {
  public:
-  // ServerContext();
+  ServerContext() = default;  // No move or copy ctor.
+  ServerContext(const ServerContext&) = delete;
 
   // Initialize using the default EEPROM instance. Returns an error if unable
   // to initialize all features (so far just EepromTlv).
@@ -26,7 +27,6 @@ class ServerContext {
   // OK, else it will crash.
   mcucore::EepromTlv& eeprom_tlv();
 
- protected:
  private:
   mcucore::StatusOr<mcucore::EepromTlv> status_or_eeprom_tlv_;
 };

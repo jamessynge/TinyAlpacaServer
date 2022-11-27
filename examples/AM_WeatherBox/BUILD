@@ -13,6 +13,6 @@ cc_binary(
     deps = [
         "//TinyAlpacaServer/examples/AM_WeatherBox/src:server",
         "//mcucore/extras/host/arduino",
-        "//mcucore/extras/host/arduino:arduino_main",
+        "//mcunet/extras/host/ethernet5500:host_network_main",
     ],
 )

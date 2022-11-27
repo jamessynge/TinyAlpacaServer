@@ -22,11 +22,10 @@
 #include <McuCore.h>
 
 #include "alpaca_devices.h"
-#include "alpaca_discovery_server.h"
 #include "device_interface.h"
+#include "request_listener.h"
 #include "server_context.h"
 #include "server_description.h"
-#include "server_sockets_and_connections.h"
 
 namespace alpaca {
 
@@ -78,9 +77,8 @@ class TinyAlpacaDeviceServer : public RequestListener {
   bool HandleServerStatus(AlpacaRequest& request, Print& out);
   bool HandleAsset(AlpacaRequest& request, Print& out);
 
-  ServerContext server_context_;
   AlpacaDevices alpaca_devices_;
-
+  ServerContext& server_context_;
   // Maybe move the following into ServerContext?
   const ServerDescription& server_description_;
   uint32_t server_transaction_id_;
