@@ -23,7 +23,8 @@ def get_spec() -> str:
     print(f'Read spec from cache file {local_copy}')
   else:
     response = requests.get(
-        'https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml')
+        'https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml'
+    )
     text = response.text
     with open(local_copy, 'w') as f:
       f.write(response.text)
@@ -59,6 +60,7 @@ class Parameter:
   order, with unknown parameters ignored by the server. Their format is
   name=value, with '&' as a separator between parameters.
   """
+
   name: str
 
 

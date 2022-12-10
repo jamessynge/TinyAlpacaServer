@@ -19,11 +19,13 @@ def main() -> None:
           alpaca_http_client.make_url_base_parser(),
           alpaca_http_client.make_device_number_parser(),
           alpaca_http_client.make_device_limits_parser(),
-      ])
+      ],
+  )
 
   args = parser.parse_args()
-  switch_devices: List[alpaca_http_client.HttpSwitch] = (
-      alpaca_http_client.HttpSwitch.find_devices(**vars(args)))
+  switch_devices: List[
+      alpaca_http_client.HttpSwitch
+  ] = alpaca_http_client.HttpSwitch.find_devices(**vars(args))
 
   for switch_device in switch_devices:
     # Print common device info.

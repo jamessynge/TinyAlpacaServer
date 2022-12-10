@@ -25,6 +25,7 @@ Try these commands to install it using pip:
 {cmd} -m pip install "{package_name}{version_constraint}"
 """,
       flush=True,
-      file=sys.stderr)
+      file=sys.stderr,
+  )
   if do_exit:
     sys.exit(1)

@@ -54,6 +54,7 @@ DEFAULT_DISCOVERY_SECS = 2.0
 @dataclasses.dataclass
 class DiscoverySource:
   """Addresses from and to which to send ASCOM Alpaca discovery packets."""
+
   interface_name: str
   src_address: str
   dst_address: str
@@ -88,10 +89,12 @@ class DiscoverySource:
       print(
           f'{action} from {self.src_address} to {self.dst_address}\n',
           flush=True,
-          end='')
+          end='',
+      )
     sock.sendto(
         DISCOVERY_REQUEST_BODY.encode(encoding='ascii'),
-        (self.dst_address, ALPACA_DISCOVERY_PORT))
+        (self.dst_address, ALPACA_DISCOVERY_PORT),
+    )
 
 
 @dataclasses.dataclass
@@ -112,8 +115,9 @@ class DiscoveryResponse:
     return int(jsondata[ALPACA_SERVER_PORT_PROPERTY])
 
 
-def generate_addresses(address_family,
-                       verbose=False) -> Generator[Dict[str, str], None, None]:
+def generate_addresses(
+    address_family, verbose=False
+) -> Generator[Dict[str, str], None, None]:
   """docstring."""
   # netifaces.interfaces returns a list of interface names.
   for name in netifaces.interfaces():
@@ -137,7 +141,8 @@ def generate_addresses(address_family,
 
 
 def generate_discovery_sources(
-    verbose=False) -> Generator[DiscoverySource, None, None]:
+    verbose=False,
+) -> Generator[DiscoverySource, None, None]:
   """docstring."""
   for address_group in generate_addresses(netifaces.AF_INET, verbose=verbose):
     if verbose:
@@ -147,13 +152,15 @@ def generate_discovery_sources(
           interface_name=address_group['interface_name'],
           src_address=address_group['addr'],
           dst_address=address_group['broadcast'],
-          dst_is_broadcast=True)
+          dst_is_broadcast=True,
+      )
     elif 'peer' in address_group:
       yield DiscoverySource(
           interface_name=address_group['interface_name'],
           src_address=address_group['addr'],
           dst_address=address_group['peer'],
-          dst_is_broadcast=False)
+          dst_is_broadcast=False,
+      )
     elif 'netmask' in address_group:
       addr = address_group['addr']
       netmask = address_group['netmask']
@@ -165,11 +172,13 @@ def generate_discovery_sources(
           interface_name=address_group['interface_name'],
           src_address=addr,
           dst_address=str(network.broadcast_address),
-          dst_is_broadcast=True)
+          dst_is_broadcast=True,
+      )
 
 
-def receiver(sock: socket.socket, max_discovery_secs: float,
-             response_queue: queue.Queue) -> None:
+def receiver(
+    sock: socket.socket, max_discovery_secs: float, response_queue: queue.Queue
+) -> None:
   sock.settimeout(max_discovery_secs)
   while True:
     try:
@@ -186,15 +195,18 @@ class Discoverer:
   def __init__(self, source: DiscoverySource):
     self.source = source
 
-  def perform_discovery(self,
-                        response_queue: queue.Queue,
-                        max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
-                        verbose=False) -> threading.Thread:
+  def perform_discovery(
+      self,
+      response_queue: queue.Queue,
+      max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
+      verbose=False,
+  ) -> threading.Thread:
     """Returns a thread which writes DiscoveryResponses to response_queue."""
 
     def worker():
       for r in self.generate_responses(
-          max_discovery_secs=max_discovery_secs, verbose=verbose):
+          max_discovery_secs=max_discovery_secs, verbose=verbose
+      ):
         response_queue.put(r)
 
     t = threading.Thread(target=worker, name=self.source.get_name())
@@ -202,9 +214,8 @@ class Discoverer:
     return t
 
   def generate_responses(
-      self,
-      max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
-      verbose=False) -> Generator[DiscoveryResponse, None, None]:
+      self, max_discovery_secs: float = DEFAULT_DISCOVERY_SECS, verbose=False
+  ) -> Generator[DiscoveryResponse, None, None]:
     """Yields DiscoveryResponses after sending from the source address."""
     sock = self.source.create_bound_udp_socket()
     q = queue.Queue(maxsize=1000)
@@ -223,7 +234,8 @@ class Discoverer:
           source=self.source,
           data_bytes=data_bytes,
           recvfrom_addr=addr,
-          recvfrom_port=port)
+          recvfrom_port=port,
+      )
       count += 1
     t.join()
     while not q.empty():
@@ -232,7 +244,8 @@ class Discoverer:
           source=self.source,
           data_bytes=data_bytes,
           recvfrom_addr=addr,
-          recvfrom_port=port)
+          recvfrom_port=port,
+      )
     if verbose:
       # Appending a \n explicitly because multiple threads will output strings,
       # and I've found that the default end value is output as a separate
@@ -241,16 +254,18 @@ class Discoverer:
       print(
           f'Collected {count} responses for source {self.source.get_name()}\n',
           flush=True,
-          end='')
+          end='',
+      )
 
 
-def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
-                                                           None],
-                      sources: Optional[List[DiscoverySource]] = None,
-                      max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
-                      verbose=False,
-                      drop_repeated_address=True,
-                      **kwargs) -> None:
+def perform_discovery(
+    discovery_response_handler: Callable[[DiscoveryResponse], None],
+    sources: Optional[List[DiscoverySource]] = None,
+    max_discovery_secs: float = DEFAULT_DISCOVERY_SECS,
+    verbose=False,
+    drop_repeated_address=True,
+    **kwargs,
+) -> None:
   """Sends a discovery packet from all sources, passes results to handler."""
   del kwargs  # Unused.
   if sources is None:
@@ -265,7 +280,9 @@ def perform_discovery(discovery_response_handler: Callable[[DiscoveryResponse],
         d.perform_discovery(
             response_queue=q,
             max_discovery_secs=max_discovery_secs,
-            verbose=verbose))
+            verbose=verbose,
+        )
+    )
   start_secs = time.time()
   seen_addresses = set()
   while threads:
@@ -315,18 +332,21 @@ def make_discovery_parser() -> argparse.ArgumentParser:
       metavar='SECONDS',
       type=float,
       default=DEFAULT_DISCOVERY_SECS,
-      help='Time to wait (seconds) for Alpaca Discovery responses.')
+      help='Time to wait (seconds) for Alpaca Discovery responses.',
+  )
   parser.add_argument(
       '--verbose',
       '-v',
       action='store_true',
-      help='Print more messages about what the program is doing.')
+      help='Print more messages about what the program is doing.',
+  )
   return parser
 
 
 def main():
   parser = argparse.ArgumentParser(
-      description='Find Alpaca servers.', parents=[make_discovery_parser()])
+      description='Find Alpaca servers.', parents=[make_discovery_parser()]
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
 

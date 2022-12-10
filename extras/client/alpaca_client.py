@@ -68,6 +68,7 @@ class AlpacaDevice:
   TODO(jamessynge): Make this an absract base class, with a `client` property
   as described above.
   """
+
   server: AlpacaServer
   client: alpaca_http_client.HttpDeviceBase
 
@@ -165,11 +166,13 @@ def main() -> None:
           alpaca_http_client.make_url_base_parser(),
           alpaca_http_client.make_device_number_parser(),
           alpaca_http_client.make_device_type_parser(),
-      ])
+      ],
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
-  clients: List[alpaca_http_client.AlpacaHttpClient] = (
-      alpaca_http_client.find_servers(**cli_kwargs))
+  clients: List[
+      alpaca_http_client.AlpacaHttpClient
+  ] = alpaca_http_client.find_servers(**cli_kwargs)
 
 
 if __name__ == '__main__':

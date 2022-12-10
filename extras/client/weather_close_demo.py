@@ -23,8 +23,10 @@ last_weather_msg = None
 CursesWindow = Any  # Typeshed uses the name CursesWindow
 
 
-def get_cover_state(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-                    unavailable: Optional[int] = -1) -> int:
+def get_cover_state(
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+    unavailable: Optional[int] = -1,
+) -> int:
   try:
     resp = cover_calibrator.get_coverstate()
   except alpaca_http_client.ConnectionError as e:
@@ -35,7 +37,8 @@ def get_cover_state(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
 
 
 def is_present(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> bool:
   return get_cover_state(cover_calibrator) in (1, 2, 3, 4)
 
 
@@ -51,8 +54,9 @@ def is_open(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
   return get_cover_state(cover_calibrator) == 3
 
 
-def cover_state_to_name(cover_state: int,
-                        unavailable: Optional[int] = -1) -> str:
+def cover_state_to_name(
+    cover_state: int, unavailable: Optional[int] = -1
+) -> str:
   if cover_state == 1:
     return 'Closed'
   elif cover_state == 2:
@@ -66,7 +70,8 @@ def cover_state_to_name(cover_state: int,
 
 
 def cover_state_name(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> str:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> str:
   try:
     cover_state = get_cover_state(cover_calibrator)
     return cover_state_to_name(cover_state)
@@ -75,7 +80,8 @@ def cover_state_name(
 
 
 def get_cover_state_after_moving(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> int:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> int:
   while True:
     state = get_cover_state(cover_calibrator)
     if state != 2:
@@ -84,7 +90,8 @@ def get_cover_state_after_moving(
 
 
 def close_cover(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> None:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> None:
   """Close the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
@@ -102,7 +109,8 @@ def close_cover(
 
 
 def open_cover(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> None:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> None:
   """Open the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
@@ -119,8 +127,10 @@ def open_cover(
     print('Failed to open, cover state is', state)
 
 
-def sweep_brightness(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-                     brightness_list: List[int]) -> None:
+def sweep_brightness(
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+    brightness_list: List[int],
+) -> None:
   """Set the brightness to each brightness, then reverse order, then turn off.
 
   Generally assumed that the brightness_list rise from low to high, so this has
@@ -145,23 +155,27 @@ def sweep_brightness(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
   # print('Request duration', elapsed / (1 + 2 * len(brightness_list)))
 
 
-def enable_only_led_channel(led_switches: alpaca_http_client.HttpSwitch,
-                            led_channel: int) -> None:
+def enable_only_led_channel(
+    led_switches: alpaca_http_client.HttpSwitch, led_channel: int
+) -> None:
   for n in range(4):
     led_switches.put_setswitch(n, led_channel == n)
 
 
-def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
-                      led_channel: int,
-                      cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-                      brightness_list: Iterable[int]) -> None:
+def sweep_led_channel(
+    led_switches: alpaca_http_client.HttpSwitch,
+    led_channel: int,
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+    brightness_list: Iterable[int],
+) -> None:
   for n in range(4):
     led_switches.put_setswitch(n, led_channel == n)
   sweep_brightness(cover_calibrator, list(brightness_list))
 
 
 def get_weather_report(
-    device: alpaca_http_client.HttpObservingConditions) -> Dict[str, Any]:
+    device: alpaca_http_client.HttpObservingConditions,
+) -> Dict[str, Any]:
   """Returns True if the weather is OK."""
   sky = device.get_skytemperature().json()['Value']
   ambient = device.get_temperature().json()['Value']
@@ -182,7 +196,6 @@ ambient_temps = []
 
 
 def print_weather_if_changed(report: Dict[str, Any]) -> None:
-
   def round_temp(v: float) -> float:
     return round(v * 4) / 4
 
@@ -210,8 +223,10 @@ def print_weather_if_changed(report: Dict[str, Any]) -> None:
   # sky = round_temp(report['sky'])
   # ambient = round_temp(report['ambient'])
 
-  msg = (f'Sky: {sky:>+5.1f}    Ambient: {ambient:>+5.1f}    '
-         f'Rainrate: {rainrate:>2d}    Condition: {condition}')
+  msg = (
+      f'Sky: {sky:>+5.1f}    Ambient: {ambient:>+5.1f}    '
+      f'Rainrate: {rainrate:>2d}    Condition: {condition}'
+  )
   global last_weather_msg
   if last_weather_msg == msg:
     return
@@ -230,11 +245,14 @@ def display_status(stdscr: CursesWindow, report: Dict[str, Any]) -> None:
     stdscr.addstr(ndx, 0, f'{label}: {value}                  ')
 
 
-def run(stdscr: CursesWindow, brightness_list: List[int],
-        led_channels: List[int],
-        cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-        led_switches: alpaca_http_client.HttpSwitch,
-        obs_conditions: alpaca_http_client.HttpObservingConditions) -> None:
+def run(
+    stdscr: CursesWindow,
+    brightness_list: List[int],
+    led_channels: List[int],
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+    led_switches: alpaca_http_client.HttpSwitch,
+    obs_conditions: alpaca_http_client.HttpObservingConditions,
+) -> None:
   # stdscr.clear()
   # def display_status():
   #   labels_and_values = [
@@ -306,21 +324,27 @@ def main() -> None:
           alpaca_discovery.make_discovery_parser(),
           alpaca_http_client.make_url_base_parser(),
           alpaca_http_client.make_device_number_parser(),
-      ])
+      ],
+  )
   parser.add_argument(
-      '--red', '-r', action='store_true', help='Enable the red LED.')
+      '--red', '-r', action='store_true', help='Enable the red LED.'
+  )
   parser.add_argument(
-      '--green', '-g', action='store_true', help='Enable the green LED.')
+      '--green', '-g', action='store_true', help='Enable the green LED.'
+  )
   parser.add_argument(
-      '--blue', '-b', action='store_true', help='Enable blue LED.')
+      '--blue', '-b', action='store_true', help='Enable blue LED.'
+  )
   parser.add_argument(
-      '--white', '-w', action='store_true', help='Enable white LED.')
+      '--white', '-w', action='store_true', help='Enable white LED.'
+  )
   parser.add_argument(
       'brightness',
       metavar='N',
       type=int,
       nargs='*',
-      help='Brightness values for sweep')
+      help='Brightness values for sweep',
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
 
@@ -338,11 +362,13 @@ def main() -> None:
   blue_channel = 2
   white_channel = 3
 
-  if (cli_args.red or cli_args.green or cli_args.blue or cli_args.white):
-    led_channels = (([red_channel] if cli_args.red else []) +
-                    ([green_channel] if cli_args.green else []) +
-                    ([blue_channel] if cli_args.blue else []) +
-                    ([white_channel] if cli_args.white else []))
+  if cli_args.red or cli_args.green or cli_args.blue or cli_args.white:
+    led_channels = (
+        ([red_channel] if cli_args.red else [])
+        + ([green_channel] if cli_args.green else [])
+        + ([blue_channel] if cli_args.blue else [])
+        + ([white_channel] if cli_args.white else [])
+    )
   else:
     led_channels = [red_channel, green_channel, blue_channel, white_channel]
   led_channels.sort()
@@ -351,7 +377,8 @@ def main() -> None:
   print('Finding devices')
 
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
-      alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs))
+      alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs)
+  )
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
   cover_calibrator.put_calibratoroff()
@@ -359,13 +386,22 @@ def main() -> None:
   led_switches: alpaca_http_client.HttpSwitch = (
       alpaca_http_client.HttpSwitch.find_first_device(
           servers=[cover_calibrator.client],
-          device_number=cover_calibrator.device_number))
+          device_number=cover_calibrator.device_number,
+      )
+  )
 
   obs_conditions: alpaca_http_client.HttpObservingConditions = (
-      alpaca_http_client.HttpObservingConditions.find_sole_device(**cli_kwargs))
+      alpaca_http_client.HttpObservingConditions.find_sole_device(**cli_kwargs)
+  )
 
-  curses.wrapper(run, brightness_list, led_channels, cover_calibrator,
-                 led_switches, obs_conditions)
+  curses.wrapper(
+      run,
+      brightness_list,
+      led_channels,
+      cover_calibrator,
+      led_switches,
+      obs_conditions,
+  )
 
 
 if __name__ == '__main__':

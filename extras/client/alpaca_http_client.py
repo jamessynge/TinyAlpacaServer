@@ -68,7 +68,8 @@ def to_url_base(arg: str) -> str:
   path = path + '/'
   if '/../' in path:
     raise ValueError(
-        f'URL path must not contain reverse (/../) segments: {orig!r}')
+        f'URL path must not contain reverse (/../) segments: {orig!r}'
+    )
 
   path = path.replace('//', '/').strip('/')
   return ''.join([scheme, '://', host, ':', str(port), '/', path]).strip('/')
@@ -108,7 +109,8 @@ def get_ok_response_json_value(response: requests.Response) -> Any:
   jv = get_ok_response_json(response)
   if 'Value' not in jv:
     raise ValueError(
-        f'Response JSON does not contain a Value: {response.content}')
+        f'Response JSON does not contain a Value: {response.content}'
+    )
   return jv['Value']
 
 
@@ -116,7 +118,8 @@ def get_ok_response_json_value_array(response: requests.Response) -> List[Any]:
   value = get_ok_response_json_value(response)
   if not isinstance(value, list):
     raise ValueError(
-        f'Response JSON Value property is not an array: {response.content}')
+        f'Response JSON Value property is not an array: {response.content}'
+    )
   return value
 
 
@@ -124,16 +127,19 @@ def get_ok_response_json_value_bool(response: requests.Response) -> bool:
   value = get_ok_response_json_value(response)
   if not isinstance(value, bool):
     raise ValueError(
-        f'Response JSON Value property is not a boolean: {response.content}')
+        f'Response JSON Value property is not a boolean: {response.content}'
+    )
   return value
 
 
 def get_ok_response_json_value_dict(
-    response: requests.Response) -> Dict[str, Any]:
+    response: requests.Response,
+) -> Dict[str, Any]:
   value = get_ok_response_json_value(response)
   if not isinstance(value, dict):
     raise ValueError(
-        f'Response JSON Value property is not an object: {response.content}')
+        f'Response JSON Value property is not an object: {response.content}'
+    )
   return value
 
 
@@ -141,7 +147,8 @@ def get_ok_response_json_value_float(response: requests.Response) -> float:
   value = get_ok_response_json_value(response)
   if not isinstance(value, float):
     raise ValueError(
-        f'Response JSON Value property is not a float: {response.content}')
+        f'Response JSON Value property is not a float: {response.content}'
+    )
   return value
 
 
@@ -149,7 +156,8 @@ def get_ok_response_json_value_int(response: requests.Response) -> int:
   value = get_ok_response_json_value(response)
   if not isinstance(value, int):
     raise ValueError(
-        f'Response JSON Value property is not an integer: {response.content}')
+        f'Response JSON Value property is not an integer: {response.content}'
+    )
   return value
 
 
@@ -157,7 +165,8 @@ def get_ok_response_json_value_str(response: requests.Response) -> str:
   value = get_ok_response_json_value(response)
   if not isinstance(value, str):
     raise ValueError(
-        f'Response JSON Value property is not a string: {response.content}')
+        f'Response JSON Value property is not a string: {response.content}'
+    )
   return value
 
 
@@ -204,7 +213,8 @@ class AlpacaHttpClient:
   def gen_standard_params(self) -> Dict[str, str]:
     result = dict(
         ClientID=str(self.client_id),
-        ClientTransactionID=str(self.gen_next_client_transaction_id()))
+        ClientTransactionID=str(self.gen_next_client_transaction_id()),
+    )
     return result
 
   def gen_management_request(self, path_extension: str) -> requests.Request:
@@ -249,7 +259,7 @@ class AlpacaHttpClient:
 
   def configured_devices(
       self,
-      device_filter: Optional[alpaca_model.ConfiguredDeviceFilterFunc] = None
+      device_filter: Optional[alpaca_model.ConfiguredDeviceFilterFunc] = None,
   ) -> List[ConfiguredDevice]:
     """Returns the configured devices of device_type provided by the server."""
     # TODO(jamessynge): Move this to alpaca_client.AlpacaServer.
@@ -275,7 +285,8 @@ ServerFilterFunc = Callable[[AlpacaHttpClient], bool]
 
 def has_configured_device(
     client: AlpacaHttpClient,
-    configured_device_filter: alpaca_model.ConfiguredDeviceFilterFunc) -> bool:
+    configured_device_filter: alpaca_model.ConfiguredDeviceFilterFunc,
+) -> bool:
   """Returns True if the server has a matching device."""
   return bool(client.configured_devices(configured_device_filter))
 
@@ -283,36 +294,42 @@ def has_configured_device(
 def make_composite_server_filter(
     server_filter: Optional[ServerFilterFunc] = None,
     configured_device_filter: Optional[
-        alpaca_model.ConfiguredDeviceFilterFunc] = None
+        alpaca_model.ConfiguredDeviceFilterFunc
+    ] = None,
 ) -> ServerFilterFunc:
   """Returns a ServerFilterFunc based on the args."""
 
   def the_filter(client: AlpacaHttpClient):
     if server_filter and not server_filter(client):
       return False
-    if (configured_device_filter and
-        not has_configured_device(client, configured_device_filter)):
+    if configured_device_filter and not has_configured_device(
+        client, configured_device_filter
+    ):
       return False
     return True
 
   return the_filter
 
 
-def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
-                 url_base: Optional[str] = None,
-                 device_number: Optional[int] = None,
-                 device_type: Optional[Union[str, EDeviceType]] = None,
-                 server_filter: Optional[ServerFilterFunc] = None,
-                 min_required_devices=0,
-                 verbose=False,
-                 **kwargs) -> List[AlpacaHttpClient]:
+def find_servers(
+    cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
+    url_base: Optional[str] = None,
+    device_number: Optional[int] = None,
+    device_type: Optional[Union[str, EDeviceType]] = None,
+    server_filter: Optional[ServerFilterFunc] = None,
+    min_required_devices=0,
+    verbose=False,
+    **kwargs,
+) -> List[AlpacaHttpClient]:
   """Returns clients for the Alpaca servers discovered."""
   if isinstance(device_type, str):
     device_type: EDeviceType = EDeviceType(device_type)
   the_filter = make_composite_server_filter(
       server_filter=server_filter,
       configured_device_filter=alpaca_model.make_configured_device_filter(
-          device_number=device_number, device_type=device_type))
+          device_number=device_number, device_type=device_type
+      ),
+  )
   if url_base:
     client = cls(url_base=url_base)
     if not the_filter(client):
@@ -326,7 +343,8 @@ def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
   results: List[AlpacaHttpClient] = []
 
   def discovery_response_handler(
-      dr: alpaca_discovery.DiscoveryResponse) -> None:
+      dr: alpaca_discovery.DiscoveryResponse,
+  ) -> None:
     url_base = f'http://{dr.get_alpaca_server_addr()}'
     if verbose:
       print(f'Found a server at {url_base}')
@@ -338,7 +356,8 @@ def find_servers(cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
       results.append(client)
 
   alpaca_discovery.perform_discovery(
-      discovery_response_handler, verbose=verbose, **kwargs)
+      discovery_response_handler, verbose=verbose, **kwargs
+  )
   if len(results) < min_required_devices:
     sys.stdout.flush()
     print('Found no servers!', file=sys.stderr, flush=True)
@@ -351,46 +370,60 @@ class HttpDeviceBase:
   """Base class of device type specific clients."""
 
   @classmethod
-  def find_devices(cls: Type[_T],
-                   servers: Optional[List[AlpacaHttpClient]] = None,
-                   server_cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
-                   device_number: Optional[int] = None,
-                   min_required_devices: Optional[int] = None,
-                   max_allowed_devices: Optional[int] = None,
-                   **kwargs) -> List[_T]:
+  def find_devices(
+      cls: Type[_T],
+      servers: Optional[List[AlpacaHttpClient]] = None,
+      server_cls: Type[AlpacaHttpClient] = AlpacaHttpClient,
+      device_number: Optional[int] = None,
+      min_required_devices: Optional[int] = None,
+      max_allowed_devices: Optional[int] = None,
+      **kwargs,
+  ) -> List[_T]:
     """Returns devices of type cls.DEVICE_TYPE."""
     if cls == HttpDeviceBase:
-      raise ValueError('Call find_devices as a class method of a sub-class '
-                       'of HttpDeviceBase, e.g. HttpSwitch.')
+      raise ValueError(
+          'Call find_devices as a class method of a sub-class '
+          'of HttpDeviceBase, e.g. HttpSwitch.'
+      )
     device_type: EDeviceType = cls.DEVICE_TYPE
     if not servers:
       servers = find_servers(
           cls=server_cls,
           device_type=device_type,
           device_number=device_number,
-          **kwargs)
+          **kwargs,
+      )
     cd_filter = alpaca_model.make_configured_device_filter(
-        device_number=device_number, device_type=device_type)
+        device_number=device_number, device_type=device_type
+    )
     devices: List[HttpDeviceBase] = []
     for server in servers:
       for configured_device in server.configured_devices(cd_filter):
         devices.append(
-            cls(server, device_type, configured_device.device_number))
+            cls(server, device_type, configured_device.device_number)
+        )
     if min_required_devices is not None and len(devices) < min_required_devices:
       sys.stdout.flush()
       print(
-          f'Did not find at least {min_required_devices} servers with a device '
-          f'of type: {device_type.name}',
+          (
+              f'Did not find at least {min_required_devices} servers with a'
+              f' device of type: {device_type.name}'
+          ),
           file=sys.stderr,
-          flush=True)
+          flush=True,
+      )
       time.sleep(10)
       sys.exit(1)
     if max_allowed_devices is not None and len(devices) > max_allowed_devices:
       sys.stdout.flush()
       print(
-          f'Found too many ({len(devices)}) devices of type: {device_type.name}',
+          (
+              f'Found too many ({len(devices)}) devices of type:'
+              f' {device_type.name}'
+          ),
           file=sys.stderr,
-          flush=True)
+          flush=True,
+      )
       time.sleep(10)
       sys.exit(1)
     return devices
@@ -405,28 +438,38 @@ class HttpDeviceBase:
     kwargs.pop('min_required_devices', None)
     kwargs.pop('max_allowed_devices', None)
     return cls.find_devices(
-        min_required_devices=1, max_allowed_devices=1, **kwargs)[0]
+        min_required_devices=1, max_allowed_devices=1, **kwargs
+    )[0]
 
   @classmethod
-  def create_from_configured_device(cls: Type[_T], client: AlpacaHttpClient,
-                                    configured_device: ConfiguredDevice) -> _T:
+  def create_from_configured_device(
+      cls: Type[_T],
+      client: AlpacaHttpClient,
+      configured_device: ConfiguredDevice,
+  ) -> _T:
     if cls.DEVICE_TYPE != configured_device.device_type:
       raise ValueError(f'Expected {cls.DEVICE_TYPE} in: {configured_device}')
     return cls(client, cls.DEVICE_TYPE, configured_device.device_number)
 
-  def __init__(self, client: AlpacaHttpClient, device_type: EDeviceType,
-               device_number: int):
+  def __init__(
+      self,
+      client: AlpacaHttpClient,
+      device_type: EDeviceType,
+      device_number: int,
+  ):
     self.client = client
     self.device_type = device_type
     self.device_number = device_number
     self.device_url_base = (
-        f'{client.device_url_base}/{device_type.api_name()}/{device_number}')
+        f'{client.device_url_base}/{device_type.api_name()}/{device_number}'
+    )
 
   def make_url_path(self, device_method: str) -> str:
     return f'{self.device_url_base}/{device_method}'
 
-  def gen_request(self, http_method: str, alpaca_method: str,
-                  **kwargs) -> requests.Request:
+  def gen_request(
+      self, http_method: str, alpaca_method: str, **kwargs
+  ) -> requests.Request:
     params = self.client.gen_standard_params()
     params.update(kwargs)
     data = None
@@ -434,7 +477,8 @@ class HttpDeviceBase:
       data, params = (params, data)
     url = self.make_url_path(alpaca_method)
     return requests.Request(
-        method=http_method, url=url, data=data, params=params)
+        method=http_method, url=url, data=data, params=params
+    )
 
   def _put(self, device_method: str, **kwargs) -> requests.Response:
     req = self.gen_request(PUT, device_method, **kwargs)
@@ -443,8 +487,9 @@ class HttpDeviceBase:
   def put_action(self, action_name: str, parameters: str) -> requests.Response:
     return self._put('action', Action=action_name, Parameters=parameters)
 
-  def _put_command(self, device_method: str, command: str,
-                   raw: bool) -> requests.Response:
+  def _put_command(
+      self, device_method: str, command: str, raw: bool
+  ) -> requests.Response:
     return self._put(device_method, Command=command, Raw=str(raw))
 
   def put_commandblind(self, command: str, raw: bool) -> requests.Response:
@@ -625,19 +670,19 @@ class HttpSwitch(HttpDeviceBase):
   def put_setswitchname(self, switch_id: int, name: str) -> requests.Response:
     return self._put('setswitchname', Id=switch_id, Name=name)
 
-  def put_setswitchvalue(self, switch_id: int,
-                         value: float) -> requests.Response:
+  def put_setswitchvalue(
+      self, switch_id: int, value: float
+  ) -> requests.Response:
     return self._put('setswitchvalue', Id=switch_id, Value=value)
 
 
 def make_url_base_parser(
-    required: bool = False,
-    required_device_type: Optional[EDeviceType] = None
+    required: bool = False, required_device_type: Optional[EDeviceType] = None
 ) -> argparse.ArgumentParser:
   """Returns a parser for a --url_base CLI argument."""
   parts = [
       'Base of URL before /api/v1/. If not specified, Alpaca Discovery ',
-      'is used to find an Alpaca Server'
+      'is used to find an Alpaca Server',
   ]
   if required_device_type is not None:
     parts.append(' with a device of type ' + required_device_type.name)
@@ -649,7 +694,8 @@ def make_url_base_parser(
       metavar='URL_OR_ADDRESS',
       required=required,
       type=to_url_base,
-      help=''.join(parts))
+      help=''.join(parts),
+  )
   return parser
 
 
@@ -660,13 +706,13 @@ def make_device_type_parser(required: bool = False) -> argparse.ArgumentParser:
       '--device_type',
       choices=sorted(map(lambda x: x.lower(), EDeviceType.__members__.keys())),
       required=required,
-      help='Type of device to find or use.')
+      help='Type of device to find or use.',
+  )
   return parser
 
 
 def make_device_number_parser(
-    required: bool = False,
-    required_device_type: Optional[EDeviceType] = None
+    required: bool = False, required_device_type: Optional[EDeviceType] = None
 ) -> argparse.ArgumentParser:
   """Returns a parser for a --device_number CLI argument."""
   parts = []
@@ -678,13 +724,14 @@ def make_device_number_parser(
   parts.append('number to find or use.')
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument(
-      '--device_number', type=int, required=required, help=''.join(parts))
+      '--device_number', type=int, required=required, help=''.join(parts)
+  )
   return parser
 
 
 def make_device_limits_parser(
-    min_required_devices=None,
-    max_allowed_devices=None) -> argparse.ArgumentParser:
+    min_required_devices=None, max_allowed_devices=None
+) -> argparse.ArgumentParser:
   """Returns an arg parser for the number devices."""
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument(
@@ -692,13 +739,15 @@ def make_device_limits_parser(
       metavar='MIN',
       type=int,
       default=min_required_devices,
-      help='Minimum number of devices that must be found')
+      help='Minimum number of devices that must be found',
+  )
   parser.add_argument(
       '--max_allowed_devices',
       metavar='MAX',
       type=int,
       default=max_allowed_devices,
-      help='Maximum number of devices allowed to be found.')
+      help='Maximum number of devices allowed to be found.',
+  )
   return parser
 
 
@@ -727,8 +776,9 @@ def device_type_to_class(device_type: EDeviceType) -> Type[HttpDeviceBase]:
   raise UserWarning(f'Unsupported device type: {device_type}')
 
 
-def create_http_device(client: AlpacaHttpClient,
-                       configured_device: ConfiguredDevice) -> HttpDeviceBase:
+def create_http_device(
+    client: AlpacaHttpClient, configured_device: ConfiguredDevice
+) -> HttpDeviceBase:
   """Returns an HttpDeviceBase instance appropriate for the device."""
   if configured_device.device_type == EDeviceType.CoverCalibrator:
     cls = HttpCoverCalibrator
@@ -740,7 +790,8 @@ def create_http_device(client: AlpacaHttpClient,
     cls = HttpSwitch
   else:
     raise UserWarning(
-        f'Unsupported device type: {configured_device.device_type}')
+        f'Unsupported device type: {configured_device.device_type}'
+    )
   return cls.create_from_configured_device(client, configured_device)
 
 
@@ -752,7 +803,8 @@ def main() -> None:
           make_url_base_parser(),
           make_device_number_parser(),
           make_device_type_parser(),
-      ])
+      ],
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
   clients: List[AlpacaHttpClient] = find_servers(**cli_kwargs)
@@ -761,8 +813,10 @@ def main() -> None:
 
   for client in clients:
     print()
-    print(f'Alpaca Server {client.url_base} supports API versions: '
-          f'{client.apiversions()!r}')
+    print(
+        f'Alpaca Server {client.url_base} supports API versions: '
+        f'{client.apiversions()!r}'
+    )
     desc = client.server_description()
     print('Using API v1, server description:')
     print(f'        Name: {desc.server_name}')
@@ -772,8 +826,10 @@ def main() -> None:
     print()
 
     configured_devices = client.configured_devices()
-    print(f'Server has {len(configured_devices)} configured '
-          f'devices{"" if len(configured_devices) == 1 else "s"}')
+    print(
+        f'Server has {len(configured_devices)} configured '
+        f'devices{"" if len(configured_devices) == 1 else "s"}'
+    )
     for cd in configured_devices:
       print()
       print(f'  Device #: {cd.device_number}')

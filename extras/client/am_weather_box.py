@@ -15,17 +15,20 @@ def main() -> None:
           alpaca_discovery.make_discovery_parser(),
           alpaca_http_client.make_url_base_parser(),
           alpaca_http_client.make_device_number_parser(),
-      ])
+      ],
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
   device = alpaca_http_client.HttpObservingConditions.find_sole_device(
-      **cli_kwargs)
+      **cli_kwargs
+  )
 
   while True:
     sky = device.get_skytemperature().json()['Value']
     temp = device.get_temperature().json()['Value']
-    precipitation = ('RAINING'
-                     if device.get_rainrate().json()['Value'] > 0 else 'dry')
+    precipitation = (
+        'RAINING' if device.get_rainrate().json()['Value'] > 0 else 'dry'
+    )
 
     print(f'Sky: {sky:>+5.1f}    Ambient: {temp:>+5.1f}    {precipitation}')
 

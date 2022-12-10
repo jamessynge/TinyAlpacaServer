@@ -18,7 +18,8 @@ def main() -> None:
           alpaca_http_client.make_url_base_parser(),
           alpaca_http_client.make_device_number_parser(),
           alpaca_http_client.make_device_type_parser(),
-      ])
+      ],
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
   servers = alpaca_http_client.find_servers(**cli_kwargs)

@@ -21,13 +21,15 @@ MOVING_SLEEP_TIME = 1
 
 
 def get_cover_state(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> int:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> int:
   resp = cover_calibrator.get_coverstate()
   return resp.json()['Value']
 
 
 def is_present(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> bool:
   return get_cover_state(cover_calibrator) in (1, 2, 3, 4)
 
 
@@ -44,7 +46,8 @@ def is_open(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
 
 
 def get_cover_state_after_moving(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> int:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> int:
   while True:
     state = get_cover_state(cover_calibrator)
     if state != 2:
@@ -53,7 +56,8 @@ def get_cover_state_after_moving(
 
 
 def close_cover(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> None:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> None:
   """Close the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
@@ -71,7 +75,8 @@ def close_cover(
 
 
 def open_cover(
-    cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> None:
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> None:
   """Open the cover of the Cover Calibrator device."""
   if not is_present(cover_calibrator):
     raise UserWarning('No cover')
@@ -88,8 +93,10 @@ def open_cover(
     print('Failed to open, cover state is', state)
 
 
-def sweep_brightness(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-                     brightness_list: List[int]) -> None:
+def sweep_brightness(
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+    brightness_list: List[int],
+) -> None:
   """Set the brightness to each brightness, then reverse order, then turn off.
 
   Generally assumed that the brightness_list rise from low to high, so this has
@@ -114,10 +121,12 @@ def sweep_brightness(cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
   # print('Request duration', elapsed / (1 + 2 * len(brightness_list)))
 
 
-def sweep_led_channel(led_switches: alpaca_http_client.HttpSwitch,
-                      led_channel: int,
-                      cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-                      brightness_list: Iterable[int]) -> None:
+def sweep_led_channel(
+    led_switches: alpaca_http_client.HttpSwitch,
+    led_channel: int,
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+    brightness_list: Iterable[int],
+) -> None:
   for n in range(4):
     led_switches.put_setswitch(n, led_channel == n)
   sweep_brightness(cover_calibrator, list(brightness_list))
@@ -130,23 +139,28 @@ def main() -> None:
           alpaca_discovery.make_discovery_parser(),
           alpaca_http_client.make_url_base_parser(),
           alpaca_http_client.make_device_number_parser(),
-      ])
+      ],
+  )
   parser.add_argument(
       '--no-move',
       action='store_false',
       default=True,
       dest='move',
-      help='Disable moving the cover.')
+      help='Disable moving the cover.',
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
 
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
-      alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs))
+      alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs)
+  )
 
   led_switches: alpaca_http_client.HttpSwitch = (
       alpaca_http_client.HttpSwitch.find_first_device(
           servers=[cover_calibrator.client],
-          device_number=cover_calibrator.device_number))
+          device_number=cover_calibrator.device_number,
+      )
+  )
 
   brightness_list = [min(1 << i, 65535) for i in range(17)]
 
@@ -157,8 +171,9 @@ def main() -> None:
     while True:
       for led_channel in led_channels:
         print(f'Raising and lowering brightness on channel {led_channel}')
-        sweep_led_channel(led_switches, led_channel, cover_calibrator,
-                          brightness_list)
+        sweep_led_channel(
+            led_switches, led_channel, cover_calibrator, brightness_list
+        )
 
       if cli_args.move:
         open_cover(cover_calibrator)
