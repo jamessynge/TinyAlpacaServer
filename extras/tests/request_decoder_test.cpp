@@ -77,7 +77,7 @@ bool IsErrorStatus(EHttpStatusCode status) {
 // Decode the contents of buffer until the decoder needs more input or returns
 // an error.
 EHttpStatusCode DecodeBuffer(
-    RequestDecoder& decoder, std::string& buffer, const bool at_end,
+    RequestDecoder& decoder, std::string& buffer,
     const size_t max_decode_buffer_size = kDecodeBufferSize) {
   CHECK_GT(max_decode_buffer_size, 0);
   CHECK_LE(max_decode_buffer_size, mcucore::StringView::kMaxSize);
@@ -93,9 +93,8 @@ EHttpStatusCode DecodeBuffer(
     mcucore::StringView view(copy.data(), initial_size);
 
     const bool was_empty = buffer.empty();
-    const bool now_at_end = at_end && initial_size == buffer.size();
     const bool buffer_is_full = view.size() >= max_decode_buffer_size;
-    auto status = decoder.DecodeBuffer(view, buffer_is_full, now_at_end);
+    auto status = decoder.DecodeBuffer(view, buffer_is_full);
 
     // Make sure that the decoder only removed the prefix of the view.
     EXPECT_GE(initial_size, view.size());
@@ -123,7 +122,7 @@ EHttpStatusCode ResetAndDecodeFullBuffer(
     RequestDecoder& decoder, std::string& buffer,
     const size_t max_decode_buffer_size = kDecodeBufferSize) {
   decoder.Reset();
-  return DecodeBuffer(decoder, buffer, true, max_decode_buffer_size);
+  return DecodeBuffer(decoder, buffer, max_decode_buffer_size);
 }
 
 // Apply the decoder to decoding the provided partition of a request. Returns
@@ -138,9 +137,8 @@ std::tuple<EHttpStatusCode, std::string, std::string> DecodePartitionedRequest(
   decoder.Reset();
   std::string buffer;
   for (int ndx = 0; ndx < partition.size(); ++ndx) {
-    const bool at_end = (ndx + 1) == partition.size();
     buffer += partition[ndx];
-    auto status = DecodeBuffer(decoder, buffer, at_end, max_decode_buffer_size);
+    auto status = DecodeBuffer(decoder, buffer, max_decode_buffer_size);
     if (status != EHttpStatusCode::kNeedMoreInput) {
       return {status, buffer, AppendRemainder(buffer, partition, ndx + 1)};
     }
@@ -399,7 +397,7 @@ TEST_F(RequestDecoderTest, ResetRequiredBeforeDecoding) {
       "\r\n");
   auto buffer = full_request;
 
-  EXPECT_EQ(DecodeBuffer(decoder_, buffer, /*at_end=*/true),
+  EXPECT_EQ(DecodeBuffer(decoder_, buffer),
             EHttpStatusCode::kHttpInternalServerError);
   EXPECT_EQ(buffer, full_request);  // No input has been consumed.
 }
@@ -868,7 +866,7 @@ TEST_F(RequestDecoderTest, RequestWithoutClientId) {
       "GET /setup HTTP/1.1\r\n"
       "\r\n");
 
-  EXPECT_EQ(DecodeBuffer(decoder_, full_request, true, kDecodeBufferSize),
+  EXPECT_EQ(DecodeBuffer(decoder_, full_request, kDecodeBufferSize),
             EHttpStatusCode::kHttpOk);
   EXPECT_FALSE(alpaca_request_.have_client_id);
 }
@@ -1095,26 +1093,6 @@ TEST_F(RequestDecoderTest, DecodeMaxStringViewBody) {
     EXPECT_FALSE(alpaca_request_.have_client_transaction_id);
     EXPECT_FALSE(alpaca_request_.do_close);
   }
-}
-
-TEST_F(RequestDecoderTest, DetectsPayloadTruncated) {
-  // Body is missing. There doesn't appear to be a better response code than
-  // 400 for missing data.
-  std::string request =
-      "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
-      "Content-Length: 1\r\n"
-      "\r\n";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
-            EHttpStatusCode::kHttpBadRequest);
-
-  // "=value" is missing after a parameter name.
-  request =
-      "PUT /api/v1/safetymonitor/1/issafe HTTP/1.1\r\n"
-      "Content-Length: 10\r\n"
-      "\r\n"
-      "param_name";
-  EXPECT_EQ(ResetAndDecodeFullBuffer(decoder_, request),
-            EHttpStatusCode::kHttpBadRequest);
 }
 
 TEST_F(RequestDecoderTest, DetectsPayloadTooLong) {

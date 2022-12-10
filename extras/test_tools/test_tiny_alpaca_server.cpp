@@ -29,6 +29,7 @@ TestTinyAlpacaServer::TestTinyAlpacaServer(
 ConnectionResult TestTinyAlpacaServer::AnnounceConnect(std::string_view input,
                                                        bool repeat_until_stable,
                                                        bool peer_half_closed) {
+  MCU_VLOG(9) << "TestTinyAlpacaServer::AnnounceConnect";
   MCU_CHECK(!server_connection_.has_socket());
   MCU_CHECK(!connection_is_open_);
   MCU_CHECK(!connection_is_writeable_);
@@ -49,6 +50,7 @@ ConnectionResult TestTinyAlpacaServer::AnnounceConnect(std::string_view input,
 ConnectionResult TestTinyAlpacaServer::AnnounceCanRead(std::string_view input,
                                                        bool repeat_until_stable,
                                                        bool peer_half_closed) {
+  MCU_VLOG(9) << "TestTinyAlpacaServer::AnnounceCanRead";
   MCU_CHECK(server_connection_.has_socket());
   MCU_CHECK_EQ(sock_num_, server_connection_.sock_num());
   MCU_CHECK(connection_is_open_);
@@ -70,6 +72,7 @@ ConnectionResult TestTinyAlpacaServer::AnnounceCanRead(std::string_view input,
 }
 
 void TestTinyAlpacaServer::RepeatedlyAnnounceCanRead(StringIoConnection& conn) {
+  MCU_VLOG(9) << "TestTinyAlpacaServer::RepeatedlyAnnounceCanRead";
   while (conn.connected() && !conn.remaining_input().empty()) {
     const auto start_size = conn.remaining_input().size();
     server_connection_.OnCanRead(conn);
@@ -114,6 +117,7 @@ void TestTinyAlpacaServer::RepeatedlyAnnounceHalfClosed(
 }
 
 void TestTinyAlpacaServer::AnnounceDisconnect() {
+  MCU_VLOG(9) << "TestTinyAlpacaServer::AnnounceDisconnect";
   MCU_CHECK(server_connection_.has_socket());
   MCU_CHECK_EQ(sock_num_, server_connection_.sock_num());
   MCU_CHECK(connection_is_open_);

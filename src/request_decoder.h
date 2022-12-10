@@ -33,8 +33,8 @@ struct RequestDecoderState {
 
   // Repeatedly applies the current decode function to the input until done,
   // needs more input than is in buffer, or an error is detected.
-  EHttpStatusCode DecodeBuffer(mcucore::StringView& buffer, bool buffer_is_full,
-                               bool at_end_of_input);
+  EHttpStatusCode DecodeBuffer(mcucore::StringView& buffer,
+                               bool buffer_is_full);
 
   // Set the next function to be used for decoding the input. Returns
   // kContinueDecoding.
@@ -53,12 +53,10 @@ struct RequestDecoderState {
 
  private:
   // Decode the portion of the current message's header that is in buffer.
-  EHttpStatusCode DecodeMessageHeader(mcucore::StringView& buffer,
-                                      bool at_end_of_input);
+  EHttpStatusCode DecodeMessageHeader(mcucore::StringView& buffer);
 
   // Decode the portion of the current message's body that is in buffer.
-  EHttpStatusCode DecodeMessageBody(mcucore::StringView& buffer,
-                                    bool at_end_of_input);
+  EHttpStatusCode DecodeMessageBody(mcucore::StringView& buffer);
 
   // The status of decoding the current request.
   RequestDecoderStatus decoder_status;

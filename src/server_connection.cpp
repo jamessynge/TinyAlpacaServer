@@ -57,11 +57,8 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
 
     mcucore::StringView view(input_buffer_, input_buffer_size_);
     const bool buffer_is_full = input_buffer_size_ == sizeof input_buffer_;
-    const bool at_end =
-        mcunet::PlatformNetwork::SocketIsHalfClosed(connection.sock_num());
-
     EHttpStatusCode status_code =
-        request_decoder_.DecodeBuffer(view, buffer_is_full, at_end);
+        request_decoder_.DecodeBuffer(view, buffer_is_full);
 
     // Update the input buffer to reflect that some input has (hopefully) been
     // decoded.
