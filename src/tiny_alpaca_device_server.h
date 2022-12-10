@@ -1,5 +1,5 @@
-#ifndef TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
-#define TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
+#ifndef TINY_ALPACA_SERVER_SRC_TINY_ALPACA_DEVICE_SERVER_H_
+#define TINY_ALPACA_SERVER_SRC_TINY_ALPACA_DEVICE_SERVER_H_
 
 // TinyAlpacaDeviceServer handles AlpacaRequests, dispatching successfully
 // decoded requests to the appropriate device instance.
@@ -86,4 +86,4 @@ class TinyAlpacaDeviceServer : public RequestListener {
 
 }  // namespace alpaca
 
-#endif  // TINY_ALPACA_SERVER_SRC_TINY_ALPACA_SERVER_H_
+#endif  // TINY_ALPACA_SERVER_SRC_TINY_ALPACA_DEVICE_SERVER_H_
