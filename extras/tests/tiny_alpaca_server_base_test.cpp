@@ -18,7 +18,6 @@
 #include "mcucore/extras/test_tools/http_request.h"
 #include "mcucore/extras/test_tools/http_response.h"
 #include "server_description.h"
-#include "tiny_alpaca_network_server.h"
 
 namespace alpaca {
 namespace test {
@@ -29,7 +28,6 @@ using ::mcucore::test::HttpRequest;
 using ::mcucore::test::HttpResponse;
 using ::testing::IsEmpty;
 using ::testing::StartsWith;
-using ::testing::status::IsOkAndHolds;
 
 constexpr int kDeviceNumber = 87405;
 constexpr int kClientId = 91240;
@@ -89,8 +87,15 @@ class TinyAlpacaServerBaseTest : public DecodeAndDispatchTestBase {
 };
 
 TEST_F(TinyAlpacaServerBaseTest, OpenAndCloseConnection) {
-  // We send no data, which should be OK.
-  EXPECT_THAT(RoundTripSoleRequest(""), IsOkAndHolds(""));
+  // We send no data, which should be tolerated.
+  ConnectionResult result =
+      SendAndReceive("", /*half_close_when_drained=*/false);
+  EXPECT_FALSE(result.connection_closed);
+  EXPECT_TRUE(result.output.empty());
+  EXPECT_TRUE(result.remaining_input.empty());
+  server_->MaintainDevices();
+  server_->AnnounceDisconnect();
+  server_->MaintainDevices();
 }
 
 TEST_F(TinyAlpacaServerBaseTest, ServerStatus) {

@@ -9,7 +9,6 @@
 #include <McuCore.h>
 
 #include "alpaca_request.h"
-#include "config.h"
 #include "constants.h"
 #include "request_decoder_listener.h"
 

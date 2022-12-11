@@ -3,7 +3,6 @@
 #include <McuCore.h>
 #include <McuNet.h>
 
-#include "alpaca_response.h"
 #include "constants.h"
 #include "literals.h"
 #include "request_listener.h"
@@ -119,29 +118,15 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
   }
 }
 
-void ServerConnection::OnHalfClosed(mcunet::Connection& connection) {
-  MCU_DCHECK_EQ(sock_num(), connection.sock_num());
-
-  if (!between_requests_) {
-    // We've read some data but haven't been able to decode a complete request.
-    MCU_VLOG(3) << MCU_PSD("ServerConnection @ ") << this
-                << MCU_PSD(" ->::OnHalfClosed socket ") << connection.sock_num()
-                << MCU_NAME_VAL(between_requests_);
-    request_listener_.OnRequestDecodingError(
-        request_, EHttpStatusCode::kHttpBadRequest, connection);
-  } else {
-    MCU_VLOG(4) << MCU_PSD("ServerConnection @ ") << this
-                << MCU_PSD(" ->::OnHalfClosed socket ")
-                << connection.sock_num();
-  }
-  connection.close();
-  sock_num_ = MAX_SOCK_NUM;
-}
-
 void ServerConnection::OnDisconnect() {
   MCU_VLOG(2) << MCU_PSD("ServerConnection @ ") << this
-              << MCU_PSD(" ->::OnDisconnect,") << MCU_NAME_VAL(sock_num_);
+              << MCU_PSD(" ->::OnDisconnect,") << MCU_NAME_VAL(sock_num_)
+              << MCU_NAME_VAL(between_requests_);
   MCU_DCHECK(has_socket());
+  if (!between_requests_) {
+    // We've read some data but haven't been able to decode a complete request.
+    request_listener_.OnRequestAborted(request_);
+  }
   sock_num_ = MAX_SOCK_NUM;
 }
 

@@ -69,6 +69,7 @@ class TinyAlpacaDeviceServer : public RequestListener {
   bool OnRequestDecoded(AlpacaRequest& request, Print& out) override;
   void OnRequestDecodingError(AlpacaRequest& request, EHttpStatusCode status,
                               Print& out) override;
+  void OnRequestAborted(AlpacaRequest& request) override;
 
  private:
   bool HandleManagementApiVersions(AlpacaRequest& request, Print& out);

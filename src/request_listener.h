@@ -14,7 +14,7 @@ namespace alpaca {
 
 class RequestListener {
  public:
-  virtual ~RequestListener() {}
+  virtual ~RequestListener() = default;
 
   // Called when the first byte of a request is being decoded (which might be
   // whitespace between requests). This allows the callee to set
@@ -31,6 +31,10 @@ class RequestListener {
   // closed after the response is returned.
   virtual void OnRequestDecodingError(AlpacaRequest& request,
                                       EHttpStatusCode status, Print& out) = 0;
+
+  // Called when the connection is broken during *decoding* of a request. This
+  // exists to allow for cleaning up any collected data (if necessary).
+  virtual void OnRequestAborted(AlpacaRequest& request) = 0;
 };
 
 }  // namespace alpaca

@@ -111,9 +111,9 @@ class DecodeAndDispatchTestBase : public testing::Test {
   }
 
   // Create a new connection, send the request, read the response, expecting
-  // that the entire request is consumed and that the server closes the
-  // connection. Returns all of the output from the connection, but does not
-  // interpret it in any way.
+  // that the entire request is consumed. Closes the connection when there is
+  // no more response output data written. Returns all of the output from the
+  // connection, but does not interpret it in any way.
   virtual absl::StatusOr<std::string> RoundTripSoleRequest(
       const std::string& request);
   virtual absl::StatusOr<std::string> RoundTripSoleRequest(

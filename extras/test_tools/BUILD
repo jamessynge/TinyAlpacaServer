@@ -141,7 +141,7 @@ cc_library(
         "//TinyAlpacaServer/src:server_connection",
         "//TinyAlpacaServer/src:server_context",
         "//TinyAlpacaServer/src:server_description",
-        "//TinyAlpacaServer/src:tiny_alpaca_network_server",
+        "//TinyAlpacaServer/src:tiny_alpaca_device_server",
         "//absl/strings",
         "//mcucore/src/container:array_view",
         "//mcucore/src/log",

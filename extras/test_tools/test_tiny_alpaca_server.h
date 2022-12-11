@@ -20,7 +20,7 @@
 #include "server_connection.h"
 #include "server_context.h"
 #include "server_description.h"
-#include "tiny_alpaca_network_server.h"
+#include "tiny_alpaca_device_server.h"
 
 namespace alpaca {
 namespace test {
@@ -74,13 +74,6 @@ class TestTinyAlpacaServer : public TinyAlpacaDeviceServer {
   ConnectionResult AnnounceCanRead(std::string_view input,
                                    bool repeat_until_stable = true,
                                    bool peer_half_closed = false);
-
-  // Announces that the callee can write to the connection, which is half-closed
-  // (i.e. simulating that the client has half-closed, but is waiting for a
-  // response). If repeat_until_stable is true, then calls
-  // ServerConnection::OnHalfClosed until the ServerConnection stops writing
-  // more output. Returns the return type is the same as for the above.
-  ConnectionResult AnnounceHalfClosed(bool repeat_until_stable = true);
 
   // Announces that a previously open connection has been completely closed.
   void AnnounceDisconnect();
