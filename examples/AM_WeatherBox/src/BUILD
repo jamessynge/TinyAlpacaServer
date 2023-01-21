@@ -3,15 +3,11 @@
 # device.
 
 load(
-    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
-    "build_config",
+    "//mcucore/extras/bazel:arduino_cc_library.bzl",
+    "arduino_cc_library",
 )
 
-package(
-    default_copts = build_config.default_copts,
-)
-
-cc_library(
+arduino_cc_library(
     name = "am_weather_box",
     srcs = ["am_weather_box.cc"],
     hdrs = ["am_weather_box.h"],
@@ -23,13 +19,13 @@ cc_library(
     ],
 )
 
-cc_library(
+arduino_cc_library(
     name = "constants",
     hdrs = ["constants.h"],
     deps = ["//mcucore/extras/host/arduino"],
 )
 
-cc_library(
+arduino_cc_library(
     name = "server",
     srcs = ["server.cc"],
     hdrs = ["server.h"],

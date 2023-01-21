@@ -1,15 +1,11 @@
 # Defines a base type for Observing Conditions devices.
 
 load(
-    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
-    "build_config",
+    "//mcucore/extras/bazel:arduino_cc_library.bzl",
+    "arduino_cc_library",
 )
 
-package(
-    default_copts = build_config.default_copts,
-)
-
-cc_library(
+arduino_cc_library(
     name = "observing_conditions_adapter",
     srcs = ["observing_conditions_adapter.cc"],
     hdrs = ["observing_conditions_adapter.h"],

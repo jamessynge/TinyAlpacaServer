@@ -4,15 +4,11 @@
 # hardware specific DeviceInterface implementations.
 
 load(
-    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
-    "build_config",
+    "//mcucore/extras/bazel:arduino_cc_library.bzl",
+    "arduino_cc_library",
 )
 
-package(
-    default_copts = build_config.default_copts,
-)
-
-cc_library(
+arduino_cc_library(
     name = "device_impl_base",
     srcs = ["device_impl_base.cc"],
     hdrs = ["device_impl_base.h"],

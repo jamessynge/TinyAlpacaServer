@@ -3,15 +3,11 @@
 # sketch.
 
 load(
-    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
-    "build_config",
+    "//mcucore/extras/bazel:arduino_cc_library.bzl",
+    "arduino_cc_library",
 )
 
-package(
-    default_copts = build_config.default_copts,
-)
-
-cc_library(
+arduino_cc_library(
     name = "moving_average",
     srcs = ["moving_average.cc"],
     hdrs = ["moving_average.h"],

@@ -2,15 +2,11 @@
 # required when various objects/code is referenced by the sketch.
 
 load(
-    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
-    "build_config",
+    "//mcucore/extras/bazel:arduino_cc_sketch.bzl",
+    "arduino_cc_sketch",
 )
 
-package(
-    default_copts = build_config.default_copts,
-)
-
-cc_binary(
+arduino_cc_sketch(
     name = "encoder_memory_measurements",
     srcs = ["EncoderMemoryMeasurements.ino.cc"],
     deps = [

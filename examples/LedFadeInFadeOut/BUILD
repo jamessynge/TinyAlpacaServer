@@ -1,15 +1,11 @@
 # SweepEverything serves as a test of the timer/counter code and the pin mapping.
 
 load(
-    "//TinyAlpacaServer/extras/dev_tools:build_config.bzl",
-    "build_config",
+    "//mcucore/extras/bazel:arduino_cc_sketch.bzl",
+    "arduino_cc_sketch",
 )
 
-package(
-    default_copts = build_config.default_copts,
-)
-
-cc_binary(
+arduino_cc_sketch(
     name = "led_fade_in_fade_out",
     srcs = ["LedFadeInFadeOut.ino.cc"],
     deps = [
