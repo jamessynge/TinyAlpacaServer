@@ -174,9 +174,18 @@ def sweep_led_channel(
     led_channel: int,
     cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
     brightness_list: Iterable[int],
+    all_led_channels: Optional[Iterable[int]] = None
 ) -> None:
-  for n in range(4):
-    led_switches.put_setswitch(n, led_channel == n)
+  """Sweep the brightness of a single led channel."""
+  if all_led_channels is None:
+    all_led_channels = range(4)
+  for n in all_led_channels:
+    if led_channel == n:
+      print('Turning on led channel', n)
+      led_switches.put_setswitch(n, True)
+    else:
+      print('Turning off led channel', n)
+      led_switches.put_setswitch(n, False)
   sweep_brightness(cover_calibrator, list(brightness_list))
 
 
@@ -196,8 +205,31 @@ def main() -> None:
       dest='move',
       help='Disable moving the cover.',
   )
+  parser.add_argument(
+      'brightness',
+      metavar='N',
+      type=int,
+      nargs='*',
+      help='Brightness values for sweep',
+  )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
+
+  if cli_args.brightness:
+    brightness_list = sorted(list(cli_args.brightness))
+  else:
+    brightness_list = [0, 4000, 8000, 12000, 16000]
+  decrease_list = list(reversed(brightness_list))[1:]
+  brightness_list.extend(decrease_list)
+  print('brightness_list', brightness_list)
+
+  if False:
+    all_led_channels = list(range(4))
+    led_channels = all_led_channels[:]
+  else:
+    all_led_channels = [0]
+    led_channels = all_led_channels[:]
+  print('led_channels', led_channels)
 
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
       alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs)
@@ -218,17 +250,13 @@ def main() -> None:
   print(f'Found Switch #{led_switches.device_number}')
   print('Switch states:', get_switches_as_on_off(led_switches), flush=True)
 
-  brightness_list = [min(1 << i, 65535) for i in range(17)]
-
-  led_channels = list(range(4))
-  # led_channels = []
-
   try:
     while True:
       for led_channel in led_channels:
         print(f'Raising and lowering brightness on channel {led_channel}')
         sweep_led_channel(
-            led_switches, led_channel, cover_calibrator, brightness_list
+            led_switches, led_channel, cover_calibrator, brightness_list,
+            all_led_channels=all_led_channels,
         )
 
       if cli_args.move:
