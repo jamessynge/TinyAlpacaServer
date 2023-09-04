@@ -1063,7 +1063,8 @@ void RequestDecoderState::Reset() {
 }
 
 EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
-                                                  const bool buffer_is_full) {
+                                                  const bool buffer_is_full,
+                                                  const bool at_end_of_input) {
   MCU_VLOG(1) << MCU_PSD("DecodeBuffer ") << mcucore::HexEscaped(buffer);
   if (decode_function == nullptr) {
     // Need to call Reset first.
@@ -1084,9 +1085,9 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
   const auto start_size = buffer.size();
   EHttpStatusCode status;
   if (is_decoding_header) {
-    status = DecodeMessageHeader(buffer);
+    status = DecodeMessageHeader(buffer, at_end_of_input);
   } else {
-    status = DecodeMessageBody(buffer);
+    status = DecodeMessageBody(buffer, at_end_of_input);
   }
   MCU_DCHECK_NE(status, EHttpStatusCode::kContinueDecoding);
 
@@ -1109,7 +1110,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
 // how many bytes are supposed to be in the header, so we rely on
 // DecodeHeaderLines to find the end.
 EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
-    mcucore::StringView& buffer) {
+    mcucore::StringView& buffer, const bool at_end_of_input) {
   MCU_VLOG(1) << MCU_PSD("DecodeMessageHeader ") << mcucore::HexEscaped(buffer);
 
   EHttpStatusCode status;
@@ -1152,7 +1153,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
     if (!is_decoding_header) {
       // We've just finished the message header, and this is a request with a
       // body.
-      return DecodeMessageBody(buffer);
+      return DecodeMessageBody(buffer, at_end_of_input);
     }
   }
 
@@ -1162,7 +1163,7 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 // Decode the body of a PUT request where a Content-Length header was provided
 // (i.e. remaining_content_length tells us how many ASCII characters remain).
 EHttpStatusCode RequestDecoderState::DecodeMessageBody(
-    mcucore::StringView& buffer) {
+    mcucore::StringView& buffer, bool at_end_of_input) {
   MCU_VLOG(1) << MCU_PSD("DecodeMessageBody ") << mcucore::HexEscaped(buffer);
   MCU_CHECK(found_content_length);
   MCU_CHECK_EQ(request.http_method, EHttpMethod::PUT);
@@ -1174,10 +1175,11 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
                 << buffer.size() << MCU_PSD(" > ") << remaining_content_length;
     return EHttpStatusCode::kHttpPayloadTooLarge;
   } else if (buffer.size() == remaining_content_length) {
+    at_end_of_input = true;
     is_final_input = true;
   } else {
     // buffer.size() < remaining_content_length
-    if (is_final_input) {
+    if (at_end_of_input || is_final_input) {
       // The available input is not sufficient to reach Content-Length.
       //
       // TO DO Consider adding a "const char*" http_reason_phrase field to
@@ -1237,12 +1239,17 @@ EHttpStatusCode RequestDecoderState::DecodeMessageBody(
 #ifdef REQUEST_DECODER_EXTRA_CHECKS
     if (status == EHttpStatusCode::kHttpOk) {
       MCU_CHECK_EQ(remaining_content_length, 0);
+      MCU_CHECK(at_end_of_input);
     }
 #endif
     return status;
   }
 
   MCU_CHECK_EQ(status, EHttpStatusCode::kNeedMoreInput);
+  if (at_end_of_input) {
+    return EHttpStatusCode::kHttpBadRequest;
+  }
+
   MCU_CHECK_GT(remaining_content_length, 0);
   return status;
 }

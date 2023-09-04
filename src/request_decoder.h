@@ -9,6 +9,7 @@
 #include <McuCore.h>
 
 #include "alpaca_request.h"
+#include "config.h"
 #include "constants.h"
 #include "request_decoder_listener.h"
 
@@ -32,8 +33,8 @@ struct RequestDecoderState {
 
   // Repeatedly applies the current decode function to the input until done,
   // needs more input than is in buffer, or an error is detected.
-  EHttpStatusCode DecodeBuffer(mcucore::StringView& buffer,
-                               bool buffer_is_full);
+  EHttpStatusCode DecodeBuffer(mcucore::StringView& buffer, bool buffer_is_full,
+                               bool at_end_of_input);
 
   // Set the next function to be used for decoding the input. Returns
   // kContinueDecoding.
@@ -52,10 +53,12 @@ struct RequestDecoderState {
 
  private:
   // Decode the portion of the current message's header that is in buffer.
-  EHttpStatusCode DecodeMessageHeader(mcucore::StringView& buffer);
+  EHttpStatusCode DecodeMessageHeader(mcucore::StringView& buffer,
+                                      bool at_end_of_input);
 
   // Decode the portion of the current message's body that is in buffer.
-  EHttpStatusCode DecodeMessageBody(mcucore::StringView& buffer);
+  EHttpStatusCode DecodeMessageBody(mcucore::StringView& buffer,
+                                    bool at_end_of_input);
 
   // The status of decoding the current request.
   RequestDecoderStatus decoder_status;

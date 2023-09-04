@@ -9,7 +9,7 @@
 
 #include <McuCore.h>
 
-#include "config.h"
+#include "config.h"  // IWYU pragma: keep
 #include "constants.h"
 
 // Set TAS_ENABLE_REQUEST_DECODER_LISTENER to non-zero if any of the features it

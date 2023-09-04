@@ -79,10 +79,6 @@ void TinyAlpacaDeviceServer::OnRequestDecodingError(AlpacaRequest& request,
   WriteResponse::HttpErrorResponse(status, mcucore::AnyPrintable(), out);
 }
 
-void TinyAlpacaDeviceServer::OnRequestAborted(AlpacaRequest& request) {
-  MCU_VLOG(3) << MCU_PSD("OnRequestAborted ");
-}
-
 bool TinyAlpacaDeviceServer::HandleManagementApiVersions(AlpacaRequest& request,
                                                          Print& out) {
   MCU_VLOG(3) << MCU_PSD("HandleManagementApiVersions");

@@ -31,6 +31,7 @@ class ServerConnection : public mcunet::ServerSocketListener {
   // Methods from ServerSocketListener.
   void OnConnect(mcunet::Connection& connection) override;
   void OnCanRead(mcunet::Connection& connection) override;
+  void OnHalfClosed(mcunet::Connection& connection) override;
   void OnDisconnect() override;
 
  private:

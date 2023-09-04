@@ -324,6 +324,7 @@ arduino_cc_library(
     hdrs = ["server_connection.h"],
     deps = [
         ":alpaca_request",
+        ":alpaca_response",
         ":config",
         ":constants",
         ":literals",

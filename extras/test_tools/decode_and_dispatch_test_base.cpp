@@ -227,15 +227,24 @@ absl::StatusOr<std::string> DecodeAndDispatchTestBase::RoundTripSoleRequest(
   }
   std::string all_output = result.output;
 
-  result = server_->AnnounceCanRead(request, /*repeat_until_stable=*/true);
-  if (!result.remaining_input.empty()) {
+  result = server_->AnnounceCanRead(request);
+  if (result.connection_closed) {
+    if (!result.remaining_input.empty()) {
+      return absl::FailedPreconditionError(absl::StrCat(
+          "Expected all input to be consumed: ", result.ToDebugString()));
+    }
+    return result.output;
+  }
+  all_output += result.output;
+
+  result = server_->AnnounceHalfClosed();
+  if (!result.connection_closed || !result.remaining_input.empty()) {
     return absl::FailedPreconditionError(absl::StrCat(
-        "Expected all input to be consumed: ", result.ToDebugString()));
+        "Expected all input to be consumed and the connection to be closed: ",
+        result.ToDebugString()));
   }
-  if (!result.connection_closed) {
-    server_->AnnounceDisconnect();
-  }
-  return result.output;
+  all_output += result.output;
+  return all_output;
 }
 
 absl::StatusOr<std::string> DecodeAndDispatchTestBase::RoundTripSoleRequest(
