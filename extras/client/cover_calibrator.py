@@ -12,7 +12,7 @@ Author: james.synge@gmail.com
 
 import argparse
 import time
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 
 import alpaca_discovery
 import alpaca_http_client
@@ -43,6 +43,33 @@ def is_moving(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
 
 def is_open(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
   return get_cover_state(cover_calibrator) == 3
+
+
+def cover_state_to_name(
+    cover_state: int, unavailable: Optional[int] = -1
+) -> str:
+  """Converts the cover state to a human readable string."""
+  if cover_state == 1:
+    return 'Closed'
+  elif cover_state == 2:
+    return 'Moving'
+  elif cover_state == 3:
+    return 'Open'
+  elif cover_state == unavailable:
+    return '(unavailable)'
+  else:
+    return f'Unknown ({cover_state})'
+
+
+def cover_state_name(
+    cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
+) -> str:
+  """Gets the cover state of the Cover Calibrator device."""
+  try:
+    cover_state = get_cover_state(cover_calibrator)
+    return cover_state_to_name(cover_state)
+  except alpaca_http_client.ConnectionError:
+    return '(unavailable)'
 
 
 def get_cover_state_after_moving(
@@ -91,6 +118,27 @@ def open_cover(
     print('Successfully opened')
   else:
     print('Failed to open, cover state is', state)
+
+
+def get_switch(
+    led_switches: alpaca_http_client.HttpSwitch, switch_id: int
+) -> bool:
+  resp = led_switches.get_getswitch(switch_id)
+  return resp.json()['Value']
+
+
+def get_switches(led_switches: alpaca_http_client.HttpSwitch) -> List[bool]:
+  return [get_switch(led_switches, switch_id) for switch_id in range(4)]
+
+
+def bool_to_on_off(bool_value: bool) -> str:
+  return 'on' if bool_value else 'off'
+
+
+def get_switches_as_on_off(
+    led_switches: alpaca_http_client.HttpSwitch,
+) -> List[str]:
+  return [bool_to_on_off(v) for v in get_switches(led_switches)]
 
 
 def sweep_brightness(
@@ -154,6 +202,12 @@ def main() -> None:
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
       alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs)
   )
+  client = cover_calibrator.client
+  print(
+      f'Found Cover Calibrator #{cover_calibrator.device_number} @'
+      f' {client.url_base}'
+  )
+  print('Cover state:', cover_state_name(cover_calibrator), flush=True)
 
   led_switches: alpaca_http_client.HttpSwitch = (
       alpaca_http_client.HttpSwitch.find_first_device(
@@ -161,6 +215,8 @@ def main() -> None:
           device_number=cover_calibrator.device_number,
       )
   )
+  print(f'Found Switch #{led_switches.device_number}')
+  print('Switch states:', get_switches_as_on_off(led_switches), flush=True)
 
   brightness_list = [min(1 << i, 65535) for i in range(17)]
 

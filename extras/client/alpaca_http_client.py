@@ -262,7 +262,7 @@ class AlpacaHttpClient:
       device_filter: Optional[alpaca_model.ConfiguredDeviceFilterFunc] = None,
   ) -> List[ConfiguredDevice]:
     """Returns the configured devices of device_type provided by the server."""
-    # TODO(jamessynge): Move this to alpaca_client.AlpacaServer.
+    # TODO(jamessynge): Move this to alpaca_client.AlpacaClient.
     if self._configured_devices is None:
       resp = self.get_configureddevices()
       resp_jv = resp.json()

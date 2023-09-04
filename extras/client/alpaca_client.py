@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Prints the info provided by an Alpaca Switch device.
-
-Usage: switch_info.py [--url_base=1.2.3.4:8080]
+"""API for accessing Alpaca Servers.
 """
 
 import abc
@@ -16,14 +14,8 @@ import alpaca_http_client
 
 
 @dataclasses.dataclass(frozen=True)
-class AlpacaServer:
-  """Provides access to an Alpaca Server.
-
-  This isn't a class implementing an Alpaca server, but rather a client for
-  accessing such a server. I know it's confusing, but it's also odd to call this
-  AlpacaClient yet have a property `description` of type ServerDescription.
-  Sigh. Naming is hard.
-  """
+class AlpacaClient:
+  """Provides access to an Alpaca Server."""
 
   client: alpaca_http_client.AlpacaHttpClient
 
@@ -69,7 +61,7 @@ class AlpacaDevice:
   as described above.
   """
 
-  server: AlpacaServer
+  server: AlpacaClient
   client: alpaca_http_client.HttpDeviceBase
 
   @property
@@ -111,6 +103,8 @@ class AlpacaDevice:
 
 @dataclasses.dataclass(frozen=True)
 class AlpacaSwitch(AlpacaDevice):
+  """Client for accessing an Alpaca Switch device."""
+
   client: alpaca_http_client.HttpSwitch
 
   def max_switch(self) -> int:
