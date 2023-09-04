@@ -3,9 +3,7 @@
 #include <McuCore.h>
 #include <McuNet.h>
 
-#include "alpaca_response.h"
 #include "constants.h"
-#include "literals.h"
 #include "request_listener.h"
 
 #if MCU_HOST_TARGET
@@ -40,6 +38,7 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
              request_decoder_.status() == RequestDecoderStatus::kDecoding);
   // Load input_buffer_ with as much data as will fit.
   if (input_buffer_size_ < sizeof input_buffer_) {
+    // NOLINTNEXTLINE(missing-includes)
     auto ret = connection.read(
         reinterpret_cast<uint8_t*>(&input_buffer_[input_buffer_size_]),
         (sizeof input_buffer_) - input_buffer_size_);

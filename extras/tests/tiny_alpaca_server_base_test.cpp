@@ -1,24 +1,21 @@
 // Tests of TinyAlpacaDeviceServer.
 
 #include <McuCore.h>
-#include <McuNet.h>
 
-#include <iostream>
 #include <memory>
 #include <string>
 #include <string_view>
 
+#include "absl/log/log.h"
 #include "absl/strings/str_cat.h"
 #include "device_interface.h"
 #include "extras/test_tools/decode_and_dispatch_test_base.h"
 #include "extras/test_tools/test_tiny_alpaca_server.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "literals.h"
 #include "mcucore/extras/test_tools/http_request.h"
 #include "mcucore/extras/test_tools/http_response.h"
 #include "server_description.h"
-#include "tiny_alpaca_network_server.h"
 
 namespace alpaca {
 namespace test {

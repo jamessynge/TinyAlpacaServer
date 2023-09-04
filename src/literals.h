@@ -2,10 +2,10 @@
 #define TINY_ALPACA_SERVER_SRC_LITERALS_H_
 
 // To avoid wasting RAM on string literals on Arduino's based on Microchip
-// Techonology's AVR microcontrollers, we gather the strings together in
+// Technology's AVR microcontrollers, we gather the strings together in
 // literals.inc, and then include that file here to define arrays in PROGMEM for
-// those strings, and to define factory functions for each string, one returing
-// a  ProgmemStringView, another a ProgmemString instance. The former are useful
+// those strings, and to define factory functions for each string, one returning
+// a ProgmemStringView, another a ProgmemString instance. The former are useful
 // when you need to perform operations such as comparing with a StringView, the
 // latter are well suited to printing (e.g. via alpaca::WriteResponse).
 //
@@ -37,7 +37,7 @@ struct ProgmemStringViews {
 };
 
 // Define static mcucore::ProgmemString factory methods in struct
-// ProgmemStringss, acting as a nested namespace, but ensuring that each
+// ProgmemStrings, acting as a nested namespace, but ensuring that each
 // method defined in the source file matches a declaration in the header file.
 struct ProgmemStrings {
 #define TAS_DEFINE_PROGMEM_LITERAL(name, literal) \

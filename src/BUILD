@@ -251,7 +251,6 @@ arduino_cc_library(
     textual_hdrs = ["literals.inc"],
     deps = [
         "//mcucore/src:McuCore",
-        "//mcucore/src:mcucore_platform",
         "//mcucore/src/strings:progmem_string",
         "//mcucore/src/strings:progmem_string_view",
     ],
@@ -324,13 +323,12 @@ arduino_cc_library(
     hdrs = ["server_connection.h"],
     deps = [
         ":alpaca_request",
-        ":alpaca_response",
         ":config",
         ":constants",
-        ":literals",
         ":request_decoder",
         ":request_listener",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/log",
         "//mcucore/src/strings:string_view",
         "//mcunet/src:connection",
         "//mcunet/src:platform_network",

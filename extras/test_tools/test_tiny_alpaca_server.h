@@ -20,7 +20,7 @@
 #include "server_connection.h"
 #include "server_context.h"
 #include "server_description.h"
-#include "tiny_alpaca_network_server.h"
+#include "tiny_alpaca_device_server.h"
 
 namespace alpaca {
 namespace test {
