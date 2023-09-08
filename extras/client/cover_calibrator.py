@@ -206,6 +206,13 @@ def main() -> None:
       help='Disable moving the cover.',
   )
   parser.add_argument(
+      '--no-sweep-leds',
+      action='store_false',
+      default=True,
+      dest='sweep_leds',
+      help='Disable changing brightness.',
+  )
+  parser.add_argument(
       'brightness',
       metavar='N',
       type=int,
@@ -252,12 +259,13 @@ def main() -> None:
 
   try:
     while True:
-      for led_channel in led_channels:
-        print(f'Raising and lowering brightness on channel {led_channel}')
-        sweep_led_channel(
-            led_switches, led_channel, cover_calibrator, brightness_list,
-            all_led_channels=all_led_channels,
-        )
+      if cli_args.sweep_leds:
+        for led_channel in led_channels:
+          print(f'Raising and lowering brightness on channel {led_channel}')
+          sweep_led_channel(
+              led_switches, led_channel, cover_calibrator, brightness_list,
+              all_led_channels=all_led_channels,
+          )
 
       if cli_args.move:
         open_cover(cover_calibrator)
