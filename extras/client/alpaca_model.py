@@ -1,15 +1,8 @@
-#!/usr/bin/env python3
 """Data classes and enums for representing Alpaca servers and devices."""
 
-import argparse
 import dataclasses
 import enum
-import random
-import socket
-import sys
-import threading
-import time
-from typing import Any, Callable, Dict, List, Optional, Union, Type, TypeVar
+from typing import Any, Callable, Dict, Optional, Union
 
 
 class EDeviceType(enum.Enum):
@@ -29,10 +22,12 @@ class EDeviceType(enum.Enum):
   # pylint: enable=invalid-name
 
   @classmethod
-  def _missing_(cls, name):
-    for member in cls:
-      if member.name.lower() == name.lower():
-        return member
+  def _missing_(cls, value) -> Union['EDeviceType', None]:
+    if isinstance(value, str):
+      name = value.lower()
+      for member in cls:
+        if member.name.lower() == name:
+          return member
 
   def api_name(self):
     return self.name.lower()

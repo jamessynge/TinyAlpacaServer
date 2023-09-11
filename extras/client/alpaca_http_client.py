@@ -2,14 +2,12 @@
 """Makes HTTP requests to Alpaca servers, returns HTTP responses."""
 
 import argparse
-import dataclasses
-import enum
 import random
 import socket
 import sys
 import threading
 import time
-from typing import Any, Callable, Dict, List, Optional, Union, Type, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 import alpaca_discovery
 import alpaca_model
@@ -24,7 +22,6 @@ except ImportError:
 # the import here.
 import requests  # pylint: disable=g-import-not-at-top,g-bad-import-order
 
-ConnectionError = requests.exceptions.ConnectionError
 EDeviceType = alpaca_model.EDeviceType
 ConfiguredDevice = alpaca_model.ConfiguredDevice
 
@@ -400,7 +397,11 @@ class HttpDeviceBase:
     for server in servers:
       for configured_device in server.configured_devices(cd_filter):
         devices.append(
-            cls(server, device_type, configured_device.device_number)
+            cls(
+                client=server,
+                device_type=device_type,
+                device_number=configured_device.device_number,
+            )
         )
     if min_required_devices is not None and len(devices) < min_required_devices:
       sys.stdout.flush()
@@ -449,7 +450,11 @@ class HttpDeviceBase:
   ) -> _T:
     if cls.DEVICE_TYPE != configured_device.device_type:
       raise ValueError(f'Expected {cls.DEVICE_TYPE} in: {configured_device}')
-    return cls(client, cls.DEVICE_TYPE, configured_device.device_number)
+    return cls(
+        client=client,
+        device_type=cls.DEVICE_TYPE,
+        device_number=configured_device.device_number,
+    )
 
   def __init__(
       self,

@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""API for accessing Alpaca Servers.
-"""
+"""API for accessing Alpaca Servers."""
 
-import abc
 import argparse
 import dataclasses
 import functools
 from typing import List, Sequence
 
 import alpaca_discovery
-import alpaca_model
 import alpaca_http_client
+import alpaca_model
 
 
 @dataclasses.dataclass(frozen=True)
