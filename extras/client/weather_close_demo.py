@@ -29,11 +29,11 @@ def get_cover_state(
 ) -> int:
   try:
     resp = cover_calibrator.get_coverstate()
-  except alpaca_http_client.ConnectionError as e:
+  except alpaca_http_client.HttpException:
     if unavailable is None:
-      raise e
+      raise
     return unavailable
-  return resp.json()['Value']
+  return alpaca_http_client.get_ok_response_json_value_int(resp)
 
 
 def is_present(
@@ -75,7 +75,7 @@ def cover_state_name(
   try:
     cover_state = get_cover_state(cover_calibrator)
     return cover_state_to_name(cover_state)
-  except alpaca_http_client.ConnectionError:
+  except alpaca_http_client.HttpException:
     return '(unavailable)'
 
 
@@ -177,9 +177,15 @@ def get_weather_report(
     device: alpaca_http_client.HttpObservingConditions,
 ) -> Dict[str, Any]:
   """Returns True if the weather is OK."""
-  sky = device.get_skytemperature().json()['Value']
-  ambient = device.get_temperature().json()['Value']
-  rainrate = device.get_rainrate().json()['Value']
+  sky = alpaca_http_client.get_ok_response_json_value_float(
+      device.get_skytemperature()
+  )
+  ambient = alpaca_http_client.get_ok_response_json_value_float(
+      device.get_temperature()
+  )
+  rainrate = alpaca_http_client.get_ok_response_json_value_float(
+      device.get_rainrate()
+  )
   if rainrate > 0:
     condition = 'RAINING'
   elif sky > ambient or (sky > 28 and ambient >= sky):
@@ -310,8 +316,8 @@ def run(
         # print('led_channel', led_channel)
         enable_only_led_channel(led_switches, led_channel)
         brightness_list_index = 0
-      except alpaca_http_client.ConnectionError as e:
-        print('Ignoring connection error', e)
+      except alpaca_http_client.HttpException as e:
+        print('Ignoring HTTP error', e)
       continue
   except KeyboardInterrupt:
     pass

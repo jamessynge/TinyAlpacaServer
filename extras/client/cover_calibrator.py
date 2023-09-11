@@ -11,6 +11,7 @@ Author: james.synge@gmail.com
 """
 
 import argparse
+import sys
 import time
 from typing import Iterable, List, Optional
 
@@ -24,7 +25,7 @@ def get_cover_state(
     cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
 ) -> int:
   resp = cover_calibrator.get_coverstate()
-  return resp.json()['Value']
+  return alpaca_http_client.get_ok_response_json_value_int(resp)
 
 
 def is_present(
@@ -65,11 +66,8 @@ def cover_state_name(
     cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
 ) -> str:
   """Gets the cover state of the Cover Calibrator device."""
-  try:
-    cover_state = get_cover_state(cover_calibrator)
-    return cover_state_to_name(cover_state)
-  except alpaca_http_client.ConnectionError:
-    return '(unavailable)'
+  cover_state = get_cover_state(cover_calibrator)
+  return cover_state_to_name(cover_state)
 
 
 def get_cover_state_after_moving(
@@ -120,11 +118,30 @@ def open_cover(
     print('Failed to open, cover state is', state)
 
 
+def max_switch_id(led_switches: alpaca_http_client.HttpSwitch) -> int:
+  resp = led_switches.get_maxswitch()
+  return alpaca_http_client.get_ok_response_json_value_int(resp)
+
+
+def get_switch_ids(led_switches: alpaca_http_client.HttpSwitch) -> List[int]:
+  return list(range(max_switch_id(led_switches)))
+
+
+def get_writable_switches(
+    led_switches: alpaca_http_client.HttpSwitch,
+) -> List[int]:
+  writable_switches = []
+  for switch_id in get_switch_ids(led_switches):
+    if led_switches.get_canwrite(switch_id):
+      writable_switches.append(switch_id)
+  return writable_switches
+
+
 def get_switch(
     led_switches: alpaca_http_client.HttpSwitch, switch_id: int
 ) -> bool:
   resp = led_switches.get_getswitch(switch_id)
-  return resp.json()['Value']
+  return alpaca_http_client.get_ok_response_json_value_bool(resp)
 
 
 def get_switches(led_switches: alpaca_http_client.HttpSwitch) -> List[bool]:
@@ -174,7 +191,7 @@ def sweep_led_channel(
     led_channel: int,
     cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
     brightness_list: Iterable[int],
-    all_led_channels: Optional[Iterable[int]] = None
+    all_led_channels: Optional[Iterable[int]] = None,
 ) -> None:
   """Sweep the brightness of a single led channel."""
   if all_led_channels is None:
@@ -191,7 +208,11 @@ def sweep_led_channel(
 
 def main() -> None:
   parser = argparse.ArgumentParser(
-      description='Set Cover Calibrator brightness.',
+      description="""Set Cover Calibrator brightness.
+
+Specify at most one of --all-led-channels or --led-channels. If neither is
+provided, then no sweeping of LEDs is performed.
+      """,
       parents=[
           alpaca_discovery.make_discovery_parser(),
           alpaca_http_client.make_url_base_parser(),
@@ -206,37 +227,53 @@ def main() -> None:
       help='Disable moving the cover.',
   )
   parser.add_argument(
-      '--no-sweep-leds',
-      action='store_false',
-      default=True,
-      dest='sweep_leds',
-      help='Disable changing brightness.',
+      '--all-led-channels',
+      action='store_true',
+      default=False,
+      dest='all_led_channels',
+      type=int,
+      help='Sweep all LED channels.',
   )
   parser.add_argument(
-      'brightness',
-      metavar='N',
-      type=int,
-      nargs='*',
-      help='Brightness values for sweep',
+      '--led-channels',
+      dest='led_channels',
+      type=str,
+      help=(
+          'Comma separated list of LED channels to sweep, '
+          'e.g. --led-channels 0  OR  --led-channels 1,3'
+      ),
+  )
+  parser.add_argument(
+      '--brightness-values',
+      dest='led_channels',
+      type=str,
+      help=(
+          'Comma separated list of LED brightness values to sweep'
+          ' through; if none are specified, default values are used. Values are'
+          ' sorted from low to high, sweeps up from low to high, then back to'
+          ' zero (off). For example: --'
+      ),
   )
   cli_args = parser.parse_args()
   cli_kwargs = vars(cli_args)
 
+  led_channels: list[int] = []
+  if cli_args.all_led_channels and cli_args.led_channels:
+    print(
+        'Specify at most one of --all-led-channels and --led-channels',
+        flush=True,
+        file=sys.stderr,
+    )
+    sys.exit(1)
+  elif cli_args.led_channels:
+    led_channels = [int(x) for x in cli_args.led_channels.split(',')]
+
   if cli_args.brightness:
     brightness_list = sorted(list(cli_args.brightness))
   else:
-    brightness_list = [0, 4000, 8000, 12000, 16000]
+    brightness_list = [0, 8000, 16000]
   decrease_list = list(reversed(brightness_list))[1:]
   brightness_list.extend(decrease_list)
-  print('brightness_list', brightness_list)
-
-  if False:
-    all_led_channels = list(range(4))
-    led_channels = all_led_channels[:]
-  else:
-    all_led_channels = [0]
-    led_channels = all_led_channels[:]
-  print('led_channels', led_channels)
 
   cover_calibrator: alpaca_http_client.HttpCoverCalibrator = (
       alpaca_http_client.HttpCoverCalibrator.find_sole_device(**cli_kwargs)
@@ -257,15 +294,34 @@ def main() -> None:
   print(f'Found Switch #{led_switches.device_number}')
   print('Switch states:', get_switches_as_on_off(led_switches), flush=True)
 
+  writable_switches = get_writable_switches(led_switches)
+
+  if cli_args.all_led_channels:
+    led_channels = writable_switches
+  elif led_channels:
+    for led_channel in led_channels:
+      if led_channel not in writable_switches:
+        print(
+            f'Not a writable led channel: {led_channel}',
+            flush=True,
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+  print('led_channels', led_channels)
+  print('brightness_list', brightness_list)
+
   try:
     while True:
-      if cli_args.sweep_leds:
-        for led_channel in led_channels:
-          print(f'Raising and lowering brightness on channel {led_channel}')
-          sweep_led_channel(
-              led_switches, led_channel, cover_calibrator, brightness_list,
-              all_led_channels=all_led_channels,
-          )
+      for led_channel in led_channels:
+        print(f'Raising and lowering brightness on channel {led_channel}')
+        sweep_led_channel(
+            led_switches,
+            led_channel,
+            cover_calibrator,
+            brightness_list,
+            all_led_channels=writable_switches,
+        )
 
       if cli_args.move:
         open_cover(cover_calibrator)

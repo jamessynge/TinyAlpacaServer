@@ -25,6 +25,10 @@ import requests  # pylint: disable=g-import-not-at-top,g-bad-import-order
 EDeviceType = alpaca_model.EDeviceType
 ConfiguredDevice = alpaca_model.ConfiguredDevice
 
+# Exposed so other packages can catch exceptions without having to know that
+# this package is using the requests API.
+HttpException = requests.exceptions.RequestException
+
 GET = 'GET'
 OPTIONS = 'OPTIONS'
 POST = 'POST'
