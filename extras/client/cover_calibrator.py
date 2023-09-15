@@ -15,8 +15,10 @@ import sys
 import time
 from typing import Iterable, List, Optional
 
+import alpaca_client
 import alpaca_discovery
 import alpaca_http_client
+import alpaca_model
 
 MOVING_SLEEP_TIME = 1
 

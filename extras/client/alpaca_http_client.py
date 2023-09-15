@@ -8,6 +8,7 @@ import sys
 import threading
 import time
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
+import weakref
 
 import alpaca_discovery
 import alpaca_model
@@ -35,6 +36,9 @@ POST = 'POST'
 PUT = 'PUT'
 
 _T = TypeVar('_T')
+
+# Value used to detect when an optional parameter isn't specified.
+_UNSPECIFIED_ = object()
 
 
 def to_url_base(arg: str) -> str:
@@ -106,6 +110,10 @@ def get_ok_response_json(response: requests.Response) -> Dict[str, Any]:
   return jv
 
 
+def verify_ok_response(response: requests.Response) -> None:
+  get_ok_response_json(response)
+
+
 def get_ok_response_json_value(response: requests.Response) -> Any:
   jv = get_ok_response_json(response)
   if 'Value' not in jv:
@@ -171,6 +179,48 @@ def get_ok_response_json_value_str(response: requests.Response) -> str:
   return value
 
 
+class Stash:
+  """Storage for arbitrary values associated with some class."""
+
+  def __init__(self):
+    self._weak_stash: weakref.WeakValueDictionary[str, Any] | None = None
+    self._stash: dict[str, Any] | None = None
+
+  def stash(self, name: str, value: Any) -> Any:
+    result = self.pop_stashed(name, default=None)
+    if self._stash is None:
+      self._stash = dict()
+    self._stash[name] = value
+    return result
+
+  def stash_weakly(self, name: str, value: Any) -> Any:
+    result = self.pop_stashed(name, default=None)
+    if self._weak_stash is None:
+      self._weak_stash = weakref.WeakValueDictionary()
+    self._weak_stash[name] = value
+    return result
+
+  def pop_stashed(self, name: str, default: Any = _UNSPECIFIED_) -> Any:
+    if self._stash and name in self._stash:
+      return self._stash.pop(name)
+    elif self._weak_stash and name in self._weak_stash:
+      return self._weak_stash.pop(name)
+    elif default is _UNSPECIFIED_:
+      raise KeyError('Not in stash: ' + name)
+    else:
+      return default
+
+  def get_stashed(self, name: str, default: Any = _UNSPECIFIED_) -> Any:
+    if self._stash and name in self._stash:
+      return self._stash[name]
+    elif self._weak_stash and name in self._weak_stash:
+      return self._weak_stash[name]
+    elif default is _UNSPECIFIED_:
+      raise KeyError('Not in stash: ' + name)
+    else:
+      return default
+
+
 class HTTPAdapterWithSocketOptions(requests.adapters.HTTPAdapter):
   """Support for setting socket options on a Requests.session instance.
 
@@ -205,6 +255,7 @@ class AlpacaHttpClient:
     socket_options = [(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)]
     adapter = HTTPAdapterWithSocketOptions(socket_options=socket_options)
     self.session.mount('http://', adapter)
+    self.stash: Stash = Stash()
 
   def gen_next_client_transaction_id(self):
     with self.last_client_transaction_id_lock:
@@ -472,6 +523,7 @@ class HttpDeviceBase:
     self.device_url_base = (
         f'{client.device_url_base}/{device_type.api_name()}/{device_number}'
     )
+    self.stash = Stash()
 
   def make_url_path(self, device_method: str) -> str:
     return f'{self.device_url_base}/{device_method}'

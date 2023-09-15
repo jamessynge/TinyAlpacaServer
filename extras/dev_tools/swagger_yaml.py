@@ -14,17 +14,17 @@ import requests
 Spec = typing.TypeVar('Spec')
 
 
-def get_spec() -> str:
+def get_spec(
+    file_name: str = 'AlpacaDeviceAPI_v1.yaml', refresh: bool = False
+) -> str:
   """Reach Alpaca Device spec from local cache with fallback to URL fetch."""
-  local_copy = os.path.join(os.path.expanduser('~'), 'AlpacaDeviceAPI_v1.yaml')
-  if os.path.exists(local_copy):
+  local_copy = os.path.join(os.path.expanduser('~'), file_name)
+  if os.path.exists(local_copy) and not refresh:
     with open(local_copy, 'r') as f:
       text = f.read()
     print(f'Read spec from cache file {local_copy}')
   else:
-    response = requests.get(
-        'https://www.ascom-standards.org/api/AlpacaDeviceAPI_v1.yaml'
-    )
+    response = requests.get('https://www.ascom-standards.org/api/' + file_name)
     text = response.text
     with open(local_copy, 'w') as f:
       f.write(response.text)
@@ -90,6 +90,8 @@ class AlpacaSpec:
 def main(argv: Sequence[str]) -> None:
   if len(argv) > 1:
     raise UserWarning('Too many command-line arguments.')
+  get_spec()
+  get_spec(file_name='AlpacaManagementAPI_v1.yaml')
 
 
 if __name__ == '__main__':

@@ -70,8 +70,10 @@ pytype_strict_binary(
     name = "cover_calibrator",
     srcs = ["cover_calibrator.py"],
     deps = [
+        ":alpaca_client",
         ":alpaca_discovery_lib",
         ":alpaca_http_client_lib",
+        ":alpaca_model",
     ],
 )
 
