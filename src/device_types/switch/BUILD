@@ -57,5 +57,7 @@ arduino_cc_library(
     deps = [
         ":switch_interface",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/status",
+        "//mcucore/src/status:status_or",
     ],
 )
