@@ -19,19 +19,19 @@ class ToggleSwitchBase : public SwitchInterface {
   ~ToggleSwitchBase() override;
 
   // Returns 0 if the switch is off, 1 if the switch is on.
-  mcucore::StatusOr<double> GetSwitchValue() override;
+  mcucore::StatusOr<double> GetSwitchValue() final;
 
   // Returns 0.
-  double GetMinSwitchValue() override;
+  double GetMinSwitchValue() final;
 
   // Returns 1.
-  double GetMaxSwitchValue() override;
+  double GetMaxSwitchValue() final;
 
   // Returns 1.
-  double GetSwitchStep() override;
+  double GetSwitchStep() final;
 
   // Calls SetSwitch(value >= 0.5).
-  mcucore::Status SetSwitchValue(double value) override;
+  mcucore::Status SetSwitchValue(double value) final;
 };
 
 }  // namespace alpaca
