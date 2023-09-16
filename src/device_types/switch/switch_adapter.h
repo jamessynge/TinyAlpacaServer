@@ -36,14 +36,18 @@
 
 #include <McuCore.h>
 
+#include "alpaca_request.h"
 #include "device_types/device_impl_base.h"
+#include "server_context.h"
 
 namespace alpaca {
 
 class SwitchAdapter : public DeviceImplBase {
  public:
   // The ASCOM API defines the return type of the MaxSwitch property as int16,
-  // so the maximum value allowed is INT16_MAX, i.e. 2^15 - 1, or 32767.
+  // so the maximum value allowed is INT16_MAX, i.e. 2^15 - 1, or 32767. Note
+  // that storing of names or descriptions may require the limits to value to
+  // be lower in practice.
   static constexpr uint16_t kMaxMaxSwitch = INT16_MAX;
 
   // Max supported name length for storage in EEPROM.
@@ -79,10 +83,6 @@ class SwitchAdapter : public DeviceImplBase {
   // required parameters are provided). Requests that are not specific to this
   // device type are delegated to the base class, DeviceImplBase.
   bool HandlePutRequest(const AlpacaRequest& request, Print& out) override;
-
-  // Method which a subclass may override to validate device specific aspects of
-  // the device's configuration.
-  virtual void ValidateSwitchDeviceConfiguration() {}
 
   //////////////////////////////////////////////////////////////////////////////
   // Delegatees from the above methods which allow the method to write the full
@@ -122,7 +122,7 @@ class SwitchAdapter : public DeviceImplBase {
   // must not throw a MethodNotImplementedException.
   //
   // A multi-state device will return true if the device is at the maximum
-  // value, false if the value is at the minumum and either true or false as
+  // value, false if the value is at the minimum and either true or false as
   // specified by the driver developer for intermediate values.
   //
   // Some devices do not support reading their state although they do allow
@@ -196,6 +196,10 @@ class SwitchAdapter : public DeviceImplBase {
   virtual mcucore::Status SetSwitchValue(uint16_t switch_id, double value) = 0;
 
  protected:
+  // Method which a subclass may override to validate device specific aspects of
+  // the device's configuration. No-op.
+  virtual void ValidateSwitchDeviceConfiguration();
+
   // Returns true if the request has a valid ID parameter, else false, in which
   // case handler_ret is set to the value to be returned by HandleGetRequest or
   // HandlePutRequest.

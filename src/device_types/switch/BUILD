@@ -41,12 +41,14 @@ arduino_cc_library(
 
 arduino_cc_library(
     name = "switch_interface",
+    srcs = ["switch_interface.cc"],
     hdrs = ["switch_interface.h"],
     deps = [
         "//TinyAlpacaServer/src:alpaca_request",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/status",
         "//mcucore/src/status:status_or",
+        "//mcucore/src/strings:string_view",
     ],
 )
 
@@ -57,5 +59,7 @@ arduino_cc_library(
     deps = [
         ":switch_interface",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/status",
+        "//mcucore/src/status:status_or",
     ],
 )

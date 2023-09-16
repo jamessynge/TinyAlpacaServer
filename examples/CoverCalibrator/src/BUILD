@@ -37,6 +37,18 @@ arduino_cc_library(
     ],
 )
 
+cc_library(
+    name = "led_channel_enable_switch",
+    srcs = ["led_channel_enable_switch.cc"],
+    hdrs = ["led_channel_enable_switch.h"],
+    deps = [
+        ":cover_calibrator",
+        "//TinyAlpacaServer/src:TinyAlpacaServer",
+        "//TinyAlpacaServer/src/device_types/switch:toggle_switch_base",
+        "//mcucore/src:mcucore_platform",
+    ],
+)
+
 arduino_cc_library(
     name = "led_channel_switch_group",
     srcs = ["led_channel_switch_group.cc"],

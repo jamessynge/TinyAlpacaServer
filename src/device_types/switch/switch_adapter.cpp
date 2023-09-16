@@ -25,6 +25,8 @@ void SwitchAdapter::ValidateConfiguration() {
   ValidateSwitchDeviceConfiguration();
 }
 
+void SwitchAdapter::ValidateSwitchDeviceConfiguration() {}
+
 bool SwitchAdapter::HandleGetRequest(const AlpacaRequest& request, Print& out) {
   MCU_DCHECK_EQ(request.api, EAlpacaApi::kDeviceApi);
   MCU_DCHECK_EQ(request.device_type, EDeviceType::kSwitch);
@@ -128,9 +130,9 @@ bool SwitchAdapter::HandlePutRequest(const AlpacaRequest& request, Print& out) {
         return WriteResponse::AscomParameterMissingErrorResponse(
             request, ProgmemStringViews::Name(), out);
       }
-      // TODO(jamessynge): Implement
-      MCU_CHECK(false) << MCU_PSD("NOT IMPLEMENTED");
-      return false;
+      // TODO(jamessynge): Implement.
+      MCU_LOG(1) << MCU_PSD("SetSwitchName not implemented");
+      return WriteResponse::AscomMethodNotImplementedResponse(request, out);
 
     case EDeviceMethod::kSetSwitchValue:
       // Requires the value parameter.
@@ -174,8 +176,6 @@ bool SwitchAdapter::HandleSetSwitchName(const AlpacaRequest& request,
 bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
                                               Print& out, bool& handler_ret) {
   if (request.have_id) {
-    MCU_DCHECK_LE(0, GetMaxSwitch());
-    MCU_DCHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
     if (0 <= request.id && request.id < GetMaxSwitch()) {
       return true;
     }

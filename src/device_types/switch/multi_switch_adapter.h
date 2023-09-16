@@ -7,8 +7,10 @@
 
 #include <McuCore.h>
 
+#include "device_description.h"
 #include "device_types/switch/switch_adapter.h"
 #include "device_types/switch/switch_interface.h"
+#include "server_context.h"
 
 namespace alpaca {
 
@@ -37,6 +39,7 @@ class MultiSwitchAdapter : public SwitchAdapter {
   double GetSwitchStep(uint16_t switch_id) override;
   mcucore::Status SetSwitch(uint16_t switch_id, bool state) override;
   mcucore::Status SetSwitchValue(uint16_t switch_id, double value) override;
+  void ValidateSwitchDeviceConfiguration() override;
 
  private:
   SwitchInterface* GetSwitchInterface(uint16_t switch_id) const;
