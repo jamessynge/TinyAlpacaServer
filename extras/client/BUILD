@@ -3,12 +3,24 @@
 load("//devtools/python/blaze:pytype.bzl", "pytype_strict_binary", "pytype_strict_library")
 
 pytype_strict_library(
+    name = "alpaca_client_lib",
+    srcs = ["alpaca_client.py"],
+    deps = [
+        ":alpaca_discovery_lib",
+        ":alpaca_http_client_lib",
+        ":alpaca_model",
+    ],
+)
+
+pytype_strict_binary(
     name = "alpaca_client",
     srcs = ["alpaca_client.py"],
     deps = [
         ":alpaca_discovery_lib",
         ":alpaca_http_client_lib",
         ":alpaca_model",
+        ":install_advice",
+        "//third_party/py/netifaces",
     ],
 )
 
@@ -70,7 +82,7 @@ pytype_strict_binary(
     name = "cover_calibrator",
     srcs = ["cover_calibrator.py"],
     deps = [
-        ":alpaca_client",
+        ":alpaca_client_lib",
         ":alpaca_discovery_lib",
         ":alpaca_http_client_lib",
         ":alpaca_model",

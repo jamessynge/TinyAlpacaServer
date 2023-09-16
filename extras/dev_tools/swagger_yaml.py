@@ -32,6 +32,13 @@ def get_spec(
   return text
 
 
+def get_alpaca_spec(device_api: bool = True, refresh: bool = False) -> str:
+  if device_api:
+    return get_spec(file_name='AlpacaDeviceAPI_v1.yaml', refresh=refresh)
+  else:
+    return get_spec(file_name='AlpacaManagementAPI_v1.yaml', refresh=refresh)
+
+
 def make_components_map(spec: Any) -> Dict[str, Any]:
   result: Dict[str, Any] = {}
   all_components = spec['components']
@@ -90,8 +97,8 @@ class AlpacaSpec:
 def main(argv: Sequence[str]) -> None:
   if len(argv) > 1:
     raise UserWarning('Too many command-line arguments.')
-  get_spec()
-  get_spec(file_name='AlpacaManagementAPI_v1.yaml')
+  get_alpaca_spec(device_api=True)
+  get_alpaca_spec(device_api=False)
 
 
 if __name__ == '__main__':
