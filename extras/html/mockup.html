@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>Sliski-Synge ALPACA Cover Calibrator</title>
+
+<h1>Version 1.0</h1>
+
+<button type="button" onclick="alert('LED channel chosen')">
+  choose LED channel</button
+><input type="number" id="c" value="1" />
+<button type="button" onclick="alert('brightness set')">Set brightness</button
+><input type="number" id="c" value="32000" />
+<p><button type="button" onclick="alert('LED on')">turn on LED</button></p>
+<p><button type="button" onclick="alert('LED off')">turn off LED</button></p>
+<p>
+  <button type="button" onclick="alert('cover opening')">open cover</button>
+</p>
+
+<button type="button" onclick="alert('cover closing')">close cover</button>
+
+<form action="/action_page.php">
+  <label for="fname">cover position:</label>
+  <input type="text" id="fname" name="fname" /><br /><br />
+  <label for="lname">cover status:</label>
+  <input type="text" id="lname" name="lname" /><br /><br />
+  <label for="fname">LED 1 color name or wavelength:</label>
+
+  <input type="text" id="fname" name="fname" /><br /><br />
+  <label for="lname">LED 2 color name or wavelength:</label>
+  <input type="text" id="lname" name="lname" /><br /><br />
+  <label for="lname">LED 3 color name or wavelength:</label>
+  <input type="text" id="lname" name="lname" /><br /><br />
+  <label for="lname">LED 4 color name or wavelength:</label>
+  <input type="text" id="lname" name="lname" /><br /><br />
+
+  <label for="lname">number of steps from open to closed:</label>
+  <input type="text" id="lname" name="lname" /><br /><br />
+  <label for="lname">IP address:</label>
+  <input type="text" id="lname" name="lname" /><br /><br />
+  <input type="submit" value="Submit" />
+</form>
+
+<p>
+  Click the "Submit" button and the form-data will be sent to a page on the
+  server called "action_page.php".
+</p>
