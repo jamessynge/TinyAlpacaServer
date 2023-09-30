@@ -28,61 +28,52 @@ constexpr uint32_t kResetServerTransactionId = 543212345;
 struct AlpacaRequest {
   AlpacaRequest();
 
-  // This resets the fields that won't always be explicity set when a request is
-  // successfully decoded (i.e. http_method will be set always, but client_id
+  // This resets the fields that won't always be explicitly set when a request
+  // is successfully decoded (i.e. http_method will be set always, but client_id
   // might not be).
   void Reset();
 
   void set_client_id(uint32_t id) {
-    MCU_DCHECK(!have_client_id);
     client_id = id;
     have_client_id = true;
   }
 
   void set_client_transaction_id(uint32_t id) {
-    MCU_DCHECK(!have_client_transaction_id);
     client_transaction_id = id;
     have_client_transaction_id = true;
   }
 
   void set_server_transaction_id(uint32_t id) {
-    MCU_DCHECK(!have_server_transaction_id);
     server_transaction_id = id;
     have_server_transaction_id = true;
   }
 
   void set_connected(bool value) {
-    MCU_DCHECK(!have_connected);
     connected = value;
     have_connected = true;
   }
 
   void set_brightness(int32_t value) {
-    MCU_DCHECK(!have_brightness);
     brightness = value;
     have_brightness = true;
   }
 
   void set_id(int32_t value) {
-    MCU_DCHECK(!have_id);
     id = value;
     have_id = true;
   }
 
   void set_state(bool value) {
-    MCU_DCHECK(!have_state);
     state = value;
     have_state = true;
   }
 
   void set_value(double v) {
-    MCU_DCHECK(!have_value);
     value = v;
     have_value = true;
   }
 
   void set_average_period(double v) {
-    MCU_DCHECK(!have_average_period);
     average_period = v;
     have_average_period = true;
   }

@@ -16,6 +16,12 @@ arduino_cc_library(
         "//TinyAlpacaServer/src:TinyAlpacaServer",
         "//mcucore/extras/host/arduino",
         "//mcucore/extras/host/mlx90614",
+        "//mcucore/src:mcucore_config",
+        "//mcucore/src/log",
+        "//mcucore/src/status",
+        "//mcucore/src/status:status_or",
+        "//mcucore/src/strings:progmem_string_data",
+        "//mcucore/src/strings:progmem_string_view",
     ],
 )
 

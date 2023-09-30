@@ -2,6 +2,7 @@
 
 #include <McuCore.h>
 
+#include "alpaca_request.h"
 #include "ascom_error_codes.h"
 #include "constants.h"
 #include "http_response_header.h"
@@ -241,14 +242,15 @@ bool WriteResponse::AscomMethodNotImplementedResponse(
 
 bool WriteResponse::AscomMethodNotImplementedResponse(
     const AlpacaRequest& request, Print& out) {
-  MCU_DCHECK(request.api == EAlpacaApi::kDeviceApi ||
-             request.api == EAlpacaApi::kDeviceSetup);
   if (request.api == EAlpacaApi::kDeviceSetup) {
     return AscomMethodNotImplementedResponse(request,
                                              ProgmemStringViews::setup(), out);
-  } else {
+  } else if (request.api == EAlpacaApi::kDeviceApi) {
     return AscomMethodNotImplementedResponse(request, request.device_method,
                                              out);
+  } else {
+    MCU_VLOG(1) << MCU_PSD("Unknown Alpaca API: ") << request.api;
+    return false;
   }
 }
 
@@ -274,21 +276,23 @@ bool WriteResponse::AscomParameterInvalidErrorResponse(
                             out);
 }
 
-bool WriteResponse::HttpErrorResponse(EHttpStatusCode status_code,
+bool WriteResponse::HttpErrorResponse(const EHttpStatusCode status_code,
                                       const Printable& body, Print& out) {
-  MCU_DCHECK_GE(status_code, EHttpStatusCode::kHttpBadRequest)
-      << MCU_PSD("mcucore::Status code should be for an error.");
-
-  auto phrase = ToFlashStringHelper(status_code);
-  MCU_DCHECK(phrase != nullptr)
-      << MCU_PSD("Please add a case for status code ") << status_code;
-
   HttpResponseHeader hrh;
   if (status_code < EHttpStatusCode::kHttpBadRequest) {
+    // Represents a mistake in usage of this function.
+    MCU_VLOG(1) << MCU_PSD("Not an HTTP status: ") << status_code;
     hrh.status_code = EHttpStatusCode::kHttpInternalServerError;
   } else {
     hrh.status_code = status_code;
   }
+
+  const auto phrase = ToFlashStringHelper(status_code);
+  if (phrase == nullptr) {
+    MCU_VLOG(1) << MCU_PSD("ToFlashStringHelper(EHttpStatusCode) is missing ")
+                << MCU_PSD("a case for status code ") << status_code;
+  }
+
   if (status_code < EHttpStatusCode::kHttpBadRequest || phrase == nullptr) {
     hrh.reason_phrase =
         MCU_PSD("Internal Server Error: Invalid HTTP mcucore::Status Code");

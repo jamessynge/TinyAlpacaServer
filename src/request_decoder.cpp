@@ -16,9 +16,8 @@
 
 #ifndef REQUEST_DECODER_ENABLE_MCU_VLOG
 #define MCU_DISABLE_VLOG
+#include <McuCore.h>
 #endif
-
-#include "request_decoder.h"
 
 #include <McuCore.h>
 
@@ -26,6 +25,7 @@
 #include "constants.h"
 #include "literals.h"
 #include "match_literals.h"
+#include "request_decoder.h"
 
 // NOTE: The syntax for the query portion of a URI is not as clearly specified
 // as the rest of HTTP (AFAICT), so I'm assuming that:
@@ -45,13 +45,15 @@
 
 namespace alpaca {
 namespace {
+using ::mcucore::StringView;
+
 using DecodeFunction = RequestDecoderState::DecodeFunction;
 using CharMatchFunction = bool (*)(char c);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for decoder functions.
 
-bool DecodeTrueFalse(const mcucore::StringView& value, bool& output) {
+bool DecodeTrueFalse(const StringView& value, bool& output) {
   if (mcucore::CaseEqual(value, ProgmemStringViews::False())) {
     output = false;
     return true;
@@ -96,33 +98,33 @@ bool IsFieldContent(const char c) { return isPrintable(c) || c == '\t'; }
 // compare matching strings against tokens to find those we're interested in,
 // having this set contain extra characters for some context doesn't really
 // matter.
-MCU_CONSTEXPR_VAR mcucore::StringView kExtraNameChars("-_.");
+MCU_CONSTEXPR_VAR StringView kExtraNameChars("-_.");
 bool IsNameChar(const char c) {
   return isAlphaNumeric(c) || kExtraNameChars.contains(c);
 }
 
 // Match characters allowed in a URL encoded parameter value, whether in the
 // path or in the body of a PUT request.
-MCU_CONSTEXPR_VAR mcucore::StringView kExtraParamValueChars("-+_=%.");
+MCU_CONSTEXPR_VAR StringView kExtraParamValueChars("-+_=%.");
 bool IsParamValueChar(const char c) {
   return isAlphaNumeric(c) || kExtraParamValueChars.contains(c);
 }
 
-mcucore::StringView::size_type FindFirstNotOf(const mcucore::StringView& view,
-                                              bool (*test)(char)) {
-  for (mcucore::StringView::size_type pos = 0; pos < view.size(); ++pos) {
+StringView::size_type FindFirstNotOf(const StringView& view,
+                                     bool (*test)(char)) {
+  for (StringView::size_type pos = 0; pos < view.size(); ++pos) {
     if (!test(view.at(pos))) {
       return pos;
     }
   }
-  return mcucore::StringView::kMaxSize;
+  return StringView::kMaxSize;
 }
 
 // Removes leading whitespace characters, returns true when the first character
 // is not a whitespace.
-bool SkipLeadingOptionalWhitespace(mcucore::StringView& view) {
+bool SkipLeadingOptionalWhitespace(StringView& view) {
   const auto beyond = FindFirstNotOf(view, IsOptionalWhitespace);
-  if (beyond == mcucore::StringView::kMaxSize) {
+  if (beyond == StringView::kMaxSize) {
     // They're all whitespace (or it is empty). Get rid of them. Choosing here
     // to treat this as a remove_prefix rather than a clear, so that tests see
     // that the pointer in the view is moved forward by the number of removed
@@ -137,20 +139,19 @@ bool SkipLeadingOptionalWhitespace(mcucore::StringView& view) {
   }
 }
 
-void TrimTrailingOptionalWhitespace(mcucore::StringView& view) {
+void TrimTrailingOptionalWhitespace(StringView& view) {
   while (!view.empty() && IsOptionalWhitespace(view.back())) {
     view.remove_suffix(1);
   }
 }
 
-bool ExtractMatchingPrefix(mcucore::StringView& view,
-                           mcucore::StringView& extracted_prefix,
+bool ExtractMatchingPrefix(StringView& view, StringView& extracted_prefix,
                            CharMatchFunction char_matcher) {
   auto beyond = FindFirstNotOf(view, char_matcher);
   MCU_VLOG(3) << MCU_PSD("ExtractMatchingPrefix of ")
               << mcucore::HexEscaped(view) << MCU_PSD(" found ") << (beyond + 0)
               << MCU_PSD(" matching characters");
-  if (beyond == mcucore::StringView::kMaxSize) {
+  if (beyond == StringView::kMaxSize) {
     return false;
   }
   extracted_prefix = view.prefix(beyond);
@@ -158,17 +159,17 @@ bool ExtractMatchingPrefix(mcucore::StringView& view,
   return true;
 }
 
-using NameProcessor = EHttpStatusCode (*)(
-    RequestDecoderState& state, const mcucore::StringView& matched_text,
-    mcucore::StringView& remainder_view);
+using NameProcessor = EHttpStatusCode (*)(RequestDecoderState& state,
+                                          const StringView& matched_text,
+                                          StringView& remainder_view);
 
 EHttpStatusCode ExtractAndProcessName(
-    RequestDecoderState& state, mcucore::StringView& view,
+    RequestDecoderState& state, StringView& view,
     const char valid_terminating_char, const NameProcessor processor,
     const bool consume_terminator_char,
     const EHttpStatusCode bad_terminator_error) {
   MCU_DCHECK_GT(bad_terminator_error, EHttpStatusCode::kHttpOk);
-  mcucore::StringView matched_text;
+  StringView matched_text;
   if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
     // We didn't find a character that IsNameChar doesn't match, so we don't
     // know if we have enough input yet.
@@ -189,9 +190,9 @@ EHttpStatusCode ExtractAndProcessName(
 }
 
 EHttpStatusCode ExtractAndProcessName(RequestDecoderState& state,
-                                      mcucore::StringView& view,
+                                      StringView& view,
                                       const NameProcessor processor) {
-  mcucore::StringView matched_text;
+  StringView matched_text;
   if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
     // We didn't find a character that IsNameChar doesn't match, so we don't
     // know if we have enough input yet.
@@ -205,18 +206,15 @@ EHttpStatusCode ExtractAndProcessName(RequestDecoderState& state,
 // Decoder functions for different phases of decoding. Generally in reverse
 // order to avoid forward declarations.
 
-// Necessary forward declarations (whereever we have a cycle in the grammar).
+// Necessary forward declarations (wherever we have a cycle in the grammar).
 #if TAS_ENABLE_ASSET_PATH_DECODING
-EHttpStatusCode DecodeAssetPath(RequestDecoderState& state,
-                                mcucore::StringView& view);
+EHttpStatusCode DecodeAssetPath(RequestDecoderState& state, StringView& view);
 #endif  // TAS_ENABLE_ASSET_PATH_DECODING
-EHttpStatusCode DecodeParamName(RequestDecoderState& state,
-                                mcucore::StringView& view);
-EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
-                                  mcucore::StringView& view);
+EHttpStatusCode DecodeParamName(RequestDecoderState& state, StringView& view);
+EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state, StringView& view);
 
 EHttpStatusCode DecodeHeaderLineEnd(RequestDecoderState& state,
-                                    mcucore::StringView& view) {
+                                    StringView& view) {
   // We expect "\r\n" at the end of a header line.
   const auto kEndOfHeaderLine = ProgmemStringViews::HttpEndOfLine();
   if (mcucore::SkipPrefix(view, kEndOfHeaderLine)) {
@@ -232,7 +230,7 @@ EHttpStatusCode DecodeHeaderLineEnd(RequestDecoderState& state,
 }
 
 EHttpStatusCode ReportInvalidHeaderValue(
-    RequestDecoderState& state, mcucore::StringView& value,
+    RequestDecoderState& state, StringView& value,
     EHttpStatusCode default_code = EHttpStatusCode::kHttpBadRequest) {
 #if TAS_ENABLE_EXTRA_HEADER_DECODING
   if (state.listener) {
@@ -247,12 +245,12 @@ EHttpStatusCode ReportInvalidHeaderValue(
 // TODO(jamessynge): Define a better API for handling LONG header values without
 // having to buffer them, i.e. those which can be quite long, such as Accept.
 EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
-                                  mcucore::StringView& view) {
+                                  StringView& view) {
   // Skip leading OWS (optional whitespace: space or horizontal tab), then take
   // all of the characters matching IsFieldContent, up to the first
   // non-matching character. If we can't find a non-matching character, we need
   // more input.
-  mcucore::StringView value;
+  StringView value;
   if (!SkipLeadingOptionalWhitespace(view) ||
       !ExtractMatchingPrefix(view, value, IsFieldContent)) {
     return EHttpStatusCode::kNeedMoreInput;
@@ -333,8 +331,7 @@ EHttpStatusCode DecodeHeaderValue(RequestDecoderState& state,
 // We've determined that we don't need to examine the value of this header,
 // so we just skip forward to the end of the line. This allows us to skip
 // past large headers (e.g. User-Agent) whose value we don't care about.
-EHttpStatusCode SkipHeaderValue(RequestDecoderState& state,
-                                mcucore::StringView& view) {
+EHttpStatusCode SkipHeaderValue(RequestDecoderState& state, StringView& view) {
   while (!view.empty()) {
     if (view.starts_with('\r')) {
       return state.SetDecodeFunction(DecodeHeaderLineEnd);
@@ -345,8 +342,8 @@ EHttpStatusCode SkipHeaderValue(RequestDecoderState& state,
 }
 
 EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
-                                  const mcucore::StringView& matched_text,
-                                  mcucore::StringView& view) {
+                                  const StringView& matched_text,
+                                  StringView& view) {
   if (MatchHttpHeader(matched_text, state.current_header)) {
     return state.SetDecodeFunction(DecodeHeaderValue);
   }
@@ -363,8 +360,7 @@ EHttpStatusCode ProcessHeaderName(RequestDecoderState& state,
   return state.SetDecodeFunction(SkipHeaderValue);
 }
 
-EHttpStatusCode DecodeHeaderName(RequestDecoderState& state,
-                                 mcucore::StringView& view) {
+EHttpStatusCode DecodeHeaderName(RequestDecoderState& state, StringView& view) {
   const char kHeaderNameValueSeparator = ':';
   return ExtractAndProcessName(
       state, view, kHeaderNameValueSeparator, ProcessHeaderName,
@@ -373,7 +369,7 @@ EHttpStatusCode DecodeHeaderName(RequestDecoderState& state,
 }
 
 EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
-                                  mcucore::StringView& view) {
+                                  StringView& view) {
   const auto kEndOfHeaderLine = ProgmemStringViews::HttpEndOfLine();
   if (mcucore::SkipPrefix(view, kEndOfHeaderLine)) {
     // We've reached the end of the headers.
@@ -411,8 +407,7 @@ EHttpStatusCode DecodeHeaderLines(RequestDecoderState& state,
 
 // An HTTP/1.1 Request Start Line should always end with "HTTP/1.1\r\n".
 // (We're not supporting HTTP/1.0 or earlier.)
-EHttpStatusCode MatchHttpVersion(RequestDecoderState& state,
-                                 mcucore::StringView& view) {
+EHttpStatusCode MatchHttpVersion(RequestDecoderState& state, StringView& view) {
   const auto expected = ProgmemStringViews::HttpVersionEndOfLine();
   if (mcucore::StartsWith(view, expected)) {
     view.remove_prefix(expected.size());
@@ -426,13 +421,13 @@ EHttpStatusCode MatchHttpVersion(RequestDecoderState& state,
 }
 
 EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
-                                     mcucore::StringView& view) {
+                                     StringView& view) {
   // Forget what we were decoding previously.
   state.current_parameter = EParameter::kUnknown;
 
   // If there are multiple separators, treat them as one.
   const auto beyond = FindFirstNotOf(view, IsParamSeparator);
-  if (beyond == mcucore::StringView::kMaxSize) {
+  if (beyond == StringView::kMaxSize) {
     MCU_VLOG(3) << MCU_PSD("DecodeParamSeparator found no non-separators in ")
                 << mcucore::HexEscaped(view);
     // All the available characters are separators, or the view is empty.
@@ -472,7 +467,7 @@ EHttpStatusCode DecodeParamSeparator(RequestDecoderState& state,
 }
 
 EHttpStatusCode RemoveInvalidParamValue(RequestDecoderState& state,
-                                        mcucore::StringView& view) {
+                                        StringView& view) {
 #if TAS_ENABLE_EXTRA_PARAMETER_DECODING
   if (state.listener) {
     return EnsureIsError(
@@ -484,9 +479,8 @@ EHttpStatusCode RemoveInvalidParamValue(RequestDecoderState& state,
 
 // Note that a parameter value may be empty, which makes detecting the end
 // of it tricky if also at the end of the body of a request.
-EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
-                                 mcucore::StringView& view) {
-  mcucore::StringView value;
+EHttpStatusCode DecodeParamValue(RequestDecoderState& state, StringView& view) {
+  StringView value;
   if (!ExtractMatchingPrefix(view, value, IsParamValueChar)) {
     // view doesn't contain a character that can't be in a parameter value.
     // We may need more input.
@@ -611,8 +605,8 @@ EHttpStatusCode DecodeParamValue(RequestDecoderState& state,
 }
 
 EHttpStatusCode ProcessParamName(RequestDecoderState& state,
-                                 const mcucore::StringView& matched_text,
-                                 mcucore::StringView& view) {
+                                 const StringView& matched_text,
+                                 StringView& view) {
   state.current_parameter = EParameter::kUnknown;
   if (MatchParameter(matched_text, state.current_parameter)) {
     return state.SetDecodeFunction(DecodeParamValue);
@@ -632,8 +626,7 @@ EHttpStatusCode ProcessParamName(RequestDecoderState& state,
   return state.SetDecodeFunction(DecodeParamValue);
 }
 
-EHttpStatusCode DecodeParamName(RequestDecoderState& state,
-                                mcucore::StringView& view) {
+EHttpStatusCode DecodeParamName(RequestDecoderState& state, StringView& view) {
   // Not supporting the case here of a param without a value, i.e. followed
   // by a space marking the end of the path, a '&' separating it from the
   // next param, or end-of-input in the body. Not needed for ASCOM, but
@@ -649,8 +642,7 @@ EHttpStatusCode DecodeParamName(RequestDecoderState& state,
 // either a
 // '?' marking the beginning of a query (i.e. parameter names and values),
 // or the ' ' (space) that appears before the HTTP version number.
-EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state,
-                                mcucore::StringView& view) {
+EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state, StringView& view) {
   // A separator/terminating character should be present, else we would not
   // have been able to determine that the previous segment was done.
   MCU_DCHECK(!view.empty());
@@ -668,8 +660,8 @@ EHttpStatusCode DecodeEndOfPath(RequestDecoderState& state,
 }
 
 EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
-                                    const mcucore::StringView& matched_text,
-                                    mcucore::StringView& view) {
+                                    const StringView& matched_text,
+                                    StringView& view) {
   MCU_VLOG(3) << MCU_PSD("ProcessDeviceMethod matched_text: ")
               << mcucore::HexEscaped(matched_text);
 
@@ -694,8 +686,8 @@ EHttpStatusCode ProcessDeviceMethod(RequestDecoderState& state,
 }
 
 EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
-                                   mcucore::StringView& view) {
-  mcucore::StringView matched_text;
+                                   StringView& view) {
+  StringView matched_text;
   if (!ExtractMatchingPrefix(view, matched_text, IsNameChar)) {
     // We didn't find a character that IsNameChar doesn't match, so we don't
     // know if we have enough input yet.
@@ -719,8 +711,8 @@ EHttpStatusCode DecodeDeviceMethod(RequestDecoderState& state,
 }
 
 EHttpStatusCode ProcessDeviceNumber(RequestDecoderState& state,
-                                    const mcucore::StringView& matched_text,
-                                    mcucore::StringView& view) {
+                                    const StringView& matched_text,
+                                    StringView& view) {
   if (!matched_text.to_uint32(state.request.device_number)) {
     return EHttpStatusCode::kHttpBadRequest;
   }
@@ -728,7 +720,7 @@ EHttpStatusCode ProcessDeviceNumber(RequestDecoderState& state,
 }
 
 EHttpStatusCode DecodeDeviceNumber(RequestDecoderState& state,
-                                   mcucore::StringView& view) {
+                                   StringView& view) {
   const char kPathSeparator = '/';
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessDeviceNumber,
@@ -737,8 +729,8 @@ EHttpStatusCode DecodeDeviceNumber(RequestDecoderState& state,
 }
 
 EHttpStatusCode ProcessDeviceType(RequestDecoderState& state,
-                                  const mcucore::StringView& matched_text,
-                                  mcucore::StringView& view) {
+                                  const StringView& matched_text,
+                                  StringView& view) {
   EDeviceType device_type;
   if (MatchDeviceType(matched_text, device_type)) {
     MCU_VLOG(3) << MCU_PSD("device_type: ") << device_type;
@@ -749,8 +741,7 @@ EHttpStatusCode ProcessDeviceType(RequestDecoderState& state,
 }
 
 // After the path prefix, we expect the name of a supported device type.
-EHttpStatusCode DecodeDeviceType(RequestDecoderState& state,
-                                 mcucore::StringView& view) {
+EHttpStatusCode DecodeDeviceType(RequestDecoderState& state, StringView& view) {
   const char kPathSeparator = '/';
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessDeviceType,
@@ -760,8 +751,8 @@ EHttpStatusCode DecodeDeviceType(RequestDecoderState& state,
 
 // Process the word that starts the path (i.e. right after the leading /).
 EHttpStatusCode ProcessApiVersion(RequestDecoderState& state,
-                                  const mcucore::StringView& matched_text,
-                                  mcucore::StringView& view) {
+                                  const StringView& matched_text,
+                                  StringView& view) {
   if (matched_text == ProgmemStringViews::v1()) {
     return state.SetDecodeFunction(DecodeDeviceType);
   } else {
@@ -769,8 +760,7 @@ EHttpStatusCode ProcessApiVersion(RequestDecoderState& state,
   }
 }
 
-EHttpStatusCode DecodeApiVersion(RequestDecoderState& state,
-                                 mcucore::StringView& view) {
+EHttpStatusCode DecodeApiVersion(RequestDecoderState& state, StringView& view) {
   const char kPathSeparator = '/';
   return ExtractAndProcessName(
       state, view, kPathSeparator, ProcessApiVersion,
@@ -779,8 +769,8 @@ EHttpStatusCode DecodeApiVersion(RequestDecoderState& state,
 }
 
 EHttpStatusCode ProcessManagementMethod(RequestDecoderState& state,
-                                        const mcucore::StringView& matched_text,
-                                        mcucore::StringView& view) {
+                                        const StringView& matched_text,
+                                        StringView& view) {
   MCU_DCHECK(!view.empty());
   EManagementMethod method;
   if (MatchManagementMethod(matched_text, method)) {
@@ -802,14 +792,14 @@ EHttpStatusCode ProcessManagementMethod(RequestDecoderState& state,
 }
 
 EHttpStatusCode DecodeManagementMethod(RequestDecoderState& state,
-                                       mcucore::StringView& view) {
+                                       StringView& view) {
   return ExtractAndProcessName(state, view, ProcessManagementMethod);
 }
 
 // What kind of management operation is this?
 EHttpStatusCode ProcessManagementType(RequestDecoderState& state,
-                                      const mcucore::StringView& matched_text,
-                                      mcucore::StringView& view) {
+                                      const StringView& matched_text,
+                                      StringView& view) {
   MCU_DCHECK(!view.empty());
   if (matched_text == ProgmemStringViews::v1()) {
     if (view.match_and_consume('/')) {
@@ -827,7 +817,7 @@ EHttpStatusCode ProcessManagementType(RequestDecoderState& state,
 
 // The path starts "/management/". What's next?
 EHttpStatusCode DecodeManagementType(RequestDecoderState& state,
-                                     mcucore::StringView& view) {
+                                     StringView& view) {
   return ExtractAndProcessName(state, view, ProcessManagementType);
 }
 
@@ -836,7 +826,7 @@ EHttpStatusCode DecodeManagementType(RequestDecoderState& state,
 // function loop, so as to avoid violating the expectation below that
 // kContinueDecoding is only returned when the decode function has changed.
 EHttpStatusCode DecodeAssetPathSeparator(RequestDecoderState& state,
-                                         mcucore::StringView& view) {
+                                         StringView& view) {
   if (view.match_and_consume('/')) {
     return state.SetDecodeFunction(DecodeAssetPath);
   } else if (view.empty()) {
@@ -849,8 +839,8 @@ EHttpStatusCode DecodeAssetPathSeparator(RequestDecoderState& state,
 // Handle the next segment in the path under /asset/. The preceding character
 // was a slash.
 EHttpStatusCode ProcessAssetPath(RequestDecoderState& state,
-                                 const mcucore::StringView& matched_text,
-                                 mcucore::StringView& view) {
+                                 const StringView& matched_text,
+                                 StringView& view) {
   MCU_DCHECK(!view.empty());
   MCU_DCHECK_NE(state.listener, nullptr);
 
@@ -882,8 +872,7 @@ EHttpStatusCode ProcessAssetPath(RequestDecoderState& state,
 
 // Handle the next segment in the path under /asset/. The preceding character
 // was a slash.
-EHttpStatusCode DecodeAssetPath(RequestDecoderState& state,
-                                mcucore::StringView& view) {
+EHttpStatusCode DecodeAssetPath(RequestDecoderState& state, StringView& view) {
   MCU_DCHECK_NE(state.listener, nullptr);
   return ExtractAndProcessName(state, view, ProcessAssetPath);
 }
@@ -891,8 +880,8 @@ EHttpStatusCode DecodeAssetPath(RequestDecoderState& state,
 
 // Process the word that starts the path, right after the leading '/'.
 EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
-                                const mcucore::StringView& matched_text,
-                                mcucore::StringView& view) {
+                                const StringView& matched_text,
+                                StringView& view) {
   MCU_DCHECK(!view.empty());
   EApiGroup group;
   if (!MatchApiGroup(matched_text, group)) {
@@ -948,14 +937,12 @@ EHttpStatusCode ProcessApiGroup(RequestDecoderState& state,
 }
 
 // After the '/' at the start of a path, we expect the name of an API group.
-EHttpStatusCode DecodeApiGroup(RequestDecoderState& state,
-                               mcucore::StringView& view) {
+EHttpStatusCode DecodeApiGroup(RequestDecoderState& state, StringView& view) {
   return ExtractAndProcessName(state, view, ProcessApiGroup);
 }
 
 // View should start with '/', once we have at least a character of input.
-EHttpStatusCode MatchStartOfPath(RequestDecoderState& state,
-                                 mcucore::StringView& view) {
+EHttpStatusCode MatchStartOfPath(RequestDecoderState& state, StringView& view) {
   if (view.empty()) {
     return EHttpStatusCode::kNeedMoreInput;
   } else if (view.match_and_consume('/')) {
@@ -970,8 +957,8 @@ EHttpStatusCode MatchStartOfPath(RequestDecoderState& state,
 // method name. The space following matched_text has already been removed
 // from the start of view.
 EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
-                                  const mcucore::StringView& matched_text,
-                                  mcucore::StringView& view) {
+                                  const StringView& matched_text,
+                                  StringView& view) {
   EHttpMethod method;
   if (MatchHttpMethod(matched_text, method)) {
     MCU_VLOG(3) << MCU_PSD("method: ") << method;
@@ -990,8 +977,7 @@ EHttpStatusCode ProcessHttpMethod(RequestDecoderState& state,
 // requests (or multiple responses) in a row without clear delimiters.
 // However HTTP/1.1 requires clear delimiters, so we won't tolerate extra
 // whitespace.
-EHttpStatusCode DecodeHttpMethod(RequestDecoderState& state,
-                                 mcucore::StringView& view) {
+EHttpStatusCode DecodeHttpMethod(RequestDecoderState& state, StringView& view) {
   const char kHttpMethodTerminator = ' ';
   return ExtractAndProcessName(
       state, view, kHttpMethodTerminator, ProcessHttpMethod,
@@ -1062,7 +1048,7 @@ void RequestDecoderState::Reset() {
   decoder_status = RequestDecoderStatus::kReset;
 }
 
-EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
+EHttpStatusCode RequestDecoderState::DecodeBuffer(StringView& buffer,
                                                   const bool buffer_is_full,
                                                   const bool at_end_of_input) {
   MCU_VLOG(1) << MCU_PSD("DecodeBuffer ") << mcucore::HexEscaped(buffer);
@@ -1110,7 +1096,7 @@ EHttpStatusCode RequestDecoderState::DecodeBuffer(mcucore::StringView& buffer,
 // how many bytes are supposed to be in the header, so we rely on
 // DecodeHeaderLines to find the end.
 EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
-    mcucore::StringView& buffer, const bool at_end_of_input) {
+    StringView& buffer, const bool at_end_of_input) {
   MCU_VLOG(1) << MCU_PSD("DecodeMessageHeader ") << mcucore::HexEscaped(buffer);
 
   EHttpStatusCode status;
@@ -1162,8 +1148,8 @@ EHttpStatusCode RequestDecoderState::DecodeMessageHeader(
 
 // Decode the body of a PUT request where a Content-Length header was provided
 // (i.e. remaining_content_length tells us how many ASCII characters remain).
-EHttpStatusCode RequestDecoderState::DecodeMessageBody(
-    mcucore::StringView& buffer, bool at_end_of_input) {
+EHttpStatusCode RequestDecoderState::DecodeMessageBody(StringView& buffer,
+                                                       bool at_end_of_input) {
   MCU_VLOG(1) << MCU_PSD("DecodeMessageBody ") << mcucore::HexEscaped(buffer);
   MCU_CHECK(found_content_length);
   MCU_CHECK_EQ(request.http_method, EHttpMethod::PUT);

@@ -179,16 +179,27 @@ ECoverStatus Cover::GetCoverStatus() const {
     return ECoverStatus::kNotPresent;
   } else if (IsMoving()) {
     return ECoverStatus::kMoving;
-  } else if (IsClosed()) {
-    MCU_DCHECK(!IsOpen());
-    return ECoverStatus::kClosed;
-  } else if (IsOpen()) {
-    return ECoverStatus::kOpen;
-  } else {
-    MCU_VLOG(1) << MCU_PSD("GetCoverStatus -> Unknown; motor_status=")
-                << motor_status_ << MCU_PSD(", step_count=") << step_count_;
-    return ECoverStatus::kUnknown;
   }
+  const bool is_open = IsOpen();
+  const bool is_closed = IsClosed();
+  if (is_open != is_closed) {
+    if (is_open) {
+      return ECoverStatus::kOpen;
+    } else {
+      return ECoverStatus::kClosed;
+    }
+  }
+  if (is_open && is_closed) {
+    MCU_VLOG(1) << MCU_PSD("GetCoverStatus -> ")
+                << MCU_PSD("Error: both open and closed")
+                << MCU_PSD("; motor_status=") << motor_status_
+                << MCU_PSD(", step_count=") << step_count_;
+    return ECoverStatus::kError;
+  }
+  MCU_VLOG(1) << MCU_PSD("GetCoverStatus -> ") << MCU_PSD("Unknown")
+              << MCU_PSD("; motor_status=") << motor_status_
+              << MCU_PSD(", step_count=") << step_count_;
+  return ECoverStatus::kUnknown;
 }
 
 bool Cover::IsMoving() const {
@@ -225,8 +236,10 @@ bool Cover::Open() {
       // Already moving.
       return true;
     }
-  } else {
-    MCU_DCHECK_EQ(handler, nullptr);  // CanMove should prevent this failing.
+  } else if (handler != nullptr) {
+    MCU_VLOG(3) << MCU_PSD("Open") << MCU_PSD(": another handler installed: ")
+                << handler;
+    return false;
   }
   motor_status_ = kOpening;
   StartMoving(kDirectionOpen);
@@ -247,8 +260,10 @@ bool Cover::Close() {
       // Already moving.
       return true;
     }
-  } else {
-    MCU_DCHECK_EQ(handler, nullptr);
+  } else if (handler != nullptr) {
+    MCU_VLOG(3) << MCU_PSD("Close") << MCU_PSD(": another handler installed: ")
+                << handler;
+    return false;
   }
   motor_status_ = kClosing;
   StartMoving(kDirectionClose);

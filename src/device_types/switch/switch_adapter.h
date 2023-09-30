@@ -110,6 +110,9 @@ class SwitchAdapter : public DeviceImplBase {
   // Accessors for various values.
 
   // Returns the number of switch devices managed by this driver.
+  // TODO(jamessynge): Consider making the value a const property of this class,
+  // such that various methods can rely on the value being valid because the
+  // constructor will have validated it.
   virtual uint16_t GetMaxSwitch() = 0;
 
   // Reports if the specified switch device can be written to, default true.

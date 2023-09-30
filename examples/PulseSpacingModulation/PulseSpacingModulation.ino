@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <TinyAlpacaServer.h>
+#include <McuCore.h>
 
 // An experiment in generating a pulse of ~constant duration spaced at varying
 // intervals using AVR Timer/Counter interrupts. This is sort of like using the

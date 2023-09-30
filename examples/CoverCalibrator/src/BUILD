@@ -44,6 +44,10 @@ arduino_cc_library(
     deps = [
         ":cover_calibrator",
         "//TinyAlpacaServer/src:TinyAlpacaServer",
+        "//TinyAlpacaServer/src:alpaca_request",
+        "//TinyAlpacaServer/src:device_description",
+        "//TinyAlpacaServer/src:server_context",
+        "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
         "//mcucore/src:McuCore",
     ],
 )

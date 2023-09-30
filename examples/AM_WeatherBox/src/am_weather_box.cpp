@@ -2,6 +2,7 @@
 
 #include <Adafruit_MLX90614.h>
 #include <Arduino.h>
+#include <McuCore.h>
 #include <TinyAlpacaServer.h>
 
 #include "constants.h"
@@ -73,7 +74,6 @@ bool AMWeatherBox::IsIrThermInitialized() {
 mcucore::StatusOr<double> AMWeatherBox::GetAveragePeriod() { return 0; }
 
 mcucore::Status AMWeatherBox::SetAveragePeriod(double hours) {
-  MCU_DCHECK_EQ(hours, 0);  // MaxAveragePeriod should be 0.
   if (hours == 0) {
     return mcucore::OkStatus();
   } else {

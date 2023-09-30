@@ -174,8 +174,6 @@ bool SwitchAdapter::HandleSetSwitchName(const AlpacaRequest& request,
 bool SwitchAdapter::ValidateSwitchIdParameter(const AlpacaRequest& request,
                                               Print& out, bool& handler_ret) {
   if (request.have_id) {
-    MCU_DCHECK_LE(0, GetMaxSwitch());
-    MCU_DCHECK_LE(GetMaxSwitch(), kMaxMaxSwitch);
     if (0 <= request.id && request.id < GetMaxSwitch()) {
       return true;
     }

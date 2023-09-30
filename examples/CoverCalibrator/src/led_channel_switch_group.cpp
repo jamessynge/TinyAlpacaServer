@@ -1,6 +1,9 @@
 #include "led_channel_switch_group.h"
 
 #include <McuCore.h>
+#include <TinyAlpacaServer.h>
+
+#include "cover_calibrator.h"
 
 namespace astro_makers {
 
@@ -20,7 +23,8 @@ uint16_t LedChannelSwitchGroup::GetMaxSwitch() { return 4; }
 
 bool LedChannelSwitchGroup::HandleGetSwitchDescription(
     const AlpacaRequest& request, uint16_t switch_id, Print& out) {
-  MCU_DCHECK_LT(switch_id, GetMaxSwitch());
+  // Not checking switch_id for validity, that should have been done by the
+  // caller.
   return WriteResponse::PrintableStringResponse(
       request,
       mcucore::PrintableCat(

@@ -405,46 +405,38 @@ TEST(AlpacaResponseTest, HttpErrorResponse) {
 }
 
 TEST(AlpacaResponseDeathTest, HttpErrorResponse_NotAnError) {
-  EXPECT_DEBUG_DEATH(
-      {
-        SamplePrintable body("body");
-        PrintToStdString out;
-        EXPECT_FALSE(WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpOk,
-                                                      body, out));
-        auto reason_phrase =
-            "Internal Server Error: Invalid HTTP mcucore::Status Code";
-        const auto expected =                                        // Force
-            absl::StrCat("HTTP/1.1 500 ", reason_phrase, kEOL,       // line
-                         "Server: TinyAlpacaServer", kEOL,           // wrap
-                         "Connection: close", kEOL,                  // right
-                         "Content-Type: text/plain", kEOL,           // here,
-                         "Content-Length: ", body.str.size(), kEOL,  // here,
-                         kEOL,                                       // and
-                         body.str);                                  // here.
-        EXPECT_EQ(out.str(), expected);
-      },
-      "mcucore::Status code should be for an error");
+  SamplePrintable body("body");
+  PrintToStdString out;
+  EXPECT_FALSE(
+      WriteResponse::HttpErrorResponse(EHttpStatusCode::kHttpOk, body, out));
+  auto reason_phrase =
+      "Internal Server Error: Invalid HTTP mcucore::Status Code";
+  const auto expected =                                        // Force
+      absl::StrCat("HTTP/1.1 500 ", reason_phrase, kEOL,       // line
+                   "Server: TinyAlpacaServer", kEOL,           // wrap
+                   "Connection: close", kEOL,                  // right
+                   "Content-Type: text/plain", kEOL,           // here,
+                   "Content-Length: ", body.str.size(), kEOL,  // here,
+                   kEOL,                                       // and
+                   body.str);                                  // here.
+  EXPECT_EQ(out.str(), expected);
 }
 
-TEST(AlpacaResponseDeathTest, HttpErrorResponse_NoReasonCode) {
-  EXPECT_DEBUG_DEATH(
-      {
-        SamplePrintable body("");
-        PrintToStdString out;
-        EXPECT_FALSE(WriteResponse::HttpErrorResponse(
-            static_cast<EHttpStatusCode>(499), body, out));
-        const auto expected =                                        // Force
-            absl::StrCat("HTTP/1.1 499 Internal Server Error: ",     // line
-                         "Invalid HTTP mcucore::Status Code", kEOL,  // to
-                         "Server: TinyAlpacaServer", kEOL,           // wrap
-                         "Connection: close", kEOL,                  // right
-                         "Content-Type: text/plain", kEOL,           // here,
-                         "Content-Length: ", body.str.size(), kEOL,  // and
-                         kEOL,                                       // here
-                         body.str);
-        EXPECT_EQ(out.str(), expected);
-      },
-      "Please add a case for status code.*499");
+TEST(AlpacaResponseTest, HttpErrorResponse_NoReasonCode) {
+  SamplePrintable body("");
+  PrintToStdString out;
+  EXPECT_FALSE(WriteResponse::HttpErrorResponse(
+      static_cast<EHttpStatusCode>(499), body, out));
+  const auto expected =                                        // Force
+      absl::StrCat("HTTP/1.1 499 Internal Server Error: ",     // line
+                   "Invalid HTTP mcucore::Status Code", kEOL,  // to
+                   "Server: TinyAlpacaServer", kEOL,           // wrap
+                   "Connection: close", kEOL,                  // right
+                   "Content-Type: text/plain", kEOL,           // here,
+                   "Content-Length: ", body.str.size(), kEOL,  // and
+                   kEOL,                                       // here
+                   body.str);
+  EXPECT_EQ(out.str(), expected);
 }
 
 }  // namespace
