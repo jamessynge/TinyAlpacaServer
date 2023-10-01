@@ -15,10 +15,8 @@ import sys
 import time
 from typing import Iterable, List, Optional
 
-import alpaca_client
 import alpaca_discovery
 import alpaca_http_client
-import alpaca_model
 
 MOVING_SLEEP_TIME = 1
 
@@ -233,7 +231,6 @@ provided, then no sweeping of LEDs is performed.
       action='store_true',
       default=False,
       dest='all_led_channels',
-      type=int,
       help='Sweep all LED channels.',
   )
   parser.add_argument(
@@ -247,8 +244,8 @@ provided, then no sweeping of LEDs is performed.
   )
   parser.add_argument(
       '--brightness-values',
-      dest='led_channels',
-      type=str,
+      dest='brightness_values',
+      type=int,
       help=(
           'Comma separated list of LED brightness values to sweep'
           ' through; if none are specified, default values are used. Values are'
@@ -270,8 +267,8 @@ provided, then no sweeping of LEDs is performed.
   elif cli_args.led_channels:
     led_channels = [int(x) for x in cli_args.led_channels.split(',')]
 
-  if cli_args.brightness:
-    brightness_list = sorted(list(cli_args.brightness))
+  if cli_args.brightness_values:
+    brightness_list = sorted(list(cli_args.brightness_values))
   else:
     brightness_list = [0, 8000, 16000]
   decrease_list = list(reversed(brightness_list))[1:]
