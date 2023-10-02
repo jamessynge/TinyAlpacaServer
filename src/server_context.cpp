@@ -13,8 +13,8 @@ mcucore::Status ServerContext::Initialize(EEPROMClass& eeprom) {
 }
 
 mcucore::EepromTlv& ServerContext::eeprom_tlv() {
-  // This will MCU_CHECK fail if not successfully initialized.
   MCU_VLOG_IF_ERROR(1, status_or_eeprom_tlv_.status());
+  // value() will MCU_CHECK fail was not successfully initialized.
   return status_or_eeprom_tlv_.value();
 }
 

@@ -347,6 +347,8 @@ arduino_cc_library(
     deps = [
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/eeprom:eeprom_tlv",
+        "//mcucore/src/status",
+        "//mcucore/src/status:status_or",
     ],
 )
 
