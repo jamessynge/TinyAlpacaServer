@@ -32,6 +32,11 @@ arduino_cc_library(
         ":constants",
         ":cover",
         "//TinyAlpacaServer/src:TinyAlpacaServer",
+        "//TinyAlpacaServer/src:ascom_error_codes",
+        "//TinyAlpacaServer/src:device_description",
+        "//TinyAlpacaServer/src:server_context",
+        "//TinyAlpacaServer/src/device_types/cover_calibrator:cover_calibrator_adapter",
+        "//TinyAlpacaServer/src/device_types/cover_calibrator:cover_calibrator_constants",
         "//mcucore/extras/host/arduino",
         "//mcucore/src:McuCore",
     ],
@@ -49,6 +54,7 @@ arduino_cc_library(
         "//TinyAlpacaServer/src:server_context",
         "//TinyAlpacaServer/src/device_types/switch:switch_adapter",
         "//mcucore/src:McuCore",
+        "//mcucore/src:mcucore_platform",
     ],
 )
 

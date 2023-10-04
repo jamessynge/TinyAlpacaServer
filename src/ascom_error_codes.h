@@ -13,6 +13,7 @@ namespace alpaca {
 class ErrorCodes {
  public:
   // Reserved error code (0x400, 1024) for property or method not implemented.
+  // Also applies to ISwitchV2.SetSwitch if the switch device is not writable.
   static constexpr uint16_t kNotImplemented = 1024;
   static constexpr mcucore::StatusCode kNotImplementedStatusCode =
       static_cast<mcucore::StatusCode>(kNotImplemented);

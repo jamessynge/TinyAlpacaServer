@@ -25,6 +25,11 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   // Initialize all the pins.
   void InitializeDevice() override;
 
+  // Adapt to changes in the LED channel enabled hardware jumpers; in
+  // particular, turn off any channel that is ON when the jumper is removed; any
+  // channel so modified will lose the setting that was done via software.
+  void MaintainDevice() override;
+
   // Returns the current calibrator brightness.
   mcucore::StatusOr<int32_t> GetBrightness() override;
 
@@ -56,7 +61,8 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   // Gets the enabled value for the specified channel (0 through 3) that has
   // been computed based on the jumper pin for that channel AND the last value
   // from SetLedChannelEnabled. Returns false if the channel value is invalid.
-  bool GetLedChannelEnabled(int channel) const;
+  // If check_hw_jumper is false, then the jumper pin is not checked.
+  bool GetLedChannelEnabled(int channel, bool check_hw_jumper = false) const;
 
   // Gets the enabled value for the specified channel (0 through 3) based solely
   // on the jumper pin for that channel. Returns false if the channel value is
@@ -69,15 +75,22 @@ class CoverCalibrator : public alpaca::CoverCalibratorAdapter {
   // TODO(jamessynge): Need something like template specialization to select the
   // timer/counter number and channel given the kLedChannel1PwmPin macro (and
   // other such macros). Doing so could avoid linking in unused objects.
-  mcucore::TimerCounter3Pwm16Output led1_;
-  mcucore::TimerCounter3Pwm16Output led2_;
-  mcucore::TimerCounter3Pwm16Output led3_;
-  mcucore::TimerCounter4Pwm16Output led4_;
+  mcucore::TimerCounter3Pwm16Output led1_;  // Led Switch 0
+  mcucore::TimerCounter3Pwm16Output led2_;  // Led Switch 1
+  mcucore::TimerCounter3Pwm16Output led3_;  // Led Switch 2
+  mcucore::TimerCounter4Pwm16Output led4_;  // Led Switch 3
 
   Cover cover_;
 
-  bool calibrator_on_;
+  // We need both brightness_ and calibrator_on_ because one can set the
+  // brightness to zero without setting the calibrator off.
   uint16_t brightness_;
+  bool calibrator_on_;
+
+  // Bit mask, with the low 4 bits specifying which of the LED channels is
+  // enabled by software for output. Each LED can be enabled by software (i.e.
+  // for PWM output) only if the hardware jumper pin indicates that the channel
+  // is enabled (e.g. exists).
   uint8_t enabled_led_channels_;
 };
 

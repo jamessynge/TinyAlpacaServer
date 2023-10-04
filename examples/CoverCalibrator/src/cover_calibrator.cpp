@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <McuCore.h>
+#include <TinyAlpacaServer.h>
 
 #include "constants.h"
 
@@ -42,22 +43,43 @@ void CoverCalibrator::InitializeDevice() {
   TimerCounter3Initialize16BitFastPwm(mcucore::ClockPrescaling::kDivideBy1);
   TimerCounter4Initialize16BitFastPwm(mcucore::ClockPrescaling::kDivideBy1);
 
+  // Calibrator is off.
   calibrator_on_ = false;
   brightness_ = 0;
-  enabled_led_channels_ = 0xf;  // ALL.
+  // Enable those LED channels that are hardware enabled.
+  enabled_led_channels_ = 0;
+  for (int channel = 0; channel < 4; ++channel) {
+    if (GetLedChannelHardwareEnabled(channel)) {
+      bitSet(enabled_led_channels_, channel);
+    }
+  }
 
-  // TODO(jamessynge): Figure out what the initial position of the cover is,
-  // OR always close it (maybe based on a choice by the end-user stored in
-  // EEPROM).
   cover_.InitializeHardware();
 
-  // Announce enablement once only.
-
-  VLOG_ENABLEABLE_BY_PIN(1, "LED #1", led1_);
-  VLOG_ENABLEABLE_BY_PIN(1, "LED #2", led2_);
-  VLOG_ENABLEABLE_BY_PIN(1, "LED #3", led3_);
-  VLOG_ENABLEABLE_BY_PIN(1, "LED #4", led4_);
+  // Announce enablement at startup.
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #1 (Channel 0)", led1_);
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #2 (Channel 1)", led2_);
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #3 (Channel 2)", led3_);
+  VLOG_ENABLEABLE_BY_PIN(1, "LED #4 (Channel 3)", led4_);
   VLOG_ENABLEABLE_BY_PIN(1, "Cover Motor", cover_);
+}
+
+void CoverCalibrator::MaintainDevice() {
+  if (calibrator_on_) {
+    bool changed = false;
+    for (int channel = 0; channel < 4; ++channel) {
+      if (!GetLedChannelHardwareEnabled(channel) &&
+          GetLedChannelEnabled(channel, /*check_hw_jumper=*/false)) {
+        MCU_VLOG(2) << MCU_PSD("LED #") << channel
+                    << MCU_PSD(" disabled by jumper");
+        changed = true;
+        bitClear(enabled_led_channels_, channel);
+      }
+    }
+    if (changed && brightness_ > 0) {
+      SetCalibratorBrightness(brightness_);
+    }
+  }
 }
 
 // Returns the current calibrator brightness that has been requested, but only
@@ -97,20 +119,28 @@ mcucore::Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
   calibrator_on_ = true;
   brightness_ = brightness;
   if (GetLedChannelEnabled(0)) {
-    MCU_VLOG_IF(1, !led1_.IsEnabled()) << MCU_PSD("led1 not enabled!");
+    MCU_VLOG_IF(1, !led1_.IsEnabled()) << MCU_PSD("channel not enabled: ") << 0;
     led1_.set_pulse_count(brightness_);
+  } else {
+    led1_.set_pulse_count(0);
   }
   if (GetLedChannelEnabled(1)) {
-    MCU_VLOG_IF(1, !led2_.IsEnabled()) << MCU_PSD("led2 not enabled!");
+    MCU_VLOG_IF(1, !led2_.IsEnabled()) << MCU_PSD("channel not enabled: ") << 1;
     led2_.set_pulse_count(brightness_);
+  } else {
+    led2_.set_pulse_count(0);
   }
   if (GetLedChannelEnabled(2)) {
-    MCU_VLOG_IF(1, !led3_.IsEnabled()) << MCU_PSD("led3 not enabled!");
+    MCU_VLOG_IF(1, !led3_.IsEnabled()) << MCU_PSD("channel not enabled: ") << 2;
     led3_.set_pulse_count(brightness_);
+  } else {
+    led3_.set_pulse_count(0);
   }
   if (GetLedChannelEnabled(3)) {
-    MCU_VLOG_IF(1, !led4_.IsEnabled()) << MCU_PSD("led4 not enabled!");
+    MCU_VLOG_IF(1, !led4_.IsEnabled()) << MCU_PSD("channel not enabled: ") << 3;
     led4_.set_pulse_count(brightness_);
+  } else {
+    led4_.set_pulse_count(0);
   }
   return mcucore::OkStatus();
 }
@@ -157,11 +187,12 @@ bool CoverCalibrator::IsCalibratorHardwareEnabled() const {
          led4_.IsEnabled();
 }
 
-bool CoverCalibrator::GetLedChannelEnabled(int channel) const {
-  if (!GetLedChannelHardwareEnabled(channel)) {
+bool CoverCalibrator::GetLedChannelEnabled(int channel,
+                                           bool check_hw_jumper) const {
+  if (check_hw_jumper && !GetLedChannelHardwareEnabled(channel)) {
     return false;
   }
-  const auto mask = 1 << channel;
+  const uint8_t mask = 1 << channel;
   return (enabled_led_channels_ & mask) != 0;
 }
 
