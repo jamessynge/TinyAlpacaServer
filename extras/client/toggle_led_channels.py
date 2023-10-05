@@ -9,6 +9,7 @@ Usage: toggle_led_channels.py --brightness=value
 
 import argparse
 import dataclasses
+from typing import Iterator
 
 import alpaca_discovery
 import alpaca_http_client
@@ -44,12 +45,33 @@ class LedChannel:
   name: str = dataclasses.field(default_factory=str)
   _can_write: bool = dataclasses.field(init=False)
   _enabled: bool = dataclasses.field(init=False)
+  _mask: int = dataclasses.field(init=False)
 
   def __post_init__(self):
+    self._mask = 1 << self.channel_number
     if not self.name:
       self.name = get_getswitchname(self.led_switches, self.channel_number)
     self._can_write = get_canwrite(self.led_switches, self.channel_number)
     self._enabled = get_getswitch(self.led_switches, self.channel_number)
+
+  @property
+  def mask(self) -> int:
+    return self._mask
+
+  def in_mask(self, mask: int) -> bool:
+    return bool(self._mask & mask)
+
+  def enable_if_in_mask(self, mask: int) -> bool:
+    if not self.in_mask(mask):
+      return False
+    self.enabled = True
+    return self.enabled
+
+  def disable_if_in_mask(self, mask: int) -> bool:
+    if self.in_mask(mask):
+      return False
+    self.enabled = False
+    return not self.enabled
 
   def sync_bools(self):
     """Syncs can_write and enabled.
@@ -162,24 +184,34 @@ def main() -> None:
       LedChannel(led_switches=led_switches, channel_number=3, name='White'),
   ]
 
-  while True:
-    changed = False
+  def generate_masks() -> Iterator[int]:
+    masks = set()
     for mask in range(1, 16):
+      for channel in channels:
+        if channel.in_mask(mask) and not channel.can_write:
+          mask = mask & ~channel.mask
+      if mask not in masks:
+        masks.add(mask)
+        yield mask
+
+  first = True
+  while True:
+    if first:
+      first = False
+      for channel in channels:
+        channel.sync_bools()
+
+    changed = False
+    for mask in generate_masks():
       # Enable channels in mask that aren't already enabled.
       for channel in channels:
-        if mask & (1 << channel.channel_number) and not channel.enabled:
-          # Should be enabled.
-          channel.enabled = True
-          if channel.enabled:
-            changed = True
+        if channel.enable_if_in_mask(mask):
+          changed = True
 
       # Disable channels not in mask that are currently enabled.
       for channel in channels:
-        if channel.enabled and not (mask & (1 << channel.channel_number)):
-          # Should be disabled.
-          channel.enabled = False
-          if not channel.enabled:
-            changed = True
+        if channel.disable_if_in_mask(mask):
+          changed = True
 
       if changed:
         # It is possible that all channels being disabled caused the brightness

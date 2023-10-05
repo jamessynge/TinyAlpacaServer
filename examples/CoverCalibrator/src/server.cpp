@@ -28,7 +28,7 @@ const DeviceDescription kCoverCalibratorDeviceDescription  // NOLINT
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator"),
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-        .driver_version = MCU_FLASHSTR("0.2"),
+        .driver_version = MCU_FLASHSTR("0.3"),
         .supported_actions = {},  // No extra actions.
     };
 
@@ -44,7 +44,7 @@ const DeviceDescription kLedSwitchesDeviceDescription  // NOLINT
         .description = MCU_FLASHSTR("AstroMakers Cover Calibrator Extension"),
         .driver_info =
             MCU_FLASHSTR("https://github/jamessynge/TinyAlpacaServer"),
-        .driver_version = MCU_FLASHSTR("0.2"),
+        .driver_version = MCU_FLASHSTR("0.3"),
         .supported_actions = {},  // No extra actions.
     };
 
@@ -56,8 +56,8 @@ const alpaca::ServerDescription kServerDescription  // NOLINT
     {
         .server_name = MCU_FLASHSTR_64(
             "AstroMakers Cover Calibrator Server, based on Tiny Alpaca Server"),
-        .manufacturer = MCU_FLASHSTR("Friends of AAVSO & ATMoB, 2022-05-29"),
-        .manufacturer_version = MCU_FLASHSTR("0.2"),
+        .manufacturer = MCU_FLASHSTR("Friends of AAVSO & ATMoB, 2023-10-05"),
+        .manufacturer_version = MCU_FLASHSTR("0.3"),
         .location = MCU_FLASHSTR("Earth Bound"),
     };
 
