@@ -119,7 +119,7 @@ pytype_strict_binary(
     ],
 )
 
-pytype_strict_library(
+pytype_strict_binary(
     name = "switch_info",
     srcs = ["switch_info.py"],
     deps = [
@@ -128,7 +128,16 @@ pytype_strict_library(
     ],
 )
 
-pytype_strict_library(
+pytype_strict_binary(
+    name = "toggle_led_channels",
+    srcs = ["toggle_led_channels.py"],
+    deps = [
+        ":alpaca_discovery_lib",
+        ":alpaca_http_client_lib",
+    ],
+)
+
+pytype_strict_binary(
     name = "weather_close_demo",
     srcs = ["weather_close_demo.py"],
     deps = [
