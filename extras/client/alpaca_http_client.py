@@ -80,23 +80,46 @@ def to_url_base(arg: str) -> str:
   return ''.join([scheme, '://', host, ':', str(port), '/', path]).strip('/')
 
 
-def get_ok_response_json(response: requests.Response) -> Dict[str, Any]:
-  """Returns Json body if response is OK and doesn't represent an error."""
+def get_ok_response_json(
+    response: requests.Response, reject_error: bool = True
+) -> Dict[str, Any]:
+  """Returns body of an OK response, decoded as a JSON object.
+
+  Args:
+    response: The response object.
+    reject_error: If True, then if the body represents an ASCOM Alpaca error,
+      raises a ValueError.
+
+  Returns:
+    Dict produced by decoding the body as a JSON object.
+
+  Raises:
+    ValueError if:
+    * the response is not an OK HTTP response;
+    * the body isn't a JSON object;
+    * reject_error is True and ErrorNumber is present and not zero (0).
+    * reject_error is True and ErrorMessage is present and not empty.
+    * ServerTransactionID is not present or is not an integer
+  """
   if response.status_code != 200:
     raise ValueError(f'Response has status {response.status_code}')
-  jv = response.json()
+  try:
+    jv = response.json()
+  except requests.exceptions.JSONDecodeError as e:
+    raise ValueError(f'Response body is not JSON: {response.content}') from e
   if not isinstance(jv, dict):
     raise ValueError(f'Response body is not a JSON Object: {response.content}')
 
   absent = object()
 
-  value = jv.get('ErrorNumber', absent)
-  if isinstance(value, int) and value != 0:
-    raise ValueError(f'Response represents an error: {response.content}')
+  if reject_error:
+    value = jv.get('ErrorNumber', absent)
+    if value is not absent and value != 0:
+      raise ValueError(f'Response represents an error: {response.content}')
 
-  value = jv.get('ErrorMessage', absent)
-  if isinstance(value, str) and value:
-    raise ValueError(f'Response represents an error: {response.content}')
+    value = jv.get('ErrorMessage', absent)
+    if value is not absent and value:
+      raise ValueError(f'Response represents an error: {response.content}')
 
   value = jv.get('ServerTransactionID', absent)
   if value is absent:

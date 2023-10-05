@@ -98,8 +98,11 @@ class LedChannel:
   @enabled.setter
   def enabled(self, value: bool) -> None:
     resp = self.led_switches.put_setswitch(self.channel_number, value)
-    json_resp = alpaca_http_client.get_ok_response_json(resp)
-    if json_resp['ErrorNumber'] == '0':
+    json_resp = alpaca_http_client.get_ok_response_json(
+        resp, reject_error=False
+    )
+    error_number = json_resp.get('ErrorNumber', 0)
+    if isinstance(error_number, int) and error_number == 0:
       # Successfully set the value.
       self._enabled = value
       print(
@@ -133,7 +136,7 @@ def main() -> None:
   )
 
   parser.add_argument(
-      'brightness', type=int, help='The LED brightness value.', default=1000
+      '--brightness', type=int, help='The LED brightness value.', default=1000
   )
 
   args = parser.parse_args()
