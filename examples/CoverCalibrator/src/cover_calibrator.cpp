@@ -110,7 +110,13 @@ mcucore::StatusOr<int32_t> CoverCalibrator::GetMaxBrightness() {
 }
 
 mcucore::Status CoverCalibrator::SetCalibratorBrightness(uint32_t brightness) {
+  // Note: we're assuming here that the timer/counter devices are only used for
+  // the cover calibrator, whether or not the specific channels are enabled.
   if (!IsCalibratorHardwareEnabled()) {
+    led1_.set_pulse_count(0);
+    led2_.set_pulse_count(0);
+    led3_.set_pulse_count(0);
+    led4_.set_pulse_count(0);
     return alpaca::ErrorCodes::NotImplemented();
   }
   if (brightness > kMaxBrightness) {

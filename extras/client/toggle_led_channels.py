@@ -153,6 +153,7 @@ def main() -> None:
           device_number=cover_calibrator.device_number,
       )
   )
+  cover_calibrator.put_calibratoron(args.brightness)
 
   channels = [
       LedChannel(led_switches=led_switches, channel_number=0, name='Red'),
@@ -161,8 +162,8 @@ def main() -> None:
       LedChannel(led_switches=led_switches, channel_number=3, name='White'),
   ]
 
-  changed = True
   while True:
+    changed = False
     for mask in range(1, 16):
       # Enable channels in mask that aren't already enabled.
       for channel in channels:
@@ -181,6 +182,8 @@ def main() -> None:
             changed = True
 
       if changed:
+        # It is possible that all channels being disabled caused the brightness
+        # to be reset to zero, so set it any time a channel has changed.
         cover_calibrator.put_calibratoron(args.brightness)
         changed = False
 
