@@ -165,8 +165,8 @@ mcucore::Status CoverCalibrator::SetCalibratorOff() {
 }
 
 bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
-  MCU_VLOG(2) << MCU_PSD("SetLedChannelEnabled(") << channel << MCU_PSD(", ")
-              << enabled << MCU_PSD(") ENTER, brightness_ = ") << brightness_
+  MCU_VLOG(3) << MCU_PSD("SetLedChannelEnabled(") << channel << MCU_PSD(", ")
+              << enabled << MCU_PSD("), brightness_ = ") << brightness_
               << MCU_PSD(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;
 
@@ -181,7 +181,7 @@ bool CoverCalibrator::SetLedChannelEnabled(int channel, bool enabled) {
     }
   }
 
-  MCU_VLOG(4) << MCU_PSD("SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
+  MCU_VLOG(5) << MCU_PSD("SetLedChannelEnabled EXIT, GetLedChannelEnabled(")
               << channel << MCU_PSD(") = ") << GetLedChannelEnabled(channel)
               << MCU_PSD(", enabled_led_channels_ = ") << mcucore::BaseHex
               << enabled_led_channels_;

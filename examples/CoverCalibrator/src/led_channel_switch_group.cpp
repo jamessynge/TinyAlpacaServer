@@ -77,7 +77,7 @@ double LedChannelSwitchGroup::GetSwitchStep(uint16_t switch_id) { return 1; }
 
 mcucore::Status LedChannelSwitchGroup::SetSwitch(uint16_t switch_id,
                                                  bool state) {
-  MCU_VLOG(2) << MCU_PSD("Set switch#") << switch_id << " to " << state;
+  MCU_VLOG(5) << MCU_PSD("Set switch#") << switch_id << " to " << state;
 
   if (!GetCanWrite(switch_id)) {
     MCU_VLOG(2) << MCU_PSD("Can NOT write switch #") << switch_id;
