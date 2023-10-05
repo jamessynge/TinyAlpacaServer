@@ -84,6 +84,7 @@ pytype_strict_binary(
     deps = [
         ":alpaca_discovery_lib",
         ":alpaca_http_client_lib",
+        ":alpaca_model",
     ],
 )
 

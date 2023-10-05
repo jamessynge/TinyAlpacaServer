@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <McuCore.h>
+#include <TinyAlpacaServer.h>
 
 #include "constants.h"
 
@@ -336,11 +337,10 @@ void Cover::HandleInterrupt() {
     return;
   }
 
-  // We only check once for this situation.
-  if (step_count_ == allowed_start_steps_ &&
+  if (step_count_ >= allowed_start_steps_ &&
       digitalRead(start_pin) == kLimitSwitchClosed) {
-    // The other limit switch is still closed, so we must have failed to move
-    // far enough.
+    // The other limit switch is still closed (or become closed), so we must
+    // have failed to move far enough or in the right direction.
     if (motor_status_ == kClosing) {
       motor_status_ = kStartClosingFailed;
     } else {

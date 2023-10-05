@@ -151,6 +151,10 @@ struct WriteResponse {
   // Writes an ASCOM error response JSON body in an HTTP OK response message;
   // the header tells the client that the connection will be closed. Returns
   // false.
+  // TODO(jamessynge): Change so that we don't close connections unless we have
+  // reason to believe that we can't keep using the current one. The Arduino and
+  // W5500 network chip are sufficiently slow that we don't want to slow things
+  // down any more than necessary.
   static bool AscomErrorResponse(AlpacaRequest request, uint32_t error_number,
                                  const Printable& error_message, Print& out);
   static bool AscomErrorResponse(AlpacaRequest request, uint32_t error_number,
@@ -172,7 +176,8 @@ struct WriteResponse {
       Print& out);
 
   // Write an Alpaca Not Implemented error response, indicating that the
-  // specified Alpaca method is not implemented.
+  // specified Alpaca method is not implemented, or is disabled (e.g. setswitch
+  // on a read-only switch).
   static bool AscomMethodNotImplementedResponse(
       const AlpacaRequest& request, const mcucore::AnyPrintable& method_name,
       Print& out);

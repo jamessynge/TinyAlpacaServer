@@ -28,9 +28,28 @@ class EDeviceType(enum.Enum):
       for member in cls:
         if member.name.lower() == name:
           return member
+    return None
 
   def api_name(self):
     return self.name.lower()
+
+
+class ECoverStatus(enum.IntEnum):
+  """Describes the state of a telescope cover."""
+  NOT_PRESENT = 0
+  CLOSED = 1
+  MOVING = 2
+  OPEN = 3
+  UNKNOWN = 4
+  ERROR = 5
+
+  @classmethod
+  def _missing_(cls, value) -> Union['ECoverStatus', None]:
+    if isinstance(value, int):
+      for member in cls:
+        if member == value:
+          return member
+    return None
 
 
 @dataclasses.dataclass

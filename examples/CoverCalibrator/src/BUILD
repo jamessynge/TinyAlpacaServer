@@ -19,6 +19,7 @@ arduino_cc_library(
     deps = [
         ":constants",
         "//TinyAlpacaServer/src:TinyAlpacaServer",
+        "//TinyAlpacaServer/src/device_types/cover_calibrator:cover_calibrator_constants",
         "//mcucore/extras/host/arduino",
         "//mcucore/src:McuCore",
     ],

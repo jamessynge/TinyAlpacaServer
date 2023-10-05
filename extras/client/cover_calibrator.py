@@ -17,47 +17,58 @@ from typing import Iterable, List, Optional
 
 import alpaca_discovery
 import alpaca_http_client
+import alpaca_model
+
+ECoverStatus = alpaca_model.ECoverStatus
+CoverState = int | ECoverStatus
 
 MOVING_SLEEP_TIME = 1
 
 
 def get_cover_state(
     cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-) -> int:
+) -> CoverState:
   resp = cover_calibrator.get_coverstate()
-  return alpaca_http_client.get_ok_response_json_value_int(resp)
+  value = alpaca_http_client.get_ok_response_json_value_int(resp)
+  state = ECoverStatus(value)
+  if state is None:
+    return value
+  return state
 
 
 def is_present(
     cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
 ) -> bool:
-  return get_cover_state(cover_calibrator) in (1, 2, 3, 4)
+  state = get_cover_state(cover_calibrator)
+  return isinstance(state, ECoverStatus) and state != ECoverStatus.NOT_PRESENT
 
 
 def is_closed(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
-  return get_cover_state(cover_calibrator) == 1
+  return get_cover_state(cover_calibrator) == ECoverStatus.CLOSED
 
 
 def is_moving(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
-  return get_cover_state(cover_calibrator) == 2
+  return get_cover_state(cover_calibrator) == ECoverStatus.MOVING
 
 
 def is_open(cover_calibrator: alpaca_http_client.HttpCoverCalibrator) -> bool:
-  return get_cover_state(cover_calibrator) == 3
+  return get_cover_state(cover_calibrator) == ECoverStatus.OPEN
 
 
-def cover_state_to_name(
-    cover_state: int, unavailable: Optional[int] = -1
-) -> str:
+def cover_state_to_name(cover_state: CoverState) -> str:
   """Converts the cover state to a human readable string."""
-  if cover_state == 1:
+  if cover_state == ECoverStatus.NOT_PRESENT:
+    return 'Not Present'
+  elif cover_state == ECoverStatus.CLOSED:
     return 'Closed'
-  elif cover_state == 2:
+  elif cover_state == ECoverStatus.MOVING:
     return 'Moving'
-  elif cover_state == 3:
+  elif cover_state == ECoverStatus.OPEN:
     return 'Open'
-  elif cover_state == unavailable:
-    return '(unavailable)'
+  elif cover_state == ECoverStatus.OPEN:
+    return 'Open'
+  elif cover_state == ECoverStatus.UNKNOWN:
+    return 'Unknown'
   else:
     return f'Unknown ({cover_state})'
 
@@ -72,10 +83,10 @@ def cover_state_name(
 
 def get_cover_state_after_moving(
     cover_calibrator: alpaca_http_client.HttpCoverCalibrator,
-) -> int:
+) -> CoverState:
   while True:
     state = get_cover_state(cover_calibrator)
-    if state != 2:
+    if state != ECoverStatus.MOVING:
       return state
     time.sleep(0.25)
 
@@ -93,7 +104,7 @@ def close_cover(
     resp.raise_for_status()
   print('Closing cover...')
   state = get_cover_state_after_moving(cover_calibrator)
-  if state == 1:
+  if state == ECoverStatus.CLOSED:
     print('Successfully closed')
   else:
     print('Failed to close, cover state is', state)
@@ -112,7 +123,7 @@ def open_cover(
     resp.raise_for_status()
   print('Opening cover...')
   state = get_cover_state_after_moving(cover_calibrator)
-  if state == 3:
+  if state == ECoverStatus.OPEN:
     print('Successfully opened')
   else:
     print('Failed to open, cover state is', state)
@@ -312,6 +323,9 @@ provided, then no sweeping of LEDs is performed.
 
   try:
     while True:
+      if cli_args.move:
+        close_cover(cover_calibrator)
+
       for led_channel in led_channels:
         print(f'Raising and lowering brightness on channel {led_channel}')
         sweep_led_channel(
@@ -324,8 +338,7 @@ provided, then no sweeping of LEDs is performed.
 
       if cli_args.move:
         open_cover(cover_calibrator)
-        close_cover(cover_calibrator)
-        open_cover(cover_calibrator)
+
   except KeyboardInterrupt:
     pass
 
