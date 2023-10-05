@@ -64,14 +64,19 @@ class LedChannel:
   def enable_if_in_mask(self, mask: int) -> bool:
     if not self.in_mask(mask):
       return False
-    self.enabled = True
+    if self.can_write and not self.enabled:
+      self.enabled = True
     return self.enabled
 
   def disable_if_in_mask(self, mask: int) -> bool:
     if self.in_mask(mask):
       return False
-    self.enabled = False
-    return not self.enabled
+    if self.enabled:
+      self.enabled = False
+      return not self.enabled
+    else:
+      # Haven't changed it.
+      return False
 
   def sync_bools(self):
     """Syncs can_write and enabled.
@@ -185,8 +190,10 @@ def main() -> None:
   ]
 
   def generate_masks() -> Iterator[int]:
+    for channel in channels:
+      channel.sync_canwrite()
     masks = set()
-    for mask in range(1, 16):
+    for mask in range(0, 16):
       for channel in channels:
         if channel.in_mask(mask) and not channel.can_write:
           mask = mask & ~channel.mask
@@ -194,15 +201,12 @@ def main() -> None:
         masks.add(mask)
         yield mask
 
-  first = True
   while True:
-    if first:
-      first = False
-      for channel in channels:
-        channel.sync_bools()
+    masks = list(generate_masks())
+    print('Masks:', masks)
 
     changed = False
-    for mask in generate_masks():
+    for mask in masks:
       # Enable channels in mask that aren't already enabled.
       for channel in channels:
         if channel.enable_if_in_mask(mask):
