@@ -49,6 +49,11 @@ void ServerConnection::OnCanRead(mcunet::Connection& connection) {
   }
 
   // If there is data to be decoded, do so.
+  // TODO(jamessynge): If idle for sufficiently long, close the connection,
+  // especially if between_requests_==true, but maybe also if decoding a request
+  // where it is taking a long time to get to the end of the request (e.g. the
+  // client has died or is performing a DoS attack by sending the request one
+  // byte at a time).
   if (input_buffer_size_ > 0) {
     if (request_decoder_.status() == RequestDecoderStatus::kReset) {
       request_listener_.OnStartDecoding(request_);

@@ -33,7 +33,7 @@
 // The number of hardware sockets we'll dedicate to listening for TCP
 // connections to the Tiny Alpaca Server.
 #ifndef TAS_NUM_SERVER_CONNECTIONS
-#define TAS_NUM_SERVER_CONNECTIONS 3
+#define TAS_NUM_SERVER_CONNECTIONS 2
 #endif
 
 // If non-zero, RequestDecoder will make calls to the OnAssetPathSegment method
@@ -84,7 +84,7 @@
 // byte larger than the largest item that we will need to be able to match,
 // where that extra byte is necessary to detect the end of that item.
 #ifndef SERVER_CONNECTION_INPUT_BUFFER_SIZE
-#define SERVER_CONNECTION_INPUT_BUFFER_SIZE 128
+#define SERVER_CONNECTION_INPUT_BUFFER_SIZE 255
 #endif
 
 // This isn't fully fleshed out, but the basics are there for storing the
