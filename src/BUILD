@@ -66,6 +66,7 @@ arduino_cc_library(
         "//mcucore/src/json:json_encoder",
         "//mcucore/src/log",
         "//mcucore/src/print:hex_escape",
+        "//mcucore/src/print:o_print_stream",
         "//mcucore/src/print:printable_cat",
         "//mcucore/src/strings:progmem_string_data",
         "//mcunet/src:platform_network",
@@ -137,6 +138,7 @@ arduino_cc_library(
         ":literals",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/status",
+        "//mcucore/src/status:status_code",
     ],
 )
 
@@ -156,7 +158,9 @@ arduino_cc_library(
         ":alpaca_request",
         ":device_interface",
         ":json_response",
+        ":literals",
         "//mcucore/src/container:array_view",
+        "//mcucore/src/json:json_encoder",
     ],
 )
 
@@ -181,12 +185,17 @@ arduino_cc_library(
         ":constants",
         ":eeprom_ids",
         ":literals",
+        "//mcucore/extras/host/arduino:print",
         "//mcucore/src:mcucore_platform",
+        "//mcucore/src/eeprom:eeprom_tag",
         "//mcucore/src/eeprom:eeprom_tlv",
         "//mcucore/src/json:json_encoder",
         "//mcucore/src/misc:uuid",
+        "//mcucore/src/print:any_printable",
+        "//mcucore/src/status",
         "//mcucore/src/status:status_or",
         "//mcucore/src/strings:progmem_string",
+        "//mcucore/src/strings:progmem_string_data",
     ],
 )
 
@@ -200,6 +209,7 @@ arduino_cc_library(
         ":device_description",
         "//mcucore/src:mcucore_platform",
         "//mcucore/src/json:json_encoder",
+        "//mcucore/src/print:o_print_stream",
     ],
 )
 
@@ -268,9 +278,7 @@ arduino_cc_library(
         ":constants",
         ":literals",
         "//mcucore/src:mcucore_config",
-        "//mcucore/src/container:array_view",
         "//mcucore/src/log",
-        "//mcucore/src/print:printable_cat",
         "//mcucore/src/strings:string_compare",
         "//mcucore/src/strings:string_view",
     ],

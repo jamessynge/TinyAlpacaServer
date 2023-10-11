@@ -1,5 +1,11 @@
 #include "configured_devices_response.h"
 
+#include <McuCore.h>
+
+#include "device_interface.h"
+#include "json_response.h"
+#include "literals.h"
+
 namespace alpaca {
 
 // Generate the properties of a single object in the Values array, i.e. info

@@ -3,6 +3,8 @@
 
 #include "ascom_error_codes.h"
 
+#include <McuCore.h>
+
 #include "literals.h"
 
 namespace alpaca {

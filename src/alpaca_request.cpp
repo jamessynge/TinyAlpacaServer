@@ -2,6 +2,7 @@
 
 // Author: james.synge@gmail.com
 
+#include "config.h"
 #include "constants.h"
 
 namespace alpaca {

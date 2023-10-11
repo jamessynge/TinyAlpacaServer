@@ -34,7 +34,7 @@ bool MatchDeviceType(const mcucore::StringView& view, EDeviceType& match);
 // Match `view` against supported ASCOM Alpaca device methods given the group
 // and device_type. If successful, set `match` to the corresponding enum and
 // return true. Else return false.
-bool MatchDeviceMethod(const EApiGroup group, const EDeviceType device_type,
+bool MatchDeviceMethod(EApiGroup group, EDeviceType device_type,
                        const mcucore::StringView& view, EDeviceMethod& match);
 
 // Match `view` against parameter names defined for ASCOM Alpaca requests (e.g.

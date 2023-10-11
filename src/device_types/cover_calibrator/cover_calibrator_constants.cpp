@@ -2,11 +2,15 @@
 
 // (Mostly) GENERATED FILE. See make_enum_to_string.py
 
-#if MCU_HOST_TARGET
-#include <ostream>  // pragma: keep standard include
-#endif
-
 // BEGIN_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
+
+#include <McuCore.h>
+
+// Must come after mcucore_platform.h so that MCU_HOST_TARGET is defined.
+#if MCU_HOST_TARGET
+#include <ostream>      // pragma: keep standard include
+#include <string_view>  // pragma: keep standard include
+#endif
 
 #include <McuCore.h>
 
@@ -192,6 +196,7 @@ std::ostream& operator<<(std::ostream& os, ECoverStatus v) {
 }
 
 #endif  // MCU_HOST_TARGET
+
 }  // namespace alpaca
 
 // END_SOURCE_GENERATED_BY_MAKE_ENUM_TO_STRING
