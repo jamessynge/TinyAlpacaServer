@@ -3,11 +3,13 @@
 #include <McuCore.h>
 #include <McuNet.h>
 
+#include "alpaca_request.h"
 #include "alpaca_response.h"
 #include "configured_devices_response.h"
 #include "constants.h"
 #include "device_description.h"
-#include "literals.h"
+#include "device_interface.h"
+#include "server_context.h"
 
 namespace alpaca {
 
